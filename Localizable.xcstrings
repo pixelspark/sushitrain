@@ -1,0 +1,1197 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%lld Mbit/s" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Mbit/s"
+          }
+        }
+      }
+    },
+    "About this app" : {
+
+    },
+    "Add" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voeg toe"
+          }
+        }
+      }
+    },
+    "Add device" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apparaat toevoegen"
+          }
+        }
+      }
+    },
+    "Add folder" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map toevoegen"
+          }
+        }
+      }
+    },
+    "Add other device..." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voeg ander apparaat toe..."
+          }
+        }
+      }
+    },
+    "Add other folder..." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voeg andere map toe..."
+          }
+        }
+      }
+    },
+    "Addresses" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adressen"
+          }
+        }
+      }
+    },
+    "Advanced settings" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geavanceerde instellingen"
+          }
+        }
+      }
+    },
+    "All files" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle bestanden"
+          }
+        }
+      }
+    },
+    "Also limit in local networks" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beperk ook in lokaal netwerk"
+          }
+        }
+      }
+    },
+    "An error occured" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er is iets misgegaan"
+          }
+        }
+      }
+    },
+    "Announce globally" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wereldwijd aankondigen"
+          }
+        }
+      }
+    },
+    "Announce LAN addresses" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LAN-adressen aankondigen"
+          }
+        }
+      }
+    },
+    "Announce on local networks" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokaal aankondigen"
+          }
+        }
+      }
+    },
+    "Associated devices" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gekoppelde apparaten"
+          }
+        }
+      }
+    },
+    "Background synchronization" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisatie op de achtergrond"
+          }
+        }
+      }
+    },
+    "Background synchronization could not be scheduled. Please verify whether background processing is enabled for this app." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisatie op de achtergrond kon niet worden gepland. Controleer of 'Ververs op de achtergrond' is ingeschakeld voor deze app."
+          }
+        }
+      }
+    },
+    "Background synchronization enabled" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchroniseren op de achtergrond"
+          }
+        }
+      }
+    },
+    "Background synchronization has been requested. The system will typically allow background synchronization to occur overnight, when the device is not used and charging." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisatie op de achtergrond is aangevraagd. Het systeem zal dit meestal 's nachts toestaan, wanneer het apparaat niet wordt gebruikt en is opgeladen."
+          }
+        }
+      }
+    },
+    "Before we start, we need to go over a few things:" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voordat we beginnen moeten we even een paar dingen doornemen:"
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annuleren"
+          }
+        }
+      }
+    },
+    "Cleaning up..." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schoonmaken..."
+          }
+        }
+      }
+    },
+    "Connected" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbonden"
+          }
+        }
+      }
+    },
+    "Connectivity" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connectiviteit"
+          }
+        }
+      }
+    },
+    "Copy to clipboard" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopiëren"
+          }
+        }
+      }
+    },
+    "Could not add device" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kon apparaat niet toevoegen"
+          }
+        }
+      }
+    },
+    "Could not add folder" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kon map niet toevoegen"
+          }
+        }
+      }
+    },
+    "Could not set encryption key" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kon de encryptiesleutel niet instellen"
+          }
+        }
+      }
+    },
+    "Custom configuration detected" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aangepaste configuratie gevonden"
+          }
+        }
+      }
+    },
+    "Delete my copy of this file" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder mijn kopie van dit bestand"
+          }
+        }
+      }
+    },
+    "Device ID" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apparaatcode"
+          }
+        }
+      }
+    },
+    "Device identifier" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apparaatcode"
+          }
+        }
+      }
+    },
+    "Devices" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apparaten"
+          }
+        }
+      }
+    },
+    "Direction" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richting"
+          }
+        }
+      }
+    },
+    "Discovered devices" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ontdekte apparaten"
+          }
+        }
+      }
+    },
+    "Done" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gereed"
+          }
+        }
+      }
+    },
+    "Downloading %lld files..." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld bestanden downloaden..."
+          }
+        }
+      }
+    },
+    "Downloading file..." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bezig met downloaden..."
+          }
+        }
+      }
+    },
+    "Duration" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tijdsduur"
+          }
+        }
+      }
+    },
+    "During the last 24 hours" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In de afgelopen 24 uur"
+          }
+        }
+      }
+    },
+    "Enable NAT-PMP / UPnP" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebruik NAT-PMP / UPnP"
+          }
+        }
+      }
+    },
+    "Enable relaying" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebruik relays"
+          }
+        }
+      }
+    },
+    "Enabled" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingeschakeld"
+          }
+        }
+      }
+    },
+    "Encryption password" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encryptiewachtwoord"
+          }
+        }
+      }
+    },
+    "Ended" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geëindigd"
+          }
+        }
+      }
+    },
+    "Error" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fout"
+          }
+        }
+      }
+    },
+    "Extra files have been found. Because this is a receive-only folder, these files will not be synchronized." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er zijn extra bestanden gevonden. Omdat dit een 'alleen ontvangen'-map is, worden deze bestanden niet gesynchroniseerd."
+          }
+        }
+      }
+    },
+    "Extra files have been found. Please decide for each file whether they should be synchronized or removed." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er werden nieuwe bestanden gevonden. Bepaal per bestand of deze gesynchroniseerd of verwijderd moeten worden."
+          }
+        }
+      }
+    },
+    "File size" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestandsomvang"
+          }
+        }
+      }
+    },
+    "Files kept on device" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Houd op dit apparaat"
+          }
+        }
+      }
+    },
+    "Folder ID" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map-ID"
+          }
+        }
+      }
+    },
+    "Folder properties" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mapeigenschappen"
+          }
+        }
+      }
+    },
+    "Folder settings" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mapinstellingen"
+          }
+        }
+      }
+    },
+    "Folders" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mappen"
+          }
+        }
+      }
+    },
+    "Free up space" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maak ruimte vrij"
+          }
+        }
+      }
+    },
+    "I understand and agree" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ik begrijp het en ga akkoord"
+          }
+        }
+      }
+    },
+    "I understand, let's get started!" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ik begrijp het!"
+          }
+        }
+      }
+    },
+    "If this is unexpected, ensure that the other devices have accepted syncing this folder with your device." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als dit onverwacht is, controleer dan op de andere apparaten of ze synchronisatie met dit apparaat hebben geaccepteerd."
+          }
+        }
+      }
+    },
+    "Keep on this device" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Houd op dit apparaat"
+          }
+        }
+      }
+    },
+    "Last background synchronization" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laatste synchronisatie op de achtergrond"
+          }
+        }
+      }
+    },
+    "Last seen" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laatst gezien"
+          }
+        }
+      }
+    },
+    "Limit file transfer bandwidth" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bandbreedtebeperking"
+          }
+        }
+      }
+    },
+    "Limit receiving bandwidth" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beperk bandbreedte ontvangen"
+          }
+        }
+      }
+    },
+    "Limit sending bandwidth" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beperk bandbreedte zenden"
+          }
+        }
+      }
+    },
+    "Limit streaming" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bandbreedtebeperking streaming"
+          }
+        }
+      }
+    },
+    "Limit streaming bandwidth" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beperkt streamingbandbreedte"
+          }
+        }
+      }
+    },
+    "Never" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nooit"
+          }
+        }
+      }
+    },
+    "Not connected" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niet verbonden"
+          }
+        }
+      }
+    },
+    "Obtain the source code" : {
+
+    },
+    "Obtain the source code modifications" : {
+
+    },
+    "OK" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "Open in Files app" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open in Bestanden-app"
+          }
+        }
+      }
+    },
+    "Open source components" : {
+
+    },
+    "Password" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wachtwoord"
+          }
+        }
+      }
+    },
+    "Permanently delete this file" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestand permanent verwijderen"
+          }
+        }
+      }
+    },
+    "Powered by Syncthing" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Syncthing onder de motorkap"
+          }
+        }
+      }
+    },
+    "Preparing to synchronize..." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisatie voorbereiden..."
+          }
+        }
+      }
+    },
+    "Read more at syncthing.net" : {
+
+    },
+    "Receive only" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alleen ontvangen"
+          }
+        }
+      }
+    },
+    "Remove device" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder apparaat"
+          }
+        }
+      }
+    },
+    "Remove folder" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder map"
+          }
+        }
+      }
+    },
+    "Request background synchronization" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vraag synchronisatie aan"
+          }
+        }
+      }
+    },
+    "Save" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opslaan"
+          }
+        }
+      }
+    },
+    "Scanning..." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scannen..."
+          }
+        }
+      }
+    },
+    "Selected files" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selectie"
+          }
+        }
+      }
+    },
+    "Selection" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selectie"
+          }
+        }
+      }
+    },
+    "Send and receive" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zenden en ontvangen"
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instellingen"
+          }
+        }
+      }
+    },
+    "Share file" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deel bestand"
+          }
+        }
+      }
+    },
+    "Share this folder with other devices to start synchronizing files." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deel deze map met andere apparaten om te synchroniseren."
+          }
+        }
+      }
+    },
+    "Shared with" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gedeeld met"
+          }
+        }
+      }
+    },
+    "Show addresses" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toon adressen"
+          }
+        }
+      }
+    },
+    "Show introduction screen" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toon introductiescherm"
+          }
+        }
+      }
+    },
+    "Start" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start"
+          }
+        }
+      }
+    },
+    "Started" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestart"
+          }
+        }
+      }
+    },
+    "Stream" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stream bestand"
+          }
+        }
+      }
+    },
+    "Synchronization is not back-up" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisatie is geen back-up"
+          }
+        }
+      }
+    },
+    "Synchronize" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchroniseer"
+          }
+        }
+      }
+    },
+    "Synchronize file" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchroniseer bestand"
+          }
+        }
+      }
+    },
+    "Synchronize file (overwrite existing)" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchroniseer bestand (overschrijf bestaande)"
+          }
+        }
+      }
+    },
+    "Synchronize your files securely with your other devices." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchroniseer veilig bestanden met je andere apparaten."
+          }
+        }
+      }
+    },
+    "Synchronized" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesynchroniseerd"
+          }
+        }
+      }
+    },
+    "Synchronizing files..." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestanden uitwisselen..."
+          }
+        }
+      }
+    },
+    "Synchronizing..." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchroniseren..."
+          }
+        }
+      }
+    },
+    "Synctrain is © 2024, Tommy van der Vorst (tommy@t-shaped.nl)" : {
+
+    },
+    "There are currently no files in this folder." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er zijn geen bestanden in deze map."
+          }
+        }
+      }
+    },
+    "This app is powered by Syncthing. This app is however not associated with or endorsed by Syncthing nor its developers. Please do not expect support from the Syncthing developers. Instead, contact the maker of this app if you have questions." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze app gebruikt Syncthing onder de motorkap. De app is echter niet geassocieerd met Syncthing of haar ontwikkelaars. Verwacht alsjeblieft geen ondersteuning van de Syncthing-ontwikkelaars. Heb je een vraag, neem contact op met de makers van deze app."
+          }
+        }
+      }
+    },
+    "This application incorporates Syncthing, which is open source software under the Mozilla Public License 2.0. Syncthing is a trademark of the Syncthing Foundation. This application is not associated with nor endorsed by the Syncthing foundation nor Syncthing contributors." : {
+
+    },
+    "This device's identifier" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID van dit apparaat"
+          }
+        }
+      }
+    },
+    "This folder has new files" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze map heeft nieuwe bestanden"
+          }
+        }
+      }
+    },
+    "Unavailable" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niet beschikbaar"
+          }
+        }
+      }
+    },
+    "Unknown state" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onbekende status"
+          }
+        }
+      }
+    },
+    "Uptime" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tijd sinds opstarten"
+          }
+        }
+      }
+    },
+    "View file" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bekijk bestand"
+          }
+        }
+      }
+    },
+    "Waiting to clean..." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wacht op schoonmaken"
+          }
+        }
+      }
+    },
+    "Waiting to scan..." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wachten om te scannen..."
+          }
+        }
+      }
+    },
+    "Waiting to synchronize..." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wachten om te synchroniseren..."
+          }
+        }
+      }
+    },
+    "Welcome to Synctrain!" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welkom bij Synctrain!"
+          }
+        }
+      }
+    },
+    "When you synchronize files, all changes, including deleting files, also happen on your other devices. Do not use Synctrain for back-up purposes, and always keep a back-up of your data." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer je bestanden synchroniseert, worden alle wijzigingen, ook verwijderen, doorgegeven aan je andere apparaten. Gebruik Synctrain niet voor het maken van back-ups, en zorg dat je altijd beschikt over een back-uo van je gegevens."
+          }
+        }
+      }
+    },
+    "XXXX-XXXX" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "XXXXX-XXXXX"
+          }
+        }
+      }
+    },
+    "You are using a custom configuration. This may be used for testing only, and at your own risk. Not all configuration options may be supported. To disable the custom configuration, remove the configuration files from the app's folder and restart the app. The makers of the app cannot be held liable for any data loss that may occur!" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je gebruikt een aangepaste configuratie. Dit mag alleen voor testdoeleinden worden gebruikt, en op eigen risico. Niet alle aangepaste configuratieopties worden ondersteund. Om de aangepaste configuratie ongedaan te maken, verwijder je de configuratiebestanden uit de map van de app, en herstart je de app. De makers van de app kunnen niet aansprakelijk worden gehouden voor enig dataverlies!"
+          }
+        }
+      }
+    },
+    "You decide with which devices you share which files. This also means the app makers cannot help you access or recover any lost files." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je bepaalt zelf met welke apparaten je welke bestanden deelt. Dit betekent ook dat de makers van deze app je niet kunnen helpen om verloren bestanden terug te krijgen."
+          }
+        }
+      }
+    },
+    "Your devices, your data, your responsibility" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jouw apparaten, jouw gegevens, jouw verantwoordelijkheid"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

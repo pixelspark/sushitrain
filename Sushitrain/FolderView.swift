@@ -1,0 +1,273 @@
+import Foundation
+import SwiftUI
+import SushitrainCore
+
+struct FolderDeviceView: View {
+    @ObservedObject var appState: SushitrainAppState
+    @Environment(\.dismiss) private var dismiss
+    var folder: SushitrainFolder
+    var deviceID: String
+    @State var newPassword: String
+    @FocusState private var passwordFieldFocus: Bool
+    @State private var error: String? = nil
+    
+    init(appState: SushitrainAppState, folder: SushitrainFolder, deviceID: String) {
+        self.appState = appState
+        self.folder = folder
+        self.deviceID = deviceID
+        self.newPassword = folder.encryptionPassword(for: deviceID)
+    }
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Encryption password") {
+                    TextField("Password", text: $newPassword)
+                    .textContentType(.password)
+                    .textInputAutocapitalization(.never)
+                    .monospaced()
+                    .focused($passwordFieldFocus)
+                }
+            }
+            .onAppear {
+                passwordFieldFocus = true
+            }
+            .navigationTitle(deviceID)
+            .toolbar(content: {
+                ToolbarItem(placement: .confirmationAction, content: {
+                    Button("Save") {
+                        do {
+                            try folder.share(withDevice: self.deviceID, toggle: true, encryptionPassword: newPassword)
+                            dismiss()
+                        }
+                        catch let error {
+                            self.error = error.localizedDescription
+                        }
+                    }
+                })
+                ToolbarItem(placement: .cancellationAction, content: {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                })
+            })
+        }
+        .alert(isPresented: Binding(get: { self.error != nil }, set: {nv in self.error = nv ? self.error : nil })) {
+            Alert(title: Text("Could not set encryption key"), message: Text(self.error!))
+        }
+    }
+}
+
+struct FolderStatusView: View {
+    @ObservedObject var appState: SushitrainAppState
+    var folder: SushitrainFolder
+    
+    var isAvailable: Bool {
+        get {
+            return self.folder.connectedPeerCount() > 0
+        }
+    }
+    
+    var peerStatusText: String {
+        get {
+            return "\(folder.connectedPeerCount())/\(folder.sharedWithDeviceIDs()!.count()-1)"
+        }
+    }
+    
+    var body: some View {
+        var error: NSError? = nil
+        let status = folder.state(&error)
+        
+        if !self.folder.isPaused() {
+            Section {
+                if !isAvailable {
+                    Label("Not connected", systemImage: "network.slash").badge(Text(peerStatusText)).foregroundColor(.gray)
+                }
+                
+                // Sync status (in case non-selective or selective with selected files
+                else if status == "idle" {
+                    if !folder.isSelective() {
+                        Label("Synchronized", systemImage: "checkmark.circle.fill").foregroundStyle(.green).badge(Text(peerStatusText))
+                    }
+                    else {
+                        if self.isAvailable {
+                            Label("Connected", systemImage: "checkmark.circle.fill").foregroundStyle(.green).badge(Text(peerStatusText))
+                        }
+                        else {
+                            Label("Unavailable", systemImage: "xmark.circle").badge(Text(peerStatusText))
+                        }
+                    }
+                }
+                else if status == "syncing" {
+                    Label("Synchronizing...", systemImage: "bolt.horizontal.circle").foregroundStyle(.orange)
+                }
+                else if status == "scanning" {
+                    Label("Scanning...", systemImage: "bolt.horizontal.circle").foregroundStyle(.orange)
+                }
+                else if status == "sync-preparing" {
+                    Label("Preparing to synchronize...", systemImage: "bolt.horizontal.circle").foregroundStyle(.orange)
+                }
+                else if status == "cleaning" {
+                    Label("Cleaning up...", systemImage: "bolt.horizontal.circle").foregroundStyle(.orange)
+                }
+                else if status == "sync-waiting" {
+                    Label("Waiting to synchronize...", systemImage: "ellipsis.circle").foregroundStyle(.gray)
+                }
+                else if status == "scan-waiting" {
+                    Label("Waiting to scan...", systemImage: "ellipsis.circle").foregroundStyle(.gray)
+                }
+                else if status == "clean-waiting" {
+                    Label("Waiting to clean...", systemImage: "ellipsis.circle").foregroundStyle(.gray)
+                }
+                else if status == "error" {
+                    Label("Error", systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red)
+                }
+                else {
+                    Label("Unknown state", systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red)
+                }
+                
+                if let error = error {
+                    Text(error.localizedDescription)
+                }
+            }
+        }
+    }
+}
+
+struct FolderSyncTypePicker: View {
+    @ObservedObject var appState: SushitrainAppState
+    var folder: SushitrainFolder
+    
+    var body: some View {
+        var hasExtraneousFiles: ObjCBool = false
+        let _ = try! folder.hasExtraneousFiles(&hasExtraneousFiles)
+        
+        Picker("Selection", selection: Binding(get: { folder.isSelective() }, set: { s in try? folder.setSelective(s) })) {
+            Text("All files").tag(false)
+            Text("Selected files").tag(true)
+        }.pickerStyle(.menu).disabled(hasExtraneousFiles.boolValue)
+    }
+}
+
+
+struct FolderDirectionPicker: View {
+    @ObservedObject var appState: SushitrainAppState
+    var folder: SushitrainFolder
+    
+    var body: some View {
+        var hasExtraneousFiles: ObjCBool = false
+        let _ = try! folder.hasExtraneousFiles(&hasExtraneousFiles)
+        
+        Picker("Direction", selection: Binding(get: { folder.folderType() }, set: { s in try? folder.setFolderType(s) })) {
+            Text("Send and receive").tag(SushitrainFolderTypeSendReceive)
+            Text("Receive only").tag(SushitrainFolderTypeReceiveOnly)
+        }.pickerStyle(.menu).disabled(hasExtraneousFiles.boolValue)
+    }
+}
+
+
+struct FolderView: View {
+    var folder: SushitrainFolder
+    @ObservedObject var appState: SushitrainAppState
+    @Environment(\.dismiss) private var dismiss
+    @State var showError = false
+    @State var errorText = ""
+    @State var editEncryptionPasswordDeviceID = ""
+    @State var showEditEncryptionPassword = false
+    
+    var possiblePeers: [SushitrainPeer] {
+        get {
+            return appState.peers().sorted().filter({d in !d.isSelf()})
+        }
+    }
+    
+    var body: some View {
+        let sharedWith = folder.sharedWithDeviceIDs()?.asArray() ?? [];
+        let sharedEncrypted = folder.sharedEncryptedWithDeviceIDs()?.asArray() ?? [];
+        
+        Form {
+            FolderStatusView(appState: appState, folder: folder)
+            
+            Section("Folder settings") {
+                Text("Folder ID").badge(Text(folder.folderID))
+                //                HStack {
+                //                    Text("Name")
+                //                    TextField("", text:Binding(get: { folder.label() }, set: {lbl in try? folder.setLabel(lbl) }))
+                //                }
+                
+                FolderDirectionPicker(appState: appState, folder: folder)
+                FolderSyncTypePicker(appState: appState, folder: folder)
+                
+                Toggle("Synchronize", isOn: Binding(get: { !folder.isPaused() }, set: {active in try? folder.setPaused(!active) }))
+            }
+            
+            if !possiblePeers.isEmpty {
+                Section(header: Text("Shared with")) {
+                    ForEach(self.possiblePeers, id: \.self) { (addr: SushitrainPeer) in
+                        let isShared = sharedWith.contains(addr.deviceID());
+                        let shared = Binding(get: { return isShared }, set: {share in
+                            do {
+                                try folder.share(withDevice: addr.deviceID(), toggle: share, encryptionPassword: "")
+                            }
+                            catch let error {
+                                print(error.localizedDescription)
+                            }
+                        });
+                        HStack {
+                            Toggle(addr.name(), systemImage: addr.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill", isOn: shared)
+                            Button("Encryption password", systemImage: sharedEncrypted.contains(addr.deviceID()) ? "lock" : "lock.open", action: {
+                                editEncryptionPasswordDeviceID = addr.deviceID()
+                                showEditEncryptionPassword = true
+                            }).labelStyle(.iconOnly)
+                        }
+                    }
+                }
+            }
+            
+            if self.folder.isSelective() {
+                let list = try! self.folder.selectedPaths().asArray()
+                if !list.isEmpty {
+                    Section("Files kept on device") {
+                        List {
+                            ForEach(list, id: \.self) { item in
+                                Label(item, systemImage: "pin")
+                            }
+                        }
+                    }
+                    
+                    Section {
+                        Button("Free up space", systemImage: "pin.slash", action: {
+                            do {
+                                try folder.clearSelection()
+                            }
+                            catch let error {
+                                showError = true
+                                errorText = error.localizedDescription
+                            }
+                        })
+                    }
+                }
+            }
+            
+            Section {
+                Button("Remove folder", systemImage: "trash", role:.destructive, action: {
+                    do {
+                        dismiss()
+                        try folder.remove()
+                    }
+                    catch let error {
+                        showError = true
+                        errorText = error.localizedDescription
+                    }
+                }).foregroundColor(.red)
+            }
+        }
+        .navigationTitle(folder.label().isEmpty ? folder.folderID : folder.label())
+        .sheet(isPresented: $showEditEncryptionPassword) {
+            FolderDeviceView(appState: self.appState, folder: self.folder, deviceID: editEncryptionPasswordDeviceID)
+        }
+        .alert(isPresented: $showError, content: {
+            Alert(title: Text("An error occured"), message: Text(errorText), dismissButton: .default(Text("OK")))
+        })
+    }
+}

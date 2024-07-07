@@ -1,0 +1,57 @@
+import Foundation
+import SwiftUI
+import SushitrainCore
+
+struct ExtraFilesView: View {
+    var folder: SushitrainFolder
+    @ObservedObject var appState: SushitrainAppState
+    @State private var adressedPaths = Set<String>()
+    
+    var body: some View {
+        let extraFiles = try! folder.extraneousFiles().asArray()
+        
+        List {
+            if folder.folderType() == SushitrainFolderTypeSendReceive {
+                Text("Extra files have been found. Please decide for each file whether they should be synchronized or removed.").textFieldStyle(.plain)
+            }
+            else if folder.folderType() == SushitrainFolderTypeReceiveOnly {
+                Text("Extra files have been found. Because this is a receive-only folder, these files will not be synchronized.").textFieldStyle(.plain)
+            }
+            
+            ForEach(extraFiles.filter({ p in !self.adressedPaths.contains(p) }), id: \.self) { path in
+                let isAlsoGlobalFile = (try? folder.getFileInformation(path)) != nil
+                Section {
+                    Text(path).textFieldStyle(.plain)
+                    
+                    if isAlsoGlobalFile {
+                        Button("Delete my copy of this file", systemImage: "trash", role: .destructive, action: {
+                            try! folder.deleteLocalFile(path)
+                            self.adressedPaths.insert(path)
+                        })
+                    }
+                    else {
+                        Button("Permanently delete this file", systemImage: "trash", role: .destructive, action: {
+                            try! folder.deleteLocalFile(path)
+                            self.adressedPaths.insert(path)
+                        })
+                    }
+                    
+                    if folder.folderType() == SushitrainFolderTypeSendReceive {
+                        if isAlsoGlobalFile {
+                            Button("Synchronize file (overwrite existing)", systemImage: "rectangle.2.swap", action: {
+                                try! folder.setLocalFileExplicitlySelected(path, toggle: true)
+                                self.adressedPaths.insert(path)
+                            })
+                        }
+                        else {
+                            Button("Synchronize file", systemImage: "plus", action: {
+                                try! folder.setLocalFileExplicitlySelected(path, toggle: true)
+                                self.adressedPaths.insert(path)
+                            })
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

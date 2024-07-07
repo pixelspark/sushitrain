@@ -1,0 +1,547 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		650615872C3B3676002B6EE6 /* BrowserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650615862C3B3676002B6EE6 /* BrowserView.swift */; };
+		6506158B2C3C4EA9002B6EE6 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 6506158A2C3C4EA9002B6EE6 /* Localizable.xcstrings */; };
+		652763BB2C45C99200250D3C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652763BA2C45C99200250D3C /* SettingsView.swift */; };
+		652763C02C49589200250D3C /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652763BF2C49589200250D3C /* OnboardingView.swift */; };
+		65AE11FD2C39EE0E00E721D4 /* SushitrainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE11FC2C39EE0E00E721D4 /* SushitrainApp.swift */; };
+		65AE11FF2C39EE0E00E721D4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE11FE2C39EE0E00E721D4 /* ContentView.swift */; };
+		65AE12012C39EE0F00E721D4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 65AE12002C39EE0F00E721D4 /* Assets.xcassets */; };
+		65AE12042C39EE0F00E721D4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 65AE12032C39EE0F00E721D4 /* Preview Assets.xcassets */; };
+		65AE123C2C39F34B00E721D4 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 65AE123B2C39F34B00E721D4 /* PrivacyInfo.xcprivacy */; };
+		65AE125B2C3AB03E00E721D4 /* SushitrainCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65AE125A2C3AB03E00E721D4 /* SushitrainCore.xcframework */; };
+		65AE125F2C3AC6E100E721D4 /* FolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE125E2C3AC6E100E721D4 /* FolderView.swift */; };
+		65AE12632C3AF50900E721D4 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE12622C3AF50900E721D4 /* Utils.swift */; };
+		65AE12672C3B04A100E721D4 /* AddDeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE12662C3B04A100E721D4 /* AddDeviceView.swift */; };
+		65AE126B2C3B066F00E721D4 /* PeerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE126A2C3B066F00E721D4 /* PeerView.swift */; };
+		65AE126F2C3B14CC00E721D4 /* AddFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE126E2C3B14CC00E721D4 /* AddFolderView.swift */; };
+		65AE12732C3B163000E721D4 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE12722C3B163000E721D4 /* AppState.swift */; };
+		65BBF8452C4BFB9300EC59C4 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BBF8442C4BFB9300EC59C4 /* AboutView.swift */; };
+		65C9E1422C3C96E400EDCE6C /* FoldersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E1412C3C96E400EDCE6C /* FoldersView.swift */; };
+		65C9E1482C3F2FEF00EDCE6C /* PeersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E1472C3F2FEF00EDCE6C /* PeersView.swift */; };
+		65C9E14C2C3F341F00EDCE6C /* MeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E14B2C3F341F00EDCE6C /* MeView.swift */; };
+		65C9E1502C419FCA00EDCE6C /* FileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E14F2C419FCA00EDCE6C /* FileView.swift */; };
+		65C9E1542C42B9AE00EDCE6C /* ExtraFilesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E1532C42B9AE00EDCE6C /* ExtraFilesView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		65AE12512C3A7ED400E721D4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 65AE11F12C39EE0E00E721D4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 65AE124B2C3A7E7700E721D4;
+			remoteInfo = SushitrainCore;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		65AE122D2C39F0CD00E721D4 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		650615862C3B3676002B6EE6 /* BrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserView.swift; sourceTree = "<group>"; };
+		6506158A2C3C4EA9002B6EE6 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		652763BA2C45C99200250D3C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		652763BF2C49589200250D3C /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		65AE11F92C39EE0E00E721D4 /* Sushitrain.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sushitrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		65AE11FC2C39EE0E00E721D4 /* SushitrainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SushitrainApp.swift; sourceTree = "<group>"; };
+		65AE11FE2C39EE0E00E721D4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		65AE12002C39EE0F00E721D4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		65AE12032C39EE0F00E721D4 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		65AE12142C39F0CD00E721D4 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
+		65AE123B2C39F34B00E721D4 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		65AE125A2C3AB03E00E721D4 /* SushitrainCore.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SushitrainCore.xcframework; path = SushitrainCore/build/SushitrainCore.xcframework; sourceTree = SOURCE_ROOT; };
+		65AE125E2C3AC6E100E721D4 /* FolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderView.swift; sourceTree = "<group>"; };
+		65AE12622C3AF50900E721D4 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		65AE12662C3B04A100E721D4 /* AddDeviceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddDeviceView.swift; sourceTree = "<group>"; };
+		65AE126A2C3B066F00E721D4 /* PeerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerView.swift; sourceTree = "<group>"; };
+		65AE126E2C3B14CC00E721D4 /* AddFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFolderView.swift; sourceTree = "<group>"; };
+		65AE12722C3B163000E721D4 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		65BBF8442C4BFB9300EC59C4 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		65C9E1412C3C96E400EDCE6C /* FoldersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldersView.swift; sourceTree = "<group>"; };
+		65C9E1452C3DB5C000EDCE6C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		65C9E1462C3DB67C00EDCE6C /* Sushitrain.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sushitrain.entitlements; sourceTree = "<group>"; };
+		65C9E1472C3F2FEF00EDCE6C /* PeersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeersView.swift; sourceTree = "<group>"; };
+		65C9E14B2C3F341F00EDCE6C /* MeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeView.swift; sourceTree = "<group>"; };
+		65C9E14F2C419FCA00EDCE6C /* FileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileView.swift; sourceTree = "<group>"; };
+		65C9E1532C42B9AE00EDCE6C /* ExtraFilesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraFilesView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		65AE11F62C39EE0E00E721D4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65AE125B2C3AB03E00E721D4 /* SushitrainCore.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		65AE11F02C39EE0E00E721D4 = {
+			isa = PBXGroup;
+			children = (
+				6506158A2C3C4EA9002B6EE6 /* Localizable.xcstrings */,
+				65AE11FB2C39EE0E00E721D4 /* Sushitrain */,
+				65AE12132C39F0CD00E721D4 /* Frameworks */,
+				65AE11FA2C39EE0E00E721D4 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		65AE11FA2C39EE0E00E721D4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				65AE11F92C39EE0E00E721D4 /* Sushitrain.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		65AE11FB2C39EE0E00E721D4 /* Sushitrain */ = {
+			isa = PBXGroup;
+			children = (
+				65C9E1462C3DB67C00EDCE6C /* Sushitrain.entitlements */,
+				65C9E1452C3DB5C000EDCE6C /* Info.plist */,
+				65BBF8442C4BFB9300EC59C4 /* AboutView.swift */,
+				65AE12662C3B04A100E721D4 /* AddDeviceView.swift */,
+				65AE126E2C3B14CC00E721D4 /* AddFolderView.swift */,
+				65AE12722C3B163000E721D4 /* AppState.swift */,
+				650615862C3B3676002B6EE6 /* BrowserView.swift */,
+				65AE11FE2C39EE0E00E721D4 /* ContentView.swift */,
+				65C9E1532C42B9AE00EDCE6C /* ExtraFilesView.swift */,
+				65C9E14F2C419FCA00EDCE6C /* FileView.swift */,
+				65C9E1412C3C96E400EDCE6C /* FoldersView.swift */,
+				65AE125E2C3AC6E100E721D4 /* FolderView.swift */,
+				65C9E14B2C3F341F00EDCE6C /* MeView.swift */,
+				652763BF2C49589200250D3C /* OnboardingView.swift */,
+				65C9E1472C3F2FEF00EDCE6C /* PeersView.swift */,
+				65AE126A2C3B066F00E721D4 /* PeerView.swift */,
+				652763BA2C45C99200250D3C /* SettingsView.swift */,
+				65AE11FC2C39EE0E00E721D4 /* SushitrainApp.swift */,
+				65AE12622C3AF50900E721D4 /* Utils.swift */,
+				65AE12002C39EE0F00E721D4 /* Assets.xcassets */,
+				65AE123B2C39F34B00E721D4 /* PrivacyInfo.xcprivacy */,
+				65AE12022C39EE0F00E721D4 /* Preview Content */,
+			);
+			path = Sushitrain;
+			sourceTree = "<group>";
+		};
+		65AE12022C39EE0F00E721D4 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				65AE12032C39EE0F00E721D4 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		65AE12132C39F0CD00E721D4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				65AE125A2C3AB03E00E721D4 /* SushitrainCore.xcframework */,
+				65AE12142C39F0CD00E721D4 /* UniformTypeIdentifiers.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		65AE124B2C3A7E7700E721D4 /* SushitrainCore */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 65AE124C2C3A7E7700E721D4 /* Build configuration list for PBXLegacyTarget "SushitrainCore" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(SRCROOT)/SushitrainCore";
+			dependencies = (
+			);
+			name = SushitrainCore;
+			passBuildSettingsInEnvironment = 1;
+			productName = SushitrainCore;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXNativeTarget section */
+		65AE11F82C39EE0E00E721D4 /* Sushitrain */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 65AE12072C39EE0F00E721D4 /* Build configuration list for PBXNativeTarget "Sushitrain" */;
+			buildPhases = (
+				65AE11F52C39EE0E00E721D4 /* Sources */,
+				65AE11F62C39EE0E00E721D4 /* Frameworks */,
+				65AE11F72C39EE0E00E721D4 /* Resources */,
+				65AE122D2C39F0CD00E721D4 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				65AE12522C3A7ED400E721D4 /* PBXTargetDependency */,
+			);
+			name = Sushitrain;
+			productName = Sushitrain;
+			productReference = 65AE11F92C39EE0E00E721D4 /* Sushitrain.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		65AE11F12C39EE0E00E721D4 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					65AE11F82C39EE0E00E721D4 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					65AE124B2C3A7E7700E721D4 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+				};
+			};
+			buildConfigurationList = 65AE11F42C39EE0E00E721D4 /* Build configuration list for PBXProject "Sushitrain" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				nl,
+			);
+			mainGroup = 65AE11F02C39EE0E00E721D4;
+			productRefGroup = 65AE11FA2C39EE0E00E721D4 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				65AE11F82C39EE0E00E721D4 /* Sushitrain */,
+				65AE124B2C3A7E7700E721D4 /* SushitrainCore */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		65AE11F72C39EE0E00E721D4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65AE123C2C39F34B00E721D4 /* PrivacyInfo.xcprivacy in Resources */,
+				65AE12042C39EE0F00E721D4 /* Preview Assets.xcassets in Resources */,
+				6506158B2C3C4EA9002B6EE6 /* Localizable.xcstrings in Resources */,
+				65AE12012C39EE0F00E721D4 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		65AE11F52C39EE0E00E721D4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				652763BB2C45C99200250D3C /* SettingsView.swift in Sources */,
+				65C9E14C2C3F341F00EDCE6C /* MeView.swift in Sources */,
+				65BBF8452C4BFB9300EC59C4 /* AboutView.swift in Sources */,
+				65C9E1502C419FCA00EDCE6C /* FileView.swift in Sources */,
+				65C9E1482C3F2FEF00EDCE6C /* PeersView.swift in Sources */,
+				65AE126B2C3B066F00E721D4 /* PeerView.swift in Sources */,
+				65AE126F2C3B14CC00E721D4 /* AddFolderView.swift in Sources */,
+				65C9E1422C3C96E400EDCE6C /* FoldersView.swift in Sources */,
+				650615872C3B3676002B6EE6 /* BrowserView.swift in Sources */,
+				65AE11FF2C39EE0E00E721D4 /* ContentView.swift in Sources */,
+				65AE12672C3B04A100E721D4 /* AddDeviceView.swift in Sources */,
+				65AE11FD2C39EE0E00E721D4 /* SushitrainApp.swift in Sources */,
+				65AE125F2C3AC6E100E721D4 /* FolderView.swift in Sources */,
+				65C9E1542C42B9AE00EDCE6C /* ExtraFilesView.swift in Sources */,
+				652763C02C49589200250D3C /* OnboardingView.swift in Sources */,
+				65AE12632C3AF50900E721D4 /* Utils.swift in Sources */,
+				65AE12732C3B163000E721D4 /* AppState.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		65AE12522C3A7ED400E721D4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilter = ios;
+			target = 65AE124B2C3A7E7700E721D4 /* SushitrainCore */;
+			targetProxy = 65AE12512C3A7ED400E721D4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		65AE12052C39EE0F00E721D4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+			};
+			name = Debug;
+		};
+		65AE12062C39EE0F00E721D4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		65AE12082C39EE0F00E721D4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Sushitrain/Sushitrain.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_ASSET_PATHS = "\"Sushitrain/Preview Content\"";
+				DEVELOPMENT_TEAM = 2N89DJPQ2P;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Sushitrain/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Synctrain;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "nl.t-shaped.Sushitrain";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		65AE12092C39EE0F00E721D4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Sushitrain/Sushitrain.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_ASSET_PATHS = "\"Sushitrain/Preview Content\"";
+				DEVELOPMENT_TEAM = 2N89DJPQ2P;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Sushitrain/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Synctrain;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "nl.t-shaped.Sushitrain";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		65AE124D2C3A7E7700E721D4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEBUGGING_SYMBOLS = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = ZW53RB4984;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		65AE124E2C3A7E7700E721D4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = ZW53RB4984;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		65AE11F42C39EE0E00E721D4 /* Build configuration list for PBXProject "Sushitrain" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65AE12052C39EE0F00E721D4 /* Debug */,
+				65AE12062C39EE0F00E721D4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		65AE12072C39EE0F00E721D4 /* Build configuration list for PBXNativeTarget "Sushitrain" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65AE12082C39EE0F00E721D4 /* Debug */,
+				65AE12092C39EE0F00E721D4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		65AE124C2C3A7E7700E721D4 /* Build configuration list for PBXLegacyTarget "SushitrainCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65AE124D2C3A7E7700E721D4 /* Debug */,
+				65AE124E2C3A7E7700E721D4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 65AE11F12C39EE0E00E721D4 /* Project object */;
+}

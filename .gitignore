@@ -1,0 +1,7 @@
+/SushitrainCore/build
+/Sushitrain.xcodeproj/project.xcworkspace/xcuserdata
+/Test/cert.pem
+/Test/key.pem
+/Test/config.xml
+/Sushitrain.xcodeproj/xcuserdata
+Test/test-config.zip
