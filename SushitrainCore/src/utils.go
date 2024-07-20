@@ -114,6 +114,8 @@ var mimesByExtension = map[string]string{
 	".weba":   "audio/webm",
 	".webm":   "video/webm",
 	".webp":   "image/webp",
+	".wma":    "audio/x-ms-wma",
+	".wmv":    "video/x-ms-asf",
 	".woff":   "font/woff",
 	".woff2":  "font/woff2",
 	".xhtml":  "application/xhtml+xml",
