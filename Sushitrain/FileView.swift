@@ -49,10 +49,12 @@ struct FileMediaPlayer: View {
                             .onTapGesture {
                                 visible.wrappedValue = false
                             }
+                        
+                        if let sp = appState.streamingProgress, sp.bytesTotal > 0 && sp.bytesSent < sp.bytesTotal {
+                            ProgressView(value: Float(sp.bytesSent), total: Float(sp.bytesTotal)).foregroundColor(.gray).progressViewStyle(.linear).frame(maxWidth: 64)
+                        }
                     }
-                    if let sp = appState.streamingProgress, sp.bytesTotal > 0 && sp.bytesSent < sp.bytesTotal {
-                        ProgressView(value: Float(sp.bytesSent), total: Float(sp.bytesTotal)).foregroundColor(.gray).progressViewStyle(.linear).frame(maxWidth: 64)
-                    }
+                    
                     Spacer()
                 }
                 Spacer()
@@ -115,7 +117,8 @@ struct FileView: View {
     @ObservedObject var appState: SushitrainAppState
     @State var localItemURL: URL? = nil
     @State var showWebview = false
-    @State var showMediaPlayer = false
+    @State var showVideoPlayer = false
+    @State var showAudioPlayer = false
     let formatter = ByteCountFormatter()
     
     var body: some View {
@@ -160,7 +163,12 @@ struct FileView: View {
                 else {
                     if file.isMedia {
                         Button("Stream", systemImage: file.isVideo ? "tv" : "music.note", action: {
-                            showMediaPlayer = true
+                            if file.isVideo {
+                                showVideoPlayer = true
+                            }
+                            else {
+                                showAudioPlayer = true
+                            }
                         }).disabled(folder.connectedPeerCount() == 0)
                     }
                     else {
@@ -172,18 +180,18 @@ struct FileView: View {
             }
         }.navigationTitle(file.fileName())
             .quickLookPreview(self.$localItemURL)
-            .fullScreenCover(isPresented: .constant(showMediaPlayer && file.isVideo), content: {
-                FileMediaPlayer(appState: appState, file: file, visible: $showMediaPlayer)
+            .fullScreenCover(isPresented: $showVideoPlayer, content: {
+                FileMediaPlayer(appState: appState, file: file, visible: $showVideoPlayer)
             })
-            .sheet(isPresented: .constant(showMediaPlayer && file.isAudio), content: {
+            .sheet(isPresented: $showAudioPlayer, content: {
                 NavigationStack {
-                    FileMediaPlayer(appState: appState, file: file, visible: $showMediaPlayer)
+                    FileMediaPlayer(appState: appState, file: file, visible: $showAudioPlayer)
                         .navigationTitle(file.fileName())
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar(content: {
                             ToolbarItem(placement: .confirmationAction, content: {
                                 Button("Done", action: {
-                                    showMediaPlayer = false
+                                    showAudioPlayer = false
                                 })
                             })
                         })
