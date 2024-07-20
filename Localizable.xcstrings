@@ -151,6 +151,16 @@
         }
       }
     },
+    "Are you sure you want to remove this folder? Please consider carefully. All files in this folder will be removed from this device. Files that have not been synchronized to other devices yet cannot be recoered." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weet je zeker dat je deze map wil verwijderen? Denk hier goed over na. Alle bestanden in deze map worden verwijderd van dit apparaat. Bestanden die niet zijn gesynchroniseerd naar andere apparaten, kunnen niet worden hersteld."
+          }
+        }
+      }
+    },
     "Associated devices" : {
       "localizations" : {
         "nl" : {
@@ -511,6 +521,16 @@
         }
       }
     },
+    "Folder does not exist" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map bestaat niet"
+          }
+        }
+      }
+    },
     "Folder ID" : {
       "localizations" : {
         "nl" : {
@@ -527,6 +547,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mapeigenschappen"
+          }
+        }
+      }
+    },
+    "Folder removed" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map is verwijderd"
           }
         }
       }
@@ -821,6 +851,16 @@
         }
       }
     },
+    "Remove the folder and all files" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder deze map en alle bestanden"
+          }
+        }
+      }
+    },
     "Request background synchronization" : {
       "localizations" : {
         "nl" : {
@@ -971,6 +1011,26 @@
         }
       }
     },
+    "Synchronization disabled" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisatie uitgeschakeld"
+          }
+        }
+      }
+    },
+    "Synchronization has been disabled for this folder. Enable it in folder settings to access files." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisatie is uitgeschakeld voor deze map. Schakel in via het scherm 'mapinstellingen' om bestanden te benaderen."
+          }
+        }
+      }
+    },
     "Synchronization is not back-up" : {
       "localizations" : {
         "nl" : {
@@ -1107,6 +1167,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Deze map heeft nieuwe bestanden"
+          }
+        }
+      }
+    },
+    "This folder was removed." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze map is verwijderd."
           }
         }
       }

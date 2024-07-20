@@ -9,6 +9,9 @@ struct BrowserView: View {
     @State private var showSettings = false
     
     func subdirectories() -> [String] {
+        if !folder.exists() {
+            return []
+        }
         do {
             return try folder.list(self.prefix, directories: true).asArray()
         }
@@ -19,6 +22,9 @@ struct BrowserView: View {
     }
     
     func files() -> [SushitrainEntry] {
+        if !folder.exists() {
+            return []
+        }
         do {
             let list = try folder.list(self.prefix, directories: false)
             var entries: [SushitrainEntry] = [];
@@ -46,42 +52,52 @@ struct BrowserView: View {
         
         NavigationStack {
             List {
-                Section {
-                    FolderStatusView(appState: appState, folder: folder)
+                if self.folder.exists() {
+                    Section {
+                        FolderStatusView(appState: appState, folder: folder)
+                        
+                        if try! self.folder.extraneousFiles().count() > 0 {
+                            NavigationLink(destination: {
+                                ExtraFilesView(folder: self.folder, appState: self.appState)
+                            }) {
+                                Label("This folder has new files", systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                            }
+                        }
+                    }
                     
-                    if try! self.folder.extraneousFiles().count() > 0 {
-                        NavigationLink(destination: {
-                            ExtraFilesView(folder: self.folder, appState: self.appState)
-                        }) {
-                            Label("This folder has new files", systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                    Section {
+                        ForEach(subdirectories, id: \.self) {
+                            key in NavigationLink(destination: BrowserView(folder: folder, prefix: "\(prefix)\(key)/", appState: appState)) {
+                                Label(key, systemImage: "folder")
+                            }
+                            .navigationBarTitleDisplayMode(.inline)
+                            .contextMenu(ContextMenu(menuItems: {
+                                NavigationLink("Folder properties", destination: FileView(file: try! folder.getFileInformation(self.prefix + key), folder: self.folder, appState: self.appState))
+                            }))
                         }
                     }
-                }
-                
-                Section {
-                    ForEach(subdirectories, id: \.self) {
-                        key in NavigationLink(destination: BrowserView(folder: folder, prefix: "\(prefix)\(key)/", appState: appState)) {
-                            Label(key, systemImage: "folder")
-                        }
-                        .navigationBarTitleDisplayMode(.inline)
-                        .contextMenu(ContextMenu(menuItems: {
-                            NavigationLink("Folder properties", destination: FileView(file: try! folder.getFileInformation(self.prefix + key), folder: self.folder, appState: self.appState))
-                        }))
-                    }
-                }
-                
-                Section {
-                    ForEach(files, id: \.self) {
-                        file in NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState)) {
-                            Label(file.fileName(), systemImage: file.isLocallyPresent() ? "doc.fill" : (file.isSelected() ? "doc.badge.ellipsis" : "doc"))
+                    
+                    Section {
+                        ForEach(files, id: \.self) {
+                            file in NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState)) {
+                                Label(file.fileName(), systemImage: file.isLocallyPresent() ? "doc.fill" : (file.isSelected() ? "doc.badge.ellipsis" : "doc"))
+                            }
                         }
                     }
                 }
             }
             .navigationTitle(prefix.isEmpty ? self.folder.label() : prefix)
             .overlay {
-                if isEmpty && self.prefix == "" {
-                    if self.folder.connectedPeerCount() == 0 {
+                if !folder.exists() {
+                    ContentUnavailableView("Folder removed", systemImage: "trash", description: Text("This folder was removed."))
+                }
+                else if isEmpty && self.prefix == "" {
+                    if self.folder.isPaused() {
+                        ContentUnavailableView("Synchronization disabled", systemImage: "pause.fill", description: Text("Synchronization has been disabled for this folder. Enable it in folder settings to access files.")).onTapGesture {
+                            showSettings = true
+                        }
+                    }
+                    else if self.folder.connectedPeerCount() == 0 {
                         ContentUnavailableView("Not connected", systemImage: "network.slash", description: Text("Share this folder with other devices to start synchronizing files.")).onTapGesture {
                             showSettings = true
                         }
@@ -94,25 +110,27 @@ struct BrowserView: View {
                 }
             }
             .toolbar {
-                ToolbarItem {
-                    Button("Settings", systemImage: "folder.badge.gearshape", action: {
-                        showSettings = true
-                    }).labelStyle(.iconOnly)
-                }
-                ToolbarItem {
-                    Button("Open in Files app", systemImage: "arrow.up.forward.app", action: {
-                        let documentsUrl =  FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                        var error: NSError? = nil
-                        var folderURL = URL(fileURLWithPath: self.folder.localNativePath(&error))
-                        if error == nil {
-                            folderURL.append(path: self.prefix)
-                            print("folderURL", folderURL, documentsUrl)
-                            
-                            let sharedurl = folderURL.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
-                            let furl:URL = URL(string: sharedurl)!
-                            UIApplication.shared.open(furl, options: [:], completionHandler: nil)
-                        }
-                    }).labelStyle(.iconOnly)
+                if folder.exists() {
+                    ToolbarItem {
+                        Button("Settings", systemImage: "folder.badge.gearshape", action: {
+                            showSettings = true
+                        }).labelStyle(.iconOnly)
+                    }
+                    ToolbarItem {
+                        Button("Open in Files app", systemImage: "arrow.up.forward.app", action: {
+                            let documentsUrl =  FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                            var error: NSError? = nil
+                            var folderURL = URL(fileURLWithPath: self.folder.localNativePath(&error))
+                            if error == nil {
+                                folderURL.append(path: self.prefix)
+                                print("folderURL", folderURL, documentsUrl)
+                                
+                                let sharedurl = folderURL.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
+                                let furl:URL = URL(string: sharedurl)!
+                                UIApplication.shared.open(furl, options: [:], completionHandler: nil)
+                            }
+                        }).labelStyle(.iconOnly)
+                    }
                 }
             }
             .sheet(isPresented: $showSettings, content: {

@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct FoldersView: View {
-    @Environment(\.editMode) private var editMode
     @ObservedObject var appState: SushitrainAppState
     @State var showingAddFolderPopup = false
     
@@ -18,12 +17,6 @@ struct FoldersView: View {
                                 NavigationLink("Folder settings", destination: FolderView(folder: folder, appState: self.appState))
                             }))
                         }
-                        .onDelete(perform: { indexSet in
-                            let folders = appState.folders()
-                            indexSet.map { idx in
-                                folders[idx]
-                            }.forEach { folder in try? folder.remove() }
-                        })
                     }
                     
                     Section {
@@ -34,7 +27,6 @@ struct FoldersView: View {
                 }
                 .navigationTitle("Folders")
                 .toolbar {
-                    EditButton()
                     Button("Open in Files app", systemImage: "arrow.up.forward.app", action: {
                         let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                         let sharedurl = documentsUrl.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")

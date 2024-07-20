@@ -70,7 +70,10 @@ struct FolderStatusView: View {
     
     var peerStatusText: String {
         get {
-            return "\(folder.connectedPeerCount())/\(folder.sharedWithDeviceIDs()!.count()-1)"
+            if self.folder.exists() {
+                return "\(folder.connectedPeerCount())/\(folder.sharedWithDeviceIDs()!.count()-1)"
+            }
+            return ""
         }
     }
     
@@ -78,7 +81,12 @@ struct FolderStatusView: View {
         var error: NSError? = nil
         let status = folder.state(&error)
         
-        if !self.folder.isPaused() {
+        if !self.folder.exists() {
+            Section {
+                Label("Folder does not exist", systemImage: "trash").foregroundColor(.gray)
+            }
+        }
+        else if !self.folder.isPaused() {
             Section {
                 if !isAvailable {
                     Label("Not connected", systemImage: "network.slash").badge(Text(peerStatusText)).foregroundColor(.gray)
@@ -139,13 +147,15 @@ struct FolderSyncTypePicker: View {
     var folder: SushitrainFolder
     
     var body: some View {
-        var hasExtraneousFiles: ObjCBool = false
-        let _ = try! folder.hasExtraneousFiles(&hasExtraneousFiles)
-        
-        Picker("Selection", selection: Binding(get: { folder.isSelective() }, set: { s in try? folder.setSelective(s) })) {
-            Text("All files").tag(false)
-            Text("Selected files").tag(true)
-        }.pickerStyle(.menu).disabled(hasExtraneousFiles.boolValue)
+        if folder.exists() {
+            var hasExtraneousFiles: ObjCBool = false
+            let _ = try! folder.hasExtraneousFiles(&hasExtraneousFiles)
+            
+            Picker("Selection", selection: Binding(get: { folder.isSelective() }, set: { s in try? folder.setSelective(s) })) {
+                Text("All files").tag(false)
+                Text("Selected files").tag(true)
+            }.pickerStyle(.menu).disabled(hasExtraneousFiles.boolValue)
+        }
     }
 }
 
@@ -155,13 +165,15 @@ struct FolderDirectionPicker: View {
     var folder: SushitrainFolder
     
     var body: some View {
-        var hasExtraneousFiles: ObjCBool = false
-        let _ = try! folder.hasExtraneousFiles(&hasExtraneousFiles)
-        
-        Picker("Direction", selection: Binding(get: { folder.folderType() }, set: { s in try? folder.setFolderType(s) })) {
-            Text("Send and receive").tag(SushitrainFolderTypeSendReceive)
-            Text("Receive only").tag(SushitrainFolderTypeReceiveOnly)
-        }.pickerStyle(.menu).disabled(hasExtraneousFiles.boolValue)
+        if folder.exists() {
+            var hasExtraneousFiles: ObjCBool = false
+            let _ = try! folder.hasExtraneousFiles(&hasExtraneousFiles)
+            
+            Picker("Direction", selection: Binding(get: { folder.folderType() }, set: { s in try? folder.setFolderType(s) })) {
+                Text("Send and receive").tag(SushitrainFolderTypeSendReceive)
+                Text("Receive only").tag(SushitrainFolderTypeReceiveOnly)
+            }.pickerStyle(.menu).disabled(hasExtraneousFiles.boolValue)
+        }
     }
 }
 
@@ -174,6 +186,7 @@ struct FolderView: View {
     @State var errorText = ""
     @State var editEncryptionPasswordDeviceID = ""
     @State var showEditEncryptionPassword = false
+    @State var showRemoveConfirmation = false
     
     var possiblePeers: [SushitrainPeer] {
         get {
@@ -186,80 +199,88 @@ struct FolderView: View {
         let sharedEncrypted = folder.sharedEncryptedWithDeviceIDs()?.asArray() ?? [];
         
         Form {
-            FolderStatusView(appState: appState, folder: folder)
-            
-            Section("Folder settings") {
-                Text("Folder ID").badge(Text(folder.folderID))
-                //                HStack {
-                //                    Text("Name")
-                //                    TextField("", text:Binding(get: { folder.label() }, set: {lbl in try? folder.setLabel(lbl) }))
-                //                }
+            if folder.exists() {
+                FolderStatusView(appState: appState, folder: folder)
                 
-                FolderDirectionPicker(appState: appState, folder: folder)
-                FolderSyncTypePicker(appState: appState, folder: folder)
+                Section("Folder settings") {
+                    Text("Folder ID").badge(Text(folder.folderID))
+                    //                HStack {
+                    //                    Text("Name")
+                    //                    TextField("", text:Binding(get: { folder.label() }, set: {lbl in try? folder.setLabel(lbl) }))
+                    //                }
+                    
+                    FolderDirectionPicker(appState: appState, folder: folder)
+                    FolderSyncTypePicker(appState: appState, folder: folder)
+                    
+                    Toggle("Synchronize", isOn: Binding(get: { !folder.isPaused() }, set: {active in try? folder.setPaused(!active) }))
+                }
                 
-                Toggle("Synchronize", isOn: Binding(get: { !folder.isPaused() }, set: {active in try? folder.setPaused(!active) }))
-            }
-            
-            if !possiblePeers.isEmpty {
-                Section(header: Text("Shared with")) {
-                    ForEach(self.possiblePeers, id: \.self) { (addr: SushitrainPeer) in
-                        let isShared = sharedWith.contains(addr.deviceID());
-                        let shared = Binding(get: { return isShared }, set: {share in
-                            do {
-                                try folder.share(withDevice: addr.deviceID(), toggle: share, encryptionPassword: "")
+                if !possiblePeers.isEmpty {
+                    Section(header: Text("Shared with")) {
+                        ForEach(self.possiblePeers, id: \.self) { (addr: SushitrainPeer) in
+                            let isShared = sharedWith.contains(addr.deviceID());
+                            let shared = Binding(get: { return isShared }, set: {share in
+                                do {
+                                    try folder.share(withDevice: addr.deviceID(), toggle: share, encryptionPassword: "")
+                                }
+                                catch let error {
+                                    print(error.localizedDescription)
+                                }
+                            });
+                            HStack {
+                                Toggle(addr.name(), systemImage: addr.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill", isOn: shared)
+                                Button("Encryption password", systemImage: sharedEncrypted.contains(addr.deviceID()) ? "lock" : "lock.open", action: {
+                                    editEncryptionPasswordDeviceID = addr.deviceID()
+                                    showEditEncryptionPassword = true
+                                }).labelStyle(.iconOnly)
                             }
-                            catch let error {
-                                print(error.localizedDescription)
-                            }
-                        });
-                        HStack {
-                            Toggle(addr.name(), systemImage: addr.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill", isOn: shared)
-                            Button("Encryption password", systemImage: sharedEncrypted.contains(addr.deviceID()) ? "lock" : "lock.open", action: {
-                                editEncryptionPasswordDeviceID = addr.deviceID()
-                                showEditEncryptionPassword = true
-                            }).labelStyle(.iconOnly)
                         }
                     }
                 }
-            }
-            
-            if self.folder.isSelective() {
-                let list = try! self.folder.selectedPaths().asArray()
-                if !list.isEmpty {
-                    Section("Files kept on device") {
-                        List {
-                            ForEach(list, id: \.self) { item in
-                                Label(item, systemImage: "pin")
+                
+                if self.folder.isSelective() {
+                    let list = try! self.folder.selectedPaths().asArray()
+                    if !list.isEmpty {
+                        Section("Files kept on device") {
+                            List {
+                                ForEach(list, id: \.self) { item in
+                                    Label(item, systemImage: "pin")
+                                }
                             }
                         }
+                        
+                        Section {
+                            Button("Free up space", systemImage: "pin.slash", action: {
+                                do {
+                                    try folder.clearSelection()
+                                }
+                                catch let error {
+                                    showError = true
+                                    errorText = error.localizedDescription
+                                }
+                            })
+                        }
                     }
-                    
-                    Section {
-                        Button("Free up space", systemImage: "pin.slash", action: {
+                }
+                
+                Section {
+                    Button("Remove folder", systemImage: "trash", role:.destructive) {
+                        showRemoveConfirmation = true
+                    }
+                    .foregroundColor(.red)
+                    .confirmationDialog("Are you sure you want to remove this folder? Please consider carefully. All files in this folder will be removed from this device. Files that have not been synchronized to other devices yet cannot be recoered.", isPresented: $showRemoveConfirmation, titleVisibility: .visible) {
+                        Button("Remove the folder and all files", role: .destructive) {
                             do {
-                                try folder.clearSelection()
+                                dismiss()
+                                try folder.remove()
                             }
                             catch let error {
                                 showError = true
                                 errorText = error.localizedDescription
                             }
-                        })
+                        }
                     }
                 }
-            }
-            
-            Section {
-                Button("Remove folder", systemImage: "trash", role:.destructive, action: {
-                    do {
-                        dismiss()
-                        try folder.remove()
-                    }
-                    catch let error {
-                        showError = true
-                        errorText = error.localizedDescription
-                    }
-                }).foregroundColor(.red)
             }
         }
         .navigationTitle(folder.label().isEmpty ? folder.folderID : folder.label())

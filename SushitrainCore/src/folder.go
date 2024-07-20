@@ -24,7 +24,10 @@ type Folder struct {
 
 func (self *Folder) folderConfiguration() *config.FolderConfiguration {
 	folders := self.client.config.Folders()
-	folderInfo := folders[self.FolderID]
+	folderInfo, ok := folders[self.FolderID]
+	if !ok {
+		return nil
+	}
 	return &folderInfo
 }
 
@@ -48,7 +51,16 @@ func (self *Folder) Remove() error {
 	return ffs.RemoveAll("")
 }
 
+func (self *Folder) Exists() bool {
+	return self.folderConfiguration() != nil
+}
+
 func (self *Folder) IsPaused() bool {
+	fc := self.folderConfiguration()
+	if fc == nil {
+		return false
+	}
+
 	return self.folderConfiguration().Paused
 }
 
@@ -139,15 +151,24 @@ func (self *Folder) ShareWithDevice(deviceID string, toggle bool, encryptionPass
 }
 
 func (self *Folder) SharedWithDeviceIDs() *ListOfStrings {
-	return List(Map(self.folderConfiguration().DeviceIDs(), func(di protocol.DeviceID) string {
+	fc := self.folderConfiguration()
+	if fc == nil {
+		return nil
+	}
+
+	return List(Map(fc.DeviceIDs(), func(di protocol.DeviceID) string {
 		return di.String()
 	}))
 }
 
 func (self *Folder) SharedEncryptedWithDeviceIDs() *ListOfStrings {
+	fc := self.folderConfiguration()
+	if fc == nil {
+		return nil
+	}
 	var dis = make([]string, 0)
 
-	for _, dfc := range self.folderConfiguration().Devices {
+	for _, dfc := range fc.Devices {
 		if len(dfc.EncryptionPassword) > 0 {
 			dis = append(dis, dfc.DeviceID.String())
 		}
@@ -162,7 +183,12 @@ func (self *Folder) EncryptionPasswordFor(peer string) string {
 		return ""
 	}
 
-	for _, dfc := range self.folderConfiguration().Devices {
+	fc := self.folderConfiguration()
+	if fc == nil {
+		return ""
+	}
+
+	for _, dfc := range fc.Devices {
 		if dfc.DeviceID == did {
 			return dfc.EncryptionPassword
 		}
@@ -171,6 +197,11 @@ func (self *Folder) EncryptionPasswordFor(peer string) string {
 }
 
 func (self *Folder) ConnectedPeerCount() int {
+	fc := self.folderConfiguration()
+	if fc == nil {
+		return 0
+	}
+
 	devIDs := self.folderConfiguration().DeviceIDs()
 	connected := 0
 	for _, devID := range devIDs {
@@ -185,7 +216,11 @@ func (self *Folder) ConnectedPeerCount() int {
 }
 
 func (self *Folder) Label() string {
-	return self.folderConfiguration().Label
+	fc := self.folderConfiguration()
+	if fc == nil {
+		return ""
+	}
+	return fc.Label
 }
 
 func (self *Folder) SetLabel(label string) error {
@@ -228,6 +263,11 @@ func (self *Folder) ClearSelection() error {
 }
 
 func (self *Folder) SelectedPaths() (*ListOfStrings, error) {
+	fc := self.folderConfiguration()
+	if fc == nil {
+		return nil, errors.New("folder does not exist")
+	}
+
 	if self.client.app == nil || self.client.app.M == nil {
 		return nil, errNoClient
 	}
@@ -250,6 +290,11 @@ func (self *Folder) SelectedPaths() (*ListOfStrings, error) {
 
 func (self *Folder) HasSelectedPaths() bool {
 	if self.client.app == nil || self.client.app.M == nil {
+		return false
+	}
+
+	fc := self.folderConfiguration()
+	if fc == nil {
 		return false
 	}
 
@@ -278,7 +323,12 @@ const (
 )
 
 func (self *Folder) FolderType() string {
-	switch self.folderConfiguration().Type {
+	fc := self.folderConfiguration()
+	if fc == nil {
+		return ""
+	}
+
+	switch fc.Type {
 	case config.FolderTypeReceiveOnly:
 		return FolderTypeReceiveOnly
 	default:
@@ -309,6 +359,11 @@ func (self *Folder) IsSelective() bool {
 		return false
 	}
 
+	fc := self.folderConfiguration()
+	if fc == nil {
+		return false
+	}
+
 	lines, _, err := self.client.app.M.CurrentIgnores(self.FolderID)
 	if err != nil {
 		return false
@@ -335,6 +390,11 @@ func (self *Folder) IsSelective() bool {
 }
 
 func (self *Folder) LocalNativePath() (string, error) {
+	fc := self.folderConfiguration()
+	if fc == nil {
+		return "", errors.New("folder does not exist")
+	}
+
 	// This is a bit of a hack, according to similar code in model.warnAboutOverwritingProtectedFiles :-)
 	ffs := self.folderConfiguration().Filesystem(nil)
 	if ffs.Type() != fs.FilesystemTypeBasic {
@@ -367,6 +427,11 @@ func (self *Folder) HasExtraneousFiles() (bool, error) {
 // List of files that are not selected but exist locally. When stopAtOne = true, return after finding just one file
 func (self *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 	cfg := self.folderConfiguration()
+
+	if cfg == nil {
+		return nil, errors.New("folder does not exist")
+	}
+
 	ignores := ignore.New(cfg.Filesystem(nil), ignore.WithCache(false))
 	if err := ignores.Load(ignoreFileName); err != nil && !fs.IsNotExist(err) {
 		return nil, err
