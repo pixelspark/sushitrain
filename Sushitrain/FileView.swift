@@ -8,7 +8,7 @@ struct FileMediaPlayer: View {
     @State private var session = AVAudioSession.sharedInstance()
     @State private var player: AVPlayer?
     @ObservedObject var appState: SushitrainAppState
-    var url: String
+    var file: SushitrainEntry
     @State var visible: Binding<Bool>
     
     private func activateSession() {
@@ -41,13 +41,15 @@ struct FileMediaPlayer: View {
         VideoPlayer(player: player) {
             VStack {
                 HStack {
-                    Image(systemName: "xmark")
-                        .padding(16)
-                        .foregroundStyle(.white)
-                        .tint(.white)
-                        .onTapGesture {
-                            visible.wrappedValue = false
-                        }
+                    if file.isVideo {
+                        Image(systemName: "xmark")
+                            .padding(16)
+                            .foregroundStyle(.white)
+                            .tint(.white)
+                            .onTapGesture {
+                                visible.wrappedValue = false
+                            }
+                    }
                     if let sp = appState.streamingProgress, sp.bytesTotal > 0 && sp.bytesSent < sp.bytesTotal {
                         ProgressView(value: Float(sp.bytesSent), total: Float(sp.bytesTotal)).foregroundColor(.gray).progressViewStyle(.linear).frame(maxWidth: 64)
                     }
@@ -57,12 +59,12 @@ struct FileMediaPlayer: View {
             }
         }
         .onAppear {
-            let player = AVPlayer(url: URL(string: self.url)!)
+            let player = AVPlayer(url: URL(string: self.file.onDemandURL())!)
             // TODO: External playback requires us to use http://devicename.local:xxx/file/.. URLs rather than http://localhost.
             // Resolve using Bonjour perhaps?
             player.allowsExternalPlayback = false
             player.audiovisualBackgroundPlaybackPolicy = .automatic
-            player.preventsDisplaySleepDuringVideoPlayback = true
+            player.preventsDisplaySleepDuringVideoPlayback = file.isAudio
             activateSession()
             player.playImmediately(atRate: 1.0)
             self.player = player
@@ -72,7 +74,7 @@ struct FileMediaPlayer: View {
             self.player = nil
             self.deactivateSession()
         }
-        .ignoresSafeArea()
+        .ignoresSafeArea(file.isVideo ? .all : [])
     }
 }
 
@@ -113,7 +115,7 @@ struct FileView: View {
     @ObservedObject var appState: SushitrainAppState
     @State var localItemURL: URL? = nil
     @State var showWebview = false
-    @State var showVideoPlayer = false
+    @State var showMediaPlayer = false
     let formatter = ByteCountFormatter()
     
     var body: some View {
@@ -158,7 +160,7 @@ struct FileView: View {
                 else {
                     if file.isMedia {
                         Button("Stream", systemImage: file.isVideo ? "tv" : "music.note", action: {
-                            showVideoPlayer = true
+                            showMediaPlayer = true
                         }).disabled(folder.connectedPeerCount() == 0)
                     }
                     else {
@@ -170,8 +172,22 @@ struct FileView: View {
             }
         }.navigationTitle(file.fileName())
             .quickLookPreview(self.$localItemURL)
-            .fullScreenCover(isPresented: $showVideoPlayer, content: {
-                FileMediaPlayer(appState: appState, url: file.onDemandURL(), visible: $showVideoPlayer)
+            .fullScreenCover(isPresented: .constant(showMediaPlayer && file.isVideo), content: {
+                FileMediaPlayer(appState: appState, file: file, visible: $showMediaPlayer)
+            })
+            .sheet(isPresented: .constant(showMediaPlayer && file.isAudio), content: {
+                NavigationStack {
+                    FileMediaPlayer(appState: appState, file: file, visible: $showMediaPlayer)
+                        .navigationTitle(file.fileName())
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar(content: {
+                            ToolbarItem(placement: .confirmationAction, content: {
+                                Button("Done", action: {
+                                    showMediaPlayer = false
+                                })
+                            })
+                        })
+                }
             })
             .sheet(isPresented: $showWebview, content: {
                 NavigationStack {
