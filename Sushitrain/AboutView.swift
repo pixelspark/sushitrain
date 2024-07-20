@@ -7,7 +7,7 @@ struct AboutView: View {
     var body: some View {
         Form {
             Section("About this app") {
-                Text("Synctrain is © 2024, Tommy van der Vorst (tommy@t-shaped.nl)")
+                Text("Synctrain is © 2024, Tommy van der Vorst")
             }
             
             Section("Open source components") {
