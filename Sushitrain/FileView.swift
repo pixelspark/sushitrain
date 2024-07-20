@@ -4,7 +4,7 @@ import QuickLook
 import WebKit
 import AVKit
 
-struct FileVideoPlayer: View {
+struct FileMediaPlayer: View {
     @State private var session = AVAudioSession.sharedInstance()
     @State private var player: AVPlayer?
     @ObservedObject var appState: SushitrainAppState
@@ -171,7 +171,7 @@ struct FileView: View {
         }.navigationTitle(file.fileName())
             .quickLookPreview(self.$localItemURL)
             .fullScreenCover(isPresented: $showVideoPlayer, content: {
-                FileVideoPlayer(appState: appState, url: file.onDemandURL(), visible: $showVideoPlayer)
+                FileMediaPlayer(appState: appState, url: file.onDemandURL(), visible: $showVideoPlayer)
             })
             .sheet(isPresented: $showWebview, content: {
                 NavigationStack {
