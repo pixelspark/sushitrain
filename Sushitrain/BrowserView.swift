@@ -14,7 +14,7 @@ struct BrowserView: View {
             return []
         }
         do {
-            return try folder.list(self.prefix, directories: true).asArray()
+            return try folder.list(self.prefix, directories: true).asArray().sorted()
         }
         catch let error {
             print("Error listing: \(error.localizedDescription)")
@@ -38,7 +38,7 @@ struct BrowserView: View {
                     entries.append(fileInfo)
                 }
             }
-            return entries
+            return entries.sorted()
         }
         catch let error {
             print("Error listing: \(error.localizedDescription)")
@@ -96,7 +96,8 @@ struct BrowserView: View {
                     }
                 }
             }
-            .searchable(text: $searchText, prompt: "Search files in this folder...")
+            // FIX: this is glitchy on transitions between folders, so for now disabled
+            //.searchable(text: $searchText, prompt: "Search files in this folder...")
             .navigationTitle(prefix.isEmpty ? self.folder.label() : prefix)
             .navigationBarTitleDisplayMode(.inline)
             .overlay {

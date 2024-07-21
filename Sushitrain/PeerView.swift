@@ -44,7 +44,7 @@ struct PeerView: View {
             }
             
             Section("Shared folders") {
-                let sharedFolderIDs = peer.sharedFolderIDs()?.asArray() ?? []
+                let sharedFolderIDs = peer.sharedFolderIDs()?.asArray().sorted() ?? []
                 ForEach(sharedFolderIDs, id: \.self) { fid in
                     Label(fid, systemImage: "folder")
                 }

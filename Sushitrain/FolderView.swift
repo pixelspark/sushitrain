@@ -42,7 +42,7 @@ struct SelectiveFolderView: View {
     
     var body: some View {
         Form {
-            let list = try! self.folder.selectedPaths().asArray()
+            let list = try! self.folder.selectedPaths().asArray().sorted()
             if !list.isEmpty {
                 let st = searchString.lowercased()
                 Section("Files kept on device") {

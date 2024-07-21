@@ -8,7 +8,7 @@ struct ExtraFilesView: View {
     @State private var adressedPaths = Set<String>()
     
     var body: some View {
-        let extraFiles = try! folder.extraneousFiles().asArray()
+        let extraFiles = try! folder.extraneousFiles().asArray().sorted()
         
         List {
             if folder.folderType() == SushitrainFolderTypeSendReceive {
