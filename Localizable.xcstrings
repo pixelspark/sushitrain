@@ -747,6 +747,16 @@
         }
       }
     },
+    "Limit connections" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beperk verbindingen"
+          }
+        }
+      }
+    },
     "Limit file transfer bandwidth" : {
       "localizations" : {
         "nl" : {
@@ -893,6 +903,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "OK"
+          }
+        }
+      }
+    },
+    "One connection is enough" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Één verbinding is genoeg"
           }
         }
       }
@@ -1533,6 +1553,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Welkom bij Synctrain!"
+          }
+        }
+      }
+    },
+    "When this setting is enabled, the app will not attempt to connect to more devices after one connection has been established." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer dit is ingeschakeld probeert de app niet om met meer apparaten te verbinden zodra er één verbinding tot stand is gekomen met een apparaat."
           }
         }
       }

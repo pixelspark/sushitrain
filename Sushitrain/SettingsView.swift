@@ -222,6 +222,18 @@ struct SettingsView: View {
                 }
             }
             
+            Section {
+                Toggle("One connection is enough", isOn: Binding(get: {
+                    return appState.client.getEnoughConnections() == 1
+                }, set: { enough in
+                    try! appState.client.setEnoughConnections(enough ? 1 : 0)
+                }))
+            } header: {
+                Text("Limit connections")
+            } footer: {
+                Text("When this setting is enabled, the app will not attempt to connect to more devices after one connection has been established.")
+            }
+            
             NavigationLink("Background synchronization") {
                 BackgroundSettingsView(appState: appState)
             }

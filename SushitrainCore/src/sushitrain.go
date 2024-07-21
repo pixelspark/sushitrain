@@ -659,3 +659,13 @@ func (self *Client) Search(text string, delegate SearchResultDelegate, maxResult
 	}
 	return nil
 }
+
+func (self *Client) GetEnoughConnections() int {
+	return self.config.Options().ConnectionLimitEnough
+}
+
+func (self *Client) SetEnoughConnections(enough int) error {
+	return self.changeConfiguration(func(cfg *config.Configuration) {
+		cfg.Options.ConnectionLimitEnough = enough
+	})
+}
