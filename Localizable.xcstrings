@@ -1067,23 +1067,22 @@
         }
       }
     },
-    "Search files in this folder..." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zoek bestanden in deze map..."
-          }
-        }
-      }
-    },
     "Search results (%lld)" : {
       "localizations" : {
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Search results (%lld)"
+          }
+        }
+      }
+    },
+    "Search results (%lld+)" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoekresultaten (%lld+)"
           }
         }
       }

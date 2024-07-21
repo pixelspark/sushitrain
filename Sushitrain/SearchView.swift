@@ -1,4 +1,5 @@
 import SwiftUI
+
 @preconcurrency import SushitrainCore
 
 protocol SearchViewDelegate {
@@ -6,10 +7,12 @@ protocol SearchViewDelegate {
     @MainActor func setStatus(searching: Bool)
 }
 
-class SearchResults: NSObject, ObservableObject, SushitrainSearchResultDelegateProtocol, @unchecked Sendable {
+class SearchOperation: NSObject, ObservableObject, SushitrainSearchResultDelegateProtocol, @unchecked Sendable {
     @Published var results: [SushitrainEntry] = []
     private var cancelled = false
+    private var lock = NSLock()
     var view: SearchViewDelegate
+    static let MaxResultCount = 100
     
     init(delegate: SearchViewDelegate) {
         self.view = delegate
@@ -17,6 +20,10 @@ class SearchResults: NSObject, ObservableObject, SushitrainSearchResultDelegateP
     
     func result(_ entry: SushitrainEntry?) {
         if let entry = entry {
+            if self.isCancelled() {
+                return
+            }
+        
             DispatchQueue.main.async {
                 self.add(entry: entry)
             }
@@ -24,14 +31,18 @@ class SearchResults: NSObject, ObservableObject, SushitrainSearchResultDelegateP
     }
     
     func isCancelled() -> Bool {
-        return self.cancelled
+        return self.lock.withLock {
+            return self.cancelled
+        }
     }
     
     func cancel() {
-        self.cancelled = true
+        self.lock.withLock {
+            self.cancelled = true
+        }
     }
     
-    @MainActor func add(entry: SushitrainEntry) {
+    @MainActor private func add(entry: SushitrainEntry) {
         view.add(entry: entry)
     }
 }
@@ -39,7 +50,7 @@ class SearchResults: NSObject, ObservableObject, SushitrainSearchResultDelegateP
 struct SearchView: View, SearchViewDelegate {
     @ObservedObject var appState: SushitrainAppState
     @State private var searchText = ""
-    @State private var searchResults: SearchResults? = nil
+    @State private var searchOperation: SearchOperation? = nil
     @State private var results: [SushitrainEntry] = []
     @State private var searchCount = 0
     @FocusState private var isSearchFieldFocused: Bool
@@ -62,7 +73,7 @@ struct SearchView: View, SearchViewDelegate {
                 }
                 
                 if !results.isEmpty {
-                    Section("Search results (\(results.count))") {
+                    Section(results.count == SearchOperation.MaxResultCount ? "Search results (\(SearchOperation.MaxResultCount)+)" : "Search results (\(results.count))") {
                         ForEach(results, id: \.self) { item in
                             if item.isDirectory() {
                                 NavigationLink(destination: BrowserView(folder: item.folder!, prefix: "\(item.path())/", appState: appState)) {
@@ -99,17 +110,17 @@ struct SearchView: View, SearchViewDelegate {
     }
     
     func cancelSearch() {
-        if let sr = self.searchResults {
+        if let sr = self.searchOperation {
             sr.cancel()
-            self.searchResults = nil
+            self.searchOperation = nil
         }
     }
     
     func search() {
         self.cancelSearch()
         
-        let sr = SearchResults(delegate: self)
-        self.searchResults = sr
+        let sr = SearchOperation(delegate: self)
+        self.searchOperation = sr
         self.results = []
         let text = self.searchText
         let appState = self.appState
@@ -120,7 +131,7 @@ struct SearchView: View, SearchViewDelegate {
                     DispatchQueue.main.async {
                         sr.view.setStatus(searching: true)
                     }
-                    try appState.client.search(text, delegate: sr)
+                    try appState.client.search(text, delegate: sr, maxResults: SearchOperation.MaxResultCount)
                     DispatchQueue.main.async {
                         sr.view.setStatus(searching: false)
                     }

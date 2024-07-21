@@ -609,7 +609,11 @@ type SearchResultDelegate interface {
 	IsCancelled() bool
 }
 
-func (self *Client) Search(text string, delegate SearchResultDelegate) error {
+/*
+* Search for files by name in the global index. Calls back the delegate up to `maxResults` times with a result in no
+particular order, unless/until the delegate returns true from IsCancelled. Set maxResults to <=0 to collect all results.
+*/
+func (self *Client) Search(text string, delegate SearchResultDelegate, maxResults int) error {
 	text = strings.ToLower(text)
 
 	for _, folder := range self.config.FolderList() {
@@ -623,6 +627,7 @@ func (self *Client) Search(text string, delegate SearchResultDelegate) error {
 			return err
 		}
 		defer snap.Release()
+		resultCount := 0
 
 		snap.WithGlobal(func(f protocol.FileIntf) bool {
 			if delegate.IsCancelled() {
@@ -632,15 +637,18 @@ func (self *Client) Search(text string, delegate SearchResultDelegate) error {
 
 			pathParts := strings.Split(f.FileName(), "/")
 			fn := strings.ToLower(pathParts[len(pathParts)-1])
+			gimmeMore := maxResults <= 0 || resultCount < maxResults
 
-			if strings.Contains(fn, text) {
+			if gimmeMore && strings.Contains(fn, text) {
 				entry, err := folderObject.GetFileInformation(f.FileName())
 
 				if err == nil {
+					resultCount += 1
 					delegate.Result(entry)
 				}
 			}
-			return true
+
+			return gimmeMore
 		})
 	}
 	return nil
