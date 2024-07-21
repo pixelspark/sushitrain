@@ -531,6 +531,16 @@
         }
       }
     },
+    "Files kept on this device" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Houd bestanden op dit apparaat"
+          }
+        }
+      }
+    },
     "Folder does not exist" : {
       "localizations" : {
         "nl" : {
@@ -731,6 +741,16 @@
         }
       }
     },
+    "No files selected" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen bestanden geselecteerd"
+          }
+        }
+      }
+    },
     "Not connected" : {
       "localizations" : {
         "nl" : {
@@ -907,6 +927,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Scannen..."
+          }
+        }
+      }
+    },
+    "Search files by name..." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoek bestanden op naam..."
           }
         }
       }
@@ -1197,6 +1227,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Deze map is verwijderd."
+          }
+        }
+      }
+    },
+    "To keep files on this device, navigate to a file and select 'keep on this device'. Selected files will appear here." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om bestanden op dit apparaat te houden, navigeer je naar een bestand en kies je 'houd op dit apparaat'. Geselecteerde bestanden zullen hier worden getoond."
           }
         }
       }

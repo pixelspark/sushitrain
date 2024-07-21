@@ -2,6 +2,50 @@ import Foundation
 import SwiftUI
 import SushitrainCore
 
+struct SelectiveFolderView: View {
+    @ObservedObject var appState: SushitrainAppState
+    var folder: SushitrainFolder
+    @State private var showError = false
+    @State private var errorText = ""
+    @State private var searchString = ""
+    
+    var body: some View {
+        Form {
+            let list = try! self.folder.selectedPaths().asArray()
+            if !list.isEmpty {
+                let st = searchString.lowercased()
+                Section("Files kept on device") {
+                    List {
+                        ForEach(list, id: \.self) { item in
+                            if st.isEmpty || item.lowercased().contains(st) {
+                                Label(item, systemImage: "pin")
+                            }
+                        }
+                    }
+                }
+                
+                if st.isEmpty {
+                    Section {
+                        Button("Free up space", systemImage: "pin.slash", action: {
+                            do {
+                                try folder.clearSelection()
+                            }
+                            catch let error {
+                                showError = true
+                                errorText = error.localizedDescription
+                            }
+                        })
+                    }
+                }
+            }
+            else {
+                ContentUnavailableView("No files selected", systemImage: "pin.slash.fill", description: Text("To keep files on this device, navigate to a file and select 'keep on this device'. Selected files will appear here."))
+            }
+        }.navigationTitle("Selected files").navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchString, prompt: "Search files by name...")
+    }
+}
+
 struct FolderDeviceView: View {
     @ObservedObject var appState: SushitrainAppState
     @Environment(\.dismiss) private var dismiss
@@ -23,10 +67,10 @@ struct FolderDeviceView: View {
             Form {
                 Section("Encryption password") {
                     TextField("Password", text: $newPassword)
-                    .textContentType(.password)
-                    .textInputAutocapitalization(.never)
-                    .monospaced()
-                    .focused($passwordFieldFocus)
+                        .textContentType(.password)
+                        .textInputAutocapitalization(.never)
+                        .monospaced()
+                        .focused($passwordFieldFocus)
                 }
             }
             .onAppear {
@@ -239,27 +283,8 @@ struct FolderView: View {
                 }
                 
                 if self.folder.isSelective() {
-                    let list = try! self.folder.selectedPaths().asArray()
-                    if !list.isEmpty {
-                        Section("Files kept on device") {
-                            List {
-                                ForEach(list, id: \.self) { item in
-                                    Label(item, systemImage: "pin")
-                                }
-                            }
-                        }
-                        
-                        Section {
-                            Button("Free up space", systemImage: "pin.slash", action: {
-                                do {
-                                    try folder.clearSelection()
-                                }
-                                catch let error {
-                                    showError = true
-                                    errorText = error.localizedDescription
-                                }
-                            })
-                        }
+                    NavigationLink("Files kept on this device") {
+                        SelectiveFolderView(appState: appState, folder: folder)
                     }
                 }
                 
