@@ -1,8 +1,11 @@
 import SwiftUI
+import SushitrainCore
+
 
 struct MeView: View {
     @ObservedObject var appState: SushitrainAppState
     @State private var settingsShown = false
+    @State private var searchShown = false
     
     var peerStatusText: String {
         return "\(self.appState.client.connectedPeerCount())/\(self.appState.peers().count - 1)"
@@ -62,6 +65,11 @@ struct MeView: View {
                         settingsShown = true
                     }).labelStyle(.iconOnly)
                 }
+                ToolbarItem {
+                    Button("Search", systemImage: "magnifyingglass") {
+                        searchShown = true
+                    }
+                }
             }
             .sheet(isPresented: $settingsShown, content: {
                 NavigationStack {
@@ -75,7 +83,18 @@ struct MeView: View {
                     })
                 }
             })
-            .sheet(isPresented: self.$showAddresses) {
+            .sheet(isPresented: $searchShown) {
+                NavigationStack {
+                    SearchView(appState: appState).toolbar(content: {
+                        ToolbarItem(placement: .confirmationAction, content: {
+                            Button("Done") {
+                                self.searchShown = false
+                            }
+                        })
+                    })
+                }
+            }
+            .sheet(isPresented: $showAddresses) {
                 NavigationStack {
                     List {
                         ForEach(Array(self.appState.listenAddresses), id: \.self) { addr in

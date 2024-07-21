@@ -12,7 +12,7 @@ import (
 )
 
 type Entry struct {
-	folder *Folder
+	Folder *Folder
 	path   string
 	info   protocol.FileInfo
 }
@@ -32,13 +32,13 @@ type FetchCallback func(success bool)
 
 func (self *Entry) Fetch(delegate FetchDelegate) {
 	go func() {
-		client := self.folder.client
+		client := self.Folder.client
 		m := client.app.M
 		delegate.Progress(0.0)
 
 		fetchedBytes := int64(0)
 		for blockNo, block := range self.info.Blocks {
-			av, err := m.Availability(self.folder.FolderID, self.info, block)
+			av, err := m.Availability(self.Folder.FolderID, self.info, block)
 			if err != nil {
 				delegate.Error(FetchDelegateErrorBlockUnavailable, err.Error())
 				return
@@ -48,7 +48,7 @@ func (self *Entry) Fetch(delegate FetchDelegate) {
 				return
 			}
 
-			buf, err := m.RequestGlobal(client.ctx, av[0].ID, self.folder.FolderID, self.info.Name, blockNo, block.Offset, block.Size, block.Hash, block.WeakHash, false)
+			buf, err := m.RequestGlobal(client.ctx, av[0].ID, self.Folder.FolderID, self.info.Name, blockNo, block.Offset, block.Size, block.Hash, block.WeakHash, false)
 			if err != nil {
 				delegate.Error(FetchDelegateErrorPullFailed, err.Error())
 				return
@@ -97,7 +97,7 @@ func (self *Entry) ModifiedBy() string {
 
 func (self *Entry) LocalNativePath() (string, error) {
 	nativeFilename := osutil.NativeFilename(self.info.FileName())
-	localFolderPath, err := self.folder.LocalNativePath()
+	localFolderPath, err := self.Folder.LocalNativePath()
 	if err != nil {
 		return "", err
 	}
@@ -105,7 +105,7 @@ func (self *Entry) LocalNativePath() (string, error) {
 }
 
 func (self *Entry) IsLocallyPresent() bool {
-	ffs := self.folder.folderConfiguration().Filesystem(nil)
+	ffs := self.Folder.folderConfiguration().Filesystem(nil)
 	nativeFilename := osutil.NativeFilename(self.info.FileName())
 	_, err := ffs.Stat(nativeFilename)
 	return err == nil
@@ -113,7 +113,7 @@ func (self *Entry) IsLocallyPresent() bool {
 
 func (self *Entry) IsSelected() bool {
 	// FIXME: cache matcher
-	matcher, err := self.folder.loadIgnores()
+	matcher, err := self.Folder.loadIgnores()
 	if err != nil {
 		fmt.Println("error loading ignore matcher", err)
 		return false
@@ -127,7 +127,7 @@ func (self *Entry) IsSelected() bool {
 }
 
 func (self *Entry) IsExplicitlySelected() bool {
-	lines, _, err := self.folder.client.app.M.CurrentIgnores(self.folder.FolderID)
+	lines, _, err := self.Folder.client.app.M.CurrentIgnores(self.Folder.FolderID)
 	if err != nil {
 		return false
 	}
@@ -155,7 +155,7 @@ func (self *Entry) SetExplicitlySelected(selected bool) error {
 	}
 
 	// Edit lines
-	lines, _, err := self.folder.client.app.M.CurrentIgnores(self.folder.FolderID)
+	lines, _, err := self.Folder.client.app.M.CurrentIgnores(self.Folder.FolderID)
 	if err != nil {
 		return err
 	}
@@ -170,7 +170,7 @@ func (self *Entry) SetExplicitlySelected(selected bool) error {
 	}
 
 	// Save new ignores
-	err = self.folder.client.app.M.SetIgnores(self.folder.FolderID, lines)
+	err = self.Folder.client.app.M.SetIgnores(self.Folder.FolderID, lines)
 	if err != nil {
 		return err
 	}
@@ -178,20 +178,20 @@ func (self *Entry) SetExplicitlySelected(selected bool) error {
 	// Delete local file if !selected
 	if !selected {
 		go func() {
-			self.folder.client.app.M.ScanFolders()
-			self.folder.DeleteLocalFile(self.path)
+			self.Folder.client.app.M.ScanFolders()
+			self.Folder.DeleteLocalFile(self.path)
 		}()
 	}
 	return nil
 }
 
 func (self *Entry) OnDemandURL() string {
-	server := self.folder.client.Server
+	server := self.Folder.client.Server
 	if server == nil {
 		return ""
 	}
 
-	return server.URLFor(self.folder.FolderID, self.path)
+	return server.URLFor(self.Folder.FolderID, self.path)
 }
 
 func (self *Entry) MIMEType() string {

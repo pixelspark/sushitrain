@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/syncthing/syncthing/lib/build"
 	"github.com/syncthing/syncthing/lib/config"
@@ -589,6 +590,7 @@ func (self *Client) Statistics() (*FolderStats, error) {
 
 	for _, folder := range self.config.FolderList() {
 		snap, err := self.app.M.DBSnapshot(folder.ID)
+		defer snap.Release()
 		if err != nil {
 			return nil, err
 		}
@@ -600,4 +602,46 @@ func (self *Client) Statistics() (*FolderStats, error) {
 		Global: &globalTotal,
 		Local:  &localTotal,
 	}, nil
+}
+
+type SearchResultDelegate interface {
+	Result(entry *Entry)
+	IsCancelled() bool
+}
+
+func (self *Client) Search(text string, delegate SearchResultDelegate) error {
+	text = strings.ToLower(text)
+
+	for _, folder := range self.config.FolderList() {
+		folderObject := Folder{
+			client:   self,
+			FolderID: folder.ID,
+		}
+
+		snap, err := self.app.M.DBSnapshot(folder.ID)
+		if err != nil {
+			return err
+		}
+		defer snap.Release()
+
+		snap.WithGlobal(func(f protocol.FileIntf) bool {
+			if delegate.IsCancelled() {
+				// This shouild cancel the scan
+				return false
+			}
+
+			pathParts := strings.Split(f.FileName(), "/")
+			fn := strings.ToLower(pathParts[len(pathParts)-1])
+
+			if strings.Contains(fn, text) {
+				entry, err := folderObject.GetFileInformation(f.FileName())
+
+				if err == nil {
+					delegate.Result(entry)
+				}
+			}
+			return true
+		})
+	}
+	return nil
 }

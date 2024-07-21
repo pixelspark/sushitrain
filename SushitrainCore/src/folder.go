@@ -101,7 +101,7 @@ func (self *Folder) GetFileInformation(path string) (*Entry, error) {
 	return &Entry{
 		path:   path,
 		info:   info,
-		folder: self,
+		Folder: self,
 	}, nil
 }
 
@@ -533,7 +533,7 @@ func (self *Folder) DeleteLocalFile(path string) error {
 
 func (self *Folder) SetLocalFileExplicitlySelected(path string, toggle bool) error {
 	mockEntry := Entry{
-		folder: self,
+		Folder: self,
 		path:   path,
 		info: protocol.FileInfo{
 			Name: path,
@@ -547,6 +547,7 @@ func (self *Folder) Statistics() (*FolderStats, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer snap.Release()
 
 	return &FolderStats{
 		Global: newFolderCounts(snap.GlobalSize()),

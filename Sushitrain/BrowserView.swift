@@ -7,6 +7,7 @@ struct BrowserView: View {
     var prefix: String;
     @ObservedObject var appState: SushitrainAppState
     @State private var showSettings = false
+    @State private var searchText = ""
     
     func subdirectories() -> [String] {
         if !folder.exists() {
@@ -49,6 +50,7 @@ struct BrowserView: View {
         let subdirectories = self.subdirectories();
         let files = self.files();
         let isEmpty = subdirectories.isEmpty && files.isEmpty;
+        let searchTextLower = searchText.lowercased()
         
         NavigationStack {
             List {
@@ -65,27 +67,37 @@ struct BrowserView: View {
                         }
                     }
                     
+                    // List subdirectories
                     Section {
                         ForEach(subdirectories, id: \.self) {
-                            key in NavigationLink(destination: BrowserView(folder: folder, prefix: "\(prefix)\(key)/", appState: appState)) {
-                                Label(key, systemImage: "folder")
+                            key in
+                            if searchTextLower.isEmpty || key.lowercased().contains(searchTextLower) {
+                                NavigationLink(destination: BrowserView(folder: folder, prefix: "\(prefix)\(key)/", appState: appState)) {
+                                    
+                                    Label(key, systemImage: "folder")
+                                }
+                                .navigationBarTitleDisplayMode(.inline)
+                                .contextMenu(ContextMenu(menuItems: {
+                                    NavigationLink("Folder properties", destination: FileView(file: try! folder.getFileInformation(self.prefix + key), folder: self.folder, appState: self.appState))
+                                }))
                             }
-                            .navigationBarTitleDisplayMode(.inline)
-                            .contextMenu(ContextMenu(menuItems: {
-                                NavigationLink("Folder properties", destination: FileView(file: try! folder.getFileInformation(self.prefix + key), folder: self.folder, appState: self.appState))
-                            }))
                         }
                     }
                     
+                    // List files
                     Section {
                         ForEach(files, id: \.self) {
-                            file in NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState)) {
-                                Label(file.fileName(), systemImage: file.isLocallyPresent() ? "doc.fill" : (file.isSelected() ? "doc.badge.ellipsis" : "doc"))
+                            file in 
+                            if searchTextLower.isEmpty || file.fileName().lowercased().contains(searchTextLower) {
+                                NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState)) {
+                                    Label(file.fileName(), systemImage: file.isLocallyPresent() ? "doc.fill" : (file.isSelected() ? "doc.badge.ellipsis" : "doc"))
+                                }
                             }
                         }
                     }
                 }
             }
+            .searchable(text: $searchText, prompt: "Search files in this folder...")
             .navigationTitle(prefix.isEmpty ? self.folder.label() : prefix)
             .overlay {
                 if !folder.exists() {

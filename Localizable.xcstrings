@@ -971,12 +971,52 @@
         }
       }
     },
+    "Search" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoeken"
+          }
+        }
+      }
+    },
     "Search files by name..." : {
       "localizations" : {
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zoek bestanden op naam..."
+          }
+        }
+      }
+    },
+    "Search files in all folders..." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoek bestanden in alle mappen..."
+          }
+        }
+      }
+    },
+    "Search files in this folder..." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoek bestanden in deze map..."
+          }
+        }
+      }
+    },
+    "Searching..." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoeken..."
           }
         }
       }
