@@ -22,6 +22,14 @@ struct PeerView: View {
             
             Section {
                 Toggle("Enabled", isOn: Binding(get: { !peer.isPaused() }, set: {active in try? peer.setPaused(!active) }))
+            } footer: {
+                Text("If a device is not enabled, synchronization with this device is paused.")
+            }
+            
+            Section {
+                Toggle("Trusted", isOn: Binding(get: { !peer.isUntrusted() }, set: {trusted in try? peer.setUntrusted(!trusted) }))
+            } footer: {
+                Text("If a device is not trusted, an encryption password is required for each folder synchronized with the device.")
             }
             
             Section("Device ID") {

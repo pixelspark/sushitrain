@@ -97,6 +97,10 @@ struct FolderDeviceView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section("Share with device") {
+                    Text(deviceID).monospaced()
+                }
+                
                 Section("Encryption password") {
                     TextField("Password", text: $newPassword)
                         .textContentType(.password)
@@ -108,7 +112,7 @@ struct FolderDeviceView: View {
             .onAppear {
                 passwordFieldFocus = true
             }
-            .navigationTitle(deviceID)
+            .navigationTitle("Share folder")
             .toolbar(content: {
                 ToolbarItem(placement: .confirmationAction, content: {
                     Button("Save") {
@@ -297,7 +301,13 @@ struct FolderView: View {
                             let isShared = sharedWith.contains(addr.deviceID());
                             let shared = Binding(get: { return isShared }, set: {share in
                                 do {
-                                    try folder.share(withDevice: addr.deviceID(), toggle: share, encryptionPassword: "")
+                                    if share && addr.isUntrusted() {
+                                        editEncryptionPasswordDeviceID = addr.deviceID()
+                                        showEditEncryptionPassword = true
+                                    }
+                                    else {
+                                        try folder.share(withDevice: addr.deviceID(), toggle: share, encryptionPassword: "")
+                                    }
                                 }
                                 catch let error {
                                     print(error.localizedDescription)

@@ -35,7 +35,7 @@ struct PeersView: View {
                         !peers.contains(d)
                     })
                     
-                    if !appState.discoveredDevices.isEmpty {
+                    if !relevantDevices.isEmpty {
                         Section("Discovered devices") {
                             ForEach(relevantDevices, id: \.self) { devID in
                                 Label(devID, systemImage: "plus").onTapGesture {

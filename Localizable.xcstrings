@@ -687,6 +687,26 @@
         }
       }
     },
+    "If a device is not enabled, synchronization with this device is paused." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer een apparaat niet is ingeschakeld, vindt geen synchronisatie plaats met dit apparaat."
+          }
+        }
+      }
+    },
+    "If a device is not trusted, an encryption password is required for each folder synchronized with the device." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer een apparaat niet wordt vertrouwd, is een encryptiewachtwoord vereist voor alle mappen die met dit apparaat worden gesynchroniseerd."
+          }
+        }
+      }
+    },
     "If this is unexpected, ensure that the other devices have accepted syncing this folder with your device." : {
       "localizations" : {
         "nl" : {
@@ -1127,12 +1147,32 @@
         }
       }
     },
+    "Share folder" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deel map"
+          }
+        }
+      }
+    },
     "Share this folder with other devices to start synchronizing files." : {
       "localizations" : {
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Deel deze map met andere apparaten om te synchroniseren."
+          }
+        }
+      }
+    },
+    "Share with device" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deel met apparaat"
           }
         }
       }
@@ -1393,6 +1433,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Om bestanden op dit apparaat te houden, navigeer je naar een bestand en kies je 'houd op dit apparaat'. Geselecteerde bestanden zullen hier worden getoond."
+          }
+        }
+      }
+    },
+    "Trusted" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vertrouwd"
           }
         }
       }

@@ -79,6 +79,21 @@ func (self *Peer) IsPaused() bool {
 	return self.deviceConfiguration().Paused
 }
 
+func (self *Peer) SetUntrusted(untrusted bool) error {
+	return self.client.changeConfiguration(func(cfg *config.Configuration) {
+		dc, ok := cfg.DeviceMap()[self.deviceID]
+		if !ok {
+			return
+		}
+		dc.Untrusted = untrusted
+		cfg.SetDevice(dc)
+	})
+}
+
+func (self *Peer) IsUntrusted() bool {
+	return self.deviceConfiguration().Untrusted
+}
+
 func (self *Peer) IsSelf() bool {
 	return self.client.deviceID().Equals(self.deviceID)
 }
