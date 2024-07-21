@@ -227,6 +227,9 @@ func (self *Client) startEventListener() {
 					self.connectedDeviceAddresses[devID] = address
 					self.Delegate.OnEvent(evt.Type.String())
 
+				case events.LocalIndexUpdated:
+					self.Delegate.OnEvent(evt.Type.String())
+
 				case events.DeviceDisconnected:
 					self.Delegate.OnEvent(evt.Type.String())
 
