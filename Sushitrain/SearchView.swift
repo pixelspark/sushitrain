@@ -53,14 +53,34 @@ struct SearchView: View, SearchViewDelegate {
     }
     
     var body: some View {
-        List {
-            ForEach(results, id: \.self) { item in
-                NavigationLink(item.fileName()) {
-                    FileView(file: item, folder: item.folder!, appState: appState)
+        ZStack {
+            List {
+                if searchCount > 0 {
+                    Section {
+                        Label("Searching...", systemImage: "hourglass")
+                    }
+                }
+                
+                if !results.isEmpty {
+                    Section("Search results (\(results.count))") {
+                        ForEach(results, id: \.self) { item in
+                            if item.isDirectory() {
+                                NavigationLink(destination: BrowserView(folder: item.folder!, prefix: "\(item.path())/", appState: appState)) {
+                                    Label(item.fileName(), systemImage: "folder")
+                                }
+                            }
+                            else {
+                                NavigationLink(destination: FileView(file: item, folder: item.folder!, appState: self.appState, showPath: true)) {
+                                    Label(item.fileName(), systemImage: item.isLocallyPresent() ? "doc.fill" : (item.isSelected() ? "doc.badge.ellipsis" : "doc"))
+                                }
+                            }
+                        }
+                    }
                 }
             }
-            if searchCount > 0 {
-                Text("Searching...")
+            
+            if results.isEmpty {
+                ContentUnavailableView("No files found", systemImage: "magnifyingglass", description: Text("Enter a text to search for in the search field above to search."))
             }
         }.navigationTitle("Search")
             .navigationBarTitleDisplayMode(.inline)

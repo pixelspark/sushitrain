@@ -72,7 +72,8 @@ struct SelectiveFolderView: View {
             else {
                 ContentUnavailableView("No files selected", systemImage: "pin.slash.fill", description: Text("To keep files on this device, navigate to a file and select 'keep on this device'. Selected files will appear here."))
             }
-        }.navigationTitle("Selected files").navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle("Selected files")
+            .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $searchString, prompt: "Search files by name...")
     }
 }

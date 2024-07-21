@@ -1,6 +1,22 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@: %2$@"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@: %2$@"
+          }
+        }
+      }
+    },
     "%lld Mbit/s" : {
       "localizations" : {
         "nl" : {
@@ -491,6 +507,16 @@
         }
       }
     },
+    "Enter a text to search for in the search field above to search." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voer een zoekterm in het zoekvak hierboven in om bestanden te zoeken."
+          }
+        }
+      }
+    },
     "Error" : {
       "localizations" : {
         "nl" : {
@@ -751,12 +777,32 @@
         }
       }
     },
+    "Location" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Locatie"
+          }
+        }
+      }
+    },
     "Never" : {
       "localizations" : {
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nooit"
+          }
+        }
+      }
+    },
+    "No files found" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen bestanden gevonden"
           }
         }
       }
@@ -1007,6 +1053,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zoek bestanden in deze map..."
+          }
+        }
+      }
+    },
+    "Search results (%lld)" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search results (%lld)"
           }
         }
       }

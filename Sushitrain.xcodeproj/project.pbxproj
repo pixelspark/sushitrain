@@ -134,13 +134,13 @@
 				652763BF2C49589200250D3C /* OnboardingView.swift */,
 				65C9E1472C3F2FEF00EDCE6C /* PeersView.swift */,
 				65AE126A2C3B066F00E721D4 /* PeerView.swift */,
+				652879A72C4D06F5004AF46F /* SearchView.swift */,
 				652763BA2C45C99200250D3C /* SettingsView.swift */,
 				65AE11FC2C39EE0E00E721D4 /* SushitrainApp.swift */,
 				65AE12622C3AF50900E721D4 /* Utils.swift */,
 				65AE12002C39EE0F00E721D4 /* Assets.xcassets */,
 				65AE123B2C39F34B00E721D4 /* PrivacyInfo.xcprivacy */,
 				65AE12022C39EE0F00E721D4 /* Preview Content */,
-				652879A72C4D06F5004AF46F /* SearchView.swift */,
 			);
 			path = Sushitrain;
 			sourceTree = "<group>";

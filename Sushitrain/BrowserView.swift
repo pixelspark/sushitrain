@@ -73,10 +73,9 @@ struct BrowserView: View {
                             key in
                             if searchTextLower.isEmpty || key.lowercased().contains(searchTextLower) {
                                 NavigationLink(destination: BrowserView(folder: folder, prefix: "\(prefix)\(key)/", appState: appState)) {
-                                    
                                     Label(key, systemImage: "folder")
                                 }
-                                .navigationBarTitleDisplayMode(.inline)
+                               
                                 .contextMenu(ContextMenu(menuItems: {
                                     NavigationLink("Folder properties", destination: FileView(file: try! folder.getFileInformation(self.prefix + key), folder: self.folder, appState: self.appState))
                                 }))
@@ -99,6 +98,7 @@ struct BrowserView: View {
             }
             .searchable(text: $searchText, prompt: "Search files in this folder...")
             .navigationTitle(prefix.isEmpty ? self.folder.label() : prefix)
+            .navigationBarTitleDisplayMode(.inline)
             .overlay {
                 if !folder.exists() {
                     ContentUnavailableView("Folder removed", systemImage: "trash", description: Text("This folder was removed."))

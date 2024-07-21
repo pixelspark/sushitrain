@@ -120,6 +120,7 @@ struct FileView: View {
     @State var showVideoPlayer = false
     @State var showAudioPlayer = false
     let formatter = ByteCountFormatter()
+    var showPath = false
     
     var body: some View {
         Form {
@@ -134,6 +135,13 @@ struct FileView: View {
                     })).disabled(file.isSelected() && !file.isExplicitlySelected())
                 }
             }
+            
+            if showPath {
+                Section("Location") {
+                    Text("\(folder.folderID): \(file.path())")
+                }
+            }
+            
             Section {
                 if file.isSelected() {
                     // Selective sync uses copy in working dir
