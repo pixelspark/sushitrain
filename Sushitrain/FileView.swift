@@ -111,6 +111,14 @@ struct WebView: UIViewRepresentable {
     }
 }
 
+extension SushitrainFolder {
+    var isIdle: Bool {
+        var error: NSError? = nil
+        let s = self.state(&error)
+        return s == "idle"
+    }
+}
+
 struct FileView: View {
     var file: SushitrainEntry
     var folder: SushitrainFolder
@@ -132,7 +140,7 @@ struct FileView: View {
                         file.isExplicitlySelected() || file.isSelected()
                     }, set: { s in
                         try? file.setExplicitlySelected(s)
-                    })).disabled(file.isSelected() && !file.isExplicitlySelected())
+                    })).disabled(!folder.isIdle || (file.isSelected() && !file.isExplicitlySelected()))
                 }
             }
             
