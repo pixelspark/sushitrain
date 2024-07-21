@@ -680,15 +680,15 @@ func (self *Client) SetEnoughConnections(enough int) error {
 }
 
 func (self *Client) IsListening() bool {
-	return len(self.config.Options().ListenAddresses()) == 0
+	return len(self.config.Options().ListenAddresses()) > 0
 }
 
-func (self *Client) SetListening(passive bool) error {
+func (self *Client) SetListening(listening bool) error {
 	return self.changeConfiguration(func(cfg *config.Configuration) {
-		if passive {
-			cfg.Options.RawListenAddresses = []string{}
-		} else {
+		if listening {
 			cfg.Options.RawListenAddresses = []string{"default"}
+		} else {
+			cfg.Options.RawListenAddresses = []string{}
 		}
 	})
 }
