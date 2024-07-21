@@ -3,6 +3,8 @@ package sushitrain
 import (
 	"mime"
 	"strings"
+
+	"github.com/syncthing/syncthing/lib/db"
 )
 
 type ListOfStrings struct {
@@ -142,4 +144,29 @@ func MIMETypeForExtension(ext string) string {
 	}
 
 	return ""
+}
+
+type FolderCounts struct {
+	Bytes       int64
+	Files       int
+	Directories int
+}
+
+type FolderStats struct {
+	Global *FolderCounts
+	Local  *FolderCounts
+}
+
+func newFolderCounts(from db.Counts) *FolderCounts {
+	return &FolderCounts{
+		Bytes:       from.Bytes,
+		Files:       from.Files,
+		Directories: from.Directories,
+	}
+}
+
+func (self *FolderCounts) add(other *FolderCounts) {
+	self.Bytes += other.Bytes
+	self.Files += other.Files
+	self.Directories += other.Directories
 }

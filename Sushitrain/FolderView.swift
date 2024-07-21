@@ -2,6 +2,37 @@ import Foundation
 import SwiftUI
 import SushitrainCore
 
+struct FolderStatisticsView: View {
+    @ObservedObject var appState: SushitrainAppState
+    var folder: SushitrainFolder
+    
+    init(appState: SushitrainAppState, folder: SushitrainFolder) {
+        self.appState = appState
+        self.folder = folder
+    }
+    
+    var body: some View {
+        let formatter = ByteCountFormatter()
+        let stats: SushitrainFolderStats? = try? self.folder.statistics()
+        
+        Form {
+            if let stats = stats {
+                Section("All devices") {
+                    Text("Number of files").badge(stats.global!.files)
+                    Text("Number of directories").badge(stats.global!.directories)
+                    Text("File size").badge(formatter.string(fromByteCount: stats.global!.bytes))
+                }
+                
+                Section("This device") {
+                    Text("Number of files").badge(stats.local!.files)
+                    Text("Number of directories").badge(stats.local!.directories)
+                    Text("File size").badge(formatter.string(fromByteCount: stats.local!.bytes))
+                }
+            }
+        }.navigationTitle("Folder statistics")
+    }
+}
+
 struct SelectiveFolderView: View {
     @ObservedObject var appState: SushitrainAppState
     var folder: SushitrainFolder
@@ -286,6 +317,10 @@ struct FolderView: View {
                     NavigationLink("Files kept on this device") {
                         SelectiveFolderView(appState: appState, folder: folder)
                     }
+                }
+                
+                NavigationLink("Folder statistics") {
+                    FolderStatisticsView(appState: appState, folder: folder)
                 }
                 
                 Section {

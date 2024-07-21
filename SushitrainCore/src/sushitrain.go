@@ -582,3 +582,22 @@ func (self *Client) SetName(name string) error {
 		cfg.SetDevice(selfConfig)
 	})
 }
+
+func (self *Client) Statistics() (*FolderStats, error) {
+	globalTotal := FolderCounts{}
+	localTotal := FolderCounts{}
+
+	for _, folder := range self.config.FolderList() {
+		snap, err := self.app.M.DBSnapshot(folder.ID)
+		if err != nil {
+			return nil, err
+		}
+		globalTotal.add(newFolderCounts(snap.GlobalSize()))
+		localTotal.add(newFolderCounts(snap.LocalSize()))
+	}
+
+	return &FolderStats{
+		Global: &globalTotal,
+		Local:  &localTotal,
+	}, nil
+}

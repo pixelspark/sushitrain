@@ -91,6 +91,16 @@
         }
       }
     },
+    "All devices" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle apparaten"
+          }
+        }
+      }
+    },
     "All files" : {
       "localizations" : {
         "nl" : {
@@ -591,6 +601,16 @@
         }
       }
     },
+    "Folder statistics" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mapstatistieken"
+          }
+        }
+      }
+    },
     "Folders" : {
       "localizations" : {
         "nl" : {
@@ -757,6 +777,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Niet verbonden"
+          }
+        }
+      }
+    },
+    "Number of directories" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aantal submappen"
+          }
+        }
+      }
+    },
+    "Number of files" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aantal bestanden"
           }
         }
       }
@@ -1051,6 +1091,16 @@
         }
       }
     },
+    "Statistics" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistieken"
+          }
+        }
+      }
+    },
     "Stream" : {
       "localizations" : {
         "nl" : {
@@ -1197,6 +1247,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Deze applicatie maakt gebruik van Syncthing, open source software gelicenseerd onder de Mozilla Public License 2.0. Syncthing is een handelsmerk van de Syncthing Foundation. Deze applicatie is niet geassocieerd met, noch wordt deze aangeraden door, de Syncthing Foundation, noch de bijdragers aan Syncthing."
+          }
+        }
+      }
+    },
+    "This device" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dit apparaat"
           }
         }
       }

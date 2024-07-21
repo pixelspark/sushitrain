@@ -541,3 +541,15 @@ func (self *Folder) SetLocalFileExplicitlySelected(path string, toggle bool) err
 	}
 	return mockEntry.SetExplicitlySelected(toggle)
 }
+
+func (self *Folder) Statistics() (*FolderStats, error) {
+	snap, err := self.client.app.M.DBSnapshot(self.FolderID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &FolderStats{
+		Global: newFolderCounts(snap.GlobalSize()),
+		Local:  newFolderCounts(snap.LocalSize()),
+	}, nil
+}

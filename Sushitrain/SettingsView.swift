@@ -1,5 +1,35 @@
 import Foundation
 import SwiftUI
+import SushitrainCore
+
+struct TotalStatisticsView: View {
+    @ObservedObject var appState: SushitrainAppState
+    
+    init(appState: SushitrainAppState) {
+        self.appState = appState
+    }
+    
+    var body: some View {
+        let formatter = ByteCountFormatter()
+        let stats: SushitrainFolderStats? = try? self.appState.client.statistics()
+        
+        Form {
+            if let stats = stats {
+                Section("All devices") {
+                    Text("Number of files").badge(stats.global!.files)
+                    Text("Number of directories").badge(stats.global!.directories)
+                    Text("File size").badge(formatter.string(fromByteCount: stats.global!.bytes))
+                }
+                
+                Section("This device") {
+                    Text("Number of files").badge(stats.local!.files)
+                    Text("Number of directories").badge(stats.local!.directories)
+                    Text("File size").badge(formatter.string(fromByteCount: stats.local!.bytes))
+                }
+            }
+        }.navigationTitle("Statistics")
+    }
+}
 
 struct AdvancedSettingsView: View {
     @ObservedObject var appState: SushitrainAppState
@@ -198,6 +228,12 @@ struct SettingsView: View {
             
             NavigationLink("Advanced settings") {
                 AdvancedSettingsView(appState: appState)
+            }
+            
+            Section {
+                NavigationLink("Statistics") {
+                    TotalStatisticsView(appState: appState)
+                }
             }
             
             Section {
