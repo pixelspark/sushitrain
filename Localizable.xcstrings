@@ -87,6 +87,16 @@
         }
       }
     },
+    "Added devices can connect to this device on their initiative, while the app is running. This may cause additional battery drain. It is advisable to enable this only if you experience difficulty connecting to other devices." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toegevoegde apparaten kunnen op eigen initiatief verbinden met dit apparaat, wanneer de app is geopend. Dit veroorzaakt mogelijk extra batterijverbruik. Schakel deze optie alleen in wanneer er moeilijkheden zijn bij het verbinden met andere apparaten."
+          }
+        }
+      }
+    },
     "Addresses" : {
       "localizations" : {
         "nl" : {
@@ -273,6 +283,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Verbonden"
+          }
+        }
+      }
+    },
+    "Connections to other devices can only be initiated by this device, not by the other added devices." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbindingen naar andere apparaten worden alleen door dit apparaat geïnitieerd, niet door de andere gekoppelde apparaten."
           }
         }
       }
@@ -748,6 +768,7 @@
       }
     },
     "Limit connections" : {
+      "extractionState" : "stale",
       "localizations" : {
         "nl" : {
           "stringUnit" : {
@@ -803,6 +824,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Beperkt streamingbandbreedte"
+          }
+        }
+      }
+    },
+    "Listen for incoming connections" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sta inkomende verbindingen toe"
           }
         }
       }

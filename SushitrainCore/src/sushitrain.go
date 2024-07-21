@@ -276,23 +276,27 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 	if err != nil {
 		newCfg := config.New(devID)
 		newCfg.GUI.Enabled = false
+		newCfg.Options.RawListenAddresses = make([]string, 0) // Do not listen by default, we will connect to other devices on our initiative
 		cfg = config.Wrap(cfgFile, newCfg, devID, logger)
+
 	}
 
 	go cfg.Serve(ctx)
 
 	// Always override the following options in config
 	waiter, err := cfg.Modify(func(conf *config.Configuration) {
-		conf.GUI.Enabled = false
-		conf.Options.CREnabled = false
-		conf.Options.URAccepted = -1
-		conf.Options.ProgressUpdateIntervalS = 1
-		conf.Options.CRURL = ""
-		conf.Options.URURL = ""
-		conf.Options.ReleasesURL = ""
-		conf.Options.InsecureAllowOldTLSVersions = false
-		conf.Defaults.Folder.IgnorePerms = true
+		conf.GUI.Enabled = false                         // Don't need the web UI, we have our own :-)
+		conf.Options.CREnabled = false                   // No crash reporting for now
+		conf.Options.URAccepted = -1                     // No usage reporting for now
+		conf.Options.ProgressUpdateIntervalS = 1         // We want to update the user often, it improves the experience and is worth the compute cost
+		conf.Options.CRURL = ""                          // No crash reporting for now
+		conf.Options.URURL = ""                          // No usage reporting for now
+		conf.Options.ReleasesURL = ""                    // Disable auto update, we can't do so on iOS anyway
+		conf.Options.InsecureAllowOldTLSVersions = false // Never allow insecure TLS
+		conf.Defaults.Folder.IgnorePerms = true          // iOS doesn't expose permissions to users
+		conf.Options.RelayReconnectIntervalM = 1         // Set this to one minute (from the default 10) because on mobile networks this is more often necessary
 	})
+
 	if err != nil {
 		return nil, err
 	}
@@ -667,5 +671,19 @@ func (self *Client) GetEnoughConnections() int {
 func (self *Client) SetEnoughConnections(enough int) error {
 	return self.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.Options.ConnectionLimitEnough = enough
+	})
+}
+
+func (self *Client) IsListening() bool {
+	return len(self.config.Options().ListenAddresses()) == 0
+}
+
+func (self *Client) SetListening(passive bool) error {
+	return self.changeConfiguration(func(cfg *config.Configuration) {
+		if passive {
+			cfg.Options.RawListenAddresses = []string{}
+		} else {
+			cfg.Options.RawListenAddresses = []string{"default"}
+		}
 	})
 }

@@ -36,7 +36,34 @@ struct AdvancedSettingsView: View {
     
     var body: some View {
         Form {
-            Section("Connectivity") {
+            Section {
+                Toggle("Listen for incoming connections", isOn: Binding(get: {
+                    return appState.client.isListening()
+                }, set: { listening in
+                    try? appState.client.setListening(listening)
+                }))
+            } header: {
+                Text("Connectivity")
+            } footer: {
+                if appState.client.isListening() {
+                    Text("Added devices can connect to this device on their initiative, while the app is running. This may cause additional battery drain. It is advisable to enable this only if you experience difficulty connecting to other devices.")
+                }
+                else {
+                    Text("Connections to other devices can only be initiated by this device, not by the other added devices.")
+                }
+            }
+            
+            Section {
+                Toggle("One connection is enough", isOn: Binding(get: {
+                    return appState.client.getEnoughConnections() == 1
+                }, set: { enough in
+                    try! appState.client.setEnoughConnections(enough ? 1 : 0)
+                }))
+            } footer: {
+                Text("When this setting is enabled, the app will not attempt to connect to more devices after one connection has been established.")
+            }
+            
+            Section {
                 Toggle("Enable NAT-PMP / UPnP", isOn: Binding(get: {
                     return appState.client.isNATEnabled()
                 }, set: {nv in
@@ -220,18 +247,6 @@ struct SettingsView: View {
                 if appState.streamingLimitMbitsPerSec > 0 {
                     Stepper("\(appState.streamingLimitMbitsPerSec) Mbit/s", value: appState.$streamingLimitMbitsPerSec, in: 1...100)
                 }
-            }
-            
-            Section {
-                Toggle("One connection is enough", isOn: Binding(get: {
-                    return appState.client.getEnoughConnections() == 1
-                }, set: { enough in
-                    try! appState.client.setEnoughConnections(enough ? 1 : 0)
-                }))
-            } header: {
-                Text("Limit connections")
-            } footer: {
-                Text("When this setting is enabled, the app will not attempt to connect to more devices after one connection has been established.")
             }
             
             NavigationLink("Background synchronization") {
