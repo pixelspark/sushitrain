@@ -341,6 +341,16 @@
         }
       }
     },
+    "Device name" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apparaatnaam"
+          }
+        }
+      }
+    },
     "Devices" : {
       "localizations" : {
         "nl" : {
@@ -587,6 +597,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Maak ruimte vrij"
+          }
+        }
+      }
+    },
+    "hostname" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hostnaam"
           }
         }
       }

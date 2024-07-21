@@ -115,6 +115,15 @@ struct SettingsView: View {
     
     var body: some View {
         Form {
+            Section("Device name") {
+                TextField("hostname", text: Binding(get: {
+                    var err: NSError? = nil
+                    return appState.client.getName(&err)
+                }, set: { nn in
+                    try? appState.client.setName(nn)
+                }))
+            }
+            
             Section("Limit file transfer bandwidth") {
                 // Global down
                 Toggle("Limit receiving bandwidth", isOn: Binding(get: {

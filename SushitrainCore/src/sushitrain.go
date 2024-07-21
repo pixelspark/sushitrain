@@ -3,6 +3,7 @@ package sushitrain
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -556,4 +557,28 @@ func (self *Client) GetDownloadProgressForFile(path string, folder string) *Prog
 	}
 
 	return nil
+}
+
+func (self *Client) GetName() (string, error) {
+	devID := self.deviceID()
+
+	selfConfig, ok := self.config.Devices()[devID]
+	if !ok {
+		return "", errors.New("cannot find myself")
+	}
+	return selfConfig.Name, nil
+}
+
+func (self *Client) SetName(name string) error {
+	devID := self.deviceID()
+
+	selfConfig, ok := self.config.Devices()[devID]
+	if !ok {
+		return errors.New("cannot find myself")
+	}
+	selfConfig.Name = name
+
+	return self.changeConfiguration(func(cfg *config.Configuration) {
+		cfg.SetDevice(selfConfig)
+	})
 }
