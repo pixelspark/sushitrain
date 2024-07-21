@@ -618,6 +618,7 @@ particular order, unless/until the delegate returns true from IsCancelled. Set m
 */
 func (self *Client) Search(text string, delegate SearchResultDelegate, maxResults int) error {
 	text = strings.ToLower(text)
+	resultCount := 0
 
 	for _, folder := range self.config.FolderList() {
 		folderObject := Folder{
@@ -630,7 +631,6 @@ func (self *Client) Search(text string, delegate SearchResultDelegate, maxResult
 			return err
 		}
 		defer snap.Release()
-		resultCount := 0
 
 		snap.WithGlobal(func(f protocol.FileIntf) bool {
 			if delegate.IsCancelled() {
