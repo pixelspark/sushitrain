@@ -13,7 +13,6 @@ import (
 
 type Entry struct {
 	Folder *Folder
-	path   string
 	info   protocol.FileInfo
 }
 
@@ -63,7 +62,7 @@ func (self *Entry) Fetch(delegate FetchDelegate) {
 }
 
 func (self *Entry) Path() string {
-	return self.path
+	return self.info.FileName()
 }
 
 func (self *Entry) FileName() string {
@@ -179,7 +178,7 @@ func (self *Entry) SetExplicitlySelected(selected bool) error {
 	if !selected {
 		go func() {
 			self.Folder.client.app.M.ScanFolders()
-			self.Folder.DeleteLocalFile(self.path)
+			self.Folder.DeleteLocalFile(self.info.FileName())
 		}()
 	}
 	return nil
@@ -191,10 +190,10 @@ func (self *Entry) OnDemandURL() string {
 		return ""
 	}
 
-	return server.URLFor(self.Folder.FolderID, self.path)
+	return server.URLFor(self.Folder.FolderID, self.info.FileName())
 }
 
 func (self *Entry) MIMEType() string {
-	ext := filepath.Ext(self.path)
+	ext := filepath.Ext(self.info.FileName())
 	return MIMETypeForExtension(ext)
 }

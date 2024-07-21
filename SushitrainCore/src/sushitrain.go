@@ -643,7 +643,10 @@ func (self *Client) Search(text string, delegate SearchResultDelegate, maxResult
 			gimmeMore := maxResults <= 0 || resultCount < maxResults
 
 			if gimmeMore && strings.Contains(fn, text) {
-				entry, err := folderObject.GetFileInformation(f.FileName())
+				entry := &Entry{
+					Folder: &folderObject,
+					info:   f.(protocol.FileInfo),
+				}
 
 				if err == nil {
 					resultCount += 1

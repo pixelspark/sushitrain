@@ -99,7 +99,6 @@ func (self *Folder) GetFileInformation(path string) (*Entry, error) {
 		return nil, nil
 	}
 	return &Entry{
-		path:   path,
 		info:   info,
 		Folder: self,
 	}, nil
@@ -534,7 +533,6 @@ func (self *Folder) DeleteLocalFile(path string) error {
 func (self *Folder) SetLocalFileExplicitlySelected(path string, toggle bool) error {
 	mockEntry := Entry{
 		Folder: self,
-		path:   path,
 		info: protocol.FileInfo{
 			Name: path,
 		},
