@@ -109,3 +109,19 @@ func (self *Peer) Remove() error {
 		cfg.Devices = devices
 	})
 }
+
+func (self *Peer) SharedFolderIDs() *ListOfStrings {
+	folders := self.client.config.Folders()
+	sharedWith := make([]string, 0)
+
+	for fid, folder := range folders {
+		for _, did := range folder.DeviceIDs() {
+			if did == self.deviceID {
+				sharedWith = append(sharedWith, fid)
+				break
+			}
+		}
+	}
+
+	return List(sharedWith)
+}

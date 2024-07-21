@@ -43,10 +43,17 @@ struct PeerView: View {
                 }.monospaced()
             }
             
+            Section("Shared folders") {
+                let sharedFolderIDs = peer.sharedFolderIDs()?.asArray() ?? []
+                ForEach(sharedFolderIDs, id: \.self) { fid in
+                    Label(fid, systemImage: "folder")
+                }
+            }
+            
             Section("Addresses") {
                 let lastAddress = self.appState.client.getLastPeerAddress(self.peer.deviceID())
                 if !lastAddress.isEmpty {
-                   Text(lastAddress).contextMenu {
+                    Label(lastAddress, systemImage: "network").contextMenu {
                        Button(action: {
                            UIPasteboard.general.string = peer.deviceID()
                        }) {

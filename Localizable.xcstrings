@@ -1177,6 +1177,16 @@
         }
       }
     },
+    "Shared folders" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gedeelde mappen"
+          }
+        }
+      }
+    },
     "Shared with" : {
       "localizations" : {
         "nl" : {
