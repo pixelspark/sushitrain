@@ -1137,16 +1137,6 @@
         }
       }
     },
-    "Searching..." : {
-      "localizations" : {
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zoeken..."
-          }
-        }
-      }
-    },
     "Selected files" : {
       "localizations" : {
         "nl" : {

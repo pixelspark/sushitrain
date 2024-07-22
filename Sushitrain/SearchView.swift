@@ -27,7 +27,7 @@ class SearchOperation: NSObject, ObservableObject, SushitrainSearchResultDelegat
             if self.isCancelled() {
                 return
             }
-        
+            
             DispatchQueue.main.async {
                 self.add(entry: entry)
             }
@@ -70,14 +70,8 @@ struct SearchView: View, SearchViewDelegate {
     var body: some View {
         ZStack {
             List {
-                if searchCount > 0 {
-                    Section {
-                        Label("Searching...", systemImage: "hourglass")
-                    }
-                }
-                
                 if !results.isEmpty {
-                    Section(results.count == SearchOperation.MaxResultCount ? "Search results (\(SearchOperation.MaxResultCount)+)" : "Search results (\(results.count))") {
+                    Section {
                         ForEach(results, id: \.self) { item in
                             if item.isDirectory() {
                                 NavigationLink(destination: BrowserView(folder: item.folder!, prefix: "\(item.path())/", appState: appState)) {
@@ -90,6 +84,19 @@ struct SearchView: View, SearchViewDelegate {
                                 }
                             }
                         }
+                    } header: {
+                        HStack {
+                            if results.count == SearchOperation.MaxResultCount {
+                                Text("Search results (\(SearchOperation.MaxResultCount)+)")
+                            }
+                            else {
+                                Text("Search results (\(results.count))")
+                            }
+                            Spacer()
+                            if searchCount > 0 {
+                                ProgressView()
+                            }
+                        }
                     }
                 }
             }
@@ -100,8 +107,8 @@ struct SearchView: View, SearchViewDelegate {
         }.navigationTitle("Search")
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $searchText, placement: .toolbar, prompt: "Search files in all folders...")
-            // The below works from iOS18
-            //.searchFocused($isSearchFieldFocused)
+        // The below works from iOS18
+        //.searchFocused($isSearchFieldFocused)
             .onChange(of: searchText) {
                 self.search()
             }
