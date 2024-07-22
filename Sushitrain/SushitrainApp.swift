@@ -30,7 +30,7 @@ class SushitrainApp: NSObject, App, SushitrainClientDelegateProtocol, Sushitrain
         client.delegate = self;
         client.server?.delegate = self;
         
-        updateBackgroundRunHistory(appending: BackgroundSyncRun(started: Date.now, ended: Date.now.addingTimeInterval(69)))
+        updateBackgroundRunHistory(appending: nil)
         
         // Schedule background synchronization task
         BGTaskScheduler.shared.register(forTaskWithIdentifier: SushitrainApp.BackgroundSyncID, using: nil) { task in
