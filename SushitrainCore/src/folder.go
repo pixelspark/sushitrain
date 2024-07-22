@@ -96,6 +96,16 @@ func (self *Folder) GetFileInformation(path string) (*Entry, error) {
 	if self.client.app.M == nil {
 		return nil, nil
 	}
+
+	if len(path) == 0 {
+		return nil, errors.New("empty path")
+	}
+
+	// Strip initial slash
+	if path[0] == '/' {
+		path = path[1:]
+	}
+
 	info, ok, err := self.client.app.M.CurrentGlobalFile(self.FolderID, path)
 	if err != nil {
 		return nil, err

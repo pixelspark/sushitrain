@@ -44,42 +44,63 @@ struct SelectiveFolderView: View {
     @State private var showError = false
     @State private var errorText = ""
     @State private var searchString = ""
+    @State private var isLoading = true
+    @State private var selectedPaths: [String] = []
     
     var body: some View {
-        Form {
-            let list = try! self.folder.selectedPaths().asArray().sorted()
-            if !list.isEmpty {
-                let st = searchString.lowercased()
-                Section("Files kept on device") {
-                    List {
-                        ForEach(list, id: \.self) { item in
-                            if st.isEmpty || item.lowercased().contains(st) {
-                                Label(item, systemImage: "pin")
-                            }
+        ZStack {
+            if isLoading {
+                ProgressView()
+            }
+            else if !selectedPaths.isEmpty {
+                Form {
+                    let st = searchString.lowercased()
+                    Section("Files kept on device") {
+                        List {
+                            ForEach(selectedPaths, id: \.self) { item in
+                                if st.isEmpty || item.lowercased().contains(st) {
+                                    Label(item, systemImage: "pin")
+                                }
+                            }.onDelete { pathIndexes in
+                                let paths = pathIndexes.map({idx in selectedPaths[idx]})
+                                paths.forEach { path in
+                                    if let file = try? folder.getFileInformation(path) {
+                                        try? file.setExplicitlySelected(false)
+                                    }
+                                }
+                                selectedPaths.remove(atOffsets: pathIndexes)
+                            }.disabled(!folder.isIdle)
                         }
                     }
-                }
-                
-                if st.isEmpty {
-                    Section {
-                        Button("Free up space", systemImage: "pin.slash", action: {
-                            do {
-                                try folder.clearSelection()
-                            }
-                            catch let error {
-                                showError = true
-                                errorText = error.localizedDescription
-                            }
-                        })
+                    
+                    if st.isEmpty {
+                        Section {
+                            Button("Free up space", systemImage: "pin.slash", action: {
+                                do {
+                                    try folder.clearSelection()
+                                    self.selectedPaths.removeAll()
+                                }
+                                catch let error {
+                                    showError = true
+                                    errorText = error.localizedDescription
+                                }
+                            })
+                        }
                     }
                 }
             }
             else {
                 ContentUnavailableView("No files selected", systemImage: "pin.slash.fill", description: Text("To keep files on this device, navigate to a file and select 'keep on this device'. Selected files will appear here."))
             }
-        }.navigationTitle("Selected files")
+        }
+        .navigationTitle("Selected files")
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $searchString, prompt: "Search files by name...")
+            .task {
+                self.isLoading = true
+                self.selectedPaths = try! self.folder.selectedPaths().asArray().sorted()
+                self.isLoading = false
+            }
     }
 }
 

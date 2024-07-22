@@ -187,14 +187,6 @@ fileprivate struct OnDemandFileView: View {
     }
 }
 
-fileprivate extension SushitrainFolder {
-    var isIdle: Bool {
-        var error: NSError? = nil
-        let s = self.state(&error)
-        return s == "idle"
-    }
-}
-
 struct FileView: View {
     var file: SushitrainEntry
     var folder: SushitrainFolder

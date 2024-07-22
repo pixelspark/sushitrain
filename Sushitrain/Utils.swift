@@ -94,3 +94,11 @@ enum Settings {
     @Setting("lastBackgroundSyncRun", defaultValue: nil) static var lastBackgroundSyncRun: BackgroundSyncRun?
     @Setting("backgroundSyncEnabled", defaultValue: true) static var backgroundSyncEnabled: Bool
 }
+
+extension SushitrainFolder {
+    var isIdle: Bool {
+        var error: NSError? = nil
+        let s = self.state(&error)
+        return s == "idle"
+    }
+}
