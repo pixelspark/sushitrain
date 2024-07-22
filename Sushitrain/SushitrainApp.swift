@@ -7,18 +7,6 @@ import SwiftUI
 import SushitrainCore
 import BackgroundTasks
 
-struct BackgroundSyncRun: Codable {
-    var started: Date
-    var ended: Date?
-    
-    var asString: String {
-        if let ended = self.ended {
-            return "\(self.started.formatted()) - \(ended.formatted())"
-        }
-        return self.started.formatted()
-    }
-}
-
 @main
 class SushitrainApp: NSObject, App, SushitrainClientDelegateProtocol, SushitrainStreamingServerDelegateProtocol {
     fileprivate var appState: SushitrainAppState
@@ -37,15 +25,12 @@ class SushitrainApp: NSObject, App, SushitrainClientDelegateProtocol, Sushitrain
             exit(-1)
         }
         
-        // Enable background sync by default
-        if UserDefaults.standard.value(forKey: "backgroundSyncEnabled") == nil {
-            UserDefaults.standard.setValue(true, forKey: "backgroundSyncEnabled")
-        }
-        
         self.appState = SushitrainAppState(client: client)
         super.init()
         client.delegate = self;
         client.server?.delegate = self;
+        
+        updateBackgroundRunHistory(appending: BackgroundSyncRun(started: Date.now, ended: Date.now.addingTimeInterval(69)))
         
         // Schedule background synchronization task
         BGTaskScheduler.shared.register(forTaskWithIdentifier: SushitrainApp.BackgroundSyncID, using: nil) { task in
@@ -86,39 +71,41 @@ class SushitrainApp: NSObject, App, SushitrainClientDelegateProtocol, Sushitrain
         }
     }
     
+    @MainActor
+    private func updateBackgroundRunHistory(appending run: BackgroundSyncRun?) {
+        var runs = Settings.backgroundSyncRuns
+        
+        // Remove old runs (older than 24h)
+        let now = Date.now
+        runs.removeAll(where: {r in
+            return now.timeIntervalSince(r.started) > (24 * 60 * 60)
+        })
+        
+        // Append our run
+        if let run = run {
+            runs.append(run)
+        }
+        Settings.backgroundSyncRuns = runs
+    }
+    
+    @MainActor
     private func handleBackgroundSync(task: BGTask) {
         _ = Self.scheduleBackgroundSync()
         
-        let enabled = UserDefaults.standard.bool(forKey: "backgroundSyncEnabled")
-        if enabled {
+        if Settings.backgroundSyncEnabled {
             let start = Date.now
             self.currentBackgroundTask = task
             print("Start background sync at", start, task)
             
-            UserDefaults.standard.setValue(start, forKey: "lastBackgroundSyncStart")
-            UserDefaults.standard.setValue(nil, forKey: "lastBackgroundSyncEnd")
+            var run = BackgroundSyncRun(started: start, ended: nil)
+            Settings.lastBackgroundSyncRun = run
             
             task.expirationHandler = {
-                let end = Date.now
-                
-                // Bookeeping
-                print("Background sync expired at", end)
-                UserDefaults.standard.setValue(Date.now, forKey: "lastBackgroundSyncEnd")
+                run.ended = Date.now
+                print("Background sync expired at", run.ended!)
                 self.currentBackgroundTask = nil
-                
-                // Logging
-                let run = BackgroundSyncRun(started: start, ended: end)
-                var runs: [BackgroundSyncRun] = (UserDefaults.standard.value(forKey: "backgroundRuns") as? [BackgroundSyncRun]) ?? []
-                
-                // Remove old runs (older than 24h)
-                let now = Date.now
-                runs.removeAll(where: {r in
-                    return now.timeIntervalSince(r.started) > (24 * 60 * 60)
-                })
-                
-                // Append our run
-                runs.append(run)
-                UserDefaults.standard.setValue(runs, forKey: "backgroundRuns")
+                Settings.lastBackgroundSyncRun = run
+                self.updateBackgroundRunHistory(appending: run)
                 task.setTaskCompleted(success: true)
             }
         }

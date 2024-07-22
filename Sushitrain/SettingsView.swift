@@ -124,24 +124,20 @@ struct BackgroundSettingsView: View {
             }
             
             Section("Last background synchronization") {
-                if let lastSyncStarted = UserDefaults.standard.value(forKey: "lastBackgroundSyncStart") as? Date {
-                    Text("Started").badge(lastSyncStarted.formatted(date: .abbreviated, time: .shortened))
+                if let lastSyncRun = Settings.lastBackgroundSyncRun {
+                    Text("Started").badge(lastSyncRun.started.formatted(date: .abbreviated, time: .shortened))
+                    
+                    if let lastSyncEnded = lastSyncRun.ended {
+                        Text("Ended").badge(lastSyncEnded.formatted(date: .abbreviated, time: .shortened))
+                        Text("Duration").badge(durationFormatter.string(from: lastSyncEnded.timeIntervalSince(lastSyncRun.started)))
+                    }
                 }
                 else {
                     Text("Started").badge("Never")
                 }
-                
-                if let lastSyncEnded = UserDefaults.standard.value(forKey: "lastBackgroundSyncEnd") as? Date {
-                    Text("Ended").badge(lastSyncEnded.formatted(date: .abbreviated, time: .shortened))
-                }
-                
-                if let lastSyncStarted = UserDefaults.standard.value(forKey: "lastBackgroundSyncStart") as? Date,
-                   let lastSyncEnded = UserDefaults.standard.value(forKey: "lastBackgroundSyncEnd") as? Date {
-                    Text("Duration").badge(durationFormatter.string(from: lastSyncEnded.timeIntervalSince(lastSyncStarted)))
-                }
             }
             
-            let backgroundSyncs = (UserDefaults.standard.value(forKey: "backgroundRuns") as? [BackgroundSyncRun]) ?? []
+            let backgroundSyncs = Settings.backgroundSyncRuns
             if !backgroundSyncs.isEmpty {
                 Section("During the last 24 hours") {
                     ForEach(backgroundSyncs, id: \.started) { (log: BackgroundSyncRun) in

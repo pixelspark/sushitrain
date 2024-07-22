@@ -46,3 +46,51 @@ extension SushitrainEntry: Comparable {
 extension SushitrainPeer: Identifiable {
     
 }
+
+/** Utility for storing arbitrary Swift Codable types as user defaults */
+// Inspired by https://stackoverflow.com/questions/19720611/attempt-to-set-a-non-property-list-object-as-an-nsuserdefaults
+@propertyWrapper
+struct Setting<T: Codable> {
+    let key: String
+    let defaultValue: T
+
+    init(_ key: String, defaultValue: T) {
+        self.key = key
+        self.defaultValue = defaultValue
+    }
+
+    var wrappedValue: T {
+        get {
+            if let jsonData = UserDefaults.standard.object(forKey: key) as? Data,
+                let user = try? JSONDecoder().decode(T.self, from: jsonData) {
+                return user
+            }
+
+            return  defaultValue
+        }
+        set {
+            if let jsonData = try? JSONEncoder().encode(newValue) {
+                UserDefaults.standard.set(jsonData, forKey: key)
+            }
+        }
+    }
+}
+
+struct BackgroundSyncRun: Codable {
+    var started: Date
+    var ended: Date?
+    
+    var asString: String {
+        if let ended = self.ended {
+            return "\(self.started.formatted()) - \(ended.formatted())"
+        }
+        return self.started.formatted()
+    }
+}
+
+@MainActor
+enum Settings {
+    @Setting("backgroundSyncRuns", defaultValue: []) static var backgroundSyncRuns: [BackgroundSyncRun]
+    @Setting("lastBackgroundSyncRun", defaultValue: nil) static var lastBackgroundSyncRun: BackgroundSyncRun?
+    @Setting("backgroundSyncEnabled", defaultValue: true) static var backgroundSyncEnabled: Bool
+}
