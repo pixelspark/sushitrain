@@ -94,7 +94,7 @@ struct BrowserView: View {
                         ForEach(files, id: \.self) {
                             file in 
                             if searchTextLower.isEmpty || file.fileName().lowercased().contains(searchTextLower) {
-                                NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState)) {
+                                NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState, siblings: files)) {
                                     Label(file.fileName(), systemImage: file.isLocallyPresent() ? "doc.fill" : (file.isSelected() ? "doc.badge.ellipsis" : "doc"))
                                 }
                             }

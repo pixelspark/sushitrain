@@ -857,6 +857,16 @@
         }
       }
     },
+    "Next" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volgende"
+          }
+        }
+      }
+    },
     "No files found" : {
       "localizations" : {
         "nl" : {
@@ -1003,6 +1013,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Synchronisatie voorbereiden..."
+          }
+        }
+      }
+    },
+    "Previous" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorige"
           }
         }
       }

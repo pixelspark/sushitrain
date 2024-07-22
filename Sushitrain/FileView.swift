@@ -188,7 +188,7 @@ fileprivate struct OnDemandFileView: View {
 }
 
 struct FileView: View {
-    var file: SushitrainEntry
+    @State var file: SushitrainEntry
     var folder: SushitrainFolder
     @ObservedObject var appState: SushitrainAppState
     @State var localItemURL: URL? = nil
@@ -197,11 +197,15 @@ struct FileView: View {
     @State var showAudioPlayer = false
     let formatter = ByteCountFormatter()
     var showPath = false
+    var siblings: [SushitrainEntry]? = nil
+    @State var selfIndex: Int? = nil
     
     var body: some View {
         Form {
             Section {
-                Text("File size").badge(formatter.string(fromByteCount: file.size()))
+                if !file.isDirectory() {
+                    Text("File size").badge(formatter.string(fromByteCount: file.size()))
+                }
                 
                 if self.folder.isSelective() {
                     Toggle("Keep on this device", systemImage: "pin", isOn: Binding(get: {
@@ -218,47 +222,49 @@ struct FileView: View {
                 }
             }
             
-            Section {
-                if file.isSelected() {
-                    // Selective sync uses copy in working dir
-                    if file.isLocallyPresent() {
-                        var error: NSError? = nil
-                        let localPath = file.localNativePath(&error)
-                        if error == nil {
-                            Button("View file", systemImage: "eye", action: {
-                                localItemURL = URL(fileURLWithPath: localPath)
-                            })
-                            ShareLink("Share file", item: URL(fileURLWithPath: localPath))
-                        }
-                    }
-                    else {
-                        // Waiting for sync
-                        let progress = self.appState.client.getDownloadProgress(forFile: self.file.path(), folder: self.folder.folderID)
-                        if let progress = progress {
-                            ProgressView(value: progress.percentage, total: 1.0) {
-                                Label("Downloading file...", systemImage: "arrow.clockwise").foregroundStyle(.green).symbolEffect(.pulse, value: true)
+            if !file.isDirectory() {
+                Section {
+                    if file.isSelected() {
+                        // Selective sync uses copy in working dir
+                        if file.isLocallyPresent() {
+                            var error: NSError? = nil
+                            let localPath = file.localNativePath(&error)
+                            if error == nil {
+                                Button("View file", systemImage: "eye", action: {
+                                    localItemURL = URL(fileURLWithPath: localPath)
+                                })
+                                ShareLink("Share file", item: URL(fileURLWithPath: localPath))
                             }
                         }
                         else {
-                            Label("Waiting to synchronize...", systemImage: "hourglass")
-                        }
-                    }
-                }
-                else {
-                    if file.isMedia {
-                        Button("Stream", systemImage: file.isVideo ? "tv" : "music.note", action: {
-                            if file.isVideo {
-                                showVideoPlayer = true
+                            // Waiting for sync
+                            let progress = self.appState.client.getDownloadProgress(forFile: self.file.path(), folder: self.folder.folderID)
+                            if let progress = progress {
+                                ProgressView(value: progress.percentage, total: 1.0) {
+                                    Label("Downloading file...", systemImage: "arrow.clockwise").foregroundStyle(.green).symbolEffect(.pulse, value: true)
+                                }
                             }
                             else {
-                                showAudioPlayer = true
+                                Label("Waiting to synchronize...", systemImage: "hourglass")
                             }
-                        }).disabled(folder.connectedPeerCount() == 0)
+                        }
                     }
                     else {
-                        Button("View file", systemImage: "eye", action: {
-                            showWebview = true
-                        }).disabled(folder.connectedPeerCount() == 0)
+                        if file.isMedia {
+                            Button("Stream", systemImage: file.isVideo ? "tv" : "music.note", action: {
+                                if file.isVideo {
+                                    showVideoPlayer = true
+                                }
+                                else {
+                                    showAudioPlayer = true
+                                }
+                            }).disabled(folder.connectedPeerCount() == 0)
+                        }
+                        else {
+                            Button("View file", systemImage: "eye", action: {
+                                showWebview = true
+                            }).disabled(folder.connectedPeerCount() == 0)
+                        }
                     }
                 }
             }
@@ -286,5 +292,30 @@ struct FileView: View {
                     OnDemandFileView(file: file, isShown: $showWebview)
                 }
             })
+            .toolbar {
+                if let selfIndex = selfIndex, let siblings = siblings {
+                    ToolbarItem(placement: .navigation) {
+                        Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1)
+                    }
+                    ToolbarItem(placement: .navigation) {
+                        Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 2)
+                    }
+                }
+            }
+            .onAppear {
+                selfIndex = self.siblings?.firstIndex(of: file)
+            }
+    }
+    
+    private func next(_ offset: Int) {
+        if let siblings = siblings {
+            if let idx = siblings.firstIndex(of: self.file) {
+                let newIndex = idx + offset
+                if  newIndex > 0 && newIndex < (siblings.count - 1) {
+                    file = siblings[newIndex]
+                    selfIndex = self.siblings?.firstIndex(of: file)
+                }
+            }
+        }
     }
 }

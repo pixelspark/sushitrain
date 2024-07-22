@@ -79,7 +79,7 @@ struct SearchView: View, SearchViewDelegate {
                                 }
                             }
                             else {
-                                NavigationLink(destination: FileView(file: item, folder: item.folder!, appState: self.appState, showPath: true)) {
+                                NavigationLink(destination: FileView(file: item, folder: item.folder!, appState: self.appState, showPath: true, siblings: results)) {
                                     Label(item.fileName(), systemImage: item.isLocallyPresent() ? "doc.fill" : (item.isSelected() ? "doc.badge.ellipsis" : "doc"))
                                 }
                             }
