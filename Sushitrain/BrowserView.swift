@@ -12,9 +12,12 @@ struct BrowserView: View {
     var prefix: String;
     @ObservedObject var appState: SushitrainAppState
     @State private var showSettings = false
+    @State private var isLoading = true
     @State private var searchText = ""
+    @State private var subdirectories: [String] = []
+    @State private var files: [SushitrainEntry] = []
     
-    func subdirectories() -> [String] {
+    func listSubdirectories() -> [String] {
         if !folder.exists() {
             return []
         }
@@ -27,7 +30,7 @@ struct BrowserView: View {
         return []
     }
     
-    func files() -> [SushitrainEntry] {
+    func listFiles() -> [SushitrainEntry] {
         if !folder.exists() {
             return []
         }
@@ -52,8 +55,6 @@ struct BrowserView: View {
     }
     
     var body: some View {
-        let subdirectories = self.subdirectories();
-        let files = self.files();
         let isEmpty = subdirectories.isEmpty && files.isEmpty;
         let searchTextLower = searchText.lowercased()
         
@@ -109,6 +110,9 @@ struct BrowserView: View {
                 if !folder.exists() {
                     ContentUnavailableView("Folder removed", systemImage: "trash", description: Text("This folder was removed."))
                 }
+                else if isLoading {
+                    ProgressView()
+                }
                 else if isEmpty && self.prefix == "" {
                     if self.folder.isPaused() {
                         ContentUnavailableView("Synchronization disabled", systemImage: "pause.fill", description: Text("Synchronization has been disabled for this folder. Enable it in folder settings to access files.")).onTapGesture {
@@ -162,6 +166,12 @@ struct BrowserView: View {
                     })
                 }
             })
+            .task {
+                self.isLoading = true
+                subdirectories = self.listSubdirectories();
+                files = self.listFiles();
+                self.isLoading = false
+            }
         }
     }
 }
