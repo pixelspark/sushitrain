@@ -9,7 +9,7 @@ import QuickLook
 import WebKit
 import AVKit
 
-struct FileMediaPlayer: View {
+fileprivate struct FileMediaPlayer: View {
     @State private var session = AVAudioSession.sharedInstance()
     @State private var player: AVPlayer?
     @ObservedObject var appState: SushitrainAppState
@@ -85,7 +85,7 @@ struct FileMediaPlayer: View {
     }
 }
 
-extension SushitrainEntry {
+fileprivate extension SushitrainEntry {
     var isMedia: Bool {
         get {
             return self.isVideo || self.isAudio
@@ -103,20 +103,91 @@ extension SushitrainEntry {
     }
 }
 
-struct WebView: UIViewRepresentable {
+fileprivate struct WebView: UIViewRepresentable {
     let url: URL
+    @Binding var isLoading: Bool
+    @Binding var error: Error?
+    
+    // With thanks to https://www.swiftyplace.com/blog/loading-a-web-view-in-swiftui-with-wkwebview
+    class WebViewCoordinator: NSObject, WKNavigationDelegate {
+        var parent: WebView
+        
+        init(_ parent: WebView) {
+            self.parent = parent
+        }
+        
+        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+            parent.isLoading = true
+        }
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            parent.isLoading = false
+        }
+        
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: any Error) {
+            parent.isLoading = false
+            parent.error = error
+        }
+        
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: any Error) {
+            parent.isLoading = false
+            parent.error = error
+        }
+    }
+    
+    func makeCoordinator() -> WebViewCoordinator {
+           return WebViewCoordinator(self)
+    }
     
     func makeUIView(context: Context) -> WKWebView {
-        return WKWebView()
+        let view = WKWebView()
+        view.navigationDelegate = context.coordinator
+        let request = URLRequest(url: url)
+        view.load(request)
+        return view
     }
     
     func updateUIView(_ webView: WKWebView, context: Context) {
-        let request = URLRequest(url: url)
-        webView.load(request)
+        if webView.url != url {
+            let request = URLRequest(url: url)
+            webView.load(request)
+        }
     }
 }
 
-extension SushitrainFolder {
+fileprivate struct OnDemandFileView: View {
+    var file: SushitrainEntry
+    @Binding var isShown: Bool
+    @State var isLoading: Bool = false
+    @State var error: Error? = nil
+    
+    var body: some View {
+        ZStack {
+            if let error = error {
+                ContentUnavailableView("Cannot display file", systemImage: "xmark.circle", description: Text(error.localizedDescription))
+            }
+            else {
+                WebView(url: URL(string: file.onDemandURL())!, isLoading: $isLoading, error: $error)
+            }
+        }
+        .navigationTitle(file.fileName())
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(content: {
+            ToolbarItem(placement: .cancellationAction, content: {
+                if isLoading {
+                    ProgressView()
+                }
+            })
+            
+            ToolbarItem(placement: .confirmationAction, content: {
+                Button("Done", action: {
+                    isShown = false
+                })
+            })
+        })
+    }
+}
+
+fileprivate extension SushitrainFolder {
     var isIdle: Bool {
         var error: NSError? = nil
         let s = self.state(&error)
@@ -220,16 +291,7 @@ struct FileView: View {
             })
             .sheet(isPresented: $showWebview, content: {
                 NavigationStack {
-                    WebView(url: URL(string: file.onDemandURL())!)
-                        .navigationTitle(file.fileName())
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar(content: {
-                            ToolbarItem(placement: .confirmationAction, content: {
-                                Button("Done", action: {
-                                    showWebview = false
-                                })
-                            })
-                        })
+                    OnDemandFileView(file: file, isShown: $showWebview)
                 }
             })
     }

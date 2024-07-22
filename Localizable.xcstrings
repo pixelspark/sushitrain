@@ -267,6 +267,16 @@
         }
       }
     },
+    "Cannot display file" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kan bestand niet weergeven"
+          }
+        }
+      }
+    },
     "Cleaning up..." : {
       "localizations" : {
         "nl" : {
@@ -763,17 +773,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Laatst gezien"
-          }
-        }
-      }
-    },
-    "Limit connections" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Beperk verbindingen"
           }
         }
       }
