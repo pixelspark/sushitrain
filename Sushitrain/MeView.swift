@@ -105,7 +105,7 @@ struct MeView: View {
                         ForEach(Array(self.appState.listenAddresses), id: \.self) { addr in
                             Text(addr).contextMenu {
                                 Button(action: {
-                                    UIPasteboard.general.string = self.appState.localDeviceID
+                                    UIPasteboard.general.string = addr
                                 }) {
                                     Text("Copy to clipboard")
                                     Image(systemName: "doc.on.doc")

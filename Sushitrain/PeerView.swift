@@ -60,7 +60,7 @@ struct PeerView: View {
                 if !lastAddress.isEmpty {
                     Label(lastAddress, systemImage: "network").contextMenu {
                        Button(action: {
-                           UIPasteboard.general.string = peer.deviceID()
+                           UIPasteboard.general.string = lastAddress
                        }) {
                            Text("Copy to clipboard")
                            Image(systemName: "doc.on.doc")
