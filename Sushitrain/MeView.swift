@@ -8,7 +8,7 @@ import SushitrainCore
 
 
 struct MeView: View {
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     @State private var settingsShown = false
     @State private var searchShown = false
     

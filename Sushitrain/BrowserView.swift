@@ -10,7 +10,7 @@ import QuickLook
 struct BrowserView: View {
     var folder: SushitrainFolder;
     var prefix: String;
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     @State private var showSettings = false
     @State private var isLoading = true
     @State private var searchText = ""

@@ -9,7 +9,7 @@ import SushitrainCore
 struct AddDeviceView: View {
     @State var deviceID = ""
     @Environment(\.dismiss) private var dismiss
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     @State var showError = false
     @State var errorText = ""
     @FocusState private var idFieldFocus: Bool

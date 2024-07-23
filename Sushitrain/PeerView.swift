@@ -8,7 +8,7 @@ import SushitrainCore
 
 struct PeerView: View {
     var peer: SushitrainPeer
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {

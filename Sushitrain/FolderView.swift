@@ -8,10 +8,10 @@ import SwiftUI
 import SushitrainCore
 
 struct FolderStatisticsView: View {
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     var folder: SushitrainFolder
     
-    init(appState: SushitrainAppState, folder: SushitrainFolder) {
+    init(appState: AppState, folder: SushitrainFolder) {
         self.appState = appState
         self.folder = folder
     }
@@ -39,7 +39,7 @@ struct FolderStatisticsView: View {
 }
 
 struct SelectiveFolderView: View {
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     var folder: SushitrainFolder
     @State private var showError = false
     @State private var errorText = ""
@@ -105,7 +105,7 @@ struct SelectiveFolderView: View {
 }
 
 struct FolderDeviceView: View {
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
     var folder: SushitrainFolder
     var deviceID: String
@@ -113,7 +113,7 @@ struct FolderDeviceView: View {
     @FocusState private var passwordFieldFocus: Bool
     @State private var error: String? = nil
     
-    init(appState: SushitrainAppState, folder: SushitrainFolder, deviceID: String) {
+    init(appState: AppState, folder: SushitrainFolder, deviceID: String) {
         self.appState = appState
         self.folder = folder
         self.deviceID = deviceID
@@ -165,7 +165,7 @@ struct FolderDeviceView: View {
 }
 
 struct FolderStatusView: View {
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     var folder: SushitrainFolder
     
     var isAvailable: Bool {
@@ -249,7 +249,7 @@ struct FolderStatusView: View {
 }
 
 struct FolderSyncTypePicker: View {
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     var folder: SushitrainFolder
     
     var body: some View {
@@ -267,7 +267,7 @@ struct FolderSyncTypePicker: View {
 
 
 struct FolderDirectionPicker: View {
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     var folder: SushitrainFolder
     
     var body: some View {
@@ -286,7 +286,7 @@ struct FolderDirectionPicker: View {
 
 struct FolderView: View {
     var folder: SushitrainFolder
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
     @State var showError = false
     @State var errorText = ""

@@ -9,7 +9,7 @@ import SushitrainCore
 
 struct ExtraFilesView: View {
     var folder: SushitrainFolder
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     @State private var adressedPaths = Set<String>()
     
     var body: some View {

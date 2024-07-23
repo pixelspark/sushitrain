@@ -7,7 +7,7 @@ import SwiftUI
 import SushitrainCore
 
 struct PeersView: View {
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     @State var showingAddDevicePopup = false
     
     var peers: [SushitrainPeer] {

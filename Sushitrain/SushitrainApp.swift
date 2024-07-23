@@ -8,8 +8,8 @@ import SushitrainCore
 import BackgroundTasks
 
 @main
-class SushitrainApp: NSObject, App, SushitrainClientDelegateProtocol, SushitrainStreamingServerDelegateProtocol {
-    fileprivate var appState: SushitrainAppState
+class SushitrainApp: NSObject, App {
+    fileprivate var appState: AppState
     private static let BackgroundSyncID = "nl.t-shaped.sushitrain.background-sync"
     private var currentBackgroundTask: BGTask? = nil
     
@@ -25,7 +25,7 @@ class SushitrainApp: NSObject, App, SushitrainClientDelegateProtocol, Sushitrain
             exit(-1)
         }
         
-        self.appState = SushitrainAppState(client: client)
+        self.appState = AppState(client: client)
         super.init()
         client.delegate = self;
         client.server?.delegate = self;
@@ -53,20 +53,6 @@ class SushitrainApp: NSObject, App, SushitrainClientDelegateProtocol, Sushitrain
                 DispatchQueue.main.async {
                     appState.alert(message: error.localizedDescription)
                 }
-            }
-        }
-    }
-    
-    func onStreamChunk(_ folder: String?, path: String?, bytesSent: Int64, bytesTotal: Int64) {
-        if let folder = folder, let path = path {
-            let appState = self.appState;
-            DispatchQueue.main.async {
-                appState.streamingProgress = StreamingProgress(
-                    folder: folder,
-                    path: path,
-                    bytesSent: bytesSent,
-                    bytesTotal: bytesTotal
-                )
             }
         }
     }
@@ -133,24 +119,22 @@ class SushitrainApp: NSObject, App, SushitrainClientDelegateProtocol, Sushitrain
             ContentView(appState: appState)
         }
     }
+}
+
+extension SushitrainApp: SushitrainClientDelegateProtocol {
+    func onEvent(_ event: String?) {
+        let appState = self.appState
+        DispatchQueue.main.async {
+            appState.lastEvent = event ?? "unknown event"
+            appState.update()
+        }
+    }
     
     func onListenAddressesChanged(_ addresses: SushitrainListOfStrings?) {
         let appState = self.appState
         let addressSet = Set(addresses?.asArray() ?? [])
         DispatchQueue.main.async {
             appState.listenAddresses = addressSet
-        }
-    }
-    
-    func onFolderOffered(_ deviceID: String?, folder: String?) {
-        let appState = self.appState
-        if let deviceID = deviceID, let folderID = folder {
-            DispatchQueue.main.async {
-                appState.folderOffers.append(Offer(
-                    deviceID: deviceID,
-                    folderID: folderID
-                ));
-            }
         }
     }
     
@@ -162,17 +146,20 @@ class SushitrainApp: NSObject, App, SushitrainClientDelegateProtocol, Sushitrain
             }
         }
     }
-    
-    func alert(_ s: String?) {
-        appState.alertMessage = s!;
-        appState.alertShown = true;
-    }
-    
-    func onEvent(_ event: String?) {
-        let appState = self.appState
-        DispatchQueue.main.async {
-            appState.lastEvent = event ?? "unknown event"
-            appState.update()
+}
+
+extension SushitrainApp: SushitrainStreamingServerDelegateProtocol {
+    func onStreamChunk(_ folder: String?, path: String?, bytesSent: Int64, bytesTotal: Int64) {
+        if let folder = folder, let path = path {
+            let appState = self.appState;
+            DispatchQueue.main.async {
+                appState.streamingProgress = StreamingProgress(
+                    folder: folder,
+                    path: path,
+                    bytesSent: bytesSent,
+                    bytesTotal: bytesTotal
+                )
+            }
         }
     }
 }

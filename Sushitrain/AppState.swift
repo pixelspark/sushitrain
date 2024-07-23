@@ -6,11 +6,6 @@
 import SwiftUI
 import SushitrainCore
 
-struct Offer: Hashable {
-    var deviceID: String
-    var folderID: String
-}
-
 struct StreamingProgress: Hashable, Equatable {
     var folder: String
     var path: String
@@ -18,14 +13,13 @@ struct StreamingProgress: Hashable, Equatable {
     var bytesTotal: Int64
 }
 
-class SushitrainAppState: ObservableObject, @unchecked Sendable {
+class AppState: ObservableObject, @unchecked Sendable {
     var client: SushitrainClient
     @Published var alertMessage: String = ""
     @Published var alertShown: Bool = false
     @Published var localDeviceID: String = ""
     @Published var lastEvent: String = ""
     @Published var discoveredDevices: [String: [String]] = [:]
-    @Published var folderOffers: [Offer] = []
     @Published var listenAddresses = Set<String>()
     @Published var launchedAt = Date.now
     @Published var streamingProgress: StreamingProgress? = nil

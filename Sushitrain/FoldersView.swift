@@ -6,7 +6,7 @@
 import SwiftUI
 
 struct FoldersView: View {
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     @State var showingAddFolderPopup = false
     
     var body: some View {

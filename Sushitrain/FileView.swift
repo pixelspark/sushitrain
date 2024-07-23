@@ -12,7 +12,7 @@ import AVKit
 fileprivate struct FileMediaPlayer: View {
     @State private var session = AVAudioSession.sharedInstance()
     @State private var player: AVPlayer?
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     var file: SushitrainEntry
     @State var visible: Binding<Bool>
     
@@ -190,7 +190,7 @@ fileprivate struct OnDemandFileView: View {
 struct FileView: View {
     @State var file: SushitrainEntry
     var folder: SushitrainFolder
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     @State var localItemURL: URL? = nil
     @State var showWebview = false
     @State var showVideoPlayer = false

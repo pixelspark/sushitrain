@@ -47,7 +47,6 @@ type Client struct {
 type ClientDelegate interface {
 	OnEvent(event string)
 	OnDeviceDiscovered(deviceID string, addresses *ListOfStrings)
-	OnFolderOffered(deviceID string, folder string)
 	OnListenAddressesChanged(addresses *ListOfStrings)
 }
 
@@ -188,11 +187,7 @@ func (self *Client) startEventListener() {
 					self.Delegate.OnDeviceDiscovered(devID, &ListOfStrings{data: addresses})
 
 				case events.FolderRejected:
-					// TODO: FolderRejected is deprecated
-					data := evt.Data.(map[string]string)
-					devID := data["device"]
-					folderID := data["folder"]
-					self.Delegate.OnFolderOffered(devID, folderID)
+					// FolderRejected is deprecated
 
 				case events.StateChanged:
 					// Keep track of which folders are in syncing state. We need to know whether we are idling or not

@@ -8,7 +8,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ContentView: View {
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     @Environment(\.scenePhase) var scenePhase
     @State private var showCustomConfigWarning = false
     @State private var showOnboarding = false

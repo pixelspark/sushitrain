@@ -12,7 +12,7 @@ struct AddFolderView: View {
     
     @Environment(\.dismiss) private var dismiss
     @FocusState private var idFieldFocus: Bool
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     @State var showError = false
     @State var errorText = ""
     

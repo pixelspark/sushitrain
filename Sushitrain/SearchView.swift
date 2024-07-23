@@ -52,7 +52,7 @@ class SearchOperation: NSObject, ObservableObject, SushitrainSearchResultDelegat
 }
 
 struct SearchView: View, SearchViewDelegate {
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     @State private var searchText = ""
     @State private var searchOperation: SearchOperation? = nil
     @State private var results: [SushitrainEntry] = []

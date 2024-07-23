@@ -8,9 +8,9 @@ import SwiftUI
 import SushitrainCore
 
 struct TotalStatisticsView: View {
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     
-    init(appState: SushitrainAppState) {
+    init(appState: AppState) {
         self.appState = appState
     }
     
@@ -37,7 +37,7 @@ struct TotalStatisticsView: View {
 }
 
 struct AdvancedSettingsView: View {
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     
     var body: some View {
         Form {
@@ -105,13 +105,13 @@ struct AdvancedSettingsView: View {
 }
 
 struct BackgroundSettingsView: View {
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     let durationFormatter = DateComponentsFormatter()
     @State private var alertShown = false
     @State private var alertMessage = ""
     @AppStorage("backgroundSyncEnabled") var backgroundSyncEnabled = false
     
-    init(appState: SushitrainAppState) {
+    init(appState: AppState) {
         self.appState = appState
         durationFormatter.allowedUnits = [.day, .hour, .minute]
         durationFormatter.unitsStyle = .abbreviated
@@ -169,7 +169,7 @@ struct BackgroundSettingsView: View {
 }
 
 struct SettingsView: View {
-    @ObservedObject var appState: SushitrainAppState
+    @ObservedObject var appState: AppState
     
     var body: some View {
         Form {
