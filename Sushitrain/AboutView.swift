@@ -27,6 +27,7 @@ struct AboutView: View {
             }
         }
         .navigationTitle("About this app")
+        .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showOnboarding, content: {
             OnboardingView().interactiveDismissDisabled()
         })

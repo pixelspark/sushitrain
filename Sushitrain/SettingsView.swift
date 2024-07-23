@@ -33,6 +33,7 @@ struct TotalStatisticsView: View {
                 }
             }
         }.navigationTitle("Statistics")
+            .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -145,7 +146,7 @@ struct BackgroundSettingsView: View {
                     }
                 }
             }
-                
+            
             Button("Request background synchronization") {
                 if SushitrainApp.scheduleBackgroundSync() {
                     alertShown = true
@@ -250,21 +251,19 @@ struct SettingsView: View {
                 }
             }
             
-            NavigationLink("Background synchronization") {
-                BackgroundSettingsView(appState: appState)
-            }
-            
-            NavigationLink("Advanced settings") {
-                AdvancedSettingsView(appState: appState)
-            }
-            
             Section {
+                NavigationLink("Background synchronization") {
+                    BackgroundSettingsView(appState: appState)
+                }
+                
+                NavigationLink("Advanced settings") {
+                    AdvancedSettingsView(appState: appState)
+                }
+                
                 NavigationLink("Statistics") {
                     TotalStatisticsView(appState: appState)
                 }
-            }
-            
-            Section {
+                
                 NavigationLink("About this app") {
                     AboutView()
                 }
