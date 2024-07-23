@@ -674,8 +674,15 @@ func (self *Client) SetEnoughConnections(enough int) error {
 	})
 }
 
+// To make Syncthing 'not listening' we set the listen address to localhost. Setting it to empty will not do much, as
+// the default will be reloaded (which is 'default', and which means 'listen')
+const (
+	NoListenAddress = "tcp://127.0.0.1:22000"
+)
+
 func (self *Client) IsListening() bool {
-	return len(self.config.Options().ListenAddresses()) > 0
+	addrs := self.config.Options().ListenAddresses()
+	return len(addrs) > 0 && addrs[0] != NoListenAddress
 }
 
 func (self *Client) SetListening(listening bool) error {
@@ -683,7 +690,7 @@ func (self *Client) SetListening(listening bool) error {
 		if listening {
 			cfg.Options.RawListenAddresses = []string{"default"}
 		} else {
-			cfg.Options.RawListenAddresses = []string{}
+			cfg.Options.RawListenAddresses = []string{NoListenAddress}
 		}
 	})
 }
