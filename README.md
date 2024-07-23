@@ -30,6 +30,17 @@ Note that XCode will, by default, invoke the aforementioned Makefile for the Go 
 development it may be easier to build the framework by hand to be able to easily see any compiler output (a subsequent make
 invocation from XCode should be rather quick if nothing changed since the manual invocation).
 
+### Using a custom fork of Syncthing
+
+By default, a [fork](https://github.com/pixelspark/syncthing) of Syncthing core is used for building this app. This fork
+contains specific adjustments to allow Syncthing to run properly on iOS. If you want to use a local development branch of
+Syncthing, edit go.mod by commenting the first and uncommenting the second line shown below:
+
+```
+replace github.com/syncthing/syncthing => github.com/pixelspark/syncthing sushi
+//replace github.com/syncthing/syncthing => /Users/tommy/repos/syncthing
+```
+
 ## Architecture
 
 The Sushitrain app is written in Swift and uses SwiftUI. It embeds a framework called SushitrainCore, which is written
