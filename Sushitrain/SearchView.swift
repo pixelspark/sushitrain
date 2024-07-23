@@ -105,7 +105,6 @@ struct SearchView: View, SearchViewDelegate {
                 ContentUnavailableView("No files found", systemImage: "magnifyingglass", description: Text("Enter a text to search for in the search field above to search."))
             }
         }.navigationTitle("Search")
-            .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $searchText, placement: .toolbar, prompt: "Search files in all folders...")
         // The below works from iOS18
         //.searchFocused($isSearchFieldFocused)
