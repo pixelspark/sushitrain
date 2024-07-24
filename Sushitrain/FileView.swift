@@ -281,12 +281,17 @@ struct FileView: View {
                 if file.isImage {
                     Section {
                         if showPreview || file.size() <= maxBytesForPreview {
-                            AsyncImage(url: URL(string: file.onDemandURL())!) { result in
-                                result.image?
+                            AsyncImage(url: URL(string: file.onDemandURL())!) { image in
+                                image
                                     .resizable()
                                     .scaledToFill()
                             }
-                            .frame(maxHeight: 200).onTapGesture {
+                            placeholder: {
+                                HStack(alignment: .center, content: {
+                                    ProgressView()
+                                })
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: 200).onTapGesture {
                                 showPreview = false
                             }
                         }
