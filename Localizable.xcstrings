@@ -98,7 +98,14 @@
       }
     },
     "Add your first folder" : {
-
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voeg je eerste map toe"
+          }
+        }
+      }
     },
     "Added devices can connect to this device on their initiative, while the app is running. This may cause additional battery drain. It is advisable to enable this only if you experience difficulty connecting to other devices." : {
       "localizations" : {
@@ -446,6 +453,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ontdekte apparaten"
+          }
+        }
+      }
+    },
+    "Discovered folders" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ontdekte mappen"
           }
         }
       }
@@ -1250,6 +1267,16 @@
         }
       }
     },
+    "Share with all devices offering this folder" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deel met alle apparaten die de map aanbieden"
+          }
+        }
+      }
+    },
     "Share with device" : {
       "localizations" : {
         "nl" : {
@@ -1551,7 +1578,14 @@
       }
     },
     "To synchronize files, add a folder. Folders that have the same folder ID on multiple devices will be synchronized with eachother." : {
-
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om bestanden te synchroniseren voeg je een map toe. Mappen die dezelfde map-ID hebben op meerdere apparaten, worden met elkaar gesynchroniseerd."
+          }
+        }
+      }
     },
     "To synchronize files, first add a remote device. Either select a device from the list below, or add manually using the device ID." : {
       "localizations" : {

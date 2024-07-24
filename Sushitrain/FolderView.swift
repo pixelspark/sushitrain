@@ -316,6 +316,7 @@ struct FolderView: View {
                 }
                 
                 if !possiblePeers.isEmpty {
+                    let pendingPeerIDs = Set((try? appState.client.devicesPendingFolder(self.folder.folderID))?.asArray() ?? [])
                     Section(header: Text("Shared with")) {
                         ForEach(self.possiblePeers, id: \.self) { (addr: SushitrainPeer) in
                             let isShared = sharedWith.contains(addr.deviceID());
@@ -334,7 +335,7 @@ struct FolderView: View {
                                 }
                             });
                             HStack {
-                                Toggle(addr.name(), systemImage: addr.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill", isOn: shared)
+                                Toggle(addr.name(), systemImage: addr.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill", isOn: shared).bold(pendingPeerIDs.contains(addr.deviceID()))
                                 Button("Encryption password", systemImage: sharedEncrypted.contains(addr.deviceID()) ? "lock" : "lock.open", action: {
                                     editEncryptionPasswordDeviceID = addr.deviceID()
                                     showEditEncryptionPassword = true

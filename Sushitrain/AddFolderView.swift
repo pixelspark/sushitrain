@@ -7,7 +7,7 @@ import SwiftUI
 import SushitrainCore
 
 struct AddFolderView: View {
-    @State var folderID = ""
+    @Binding var folderID: String
     @State var sharedWith = Set<String>()
     
     @Environment(\.dismiss) private var dismiss
@@ -15,12 +15,7 @@ struct AddFolderView: View {
     @ObservedObject var appState: AppState
     @State var showError = false
     @State var errorText = ""
-    
-    var possiblePeers: [SushitrainPeer] {
-        get {
-            return appState.peers().sorted().filter({d in !d.isSelf()})
-        }
-    }
+    @State private var possiblePeers: [SushitrainPeer] = []
     
     var folderExists: Bool {
         get {
@@ -36,6 +31,8 @@ struct AddFolderView: View {
                 }
                 
                 if !possiblePeers.isEmpty {
+                    let pendingPeers = (try? appState.client.devicesPendingFolder(self.folderID))?.asArray() ?? []
+                    
                     Section(header: Text("Shared with")) {
                         ForEach(self.possiblePeers, id: \.self) { (addr: SushitrainPeer) in
                             let isShared = sharedWith.contains(addr.deviceID());
@@ -48,8 +45,14 @@ struct AddFolderView: View {
                                 }
                             });
                             Toggle(addr.label, systemImage: addr.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill", isOn: shared)
+                                .bold(pendingPeers.contains(addr.deviceID()))
+                                .disabled(addr.isUntrusted())
                         }
                     }
+                    
+                    Button("Share with all devices offering this folder") {
+                        sharedWith = Set(pendingPeers)
+                    }.disabled(pendingPeers.isEmpty)
                 }
             }
             .onAppear {
@@ -92,6 +95,9 @@ struct AddFolderView: View {
             .alert(isPresented: $showError, content: {
                 Alert(title: Text("Could not add folder"), message: Text(errorText), dismissButton: .default(Text("OK")))
             })
+            .onAppear {
+                self.possiblePeers = appState.peers().sorted().filter({d in !d.isSelf()})
+            }
         }
     }
 }

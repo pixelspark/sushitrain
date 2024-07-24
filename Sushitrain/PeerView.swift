@@ -19,7 +19,7 @@ struct PeerView: View {
                 }
                 else {
                     Label("Not connected", systemImage: "xmark.circle")
-                    if let lastSeen = peer.lastSeen() {
+                    if let lastSeen = peer.lastSeen(), !lastSeen.isZero() {
                         Text("Last seen").badge(Text(lastSeen.date().formatted()))
                     }
                 }
@@ -57,9 +57,9 @@ struct PeerView: View {
                 }
             }
             
-            Section("Addresses") {
-                let lastAddress = self.appState.client.getLastPeerAddress(self.peer.deviceID())
-                if !lastAddress.isEmpty {
+            let lastAddress = self.appState.client.getLastPeerAddress(self.peer.deviceID())
+            if !lastAddress.isEmpty {
+                Section("Addresses") {
                     Label(lastAddress, systemImage: "network").contextMenu {
                        Button(action: {
                            UIPasteboard.general.string = lastAddress

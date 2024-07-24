@@ -38,6 +38,14 @@ func Map[T, U any](ts []T, f func(T) U) []U {
 	return us
 }
 
+func KeysOf[K comparable, V any](m map[K]V) []K {
+	keys := make([]K, 0)
+	for k, _ := range m {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
 func Filter[T any](input []T, f func(T) bool) []T {
 	output := make([]T, 0)
 	for _, item := range input {

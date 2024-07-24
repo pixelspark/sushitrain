@@ -7,7 +7,9 @@ import SwiftUI
 
 struct FoldersView: View {
     @ObservedObject var appState: AppState
-    @State var showingAddFolderPopup = false
+    @State private var showingAddFolderPopup = false
+    @State private var pendingFolderIds: [String] = []
+    @State private var addFolderID = ""
     
     var body: some View {
         ZStack {
@@ -24,8 +26,20 @@ struct FoldersView: View {
                         }
                     }
                     
+                    if !pendingFolderIds.isEmpty {
+                        Section("Discovered folders") {
+                            ForEach(pendingFolderIds, id: \.self) { folderID in
+                                Button(folderID, systemImage: "plus", action: {
+                                    addFolderID = folderID
+                                    showingAddFolderPopup = true
+                                })
+                            }
+                        }
+                    }
+                    
                     Section {
                         Button("Add other folder...", systemImage: "plus", action: {
+                            addFolderID = ""
                             showingAddFolderPopup = true
                         })
                     }
@@ -42,7 +56,12 @@ struct FoldersView: View {
             }
         }
         .sheet(isPresented: $showingAddFolderPopup, content: {
-            AddFolderView(appState: appState)
+            AddFolderView(folderID: $addFolderID, appState: appState)
         })
+        .onAppear {
+            let addedFolders = Set(appState.folders().map({f in f.folderID}))
+            self.pendingFolderIds = ((try? self.appState.client.pendingFolderIDs())?.asArray() ?? []).filter({ folderID in !addedFolders.contains(folderID)
+            })
+        }
     }
 }

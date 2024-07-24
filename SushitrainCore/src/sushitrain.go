@@ -694,3 +694,41 @@ func (self *Client) SetListening(listening bool) error {
 		}
 	})
 }
+
+func (self *Client) pendingFolders() (map[string][]string, error) {
+	peers := self.config.DeviceList()
+	fids := map[string][]string{}
+	for _, peer := range peers {
+		peerFids, err := self.app.M.PendingFolders(peer.DeviceID)
+		if err != nil {
+			return nil, err
+		}
+		for peerFid, _ := range peerFids {
+			existing := fids[peerFid]
+			existing = append(existing, peer.DeviceID.String())
+			fids[peerFid] = existing
+		}
+	}
+
+	return fids, nil
+}
+
+func (self *Client) PendingFolderIDs() (*ListOfStrings, error) {
+	pfs, err := self.pendingFolders()
+	if err != nil {
+		return nil, err
+	}
+	return List(KeysOf(pfs)), nil
+}
+
+func (self *Client) DevicesPendingFolder(folderID string) (*ListOfStrings, error) {
+	pfs, err := self.pendingFolders()
+	if err != nil {
+		return nil, err
+	}
+
+	if devs, ok := pfs[folderID]; ok {
+		return List(devs), nil
+	}
+	return List([]string{}), nil
+}

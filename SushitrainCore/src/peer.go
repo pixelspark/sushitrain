@@ -25,6 +25,10 @@ type Date struct {
 	time time.Time
 }
 
+func (self *Date) IsZero() bool {
+	return self.time.IsZero()
+}
+
 func (self *Date) UnixMilliseconds() int64 {
 	return self.time.UnixMilli()
 }
@@ -129,4 +133,18 @@ func (self *Peer) SharedFolderIDs() *ListOfStrings {
 	}
 
 	return List(sharedWith)
+}
+
+func (self *Peer) PendingFolderIDs() (*ListOfStrings, error) {
+	pfs, err := self.client.app.M.PendingFolders(self.deviceID)
+	if err != nil {
+		return nil, err
+	}
+
+	fids := make([]string, 0)
+	for fid, _ := range pfs {
+		fids = append(fids, fid)
+	}
+
+	return List(fids), nil
 }
