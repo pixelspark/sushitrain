@@ -7,22 +7,27 @@ import SwiftUI
 import SushitrainCore
 
 struct AddDeviceView: View {
-    @State var deviceID = ""
-    @Environment(\.dismiss) private var dismiss
     @ObservedObject var appState: AppState
-    @State var showError = false
-    @State var errorText = ""
+    @Binding var suggestedDeviceID: String
+    @State var deviceID = ""
+    @State private var showError = false
+    @State private var errorText = ""
     @FocusState private var idFieldFocus: Bool
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         NavigationStack {
             Form {
                 Section(header: Text("Device identifier")) {
-                    TextField("XXXX-XXXX", text: $deviceID).focused($idFieldFocus).textInputAutocapitalization(.never)
+                    TextField("XXXX-XXXX", text: $deviceID, axis: .vertical)
+                        .focused($idFieldFocus)
+                        .textInputAutocapitalization(.never)
                 }
             }
             .onAppear {
                 idFieldFocus = true
+                deviceID = suggestedDeviceID
+                print("Set ssi", suggestedDeviceID)
             }
             .toolbar(content: {
                 ToolbarItem(placement: .confirmationAction, content: {

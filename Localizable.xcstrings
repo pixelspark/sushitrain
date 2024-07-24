@@ -867,6 +867,16 @@
         }
       }
     },
+    "No devices added yet" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen apparaten gekoppeld"
+          }
+        }
+      }
+    },
     "No files found" : {
       "localizations" : {
         "nl" : {
@@ -1503,6 +1513,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Om bestanden op dit apparaat te houden, navigeer je naar een bestand en kies je 'houd op dit apparaat'. Geselecteerde bestanden zullen hier worden getoond."
+          }
+        }
+      }
+    },
+    "To synchronize files, first add a remote device. Either select a device from the list below, or add manually using the device ID." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om bestanden te synchroniseren moet je een apparaat koppelen. Selecteer een apparaat hieronder of voeg deze handmatig toe met een apparaat-ID."
           }
         }
       }

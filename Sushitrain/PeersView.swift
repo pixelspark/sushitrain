@@ -9,29 +9,29 @@ import SushitrainCore
 struct PeersView: View {
     @ObservedObject var appState: AppState
     @State var showingAddDevicePopup = false
-    
-    var peers: [SushitrainPeer] {
-        get {
-            return appState.peers().filter({x in !x.isSelf()}).sorted()
-        }
-    }
+    @State var addingDeviceID: String = ""
     
     var body: some View {
+        let peers = appState.peers().filter({x in !x.isSelf()}).sorted();
         ZStack {
             NavigationStack {
                 List {
                     Section("Associated devices") {
-                        ForEach(self.peers) {
-                            key in NavigationLink(destination: PeerView(peer: key, appState: appState)) {
-                                Label(key.name().isEmpty ? key.deviceID() : key.name(), systemImage: key.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill")
-                            }
+                        if peers.isEmpty {
+                            ContentUnavailableView("No devices added yet", systemImage: "externaldrive.badge.questionmark", description: Text("To synchronize files, first add a remote device. Either select a device from the list below, or add manually using the device ID."))
                         }
-                        .onDelete(perform: { indexSet in
-                            let peers = self.peers
-                            indexSet.map { idx in
-                                return peers[idx]
-                            }.forEach { peer in try? peer.remove() }
-                        })
+                        else {
+                            ForEach(peers) {
+                                key in NavigationLink(destination: PeerView(peer: key, appState: appState)) {
+                                    Label(key.name().isEmpty ? key.deviceID() : key.name(), systemImage: key.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill")
+                                }
+                            }
+                            .onDelete(perform: { indexSet in
+                                indexSet.map { idx in
+                                    return peers[idx]
+                                }.forEach { peer in try? peer.remove() }
+                            })
+                        }
                     }
                     
                     // Discovered peers
@@ -44,7 +44,8 @@ struct PeersView: View {
                         Section("Discovered devices") {
                             ForEach(relevantDevices, id: \.self) { devID in
                                 Label(devID, systemImage: "plus").onTapGesture {
-                                    try! appState.client.addPeer(devID)
+                                    addingDeviceID = devID
+                                    showingAddDevicePopup = true
                                 }
                             }
                         }
@@ -53,6 +54,7 @@ struct PeersView: View {
                     // Add peer manually
                     Section {
                         Button("Add other device...", systemImage: "plus", action: {
+                            addingDeviceID = ""
                             showingAddDevicePopup = true
                         })
                     }
@@ -60,13 +62,15 @@ struct PeersView: View {
                 
                 .navigationTitle("Devices")
                 .toolbar {
-                    EditButton()
+                    if !peers.isEmpty {
+                        EditButton()
+                    }
                 }
                 
             }
         }
-        .sheet(isPresented: $showingAddDevicePopup, content: {
-            AddDeviceView(appState: appState)
-        })
+        .sheet(isPresented: $showingAddDevicePopup) {
+            AddDeviceView(appState: appState, suggestedDeviceID: $addingDeviceID)
+        }
     }
 }
