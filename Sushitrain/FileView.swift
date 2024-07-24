@@ -298,7 +298,7 @@ struct FileView: View {
                         Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1)
                     }
                     ToolbarItem(placement: .navigation) {
-                        Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 2)
+                        Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1)
                     }
                 }
             }
@@ -311,7 +311,7 @@ struct FileView: View {
         if let siblings = siblings {
             if let idx = siblings.firstIndex(of: self.file) {
                 let newIndex = idx + offset
-                if  newIndex > 0 && newIndex < (siblings.count - 1) {
+                if  newIndex >= 0 && newIndex < siblings.count {
                     file = siblings[newIndex]
                     selfIndex = self.siblings?.firstIndex(of: file)
                 }
