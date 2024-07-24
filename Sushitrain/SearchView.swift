@@ -102,7 +102,12 @@ struct SearchView: View, SearchViewDelegate {
             }
             
             if results.isEmpty {
-                ContentUnavailableView("No files found", systemImage: "magnifyingglass", description: Text("Enter a text to search for in the search field above to search."))
+                if searchCount > 0 {
+                    ProgressView()
+                }
+                else {
+                    ContentUnavailableView("No files found", systemImage: "magnifyingglass", description: Text("Enter a text to search for in the search field above to search."))
+                }
             }
         }.navigationTitle("Search")
             .searchable(text: $searchText, placement: .toolbar, prompt: "Search files in all folders...")
