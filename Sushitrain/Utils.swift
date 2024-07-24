@@ -17,6 +17,16 @@ extension SushitrainListOfStrings {
     }
 }
 
+extension SushitrainPeer {
+    var label: String {
+        let name = self.name()
+        if !name.isEmpty {
+            return name
+        }
+        return self.deviceID()
+    }
+}
+
 extension SushitrainDate {
     public func date() -> Date {
         return Date(timeIntervalSince1970: Double(self.unixMilliseconds()) / 1000.0)

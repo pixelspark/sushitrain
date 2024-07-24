@@ -47,7 +47,7 @@ struct AddFolderView: View {
                                     sharedWith.remove(addr.deviceID())
                                 }
                             });
-                            Toggle(addr.name(), systemImage: addr.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill", isOn: shared)
+                            Toggle(addr.label, systemImage: addr.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill", isOn: shared)
                         }
                     }
                 }
