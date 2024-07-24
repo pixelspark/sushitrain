@@ -17,6 +17,16 @@
         }
       }
     },
+    "%lld MB" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld MB"
+          }
+        }
+      }
+    },
     "%lld Mbit/s" : {
       "localizations" : {
         "nl" : {
@@ -1067,6 +1077,16 @@
         }
       }
     },
+    "Previews" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voorbeelden"
+          }
+        }
+      }
+    },
     "Previous" : {
       "localizations" : {
         "nl" : {
@@ -1317,12 +1337,32 @@
         }
       }
     },
+    "Show image previews" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toon voorbeelden van afbeeldingen"
+          }
+        }
+      }
+    },
     "Show introduction screen" : {
       "localizations" : {
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Toon introductiescherm"
+          }
+        }
+      }
+    },
+    "Show preview for large files" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toon voorbeeld voor grote bestanden"
           }
         }
       }

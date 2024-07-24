@@ -91,6 +91,13 @@ fileprivate extension SushitrainEntry {
             return self.isVideo || self.isAudio
         }
     }
+    
+    var isImage: Bool {
+        get {
+            return self.mimeType().starts(with: "image/")
+        }
+    }
+    
     var isVideo: Bool {
         get {
             return self.mimeType().starts(with: "video/")
@@ -135,7 +142,7 @@ fileprivate struct WebView: UIViewRepresentable {
     }
     
     func makeCoordinator() -> WebViewCoordinator {
-           return WebViewCoordinator(self)
+        return WebViewCoordinator(self)
     }
     
     func makeUIView(context: Context) -> WKWebView {
@@ -195,10 +202,12 @@ struct FileView: View {
     @State var showWebview = false
     @State var showVideoPlayer = false
     @State var showAudioPlayer = false
+    @State var showPreview = false
     let formatter = ByteCountFormatter()
     var showPath = false
     var siblings: [SushitrainEntry]? = nil
     @State var selfIndex: Int? = nil
+    @AppStorage("maxBytesForPreview") var maxBytesForPreview = 1024 * 1024 * 3 // 3 MiB
     
     var body: some View {
         Form {
@@ -264,6 +273,27 @@ struct FileView: View {
                             Button("View file", systemImage: "eye", action: {
                                 showWebview = true
                             }).disabled(folder.connectedPeerCount() == 0)
+                        }
+                    }
+                }
+                
+                // Image preview
+                if file.isImage {
+                    Section {
+                        if showPreview || file.size() <= maxBytesForPreview {
+                            AsyncImage(url: URL(string: file.onDemandURL())!) { result in
+                                result.image?
+                                    .resizable()
+                                    .scaledToFill()
+                            }
+                            .frame(maxHeight: 200).onTapGesture {
+                                showPreview = false
+                            }
+                        }
+                        else {
+                            Button("Show preview for large files") {
+                                showPreview = true
+                            }
                         }
                     }
                 }
