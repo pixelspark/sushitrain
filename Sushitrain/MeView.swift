@@ -11,6 +11,7 @@ struct MeView: View {
     @ObservedObject var appState: AppState
     @State private var settingsShown = false
     @State private var searchShown = false
+    @Binding var tabSelection: ContentView.Tab
     
     var peerStatusText: String {
         return "\(self.appState.client.connectedPeerCount())/\(self.appState.peers().count - 1)"
@@ -44,8 +45,6 @@ struct MeView: View {
                 else {
                     Label("Not connected", systemImage: "network.slash").badge(Text(self.peerStatusText)).foregroundColor(.gray)
                 }
-                
-                
             }
             
             Section(header: Text("This device's identifier")) {
@@ -63,6 +62,30 @@ struct MeView: View {
                     }
                 }.monospaced()
             }
+            
+            // Getting started
+            if self.appState.peers().count == 1 {
+                Section("Getting started") {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Label("Add your first device", systemImage: "externaldrive.badge.plus").bold()
+                        Text("To synchronize files, first add a remote device. Either select a device from the list below, or add manually using the device ID.")
+                    }.onTapGesture {
+                        tabSelection = .peers
+                    }
+                }
+            }
+            
+            if self.appState.folders().count == 0 {
+                Section("Getting started") {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Label("Add your first folder", systemImage: "folder.badge.plus").bold()
+                        Text("To synchronize files, add a folder. Folders that have the same folder ID on multiple devices will be synchronized with eachother.")
+                    }.onTapGesture {
+                        tabSelection = .folders
+                    }
+                }
+            }
+            
         }.navigationTitle("Start")
             .toolbar {
                 ToolbarItem {

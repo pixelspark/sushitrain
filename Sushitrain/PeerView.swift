@@ -48,10 +48,12 @@ struct PeerView: View {
                 }.monospaced()
             }
             
-            Section("Shared folders") {
-                let sharedFolderIDs = peer.sharedFolderIDs()?.asArray().sorted() ?? []
-                ForEach(sharedFolderIDs, id: \.self) { fid in
-                    Label(fid, systemImage: "folder")
+            let sharedFolderIDs = peer.sharedFolderIDs()?.asArray().sorted() ?? []
+            if !sharedFolderIDs.isEmpty {
+                Section("Shared folders") {
+                    ForEach(sharedFolderIDs, id: \.self) { fid in
+                        Label(fid, systemImage: "folder")
+                    }
                 }
             }
             
@@ -76,7 +78,7 @@ struct PeerView: View {
 //            }
             
             Section {
-                Button("Remove device", systemImage: "trash", role:.destructive, action: {
+                Button("Unlink device", systemImage: "trash", role:.destructive, action: {
                     try? peer.remove()
                     dismiss()
                 }).foregroundColor(.red)

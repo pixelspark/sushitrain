@@ -87,6 +87,19 @@
         }
       }
     },
+    "Add your first device" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koppel een apparaat"
+          }
+        }
+      }
+    },
+    "Add your first folder" : {
+
+    },
     "Added devices can connect to this device on their initiative, while the app is running. This may cause additional battery drain. It is advisable to enable this only if you experience difficulty connecting to other devices." : {
       "localizations" : {
         "nl" : {
@@ -687,6 +700,16 @@
         }
       }
     },
+    "Getting started" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aan de slag"
+          }
+        }
+      }
+    },
     "hostname" : {
       "localizations" : {
         "nl" : {
@@ -1053,16 +1076,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Alleen ontvangen"
-          }
-        }
-      }
-    },
-    "Remove device" : {
-      "localizations" : {
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verwijder apparaat"
           }
         }
       }
@@ -1437,6 +1450,26 @@
         }
       }
     },
+    "The device has been added" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het apparaat is toegevoegd"
+          }
+        }
+      }
+    },
+    "The device has been added. To ensure a connection, ensure the other device accepts this device, or add this device there as well." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het apparaat is toegevoegd. Controleer of het andere apparaat dit apparaat ook accepteert, of voeg dit apparaat ook daar toe."
+          }
+        }
+      }
+    },
     "There are currently no files in this folder." : {
       "localizations" : {
         "nl" : {
@@ -1517,6 +1550,9 @@
         }
       }
     },
+    "To synchronize files, add a folder. Folders that have the same folder ID on multiple devices will be synchronized with eachother." : {
+
+    },
     "To synchronize files, first add a remote device. Either select a device from the list below, or add manually using the device ID." : {
       "localizations" : {
         "nl" : {
@@ -1553,6 +1589,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Onbekende status"
+          }
+        }
+      }
+    },
+    "Unlink device" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ontkoppel apparaat"
           }
         }
       }

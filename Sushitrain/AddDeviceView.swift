@@ -10,6 +10,7 @@ struct AddDeviceView: View {
     @ObservedObject var appState: AppState
     @Binding var suggestedDeviceID: String
     @State var deviceID = ""
+    @State private var showHelpAfterAdding = false
     @State private var showError = false
     @State private var errorText = ""
     @FocusState private var idFieldFocus: Bool
@@ -18,7 +19,7 @@ struct AddDeviceView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Device identifier")) {
+                Section("Device identifier") {
                     TextField("XXXX-XXXX", text: $deviceID, axis: .vertical)
                         .focused($idFieldFocus)
                         .textInputAutocapitalization(.never)
@@ -34,7 +35,7 @@ struct AddDeviceView: View {
                     Button("Add") {
                         do {
                             try appState.client.addPeer(self.deviceID);
-                            dismiss()
+                            showHelpAfterAdding = true
                         }
                         catch let error {
                             showError = true
@@ -53,6 +54,11 @@ struct AddDeviceView: View {
             .alert(isPresented: $showError, content: {
                 Alert(title: Text("Could not add device"), message: Text(errorText), dismissButton: .default(Text("OK")))
             })
+            .alert(isPresented: $showHelpAfterAdding) {
+                Alert(title: Text("The device has been added"), message: Text("The device has been added. To ensure a connection, ensure the other device accepts this device, or add this device there as well."), dismissButton: .default(Text("OK")) {
+                    dismiss()
+                })
+            }
         }
     }
 }

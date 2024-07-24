@@ -13,27 +13,34 @@ struct ContentView: View {
     @State private var showCustomConfigWarning = false
     @State private var showOnboarding = false
     @AppStorage("onboardingVersionShown") var onboardingVersionShown = 0
+    @State private var tabSelection: Tab = .start
+    
+    enum Tab: Int {
+        case start = 1
+        case peers
+        case folders
+    }
     
     var body: some View {
-        TabView {
+        TabView(selection: $tabSelection) {
             // Me
             NavigationStack {
-                MeView(appState: appState)
+                MeView(appState: appState, tabSelection: $tabSelection)
             }.tabItem {
                 Label("Start", systemImage: self.appState.client.isTransferring() ? "arrow.clockwise.circle.fill" : (self.appState.client.connectedPeerCount() > 0 ? "checkmark.circle.fill" : "network.slash"))
-            }
+            }.tag(Tab.start)
             
             // Folders
             FoldersView(appState: appState)
                 .tabItem {
                     Label("Folders", systemImage: "folder.fill")
-                }
+                }.tag(Tab.folders)
             
             // Peers
             PeersView(appState: appState)
                 .tabItem {
                     Label("Devices", systemImage: "network")
-                }
+                }.tag(Tab.peers)
         }
         .sheet(isPresented: $showOnboarding, content: {
             OnboardingView().interactiveDismissDisabled()
