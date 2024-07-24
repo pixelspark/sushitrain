@@ -108,17 +108,10 @@ struct FolderDeviceView: View {
     @ObservedObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
     var folder: SushitrainFolder
-    var deviceID: String
-    @State var newPassword: String
+    @Binding var deviceID: String
+    @State var newPassword: String = ""
     @FocusState private var passwordFieldFocus: Bool
     @State private var error: String? = nil
-    
-    init(appState: AppState, folder: SushitrainFolder, deviceID: String) {
-        self.appState = appState
-        self.folder = folder
-        self.deviceID = deviceID
-        self.newPassword = folder.encryptionPassword(for: deviceID)
-    }
     
     var body: some View {
         NavigationStack {
@@ -136,6 +129,7 @@ struct FolderDeviceView: View {
                 }
             }
             .onAppear {
+                self.newPassword = folder.encryptionPassword(for: deviceID)
                 passwordFieldFocus = true
             }
             .navigationTitle("Share folder")
@@ -382,7 +376,7 @@ struct FolderView: View {
         }
         .navigationTitle(folder.label().isEmpty ? folder.folderID : folder.label())
         .sheet(isPresented: $showEditEncryptionPassword) {
-            FolderDeviceView(appState: self.appState, folder: self.folder, deviceID: editEncryptionPasswordDeviceID)
+            FolderDeviceView(appState: self.appState, folder: self.folder, deviceID: $editEncryptionPasswordDeviceID)
         }
         .alert(isPresented: $showError, content: {
             Alert(title: Text("An error occured"), message: Text(errorText), dismissButton: .default(Text("OK")))
