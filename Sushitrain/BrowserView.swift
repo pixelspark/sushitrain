@@ -40,7 +40,7 @@ struct BrowserView: View {
             for i in 0..<list.count() {
                 let path = list.item(at: i)
                 if let fileInfo = try? folder.getFileInformation(self.prefix + path) {
-                    if fileInfo.isDirectory() || fileInfo.isSymlink() {
+                    if fileInfo.isDirectory() || fileInfo.isSymlink() || fileInfo.isDeleted() {
                         continue
                     }
                     entries.append(fileInfo)

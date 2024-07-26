@@ -217,6 +217,16 @@
         }
       }
     },
+    "Are you sure you want to remove this file from all devices?" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weet je zeker dat je dit bestand wil verwijderen van alle apparaten?"
+          }
+        }
+      }
+    },
     "Are you sure you want to remove this folder? Please consider carefully. All files in this folder will be removed from this device. Files that have not been synchronized to other devices yet cannot be recoered." : {
       "localizations" : {
         "nl" : {
@@ -597,6 +607,16 @@
         }
       }
     },
+    "Extra files" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extra bestanden"
+          }
+        }
+      }
+    },
     "Extra files have been found. Because this is a receive-only folder, these files will not be synchronized." : {
       "localizations" : {
         "nl" : {
@@ -623,6 +643,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bestandsomvang"
+          }
+        }
+      }
+    },
+    "File was deleted" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het bestand was verwijderd"
           }
         }
       }
@@ -927,6 +957,16 @@
         }
       }
     },
+    "No extra files found" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen extra bestanden gevonden"
+          }
+        }
+      }
+    },
     "No files found" : {
       "localizations" : {
         "nl" : {
@@ -1117,12 +1157,32 @@
         }
       }
     },
+    "Remove file from all devices" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder bestand van alle apparaten"
+          }
+        }
+      }
+    },
     "Remove folder" : {
       "localizations" : {
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Verwijder map"
+          }
+        }
+      }
+    },
+    "Remove the file from all devices" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder het bestand van alle apparaten"
           }
         }
       }
@@ -1583,6 +1643,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ID van dit apparaat"
+          }
+        }
+      }
+    },
+    "This file was deleted." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dit bestand is verwijderd."
           }
         }
       }

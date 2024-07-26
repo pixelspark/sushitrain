@@ -542,6 +542,15 @@ func (self *Folder) DeleteLocalFile(path string) error {
 		}
 	}
 
+	err = self.client.app.M.ScanFolderSubdirs(self.FolderID, []string{path})
+	if err != nil {
+		return err
+	}
+	err = self.SetLocalFileExplicitlySelected(path, false)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

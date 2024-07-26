@@ -11,52 +11,64 @@ struct ExtraFilesView: View {
     var folder: SushitrainFolder
     @ObservedObject var appState: AppState
     @State private var adressedPaths = Set<String>()
+    @State private var extraFiles: [String] = []
     
     var body: some View {
-        let extraFiles = try! folder.extraneousFiles().asArray().sorted()
+        let unadressedExtraFiles = extraFiles.filter({ p in !self.adressedPaths.contains(p) })
         
-        List {
-            if folder.folderType() == SushitrainFolderTypeSendReceive {
-                Text("Extra files have been found. Please decide for each file whether they should be synchronized or removed.").textFieldStyle(.plain)
+        ZStack {
+            if unadressedExtraFiles.isEmpty {
+                ContentUnavailableView("No extra files found", systemImage: "checkmark.circle")
             }
-            else if folder.folderType() == SushitrainFolderTypeReceiveOnly {
-                Text("Extra files have been found. Because this is a receive-only folder, these files will not be synchronized.").textFieldStyle(.plain)
-            }
-            
-            ForEach(extraFiles.filter({ p in !self.adressedPaths.contains(p) }), id: \.self) { path in
-                let isAlsoGlobalFile = (try? folder.getFileInformation(path)) != nil
-                Section {
-                    Text(path).textFieldStyle(.plain)
-                    
-                    if isAlsoGlobalFile {
-                        Button("Delete my copy of this file", systemImage: "trash", role: .destructive, action: {
-                            try! folder.deleteLocalFile(path)
-                            self.adressedPaths.insert(path)
-                        })
-                    }
-                    else {
-                        Button("Permanently delete this file", systemImage: "trash", role: .destructive, action: {
-                            try! folder.deleteLocalFile(path)
-                            self.adressedPaths.insert(path)
-                        })
-                    }
-                    
+            else {
+                List {
                     if folder.folderType() == SushitrainFolderTypeSendReceive {
-                        if isAlsoGlobalFile {
-                            Button("Synchronize file (overwrite existing)", systemImage: "rectangle.2.swap", action: {
-                                try! folder.setLocalFileExplicitlySelected(path, toggle: true)
-                                self.adressedPaths.insert(path)
-                            })
-                        }
-                        else {
-                            Button("Synchronize file", systemImage: "plus", action: {
-                                try! folder.setLocalFileExplicitlySelected(path, toggle: true)
-                                self.adressedPaths.insert(path)
-                            })
+                        Text("Extra files have been found. Please decide for each file whether they should be synchronized or removed.").textFieldStyle(.plain)
+                    }
+                    else if folder.folderType() == SushitrainFolderTypeReceiveOnly {
+                        Text("Extra files have been found. Because this is a receive-only folder, these files will not be synchronized.").textFieldStyle(.plain)
+                    }
+                    
+                    ForEach(unadressedExtraFiles, id: \.self) { path in
+                        let globalInfo = try? folder.getFileInformation(path)
+                        let isAlsoGlobalFile = globalInfo != nil && !(globalInfo!.isDeleted())
+                        Section {
+                            Text(path).textFieldStyle(.plain)
+                            
+                            if isAlsoGlobalFile {
+                                Button("Delete my copy of this file", systemImage: "trash", role: .destructive, action: {
+                                    try! folder.deleteLocalFile(path)
+                                    self.adressedPaths.insert(path)
+                                })
+                            }
+                            else {
+                                Button("Permanently delete this file", systemImage: "trash", role: .destructive, action: {
+                                    try! folder.deleteLocalFile(path)
+                                    self.adressedPaths.insert(path)
+                                })
+                            }
+                            
+                            if folder.folderType() == SushitrainFolderTypeSendReceive {
+                                if isAlsoGlobalFile {
+                                    Button("Synchronize file (overwrite existing)", systemImage: "rectangle.2.swap", action: {
+                                        try! folder.setLocalFileExplicitlySelected(path, toggle: true)
+                                        self.adressedPaths.insert(path)
+                                    })
+                                }
+                                else {
+                                    Button("Synchronize file", systemImage: "plus", action: {
+                                        try! folder.setLocalFileExplicitlySelected(path, toggle: true)
+                                        self.adressedPaths.insert(path)
+                                    })
+                                }
+                            }
                         }
                     }
                 }
             }
+        }.onAppear {
+            extraFiles = try! folder.extraneousFiles().asArray().sorted()
         }
+        .navigationTitle("Extra files")
     }
 }

@@ -240,98 +240,120 @@ struct FileView: View {
     @State var showVideoPlayer = false
     @State var showPreview = false
     @State var showOnDemandPreview = false
+    @State var showRemoveConfirmation = false
     let formatter = ByteCountFormatter()
     var showPath = false
     var siblings: [SushitrainEntry]? = nil
     @State var selfIndex: Int? = nil
     @AppStorage("maxBytesForPreview") var maxBytesForPreview = 1024 * 1024 * 3 // 3 MiB
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        Form {
-            Section {
-                if !file.isDirectory() {
-                    Text("File size").badge(formatter.string(fromByteCount: file.size()))
-                }
-                
-                if self.folder.isSelective() {
-                    Toggle("Keep on this device", systemImage: "pin", isOn: Binding(get: {
-                        file.isExplicitlySelected() || file.isSelected()
-                    }, set: { s in
-                        try? file.setExplicitlySelected(s)
-                    })).disabled(!folder.isIdle || (file.isSelected() && !file.isExplicitlySelected()))
-                }
-            }
-            
-            if showPath {
-                Section("Location") {
-                    Text("\(folder.folderID): \(file.path())")
-                }
-            }
-            
-            if !file.isDirectory() {
-                var error: NSError? = nil
-                let localPath = file.isLocallyPresent() ? file.localNativePath(&error) : nil
-                
+        if file.isDeleted() {
+            ContentUnavailableView("File was deleted", systemImage: "trash", description: Text("This file was deleted."))
+        }
+        else {
+            Form {
                 Section {
-                    if file.isSelected() {
-                        // Selective sync uses copy in working dir
-                        if file.isLocallyPresent() {
-                            if error == nil {
-                                Button("View file", systemImage: "eye", action: {
-                                    localItemURL = URL(fileURLWithPath: localPath!)
-                                })
-                                ShareLink("Share file", item: URL(fileURLWithPath: localPath!))
-                            }
-                        }
-                        else {
-                            // Waiting for sync
-                            let progress = self.appState.client.getDownloadProgress(forFile: self.file.path(), folder: self.folder.folderID)
-                            if let progress = progress {
-                                ProgressView(value: progress.percentage, total: 1.0) {
-                                    Label("Downloading file...", systemImage: "arrow.clockwise").foregroundStyle(.green).symbolEffect(.pulse, value: true)
+                    if !file.isDirectory() {
+                        Text("File size").badge(formatter.string(fromByteCount: file.size()))
+                    }
+                    
+                    if self.folder.isSelective() {
+                        Toggle("Keep on this device", systemImage: "pin", isOn: Binding(get: {
+                            file.isExplicitlySelected() || file.isSelected()
+                        }, set: { s in
+                            try? file.setExplicitlySelected(s)
+                        })).disabled(!folder.isIdle || (file.isSelected() && !file.isExplicitlySelected()))
+                    }
+                }
+                
+                if showPath {
+                    Section("Location") {
+                        Text("\(folder.folderID): \(file.path())")
+                    }
+                }
+                
+                if !file.isDirectory() {
+                    var error: NSError? = nil
+                    let localPath = file.isLocallyPresent() ? file.localNativePath(&error) : nil
+                    
+                    Section {
+                        if file.isSelected() {
+                            // Selective sync uses copy in working dir
+                            if file.isLocallyPresent() {
+                                if error == nil {
+                                    Button("View file", systemImage: "eye", action: {
+                                        localItemURL = URL(fileURLWithPath: localPath!)
+                                    })
+                                    ShareLink("Share file", item: URL(fileURLWithPath: localPath!))
                                 }
                             }
                             else {
-                                Label("Waiting to synchronize...", systemImage: "hourglass")
+                                // Waiting for sync
+                                let progress = self.appState.client.getDownloadProgress(forFile: self.file.path(), folder: self.folder.folderID)
+                                if let progress = progress {
+                                    ProgressView(value: progress.percentage, total: 1.0) {
+                                        Label("Downloading file...", systemImage: "arrow.clockwise").foregroundStyle(.green).symbolEffect(.pulse, value: true)
+                                    }
+                                }
+                                else {
+                                    Label("Waiting to synchronize...", systemImage: "hourglass")
+                                }
                             }
-                        }
-                    }
-                    else {
-                        if file.isMedia {
-                            Button("Stream", systemImage: file.isVideo ? "tv" : "music.note", action: {
-                                if file.isVideo {
-                                    showVideoPlayer = true
-                                }
-                                else if file.isAudio {
-                                    showOnDemandPreview = true
-                                }
-                            }).disabled(folder.connectedPeerCount() == 0)
                         }
                         else {
-                            Button("View file", systemImage: "eye", action: {
-                                showOnDemandPreview = true
-                            }).disabled(folder.connectedPeerCount() == 0)
+                            if file.isMedia {
+                                Button("Stream", systemImage: file.isVideo ? "tv" : "music.note", action: {
+                                    if file.isVideo {
+                                        showVideoPlayer = true
+                                    }
+                                    else if file.isAudio {
+                                        showOnDemandPreview = true
+                                    }
+                                }).disabled(folder.connectedPeerCount() == 0)
+                            }
+                            else {
+                                Button("View file", systemImage: "eye", action: {
+                                    showOnDemandPreview = true
+                                }).disabled(folder.connectedPeerCount() == 0)
+                            }
                         }
                     }
-                }
-                
-                // Image preview
-                if file.isImage {
-                    Section {
-                        if file.isLocallyPresent() {
-                            Image(uiImage: UIImage(contentsOfFile: localPath!)!)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(maxWidth: .infinity, maxHeight: 200).onTapGesture {
-                                    showPreview = false
+                    
+                    // Remove file
+                    if file.isSelected() && file.isLocallyPresent() && folder.folderType() == SushitrainFolderTypeSendReceive {
+                        Section {
+                            Button("Remove file from all devices", systemImage: "trash", role: .destructive) {
+                                showRemoveConfirmation = true
+                            }
+                            .foregroundColor(.red)
+                            .confirmationDialog("Are you sure you want to remove this file from all devices?", isPresented: $showRemoveConfirmation, titleVisibility: .visible) {
+                                Button("Remove the file from all devices", role: .destructive) {
+                                    dismiss()
+                                    try! file.remove()
                                 }
+                            }
                         }
-                        else if showPreview || file.size() <= maxBytesForPreview {
-                            AsyncImage(url: URL(string: file.onDemandURL())!) { image in
-                                image
+                    }
+                    
+                    // Image preview
+                    if file.isImage {
+                        Section {
+                            if file.isLocallyPresent() {
+                                Image(uiImage: UIImage(contentsOfFile: localPath!)!)
                                     .resizable()
                                     .scaledToFill()
+                                    .frame(maxWidth: .infinity, maxHeight: 200).onTapGesture {
+                                        showPreview = false
+                                    }
                             }
+                            else if showPreview || file.size() <= maxBytesForPreview {
+                                AsyncImage(url: URL(string: file.onDemandURL())!) { image in
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                }
                             placeholder: {
                                 HStack(alignment: .center, content: {
                                     ProgressView()
@@ -340,36 +362,37 @@ struct FileView: View {
                             .frame(maxWidth: .infinity, maxHeight: 200).onTapGesture {
                                 showPreview = false
                             }
-                        }
-                        else {
-                            Button("Show preview for large files") {
-                                showPreview = true
+                            }
+                            else {
+                                Button("Show preview for large files") {
+                                    showPreview = true
+                                }
                             }
                         }
                     }
                 }
-            }
-        }.navigationTitle(file.fileName())
-            .quickLookPreview(self.$localItemURL)
-            .fullScreenCover(isPresented: $showVideoPlayer, content: {
-                FileMediaPlayer(appState: appState, file: file, visible: $showVideoPlayer)
-            })
-            .sheet(isPresented: $showOnDemandPreview, content: {
-                OnDemandFileView(appState: appState, file: file, isShown: $showOnDemandPreview)
-            })
-            .toolbar {
-                if let selfIndex = selfIndex, let siblings = siblings {
-                    ToolbarItem(placement: .navigation) {
-                        Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1)
-                    }
-                    ToolbarItem(placement: .navigation) {
-                        Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1)
+            }.navigationTitle(file.fileName())
+                .quickLookPreview(self.$localItemURL)
+                .fullScreenCover(isPresented: $showVideoPlayer, content: {
+                    FileMediaPlayer(appState: appState, file: file, visible: $showVideoPlayer)
+                })
+                .sheet(isPresented: $showOnDemandPreview, content: {
+                    OnDemandFileView(appState: appState, file: file, isShown: $showOnDemandPreview)
+                })
+                .toolbar {
+                    if let selfIndex = selfIndex, let siblings = siblings {
+                        ToolbarItem(placement: .navigation) {
+                            Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1)
+                        }
+                        ToolbarItem(placement: .navigation) {
+                            Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1)
+                        }
                     }
                 }
-            }
-            .onAppear {
-                selfIndex = self.siblings?.firstIndex(of: file)
-            }
+                .onAppear {
+                    selfIndex = self.siblings?.firstIndex(of: file)
+                }
+        }
     }
     
     private func next(_ offset: Int) {

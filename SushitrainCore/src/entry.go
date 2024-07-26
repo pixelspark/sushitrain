@@ -202,3 +202,7 @@ func (self *Entry) MIMEType() string {
 	ext := filepath.Ext(self.info.FileName())
 	return MIMETypeForExtension(ext)
 }
+
+func (self *Entry) Remove() error {
+	return self.Folder.DeleteLocalFile(self.Path())
+}
