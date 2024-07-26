@@ -161,19 +161,63 @@ fileprivate struct WebView: UIViewRepresentable {
     }
 }
 
-fileprivate struct OnDemandFileView: View {
+
+struct BareOnDemandFileView: View {
+    @ObservedObject var appState: AppState
     var file: SushitrainEntry
     @Binding var isShown: Bool
+    
+    var body: some View {
+        if !file.isLocallyPresent() && file.isMedia {
+            FileMediaPlayer(appState: appState, file: file, visible: $isShown)
+        }
+        else {
+            OnDemandWebFileView(file: file)
+        }
+    }
+}
+
+struct OnDemandFileView: View {
+    @ObservedObject var appState: AppState
+    var file: SushitrainEntry
+    @Binding var isShown: Bool
+    
+    var body: some View {
+        NavigationStack {
+            BareOnDemandFileView(appState: appState, file: file, isShown: $isShown)
+            .navigationTitle(file.fileName())
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(content: {
+                ToolbarItem(placement: .confirmationAction, content: {
+                    Button("Done", action: {
+                        isShown = false
+                    })
+                })
+            })
+        }
+    }
+}
+
+fileprivate struct OnDemandWebFileView: View {
+    var file: SushitrainEntry
     @State var isLoading: Bool = false
     @State var error: Error? = nil
     
     var body: some View {
+        var pathError: NSError? = nil
+        let url = file.isLocallyPresent() ? URL(fileURLWithPath: file.localNativePath(&pathError)) : URL(string: file.onDemandURL())
         ZStack {
             if let error = error {
                 ContentUnavailableView("Cannot display file", systemImage: "xmark.circle", description: Text(error.localizedDescription))
             }
+            else if let error = pathError {
+                ContentUnavailableView("Cannot display file", systemImage: "xmark.circle", description: Text(error.localizedDescription))
+            }
+            else if let url = url {
+                WebView(url: url, isLoading: $isLoading, error: $error)
+            }
             else {
-                WebView(url: URL(string: file.onDemandURL())!, isLoading: $isLoading, error: $error)
+                ContentUnavailableView("Cannot display file", systemImage: "xmark.circle")
             }
         }
         .navigationTitle(file.fileName())
@@ -184,12 +228,6 @@ fileprivate struct OnDemandFileView: View {
                     ProgressView()
                 }
             })
-            
-            ToolbarItem(placement: .confirmationAction, content: {
-                Button("Done", action: {
-                    isShown = false
-                })
-            })
         })
     }
 }
@@ -199,10 +237,9 @@ struct FileView: View {
     var folder: SushitrainFolder
     @ObservedObject var appState: AppState
     @State var localItemURL: URL? = nil
-    @State var showWebview = false
     @State var showVideoPlayer = false
-    @State var showAudioPlayer = false
     @State var showPreview = false
+    @State var showOnDemandPreview = false
     let formatter = ByteCountFormatter()
     var showPath = false
     var siblings: [SushitrainEntry]? = nil
@@ -232,17 +269,18 @@ struct FileView: View {
             }
             
             if !file.isDirectory() {
+                var error: NSError? = nil
+                let localPath = file.isLocallyPresent() ? file.localNativePath(&error) : nil
+                
                 Section {
                     if file.isSelected() {
                         // Selective sync uses copy in working dir
                         if file.isLocallyPresent() {
-                            var error: NSError? = nil
-                            let localPath = file.localNativePath(&error)
                             if error == nil {
                                 Button("View file", systemImage: "eye", action: {
-                                    localItemURL = URL(fileURLWithPath: localPath)
+                                    localItemURL = URL(fileURLWithPath: localPath!)
                                 })
-                                ShareLink("Share file", item: URL(fileURLWithPath: localPath))
+                                ShareLink("Share file", item: URL(fileURLWithPath: localPath!))
                             }
                         }
                         else {
@@ -264,14 +302,14 @@ struct FileView: View {
                                 if file.isVideo {
                                     showVideoPlayer = true
                                 }
-                                else {
-                                    showAudioPlayer = true
+                                else if file.isAudio {
+                                    showOnDemandPreview = true
                                 }
                             }).disabled(folder.connectedPeerCount() == 0)
                         }
                         else {
                             Button("View file", systemImage: "eye", action: {
-                                showWebview = true
+                                showOnDemandPreview = true
                             }).disabled(folder.connectedPeerCount() == 0)
                         }
                     }
@@ -280,7 +318,15 @@ struct FileView: View {
                 // Image preview
                 if file.isImage {
                     Section {
-                        if showPreview || file.size() <= maxBytesForPreview {
+                        if file.isLocallyPresent() {
+                            Image(uiImage: UIImage(contentsOfFile: localPath!)!)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(maxWidth: .infinity, maxHeight: 200).onTapGesture {
+                                    showPreview = false
+                                }
+                        }
+                        else if showPreview || file.size() <= maxBytesForPreview {
                             AsyncImage(url: URL(string: file.onDemandURL())!) { image in
                                 image
                                     .resizable()
@@ -308,24 +354,8 @@ struct FileView: View {
             .fullScreenCover(isPresented: $showVideoPlayer, content: {
                 FileMediaPlayer(appState: appState, file: file, visible: $showVideoPlayer)
             })
-            .sheet(isPresented: $showAudioPlayer, content: {
-                NavigationStack {
-                    FileMediaPlayer(appState: appState, file: file, visible: $showAudioPlayer)
-                        .navigationTitle(file.fileName())
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar(content: {
-                            ToolbarItem(placement: .confirmationAction, content: {
-                                Button("Done", action: {
-                                    showAudioPlayer = false
-                                })
-                            })
-                        })
-                }
-            })
-            .sheet(isPresented: $showWebview, content: {
-                NavigationStack {
-                    OnDemandFileView(file: file, isShown: $showWebview)
-                }
+            .sheet(isPresented: $showOnDemandPreview, content: {
+                OnDemandFileView(appState: appState, file: file, isShown: $showOnDemandPreview)
             })
             .toolbar {
                 if let selfIndex = selfIndex, let siblings = siblings {

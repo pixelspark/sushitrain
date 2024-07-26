@@ -81,7 +81,7 @@ struct BrowserView: View {
                                 NavigationLink(destination: BrowserView(folder: folder, prefix: "\(prefix)\(key)/", appState: appState)) {
                                     Label(key, systemImage: "folder")
                                 }
-                               
+                                
                                 .contextMenu(ContextMenu(menuItems: {
                                     NavigationLink("Folder properties", destination: FileView(file: try! folder.getFileInformation(self.prefix + key), folder: self.folder, appState: self.appState))
                                 }))
@@ -92,10 +92,16 @@ struct BrowserView: View {
                     // List files
                     Section {
                         ForEach(files, id: \.self) {
-                            file in 
+                            file in
                             if searchTextLower.isEmpty || file.fileName().lowercased().contains(searchTextLower) {
                                 NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState, siblings: files)) {
-                                    Label(file.fileName(), systemImage: file.isLocallyPresent() ? "doc.fill" : (file.isSelected() ? "doc.badge.ellipsis" : "doc"))
+                                    Label(file.fileName(), systemImage: file.systemImage)
+                                }.contextMenu {
+                                    NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState, siblings: files)) {
+                                        Label(file.fileName(), systemImage: file.systemImage)
+                                    }
+                                } preview: {
+                                    BareOnDemandFileView(appState: appState, file: file, isShown: .constant(true))
                                 }
                             }
                         }

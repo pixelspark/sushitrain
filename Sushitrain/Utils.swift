@@ -63,19 +63,19 @@ extension SushitrainPeer: Identifiable {
 struct Setting<T: Codable> {
     let key: String
     let defaultValue: T
-
+    
     init(_ key: String, defaultValue: T) {
         self.key = key
         self.defaultValue = defaultValue
     }
-
+    
     var wrappedValue: T {
         get {
             if let jsonData = UserDefaults.standard.object(forKey: key) as? Data,
-                let user = try? JSONDecoder().decode(T.self, from: jsonData) {
+               let user = try? JSONDecoder().decode(T.self, from: jsonData) {
                 return user
             }
-
+            
             return  defaultValue
         }
         set {
@@ -110,5 +110,19 @@ extension SushitrainFolder {
         var error: NSError? = nil
         let s = self.state(&error)
         return s == "idle"
+    }
+}
+
+extension SushitrainEntry {
+    var systemImage: String {
+        if self.isLocallyPresent() {
+            return "doc.fill"
+        }
+        else if self.isSelected() {
+            return "doc.badge.ellipsis"
+        }
+        else {
+            return "doc"
+        }
     }
 }
