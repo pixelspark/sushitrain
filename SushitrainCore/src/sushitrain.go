@@ -764,3 +764,10 @@ func (self *Client) DevicesPendingFolder(folderID string) (*ListOfStrings, error
 	}
 	return List([]string{}), nil
 }
+
+func (self *Client) SetReconnectIntervalS(secs int) error {
+	fmt.Println("Set reconnect interval to", secs)
+	return self.changeConfiguration(func(cfg *config.Configuration) {
+		cfg.Options.ReconnectIntervalS = secs
+	})
+}

@@ -51,12 +51,14 @@ struct ContentView: View {
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
             case .background:
+                try? self.appState.client.setReconnectIntervalS(60)
                 break
                 
             case .inactive:
                 break
                 
             case .active:
+                try? self.appState.client.setReconnectIntervalS(1)
                 self.rebindServer()
                 break
                 
