@@ -50,6 +50,10 @@ type ClientDelegate interface {
 	OnListenAddressesChanged(addresses *ListOfStrings)
 }
 
+var (
+	ErrStillLoading = errors.New("still loading")
+)
+
 func NewClient(configPath string, filesPath string) (*Client, error) {
 	// Set version info
 	build.Version = "v1.27.9"
@@ -346,6 +350,10 @@ func (self *Client) FolderWithID(id string) *Folder {
 }
 
 func (self *Client) ConnectedPeerCount() int {
+	if self.app == nil || self.app.M == nil {
+		return 0
+	}
+
 	if self.config == nil || self.app == nil || self.app.M == nil {
 		return 0
 	}
@@ -412,6 +420,10 @@ func (self *Client) AddPeer(deviceID string) error {
 }
 
 func (self *Client) AddFolder(folderID string) error {
+	if self.app == nil || self.app.M == nil {
+		return ErrStillLoading
+	}
+
 	folderConfig := self.config.DefaultFolder()
 	folderConfig.ID = folderID
 	folderConfig.Label = folderID
@@ -592,6 +604,10 @@ func (self *Client) SetName(name string) error {
 }
 
 func (self *Client) Statistics() (*FolderStats, error) {
+	if self.app == nil || self.app.M == nil {
+		return nil, ErrStillLoading
+	}
+
 	globalTotal := FolderCounts{}
 	localTotal := FolderCounts{}
 
@@ -621,6 +637,10 @@ type SearchResultDelegate interface {
 particular order, unless/until the delegate returns true from IsCancelled. Set maxResults to <=0 to collect all results.
 */
 func (self *Client) Search(text string, delegate SearchResultDelegate, maxResults int) error {
+	if self.app == nil || self.app.M == nil {
+		return ErrStillLoading
+	}
+
 	text = strings.ToLower(text)
 	resultCount := 0
 
@@ -696,6 +716,10 @@ func (self *Client) SetListening(listening bool) error {
 }
 
 func (self *Client) pendingFolders() (map[string][]string, error) {
+	if self.app == nil || self.app.M == nil {
+		return nil, ErrStillLoading
+	}
+
 	peers := self.config.DeviceList()
 	fids := map[string][]string{}
 	for _, peer := range peers {
@@ -714,6 +738,10 @@ func (self *Client) pendingFolders() (map[string][]string, error) {
 }
 
 func (self *Client) PendingFolderIDs() (*ListOfStrings, error) {
+	if self.app == nil || self.app.M == nil {
+		return nil, ErrStillLoading
+	}
+
 	pfs, err := self.pendingFolders()
 	if err != nil {
 		return nil, err
@@ -722,6 +750,10 @@ func (self *Client) PendingFolderIDs() (*ListOfStrings, error) {
 }
 
 func (self *Client) DevicesPendingFolder(folderID string) (*ListOfStrings, error) {
+	if self.app == nil || self.app.M == nil {
+		return nil, ErrStillLoading
+	}
+
 	pfs, err := self.pendingFolders()
 	if err != nil {
 		return nil, err
