@@ -28,7 +28,6 @@ struct AddDeviceView: View {
             .onAppear {
                 idFieldFocus = true
                 deviceID = suggestedDeviceID
-                print("Set ssi", suggestedDeviceID)
             }
             .toolbar(content: {
                 ToolbarItem(placement: .confirmationAction, content: {

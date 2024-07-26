@@ -151,7 +151,6 @@ struct BrowserView: View {
                             var folderURL = URL(fileURLWithPath: self.folder.localNativePath(&error))
                             if error == nil {
                                 folderURL.append(path: self.prefix)
-                                print("folderURL", folderURL, documentsUrl)
                                 
                                 let sharedurl = folderURL.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
                                 let furl:URL = URL(string: sharedurl)!
