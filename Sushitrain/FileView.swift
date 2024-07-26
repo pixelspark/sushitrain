@@ -321,22 +321,6 @@ struct FileView: View {
                         }
                     }
                     
-                    // Remove file
-                    if file.isSelected() && file.isLocallyPresent() && folder.folderType() == SushitrainFolderTypeSendReceive {
-                        Section {
-                            Button("Remove file from all devices", systemImage: "trash", role: .destructive) {
-                                showRemoveConfirmation = true
-                            }
-                            .foregroundColor(.red)
-                            .confirmationDialog("Are you sure you want to remove this file from all devices?", isPresented: $showRemoveConfirmation, titleVisibility: .visible) {
-                                Button("Remove the file from all devices", role: .destructive) {
-                                    dismiss()
-                                    try! file.remove()
-                                }
-                            }
-                        }
-                    }
-                    
                     // Image preview
                     if file.isImage {
                         Section {
@@ -366,6 +350,22 @@ struct FileView: View {
                             else {
                                 Button("Show preview for large files") {
                                     showPreview = true
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Remove file
+                    if file.isSelected() && file.isLocallyPresent() && folder.folderType() == SushitrainFolderTypeSendReceive {
+                        Section {
+                            Button("Remove file from all devices", systemImage: "trash", role: .destructive) {
+                                showRemoveConfirmation = true
+                            }
+                            .foregroundColor(.red)
+                            .confirmationDialog("Are you sure you want to remove this file from all devices?", isPresented: $showRemoveConfirmation, titleVisibility: .visible) {
+                                Button("Remove the file from all devices", role: .destructive) {
+                                    dismiss()
+                                    try! file.remove()
                                 }
                             }
                         }
