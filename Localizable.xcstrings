@@ -637,6 +637,16 @@
         }
       }
     },
+    "File is too large to preview" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestand is te groot om weer te geven"
+          }
+        }
+      }
+    },
     "File size" : {
       "localizations" : {
         "nl" : {

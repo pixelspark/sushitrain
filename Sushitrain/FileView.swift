@@ -245,7 +245,6 @@ struct FileView: View {
     var showPath = false
     var siblings: [SushitrainEntry]? = nil
     @State var selfIndex: Int? = nil
-    @AppStorage("maxBytesForPreview") var maxBytesForPreview = 1024 * 1024 * 3 // 3 MiB
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -332,7 +331,7 @@ struct FileView: View {
                                         showPreview = false
                                     }
                             }
-                            else if showPreview || file.size() <= maxBytesForPreview {
+                            else if showPreview || file.size() <= appState.maxBytesForPreview {
                                 AsyncImage(url: URL(string: file.onDemandURL())!) { image in
                                     image
                                         .resizable()

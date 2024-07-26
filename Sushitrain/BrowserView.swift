@@ -101,7 +101,12 @@ struct BrowserView: View {
                                         Label(file.fileName(), systemImage: file.systemImage)
                                     }
                                 } preview: {
-                                    BareOnDemandFileView(appState: appState, file: file, isShown: .constant(true))
+                                    if file.size() < appState.maxBytesForPreview || file.isLocallyPresent() {
+                                        BareOnDemandFileView(appState: appState, file: file, isShown: .constant(true))
+                                    }
+                                    else {
+                                        ContentUnavailableView("File is too large to preview", systemImage: "scalemass")
+                                    }
                                 }
                             }
                         }

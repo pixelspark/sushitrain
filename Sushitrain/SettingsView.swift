@@ -39,7 +39,6 @@ struct TotalStatisticsView: View {
 
 struct AdvancedSettingsView: View {
     @ObservedObject var appState: AppState
-    @AppStorage("maxBytesForPreview") var maxBytesForPreview = 1024 * 1024 * 3
     
     var body: some View {
         Form {
@@ -104,21 +103,21 @@ struct AdvancedSettingsView: View {
             
             Section("Previews") {
                 Toggle("Show image previews", isOn: Binding(get: {
-                    return maxBytesForPreview > 0
+                    return appState.maxBytesForPreview > 0
                 }, set: { nv in
                     if nv {
-                        maxBytesForPreview = 3 * 1024 * 1024 // 3 MiB
+                        appState.maxBytesForPreview = 3 * 1024 * 1024 // 3 MiB
                     }
                     else {
-                        maxBytesForPreview = 0
+                        appState.maxBytesForPreview = 0
                     }
                 }))
                 
-                if maxBytesForPreview > 0 {
-                    Stepper("\(maxBytesForPreview / 1024 / 1024) MB", value: Binding(get: {
-                        maxBytesForPreview / 1024 / 1024
+                if appState.maxBytesForPreview > 0 {
+                    Stepper("\(appState.maxBytesForPreview / 1024 / 1024) MB", value: Binding(get: {
+                        appState.maxBytesForPreview / 1024 / 1024
                     }, set: { nv in
-                        maxBytesForPreview = nv * 1024 * 1024
+                        appState.maxBytesForPreview = nv * 1024 * 1024
                     }), in: 1...100)
                 }
             }

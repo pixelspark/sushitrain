@@ -24,6 +24,7 @@ class AppState: ObservableObject, @unchecked Sendable {
     @Published var launchedAt = Date.now
     @Published var streamingProgress: StreamingProgress? = nil
     @AppStorage("streamingLimitMbitsPerSec") var streamingLimitMbitsPerSec = 0
+    @AppStorage("maxBytesForPreview") var maxBytesForPreview = 2 * 1024 * 1024 // 2 MiB
     
     init(client: SushitrainClient) {
         self.client = client;
