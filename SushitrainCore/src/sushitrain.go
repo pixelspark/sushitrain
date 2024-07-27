@@ -283,7 +283,6 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 	if err != nil {
 		newCfg := config.New(devID)
 		newCfg.GUI.Enabled = false
-		newCfg.Options.RawListenAddresses = make([]string, 0) // Do not listen by default, we will connect to other devices on our initiative
 		cfg = config.Wrap(cfgFile, newCfg, devID, logger)
 
 	}
