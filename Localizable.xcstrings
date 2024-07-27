@@ -607,16 +607,6 @@
         }
       }
     },
-    "Extra files" : {
-      "localizations" : {
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Extra bestanden"
-          }
-        }
-      }
-    },
     "Extra files have been found. Because this is a receive-only folder, these files will not be synchronized." : {
       "localizations" : {
         "nl" : {
@@ -633,6 +623,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Er werden nieuwe bestanden gevonden. Bepaal per bestand of deze gesynchroniseerd of verwijderd moeten worden."
+          }
+        }
+      }
+    },
+    "Extra files in folder %@" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extra bestanden in map '%@'"
           }
         }
       }
@@ -683,6 +683,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Houd bestanden op dit apparaat"
+          }
+        }
+      }
+    },
+    "Folder '%@' has extra files" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map '%@' heeft extra bestanden"
           }
         }
       }
@@ -753,6 +763,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mappen"
+          }
+        }
+      }
+    },
+    "Folders that need your attention" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mappen die je aandacht nodig hebben"
           }
         }
       }

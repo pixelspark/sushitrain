@@ -39,13 +39,13 @@ struct ExtraFilesView: View {
                                 Button("Delete my copy of this file", systemImage: "trash", role: .destructive, action: {
                                     try! folder.deleteLocalFile(path)
                                     self.adressedPaths.insert(path)
-                                })
+                                }).foregroundColor(.red)
                             }
                             else {
                                 Button("Permanently delete this file", systemImage: "trash", role: .destructive, action: {
                                     try! folder.deleteLocalFile(path)
                                     self.adressedPaths.insert(path)
-                                })
+                                }).foregroundColor(.red)
                             }
                             
                             if folder.folderType() == SushitrainFolderTypeSendReceive {
@@ -69,6 +69,7 @@ struct ExtraFilesView: View {
         }.onAppear {
             extraFiles = try! folder.extraneousFiles().asArray().sorted()
         }
-        .navigationTitle("Extra files")
+        .navigationTitle("Extra files in folder \(folder.label())")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

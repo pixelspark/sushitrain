@@ -12,6 +12,7 @@ struct MeView: View {
     @State private var settingsShown = false
     @State private var searchShown = false
     @Binding var tabSelection: ContentView.Tab
+    @State private var foldersWithExtraFiles: [String] = []
     
     var peerStatusText: String {
         return "\(self.appState.client.connectedPeerCount())/\(self.appState.peers().count - 1)"
@@ -86,6 +87,19 @@ struct MeView: View {
                 }
             }
             
+            if !foldersWithExtraFiles.isEmpty {
+                Section("Folders that need your attention") {
+                    ForEach(foldersWithExtraFiles, id: \.self) { folderID in
+                        let folder = appState.client.folder(withID: folderID)!
+                        NavigationLink(destination: {
+                            ExtraFilesView(folder: folder, appState: appState)
+                        }) {
+                            Label("Folder '\(folder.label())' has extra files", systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                        }
+                    }
+                }
+            }
+            
         }.navigationTitle("Start")
             .toolbar {
                 ToolbarItem {
@@ -144,6 +158,17 @@ struct MeView: View {
                             }
                         })
                     })
+                }
+            }
+            .task {
+                // List folders that have extra files
+                self.foldersWithExtraFiles = []
+                for folder in appState.folders() {
+                    var hasExtra: ObjCBool = false
+                    let _ = try? folder.hasExtraneousFiles(&hasExtra)
+                    if hasExtra.boolValue {
+                        self.foldersWithExtraFiles.append(folder.folderID)
+                    }
                 }
             }
     }
