@@ -37,6 +37,16 @@
         }
       }
     },
+    "%lld%%" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld%%"
+          }
+        }
+      }
+    },
     "About this app" : {
       "localizations" : {
         "nl" : {
@@ -443,6 +453,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apparaatnaam"
+          }
+        }
+      }
+    },
+    "Device synchronization status" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisatiestatus per apparaat"
           }
         }
       }

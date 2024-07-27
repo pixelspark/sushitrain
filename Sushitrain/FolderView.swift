@@ -16,12 +16,21 @@ struct FolderStatisticsView: View {
         self.folder = folder
     }
     
+    var possiblePeers: [String: SushitrainPeer] {
+        get {
+            let peers = appState.peers().filter({d in !d.isSelf()})
+            var dict: [String: SushitrainPeer] = [:]
+            for peer in peers {
+                dict[peer.deviceID()] = peer
+            }
+            return dict
+        }
+    }
+    
     var body: some View {
-        let formatter = ByteCountFormatter()
-        let stats: SushitrainFolderStats? = try? self.folder.statistics()
-        
         Form {
-            if let stats = stats {
+            let formatter = ByteCountFormatter()
+            if let stats = try? self.folder.statistics() {
                 Section("All devices") {
                     Text("Number of files").badge(stats.global!.files)
                     Text("Number of directories").badge(stats.global!.directories)
@@ -34,7 +43,22 @@ struct FolderStatisticsView: View {
                     Text("File size").badge(formatter.string(fromByteCount: stats.local!.bytes))
                 }
             }
-        }.navigationTitle("Folder statistics")
+            
+            let devices = self.folder.sharedWithDeviceIDs()?.asArray() ?? []
+            let peers = self.possiblePeers
+            
+            if !devices.isEmpty {
+                Section("Device synchronization status") {
+                    ForEach(devices, id: \.self) { deviceID in
+                        if let completion = try? self.folder.completion(forDevice: deviceID) {
+                            if let device = peers[deviceID] {
+                                Text(device.name()).badge(Text("\(Int(completion.completionPct))%"))
+                            }
+                        }
+                    }
+                }
+            }
+        }.navigationTitle("Folder statistics").navigationBarTitleDisplayMode(.inline)
     }
 }
 

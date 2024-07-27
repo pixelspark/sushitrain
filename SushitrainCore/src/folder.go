@@ -576,3 +576,41 @@ func (self *Folder) Statistics() (*FolderStats, error) {
 		Local:  newFolderCounts(snap.LocalSize()),
 	}, nil
 }
+
+type Completion struct {
+	CompletionPct float64
+	GlobalBytes   int64
+	NeedBytes     int64
+	GlobalItems   int
+	NeedItems     int
+	NeedDeletes   int
+	Sequence      int64
+}
+
+func (self *Folder) CompletionForDevice(deviceID string) (*Completion, error) {
+	if self.client.app == nil || self.client.app.M == nil {
+		return nil, ErrStillLoading
+	}
+
+	devID, err := protocol.DeviceIDFromString(deviceID)
+	if err != nil {
+		return nil, err
+	}
+
+	completion, err := self.client.app.M.Completion(devID, self.FolderID)
+	if err != nil {
+		return nil, err
+	}
+
+	ourCompletion := Completion{
+		CompletionPct: completion.CompletionPct,
+		GlobalBytes:   completion.GlobalBytes,
+		NeedBytes:     completion.NeedBytes,
+		GlobalItems:   completion.GlobalItems,
+		NeedItems:     completion.NeedItems,
+		NeedDeletes:   completion.NeedDeletes,
+		Sequence:      completion.Sequence,
+	}
+
+	return &ourCompletion, nil
+}
