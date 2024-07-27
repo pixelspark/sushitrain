@@ -774,3 +774,8 @@ func (self *Client) SetReconnectIntervalS(secs int) error {
 		cfg.Options.ReconnectIntervalS = secs
 	})
 }
+
+func IsValidDeviceID(devID string) bool {
+	_, err := protocol.DeviceIDFromString(devID)
+	return err == nil
+}

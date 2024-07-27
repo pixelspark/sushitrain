@@ -1267,6 +1267,12 @@
         }
       }
     },
+    "Scan a device QR code" : {
+
+    },
+    "Scan using camera..." : {
+
+    },
     "Scanning..." : {
       "localizations" : {
         "nl" : {

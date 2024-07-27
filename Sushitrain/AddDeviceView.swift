@@ -5,6 +5,7 @@
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 import SwiftUI
 import SushitrainCore
+import VisionKit
 
 struct AddDeviceView: View {
     @ObservedObject var appState: AppState
@@ -13,6 +14,7 @@ struct AddDeviceView: View {
     @State private var showHelpAfterAdding = false
     @State private var showError = false
     @State private var errorText = ""
+    @State private var showQRScanner = false
     @FocusState private var idFieldFocus: Bool
     @Environment(\.dismiss) private var dismiss
     
@@ -23,12 +25,39 @@ struct AddDeviceView: View {
                     TextField("XXXX-XXXX", text: $deviceID, axis: .vertical)
                         .focused($idFieldFocus)
                         .textInputAutocapitalization(.never)
+                        .foregroundColor(SushitrainIsValidDeviceID(deviceID) ? .green: .red)
+                    
+                    if DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
+                        Button("Scan using camera...", systemImage: "qrcode") {
+                            showQRScanner = true
+                        }
+                    }
                 }
             }
             .onAppear {
                 idFieldFocus = true
                 deviceID = suggestedDeviceID
             }
+            .sheet(isPresented: $showQRScanner, content: {
+                if DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
+                    NavigationStack {
+                        QRScannerViewRepresentable (
+                            scannedText: $deviceID,
+                            shouldStartScanning: $showQRScanner,
+                            dataToScanFor: [.barcode(symbologies: [.qr])]
+                        )
+                        .navigationTitle("Scan a device QR code")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar(content: {
+                            ToolbarItem(placement: .cancellationAction, content: {
+                                Button("Cancel") {
+                                    showQRScanner = false
+                                }
+                            })
+                        })
+                    }
+                }
+            })
             .toolbar(content: {
                 ToolbarItem(placement: .confirmationAction, content: {
                     Button("Add") {
@@ -40,7 +69,7 @@ struct AddDeviceView: View {
                             showError = true
                             errorText = error.localizedDescription
                         }
-                    }.disabled(deviceID.isEmpty)
+                    }.disabled(deviceID.isEmpty || !SushitrainIsValidDeviceID(deviceID))
                 })
                 ToolbarItem(placement: .cancellationAction, content: {
                     Button("Cancel") {
@@ -50,6 +79,7 @@ struct AddDeviceView: View {
                 
             })
             .navigationTitle("Add device")
+            .navigationBarTitleDisplayMode(.inline)
             .alert(isPresented: $showError, content: {
                 Alert(title: Text("Could not add device"), message: Text(errorText), dismissButton: .default(Text("OK")))
             })
