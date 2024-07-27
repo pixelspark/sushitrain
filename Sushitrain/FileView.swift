@@ -321,7 +321,8 @@ struct FileView: View {
                     }
                     
                     // Image preview
-                    if file.isImage {
+                    // AsyncImage does not support SVGs, it seems
+                    if file.isImage && file.mimeType() != "image/svg+xml" {
                         Section {
                             if file.isLocallyPresent() {
                                 Image(uiImage: UIImage(contentsOfFile: localPath!)!)
