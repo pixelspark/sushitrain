@@ -1268,10 +1268,24 @@
       }
     },
     "Scan a device QR code" : {
-
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan een QR-code"
+          }
+        }
+      }
     },
     "Scan using camera..." : {
-
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan QR-code met de camera..."
+          }
+        }
+      }
     },
     "Scanning..." : {
       "localizations" : {
@@ -1878,7 +1892,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wanneer je bestanden synchroniseert, worden alle wijzigingen, ook verwijderen, doorgegeven aan je andere apparaten. Gebruik Synctrain niet voor het maken van back-ups, en zorg dat je altijd beschikt over een back-uo van je gegevens."
+            "value" : "Wanneer je bestanden synchroniseert, worden alle wijzigingen, ook verwijderen, doorgegeven aan je andere apparaten. Gebruik Synctrain niet voor het maken van back-ups, en zorg dat je altijd beschikt over een back-up van je gegevens."
           }
         }
       }
