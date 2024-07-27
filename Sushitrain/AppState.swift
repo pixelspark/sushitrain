@@ -49,7 +49,6 @@ class AppState: ObservableObject, @unchecked Sendable {
         }
     }
     
-    @MainActor
     func folders() -> [SushitrainFolder] {
         let folderIDs = self.client.folders()!.asArray()
         var folderInfos: [SushitrainFolder] = []
@@ -75,5 +74,21 @@ class AppState: ObservableObject, @unchecked Sendable {
             peers.append(peerInfo)
         }
         return peers
+    }
+    
+    func updateBadge() {
+        var numExtra = 0
+        for folder in self.folders() {
+            var hasExtra: ObjCBool = false
+            let _ = try? folder.hasExtraneousFiles(&hasExtra)
+            if hasExtra.boolValue {
+                numExtra += 1
+            }
+        }
+        let numExtraFinal = numExtra
+        
+        DispatchQueue.main.async {
+            UNUserNotificationCenter.current().setBadgeCount(numExtraFinal)
+        }
     }
 }

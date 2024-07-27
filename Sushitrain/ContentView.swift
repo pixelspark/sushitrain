@@ -52,6 +52,7 @@ struct ContentView: View {
             switch newPhase {
             case .background:
                 try? self.appState.client.setReconnectIntervalS(60)
+                self.appState.updateBadge()
                 break
                 
             case .inactive:
@@ -79,15 +80,36 @@ struct ContentView: View {
                 self.showOnboardingIfNecessary()
             }
         }
+        .onChange(of: showOnboarding) { _, shown in
+            if !shown {
+                // End of onboarding, request notification authorization
+                self.requestNotificationPermissionIfNecessary()
+            }
+        }
     }
     
     private static let currentOnboardingVersion = 1
+    
+    private func requestNotificationPermissionIfNecessary() {
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            if settings.authorizationStatus == .notDetermined {
+                let options: UNAuthorizationOptions = [.badge]
+                UNUserNotificationCenter.current().requestAuthorization(options: options) { (status, error) in
+                    print("Notifications requested: \(status) \(error?.localizedDescription ?? "")")
+                }
+            }
+        }
+    }
     
     private func showOnboardingIfNecessary() {
         print("Current onboarding version is \(Self.currentOnboardingVersion), user last saw \(self.onboardingVersionShown)")
         if onboardingVersionShown < Self.currentOnboardingVersion {
             self.showOnboarding = true
             onboardingVersionShown = Self.currentOnboardingVersion
+        }
+        else {
+            // Go straight on to request notification permissions
+            self.requestNotificationPermissionIfNecessary()
         }
     }
     

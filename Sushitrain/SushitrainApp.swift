@@ -48,6 +48,8 @@ class SushitrainApp: NSObject, App {
                     appState.applySettings()
                     appState.update()
                 }
+                
+                appState.updateBadge()
             }
             catch let error {
                 DispatchQueue.main.async {
@@ -127,6 +129,11 @@ extension SushitrainApp: SushitrainClientDelegateProtocol {
         DispatchQueue.main.async {
             appState.lastEvent = event ?? "unknown event"
             appState.update()
+        }
+        
+        if event == "LocalIndexUpdated" || event == "LocalChangeDetected" {
+            // Check for extraneous files and update app badge accordingly
+            appState.updateBadge()
         }
     }
     

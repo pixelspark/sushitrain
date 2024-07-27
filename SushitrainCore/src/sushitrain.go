@@ -234,6 +234,9 @@ func (self *Client) startEventListener() {
 				case events.LocalIndexUpdated:
 					self.Delegate.OnEvent(evt.Type.String())
 
+				case events.LocalChangeDetected:
+					self.Delegate.OnEvent(evt.Type.String())
+
 				case events.DeviceDisconnected:
 					self.Delegate.OnEvent(evt.Type.String())
 
