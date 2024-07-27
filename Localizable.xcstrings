@@ -1117,6 +1117,16 @@
         }
       }
     },
+    "Open source" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open source"
+          }
+        }
+      }
+    },
     "Open source components" : {
       "localizations" : {
         "nl" : {
@@ -1663,6 +1673,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Het apparaat is toegevoegd. Controleer of het andere apparaat dit apparaat ook accepteert, of voeg dit apparaat ook daar toe."
+          }
+        }
+      }
+    },
+    "The source code of this application is available under the Mozilla Public License 2.0." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De broncode van deze app is beschikbaar onder de Mozilla Public License 2.0."
           }
         }
       }

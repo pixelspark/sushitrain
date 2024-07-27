@@ -15,6 +15,11 @@ struct AboutView: View {
                 Text("Synctrain is © 2024, Tommy van der Vorst")
             }
             
+            Section("Open source") {
+                Text("The source code of this application is available under the Mozilla Public License 2.0.")
+                Link("Obtain the source code", destination: URL(string: "https://github.com/pixelspark/sushitrain")!)
+            }
+            
             Section("Open source components") {
                 Text("This application incorporates Syncthing, which is open source software under the Mozilla Public License 2.0. Syncthing is a trademark of the Syncthing Foundation. This application is not associated with nor endorsed by the Syncthing foundation nor Syncthing contributors.")
                 Link("Read more at syncthing.net", destination: URL(string: "https://syncthing.net")!)
