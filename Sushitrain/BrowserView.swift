@@ -16,6 +16,7 @@ struct BrowserView: View {
     @State private var searchText = ""
     @State private var subdirectories: [String] = []
     @State private var files: [SushitrainEntry] = []
+    @State private var hasExtraneousFiles = false
     
     func listSubdirectories() -> [String] {
         if !folder.exists() {
@@ -64,7 +65,7 @@ struct BrowserView: View {
                     Section {
                         FolderStatusView(appState: appState, folder: folder)
                         
-                        if try! self.folder.extraneousFiles().count() > 0 {
+                        if hasExtraneousFiles {
                             NavigationLink(destination: {
                                 ExtraFilesView(folder: self.folder, appState: self.appState)
                             }) {
@@ -151,14 +152,13 @@ struct BrowserView: View {
                     }
                     ToolbarItem {
                         Button("Open in Files app", systemImage: "arrow.up.forward.app", action: {
-                            let documentsUrl =  FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                             var error: NSError? = nil
                             var folderURL = URL(fileURLWithPath: self.folder.localNativePath(&error))
                             if error == nil {
                                 folderURL.append(path: self.prefix)
                                 
                                 let sharedurl = folderURL.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
-                                let furl:URL = URL(string: sharedurl)!
+                                let furl: URL = URL(string: sharedurl)!
                                 UIApplication.shared.open(furl, options: [:], completionHandler: nil)
                             }
                         }).labelStyle(.iconOnly)
@@ -180,6 +180,9 @@ struct BrowserView: View {
                 self.isLoading = true
                 subdirectories = self.listSubdirectories();
                 files = self.listFiles();
+                var hasExtra: ObjCBool = false
+                let _ = try! folder.hasExtraneousFiles(&hasExtra)
+                hasExtraneousFiles = hasExtra.boolValue
                 self.isLoading = false
             }
         }

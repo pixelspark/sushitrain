@@ -244,17 +244,22 @@ struct FolderStatusView: View {
 
 struct FolderSyncTypePicker: View {
     @ObservedObject var appState: AppState
+    @State private var hasExtraneousFiles = true
     var folder: SushitrainFolder
     
     var body: some View {
         if folder.exists() {
-            var hasExtraneousFiles: ObjCBool = false
-            let _ = try! folder.hasExtraneousFiles(&hasExtraneousFiles)
-            
             Picker("Selection", selection: Binding(get: { folder.isSelective() }, set: { s in try? folder.setSelective(s) })) {
                 Text("All files").tag(false)
                 Text("Selected files").tag(true)
-            }.pickerStyle(.menu).disabled(hasExtraneousFiles.boolValue)
+            }
+            .pickerStyle(.menu)
+            .disabled(hasExtraneousFiles)
+            .onAppear {
+                var hasExtra: ObjCBool = false
+                let _ = try! folder.hasExtraneousFiles(&hasExtra)
+                hasExtraneousFiles = hasExtra.boolValue
+            }
         }
     }
 }
@@ -263,16 +268,21 @@ struct FolderSyncTypePicker: View {
 struct FolderDirectionPicker: View {
     @ObservedObject var appState: AppState
     var folder: SushitrainFolder
+    @State private var hasExtraneousFiles: Bool = true
     
     var body: some View {
         if folder.exists() {
-            var hasExtraneousFiles: ObjCBool = false
-            let _ = try! folder.hasExtraneousFiles(&hasExtraneousFiles)
-            
             Picker("Direction", selection: Binding(get: { folder.folderType() }, set: { s in try? folder.setFolderType(s) })) {
                 Text("Send and receive").tag(SushitrainFolderTypeSendReceive)
                 Text("Receive only").tag(SushitrainFolderTypeReceiveOnly)
-            }.pickerStyle(.menu).disabled(hasExtraneousFiles.boolValue)
+            }
+                .pickerStyle(.menu)
+                .disabled(hasExtraneousFiles)
+                .onAppear {
+                    var hasExtra: ObjCBool = false
+                    let _ = try! folder.hasExtraneousFiles(&hasExtra)
+                    hasExtraneousFiles = hasExtra.boolValue
+                }
         }
     }
 }
