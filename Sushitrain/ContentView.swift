@@ -56,6 +56,7 @@ struct ContentView: View {
                 break
                 
             case .inactive:
+                self.appState.updateBadge()
                 break
                 
             case .active:
