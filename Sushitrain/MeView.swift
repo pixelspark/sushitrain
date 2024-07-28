@@ -5,12 +5,47 @@
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 import SwiftUI
 import SushitrainCore
+import CoreImage
+import CoreImage.CIFilterBuiltins
 
+fileprivate struct QRView: View {
+    private var text: String
+    @State private var image: UIImage? = nil
+    
+    init(text: String) {
+        self.text = text
+    }
+    
+    var body: some View {
+        ZStack {
+            if let image = image {
+                Image(uiImage: image)
+                    .resizable()
+                    .frame(width: 200, height: 200)
+            }
+            else {
+                ProgressView()
+            }
+        }
+        .navigationTitle("Device ID")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            let filter = CIFilter.qrCodeGenerator()
+            let data = text.data(using: .ascii, allowLossyConversion: false)!
+            filter.message = data
+            let ciimage = filter.outputImage!
+            let transform = CGAffineTransform(scaleX: 10, y: 10)
+            let scaledCIImage = ciimage.transformed(by: transform)
+            image = UIImage(data: UIImage(ciImage: scaledCIImage).pngData()!)
+        }
+    }
+}
 
 struct MeView: View {
     @ObservedObject var appState: AppState
     @State private var settingsShown = false
     @State private var searchShown = false
+    @State private var qrCodeShown = false
     @Binding var tabSelection: ContentView.Tab
     @State private var foldersWithExtraFiles: [String] = []
     
@@ -56,6 +91,14 @@ struct MeView: View {
                         Text("Copy to clipboard")
                         Image(systemName: "doc.on.doc")
                     }
+                    
+                    Button(action: {
+                        qrCodeShown = true
+                    }) {
+                        Text("Show QR code")
+                        Image(systemName: "qrcode")
+                    }
+                    
                     Button(action: {
                         self.showAddresses = true
                     }) {
@@ -160,6 +203,18 @@ struct MeView: View {
                     })
                 }
             }
+            .sheet(isPresented: $qrCodeShown, content: {
+                NavigationStack {
+                    QRView(text: self.appState.localDeviceID)
+                        .toolbar(content: {
+                            ToolbarItem(placement: .confirmationAction, content: {
+                                Button("Done") {
+                                    self.qrCodeShown = false
+                                }
+                            })
+                        })
+                }
+            })
             .task {
                 // List folders that have extra files
                 self.foldersWithExtraFiles = []

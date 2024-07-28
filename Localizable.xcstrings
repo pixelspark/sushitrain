@@ -1507,6 +1507,16 @@
         }
       }
     },
+    "Show QR code" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toon QR-code"
+          }
+        }
+      }
+    },
     "Start" : {
       "localizations" : {
         "nl" : {
