@@ -179,8 +179,8 @@ func (self *Entry) SetExplicitlySelected(selected bool) error {
 		return err
 	}
 
-	// Delete local file if !selected
-	if !selected {
+	// Delete local file if !selected (and not still implicitly selected by parent folder)
+	if !selected && !self.IsSelected() {
 		go func() {
 			self.Folder.client.app.M.ScanFolders()
 			self.Folder.DeleteLocalFile(self.info.FileName())
