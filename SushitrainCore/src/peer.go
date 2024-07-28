@@ -49,9 +49,13 @@ func (self *Peer) LastSeen() *Date {
 	return &Date{time: stats[self.deviceID].LastSeen}
 }
 
-func (self *Peer) deviceConfiguration() config.DeviceConfiguration {
+func (self *Peer) deviceConfiguration() *config.DeviceConfiguration {
 	devs := self.client.config.Devices()
-	return devs[self.deviceID]
+	dev, ok := devs[self.deviceID]
+	if !ok {
+		return nil
+	}
+	return &dev
 }
 
 func (self *Peer) Name() string {
@@ -147,4 +151,8 @@ func (self *Peer) PendingFolderIDs() (*ListOfStrings, error) {
 	}
 
 	return List(fids), nil
+}
+
+func (self *Peer) Exists() bool {
+	return self.deviceConfiguration() != nil
 }

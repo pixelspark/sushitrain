@@ -4,21 +4,40 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 import SwiftUI
+import SushitrainCore
+
 
 struct FoldersView: View {
     @ObservedObject var appState: AppState
     @State private var showingAddFolderPopup = false
     @State private var pendingFolderIds: [String] = []
     @State private var addFolderID = ""
+    @State private var selectedFolder: SelectedFolder?
+    @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
+    
+    fileprivate struct SelectedFolder: Hashable, Equatable {
+        var folder: SushitrainFolder
+        
+        func hash(into hasher: inout Hasher) {
+            self.folder.folderID.hash(into: &hasher)
+        }
+        
+        static func == (lhs: Self, rhs: Self) -> Bool {
+            return lhs.folder.folderID == rhs.folder.folderID
+        }
+    }
     
     var body: some View {
         ZStack {
             let folders = appState.folders().sorted()
-            NavigationStack {
-                List {
+            
+            NavigationSplitView(
+                columnVisibility: $columnVisibility,
+                sidebar: {
+                List(selection: $selectedFolder) {
                     Section {
                         ForEach(folders, id: \.self) { folder in
-                            NavigationLink(destination: BrowserView(folder: folder, prefix: "", appState: self.appState)) {
+                            NavigationLink(value: SelectedFolder(folder: folder)) {
                                 Label(folder.label().isEmpty ? folder.folderID : folder.label(), systemImage: "folder.fill")
                             }.contextMenu(ContextMenu(menuItems: {
                                 NavigationLink("Folder settings", destination: FolderView(folder: folder, appState: self.appState))
@@ -53,7 +72,24 @@ struct FoldersView: View {
                         UIApplication.shared.open(furl, options: [:], completionHandler: nil)
                     }).labelStyle(.iconOnly)
                 }
-            }
+            }, detail: {
+                NavigationStack {
+                    if let folder = selectedFolder {
+                        if folder.folder.exists() {
+                            BrowserView(folder: folder.folder, prefix: "", appState: self.appState).id(folder.folder.folderID)
+                        }
+                        else {
+                            ContentUnavailableView("Folder was deleted", systemImage: "trash", description: Text("This folder was deleted."))
+                        }
+                    }
+                    else {
+                        ContentUnavailableView("Select a folder", systemImage: "folder").onTapGesture {
+                            columnVisibility = .doubleColumn
+                        }
+                    }
+                }
+            })
+            .navigationSplitViewStyle(.balanced)
         }
         .sheet(isPresented: $showingAddFolderPopup, content: {
             AddFolderView(folderID: $addFolderID, appState: appState)

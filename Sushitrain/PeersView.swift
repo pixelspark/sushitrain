@@ -8,22 +8,36 @@ import SushitrainCore
 
 struct PeersView: View {
     @ObservedObject var appState: AppState
-    @State var showingAddDevicePopup = false
-    @State var addingDeviceID: String = ""
+    @State private var showingAddDevicePopup = false
+    @State private var addingDeviceID: String = ""
+    @State private var selectedPeer: SelectedPeer?
+    @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
+    
+    fileprivate struct SelectedPeer: Hashable, Equatable {
+        var peer: SushitrainPeer
+        
+        func hash(into hasher: inout Hasher) {
+            self.peer.deviceID().hash(into: &hasher)
+        }
+        
+        static func == (lhs: Self, rhs: Self) -> Bool {
+            return lhs.peer.deviceID() == rhs.peer.deviceID()
+        }
+    }
     
     var body: some View {
         let peers = appState.peers().filter({x in !x.isSelf()}).sorted();
         ZStack {
-            NavigationStack {
-                List {
+            NavigationSplitView(columnVisibility: $columnVisibility, sidebar: {
+                List(selection: $selectedPeer) {
                     Section("Associated devices") {
                         if peers.isEmpty {
                             ContentUnavailableView("No devices added yet", systemImage: "externaldrive.badge.questionmark", description: Text("To synchronize files, first add a remote device. Either select a device from the list below, or add manually using the device ID."))
                         }
                         else {
-                            ForEach(peers) {
-                                key in NavigationLink(destination: PeerView(peer: key, appState: appState)) {
-                                    Label(key.name().isEmpty ? key.deviceID() : key.name(), systemImage: key.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill")
+                            ForEach(peers) { peer in
+                                NavigationLink(value: SelectedPeer(peer: peer)) {
+                                    Label(peer.name().isEmpty ? peer.deviceID() : peer.name(), systemImage: peer.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill")
                                 }
                             }
                             .onDelete(perform: { indexSet in
@@ -59,15 +73,30 @@ struct PeersView: View {
                         })
                     }
                 }
-                
                 .navigationTitle("Devices")
                 .toolbar {
                     if !peers.isEmpty {
                         EditButton()
                     }
                 }
-                
-            }
+            }, detail: {
+                NavigationStack {
+                    if let selectedPeer = selectedPeer {
+                        if selectedPeer.peer.exists() {
+                            PeerView(peer: selectedPeer.peer, appState: appState)
+                        }
+                        else {
+                            ContentUnavailableView("Peer was removed", systemImage: "trash", description: Text("This peer was deleted."))
+                        }
+                    }
+                    else {
+                        ContentUnavailableView("Select a device", systemImage: "externaldrive").onTapGesture {
+                            columnVisibility = .doubleColumn
+                        }
+                    }
+                }
+            })
+            .navigationSplitViewStyle(.balanced)
         }
         .sheet(isPresented: $showingAddDevicePopup) {
             AddDeviceView(appState: appState, suggestedDeviceID: $addingDeviceID)

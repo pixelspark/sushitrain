@@ -82,9 +82,10 @@ struct BrowserView: View {
                                 NavigationLink(destination: BrowserView(folder: folder, prefix: "\(prefix)\(key)/", appState: appState)) {
                                     Label(key, systemImage: "folder")
                                 }
-                                
                                 .contextMenu(ContextMenu(menuItems: {
-                                    NavigationLink("Folder properties", destination: FileView(file: try! folder.getFileInformation(self.prefix + key), folder: self.folder, appState: self.appState))
+                                    if let file = try? folder.getFileInformation(self.prefix + key) {
+                                        NavigationLink("Folder properties", destination: FileView(file: file, folder: self.folder, appState: self.appState))
+                                    }
                                 }))
                             }
                         }
@@ -181,8 +182,13 @@ struct BrowserView: View {
                 subdirectories = self.listSubdirectories();
                 files = self.listFiles();
                 var hasExtra: ObjCBool = false
-                let _ = try! folder.hasExtraneousFiles(&hasExtra)
-                hasExtraneousFiles = hasExtra.boolValue
+                do {
+                    try folder.hasExtraneousFiles(&hasExtra)
+                    hasExtraneousFiles = hasExtra.boolValue
+                }
+                catch let error {
+                    print("error checking for extraneous files: \(error.localizedDescription)")
+                }
                 self.isLoading = false
             }
         }

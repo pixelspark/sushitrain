@@ -777,6 +777,16 @@
         }
       }
     },
+    "Folder was deleted" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map is verwijderd"
+          }
+        }
+      }
+    },
     "Folders" : {
       "localizations" : {
         "nl" : {
@@ -1147,6 +1157,16 @@
         }
       }
     },
+    "Peer was removed" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apparaat is ontkoppeld"
+          }
+        }
+      }
+    },
     "Permanently delete this file" : {
       "localizations" : {
         "nl" : {
@@ -1353,6 +1373,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zoekresultaten (%lld+)"
+          }
+        }
+      }
+    },
+    "Select a device" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selecteer een apparaat"
+          }
+        }
+      }
+    },
+    "Select a folder" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selecteer een map"
           }
         }
       }
@@ -1767,12 +1807,32 @@
         }
       }
     },
+    "This folder was deleted." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze map is verwijderd."
+          }
+        }
+      }
+    },
     "This folder was removed." : {
       "localizations" : {
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Deze map is verwijderd."
+          }
+        }
+      }
+    },
+    "This peer was deleted." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dit apparaat is ontkoppeld."
           }
         }
       }
