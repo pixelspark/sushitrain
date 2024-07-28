@@ -39,9 +39,7 @@ struct FoldersView: View {
                         ForEach(folders, id: \.self) { folder in
                             NavigationLink(value: SelectedFolder(folder: folder)) {
                                 Label(folder.label().isEmpty ? folder.folderID : folder.label(), systemImage: "folder.fill")
-                            }.contextMenu(ContextMenu(menuItems: {
-                                NavigationLink("Folder settings", destination: FolderView(folder: folder, appState: self.appState))
-                            }))
+                            }
                         }
                     }
                     
