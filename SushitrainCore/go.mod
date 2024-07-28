@@ -67,9 +67,9 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/syncthing/syncthing => github.com/pixelspark/syncthing v1.27.10-0.20240723214249-2bb572dd6a71
+replace github.com/syncthing/syncthing => github.com/pixelspark/syncthing v1.27.10-rc.1.0.20240728120142-517b88acb8ca
 
-//replace github.com/syncthing/syncthing => /Users/tommy/Repos/MobiusSyncSyncthing
+//replace github.com/syncthing/syncthing => /Users/tommy/Repos/syncthing
 
 replace github.com/shirou/gopsutil/v3 => github.com/SimonPickup/gopsutil/v3 v3.24.6
 

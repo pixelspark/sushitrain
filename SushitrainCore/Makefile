@@ -8,7 +8,7 @@ SHELL := env PATH=$(PATH) /bin/bash
 
 .PHONY: clean install
 
-build/SushitrainCore.xcframework: src/*.go Makefile
+build/SushitrainCore.xcframework: src/*.go Makefile go.mod
 	@go version
 	go get golang.org/x/mobile/cmd/gomobile
 
