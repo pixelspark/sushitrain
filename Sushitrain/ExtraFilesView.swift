@@ -6,12 +6,16 @@
 import Foundation
 import SwiftUI
 import SushitrainCore
+import QuickLook
 
 struct ExtraFilesView: View {
     var folder: SushitrainFolder
     @ObservedObject var appState: AppState
     @State private var adressedPaths = Set<String>()
     @State private var extraFiles: [String] = []
+    @State private var showCleanAll = false
+    @State private var localItemURL: URL? = nil
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         let unadressedExtraFiles = extraFiles.filter({ p in !self.adressedPaths.contains(p) })
@@ -29,11 +33,28 @@ struct ExtraFilesView: View {
                         Text("Extra files have been found. Because this is a receive-only folder, these files will not be synchronized.").textFieldStyle(.plain)
                     }
                     
+                    Button("Remove all extra files", systemImage: "trash", role: .destructive) {
+                        showCleanAll = true
+                    }.confirmationDialog("Are you sure you want to delete \(unadressedExtraFiles.count) files? Files that are not synchronized to other device will be lost. This cannot be undone!", isPresented: $showCleanAll, titleVisibility: .visible, actions: {
+                        Button("Remove \(unadressedExtraFiles.count) files from my device", role: .destructive) {
+                            dismiss()
+                            try? folder.cleanSelection()
+                        }
+                    }).foregroundColor(.red)
+                    
                     ForEach(unadressedExtraFiles, id: \.self) { path in
                         let globalInfo = try? folder.getFileInformation(path)
                         let isAlsoGlobalFile = globalInfo != nil && !(globalInfo!.isDeleted())
                         Section {
-                            Text(path).textFieldStyle(.plain)
+                            Button(path) {
+                                if let info = try? folder.getFileInformation(path) {
+                                    var error: NSError? = nil
+                                    let path = info.localNativePath(&error)
+                                    if error == nil {
+                                        self.localItemURL = URL(fileURLWithPath: path)
+                                    }
+                                }
+                            }
                             
                             if isAlsoGlobalFile {
                                 Button("Delete my copy of this file", systemImage: "trash", role: .destructive, action: {
@@ -71,5 +92,8 @@ struct ExtraFilesView: View {
         }
         .navigationTitle("Extra files in folder \(folder.label())")
         .navigationBarTitleDisplayMode(.inline)
+        .quickLookPreview(self.$localItemURL)
     }
+    
+    
 }

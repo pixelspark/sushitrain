@@ -177,7 +177,7 @@ struct BrowserView: View {
                     })
                 }
             })
-            .task {
+            .task(id: self.folderStateForUpdating()) {
                 self.isLoading = true
                 subdirectories = self.listSubdirectories();
                 files = self.listFiles();
@@ -192,5 +192,14 @@ struct BrowserView: View {
                 self.isLoading = false
             }
         }
+    }
+    
+    private func folderStateForUpdating() -> Int {
+        var error: NSError? = nil
+        let state = folder.state(&error)
+        var hasher = Hasher()
+        hasher.combine(state)
+        hasher.combine(folder.isPaused())
+        return hasher.finalize()
     }
 }

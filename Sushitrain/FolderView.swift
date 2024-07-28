@@ -118,13 +118,13 @@ struct SelectiveFolderView: View {
             }
         }
         .navigationTitle("Selected files")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchString, prompt: "Search files by name...")
-            .task {
-                self.isLoading = true
-                self.selectedPaths = try! self.folder.selectedPaths().asArray().sorted()
-                self.isLoading = false
-            }
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $searchString, prompt: "Search files by name...")
+        .task {
+            self.isLoading = true
+            self.selectedPaths = try! self.folder.selectedPaths().asArray().sorted()
+            self.isLoading = false
+        }
     }
 }
 
@@ -231,7 +231,25 @@ struct FolderStatusView: View {
                     }
                 }
                 else if status == "syncing" {
-                    Label("Synchronizing...", systemImage: "bolt.horizontal.circle").foregroundStyle(.orange)
+                    if !folder.isSelective() {
+                        if let statistics = try? folder.statistics(), statistics.global!.bytes > 0 {
+                            let formatter = ByteCountFormatter()
+                            let globalBytes = statistics.global!.bytes;
+                            let localBytes = statistics.local!.bytes;
+                            let remainingText = formatter.string(fromByteCount: (globalBytes - localBytes));
+                            ProgressView(value: Double(localBytes) / Double(globalBytes), total: 1.0) {
+                                Label("Synchronizing...", systemImage: "bolt.horizontal.circle")
+                                    .foregroundStyle(.orange)
+                                    .badge(Text(remainingText))
+                            }.tint(.orange)
+                        }
+                        else {
+                            Label("Synchronizing...", systemImage: "bolt.horizontal.circle").foregroundStyle(.orange)
+                        }
+                    }
+                    else {
+                        Label("Synchronizing...", systemImage: "bolt.horizontal.circle").foregroundStyle(.orange)
+                    }
                 }
                 else if status == "scanning" {
                     Label("Scanning...", systemImage: "bolt.horizontal.circle").foregroundStyle(.orange)
@@ -300,13 +318,13 @@ struct FolderDirectionPicker: View {
                 Text("Send and receive").tag(SushitrainFolderTypeSendReceive)
                 Text("Receive only").tag(SushitrainFolderTypeReceiveOnly)
             }
-                .pickerStyle(.menu)
-                .disabled(hasExtraneousFiles)
-                .onAppear {
-                    var hasExtra: ObjCBool = false
-                    let _ = try! folder.hasExtraneousFiles(&hasExtra)
-                    hasExtraneousFiles = hasExtra.boolValue
-                }
+            .pickerStyle(.menu)
+            .disabled(hasExtraneousFiles)
+            .onAppear {
+                var hasExtra: ObjCBool = false
+                let _ = try! folder.hasExtraneousFiles(&hasExtra)
+                hasExtraneousFiles = hasExtra.boolValue
+            }
         }
     }
 }

@@ -67,8 +67,11 @@ struct MeView: View {
                         let progress = self.appState.client.getTotalDownloadProgress()
                         if let progress = progress {
                             ProgressView(value: progress.percentage, total: 1.0) {
-                                Label("Downloading \(progress.filesTotal) files...", systemImage: "arrow.clockwise").foregroundStyle(.green).symbolEffect(.pulse, value: true).badge(self.peerStatusText)
-                            }
+                                Label("Downloading \(progress.filesTotal) files...", systemImage: "arrow.clockwise")
+                                    .foregroundStyle(.green)
+                                    .symbolEffect(.pulse, value: true)
+                                    .badge(self.peerStatusText)
+                            }.tint(.green)
                         }
                         else {
                             Label("Synchronizing files...", systemImage: "arrow.clockwise").foregroundStyle(.green).symbolEffect(.pulse, value: true).badge(self.peerStatusText)

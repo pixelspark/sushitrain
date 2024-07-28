@@ -240,8 +240,20 @@ func (self *Client) startEventListener() {
 				case events.DeviceDisconnected:
 					self.Delegate.OnEvent(evt.Type.String())
 
+				case events.ItemFinished:
+					break
+
+				case events.ItemStarted:
+					break
+
+				case events.FolderResumed:
+					self.Delegate.OnEvent(evt.Type.String())
+
+				case events.FolderPaused:
+					self.Delegate.OnEvent(evt.Type.String())
+
 				default:
-					fmt.Println("EVENT", evt)
+					fmt.Println("EVENT", evt.Type.String(), evt)
 					//self.Delegate.OnEvent(evt.Type.String())
 				}
 
@@ -430,7 +442,7 @@ func (self *Client) AddFolder(folderID string) error {
 	folderConfig.ID = folderID
 	folderConfig.Label = folderID
 	folderConfig.Path = path.Join(locations.Get(locations.LocationEnum(locations.UserHomeBaseDir)), folderID)
-	folderConfig.FSWatcherEnabled = true
+	folderConfig.FSWatcherEnabled = false
 	folderConfig.Paused = false
 
 	err := self.changeConfiguration(func(cfg *config.Configuration) {

@@ -249,22 +249,30 @@ var (
 	errNoClient = errors.New("client not started up yet")
 )
 
+func (self *Folder) whilePaused(block func() error) error {
+	pausedBefore := self.IsPaused()
+	if !pausedBefore {
+		err := self.SetPaused(true)
+		if err != nil {
+			return err
+		}
+		defer self.SetPaused(pausedBefore)
+	}
+	return block()
+}
+
 func (self *Folder) SetSelective(selective bool) error {
 	if self.client.app == nil || self.client.app.M == nil {
 		return errNoClient
 	}
 
-	var err error
-	if selective {
-		err = self.client.app.M.SetIgnores(self.FolderID, []string{"*"})
-	} else {
-		err = self.client.app.M.SetIgnores(self.FolderID, []string{})
-	}
-
-	if err != nil {
-		return err
-	}
-	return nil
+	return self.whilePaused(func() error {
+		if selective {
+			return self.client.app.M.SetIgnores(self.FolderID, []string{"*"})
+		} else {
+			return self.client.app.M.SetIgnores(self.FolderID, []string{})
+		}
+	})
 }
 
 func (self *Folder) ClearSelection() error {
@@ -446,6 +454,10 @@ func (self *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 		return nil, errors.New("folder does not exist")
 	}
 
+	if !self.IsSelective() {
+		return List([]string{}), nil
+	}
+
 	ignores := ignore.New(cfg.Filesystem(nil), ignore.WithCache(false))
 	if err := ignores.Load(ignoreFileName); err != nil && !fs.IsNotExist(err) {
 		return nil, err
@@ -498,31 +510,32 @@ func (self *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 
 // Remove ignored files from the local working copy
 func (self *Folder) CleanSelection() error {
-	// Make sure the initial scan has finished (ScanFolders is blocking)
-	self.client.app.M.ScanFolders()
+	return self.whilePaused(func() error {
+		// Make sure the initial scan has finished (ScanFolders is blocking)
+		self.client.app.M.ScanFolders()
 
-	cfg := self.folderConfiguration()
-	ignores := ignore.New(cfg.Filesystem(nil), ignore.WithCache(false))
-	if err := ignores.Load(ignoreFileName); err != nil && !fs.IsNotExist(err) {
-		return err
-	}
+		cfg := self.folderConfiguration()
+		ignores := ignore.New(cfg.Filesystem(nil), ignore.WithCache(false))
+		if err := ignores.Load(ignoreFileName); err != nil && !fs.IsNotExist(err) {
+			return err
+		}
 
-	ffs := self.folderConfiguration().Filesystem(nil)
-	return ffs.Walk("", func(path string, info fs.FileInfo, err error) error {
-		if strings.HasPrefix(path, cfg.MarkerName) {
+		ffs := self.folderConfiguration().Filesystem(nil)
+		return ffs.Walk("", func(path string, info fs.FileInfo, err error) error {
+			if strings.HasPrefix(path, cfg.MarkerName) {
+				return nil
+			}
+			if path == ignoreFileName {
+				return nil
+			}
+
+			// Check ignore status
+			result := ignores.Match(path)
+			if result.IsIgnored() {
+				return ffs.RemoveAll(path)
+			}
 			return nil
-		}
-		if path == ignoreFileName {
-			return nil
-		}
-
-		// Check ignore status
-		result := ignores.Match(path)
-		fmt.Println("- ", path, result)
-		if result.IsIgnored() {
-			return ffs.RemoveAll(path)
-		}
-		return nil
+		})
 	})
 }
 

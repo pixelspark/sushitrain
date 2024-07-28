@@ -227,6 +227,16 @@
         }
       }
     },
+    "Are you sure you want to delete %lld files? Files that are not synchronized to other device will be lost. This cannot be undone!" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weet je zeker dat je %lld bestanden permanent wil verwijderen? Bestanden die niet zijn gesynchroniseerd naar andere apparaten kunnen kwijtraken. Dit kan niet ongedaan worden gemaakt!"
+          }
+        }
+      }
+    },
     "Are you sure you want to remove this file from all devices?" : {
       "localizations" : {
         "nl" : {
@@ -1233,6 +1243,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Alleen ontvangen"
+          }
+        }
+      }
+    },
+    "Remove %lld files from my device" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder %lld bestanden van mijn apparaat"
+          }
+        }
+      }
+    },
+    "Remove all extra files" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder alle extra bestanden"
           }
         }
       }
