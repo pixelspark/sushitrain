@@ -32,14 +32,15 @@ struct FolderStatisticsView: View {
             let formatter = ByteCountFormatter()
             if let stats = try? self.folder.statistics() {
                 Section("All devices") {
-                    Text("Number of files").badge(stats.global!.files)
-                    Text("Number of directories").badge(stats.global!.directories)
+                    // Use .formatted() here because zero is hidden in badges and that looks weird
+                    Text("Number of files").badge(stats.global!.files.formatted())
+                    Text("Number of directories").badge(stats.global!.directories.formatted())
                     Text("File size").badge(formatter.string(fromByteCount: stats.global!.bytes))
                 }
                 
                 Section("This device") {
-                    Text("Number of files").badge(stats.local!.files)
-                    Text("Number of directories").badge(stats.local!.directories)
+                    Text("Number of files").badge(stats.local!.files.formatted())
+                    Text("Number of directories").badge(stats.local!.directories.formatted())
                     Text("File size").badge(formatter.string(fromByteCount: stats.local!.bytes))
                 }
             }
@@ -52,7 +53,7 @@ struct FolderStatisticsView: View {
                     ForEach(devices, id: \.self) { deviceID in
                         if let completion = try? self.folder.completion(forDevice: deviceID) {
                             if let device = peers[deviceID] {
-                                Text(device.name()).badge(Text("\(Int(completion.completionPct))%"))
+                                Label(device.name(), systemImage: "externaldrive").badge(Text("\(Int(completion.completionPct))%"))
                             }
                         }
                     }
