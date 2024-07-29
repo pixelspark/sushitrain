@@ -210,6 +210,9 @@ func (self *Client) startEventListener() {
 					self.downloadProgress = evt.Data.(map[string]map[string]*model.PullerProgress)
 					self.Delegate.OnEvent(evt.Type.String())
 
+				case events.RemoteDownloadProgress:
+					break
+
 				case events.ListenAddressesChanged:
 					addrs := make([]string, 0)
 					data := evt.Data.(map[string]interface{})

@@ -467,16 +467,6 @@
         }
       }
     },
-    "Device synchronization status" : {
-      "localizations" : {
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchronisatiestatus per apparaat"
-          }
-        }
-      }
-    },
     "Devices" : {
       "localizations" : {
         "nl" : {
@@ -827,6 +817,16 @@
         }
       }
     },
+    "Full folder" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volledige map"
+          }
+        }
+      }
+    },
     "Getting started" : {
       "localizations" : {
         "nl" : {
@@ -1117,6 +1117,16 @@
         }
       }
     },
+    "On this device: %lld%%" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op dit apparaat: %lld%%"
+          }
+        }
+      }
+    },
     "One connection is enough" : {
       "localizations" : {
         "nl" : {
@@ -1153,6 +1163,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open-sourceonderdelen"
+          }
+        }
+      }
+    },
+    "Other devices" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Andere apparaten"
           }
         }
       }
@@ -1753,6 +1773,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Het apparaat is toegevoegd. Controleer of het andere apparaat dit apparaat ook accepteert, of voeg dit apparaat ook daar toe."
+          }
+        }
+      }
+    },
+    "The percentage of the full folder's size that each device stores locally." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het percentage van de omvang van de volledige map dat ieder apparaat lokaal opslaat."
           }
         }
       }

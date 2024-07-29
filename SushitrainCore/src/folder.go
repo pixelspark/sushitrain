@@ -584,8 +584,9 @@ func (self *Folder) Statistics() (*FolderStats, error) {
 	defer snap.Release()
 
 	return &FolderStats{
-		Global: newFolderCounts(snap.GlobalSize()),
-		Local:  newFolderCounts(snap.LocalSize()),
+		Global:    newFolderCounts(snap.GlobalSize()),
+		Local:     newFolderCounts(snap.LocalSize()),
+		LocalNeed: newFolderCounts(snap.NeedSize(self.client.deviceID())),
 	}, nil
 }
 

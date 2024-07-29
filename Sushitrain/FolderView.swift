@@ -31,31 +31,43 @@ struct FolderStatisticsView: View {
         Form {
             let formatter = ByteCountFormatter()
             if let stats = try? self.folder.statistics() {
-                Section("All devices") {
+                Section("Full folder") {
                     // Use .formatted() here because zero is hidden in badges and that looks weird
                     Text("Number of files").badge(stats.global!.files.formatted())
                     Text("Number of directories").badge(stats.global!.directories.formatted())
                     Text("File size").badge(formatter.string(fromByteCount: stats.global!.bytes))
                 }
                 
-                Section("This device") {
+                let totalWant = Double(stats.localNeed!.bytes + stats.local!.bytes)
+                let myCompletion = Int(totalWant > 0 ? (100.0 * Double(stats.local!.bytes) / totalWant) : 100)
+                
+                Section {
                     Text("Number of files").badge(stats.local!.files.formatted())
                     Text("Number of directories").badge(stats.local!.directories.formatted())
                     Text("File size").badge(formatter.string(fromByteCount: stats.local!.bytes))
+                } header: {
+                    Text("On this device: \(myCompletion)%")
                 }
-            }
-            
-            let devices = self.folder.sharedWithDeviceIDs()?.asArray() ?? []
-            let peers = self.possiblePeers
-            
-            if !devices.isEmpty {
-                Section("Device synchronization status") {
-                    ForEach(devices, id: \.self) { deviceID in
-                        if let completion = try? self.folder.completion(forDevice: deviceID) {
-                            if let device = peers[deviceID] {
-                                Label(device.name(), systemImage: "externaldrive").badge(Text("\(Int(completion.completionPct))%"))
+                
+                let devices = self.folder.sharedWithDeviceIDs()?.asArray() ?? []
+                let peers = self.possiblePeers
+                
+                if !devices.isEmpty {
+                    Section {
+                        
+                        ForEach(devices, id: \.self) { deviceID in
+                            if let completion = try? self.folder.completion(forDevice: deviceID) {
+                                if let device = peers[deviceID] {
+                                    Label(device.name(), systemImage: "externaldrive").badge(Text("\(Int(completion.completionPct))%"))
+                                }
                             }
                         }
+                    }
+                header: {
+                    Text("Other devices")
+                }
+                    footer : {
+                        Text("The percentage of the full folder's size that each device stores locally.")
                     }
                 }
             }

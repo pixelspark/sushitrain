@@ -171,8 +171,9 @@ type FolderCounts struct {
 }
 
 type FolderStats struct {
-	Global *FolderCounts
-	Local  *FolderCounts
+	Global    *FolderCounts
+	Local     *FolderCounts
+	LocalNeed *FolderCounts
 }
 
 func newFolderCounts(from db.Counts) *FolderCounts {
