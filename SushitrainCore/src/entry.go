@@ -6,7 +6,6 @@
 package sushitrain
 
 import (
-	"fmt"
 	"path"
 	"path/filepath"
 	"strings"
@@ -119,7 +118,7 @@ func (self *Entry) IsSelected() bool {
 	// FIXME: cache matcher
 	matcher, err := self.Folder.loadIgnores()
 	if err != nil {
-		fmt.Println("error loading ignore matcher", err)
+		Logger.Warnln("error loading ignore matcher", err)
 		return false
 	}
 

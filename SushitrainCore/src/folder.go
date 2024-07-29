@@ -7,7 +7,6 @@ package sushitrain
 
 import (
 	"errors"
-	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -469,7 +468,7 @@ func (self *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 	foundOneError := errors.New("found one")
 	err := ffs.Walk("", func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
-			fmt.Println("error walking: ", path, err)
+			Logger.Warnln("error walking: ", path, err)
 			return nil
 		}
 

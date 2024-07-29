@@ -9,7 +9,6 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
-	"fmt"
 	"net/url"
 	"os"
 	"path"
@@ -75,15 +74,15 @@ func NewClient(configPath string, filesPath string) (*Client, error) {
 	locations.SetBaseDir(locations.DataBaseDir, configPath)
 	locations.SetBaseDir(locations.ConfigBaseDir, configPath)
 	locations.SetBaseDir(locations.UserHomeBaseDir, filesPath)
-	fmt.Printf("Database dir: %s\n", configPath)
-	fmt.Printf("Files dir: %s\n", filesPath)
+	Logger.Infof("Database dir: %s\n", configPath)
+	Logger.Infof("Files dir: %s\n", filesPath)
 
 	// Check for custom user-provided config file
 	isUsingCustomConfiguration := false
 	customConfigFilePath := path.Join(filesPath, "config.xml")
 	if info, err := os.Stat(customConfigFilePath); err == nil {
 		if !info.IsDir() {
-			fmt.Println("Config XML exists in files dir, using it at", customConfigFilePath)
+			Logger.Infoln("Config XML exists in files dir, using it at", customConfigFilePath)
 			locations.Set(locations.ConfigFile, customConfigFilePath)
 			isUsingCustomConfiguration = true
 		}
@@ -96,7 +95,7 @@ func NewClient(configPath string, filesPath string) (*Client, error) {
 		if !keyInfo.IsDir() {
 			if certInfo, err := os.Stat(customCertPath); err == nil {
 				if !certInfo.IsDir() {
-					fmt.Println("Found user-provided identity files, using those")
+					Logger.Infoln("Found user-provided identity files, using those")
 					locations.Set(locations.CertFile, customCertPath)
 					locations.Set(locations.KeyFile, customKeyPath)
 					isUsingCustomConfiguration = true
@@ -106,8 +105,8 @@ func NewClient(configPath string, filesPath string) (*Client, error) {
 	}
 
 	// Print final locations
-	fmt.Printf("Config file: %s\n", locations.Get(locations.ConfigFile))
-	fmt.Printf("Cert file: %s key file: %s\n", locations.Get(locations.CertFile), locations.Get(locations.KeyFile))
+	Logger.Infof("Config file: %s\n", locations.Get(locations.ConfigFile))
+	Logger.Infof("Cert file: %s key file: %s\n", locations.Get(locations.CertFile), locations.Get(locations.KeyFile))
 
 	// Ensure that we have a certificate and key.
 	cert, err := syncthing.LoadOrGenerateCertificate(
@@ -120,7 +119,7 @@ func NewClient(configPath string, filesPath string) (*Client, error) {
 
 	// Load or create the config
 	devID := protocol.NewDeviceID(cert.Certificate[0])
-	fmt.Printf("Loading config file from %s\n", locations.Get(locations.ConfigFile))
+	Logger.Infof("Loading config file from %s\n", locations.Get(locations.ConfigFile))
 	config, err := loadOrDefaultConfig(devID, ctx, evLogger, filesPath)
 	if err != nil {
 		return nil, err
@@ -255,7 +254,7 @@ func (self *Client) startEventListener() {
 					self.Delegate.OnEvent(evt.Type.String())
 
 				default:
-					fmt.Println("EVENT", evt.Type.String(), evt)
+					Logger.Debugln("EVENT", evt.Type.String(), evt)
 					//self.Delegate.OnEvent(evt.Type.String())
 				}
 
@@ -788,7 +787,7 @@ func (self *Client) DevicesPendingFolder(folderID string) (*ListOfStrings, error
 }
 
 func (self *Client) SetReconnectIntervalS(secs int) error {
-	fmt.Println("Set reconnect interval to", secs)
+	Logger.Infoln("Set reconnect interval to", secs)
 	return self.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.Options.ReconnectIntervalS = secs
 	})

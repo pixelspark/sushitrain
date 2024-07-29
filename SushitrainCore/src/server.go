@@ -99,7 +99,7 @@ func (self *StreamingServer) Listen() error {
 
 	go http.Serve(listener, self.mux)
 	self.listener = listener
-	fmt.Println("HTTP service listening on port", self.port())
+	Logger.Infoln("HTTP service listening on port", self.port())
 	return nil
 }
 
@@ -127,9 +127,7 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 
 		folder := r.URL.Query().Get("folder")
 		path := r.URL.Query().Get("path")
-		fmt.Println("Request", folder, path)
-		fmt.Printf("Headers %v\n", r.Header)
-		fmt.Println("Method", r.Method)
+		Logger.Infoln("Request", r.Method, folder, path)
 
 		m := app.Model
 		info, ok, err := m.CurrentGlobalFile(folder, path)
@@ -162,7 +160,7 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 			}
 
 			if len(parsedRanges) > 1 {
-				fmt.Println("Multipart ranges not yet supported")
+				Logger.Warnln("Multipart ranges not yet supported", requestedRange)
 				w.WriteHeader(500)
 				return
 			}
@@ -209,7 +207,7 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 					}
 
 					// Write buffer
-					fmt.Println("Sending chunk", blockIndex, bufStart, bufEnd, len(buf), bufEnd-bufStart)
+					Logger.Debugln("Sending chunk", blockIndex, bufStart, bufEnd, len(buf), bufEnd-bufStart)
 					w.Write(buf[bufStart:bufEnd])
 					bytesSent += (bufEnd - bufStart)
 					if server.Delegate != nil {
@@ -221,7 +219,7 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 					if server.MaxMbitsPerSecondsStreaming > 0 {
 						blockFetchDurationMs := time.Since(blockStartTime).Milliseconds()
 						blockFetchShouldHaveTakenMs := int64(block.Size) * 8 / server.MaxMbitsPerSecondsStreaming / 1000
-						// fmt.Println("Throttle: took", blockFetchDurationMs, "size", block.Size, "should have taken", blockFetchShouldHaveTakenMs, "delay", blockFetchShouldHaveTakenMs-blockFetchDurationMs)
+
 						if blockFetchDurationMs < blockFetchShouldHaveTakenMs {
 							time.Sleep(time.Duration(blockFetchShouldHaveTakenMs-blockFetchDurationMs) * time.Millisecond)
 						}

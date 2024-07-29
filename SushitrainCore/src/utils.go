@@ -10,6 +10,11 @@ import (
 	"strings"
 
 	"github.com/syncthing/syncthing/lib/db"
+	"github.com/syncthing/syncthing/lib/logger"
+)
+
+var (
+	Logger = logger.DefaultLogger.NewFacility("sushitraincore", "Swift-Go interface layer")
 )
 
 type ListOfStrings struct {
