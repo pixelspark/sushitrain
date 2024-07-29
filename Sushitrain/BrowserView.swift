@@ -17,6 +17,7 @@ struct BrowserView: View {
     @State private var subdirectories: [String] = []
     @State private var files: [SushitrainEntry] = []
     @State private var hasExtraneousFiles = false
+    @State private var localNativeURL: URL? = nil
     
     func listSubdirectories() -> [String] {
         if !folder.exists() {
@@ -153,16 +154,14 @@ struct BrowserView: View {
                     }
                     ToolbarItem {
                         Button("Open in Files app", systemImage: "arrow.up.forward.app", action: {
-                            var error: NSError? = nil
-                            var folderURL = URL(fileURLWithPath: self.folder.localNativePath(&error))
-                            if error == nil {
-                                folderURL.append(path: self.prefix)
-                                
-                                let sharedurl = folderURL.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
-                                let furl: URL = URL(string: sharedurl)!
+                            if let localNativeURL = self.localNativeURL {
+                                let sharedURL = localNativeURL.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
+                                let furl: URL = URL(string: sharedURL)!
                                 UIApplication.shared.open(furl, options: [:], completionHandler: nil)
                             }
-                        }).labelStyle(.iconOnly)
+                        })
+                        .labelStyle(.iconOnly)
+                        .disabled(localNativeURL == nil)
                     }
                 }
             }
@@ -179,6 +178,19 @@ struct BrowserView: View {
             })
             .task(id: self.folderStateForUpdating()) {
                 self.isLoading = true
+                
+                self.localNativeURL = nil
+                var error: NSError? = nil
+                let localNativePath = self.folder.localNativePath(&error)
+                
+                if error == nil {
+                    let localNativeURL = URL(fileURLWithPath: localNativePath).appendingPathComponent(self.prefix)
+                        
+                    if FileManager.default.fileExists(atPath: localNativeURL.path) {
+                        self.localNativeURL = localNativeURL
+                    }
+                }
+                
                 subdirectories = self.listSubdirectories();
                 files = self.listFiles();
                 var hasExtra: ObjCBool = false
