@@ -42,6 +42,7 @@ type Client struct {
 	downloadProgress           map[string]map[string]*model.PullerProgress
 	IsUsingCustomConfiguration bool
 	connectedDeviceAddresses   map[string]string
+	filesPath                  string
 }
 
 type ClientDelegate interface {
@@ -120,7 +121,7 @@ func NewClient(configPath string, filesPath string) (*Client, error) {
 	// Load or create the config
 	devID := protocol.NewDeviceID(cert.Certificate[0])
 	fmt.Printf("Loading config file from %s\n", locations.Get(locations.ConfigFile))
-	config, err := loadOrDefaultConfig(devID, ctx, evLogger)
+	config, err := loadOrDefaultConfig(devID, ctx, evLogger, filesPath)
 	if err != nil {
 		return nil, err
 	}
@@ -164,6 +165,7 @@ func NewClient(configPath string, filesPath string) (*Client, error) {
 		foldersTransferring:        make(map[string]bool, 0),
 		connectedDeviceAddresses:   make(map[string]string, 0),
 		IsUsingCustomConfiguration: isUsingCustomConfiguration,
+		filesPath:                  filesPath,
 	}, nil
 }
 
@@ -289,7 +291,7 @@ func (self *Client) Start() error {
 	return nil
 }
 
-func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger events.Logger) (config.Wrapper, error) {
+func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger events.Logger, filesPath string) (config.Wrapper, error) {
 	cfgFile := locations.Get(locations.ConfigFile)
 	cfg, _, err := config.Load(cfgFile, devID, logger)
 	if err != nil {
@@ -313,6 +315,12 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 		conf.Options.InsecureAllowOldTLSVersions = false // Never allow insecure TLS
 		conf.Defaults.Folder.IgnorePerms = true          // iOS doesn't expose permissions to users
 		conf.Options.RelayReconnectIntervalM = 1         // Set this to one minute (from the default 10) because on mobile networks this is more often necessary
+
+		// For each folder, set the path to be filesPath/folderID
+		for _, folderConfig := range conf.Folders {
+			folderConfig.Path = path.Join(filesPath, folderConfig.ID)
+			conf.SetFolder(folderConfig)
+		}
 	})
 
 	if err != nil {
@@ -364,11 +372,11 @@ func (self *Client) FolderWithID(id string) *Folder {
 }
 
 func (self *Client) ConnectedPeerCount() int {
-	if self.app == nil || self.app.M == nil {
+	if self.app == nil || self.app.Model == nil {
 		return 0
 	}
 
-	if self.config == nil || self.app == nil || self.app.M == nil {
+	if self.config == nil || self.app == nil || self.app.Model == nil {
 		return 0
 	}
 
@@ -378,7 +386,7 @@ func (self *Client) ConnectedPeerCount() int {
 		if devID == self.deviceID() {
 			continue
 		}
-		if self.app.M.ConnectedTo(devID) {
+		if self.app.Model.ConnectedTo(devID) {
 			connected++
 		}
 	}
@@ -434,14 +442,14 @@ func (self *Client) AddPeer(deviceID string) error {
 }
 
 func (self *Client) AddFolder(folderID string) error {
-	if self.app == nil || self.app.M == nil {
+	if self.app == nil || self.app.Model == nil {
 		return ErrStillLoading
 	}
 
 	folderConfig := self.config.DefaultFolder()
 	folderConfig.ID = folderID
 	folderConfig.Label = folderID
-	folderConfig.Path = path.Join(locations.Get(locations.LocationEnum(locations.UserHomeBaseDir)), folderID)
+	folderConfig.Path = path.Join(self.filesPath, folderID)
 	folderConfig.FSWatcherEnabled = false
 	folderConfig.Paused = false
 
@@ -453,7 +461,7 @@ func (self *Client) AddFolder(folderID string) error {
 	}
 
 	// Set default ignores for on-demand sync
-	return self.app.M.SetIgnores(folderID, []string{"*"})
+	return self.app.Model.SetIgnores(folderID, []string{"*"})
 }
 
 func (self *Client) SetNATEnabled(enabled bool) error {
@@ -618,7 +626,7 @@ func (self *Client) SetName(name string) error {
 }
 
 func (self *Client) Statistics() (*FolderStats, error) {
-	if self.app == nil || self.app.M == nil {
+	if self.app == nil || self.app.Model == nil {
 		return nil, ErrStillLoading
 	}
 
@@ -626,7 +634,7 @@ func (self *Client) Statistics() (*FolderStats, error) {
 	localTotal := FolderCounts{}
 
 	for _, folder := range self.config.FolderList() {
-		snap, err := self.app.M.DBSnapshot(folder.ID)
+		snap, err := self.app.Model.DBSnapshot(folder.ID)
 		defer snap.Release()
 		if err != nil {
 			return nil, err
@@ -651,7 +659,7 @@ type SearchResultDelegate interface {
 particular order, unless/until the delegate returns true from IsCancelled. Set maxResults to <=0 to collect all results.
 */
 func (self *Client) Search(text string, delegate SearchResultDelegate, maxResults int) error {
-	if self.app == nil || self.app.M == nil {
+	if self.app == nil || self.app.Model == nil {
 		return ErrStillLoading
 	}
 
@@ -664,7 +672,7 @@ func (self *Client) Search(text string, delegate SearchResultDelegate, maxResult
 			FolderID: folder.ID,
 		}
 
-		snap, err := self.app.M.DBSnapshot(folder.ID)
+		snap, err := self.app.Model.DBSnapshot(folder.ID)
 		if err != nil {
 			return err
 		}
@@ -730,14 +738,14 @@ func (self *Client) SetListening(listening bool) error {
 }
 
 func (self *Client) pendingFolders() (map[string][]string, error) {
-	if self.app == nil || self.app.M == nil {
+	if self.app == nil || self.app.Model == nil {
 		return nil, ErrStillLoading
 	}
 
 	peers := self.config.DeviceList()
 	fids := map[string][]string{}
 	for _, peer := range peers {
-		peerFids, err := self.app.M.PendingFolders(peer.DeviceID)
+		peerFids, err := self.app.Model.PendingFolders(peer.DeviceID)
 		if err != nil {
 			return nil, err
 		}
@@ -752,7 +760,7 @@ func (self *Client) pendingFolders() (map[string][]string, error) {
 }
 
 func (self *Client) PendingFolderIDs() (*ListOfStrings, error) {
-	if self.app == nil || self.app.M == nil {
+	if self.app == nil || self.app.Model == nil {
 		return nil, ErrStillLoading
 	}
 
@@ -764,7 +772,7 @@ func (self *Client) PendingFolderIDs() (*ListOfStrings, error) {
 }
 
 func (self *Client) DevicesPendingFolder(folderID string) (*ListOfStrings, error) {
-	if self.app == nil || self.app.M == nil {
+	if self.app == nil || self.app.Model == nil {
 		return nil, ErrStillLoading
 	}
 

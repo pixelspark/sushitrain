@@ -131,7 +131,7 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 		fmt.Printf("Headers %v\n", r.Header)
 		fmt.Println("Method", r.Method)
 
-		m := app.M
+		m := app.Model
 		info, ok, err := m.CurrentGlobalFile(folder, path)
 		if err != nil {
 			w.WriteHeader(500)
