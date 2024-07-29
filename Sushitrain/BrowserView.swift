@@ -14,17 +14,20 @@ struct BrowserView: View {
     @State private var showSettings = false
     @State private var isLoading = true
     @State private var searchText = ""
-    @State private var subdirectories: [String] = []
+    @State private var subdirectories: [SushitrainEntry] = []
     @State private var files: [SushitrainEntry] = []
     @State private var hasExtraneousFiles = false
     @State private var localNativeURL: URL? = nil
     
-    func listSubdirectories() -> [String] {
+    private func listSubdirectories() -> [SushitrainEntry] {
         if !folder.exists() {
             return []
         }
         do {
-            return try folder.list(self.prefix, directories: true).asArray().sorted()
+            let dirNames = try folder.list(self.prefix, directories: true).asArray().sorted()
+            return try dirNames.map({ dirName in
+                return try folder.getFileInformation(self.prefix + dirName)
+            })
         }
         catch let error {
             print("Error listing: \(error.localizedDescription)")
@@ -32,7 +35,7 @@ struct BrowserView: View {
         return []
     }
     
-    func listFiles() -> [SushitrainEntry] {
+    private func listFiles() -> [SushitrainEntry] {
         if !folder.exists() {
             return []
         }
@@ -78,13 +81,14 @@ struct BrowserView: View {
                     // List subdirectories
                     Section {
                         ForEach(subdirectories, id: \.self) {
-                            key in
-                            if searchTextLower.isEmpty || key.lowercased().contains(searchTextLower) {
-                                NavigationLink(destination: BrowserView(folder: folder, prefix: "\(prefix)\(key)/", appState: appState)) {
-                                    Label(key, systemImage: "folder")
+                            subDirEntry in
+                            let fileName = subDirEntry.fileName()
+                            if searchTextLower.isEmpty || fileName.lowercased().contains(searchTextLower) {
+                                NavigationLink(destination: BrowserView(folder: folder, prefix: "\(prefix)\(fileName)/", appState: appState)) {
+                                    Label(fileName, systemImage: subDirEntry.systemImage)
                                 }
                                 .contextMenu(ContextMenu(menuItems: {
-                                    if let file = try? folder.getFileInformation(self.prefix + key) {
+                                    if let file = try? folder.getFileInformation(self.prefix + fileName) {
                                         NavigationLink("Folder properties", destination: FileView(file: file, folder: self.folder, appState: self.appState))
                                     }
                                 }))

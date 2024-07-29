@@ -259,11 +259,15 @@ struct FileView: View {
                     }
                     
                     if self.folder.isSelective() {
-                        Toggle("Keep on this device", systemImage: "pin", isOn: Binding(get: {
+                        Toggle("Synchronize with this device", systemImage: "pin", isOn: Binding(get: {
                             file.isExplicitlySelected() || file.isSelected()
                         }, set: { s in
                             try? file.setExplicitlySelected(s)
                         })).disabled(!folder.isIdle || (file.isSelected() && !file.isExplicitlySelected()))
+                    }
+                } footer: {
+                    if self.folder.isSelective() && (file.isSelected() && !file.isExplicitlySelected()) {
+                        Text("This item is synchronized with this device because a parent folder is synchronized with this device.")
                     }
                 }
                 

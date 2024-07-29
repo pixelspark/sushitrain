@@ -897,16 +897,6 @@
         }
       }
     },
-    "Keep on this device" : {
-      "localizations" : {
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Houd op dit apparaat"
-          }
-        }
-      }
-    },
     "Last background synchronization" : {
       "localizations" : {
         "nl" : {
@@ -1707,6 +1697,16 @@
         }
       }
     },
+    "Synchronize with this device" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchroniseer met dit apparaat"
+          }
+        }
+      }
+    },
     "Synchronize your files securely with your other devices." : {
       "localizations" : {
         "nl" : {
@@ -1883,6 +1883,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Deze map is verwijderd."
+          }
+        }
+      }
+    },
+    "This item is synchronized with this device because a parent folder is synchronized with this device." : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dit item wordt gesynchroniseerd met dit apparaat, omdat een bovenliggende map wordt gesynchroniseerd met dit apparaat."
           }
         }
       }

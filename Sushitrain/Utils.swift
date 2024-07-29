@@ -116,14 +116,15 @@ extension SushitrainFolder {
 
 extension SushitrainEntry {
     var systemImage: String {
+        let base = self.isDirectory() ? "folder" : "doc"
         if self.isLocallyPresent() {
-            return "doc.fill"
+            return "\(base).fill"
         }
         else if self.isSelected() {
-            return "doc.badge.ellipsis"
+            return "\(base).badge.ellipsis"
         }
         else {
-            return "doc"
+            return "\(base)"
         }
     }
 }
