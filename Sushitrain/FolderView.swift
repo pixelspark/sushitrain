@@ -38,7 +38,7 @@ struct FolderStatisticsView: View {
                     Text("File size").badge(formatter.string(fromByteCount: stats.global!.bytes))
                 }
                 
-                let totalWant = Double(stats.localNeed!.bytes + stats.local!.bytes)
+                let totalWant = Double(stats.localNeed!.bytes)
                 let myCompletion = Int(totalWant > 0 ? (100.0 * Double(stats.local!.bytes) / totalWant) : 100)
                 
                 Section {

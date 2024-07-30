@@ -28,20 +28,21 @@ import (
 )
 
 type Client struct {
-	Delegate                   ClientDelegate
+	app                        *syncthing.App
+	backend                    backend.Backend
+	cancel                     context.CancelFunc
 	cert                       tls.Certificate
 	config                     config.Wrapper
-	cancel                     context.CancelFunc
-	ctx                        context.Context
-	backend                    backend.Backend
-	app                        *syncthing.App
-	evLogger                   events.Logger
-	Server                     *StreamingServer
-	foldersTransferring        map[string]bool
-	downloadProgress           map[string]map[string]*model.PullerProgress
-	IsUsingCustomConfiguration bool
 	connectedDeviceAddresses   map[string]string
+	ctx                        context.Context
+	Delegate                   ClientDelegate
+	downloadProgress           map[string]map[string]*model.PullerProgress
+	evLogger                   events.Logger
 	filesPath                  string
+	foldersTransferring        map[string]bool
+	IgnoreEvents               bool
+	IsUsingCustomConfiguration bool
+	Server                     *StreamingServer
 }
 
 type ClientDelegate interface {
@@ -165,6 +166,7 @@ func NewClient(configPath string, filesPath string) (*Client, error) {
 		connectedDeviceAddresses:   make(map[string]string, 0),
 		IsUsingCustomConfiguration: isUsingCustomConfiguration,
 		filesPath:                  filesPath,
+		IgnoreEvents:               false,
 	}, nil
 }
 
@@ -183,37 +185,32 @@ func (self *Client) startEventListener() {
 		case <-self.ctx.Done():
 			return
 		case evt := <-sub.C():
-			if self.Delegate != nil {
-				switch evt.Type {
-				case events.DeviceDiscovered:
+			switch evt.Type {
+			case events.DeviceDiscovered:
+				if !self.IgnoreEvents && self.Delegate != nil {
 					data := evt.Data.(map[string]interface{})
 					devID := data["device"].(string)
 					addresses := data["addrs"].([]string)
 					self.Delegate.OnDeviceDiscovered(devID, &ListOfStrings{data: addresses})
+				}
 
-				case events.FolderRejected:
-					// FolderRejected is deprecated
+			case events.FolderRejected:
+				// FolderRejected is deprecated
+				break
 
-				case events.StateChanged:
-					// Keep track of which folders are in syncing state. We need to know whether we are idling or not
-					data := evt.Data.(map[string]interface{})
-					folder := data["folder"].(string)
-					state := data["to"].(string)
-					folderTransferring := (state == model.FolderSyncing.String() || state == model.FolderSyncWaiting.String() || state == model.FolderSyncPreparing.String())
-					self.foldersTransferring[folder] = folderTransferring
+			case events.StateChanged:
+				// Keep track of which folders are in syncing state. We need to know whether we are idling or not
+				data := evt.Data.(map[string]interface{})
+				folder := data["folder"].(string)
+				state := data["to"].(string)
+				folderTransferring := (state == model.FolderSyncing.String() || state == model.FolderSyncWaiting.String() || state == model.FolderSyncPreparing.String())
+				self.foldersTransferring[folder] = folderTransferring
+				if !self.IgnoreEvents && self.Delegate != nil {
 					self.Delegate.OnEvent(evt.Type.String())
+				}
 
-				case events.ConfigSaved, events.ClusterConfigReceived:
-					self.Delegate.OnEvent(evt.Type.String())
-
-				case events.DownloadProgress:
-					self.downloadProgress = evt.Data.(map[string]map[string]*model.PullerProgress)
-					self.Delegate.OnEvent(evt.Type.String())
-
-				case events.RemoteDownloadProgress:
-					break
-
-				case events.ListenAddressesChanged:
+			case events.ListenAddressesChanged:
+				if !self.IgnoreEvents && self.Delegate != nil {
 					addrs := make([]string, 0)
 					data := evt.Data.(map[string]interface{})
 					wanAddresses := data["wan"].([]*url.URL)
@@ -227,41 +224,39 @@ func (self *Client) startEventListener() {
 					}
 
 					self.Delegate.OnListenAddressesChanged(List(addrs))
-
-				case events.DeviceConnected:
-					data := evt.Data.(map[string]string)
-					devID := data["id"]
-					address := data["addr"]
-					self.connectedDeviceAddresses[devID] = address
-					self.Delegate.OnEvent(evt.Type.String())
-
-				case events.LocalIndexUpdated:
-					self.Delegate.OnEvent(evt.Type.String())
-
-				case events.LocalChangeDetected:
-					self.Delegate.OnEvent(evt.Type.String())
-
-				case events.DeviceDisconnected:
-					self.Delegate.OnEvent(evt.Type.String())
-
-				case events.ItemFinished:
-					break
-
-				case events.ItemStarted:
-					break
-
-				case events.FolderResumed:
-					self.Delegate.OnEvent(evt.Type.String())
-
-				case events.FolderPaused:
-					self.Delegate.OnEvent(evt.Type.String())
-
-				default:
-					Logger.Debugln("EVENT", evt.Type.String(), evt)
-					//self.Delegate.OnEvent(evt.Type.String())
 				}
 
+			case events.DeviceConnected:
+				data := evt.Data.(map[string]string)
+				devID := data["id"]
+				address := data["addr"]
+				self.connectedDeviceAddresses[devID] = address
+
+				if !self.IgnoreEvents && self.Delegate != nil {
+					self.Delegate.OnEvent(evt.Type.String())
+				}
+
+			case events.LocalIndexUpdated, events.LocalChangeDetected, events.DeviceDisconnected, events.ConfigSaved,
+				events.ClusterConfigReceived, events.FolderResumed, events.FolderPaused:
+				// Just deliver the event
+				if !self.IgnoreEvents && self.Delegate != nil {
+					self.Delegate.OnEvent(evt.Type.String())
+				}
+
+			case events.DownloadProgress:
+				self.downloadProgress = evt.Data.(map[string]map[string]*model.PullerProgress)
+				if !self.IgnoreEvents && self.Delegate != nil {
+					self.Delegate.OnEvent(evt.Type.String())
+				}
+
+			case events.RemoteDownloadProgress, events.ItemFinished, events.ItemStarted:
+				// Ignore these events
+				break
+
+			default:
+				Logger.Debugln("EVENT", evt.Type.String(), evt)
 			}
+
 		}
 	}
 }

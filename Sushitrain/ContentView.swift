@@ -52,16 +52,19 @@ struct ContentView: View {
             switch newPhase {
             case .background:
                 try? self.appState.client.setReconnectIntervalS(60)
+                self.appState.client.ignoreEvents = true
                 self.appState.updateBadge()
                 break
                 
             case .inactive:
                 self.appState.updateBadge()
+                self.appState.client.ignoreEvents = true
                 break
                 
             case .active:
                 try? self.appState.client.setReconnectIntervalS(1)
                 self.rebindServer()
+                self.appState.client.ignoreEvents = false
                 break
                 
             @unknown default:
