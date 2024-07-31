@@ -64,66 +64,78 @@ struct BrowserView: View {
         let searchTextLower = searchText.lowercased()
         
         NavigationStack {
-            List {
+            Group {
                 if self.folder.exists() {
-                    Section {
-                        FolderStatusView(appState: appState, folder: folder)
-                        
-                        if hasExtraneousFiles {
-                            NavigationLink(destination: {
-                                ExtraFilesView(folder: self.folder, appState: self.appState)
-                            }) {
-                                Label("This folder has new files", systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange)
-                            }
-                        }
-                    }
-                    
-                    // List subdirectories
-                    Section {
-                        ForEach(subdirectories, id: \.self) {
-                            subDirEntry in
-                            let fileName = subDirEntry.fileName()
-                            if searchTextLower.isEmpty || fileName.lowercased().contains(searchTextLower) {
-                                NavigationLink(destination: BrowserView(folder: folder, prefix: "\(prefix)\(fileName)/", appState: appState)) {
-                                    Label(fileName, systemImage: subDirEntry.systemImage)
-                                }
-                                .contextMenu(ContextMenu(menuItems: {
-                                    if let file = try? folder.getFileInformation(self.prefix + fileName) {
-                                        NavigationLink("Folder properties", destination: FileView(file: file, folder: self.folder, appState: self.appState))
-                                    }
-                                }))
-                            }
-                        }
-                    }
-                    
-                    // List files
-                    Section {
-                        ForEach(files, id: \.self) {
-                            file in
-                            if searchTextLower.isEmpty || file.fileName().lowercased().contains(searchTextLower) {
-                                NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState, siblings: files)) {
-                                    Label(file.fileName(), systemImage: file.systemImage)
-                                }.contextMenu {
-                                    NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState, siblings: files)) {
-                                        Label(file.fileName(), systemImage: file.systemImage)
-                                    }
-                                } preview: {
-                                    if file.size() < appState.maxBytesForPreview || file.isLocallyPresent() {
-                                        BareOnDemandFileView(appState: appState, file: file, isShown: .constant(true))
-                                    }
-                                    else {
-                                        ContentUnavailableView("File is too large to preview", systemImage: "scalemass")
+                    if searchText.isEmpty {
+                        List {
+                            Section {
+                                FolderStatusView(appState: appState, folder: folder)
+                                
+                                if hasExtraneousFiles {
+                                    NavigationLink(destination: {
+                                        ExtraFilesView(folder: self.folder, appState: self.appState)
+                                    }) {
+                                        Label("This folder has new files", systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange)
                                     }
                                 }
                             }
+                            
+                            // List subdirectories
+                            Section {
+                                ForEach(subdirectories, id: \.self) {
+                                    subDirEntry in
+                                    let fileName = subDirEntry.fileName()
+                                    if searchTextLower.isEmpty || fileName.lowercased().contains(searchTextLower) {
+                                        NavigationLink(destination: BrowserView(folder: folder, prefix: "\(prefix)\(fileName)/", appState: appState)) {
+                                            Label(fileName, systemImage: subDirEntry.systemImage)
+                                        }
+                                        .contextMenu(ContextMenu(menuItems: {
+                                            if let file = try? folder.getFileInformation(self.prefix + fileName) {
+                                                NavigationLink("Folder properties", destination: FileView(file: file, folder: self.folder, appState: self.appState))
+                                            }
+                                        }))
+                                    }
+                                }
+                            }
+                            
+                            // List files
+                            Section {
+                                ForEach(files, id: \.self) {
+                                    file in
+                                    if searchTextLower.isEmpty || file.fileName().lowercased().contains(searchTextLower) {
+                                        NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState, siblings: files)) {
+                                            Label(file.fileName(), systemImage: file.systemImage)
+                                        }.contextMenu {
+                                            NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState, siblings: files)) {
+                                                Label(file.fileName(), systemImage: file.systemImage)
+                                            }
+                                        } preview: {
+                                            if file.size() < appState.maxBytesForPreview || file.isLocallyPresent() {
+                                                BareOnDemandFileView(appState: appState, file: file, isShown: .constant(true))
+                                            }
+                                            else {
+                                                ContentUnavailableView("File is too large to preview", systemImage: "scalemass")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
+                    }
+                    else {
+                        // Search
+                        SearchResultsView(
+                            appState: self.appState,
+                            searchText: $searchText,
+                            folder: Binding(get: { self.folder.folderID }, set: {_ in ()}),
+                            prefix: Binding(get: { prefix }, set: {_ in () })
+                        )
                     }
                 }
             }
-            // FIX: this is glitchy on transitions between folders, so for now disabled
-            //.searchable(text: $searchText, prompt: "Search files in this folder...")
             .navigationTitle(prefix.isEmpty ? self.folder.label() : prefix)
             .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search files in this folder...")
             .overlay {
                 if !folder.exists() {
                     ContentUnavailableView("Folder removed", systemImage: "trash", description: Text("This folder was removed."))

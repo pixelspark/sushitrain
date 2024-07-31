@@ -206,7 +206,7 @@ fileprivate struct OnDemandWebFileView: View {
     var body: some View {
         var pathError: NSError? = nil
         let url = file.isLocallyPresent() ? URL(fileURLWithPath: file.localNativePath(&pathError)) : URL(string: file.onDemandURL())
-        ZStack {
+        Group {
             if let error = error {
                 ContentUnavailableView("Cannot display file", systemImage: "xmark.circle", description: Text(error.localizedDescription))
             }

@@ -28,7 +28,7 @@ struct FoldersView: View {
     }
     
     var body: some View {
-        ZStack {
+        Group {
             let folders = appState.folders().sorted()
             
             NavigationSplitView(

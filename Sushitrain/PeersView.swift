@@ -27,7 +27,7 @@ struct PeersView: View {
     
     var body: some View {
         let peers = appState.peers().filter({x in !x.isSelf()}).sorted();
-        ZStack {
+        Group {
             NavigationSplitView(columnVisibility: $columnVisibility, sidebar: {
                 List(selection: $selectedPeer) {
                     Section("Associated devices") {

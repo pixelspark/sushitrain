@@ -51,9 +51,32 @@ class SearchOperation: NSObject, ObservableObject, SushitrainSearchResultDelegat
     }
 }
 
-struct SearchView: View, SearchViewDelegate {
+struct SearchView: View {
     @ObservedObject var appState: AppState
     @State private var searchText = ""
+    
+    var body: some View {
+        SearchResultsView(
+            appState: self.appState,
+            searchText: $searchText,
+            folder: .constant(""), 
+            prefix: .constant("")
+        )
+        .navigationTitle("Search")
+        .searchable(text: $searchText, placement: .toolbar, prompt: "Search files in all folders...")
+        .textInputAutocapitalization(.never)
+        .autocorrectionDisabled()
+        // The below works from iOS18
+        //.searchFocused($isSearchFieldFocused)
+    }
+}
+
+struct SearchResultsView: View, SearchViewDelegate {
+    @ObservedObject var appState: AppState
+    @Binding var searchText: String
+    @Binding var folder: String
+    @Binding var prefix: String
+    
     @State private var searchOperation: SearchOperation? = nil
     @State private var results: [SushitrainEntry] = []
     @State private var searchCount = 0
@@ -69,7 +92,7 @@ struct SearchView: View, SearchViewDelegate {
     
     var body: some View {
         ZStack {
-            List {
+            List {                
                 if !results.isEmpty {
                     Section {
                         ForEach(results, id: \.self) { item in
@@ -109,19 +132,16 @@ struct SearchView: View, SearchViewDelegate {
                     ContentUnavailableView("No files found", systemImage: "magnifyingglass", description: Text("Enter a text to search for in the search field above to search."))
                 }
             }
-        }.navigationTitle("Search")
-            .searchable(text: $searchText, placement: .toolbar, prompt: "Search files in all folders...")
-        // The below works from iOS18
-        //.searchFocused($isSearchFieldFocused)
-            .onChange(of: searchText) {
-                self.search()
-            }
-            .onDisappear() {
-                self.cancelSearch()
-            }
-            .onAppear() {
-                self.isSearchFieldFocused = true
-            }
+        }
+        .onChange(of: searchText) {
+            self.search()
+        }
+        .onDisappear() {
+            self.cancelSearch()
+        }
+        .onAppear() {
+            self.isSearchFieldFocused = true
+        }
     }
     
     func cancelSearch() {
@@ -139,6 +159,8 @@ struct SearchView: View, SearchViewDelegate {
         self.results = []
         let text = self.searchText
         let appState = self.appState
+        let prefix = self.prefix
+        let folder = self.folder
         
         if !text.isEmpty {
             DispatchQueue.global(qos: .userInitiated).async {
@@ -146,7 +168,7 @@ struct SearchView: View, SearchViewDelegate {
                     DispatchQueue.main.async {
                         sr.view.setStatus(searching: true)
                     }
-                    try appState.client.search(text, delegate: sr, maxResults: SearchOperation.MaxResultCount)
+                    try appState.client.search(text, delegate: sr, maxResults: SearchOperation.MaxResultCount, folderID: folder, prefix: prefix)
                     DispatchQueue.main.async {
                         sr.view.setStatus(searching: false)
                     }

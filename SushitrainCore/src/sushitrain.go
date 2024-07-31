@@ -655,7 +655,7 @@ type SearchResultDelegate interface {
 * Search for files by name in the global index. Calls back the delegate up to `maxResults` times with a result in no
 particular order, unless/until the delegate returns true from IsCancelled. Set maxResults to <=0 to collect all results.
 */
-func (self *Client) Search(text string, delegate SearchResultDelegate, maxResults int) error {
+func (self *Client) Search(text string, delegate SearchResultDelegate, maxResults int, folderID string, prefix string) error {
 	if self.app == nil || self.app.Model == nil {
 		return ErrStillLoading
 	}
@@ -664,6 +664,10 @@ func (self *Client) Search(text string, delegate SearchResultDelegate, maxResult
 	resultCount := 0
 
 	for _, folder := range self.config.FolderList() {
+		if folderID != "" && folder.ID != folderID {
+			continue
+		}
+
 		folderObject := Folder{
 			client:   self,
 			FolderID: folder.ID,
@@ -681,11 +685,17 @@ func (self *Client) Search(text string, delegate SearchResultDelegate, maxResult
 				return false
 			}
 
-			pathParts := strings.Split(f.FileName(), "/")
-			fn := strings.ToLower(pathParts[len(pathParts)-1])
 			gimmeMore := maxResults <= 0 || resultCount < maxResults
 
-			if gimmeMore && strings.Contains(fn, text) {
+			// Check prefix
+			if !strings.HasPrefix(f.FileName(), prefix) {
+				return gimmeMore
+			}
+
+			pathParts := strings.Split(f.FileName(), "/")
+			lowerFileName := strings.ToLower(pathParts[len(pathParts)-1])
+
+			if gimmeMore && strings.Contains(lowerFileName, text) {
 				entry := &Entry{
 					Folder: &folderObject,
 					info:   f.(protocol.FileInfo),

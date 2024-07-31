@@ -20,7 +20,7 @@ struct ExtraFilesView: View {
     var body: some View {
         let unadressedExtraFiles = extraFiles.filter({ p in !self.adressedPaths.contains(p) })
         
-        ZStack {
+        Group {
             if unadressedExtraFiles.isEmpty {
                 ContentUnavailableView("No extra files found", systemImage: "checkmark.circle")
             }

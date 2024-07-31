@@ -85,7 +85,7 @@ struct SelectiveFolderView: View {
     @State private var selectedPaths: [String] = []
     
     var body: some View {
-        ZStack {
+        Group {
             if isLoading {
                 ProgressView()
             }
