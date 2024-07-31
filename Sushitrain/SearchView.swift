@@ -95,9 +95,13 @@ struct SearchResultsView: View, SearchViewDelegate {
             List {                
                 if !results.isEmpty {
                     Section {
-                        ForEach(results, id: \.self) { item in
+                        ForEach(results, id: \.self) { (item: SushitrainEntry) in
                             if item.isDirectory() {
-                                NavigationLink(destination: BrowserView(folder: item.folder!, prefix: "\(item.path())/", appState: appState)) {
+                                NavigationLink(destination: BrowserView(
+                                    appState: appState,
+                                    folder: item.folder!,
+                                    prefix: "\(item.path())/"
+                                )) {
                                     Label(item.fileName(), systemImage: "folder")
                                 }
                             }

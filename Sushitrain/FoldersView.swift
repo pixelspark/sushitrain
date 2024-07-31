@@ -34,59 +34,63 @@ struct FoldersView: View {
             NavigationSplitView(
                 columnVisibility: $columnVisibility,
                 sidebar: {
-                List(selection: $selectedFolder) {
-                    Section {
-                        ForEach(folders, id: \.self) { folder in
-                            NavigationLink(value: SelectedFolder(folder: folder)) {
-                                Label(folder.label().isEmpty ? folder.folderID : folder.label(), systemImage: "folder.fill")
+                    List(selection: $selectedFolder) {
+                        Section {
+                            ForEach(folders, id: \.self) { folder in
+                                NavigationLink(value: SelectedFolder(folder: folder)) {
+                                    Label(folder.label().isEmpty ? folder.folderID : folder.label(), systemImage: "folder.fill")
+                                }
                             }
                         }
-                    }
-                    
-                    if !pendingFolderIds.isEmpty {
-                        Section("Discovered folders") {
-                            ForEach(pendingFolderIds, id: \.self) { folderID in
-                                Button(folderID, systemImage: "plus", action: {
-                                    addFolderID = folderID
-                                    showingAddFolderPopup = true
-                                })
+                        
+                        if !pendingFolderIds.isEmpty {
+                            Section("Discovered folders") {
+                                ForEach(pendingFolderIds, id: \.self) { folderID in
+                                    Button(folderID, systemImage: "plus", action: {
+                                        addFolderID = folderID
+                                        showingAddFolderPopup = true
+                                    })
+                                }
                             }
                         }
+                        
+                        Section {
+                            Button("Add other folder...", systemImage: "plus", action: {
+                                addFolderID = ""
+                                showingAddFolderPopup = true
+                            })
+                        }
                     }
-                    
-                    Section {
-                        Button("Add other folder...", systemImage: "plus", action: {
-                            addFolderID = ""
-                            showingAddFolderPopup = true
-                        })
+                    .navigationTitle("Folders")
+                    .toolbar {
+                        Button("Open in Files app", systemImage: "arrow.up.forward.app", action: {
+                            let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                            let sharedurl = documentsUrl.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
+                            let furl = URL(string: sharedurl)!
+                            UIApplication.shared.open(furl, options: [:], completionHandler: nil)
+                        }).labelStyle(.iconOnly)
                     }
-                }
-                .navigationTitle("Folders")
-                .toolbar {
-                    Button("Open in Files app", systemImage: "arrow.up.forward.app", action: {
-                        let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                        let sharedurl = documentsUrl.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
-                        let furl = URL(string: sharedurl)!
-                        UIApplication.shared.open(furl, options: [:], completionHandler: nil)
-                    }).labelStyle(.iconOnly)
-                }
-            }, detail: {
-                NavigationStack {
-                    if let folder = selectedFolder {
-                        if folder.folder.exists() {
-                            BrowserView(folder: folder.folder, prefix: "", appState: self.appState).id(folder.folder.folderID)
+                }, detail: {
+                    NavigationStack {
+                        if let folder = selectedFolder {
+                            if folder.folder.exists() {
+                                BrowserView(
+                                    appState: self.appState,
+                                    folder: folder.folder,
+                                    prefix: ""
+                                ).id(folder.folder.folderID)
+                            }
+                            else {
+                                ContentUnavailableView("Folder was deleted", systemImage: "trash", description: Text("This folder was deleted."))
+                            }
                         }
                         else {
-                            ContentUnavailableView("Folder was deleted", systemImage: "trash", description: Text("This folder was deleted."))
+                            ContentUnavailableView("Select a folder", systemImage: "folder").onTapGesture {
+                                columnVisibility = .doubleColumn
+                            }
                         }
                     }
-                    else {
-                        ContentUnavailableView("Select a folder", systemImage: "folder").onTapGesture {
-                            columnVisibility = .doubleColumn
-                        }
-                    }
-                }
-            })
+                })
             .navigationSplitViewStyle(.balanced)
         }
         .sheet(isPresented: $showingAddFolderPopup, content: {
