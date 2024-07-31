@@ -1427,34 +1427,6 @@
         }
       }
     },
-    "Searching in '%@'" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zoeken in '%1$@'"
-          }
-        }
-      }
-    },
-    "Searching in '%@': %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Searching in '%1$@': %2$@"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zoeken in '%1$@': %2$@"
-          }
-        }
-      }
-    },
     "Select a device" : {
       "localizations" : {
         "nl" : {
