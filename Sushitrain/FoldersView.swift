@@ -14,6 +14,7 @@ struct FoldersView: View {
     @State private var addFolderID = ""
     @State private var selectedFolder: SelectedFolder?
     @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
+    @State private var folders: [SushitrainFolder] = []
     
     fileprivate struct SelectedFolder: Hashable, Equatable {
         var folder: SushitrainFolder
@@ -29,8 +30,6 @@ struct FoldersView: View {
     
     var body: some View {
         Group {
-            let folders = appState.folders().sorted()
-            
             NavigationSplitView(
                 columnVisibility: $columnVisibility,
                 sidebar: {
@@ -38,7 +37,7 @@ struct FoldersView: View {
                         Section {
                             ForEach(folders, id: \.self) { folder in
                                 NavigationLink(value: SelectedFolder(folder: folder)) {
-                                    Label(folder.label().isEmpty ? folder.folderID : folder.label(), systemImage: "folder.fill")
+                                    Label(folder.displayName, systemImage: "folder.fill")
                                 }
                             }
                         }
@@ -97,6 +96,8 @@ struct FoldersView: View {
             AddFolderView(folderID: $addFolderID, appState: appState)
         })
         .onAppear {
+            folders = appState.folders().sorted()
+            
             let addedFolders = Set(appState.folders().map({f in f.folderID}))
             self.pendingFolderIds = ((try? self.appState.client.pendingFolderIDs())?.asArray() ?? []).filter({ folderID in !addedFolders.contains(folderID)
             })

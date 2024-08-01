@@ -36,7 +36,7 @@ extension SushitrainDate {
 
 extension SushitrainFolder: Comparable {
     public static func < (lhs: SushitrainFolder, rhs: SushitrainFolder) -> Bool {
-        return lhs.folderID < rhs.folderID
+        return lhs.displayName < rhs.displayName
     }
 }
 
@@ -111,6 +111,11 @@ extension SushitrainFolder {
         var error: NSError? = nil
         let s = self.state(&error)
         return s == "idle"
+    }
+    
+    var displayName: String {
+        let label = self.label()
+        return label.isEmpty ? self.folderID : label
     }
 }
 

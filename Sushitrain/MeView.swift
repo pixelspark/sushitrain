@@ -140,7 +140,7 @@ struct MeView: View {
                         NavigationLink(destination: {
                             ExtraFilesView(folder: folder, appState: appState)
                         }) {
-                            Label("Folder '\(folder.label())' has extra files", systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                            Label("Folder '\(folder.displayName)' has extra files", systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange)
                         }
                     }
                 }

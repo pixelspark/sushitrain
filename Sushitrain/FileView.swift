@@ -273,7 +273,7 @@ struct FileView: View {
                 
                 if showPath {
                     Section("Location") {
-                        Text("\(folder.folderID): \(file.path())")
+                        Text("\(folder.label()): \(file.path())")
                     }
                 }
                 

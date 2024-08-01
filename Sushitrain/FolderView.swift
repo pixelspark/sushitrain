@@ -369,10 +369,13 @@ struct FolderView: View {
                 
                 Section("Folder settings") {
                     Text("Folder ID").badge(Text(folder.folderID))
-                    //                HStack {
-                    //                    Text("Name")
-                    //                    TextField("", text:Binding(get: { folder.label() }, set: {lbl in try? folder.setLabel(lbl) }))
-                    //                }
+                    
+                    LabeledContent {
+                        TextField(folder.folderID, text: Binding(get: { folder.label() }, set: {lbl in try? folder.setLabel(lbl) }))
+                            .multilineTextAlignment(.trailing)
+                    } label: {
+                        Text("Display name")
+                    }
                     
                     FolderDirectionPicker(appState: appState, folder: folder)
                     FolderSyncTypePicker(appState: appState, folder: folder)
@@ -440,7 +443,7 @@ struct FolderView: View {
                 }
             }
         }
-        .navigationTitle(folder.label().isEmpty ? folder.folderID : folder.label())
+        .navigationTitle(folder.displayName)
         .sheet(isPresented: $showEditEncryptionPassword) {
             FolderDeviceView(appState: self.appState, folder: self.folder, deviceID: $editEncryptionPasswordDeviceID)
         }

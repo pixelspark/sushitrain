@@ -507,6 +507,16 @@
         }
       }
     },
+    "Display name" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weergavenaam"
+          }
+        }
+      }
+    },
     "Done" : {
       "localizations" : {
         "nl" : {
