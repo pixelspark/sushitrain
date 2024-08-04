@@ -39,7 +39,7 @@ struct ContentView: View {
             // Peers
             PeersView(appState: appState)
                 .tabItem {
-                    Label("Devices", systemImage: "network")
+                    Label("Devices", systemImage: "externaldrive.fill")
                 }.tag(Tab.peers)
         }
         .sheet(isPresented: $showOnboarding, content: {
