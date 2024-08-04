@@ -297,8 +297,10 @@ struct FileView: View {
                                 let progress = self.appState.client.getDownloadProgress(forFile: self.file.path(), folder: self.folder.folderID)
                                 if let progress = progress {
                                     ProgressView(value: progress.percentage, total: 1.0) {
-                                        Label("Downloading file...", systemImage: "arrow.clockwise").foregroundStyle(.green).symbolEffect(.pulse, value: true)
-                                    }
+                                        Label("Downloading file...", systemImage: "arrow.clockwise")
+                                            .foregroundStyle(.green)
+                                            .symbolEffect(.pulse, value: true)
+                                    }.tint(.green)
                                 }
                                 else {
                                     Label("Waiting to synchronize...", systemImage: "hourglass")
