@@ -192,6 +192,7 @@ struct BackgroundSettingsView: View {
 
 struct SettingsView: View {
     @ObservedObject var appState: AppState
+    @AppStorage("backgroundSyncEnabled") var backgroundSyncEnabled = false
     
     var body: some View {
         Form {
@@ -273,8 +274,8 @@ struct SettingsView: View {
             }
             
             Section {
-                NavigationLink("Background synchronization") {
-                    BackgroundSettingsView(appState: appState)
+                NavigationLink(destination: BackgroundSettingsView(appState: appState)) {
+                    Text("Background synchronization").badge(backgroundSyncEnabled ? "On": "Off")
                 }
                 
                 NavigationLink("Advanced settings") {
