@@ -185,15 +185,15 @@ struct OnDemandFileView: View {
     var body: some View {
         NavigationStack {
             BareOnDemandFileView(appState: appState, file: file, isShown: $isShown)
-            .navigationTitle(file.fileName())
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar(content: {
-                ToolbarItem(placement: .confirmationAction, content: {
-                    Button("Done", action: {
-                        isShown = false
+                .navigationTitle(file.fileName())
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar(content: {
+                    ToolbarItem(placement: .confirmationAction, content: {
+                        Button("Done", action: {
+                            isShown = false
+                        })
                     })
                 })
-            })
         }
     }
 }
