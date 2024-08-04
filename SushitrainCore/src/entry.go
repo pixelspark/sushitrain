@@ -41,7 +41,7 @@ func (self *Entry) Fetch(delegate FetchDelegate) {
 
 		fetchedBytes := int64(0)
 		for blockNo, block := range self.info.Blocks {
-			av, err := m.Availability(self.Folder.FolderID, self.info, block)
+			av, err := m.BlockAvailability(self.Folder.FolderID, self.info, block)
 			if err != nil {
 				delegate.Error(FetchDelegateErrorBlockUnavailable, err.Error())
 				return
@@ -51,7 +51,7 @@ func (self *Entry) Fetch(delegate FetchDelegate) {
 				return
 			}
 
-			buf, err := m.RequestGlobal(client.ctx, av[0].ID, self.Folder.FolderID, self.info.Name, blockNo, block.Offset, block.Size, block.Hash, block.WeakHash, false)
+			buf, err := m.DownloadBlock(client.ctx, av[0].ID, self.Folder.FolderID, self.info.Name, blockNo, block, false)
 			if err != nil {
 				delegate.Error(FetchDelegateErrorPullFailed, err.Error())
 				return
@@ -138,7 +138,7 @@ func (self *Entry) IsSelected() bool {
 }
 
 func (self *Entry) IsExplicitlySelected() bool {
-	lines, _, err := self.Folder.client.app.Model.CurrentIgnores(self.Folder.FolderID)
+	lines, _, err := self.Folder.client.app.Model.Ignores(self.Folder.FolderID)
 	if err != nil {
 		return false
 	}
@@ -166,7 +166,7 @@ func (self *Entry) SetExplicitlySelected(selected bool) error {
 	}
 
 	// Edit lines
-	lines, _, err := self.Folder.client.app.Model.CurrentIgnores(self.Folder.FolderID)
+	lines, _, err := self.Folder.client.app.Model.Ignores(self.Folder.FolderID)
 	if err != nil {
 		return err
 	}

@@ -105,7 +105,7 @@ func (self *Folder) GetFileInformation(path string) (*Entry, error) {
 		path = path[1:]
 	}
 
-	info, ok, err := self.client.app.Model.CurrentGlobalFile(self.FolderID, path)
+	info, ok, err := self.client.app.Model.GlobalFileInfo(self.FolderID, path)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func (self *Folder) List(prefix string, directories bool) (*ListOfStrings, error
 	if self.client.app.Model == nil {
 		return nil, nil
 	}
-	entries, err := self.client.app.Model.GlobalDirectoryTree(self.FolderID, prefix, 1, directories)
+	entries, err := self.client.app.Model.GlobalTreeEntries(self.FolderID, prefix, 1, directories)
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +221,7 @@ func (self *Folder) ConnectedPeerCount() int {
 		if devID == self.client.deviceID() {
 			continue
 		}
-		if self.client.app.Model.ConnectedTo(devID) {
+		if self.client.app.Model.IsConnectedTo(devID) {
 			connected++
 		}
 	}
@@ -293,7 +293,7 @@ func (self *Folder) SelectedPaths() (*ListOfStrings, error) {
 		return nil, errNoClient
 	}
 
-	lines, _, err := self.client.app.Model.CurrentIgnores(self.FolderID)
+	lines, _, err := self.client.app.Model.Ignores(self.FolderID)
 	if err != nil {
 		return nil, err
 	}
@@ -323,7 +323,7 @@ func (self *Folder) HasSelectedPaths() bool {
 		return false
 	}
 
-	lines, _, err := self.client.app.Model.CurrentIgnores(self.FolderID)
+	lines, _, err := self.client.app.Model.Ignores(self.FolderID)
 	if err != nil {
 		return false
 	}
@@ -385,7 +385,7 @@ func (self *Folder) IsSelective() bool {
 		return false
 	}
 
-	lines, _, err := self.client.app.Model.CurrentIgnores(self.FolderID)
+	lines, _, err := self.client.app.Model.Ignores(self.FolderID)
 	if err != nil {
 		return false
 	}

@@ -85,7 +85,7 @@ func (self *Peer) IsConnected() bool {
 		return false
 	}
 
-	return self.client.app.Model.ConnectedTo(self.deviceID)
+	return self.client.app.Model.IsConnectedTo(self.deviceID)
 }
 
 func (self *Peer) SetPaused(paused bool) error {

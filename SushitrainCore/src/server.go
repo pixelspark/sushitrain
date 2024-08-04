@@ -130,7 +130,7 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 		Logger.Infoln("Request", r.Method, folder, path)
 
 		m := app.Model
-		info, ok, err := m.CurrentGlobalFile(folder, path)
+		info, ok, err := m.GlobalFileInfo(folder, path)
 		if err != nil {
 			w.WriteHeader(500)
 			w.Write([]byte(err.Error()))
@@ -180,7 +180,7 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 
 					// Fetch block
 					block := info.Blocks[blockIndex]
-					av, err := m.Availability(folder, info, block)
+					av, err := m.BlockAvailability(folder, info, block)
 					if err != nil {
 						return
 					}
@@ -188,7 +188,7 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 						return
 					}
 
-					buf, err := m.RequestGlobal(r.Context(), av[0].ID, folder, info.Name, int(blockIndex), block.Offset, block.Size, block.Hash, block.WeakHash, false)
+					buf, err := m.DownloadBlock(r.Context(), av[0].ID, folder, info.Name, int(blockIndex), block, false)
 					if err != nil {
 						return
 					}
@@ -233,7 +233,7 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 
 			fetchedBytes := int64(0)
 			for blockNo, block := range info.Blocks {
-				av, err := m.Availability(folder, info, block)
+				av, err := m.BlockAvailability(folder, info, block)
 				if err != nil {
 					return
 				}
@@ -241,7 +241,7 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 					return
 				}
 
-				buf, err := m.RequestGlobal(ctx, av[0].ID, folder, info.Name, blockNo, block.Offset, block.Size, block.Hash, block.WeakHash, false)
+				buf, err := m.DownloadBlock(ctx, av[0].ID, folder, info.Name, blockNo, block, false)
 				if err != nil {
 					return
 				}

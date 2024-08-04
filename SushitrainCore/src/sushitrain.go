@@ -410,7 +410,7 @@ func (self *Client) ConnectedPeerCount() int {
 		if devID == self.deviceID() {
 			continue
 		}
-		if self.app.Model.ConnectedTo(devID) {
+		if self.app.Model.IsConnectedTo(devID) {
 			connected++
 		}
 	}
