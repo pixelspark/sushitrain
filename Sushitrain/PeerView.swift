@@ -26,6 +26,13 @@ struct PeerView: View {
                     }
                 }
                 
+                LabeledContent {
+                    TextField(peer.label, text: Binding(get: { peer.name() }, set: {lbl in try? peer.setName(lbl) }))
+                        .multilineTextAlignment(.trailing)
+                } label: {
+                    Text("Display name")
+                }
+                
                 Section {
                     Toggle("Enabled", isOn: Binding(get: { !peer.isPaused() }, set: {active in try? peer.setPaused(!active) }))
                 } footer: {

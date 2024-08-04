@@ -62,6 +62,17 @@ func (self *Peer) Name() string {
 	return self.deviceConfiguration().Name
 }
 
+func (self *Peer) SetName(name string) error {
+	return self.client.changeConfiguration(func(cfg *config.Configuration) {
+		dc, ok := cfg.DeviceMap()[self.deviceID]
+		if !ok {
+			return
+		}
+		dc.Name = name
+		cfg.SetDevice(dc)
+	})
+}
+
 func (self *Peer) Addresses() *ListOfStrings {
 	return List(self.deviceConfiguration().Addresses)
 }
