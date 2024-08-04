@@ -45,10 +45,19 @@ type Client struct {
 	Server                     *StreamingServer
 }
 
+type Change struct {
+	FolderID string
+	Path     string
+	Action   string
+	ShortID  string
+	Time     *Date
+}
+
 type ClientDelegate interface {
 	OnEvent(event string)
 	OnDeviceDiscovered(deviceID string, addresses *ListOfStrings)
 	OnListenAddressesChanged(addresses *ListOfStrings)
+	OnChange(change *Change)
 }
 
 var (
@@ -236,7 +245,25 @@ func (self *Client) startEventListener() {
 					self.Delegate.OnEvent(evt.Type.String())
 				}
 
-			case events.LocalIndexUpdated, events.LocalChangeDetected, events.DeviceDisconnected, events.ConfigSaved,
+			case events.LocalChangeDetected, events.RemoteChangeDetected:
+				data := evt.Data.(map[string]string)
+				modifiedBy, ok := data["modifiedBy"]
+				if !ok {
+					modifiedBy = self.DeviceID()
+				}
+
+				if !self.IgnoreEvents && self.Delegate != nil {
+					self.Delegate.OnChange(&Change{
+						FolderID: data["folder"],
+						ShortID:  modifiedBy,
+						Action:   data["action"],
+						Path:     data["path"],
+						Time:     &Date{time: evt.Time},
+					})
+					self.Delegate.OnEvent(evt.Type.String())
+				}
+
+			case events.LocalIndexUpdated, events.DeviceDisconnected, events.ConfigSaved,
 				events.ClusterConfigReceived, events.FolderResumed, events.FolderPaused:
 				// Just deliver the event
 				if !self.IgnoreEvents && self.Delegate != nil {

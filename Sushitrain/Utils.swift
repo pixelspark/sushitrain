@@ -50,12 +50,27 @@ extension SushitrainEntry: Comparable {
     public static func < (lhs: SushitrainEntry, rhs: SushitrainEntry) -> Bool {
         return lhs.path() < rhs.path()
     }
-    
-    
 }
 
 extension SushitrainPeer: Identifiable {
-    
+}
+
+extension SushitrainChange: Identifiable {
+}
+
+extension SushitrainChange {
+    var systemImage: String {
+        switch self.action {
+        case "deleted":
+            return "trash"
+            
+        case "modified":
+            fallthrough
+            
+        default:
+            return "pencil.circle"
+        }
+    }
 }
 
 /** Utility for storing arbitrary Swift Codable types as user defaults */

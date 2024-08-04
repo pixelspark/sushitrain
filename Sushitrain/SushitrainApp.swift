@@ -123,7 +123,21 @@ class SushitrainApp: NSObject, App {
     }
 }
 
+extension SushitrainChange: @unchecked Sendable {}
+
 extension SushitrainApp: SushitrainClientDelegateProtocol {
+    func onChange(_ change: SushitrainChange?) {
+        if let change = change {
+            let appState = self.appState
+            DispatchQueue.main.async {
+                if appState.lastChanges.count > AppState.maxChanges - 1 {
+                    appState.lastChanges.removeFirst(appState.lastChanges.count - AppState.maxChanges - 1)
+                }
+                appState.lastChanges.append(change)
+            }
+        }
+    }
+    
     func onEvent(_ event: String?) {
         let appState = self.appState
         DispatchQueue.main.async {

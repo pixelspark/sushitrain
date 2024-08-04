@@ -317,6 +317,26 @@
         }
       }
     },
+    "By %@" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Door %@"
+          }
+        }
+      }
+    },
+    "By this device" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Door dit apparaat"
+          }
+        }
+      }
+    },
     "Cancel" : {
       "localizations" : {
         "nl" : {
@@ -1303,6 +1323,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Alleen ontvangen"
+          }
+        }
+      }
+    },
+    "Recent changes" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recente wijzigingen"
           }
         }
       }

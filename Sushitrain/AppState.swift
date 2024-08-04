@@ -23,6 +23,10 @@ class AppState: ObservableObject, @unchecked Sendable {
     @Published var listenAddresses = Set<String>()
     @Published var launchedAt = Date.now
     @Published var streamingProgress: StreamingProgress? = nil
+    @Published var lastChanges: [SushitrainChange] = []
+    
+    static let maxChanges = 25
+    
     @AppStorage("streamingLimitMbitsPerSec") var streamingLimitMbitsPerSec = 0
     @AppStorage("maxBytesForPreview") var maxBytesForPreview = 2 * 1024 * 1024 // 2 MiB
     

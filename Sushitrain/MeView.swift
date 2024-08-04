@@ -146,6 +146,10 @@ struct MeView: View {
                 }
             }
             
+            NavigationLink(destination:
+                            ChangesView(appState: appState)) {
+                Text("Recent changes").badge(appState.lastChanges.count)
+            }.disabled(appState.lastChanges.isEmpty)
         }.navigationTitle("Start")
             .toolbar {
                 ToolbarItem {
