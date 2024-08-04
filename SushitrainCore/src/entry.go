@@ -94,8 +94,16 @@ func (self *Entry) IsDeleted() bool {
 	return self.info.IsDeleted()
 }
 
-func (self *Entry) ModifiedBy() string {
+func (self *Entry) ModifiedByShortDeviceID() string {
 	return self.info.FileModifiedBy().String()
+}
+
+func (self *Entry) ModifiedAt() *Date {
+	mt := self.info.ModTime()
+	if mt.IsZero() {
+		return nil
+	}
+	return &Date{time: mt}
 }
 
 func (self *Entry) LocalNativePath() (string, error) {

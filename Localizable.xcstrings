@@ -917,6 +917,26 @@
         }
       }
     },
+    "Last modified" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laatst gewijzigd"
+          }
+        }
+      }
+    },
+    "Last modified from" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laatst gewijzigd door"
+          }
+        }
+      }
+    },
     "Last seen" : {
       "localizations" : {
         "nl" : {

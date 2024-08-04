@@ -413,6 +413,18 @@ func (self *Client) PeerWithID(deviceID string) *Peer {
 	}
 }
 
+func (self *Client) PeerWithShortID(shortID string) *Peer {
+	for _, dc := range self.config.DeviceList() {
+		if dc.DeviceID.Short().String() == shortID {
+			return &Peer{
+				client:   self,
+				deviceID: dc.DeviceID,
+			}
+		}
+	}
+	return nil
+}
+
 func (self *Client) changeConfiguration(block config.ModifyFunction) error {
 	waiter, err := self.config.Modify(block)
 	if err != nil {

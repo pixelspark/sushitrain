@@ -258,6 +258,17 @@ struct FileView: View {
                         Text("File size").badge(formatter.string(fromByteCount: file.size()))
                     }
                     
+                    if let md = file.modifiedAt()?.date() {
+                        Text("Last modified").badge(md.formatted(date: .abbreviated, time: .shortened))
+                        
+                        let mby = file.modifiedByShortDeviceID()
+                        if !mby.isEmpty {
+                            if let modifyingDevice = appState.client.peer(withShortID: mby) {
+                                Text("Last modified from").badge(modifyingDevice.label)
+                            }
+                        }
+                    }
+                    
                     if self.folder.isSelective() {
                         Toggle("Synchronize with this device", systemImage: "pin", isOn: Binding(get: {
                             file.isExplicitlySelected() || file.isSelected()
