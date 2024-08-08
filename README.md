@@ -12,7 +12,7 @@ To build the app, you need a macOS computer with the following:
 
 - XCode (15.4, 15F31d is known to work) with the iOS 17.5 or higher SDK installed
 - Developer certificates
-- Go (go1.22.5 is know to work)
+- Go (go1.22.5 is known to work)
 
 First, verify the Go framework builds correctly. Open a terminal and do the following:
 
