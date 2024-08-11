@@ -130,8 +130,11 @@ extension SushitrainApp: SushitrainClientDelegateProtocol {
         if let change = change {
             let appState = self.appState
             DispatchQueue.main.async {
+                // For example: 25 > 25, 100 > 25
                 if appState.lastChanges.count > AppState.maxChanges - 1 {
-                    appState.lastChanges.removeFirst(appState.lastChanges.count - AppState.maxChanges - 1)
+                    // Remove excess elements at the top
+                    // For example: 25 - 25 + 1 = 1, 100 - 25 + 1 = 76
+                    appState.lastChanges.removeFirst(appState.lastChanges.count - AppState.maxChanges + 1)
                 }
                 appState.lastChanges.append(change)
             }
