@@ -396,11 +396,11 @@ func (self *Client) FolderWithID(id string) *Folder {
 }
 
 func (self *Client) ConnectedPeerCount() int {
-	if self.app == nil || self.app.Model == nil {
+	if self.app == nil || self.app.Internals == nil {
 		return 0
 	}
 
-	if self.config == nil || self.app == nil || self.app.Model == nil {
+	if self.config == nil || self.app == nil || self.app.Internals == nil {
 		return 0
 	}
 
@@ -410,7 +410,7 @@ func (self *Client) ConnectedPeerCount() int {
 		if devID == self.deviceID() {
 			continue
 		}
-		if self.app.Model.IsConnectedTo(devID) {
+		if self.app.Internals.IsConnectedTo(devID) {
 			connected++
 		}
 	}
@@ -478,7 +478,7 @@ func (self *Client) AddPeer(deviceID string) error {
 }
 
 func (self *Client) AddFolder(folderID string) error {
-	if self.app == nil || self.app.Model == nil {
+	if self.app == nil || self.app.Internals == nil {
 		return ErrStillLoading
 	}
 
@@ -497,7 +497,7 @@ func (self *Client) AddFolder(folderID string) error {
 	}
 
 	// Set default ignores for on-demand sync
-	return self.app.Model.SetIgnores(folderID, []string{"*"})
+	return self.app.Internals.SetIgnores(folderID, []string{"*"})
 }
 
 func (self *Client) SetNATEnabled(enabled bool) error {
@@ -662,7 +662,7 @@ func (self *Client) SetName(name string) error {
 }
 
 func (self *Client) Statistics() (*FolderStats, error) {
-	if self.app == nil || self.app.Model == nil {
+	if self.app == nil || self.app.Internals == nil {
 		return nil, ErrStillLoading
 	}
 
@@ -670,7 +670,7 @@ func (self *Client) Statistics() (*FolderStats, error) {
 	localTotal := FolderCounts{}
 
 	for _, folder := range self.config.FolderList() {
-		snap, err := self.app.Model.DBSnapshot(folder.ID)
+		snap, err := self.app.Internals.DBSnapshot(folder.ID)
 		defer snap.Release()
 		if err != nil {
 			return nil, err
@@ -695,7 +695,7 @@ type SearchResultDelegate interface {
 particular order, unless/until the delegate returns true from IsCancelled. Set maxResults to <=0 to collect all results.
 */
 func (self *Client) Search(text string, delegate SearchResultDelegate, maxResults int, folderID string, prefix string) error {
-	if self.app == nil || self.app.Model == nil {
+	if self.app == nil || self.app.Internals == nil {
 		return ErrStillLoading
 	}
 
@@ -712,7 +712,7 @@ func (self *Client) Search(text string, delegate SearchResultDelegate, maxResult
 			FolderID: folder.ID,
 		}
 
-		snap, err := self.app.Model.DBSnapshot(folder.ID)
+		snap, err := self.app.Internals.DBSnapshot(folder.ID)
 		if err != nil {
 			return err
 		}
@@ -784,14 +784,14 @@ func (self *Client) SetListening(listening bool) error {
 }
 
 func (self *Client) pendingFolders() (map[string][]string, error) {
-	if self.app == nil || self.app.Model == nil {
+	if self.app == nil || self.app.Internals == nil {
 		return nil, ErrStillLoading
 	}
 
 	peers := self.config.DeviceList()
 	fids := map[string][]string{}
 	for _, peer := range peers {
-		peerFids, err := self.app.Model.PendingFolders(peer.DeviceID)
+		peerFids, err := self.app.Internals.PendingFolders(peer.DeviceID)
 		if err != nil {
 			return nil, err
 		}
@@ -806,7 +806,7 @@ func (self *Client) pendingFolders() (map[string][]string, error) {
 }
 
 func (self *Client) PendingFolderIDs() (*ListOfStrings, error) {
-	if self.app == nil || self.app.Model == nil {
+	if self.app == nil || self.app.Internals == nil {
 		return nil, ErrStillLoading
 	}
 
@@ -818,7 +818,7 @@ func (self *Client) PendingFolderIDs() (*ListOfStrings, error) {
 }
 
 func (self *Client) DevicesPendingFolder(folderID string) (*ListOfStrings, error) {
-	if self.app == nil || self.app.Model == nil {
+	if self.app == nil || self.app.Internals == nil {
 		return nil, ErrStillLoading
 	}
 

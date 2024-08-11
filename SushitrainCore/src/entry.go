@@ -36,7 +36,7 @@ type FetchCallback func(success bool)
 func (self *Entry) Fetch(delegate FetchDelegate) {
 	go func() {
 		client := self.Folder.client
-		m := client.app.Model
+		m := client.app.Internals
 		delegate.Progress(0.0)
 
 		fetchedBytes := int64(0)
@@ -138,7 +138,7 @@ func (self *Entry) IsSelected() bool {
 }
 
 func (self *Entry) IsExplicitlySelected() bool {
-	lines, _, err := self.Folder.client.app.Model.Ignores(self.Folder.FolderID)
+	lines, _, err := self.Folder.client.app.Internals.Ignores(self.Folder.FolderID)
 	if err != nil {
 		return false
 	}
@@ -166,7 +166,7 @@ func (self *Entry) SetExplicitlySelected(selected bool) error {
 	}
 
 	// Edit lines
-	lines, _, err := self.Folder.client.app.Model.Ignores(self.Folder.FolderID)
+	lines, _, err := self.Folder.client.app.Internals.Ignores(self.Folder.FolderID)
 	if err != nil {
 		return err
 	}
@@ -181,7 +181,7 @@ func (self *Entry) SetExplicitlySelected(selected bool) error {
 	}
 
 	// Save new ignores
-	err = self.Folder.client.app.Model.SetIgnores(self.Folder.FolderID, lines)
+	err = self.Folder.client.app.Internals.SetIgnores(self.Folder.FolderID, lines)
 	if err != nil {
 		return err
 	}
@@ -189,7 +189,7 @@ func (self *Entry) SetExplicitlySelected(selected bool) error {
 	// Delete local file if !selected (and not still implicitly selected by parent folder)
 	if !selected && !self.IsSelected() {
 		go func() {
-			self.Folder.client.app.Model.ScanFolders()
+			self.Folder.client.app.Internals.ScanFolders()
 			self.Folder.DeleteLocalFile(self.info.FileName())
 		}()
 	}

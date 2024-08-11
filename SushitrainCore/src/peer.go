@@ -38,11 +38,11 @@ func (self *Peer) LastSeen() *Date {
 		return nil
 	}
 
-	if self.client.app.Model == nil {
+	if self.client.app.Internals == nil {
 		return nil
 	}
 
-	stats, err := self.client.app.Model.DeviceStatistics()
+	stats, err := self.client.app.Internals.DeviceStatistics()
 	if err != nil {
 		return nil
 	}
@@ -81,11 +81,11 @@ func (self *Peer) IsConnected() bool {
 	if self.client.app == nil {
 		return false
 	}
-	if self.client.app.Model == nil {
+	if self.client.app.Internals == nil {
 		return false
 	}
 
-	return self.client.app.Model.IsConnectedTo(self.deviceID)
+	return self.client.app.Internals.IsConnectedTo(self.deviceID)
 }
 
 func (self *Peer) SetPaused(paused bool) error {
@@ -151,7 +151,7 @@ func (self *Peer) SharedFolderIDs() *ListOfStrings {
 }
 
 func (self *Peer) PendingFolderIDs() (*ListOfStrings, error) {
-	pfs, err := self.client.app.Model.PendingFolders(self.deviceID)
+	pfs, err := self.client.app.Internals.PendingFolders(self.deviceID)
 	if err != nil {
 		return nil, err
 	}

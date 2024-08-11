@@ -129,7 +129,7 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 		path := r.URL.Query().Get("path")
 		Logger.Infoln("Request", r.Method, folder, path)
 
-		m := app.Model
+		m := app.Internals
 		info, ok, err := m.GlobalFileInfo(folder, path)
 		if err != nil {
 			w.WriteHeader(500)

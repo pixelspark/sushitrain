@@ -80,11 +80,11 @@ func (self *Folder) State() (string, error) {
 	if self.client.app == nil {
 		return "", nil
 	}
-	if self.client.app.Model == nil {
+	if self.client.app.Internals == nil {
 		return "", nil
 	}
 
-	state, _, err := self.client.app.Model.State(self.FolderID)
+	state, _, err := self.client.app.Internals.FolderState(self.FolderID)
 	return state, err
 }
 
@@ -92,7 +92,7 @@ func (self *Folder) GetFileInformation(path string) (*Entry, error) {
 	if self.client.app == nil {
 		return nil, nil
 	}
-	if self.client.app.Model == nil {
+	if self.client.app.Internals == nil {
 		return nil, nil
 	}
 
@@ -105,7 +105,7 @@ func (self *Folder) GetFileInformation(path string) (*Entry, error) {
 		path = path[1:]
 	}
 
-	info, ok, err := self.client.app.Model.GlobalFileInfo(self.FolderID, path)
+	info, ok, err := self.client.app.Internals.GlobalFileInfo(self.FolderID, path)
 	if err != nil {
 		return nil, err
 	}
@@ -122,10 +122,10 @@ func (self *Folder) List(prefix string, directories bool) (*ListOfStrings, error
 	if self.client.app == nil {
 		return nil, nil
 	}
-	if self.client.app.Model == nil {
+	if self.client.app.Internals == nil {
 		return nil, nil
 	}
-	entries, err := self.client.app.Model.GlobalTreeEntries(self.FolderID, prefix, 1, directories)
+	entries, err := self.client.app.Internals.GlobalTree(self.FolderID, prefix, 1, directories)
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +221,7 @@ func (self *Folder) ConnectedPeerCount() int {
 		if devID == self.client.deviceID() {
 			continue
 		}
-		if self.client.app.Model.IsConnectedTo(devID) {
+		if self.client.app.Internals.IsConnectedTo(devID) {
 			connected++
 		}
 	}
@@ -261,21 +261,21 @@ func (self *Folder) whilePaused(block func() error) error {
 }
 
 func (self *Folder) SetSelective(selective bool) error {
-	if self.client.app == nil || self.client.app.Model == nil {
+	if self.client.app == nil || self.client.app.Internals == nil {
 		return errNoClient
 	}
 
 	return self.whilePaused(func() error {
 		if selective {
-			return self.client.app.Model.SetIgnores(self.FolderID, []string{"*"})
+			return self.client.app.Internals.SetIgnores(self.FolderID, []string{"*"})
 		} else {
-			return self.client.app.Model.SetIgnores(self.FolderID, []string{})
+			return self.client.app.Internals.SetIgnores(self.FolderID, []string{})
 		}
 	})
 }
 
 func (self *Folder) ClearSelection() error {
-	err := self.client.app.Model.SetIgnores(self.FolderID, []string{"*"})
+	err := self.client.app.Internals.SetIgnores(self.FolderID, []string{"*"})
 	if err != nil {
 		return err
 	}
@@ -289,11 +289,11 @@ func (self *Folder) SelectedPaths() (*ListOfStrings, error) {
 		return nil, errors.New("folder does not exist")
 	}
 
-	if self.client.app == nil || self.client.app.Model == nil {
+	if self.client.app == nil || self.client.app.Internals == nil {
 		return nil, errNoClient
 	}
 
-	lines, _, err := self.client.app.Model.Ignores(self.FolderID)
+	lines, _, err := self.client.app.Internals.Ignores(self.FolderID)
 	if err != nil {
 		return nil, err
 	}
@@ -310,7 +310,7 @@ func (self *Folder) SelectedPaths() (*ListOfStrings, error) {
 }
 
 func (self *Folder) HasSelectedPaths() bool {
-	if self.client.app == nil || self.client.app.Model == nil {
+	if self.client.app == nil || self.client.app.Internals == nil {
 		return false
 	}
 
@@ -323,7 +323,7 @@ func (self *Folder) HasSelectedPaths() bool {
 		return false
 	}
 
-	lines, _, err := self.client.app.Model.Ignores(self.FolderID)
+	lines, _, err := self.client.app.Internals.Ignores(self.FolderID)
 	if err != nil {
 		return false
 	}
@@ -376,7 +376,7 @@ func (self *Folder) SetFolderType(folderType string) error {
 }
 
 func (self *Folder) IsSelective() bool {
-	if self.client.app == nil || self.client.app.Model == nil {
+	if self.client.app == nil || self.client.app.Internals == nil {
 		return false
 	}
 
@@ -385,7 +385,7 @@ func (self *Folder) IsSelective() bool {
 		return false
 	}
 
-	lines, _, err := self.client.app.Model.Ignores(self.FolderID)
+	lines, _, err := self.client.app.Internals.Ignores(self.FolderID)
 	if err != nil {
 		return false
 	}
@@ -511,7 +511,7 @@ func (self *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 func (self *Folder) CleanSelection() error {
 	return self.whilePaused(func() error {
 		// Make sure the initial scan has finished (ScanFolders is blocking)
-		self.client.app.Model.ScanFolders()
+		self.client.app.Internals.ScanFolders()
 
 		cfg := self.folderConfiguration()
 		ignores := ignore.New(cfg.Filesystem(nil), ignore.WithCache(false))
@@ -554,7 +554,7 @@ func (self *Folder) DeleteLocalFile(path string) error {
 		}
 	}
 
-	err = self.client.app.Model.ScanFolderSubdirs(self.FolderID, []string{path})
+	err = self.client.app.Internals.ScanFolderSubdirs(self.FolderID, []string{path})
 	if err != nil {
 		return err
 	}
@@ -577,7 +577,7 @@ func (self *Folder) SetLocalFileExplicitlySelected(path string, toggle bool) err
 }
 
 func (self *Folder) Statistics() (*FolderStats, error) {
-	snap, err := self.client.app.Model.DBSnapshot(self.FolderID)
+	snap, err := self.client.app.Internals.DBSnapshot(self.FolderID)
 	if err != nil {
 		return nil, err
 	}
@@ -601,7 +601,7 @@ type Completion struct {
 }
 
 func (self *Folder) CompletionForDevice(deviceID string) (*Completion, error) {
-	if self.client.app == nil || self.client.app.Model == nil {
+	if self.client.app == nil || self.client.app.Internals == nil {
 		return nil, ErrStillLoading
 	}
 
@@ -610,7 +610,7 @@ func (self *Folder) CompletionForDevice(deviceID string) (*Completion, error) {
 		return nil, err
 	}
 
-	completion, err := self.client.app.Model.Completion(devID, self.FolderID)
+	completion, err := self.client.app.Internals.Completion(devID, self.FolderID)
 	if err != nil {
 		return nil, err
 	}
