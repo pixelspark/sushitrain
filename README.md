@@ -2,6 +2,8 @@
 
 Securely synchronize files on-demand using Syncthing on iOS.
 
+[Download on the App Store](https://apps.apple.com/nl/app/synctrain/id6553985316) | [Test beta versions through TestFlight](https://testflight.apple.com/join/2f54I4CM)
+
 ## Building
 
 The app consists of a framework in Go and front-end code in Swift.
@@ -10,7 +12,7 @@ To build the app, you need a macOS computer with the following:
 
 - XCode (15.4, 15F31d is known to work) with the iOS 17.5 or higher SDK installed
 - Developer certificates
-- Go (go1.22.5 is know to work)
+- Go (go1.22.5 is known to work)
 
 First, verify the Go framework builds correctly. Open a terminal and do the following:
 
@@ -148,9 +150,20 @@ In Japan, several lower-end sushi restaurants have a system where you order sush
 to your table by a small train that runs between the kitchen and the tables. This is a very efficient system of ordering
 small bites. Additionally, 'SushiTrain' shares the 'SyncThing' initials.
 
+## Contributing
+
+Pull requests to this repository are welcomed and will be considered. Contributors to this repository agree to license 
+their contributions under the license described below (MPLv2). Regardless of the license in effect, you retain the 
+copyright to your contribution.
+
+If you have found an issue, please notify us through the TestFlight testing program. If this is not possible, you can use
+the discussions section on this repository. The developers are not obliged to answer any questions or fix any issues - 
+remember this is free software. The planning of releases and the roadmap is solely up to the developers. If you have a
+specific need, you may contact the developers to discuss a commercial development project.
+
 ## License
 
-Sushitrain is (C) Tommy van der Vorst (tommy@t-shaped.nl), 2024.
+Sushitrain, Synctrain are (C) Tommy van der Vorst (tommy@t-shaped.nl), 2024.
 
 Except when explicitly noted otherwise, the code in this repository is licensed under the Mozilla Public License 2.0.
 Read the license [here](./LICENSE). Contributors to this repository agree to license their contributions under this license.
