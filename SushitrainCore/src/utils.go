@@ -45,7 +45,7 @@ func Map[T, U any](ts []T, f func(T) U) []U {
 
 func KeysOf[K comparable, V any](m map[K]V) []K {
 	keys := make([]K, 0)
-	for k, _ := range m {
+	for k := range m {
 		keys = append(keys, k)
 	}
 	return keys

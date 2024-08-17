@@ -157,7 +157,7 @@ func (self *Peer) PendingFolderIDs() (*ListOfStrings, error) {
 	}
 
 	fids := make([]string, 0)
-	for fid, _ := range pfs {
+	for fid := range pfs {
 		fids = append(fids, fid)
 	}
 

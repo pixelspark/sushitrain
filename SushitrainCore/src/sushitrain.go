@@ -411,7 +411,7 @@ func (self *Client) ConnectedPeerCount() int {
 
 	devIDs := self.config.Devices()
 	connected := 0
-	for devID, _ := range devIDs {
+	for devID := range devIDs {
 		if devID == self.deviceID() {
 			continue
 		}
@@ -800,7 +800,7 @@ func (self *Client) pendingFolders() (map[string][]string, error) {
 		if err != nil {
 			return nil, err
 		}
-		for peerFid, _ := range peerFids {
+		for peerFid := range peerFids {
 			existing := fids[peerFid]
 			existing = append(existing, peer.DeviceID.String())
 			fids[peerFid] = existing
