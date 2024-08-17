@@ -5,6 +5,7 @@
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 import Foundation
 import SwiftUI
+import SushitrainCore
 
 struct AboutView: View {
     @State private var showOnboarding = false
@@ -25,6 +26,13 @@ struct AboutView: View {
                 Link("Read more at syncthing.net", destination: URL(string: "https://syncthing.net")!)
                 Link("Obtain the source code", destination: URL(string: "https://github.com/syncthing/syncthing")!)
                 Link("Obtain the source code modifications", destination: URL(string: "https://github.com/pixelspark/syncthing/tree/sushi")!)
+            }
+            
+            Section("Version information") {
+                if let appVersion = Bundle.main.releaseVersionNumber, let appBuild = Bundle.main.buildVersionNumber {
+                    Text("App").badge("\(appVersion) (\(appBuild))")
+                }
+                Text("Syncthing").badge(SushitrainVersion())
             }
             
             Button("Show introduction screen") {

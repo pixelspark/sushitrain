@@ -1,6 +1,16 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@ (%@)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ (%2$@)"
+          }
+        }
+      }
+    },
     "%@: %@" : {
       "localizations" : {
         "en" : {
@@ -223,6 +233,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lokaal aankondigen"
+          }
+        }
+      }
+    },
+    "App" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App"
           }
         }
       }
@@ -1837,6 +1857,16 @@
         }
       }
     },
+    "Syncthing" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Syncthing"
+          }
+        }
+      }
+    },
     "Synctrain is © 2024, Tommy van der Vorst" : {
       "localizations" : {
         "nl" : {
@@ -2073,6 +2103,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tijd sinds opstarten"
+          }
+        }
+      }
+    },
+    "Version information" : {
+      "localizations" : {
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versie-informatie"
           }
         }
       }

@@ -844,3 +844,7 @@ func IsValidDeviceID(devID string) bool {
 	_, err := protocol.DeviceIDFromString(devID)
 	return err == nil
 }
+
+func Version() string {
+	return build.Version
+}
