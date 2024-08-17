@@ -124,6 +124,7 @@ func NewClient(configPath string, filesPath string) (*Client, error) {
 		locations.Get(locations.KeyFile),
 	)
 	if err != nil {
+		cancel()
 		return nil, err
 	}
 
@@ -132,6 +133,7 @@ func NewClient(configPath string, filesPath string) (*Client, error) {
 	Logger.Infof("Loading config file from %s\n", locations.Get(locations.ConfigFile))
 	config, err := loadOrDefaultConfig(devID, ctx, evLogger, filesPath)
 	if err != nil {
+		cancel()
 		return nil, err
 	}
 
@@ -139,6 +141,7 @@ func NewClient(configPath string, filesPath string) (*Client, error) {
 	dbFile := locations.Get(locations.Database)
 	ldb, err := syncthing.OpenDBBackend(dbFile, config.Options().DatabaseTuning)
 	if err != nil {
+		cancel()
 		return nil, err
 	}
 
@@ -153,11 +156,13 @@ func NewClient(configPath string, filesPath string) (*Client, error) {
 
 	app, err := syncthing.New(config, ldb, evLogger, cert, appOpts)
 	if err != nil {
+		cancel()
 		return nil, err
 	}
 
 	server, err := NewServer(app, ctx)
 	if err != nil {
+		cancel()
 		return nil, err
 	}
 
