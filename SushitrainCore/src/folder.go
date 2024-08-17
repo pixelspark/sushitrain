@@ -26,21 +26,21 @@ type Folder struct {
 	FolderID string
 }
 
-func (self *Folder) folderConfiguration() *config.FolderConfiguration {
-	folders := self.client.config.Folders()
-	folderInfo, ok := folders[self.FolderID]
+func (fld *Folder) folderConfiguration() *config.FolderConfiguration {
+	folders := fld.client.config.Folders()
+	folderInfo, ok := folders[fld.FolderID]
 	if !ok {
 		return nil
 	}
 	return &folderInfo
 }
 
-func (self *Folder) Remove() error {
-	ffs := self.folderConfiguration().Filesystem(nil)
-	err := self.client.changeConfiguration(func(cfg *config.Configuration) {
+func (fld *Folder) Remove() error {
+	ffs := fld.folderConfiguration().Filesystem(nil)
+	err := fld.client.changeConfiguration(func(cfg *config.Configuration) {
 		folders := make([]config.FolderConfiguration, 0)
 		for _, fc := range cfg.Folders {
-			if fc.ID != self.FolderID {
+			if fc.ID != fld.FolderID {
 				folders = append(folders, fc)
 			}
 		}
@@ -55,44 +55,44 @@ func (self *Folder) Remove() error {
 	return ffs.RemoveAll("")
 }
 
-func (self *Folder) Exists() bool {
-	return self.folderConfiguration() != nil
+func (fld *Folder) Exists() bool {
+	return fld.folderConfiguration() != nil
 }
 
-func (self *Folder) IsPaused() bool {
-	fc := self.folderConfiguration()
+func (fld *Folder) IsPaused() bool {
+	fc := fld.folderConfiguration()
 	if fc == nil {
 		return false
 	}
 
-	return self.folderConfiguration().Paused
+	return fld.folderConfiguration().Paused
 }
 
-func (self *Folder) SetPaused(paused bool) error {
-	return self.client.changeConfiguration(func(cfg *config.Configuration) {
-		config := self.folderConfiguration()
+func (fld *Folder) SetPaused(paused bool) error {
+	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
+		config := fld.folderConfiguration()
 		config.Paused = paused
 		cfg.SetFolder(*config)
 	})
 }
 
-func (self *Folder) State() (string, error) {
-	if self.client.app == nil {
+func (fld *Folder) State() (string, error) {
+	if fld.client.app == nil {
 		return "", nil
 	}
-	if self.client.app.Internals == nil {
+	if fld.client.app.Internals == nil {
 		return "", nil
 	}
 
-	state, _, err := self.client.app.Internals.FolderState(self.FolderID)
+	state, _, err := fld.client.app.Internals.FolderState(fld.FolderID)
 	return state, err
 }
 
-func (self *Folder) GetFileInformation(path string) (*Entry, error) {
-	if self.client.app == nil {
+func (fld *Folder) GetFileInformation(path string) (*Entry, error) {
+	if fld.client.app == nil {
 		return nil, nil
 	}
-	if self.client.app.Internals == nil {
+	if fld.client.app.Internals == nil {
 		return nil, nil
 	}
 
@@ -105,7 +105,7 @@ func (self *Folder) GetFileInformation(path string) (*Entry, error) {
 		path = path[1:]
 	}
 
-	info, ok, err := self.client.app.Internals.GlobalFileInfo(self.FolderID, path)
+	info, ok, err := fld.client.app.Internals.GlobalFileInfo(fld.FolderID, path)
 	if err != nil {
 		return nil, err
 	}
@@ -114,18 +114,18 @@ func (self *Folder) GetFileInformation(path string) (*Entry, error) {
 	}
 	return &Entry{
 		info:   info,
-		Folder: self,
+		Folder: fld,
 	}, nil
 }
 
-func (self *Folder) List(prefix string, directories bool) (*ListOfStrings, error) {
-	if self.client.app == nil {
+func (fld *Folder) List(prefix string, directories bool) (*ListOfStrings, error) {
+	if fld.client.app == nil {
 		return nil, nil
 	}
-	if self.client.app.Internals == nil {
+	if fld.client.app.Internals == nil {
 		return nil, nil
 	}
-	entries, err := self.client.app.Internals.GlobalTree(self.FolderID, prefix, 1, directories)
+	entries, err := fld.client.app.Internals.GlobalTree(fld.FolderID, prefix, 1, directories)
 	if err != nil {
 		return nil, err
 	}
@@ -134,14 +134,14 @@ func (self *Folder) List(prefix string, directories bool) (*ListOfStrings, error
 	})), nil
 }
 
-func (self *Folder) ShareWithDevice(deviceID string, toggle bool, encryptionPassword string) error {
+func (fld *Folder) ShareWithDevice(deviceID string, toggle bool, encryptionPassword string) error {
 	devID, err := protocol.DeviceIDFromString(deviceID)
 	if err != nil {
 		return err
 	}
 
-	err = self.client.changeConfiguration(func(cfg *config.Configuration) {
-		fc := self.folderConfiguration()
+	err = fld.client.changeConfiguration(func(cfg *config.Configuration) {
+		fc := fld.folderConfiguration()
 
 		devices := make([]config.FolderDeviceConfiguration, 0)
 		for _, fc := range fc.Devices {
@@ -163,8 +163,8 @@ func (self *Folder) ShareWithDevice(deviceID string, toggle bool, encryptionPass
 	return err
 }
 
-func (self *Folder) SharedWithDeviceIDs() *ListOfStrings {
-	fc := self.folderConfiguration()
+func (fld *Folder) SharedWithDeviceIDs() *ListOfStrings {
+	fc := fld.folderConfiguration()
 	if fc == nil {
 		return nil
 	}
@@ -174,8 +174,8 @@ func (self *Folder) SharedWithDeviceIDs() *ListOfStrings {
 	}))
 }
 
-func (self *Folder) SharedEncryptedWithDeviceIDs() *ListOfStrings {
-	fc := self.folderConfiguration()
+func (fld *Folder) SharedEncryptedWithDeviceIDs() *ListOfStrings {
+	fc := fld.folderConfiguration()
 	if fc == nil {
 		return nil
 	}
@@ -190,13 +190,13 @@ func (self *Folder) SharedEncryptedWithDeviceIDs() *ListOfStrings {
 	return List(dis)
 }
 
-func (self *Folder) EncryptionPasswordFor(peer string) string {
+func (fld *Folder) EncryptionPasswordFor(peer string) string {
 	did, err := protocol.DeviceIDFromString(peer)
 	if err != nil {
 		return ""
 	}
 
-	fc := self.folderConfiguration()
+	fc := fld.folderConfiguration()
 	if fc == nil {
 		return ""
 	}
@@ -209,36 +209,36 @@ func (self *Folder) EncryptionPasswordFor(peer string) string {
 	return ""
 }
 
-func (self *Folder) ConnectedPeerCount() int {
-	fc := self.folderConfiguration()
+func (fld *Folder) ConnectedPeerCount() int {
+	fc := fld.folderConfiguration()
 	if fc == nil {
 		return 0
 	}
 
-	devIDs := self.folderConfiguration().DeviceIDs()
+	devIDs := fld.folderConfiguration().DeviceIDs()
 	connected := 0
 	for _, devID := range devIDs {
-		if devID == self.client.deviceID() {
+		if devID == fld.client.deviceID() {
 			continue
 		}
-		if self.client.app.Internals.IsConnectedTo(devID) {
+		if fld.client.app.Internals.IsConnectedTo(devID) {
 			connected++
 		}
 	}
 	return connected
 }
 
-func (self *Folder) Label() string {
-	fc := self.folderConfiguration()
+func (fld *Folder) Label() string {
+	fc := fld.folderConfiguration()
 	if fc == nil {
 		return ""
 	}
 	return fc.Label
 }
 
-func (self *Folder) SetLabel(label string) error {
-	return self.client.changeConfiguration(func(cfg *config.Configuration) {
-		config := self.folderConfiguration()
+func (fld *Folder) SetLabel(label string) error {
+	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
+		config := fld.folderConfiguration()
 		config.Label = label
 		cfg.SetFolder(*config)
 	})
@@ -248,52 +248,52 @@ var (
 	errNoClient = errors.New("client not started up yet")
 )
 
-func (self *Folder) whilePaused(block func() error) error {
-	pausedBefore := self.IsPaused()
+func (fld *Folder) whilePaused(block func() error) error {
+	pausedBefore := fld.IsPaused()
 	if !pausedBefore {
-		err := self.SetPaused(true)
+		err := fld.SetPaused(true)
 		if err != nil {
 			return err
 		}
-		defer self.SetPaused(pausedBefore)
+		defer fld.SetPaused(pausedBefore)
 	}
 	return block()
 }
 
-func (self *Folder) SetSelective(selective bool) error {
-	if self.client.app == nil || self.client.app.Internals == nil {
+func (fld *Folder) SetSelective(selective bool) error {
+	if fld.client.app == nil || fld.client.app.Internals == nil {
 		return errNoClient
 	}
 
-	return self.whilePaused(func() error {
+	return fld.whilePaused(func() error {
 		if selective {
-			return self.client.app.Internals.SetIgnores(self.FolderID, []string{"*"})
+			return fld.client.app.Internals.SetIgnores(fld.FolderID, []string{"*"})
 		} else {
-			return self.client.app.Internals.SetIgnores(self.FolderID, []string{})
+			return fld.client.app.Internals.SetIgnores(fld.FolderID, []string{})
 		}
 	})
 }
 
-func (self *Folder) ClearSelection() error {
-	err := self.client.app.Internals.SetIgnores(self.FolderID, []string{"*"})
+func (fld *Folder) ClearSelection() error {
+	err := fld.client.app.Internals.SetIgnores(fld.FolderID, []string{"*"})
 	if err != nil {
 		return err
 	}
 
-	return self.CleanSelection()
+	return fld.CleanSelection()
 }
 
-func (self *Folder) SelectedPaths() (*ListOfStrings, error) {
-	fc := self.folderConfiguration()
+func (fld *Folder) SelectedPaths() (*ListOfStrings, error) {
+	fc := fld.folderConfiguration()
 	if fc == nil {
 		return nil, errors.New("folder does not exist")
 	}
 
-	if self.client.app == nil || self.client.app.Internals == nil {
+	if fld.client.app == nil || fld.client.app.Internals == nil {
 		return nil, errNoClient
 	}
 
-	lines, _, err := self.client.app.Internals.Ignores(self.FolderID)
+	lines, _, err := fld.client.app.Internals.Ignores(fld.FolderID)
 	if err != nil {
 		return nil, err
 	}
@@ -309,21 +309,21 @@ func (self *Folder) SelectedPaths() (*ListOfStrings, error) {
 	return &paths, nil
 }
 
-func (self *Folder) HasSelectedPaths() bool {
-	if self.client.app == nil || self.client.app.Internals == nil {
+func (fld *Folder) HasSelectedPaths() bool {
+	if fld.client.app == nil || fld.client.app.Internals == nil {
 		return false
 	}
 
-	fc := self.folderConfiguration()
+	fc := fld.folderConfiguration()
 	if fc == nil {
 		return false
 	}
 
-	if !self.IsSelective() {
+	if !fld.IsSelective() {
 		return false
 	}
 
-	lines, _, err := self.client.app.Internals.Ignores(self.FolderID)
+	lines, _, err := fld.client.app.Internals.Ignores(fld.FolderID)
 	if err != nil {
 		return false
 	}
@@ -343,8 +343,8 @@ const (
 	FolderTypeReceiveOnly = "receiveonly"
 )
 
-func (self *Folder) FolderType() string {
-	fc := self.folderConfiguration()
+func (fld *Folder) FolderType() string {
+	fc := fld.folderConfiguration()
 	if fc == nil {
 		return ""
 	}
@@ -359,9 +359,9 @@ func (self *Folder) FolderType() string {
 	}
 }
 
-func (self *Folder) SetFolderType(folderType string) error {
-	return self.client.changeConfiguration(func(cfg *config.Configuration) {
-		fc := self.folderConfiguration()
+func (fld *Folder) SetFolderType(folderType string) error {
+	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
+		fc := fld.folderConfiguration()
 		switch folderType {
 		case FolderTypeReceiveOnly:
 			fc.Type = config.FolderTypeReceiveOnly
@@ -375,17 +375,17 @@ func (self *Folder) SetFolderType(folderType string) error {
 	})
 }
 
-func (self *Folder) IsSelective() bool {
-	if self.client.app == nil || self.client.app.Internals == nil {
+func (fld *Folder) IsSelective() bool {
+	if fld.client.app == nil || fld.client.app.Internals == nil {
 		return false
 	}
 
-	fc := self.folderConfiguration()
+	fc := fld.folderConfiguration()
 	if fc == nil {
 		return false
 	}
 
-	lines, _, err := self.client.app.Internals.Ignores(self.FolderID)
+	lines, _, err := fld.client.app.Internals.Ignores(fld.FolderID)
 	if err != nil {
 		return false
 	}
@@ -410,22 +410,22 @@ func (self *Folder) IsSelective() bool {
 	return true
 }
 
-func (self *Folder) LocalNativePath() (string, error) {
-	fc := self.folderConfiguration()
+func (fld *Folder) LocalNativePath() (string, error) {
+	fc := fld.folderConfiguration()
 	if fc == nil {
 		return "", errors.New("folder does not exist")
 	}
 
 	// This is a bit of a hack, according to similar code in model.warnAboutOverwritingProtectedFiles :-)
-	ffs := self.folderConfiguration().Filesystem(nil)
+	ffs := fld.folderConfiguration().Filesystem(nil)
 	if ffs.Type() != fs.FilesystemTypeBasic {
 		return "", errors.New("unsupported FS type")
 	}
 	return ffs.URI(), nil
 }
 
-func (self *Folder) loadIgnores() (*ignore.Matcher, error) {
-	cfg := self.folderConfiguration()
+func (fld *Folder) loadIgnores() (*ignore.Matcher, error) {
+	cfg := fld.folderConfiguration()
 	ignores := ignore.New(cfg.Filesystem(nil), ignore.WithCache(false))
 	if err := ignores.Load(ignoreFileName); err != nil && !fs.IsNotExist(err) {
 		return nil, err
@@ -433,12 +433,12 @@ func (self *Folder) loadIgnores() (*ignore.Matcher, error) {
 	return ignores, nil
 }
 
-func (self *Folder) ExtraneousFiles() (*ListOfStrings, error) {
-	return self.extraneousFiles(false)
+func (fld *Folder) ExtraneousFiles() (*ListOfStrings, error) {
+	return fld.extraneousFiles(false)
 }
 
-func (self *Folder) HasExtraneousFiles() (bool, error) {
-	files, err := self.extraneousFiles(true)
+func (fld *Folder) HasExtraneousFiles() (bool, error) {
+	files, err := fld.extraneousFiles(true)
 	if err != nil {
 		return false, err
 	}
@@ -446,14 +446,14 @@ func (self *Folder) HasExtraneousFiles() (bool, error) {
 }
 
 // List of files that are not selected but exist locally. When stopAtOne = true, return after finding just one file
-func (self *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
-	cfg := self.folderConfiguration()
+func (fld *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
+	cfg := fld.folderConfiguration()
 
 	if cfg == nil {
 		return nil, errors.New("folder does not exist")
 	}
 
-	if !self.IsSelective() {
+	if !fld.IsSelective() {
 		return List([]string{}), nil
 	}
 
@@ -464,7 +464,7 @@ func (self *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 
 	extraFiles := make([]string, 0)
 
-	ffs := self.folderConfiguration().Filesystem(nil)
+	ffs := fld.folderConfiguration().Filesystem(nil)
 	foundOneError := errors.New("found one")
 	err := ffs.Walk("", func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
@@ -508,18 +508,18 @@ func (self *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 }
 
 // Remove ignored files from the local working copy
-func (self *Folder) CleanSelection() error {
-	return self.whilePaused(func() error {
+func (fld *Folder) CleanSelection() error {
+	return fld.whilePaused(func() error {
 		// Make sure the initial scan has finished (ScanFolders is blocking)
-		self.client.app.Internals.ScanFolders()
+		fld.client.app.Internals.ScanFolders()
 
-		cfg := self.folderConfiguration()
+		cfg := fld.folderConfiguration()
 		ignores := ignore.New(cfg.Filesystem(nil), ignore.WithCache(false))
 		if err := ignores.Load(ignoreFileName); err != nil && !fs.IsNotExist(err) {
 			return err
 		}
 
-		ffs := self.folderConfiguration().Filesystem(nil)
+		ffs := fld.folderConfiguration().Filesystem(nil)
 		return ffs.Walk("", func(path string, info fs.FileInfo, err error) error {
 			if strings.HasPrefix(path, cfg.MarkerName) {
 				return nil
@@ -538,8 +538,8 @@ func (self *Folder) CleanSelection() error {
 	})
 }
 
-func (self *Folder) DeleteLocalFile(path string) error {
-	ffs := self.folderConfiguration().Filesystem(nil)
+func (fld *Folder) DeleteLocalFile(path string) error {
+	ffs := fld.folderConfiguration().Filesystem(nil)
 	err := ffs.Remove(path)
 	if err != nil {
 		return err
@@ -554,11 +554,11 @@ func (self *Folder) DeleteLocalFile(path string) error {
 		}
 	}
 
-	err = self.client.app.Internals.ScanFolderSubdirs(self.FolderID, []string{path})
+	err = fld.client.app.Internals.ScanFolderSubdirs(fld.FolderID, []string{path})
 	if err != nil {
 		return err
 	}
-	err = self.SetLocalFileExplicitlySelected(path, false)
+	err = fld.SetLocalFileExplicitlySelected(path, false)
 	if err != nil {
 		return err
 	}
@@ -566,9 +566,9 @@ func (self *Folder) DeleteLocalFile(path string) error {
 	return nil
 }
 
-func (self *Folder) SetLocalFileExplicitlySelected(path string, toggle bool) error {
+func (fld *Folder) SetLocalFileExplicitlySelected(path string, toggle bool) error {
 	mockEntry := Entry{
-		Folder: self,
+		Folder: fld,
 		info: protocol.FileInfo{
 			Name: path,
 		},
@@ -576,8 +576,8 @@ func (self *Folder) SetLocalFileExplicitlySelected(path string, toggle bool) err
 	return mockEntry.SetExplicitlySelected(toggle)
 }
 
-func (self *Folder) Statistics() (*FolderStats, error) {
-	snap, err := self.client.app.Internals.DBSnapshot(self.FolderID)
+func (fld *Folder) Statistics() (*FolderStats, error) {
+	snap, err := fld.client.app.Internals.DBSnapshot(fld.FolderID)
 	if err != nil {
 		return nil, err
 	}
@@ -586,7 +586,7 @@ func (self *Folder) Statistics() (*FolderStats, error) {
 	return &FolderStats{
 		Global:    newFolderCounts(snap.GlobalSize()),
 		Local:     newFolderCounts(snap.LocalSize()),
-		LocalNeed: newFolderCounts(snap.NeedSize(self.client.deviceID())),
+		LocalNeed: newFolderCounts(snap.NeedSize(fld.client.deviceID())),
 	}, nil
 }
 
@@ -600,8 +600,8 @@ type Completion struct {
 	Sequence      int64
 }
 
-func (self *Folder) CompletionForDevice(deviceID string) (*Completion, error) {
-	if self.client.app == nil || self.client.app.Internals == nil {
+func (fld *Folder) CompletionForDevice(deviceID string) (*Completion, error) {
+	if fld.client.app == nil || fld.client.app.Internals == nil {
 		return nil, ErrStillLoading
 	}
 
@@ -610,7 +610,7 @@ func (self *Folder) CompletionForDevice(deviceID string) (*Completion, error) {
 		return nil, err
 	}
 
-	completion, err := self.client.app.Internals.Completion(devID, self.FolderID)
+	completion, err := fld.client.app.Internals.Completion(devID, fld.FolderID)
 	if err != nil {
 		return nil, err
 	}

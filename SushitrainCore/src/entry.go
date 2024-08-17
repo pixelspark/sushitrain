@@ -33,15 +33,15 @@ const (
 
 type FetchCallback func(success bool)
 
-func (self *Entry) Fetch(delegate FetchDelegate) {
+func (entry *Entry) Fetch(delegate FetchDelegate) {
 	go func() {
-		client := self.Folder.client
+		client := entry.Folder.client
 		m := client.app.Internals
 		delegate.Progress(0.0)
 
 		fetchedBytes := int64(0)
-		for blockNo, block := range self.info.Blocks {
-			av, err := m.BlockAvailability(self.Folder.FolderID, self.info, block)
+		for blockNo, block := range entry.info.Blocks {
+			av, err := m.BlockAvailability(entry.Folder.FolderID, entry.info, block)
 			if err != nil {
 				delegate.Error(FetchDelegateErrorBlockUnavailable, err.Error())
 				return
@@ -51,99 +51,99 @@ func (self *Entry) Fetch(delegate FetchDelegate) {
 				return
 			}
 
-			buf, err := m.DownloadBlock(client.ctx, av[0].ID, self.Folder.FolderID, self.info.Name, blockNo, block, false)
+			buf, err := m.DownloadBlock(client.ctx, av[0].ID, entry.Folder.FolderID, entry.info.Name, blockNo, block, false)
 			if err != nil {
 				delegate.Error(FetchDelegateErrorPullFailed, err.Error())
 				return
 			}
 			fetchedBytes += int64(block.Size)
-			delegate.Fetched(blockNo, block.Offset, int64(block.Size), buf, blockNo == len(self.info.Blocks)-1)
-			delegate.Progress(float64(fetchedBytes) / float64(self.info.FileSize()))
+			delegate.Fetched(blockNo, block.Offset, int64(block.Size), buf, blockNo == len(entry.info.Blocks)-1)
+			delegate.Progress(float64(fetchedBytes) / float64(entry.info.FileSize()))
 		}
 
 		delegate.Progress(1.0)
 	}()
 }
 
-func (self *Entry) Path() string {
-	return self.info.FileName()
+func (entry *Entry) Path() string {
+	return entry.info.FileName()
 }
 
-func (self *Entry) FileName() string {
-	ps := strings.Split(self.info.FileName(), "/")
+func (entry *Entry) FileName() string {
+	ps := strings.Split(entry.info.FileName(), "/")
 	return ps[len(ps)-1]
 }
 
-func (self *Entry) Name() string {
-	return self.info.FileName()
+func (entry *Entry) Name() string {
+	return entry.info.FileName()
 }
 
-func (self *Entry) IsDirectory() bool {
-	return self.info.IsDirectory()
+func (entry *Entry) IsDirectory() bool {
+	return entry.info.IsDirectory()
 }
 
-func (self *Entry) IsSymlink() bool {
-	return self.info.IsSymlink()
+func (entry *Entry) IsSymlink() bool {
+	return entry.info.IsSymlink()
 }
 
-func (self *Entry) Size() int64 {
-	return self.info.FileSize()
+func (entry *Entry) Size() int64 {
+	return entry.info.FileSize()
 }
 
-func (self *Entry) IsDeleted() bool {
-	return self.info.IsDeleted()
+func (entry *Entry) IsDeleted() bool {
+	return entry.info.IsDeleted()
 }
 
-func (self *Entry) ModifiedByShortDeviceID() string {
-	return self.info.FileModifiedBy().String()
+func (entry *Entry) ModifiedByShortDeviceID() string {
+	return entry.info.FileModifiedBy().String()
 }
 
-func (self *Entry) ModifiedAt() *Date {
-	mt := self.info.ModTime()
+func (entry *Entry) ModifiedAt() *Date {
+	mt := entry.info.ModTime()
 	if mt.IsZero() {
 		return nil
 	}
 	return &Date{time: mt}
 }
 
-func (self *Entry) LocalNativePath() (string, error) {
-	nativeFilename := osutil.NativeFilename(self.info.FileName())
-	localFolderPath, err := self.Folder.LocalNativePath()
+func (entry *Entry) LocalNativePath() (string, error) {
+	nativeFilename := osutil.NativeFilename(entry.info.FileName())
+	localFolderPath, err := entry.Folder.LocalNativePath()
 	if err != nil {
 		return "", err
 	}
 	return path.Join(localFolderPath, nativeFilename), nil
 }
 
-func (self *Entry) IsLocallyPresent() bool {
-	ffs := self.Folder.folderConfiguration().Filesystem(nil)
-	nativeFilename := osutil.NativeFilename(self.info.FileName())
+func (entry *Entry) IsLocallyPresent() bool {
+	ffs := entry.Folder.folderConfiguration().Filesystem(nil)
+	nativeFilename := osutil.NativeFilename(entry.info.FileName())
 	_, err := ffs.Stat(nativeFilename)
 	return err == nil
 }
 
-func (self *Entry) IsSelected() bool {
+func (entry *Entry) IsSelected() bool {
 	// FIXME: cache matcher
-	matcher, err := self.Folder.loadIgnores()
+	matcher, err := entry.Folder.loadIgnores()
 	if err != nil {
 		Logger.Warnln("error loading ignore matcher", err)
 		return false
 	}
 
-	res := matcher.Match(self.info.Name)
+	res := matcher.Match(entry.info.Name)
 	if res == ignoreresult.Ignored || res == ignoreresult.IgnoreAndSkip {
 		return false
 	}
 	return true
 }
 
-func (self *Entry) IsExplicitlySelected() bool {
-	lines, _, err := self.Folder.client.app.Internals.Ignores(self.Folder.FolderID)
+func (entry *Entry) IsExplicitlySelected() bool {
+	lines, _, err := entry.Folder.client.app.Internals.Ignores(entry.Folder.FolderID)
 	if err != nil {
 		return false
 	}
 
-	ignoreLine := self.ignoreLine()
+	ignoreLine := entry.ignoreLine()
 	for _, line := range lines {
 		if len(line) > 0 && line[0] == '!' {
 			if line == ignoreLine {
@@ -154,24 +154,24 @@ func (self *Entry) IsExplicitlySelected() bool {
 	return false
 }
 
-func (self *Entry) ignoreLine() string {
-	return "!/" + self.info.FileName()
+func (entry *Entry) ignoreLine() string {
+	return "!/" + entry.info.FileName()
 }
 
-func (self *Entry) SetExplicitlySelected(selected bool) error {
-	currentlySelected := self.IsExplicitlySelected()
+func (entry *Entry) SetExplicitlySelected(selected bool) error {
+	currentlySelected := entry.IsExplicitlySelected()
 
 	if currentlySelected == selected {
 		return nil
 	}
 
 	// Edit lines
-	lines, _, err := self.Folder.client.app.Internals.Ignores(self.Folder.FolderID)
+	lines, _, err := entry.Folder.client.app.Internals.Ignores(entry.Folder.FolderID)
 	if err != nil {
 		return err
 	}
 
-	line := self.ignoreLine()
+	line := entry.ignoreLine()
 	if !selected {
 		lines = Filter(lines, func(l string) bool {
 			return l != line
@@ -181,35 +181,35 @@ func (self *Entry) SetExplicitlySelected(selected bool) error {
 	}
 
 	// Save new ignores
-	err = self.Folder.client.app.Internals.SetIgnores(self.Folder.FolderID, lines)
+	err = entry.Folder.client.app.Internals.SetIgnores(entry.Folder.FolderID, lines)
 	if err != nil {
 		return err
 	}
 
 	// Delete local file if !selected (and not still implicitly selected by parent folder)
-	if !selected && !self.IsSelected() {
+	if !selected && !entry.IsSelected() {
 		go func() {
-			self.Folder.client.app.Internals.ScanFolders()
-			self.Folder.DeleteLocalFile(self.info.FileName())
+			entry.Folder.client.app.Internals.ScanFolders()
+			entry.Folder.DeleteLocalFile(entry.info.FileName())
 		}()
 	}
 	return nil
 }
 
-func (self *Entry) OnDemandURL() string {
-	server := self.Folder.client.Server
+func (entry *Entry) OnDemandURL() string {
+	server := entry.Folder.client.Server
 	if server == nil {
 		return ""
 	}
 
-	return server.URLFor(self.Folder.FolderID, self.info.FileName())
+	return server.URLFor(entry.Folder.FolderID, entry.info.FileName())
 }
 
-func (self *Entry) MIMEType() string {
-	ext := filepath.Ext(self.info.FileName())
+func (entry *Entry) MIMEType() string {
+	ext := filepath.Ext(entry.info.FileName())
 	return MIMETypeForExtension(ext)
 }
 
-func (self *Entry) Remove() error {
-	return self.Folder.DeleteLocalFile(self.Path())
+func (entry *Entry) Remove() error {
+	return entry.Folder.DeleteLocalFile(entry.Path())
 }

@@ -184,28 +184,28 @@ func NewClient(configPath string, filesPath string) (*Client, error) {
 	}, nil
 }
 
-func (self *Client) Stop() {
-	self.app.Stop(svcutil.ExitSuccess)
-	self.cancel()
-	self.app.Wait()
+func (clt *Client) Stop() {
+	clt.app.Stop(svcutil.ExitSuccess)
+	clt.cancel()
+	clt.app.Wait()
 }
 
-func (self *Client) startEventListener() {
-	sub := self.evLogger.Subscribe(events.AllEvents)
+func (clt *Client) startEventListener() {
+	sub := clt.evLogger.Subscribe(events.AllEvents)
 	defer sub.Unsubscribe()
 
 	for {
 		select {
-		case <-self.ctx.Done():
+		case <-clt.ctx.Done():
 			return
 		case evt := <-sub.C():
 			switch evt.Type {
 			case events.DeviceDiscovered:
-				if !self.IgnoreEvents && self.Delegate != nil {
+				if !clt.IgnoreEvents && clt.Delegate != nil {
 					data := evt.Data.(map[string]interface{})
 					devID := data["device"].(string)
 					addresses := data["addrs"].([]string)
-					self.Delegate.OnDeviceDiscovered(devID, &ListOfStrings{data: addresses})
+					clt.Delegate.OnDeviceDiscovered(devID, &ListOfStrings{data: addresses})
 				}
 
 			case events.FolderRejected:
@@ -218,13 +218,13 @@ func (self *Client) startEventListener() {
 				folder := data["folder"].(string)
 				state := data["to"].(string)
 				folderTransferring := (state == model.FolderSyncing.String() || state == model.FolderSyncWaiting.String() || state == model.FolderSyncPreparing.String())
-				self.foldersTransferring[folder] = folderTransferring
-				if !self.IgnoreEvents && self.Delegate != nil {
-					self.Delegate.OnEvent(evt.Type.String())
+				clt.foldersTransferring[folder] = folderTransferring
+				if !clt.IgnoreEvents && clt.Delegate != nil {
+					clt.Delegate.OnEvent(evt.Type.String())
 				}
 
 			case events.ListenAddressesChanged:
-				if !self.IgnoreEvents && self.Delegate != nil {
+				if !clt.IgnoreEvents && clt.Delegate != nil {
 					addrs := make([]string, 0)
 					data := evt.Data.(map[string]interface{})
 					wanAddresses := data["wan"].([]*url.URL)
@@ -237,48 +237,48 @@ func (self *Client) startEventListener() {
 						addrs = append(addrs, la.String())
 					}
 
-					self.Delegate.OnListenAddressesChanged(List(addrs))
+					clt.Delegate.OnListenAddressesChanged(List(addrs))
 				}
 
 			case events.DeviceConnected:
 				data := evt.Data.(map[string]string)
 				devID := data["id"]
 				address := data["addr"]
-				self.connectedDeviceAddresses[devID] = address
+				clt.connectedDeviceAddresses[devID] = address
 
-				if !self.IgnoreEvents && self.Delegate != nil {
-					self.Delegate.OnEvent(evt.Type.String())
+				if !clt.IgnoreEvents && clt.Delegate != nil {
+					clt.Delegate.OnEvent(evt.Type.String())
 				}
 
 			case events.LocalChangeDetected, events.RemoteChangeDetected:
 				data := evt.Data.(map[string]string)
 				modifiedBy, ok := data["modifiedBy"]
 				if !ok {
-					modifiedBy = self.DeviceID()
+					modifiedBy = clt.DeviceID()
 				}
 
-				if !self.IgnoreEvents && self.Delegate != nil {
-					self.Delegate.OnChange(&Change{
+				if !clt.IgnoreEvents && clt.Delegate != nil {
+					clt.Delegate.OnChange(&Change{
 						FolderID: data["folder"],
 						ShortID:  modifiedBy,
 						Action:   data["action"],
 						Path:     data["path"],
 						Time:     &Date{time: evt.Time},
 					})
-					self.Delegate.OnEvent(evt.Type.String())
+					clt.Delegate.OnEvent(evt.Type.String())
 				}
 
 			case events.LocalIndexUpdated, events.DeviceDisconnected, events.ConfigSaved,
 				events.ClusterConfigReceived, events.FolderResumed, events.FolderPaused:
 				// Just deliver the event
-				if !self.IgnoreEvents && self.Delegate != nil {
-					self.Delegate.OnEvent(evt.Type.String())
+				if !clt.IgnoreEvents && clt.Delegate != nil {
+					clt.Delegate.OnEvent(evt.Type.String())
 				}
 
 			case events.DownloadProgress:
-				self.downloadProgress = evt.Data.(map[string]map[string]*model.PullerProgress)
-				if !self.IgnoreEvents && self.Delegate != nil {
-					self.Delegate.OnEvent(evt.Type.String())
+				clt.downloadProgress = evt.Data.(map[string]map[string]*model.PullerProgress)
+				if !clt.IgnoreEvents && clt.Delegate != nil {
+					clt.Delegate.OnEvent(evt.Type.String())
 				}
 
 			case events.RemoteDownloadProgress, events.ItemFinished, events.ItemStarted:
@@ -293,15 +293,15 @@ func (self *Client) startEventListener() {
 	}
 }
 
-func (self *Client) GetLastPeerAddress(deviceID string) string {
-	if addr, ok := self.connectedDeviceAddresses[deviceID]; ok {
+func (clt *Client) GetLastPeerAddress(deviceID string) string {
+	if addr, ok := clt.connectedDeviceAddresses[deviceID]; ok {
 		return addr
 	}
 	return ""
 }
 
-func (self *Client) IsTransferring() bool {
-	for _, isTransferring := range self.foldersTransferring {
+func (clt *Client) IsTransferring() bool {
+	for _, isTransferring := range clt.foldersTransferring {
 		if isTransferring {
 			return true
 		}
@@ -309,11 +309,11 @@ func (self *Client) IsTransferring() bool {
 	return false
 }
 
-func (self *Client) Start() error {
+func (clt *Client) Start() error {
 	// Subscribe to events
-	go self.startEventListener()
+	go clt.startEventListener()
 
-	if err := self.app.Start(); err != nil {
+	if err := clt.app.Start(); err != nil {
 		return err
 	}
 
@@ -366,73 +366,73 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 }
 
 /** Returns the device ID */
-func (self *Client) DeviceID() string {
-	return protocol.NewDeviceID(self.cert.Certificate[0]).String()
+func (clt *Client) DeviceID() string {
+	return protocol.NewDeviceID(clt.cert.Certificate[0]).String()
 }
 
-func (self *Client) deviceID() protocol.DeviceID {
-	return protocol.NewDeviceID(self.cert.Certificate[0])
+func (clt *Client) deviceID() protocol.DeviceID {
+	return protocol.NewDeviceID(clt.cert.Certificate[0])
 }
 
-func (self *Client) Folders() *ListOfStrings {
-	if self.config == nil {
+func (clt *Client) Folders() *ListOfStrings {
+	if clt.config == nil {
 		return nil
 	}
 
-	return List(Map(self.config.FolderList(), func(folder config.FolderConfiguration) string {
+	return List(Map(clt.config.FolderList(), func(folder config.FolderConfiguration) string {
 		return folder.ID
 	}))
 }
 
-func (self *Client) FolderWithID(id string) *Folder {
-	if self.config == nil {
+func (clt *Client) FolderWithID(id string) *Folder {
+	if clt.config == nil {
 		return nil
 	}
 
-	fi, ok := self.config.Folders()[id]
+	fi, ok := clt.config.Folders()[id]
 	if !ok {
 		return nil // Folder with this ID does not exist
 	}
 
 	return &Folder{
-		client:   self,
+		client:   clt,
 		FolderID: fi.ID,
 	}
 }
 
-func (self *Client) ConnectedPeerCount() int {
-	if self.app == nil || self.app.Internals == nil {
+func (clt *Client) ConnectedPeerCount() int {
+	if clt.app == nil || clt.app.Internals == nil {
 		return 0
 	}
 
-	if self.config == nil || self.app == nil || self.app.Internals == nil {
+	if clt.config == nil || clt.app == nil || clt.app.Internals == nil {
 		return 0
 	}
 
-	devIDs := self.config.Devices()
+	devIDs := clt.config.Devices()
 	connected := 0
 	for devID := range devIDs {
-		if devID == self.deviceID() {
+		if devID == clt.deviceID() {
 			continue
 		}
-		if self.app.Internals.IsConnectedTo(devID) {
+		if clt.app.Internals.IsConnectedTo(devID) {
 			connected++
 		}
 	}
 	return connected
 }
 
-func (self *Client) Peers() *ListOfStrings {
-	if self.config == nil {
+func (clt *Client) Peers() *ListOfStrings {
+	if clt.config == nil {
 		return nil
 	}
 
-	return List(Map(self.config.DeviceList(), func(device config.DeviceConfiguration) string {
+	return List(Map(clt.config.DeviceList(), func(device config.DeviceConfiguration) string {
 		return device.DeviceID.String()
 	}))
 }
 
-func (self *Client) PeerWithID(deviceID string) *Peer {
+func (clt *Client) PeerWithID(deviceID string) *Peer {
 	devID, err := protocol.DeviceIDFromString(deviceID)
 
 	if err != nil {
@@ -440,16 +440,16 @@ func (self *Client) PeerWithID(deviceID string) *Peer {
 	}
 
 	return &Peer{
-		client:   self,
+		client:   clt,
 		deviceID: devID,
 	}
 }
 
-func (self *Client) PeerWithShortID(shortID string) *Peer {
-	for _, dc := range self.config.DeviceList() {
+func (clt *Client) PeerWithShortID(shortID string) *Peer {
+	for _, dc := range clt.config.DeviceList() {
 		if dc.DeviceID.Short().String() == shortID {
 			return &Peer{
-				client:   self,
+				client:   clt,
 				deviceID: dc.DeviceID,
 			}
 		}
@@ -457,44 +457,44 @@ func (self *Client) PeerWithShortID(shortID string) *Peer {
 	return nil
 }
 
-func (self *Client) changeConfiguration(block config.ModifyFunction) error {
-	waiter, err := self.config.Modify(block)
+func (clt *Client) changeConfiguration(block config.ModifyFunction) error {
+	waiter, err := clt.config.Modify(block)
 	if err != nil {
 		return err
 	}
 	waiter.Wait()
 
-	err = self.config.Save()
+	err = clt.config.Save()
 	return err
 }
 
-func (self *Client) AddPeer(deviceID string) error {
+func (clt *Client) AddPeer(deviceID string) error {
 	addedDevice, err := protocol.DeviceIDFromString(deviceID)
 	if err != nil {
 		return err
 	}
 
-	deviceConfig := self.config.DefaultDevice()
+	deviceConfig := clt.config.DefaultDevice()
 	deviceConfig.DeviceID = addedDevice
 
-	return self.changeConfiguration(func(cfg *config.Configuration) {
+	return clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.SetDevice(deviceConfig)
 	})
 }
 
-func (self *Client) AddFolder(folderID string) error {
-	if self.app == nil || self.app.Internals == nil {
+func (clt *Client) AddFolder(folderID string) error {
+	if clt.app == nil || clt.app.Internals == nil {
 		return ErrStillLoading
 	}
 
-	folderConfig := self.config.DefaultFolder()
+	folderConfig := clt.config.DefaultFolder()
 	folderConfig.ID = folderID
 	folderConfig.Label = folderID
-	folderConfig.Path = path.Join(self.filesPath, folderID)
+	folderConfig.Path = path.Join(clt.filesPath, folderID)
 	folderConfig.FSWatcherEnabled = false
 	folderConfig.Paused = false
 
-	err := self.changeConfiguration(func(cfg *config.Configuration) {
+	err := clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.SetFolder(folderConfig)
 	})
 	if err != nil {
@@ -502,78 +502,78 @@ func (self *Client) AddFolder(folderID string) error {
 	}
 
 	// Set default ignores for on-demand sync
-	return self.app.Internals.SetIgnores(folderID, []string{"*"})
+	return clt.app.Internals.SetIgnores(folderID, []string{"*"})
 }
 
-func (self *Client) SetNATEnabled(enabled bool) error {
-	return self.changeConfiguration(func(cfg *config.Configuration) {
+func (clt *Client) SetNATEnabled(enabled bool) error {
+	return clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.Options.NATEnabled = enabled
 	})
 }
 
-func (self *Client) IsNATEnabled() bool {
-	return self.config.Options().NATEnabled
+func (clt *Client) IsNATEnabled() bool {
+	return clt.config.Options().NATEnabled
 }
 
-func (self *Client) SetRelaysEnabled(enabled bool) error {
-	return self.changeConfiguration(func(cfg *config.Configuration) {
+func (clt *Client) SetRelaysEnabled(enabled bool) error {
+	return clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.Options.RelaysEnabled = enabled
 	})
 }
 
-func (self *Client) IsRelaysEnabled() bool {
-	return self.config.Options().RelaysEnabled
+func (clt *Client) IsRelaysEnabled() bool {
+	return clt.config.Options().RelaysEnabled
 }
 
-func (self *Client) SetLocalAnnounceEnabled(enabled bool) error {
-	return self.changeConfiguration(func(cfg *config.Configuration) {
+func (clt *Client) SetLocalAnnounceEnabled(enabled bool) error {
+	return clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.Options.LocalAnnEnabled = enabled
 	})
 }
 
-func (self *Client) IsLocalAnnounceEnabled() bool {
-	return self.config.Options().LocalAnnEnabled
+func (clt *Client) IsLocalAnnounceEnabled() bool {
+	return clt.config.Options().LocalAnnEnabled
 }
 
-func (self *Client) SetGlobalAnnounceEnabled(enabled bool) error {
-	return self.changeConfiguration(func(cfg *config.Configuration) {
+func (clt *Client) SetGlobalAnnounceEnabled(enabled bool) error {
+	return clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.Options.GlobalAnnEnabled = enabled
 	})
 }
 
-func (self *Client) IsGlobalAnnounceEnabled() bool {
-	return self.config.Options().GlobalAnnEnabled
+func (clt *Client) IsGlobalAnnounceEnabled() bool {
+	return clt.config.Options().GlobalAnnEnabled
 }
 
-func (self *Client) SetAnnounceLANAddresses(enabled bool) error {
-	return self.changeConfiguration(func(cfg *config.Configuration) {
+func (clt *Client) SetAnnounceLANAddresses(enabled bool) error {
+	return clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.Options.AnnounceLANAddresses = enabled
 	})
 }
 
-func (self *Client) IsAnnounceLANAddressesEnabled() bool {
-	return self.config.Options().AnnounceLANAddresses
+func (clt *Client) IsAnnounceLANAddressesEnabled() bool {
+	return clt.config.Options().AnnounceLANAddresses
 }
 
-func (self *Client) IsBandwidthLimitedInLAN() bool {
-	return self.config.Options().LimitBandwidthInLan
+func (clt *Client) IsBandwidthLimitedInLAN() bool {
+	return clt.config.Options().LimitBandwidthInLan
 }
 
-func (self *Client) SetBandwidthLimitedInLAN(enabled bool) error {
-	return self.changeConfiguration(func(cfg *config.Configuration) {
+func (clt *Client) SetBandwidthLimitedInLAN(enabled bool) error {
+	return clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.Options.LimitBandwidthInLan = enabled
 	})
 }
 
-func (self *Client) GetBandwidthLimitUpMbitsPerSec() int {
-	return self.config.Options().MaxSendKbps / 1000
+func (clt *Client) GetBandwidthLimitUpMbitsPerSec() int {
+	return clt.config.Options().MaxSendKbps / 1000
 }
 
-func (self *Client) GetBandwidthLimitDownMbitsPerSec() int {
-	return self.config.Options().MaxRecvKbps / 1000
+func (clt *Client) GetBandwidthLimitDownMbitsPerSec() int {
+	return clt.config.Options().MaxRecvKbps / 1000
 }
 
-func (self *Client) SetBandwidthLimitsMbitsPerSec(down int, up int) error {
+func (clt *Client) SetBandwidthLimitsMbitsPerSec(down int, up int) error {
 	if down < 0 {
 		down = 0
 	}
@@ -581,7 +581,7 @@ func (self *Client) SetBandwidthLimitsMbitsPerSec(down int, up int) error {
 		up = 0
 	}
 
-	return self.changeConfiguration(func(cfg *config.Configuration) {
+	return clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.Options.MaxRecvKbps = down * 1000
 		cfg.Options.MaxSendKbps = up * 1000
 	})
@@ -594,8 +594,8 @@ type Progress struct {
 	Percentage float32
 }
 
-func (self *Client) GetTotalDownloadProgress() *Progress {
-	if self.downloadProgress == nil {
+func (clt *Client) GetTotalDownloadProgress() *Progress {
+	if clt.downloadProgress == nil {
 		return nil
 	}
 
@@ -603,7 +603,7 @@ func (self *Client) GetTotalDownloadProgress() *Progress {
 	doneBytes = 0
 	totalBytes = 0
 	fileCount := 0
-	for _, info := range self.downloadProgress {
+	for _, info := range clt.downloadProgress {
 		for _, fileInfo := range info {
 			doneBytes += fileInfo.BytesDone
 			totalBytes += fileInfo.BytesTotal
@@ -623,12 +623,12 @@ func (self *Client) GetTotalDownloadProgress() *Progress {
 	}
 }
 
-func (self *Client) GetDownloadProgressForFile(path string, folder string) *Progress {
-	if self.downloadProgress == nil {
+func (clt *Client) GetDownloadProgressForFile(path string, folder string) *Progress {
+	if clt.downloadProgress == nil {
 		return nil
 	}
 
-	if folderInfo, ok := self.downloadProgress[folder]; ok {
+	if folderInfo, ok := clt.downloadProgress[folder]; ok {
 		if fileInfo, ok := folderInfo[path]; ok {
 			return &Progress{
 				BytesTotal: fileInfo.BytesTotal,
@@ -642,40 +642,40 @@ func (self *Client) GetDownloadProgressForFile(path string, folder string) *Prog
 	return nil
 }
 
-func (self *Client) GetName() (string, error) {
-	devID := self.deviceID()
+func (clt *Client) GetName() (string, error) {
+	devID := clt.deviceID()
 
-	selfConfig, ok := self.config.Devices()[devID]
+	selfConfig, ok := clt.config.Devices()[devID]
 	if !ok {
 		return "", errors.New("cannot find myself")
 	}
 	return selfConfig.Name, nil
 }
 
-func (self *Client) SetName(name string) error {
-	devID := self.deviceID()
+func (clt *Client) SetName(name string) error {
+	devID := clt.deviceID()
 
-	selfConfig, ok := self.config.Devices()[devID]
+	selfConfig, ok := clt.config.Devices()[devID]
 	if !ok {
 		return errors.New("cannot find myself")
 	}
 	selfConfig.Name = name
 
-	return self.changeConfiguration(func(cfg *config.Configuration) {
+	return clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.SetDevice(selfConfig)
 	})
 }
 
-func (self *Client) Statistics() (*FolderStats, error) {
-	if self.app == nil || self.app.Internals == nil {
+func (clt *Client) Statistics() (*FolderStats, error) {
+	if clt.app == nil || clt.app.Internals == nil {
 		return nil, ErrStillLoading
 	}
 
 	globalTotal := FolderCounts{}
 	localTotal := FolderCounts{}
 
-	for _, folder := range self.config.FolderList() {
-		snap, err := self.app.Internals.DBSnapshot(folder.ID)
+	for _, folder := range clt.config.FolderList() {
+		snap, err := clt.app.Internals.DBSnapshot(folder.ID)
 		defer snap.Release()
 		if err != nil {
 			return nil, err
@@ -699,25 +699,25 @@ type SearchResultDelegate interface {
 * Search for files by name in the global index. Calls back the delegate up to `maxResults` times with a result in no
 particular order, unless/until the delegate returns true from IsCancelled. Set maxResults to <=0 to collect all results.
 */
-func (self *Client) Search(text string, delegate SearchResultDelegate, maxResults int, folderID string, prefix string) error {
-	if self.app == nil || self.app.Internals == nil {
+func (clt *Client) Search(text string, delegate SearchResultDelegate, maxResults int, folderID string, prefix string) error {
+	if clt.app == nil || clt.app.Internals == nil {
 		return ErrStillLoading
 	}
 
 	text = strings.ToLower(text)
 	resultCount := 0
 
-	for _, folder := range self.config.FolderList() {
+	for _, folder := range clt.config.FolderList() {
 		if folderID != "" && folder.ID != folderID {
 			continue
 		}
 
 		folderObject := Folder{
-			client:   self,
+			client:   clt,
 			FolderID: folder.ID,
 		}
 
-		snap, err := self.app.Internals.DBSnapshot(folder.ID)
+		snap, err := clt.app.Internals.DBSnapshot(folder.ID)
 		if err != nil {
 			return err
 		}
@@ -757,12 +757,12 @@ func (self *Client) Search(text string, delegate SearchResultDelegate, maxResult
 	return nil
 }
 
-func (self *Client) GetEnoughConnections() int {
-	return self.config.Options().ConnectionLimitEnough
+func (clt *Client) GetEnoughConnections() int {
+	return clt.config.Options().ConnectionLimitEnough
 }
 
-func (self *Client) SetEnoughConnections(enough int) error {
-	return self.changeConfiguration(func(cfg *config.Configuration) {
+func (clt *Client) SetEnoughConnections(enough int) error {
+	return clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.Options.ConnectionLimitEnough = enough
 	})
 }
@@ -773,13 +773,13 @@ const (
 	NoListenAddress = "tcp://127.0.0.1:22000"
 )
 
-func (self *Client) IsListening() bool {
-	addrs := self.config.Options().ListenAddresses()
+func (clt *Client) IsListening() bool {
+	addrs := clt.config.Options().ListenAddresses()
 	return len(addrs) > 0 && addrs[0] != NoListenAddress
 }
 
-func (self *Client) SetListening(listening bool) error {
-	return self.changeConfiguration(func(cfg *config.Configuration) {
+func (clt *Client) SetListening(listening bool) error {
+	return clt.changeConfiguration(func(cfg *config.Configuration) {
 		if listening {
 			cfg.Options.RawListenAddresses = []string{"default"}
 		} else {
@@ -788,15 +788,15 @@ func (self *Client) SetListening(listening bool) error {
 	})
 }
 
-func (self *Client) pendingFolders() (map[string][]string, error) {
-	if self.app == nil || self.app.Internals == nil {
+func (clt *Client) pendingFolders() (map[string][]string, error) {
+	if clt.app == nil || clt.app.Internals == nil {
 		return nil, ErrStillLoading
 	}
 
-	peers := self.config.DeviceList()
+	peers := clt.config.DeviceList()
 	fids := map[string][]string{}
 	for _, peer := range peers {
-		peerFids, err := self.app.Internals.PendingFolders(peer.DeviceID)
+		peerFids, err := clt.app.Internals.PendingFolders(peer.DeviceID)
 		if err != nil {
 			return nil, err
 		}
@@ -810,24 +810,24 @@ func (self *Client) pendingFolders() (map[string][]string, error) {
 	return fids, nil
 }
 
-func (self *Client) PendingFolderIDs() (*ListOfStrings, error) {
-	if self.app == nil || self.app.Internals == nil {
+func (clt *Client) PendingFolderIDs() (*ListOfStrings, error) {
+	if clt.app == nil || clt.app.Internals == nil {
 		return nil, ErrStillLoading
 	}
 
-	pfs, err := self.pendingFolders()
+	pfs, err := clt.pendingFolders()
 	if err != nil {
 		return nil, err
 	}
 	return List(KeysOf(pfs)), nil
 }
 
-func (self *Client) DevicesPendingFolder(folderID string) (*ListOfStrings, error) {
-	if self.app == nil || self.app.Internals == nil {
+func (clt *Client) DevicesPendingFolder(folderID string) (*ListOfStrings, error) {
+	if clt.app == nil || clt.app.Internals == nil {
 		return nil, ErrStillLoading
 	}
 
-	pfs, err := self.pendingFolders()
+	pfs, err := clt.pendingFolders()
 	if err != nil {
 		return nil, err
 	}
@@ -838,9 +838,9 @@ func (self *Client) DevicesPendingFolder(folderID string) (*ListOfStrings, error
 	return List([]string{}), nil
 }
 
-func (self *Client) SetReconnectIntervalS(secs int) error {
+func (clt *Client) SetReconnectIntervalS(secs int) error {
 	Logger.Infoln("Set reconnect interval to", secs)
-	return self.changeConfiguration(func(cfg *config.Configuration) {
+	return clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.Options.ReconnectIntervalS = secs
 	})
 }

@@ -17,54 +17,54 @@ type Peer struct {
 	deviceID protocol.DeviceID
 }
 
-func (self *Peer) DeviceID() string {
-	return self.deviceID.String()
+func (peer *Peer) DeviceID() string {
+	return peer.deviceID.String()
 }
 
 type Date struct {
 	time time.Time
 }
 
-func (self *Date) IsZero() bool {
-	return self.time.IsZero()
+func (date *Date) IsZero() bool {
+	return date.time.IsZero()
 }
 
-func (self *Date) UnixMilliseconds() int64 {
-	return self.time.UnixMilli()
+func (date *Date) UnixMilliseconds() int64 {
+	return date.time.UnixMilli()
 }
 
-func (self *Peer) LastSeen() *Date {
-	if self.client.app == nil {
+func (peer *Peer) LastSeen() *Date {
+	if peer.client.app == nil {
 		return nil
 	}
 
-	if self.client.app.Internals == nil {
+	if peer.client.app.Internals == nil {
 		return nil
 	}
 
-	stats, err := self.client.app.Internals.DeviceStatistics()
+	stats, err := peer.client.app.Internals.DeviceStatistics()
 	if err != nil {
 		return nil
 	}
-	return &Date{time: stats[self.deviceID].LastSeen}
+	return &Date{time: stats[peer.deviceID].LastSeen}
 }
 
-func (self *Peer) deviceConfiguration() *config.DeviceConfiguration {
-	devs := self.client.config.Devices()
-	dev, ok := devs[self.deviceID]
+func (peer *Peer) deviceConfiguration() *config.DeviceConfiguration {
+	devs := peer.client.config.Devices()
+	dev, ok := devs[peer.deviceID]
 	if !ok {
 		return nil
 	}
 	return &dev
 }
 
-func (self *Peer) Name() string {
-	return self.deviceConfiguration().Name
+func (peer *Peer) Name() string {
+	return peer.deviceConfiguration().Name
 }
 
-func (self *Peer) SetName(name string) error {
-	return self.client.changeConfiguration(func(cfg *config.Configuration) {
-		dc, ok := cfg.DeviceMap()[self.deviceID]
+func (peer *Peer) SetName(name string) error {
+	return peer.client.changeConfiguration(func(cfg *config.Configuration) {
+		dc, ok := cfg.DeviceMap()[peer.deviceID]
 		if !ok {
 			return
 		}
@@ -73,24 +73,24 @@ func (self *Peer) SetName(name string) error {
 	})
 }
 
-func (self *Peer) Addresses() *ListOfStrings {
-	return List(self.deviceConfiguration().Addresses)
+func (peer *Peer) Addresses() *ListOfStrings {
+	return List(peer.deviceConfiguration().Addresses)
 }
 
-func (self *Peer) IsConnected() bool {
-	if self.client.app == nil {
+func (peer *Peer) IsConnected() bool {
+	if peer.client.app == nil {
 		return false
 	}
-	if self.client.app.Internals == nil {
+	if peer.client.app.Internals == nil {
 		return false
 	}
 
-	return self.client.app.Internals.IsConnectedTo(self.deviceID)
+	return peer.client.app.Internals.IsConnectedTo(peer.deviceID)
 }
 
-func (self *Peer) SetPaused(paused bool) error {
-	return self.client.changeConfiguration(func(cfg *config.Configuration) {
-		dc, ok := cfg.DeviceMap()[self.deviceID]
+func (peer *Peer) SetPaused(paused bool) error {
+	return peer.client.changeConfiguration(func(cfg *config.Configuration) {
+		dc, ok := cfg.DeviceMap()[peer.deviceID]
 		if !ok {
 			return
 		}
@@ -99,13 +99,13 @@ func (self *Peer) SetPaused(paused bool) error {
 	})
 }
 
-func (self *Peer) IsPaused() bool {
-	return self.deviceConfiguration().Paused
+func (peer *Peer) IsPaused() bool {
+	return peer.deviceConfiguration().Paused
 }
 
-func (self *Peer) SetUntrusted(untrusted bool) error {
-	return self.client.changeConfiguration(func(cfg *config.Configuration) {
-		dc, ok := cfg.DeviceMap()[self.deviceID]
+func (peer *Peer) SetUntrusted(untrusted bool) error {
+	return peer.client.changeConfiguration(func(cfg *config.Configuration) {
+		dc, ok := cfg.DeviceMap()[peer.deviceID]
 		if !ok {
 			return
 		}
@@ -114,19 +114,19 @@ func (self *Peer) SetUntrusted(untrusted bool) error {
 	})
 }
 
-func (self *Peer) IsUntrusted() bool {
-	return self.deviceConfiguration().Untrusted
+func (peer *Peer) IsUntrusted() bool {
+	return peer.deviceConfiguration().Untrusted
 }
 
-func (self *Peer) IsSelf() bool {
-	return self.client.deviceID().Equals(self.deviceID)
+func (peer *Peer) IsSelf() bool {
+	return peer.client.deviceID().Equals(peer.deviceID)
 }
 
-func (self *Peer) Remove() error {
-	return self.client.changeConfiguration(func(cfg *config.Configuration) {
+func (peer *Peer) Remove() error {
+	return peer.client.changeConfiguration(func(cfg *config.Configuration) {
 		devices := make([]config.DeviceConfiguration, 0)
 		for _, dc := range cfg.Devices {
-			if dc.DeviceID != self.deviceID {
+			if dc.DeviceID != peer.deviceID {
 				devices = append(devices, dc)
 			}
 		}
@@ -134,13 +134,13 @@ func (self *Peer) Remove() error {
 	})
 }
 
-func (self *Peer) SharedFolderIDs() *ListOfStrings {
-	folders := self.client.config.Folders()
+func (peer *Peer) SharedFolderIDs() *ListOfStrings {
+	folders := peer.client.config.Folders()
 	sharedWith := make([]string, 0)
 
 	for fid, folder := range folders {
 		for _, did := range folder.DeviceIDs() {
-			if did == self.deviceID {
+			if did == peer.deviceID {
 				sharedWith = append(sharedWith, fid)
 				break
 			}
@@ -150,8 +150,8 @@ func (self *Peer) SharedFolderIDs() *ListOfStrings {
 	return List(sharedWith)
 }
 
-func (self *Peer) PendingFolderIDs() (*ListOfStrings, error) {
-	pfs, err := self.client.app.Internals.PendingFolders(self.deviceID)
+func (peer *Peer) PendingFolderIDs() (*ListOfStrings, error) {
+	pfs, err := peer.client.app.Internals.PendingFolders(peer.deviceID)
 	if err != nil {
 		return nil, err
 	}
@@ -164,6 +164,6 @@ func (self *Peer) PendingFolderIDs() (*ListOfStrings, error) {
 	return List(fids), nil
 }
 
-func (self *Peer) Exists() bool {
-	return self.deviceConfiguration() != nil
+func (peer *Peer) Exists() bool {
+	return peer.deviceConfiguration() != nil
 }

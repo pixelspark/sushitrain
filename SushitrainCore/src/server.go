@@ -42,14 +42,14 @@ const (
 	signatureQueryParameter string = "signature"
 )
 
-func (self *StreamingServer) port() int {
-	return self.listener.Addr().(*net.TCPAddr).Port
+func (srv *StreamingServer) port() int {
+	return srv.listener.Addr().(*net.TCPAddr).Port
 }
 
-func (self *StreamingServer) URLFor(folder string, path string) string {
+func (srv *StreamingServer) URLFor(folder string, path string) string {
 	url := url.URL{
 		Scheme: "http",
-		Host:   fmt.Sprintf("localhost:%d", self.port()),
+		Host:   fmt.Sprintf("localhost:%d", srv.port()),
 		Path:   "/file",
 	}
 
@@ -57,11 +57,11 @@ func (self *StreamingServer) URLFor(folder string, path string) string {
 	q.Set("path", path)
 	q.Set("folder", folder)
 	url.RawQuery = q.Encode()
-	self.signURL(&url)
+	srv.signURL(&url)
 	return url.String()
 }
 
-func (self *StreamingServer) signURL(u *url.URL) {
+func (srv *StreamingServer) signURL(u *url.URL) {
 	// Remove any existing signature
 	qs := u.Query()
 	qs.Del(signatureQueryParameter)
@@ -69,12 +69,12 @@ func (self *StreamingServer) signURL(u *url.URL) {
 
 	// Sign full URL
 	partToVerify := u.RawPath + "/" + u.RawQuery
-	signature := ed25519.Sign(self.privateKey, []byte(partToVerify))
+	signature := ed25519.Sign(srv.privateKey, []byte(partToVerify))
 	qs.Add(signatureQueryParameter, string(signature))
 	u.RawQuery = qs.Encode()
 }
 
-func (self *StreamingServer) verifyURL(u *url.URL) bool {
+func (srv *StreamingServer) verifyURL(u *url.URL) bool {
 	qs := u.Query()
 	signature := qs.Get(signatureQueryParameter)
 	if len(signature) == 0 {
@@ -83,13 +83,13 @@ func (self *StreamingServer) verifyURL(u *url.URL) bool {
 	qs.Del(signatureQueryParameter)
 	u.RawQuery = qs.Encode()
 	partToVerify := u.RawPath + "/" + u.RawQuery
-	return ed25519.Verify(self.publicKey, []byte(partToVerify), []byte(signature))
+	return ed25519.Verify(srv.publicKey, []byte(partToVerify), []byte(signature))
 }
 
-func (self *StreamingServer) Listen() error {
+func (srv *StreamingServer) Listen() error {
 	// Close existing listener
-	if self.listener != nil {
-		self.listener.Close()
+	if srv.listener != nil {
+		srv.listener.Close()
 	}
 
 	listener, err := net.Listen("tcp", ":0")
@@ -97,9 +97,9 @@ func (self *StreamingServer) Listen() error {
 		return err
 	}
 
-	go http.Serve(listener, self.mux)
-	self.listener = listener
-	Logger.Infoln("HTTP service listening on port", self.port())
+	go http.Serve(listener, srv.mux)
+	srv.listener = listener
+	Logger.Infoln("HTTP service listening on port", srv.port())
 	return nil
 }
 

@@ -27,12 +27,12 @@ func List(data []string) *ListOfStrings {
 	}
 }
 
-func (self *ListOfStrings) Count() int {
-	return len(self.data)
+func (lst *ListOfStrings) Count() int {
+	return len(lst.data)
 }
 
-func (self *ListOfStrings) ItemAt(index int) string {
-	return self.data[index]
+func (lst *ListOfStrings) ItemAt(index int) string {
+	return lst.data[index]
 }
 
 func Map[T, U any](ts []T, f func(T) U) []U {
@@ -184,8 +184,8 @@ func newFolderCounts(from db.Counts) *FolderCounts {
 	}
 }
 
-func (self *FolderCounts) add(other *FolderCounts) {
-	self.Bytes += other.Bytes
-	self.Files += other.Files
-	self.Directories += other.Directories
+func (fcts *FolderCounts) add(other *FolderCounts) {
+	fcts.Bytes += other.Bytes
+	fcts.Files += other.Files
+	fcts.Directories += other.Directories
 }
