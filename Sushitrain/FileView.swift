@@ -241,6 +241,7 @@ struct FileView: View {
     @State var showPreview = false
     @State var showOnDemandPreview = false
     @State var showRemoveConfirmation = false
+    @State var showDownloader = false
     let formatter = ByteCountFormatter()
     var showPath = false
     var siblings: [SushitrainEntry]? = nil
@@ -297,19 +298,23 @@ struct FileView: View {
                     var error: NSError? = nil
                     let localPath = file.isLocallyPresent() ? file.localNativePath(&error) : nil
                     
-                    Section {
-                        if file.isSelected() {
-                            // Selective sync uses copy in working dir
-                            if file.isLocallyPresent() {
-                                if error == nil {
+                    if file.isSelected() {
+                        // Selective sync uses copy in working dir
+                        if file.isLocallyPresent() {
+                            if error == nil {
+                                Section {
                                     Button("View file", systemImage: "eye", action: {
                                         localItemURL = URL(fileURLWithPath: localPath!)
                                     })
+                                }
+                                Section {
                                     ShareLink("Share file", item: URL(fileURLWithPath: localPath!))
                                 }
                             }
-                            else {
-                                // Waiting for sync
+                        }
+                        else {
+                            // Waiting for sync
+                            Section {
                                 let progress = self.appState.client.getDownloadProgress(forFile: self.file.path(), folder: self.folder.folderID)
                                 if let progress = progress {
                                     ProgressView(value: progress.percentage, total: 1.0) {
@@ -323,8 +328,11 @@ struct FileView: View {
                                 }
                             }
                         }
-                        else {
-                            if file.isMedia {
+                    }
+                    else {
+                        if file.isMedia {
+                            Section {
+                                // Stream button
                                 Button("Stream", systemImage: file.isVideo ? "tv" : "music.note", action: {
                                     if file.isVideo {
                                         showVideoPlayer = true
@@ -334,13 +342,14 @@ struct FileView: View {
                                     }
                                 }).disabled(folder.connectedPeerCount() == 0)
                             }
-                            else {
-                                Button("View file", systemImage: "eye", action: {
-                                    showOnDemandPreview = true
-                                }).disabled(folder.connectedPeerCount() == 0)
-                            }
                         }
+                        
+                        // Download button
+                        Button("View file", systemImage: "arrow.down.circle", action: {
+                           showDownloader = true
+                        }).disabled(folder.connectedPeerCount() == 0)
                     }
+                    
                     
                     // Image preview
                     // AsyncImage does not support SVGs, it seems
@@ -400,6 +409,19 @@ struct FileView: View {
                 })
                 .sheet(isPresented: $showOnDemandPreview, content: {
                     OnDemandFileView(appState: appState, file: file, isShown: $showOnDemandPreview)
+                })
+                .sheet(isPresented: $showDownloader, content: {
+                    NavigationStack {
+                        FileDownloadView(file: file, appState: self.appState)
+                            .navigationBarTitleDisplayMode(.inline)
+                            .toolbar(content: {
+                                ToolbarItem(placement: .cancellationAction, content: {
+                                    Button("Cancel") {
+                                        showDownloader = false
+                                    }
+                                })
+                            })
+                    }
                 })
                 .toolbar {
                     if let selfIndex = selfIndex, let siblings = siblings {

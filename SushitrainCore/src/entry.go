@@ -6,6 +6,9 @@
 package sushitrain
 
 import (
+	"context"
+	"fmt"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -18,51 +21,6 @@ import (
 type Entry struct {
 	Folder *Folder
 	info   protocol.FileInfo
-}
-
-type FetchDelegate interface {
-	Fetched(blockNo int, blockOffset int64, blockSize int64, data []byte, last bool)
-	Progress(p float64)
-	Error(e int, message string)
-}
-
-const (
-	FetchDelegateErrorBlockUnavailable int = 1
-	FetchDelegateErrorPullFailed       int = 2
-)
-
-type FetchCallback func(success bool)
-
-func (entry *Entry) Fetch(delegate FetchDelegate) {
-	go func() {
-		client := entry.Folder.client
-		m := client.app.Internals
-		delegate.Progress(0.0)
-
-		fetchedBytes := int64(0)
-		for blockNo, block := range entry.info.Blocks {
-			av, err := m.BlockAvailability(entry.Folder.FolderID, entry.info, block)
-			if err != nil {
-				delegate.Error(FetchDelegateErrorBlockUnavailable, err.Error())
-				return
-			}
-			if len(av) < 1 {
-				delegate.Error(FetchDelegateErrorBlockUnavailable, "")
-				return
-			}
-
-			buf, err := m.DownloadBlock(client.ctx, av[0].ID, entry.Folder.FolderID, entry.info.Name, blockNo, block, false)
-			if err != nil {
-				delegate.Error(FetchDelegateErrorPullFailed, err.Error())
-				return
-			}
-			fetchedBytes += int64(block.Size)
-			delegate.Fetched(blockNo, block.Offset, int64(block.Size), buf, blockNo == len(entry.info.Blocks)-1)
-			delegate.Progress(float64(fetchedBytes) / float64(entry.info.FileSize()))
-		}
-
-		delegate.Progress(1.0)
-	}()
 }
 
 func (entry *Entry) Path() string {
@@ -214,6 +172,76 @@ func (entry *Entry) SetExplicitlySelected(selected bool) error {
 		}()
 	}
 	return nil
+}
+
+type DownloadDelegate interface {
+	OnError(error string)
+	OnFinished(path string)
+	OnProgress(fraction float64)
+	IsCancelled() bool
+}
+
+/** Download this file to the specific location (should be outside the synced folder!) **/
+func (entry *Entry) Download(toPath string, delegate DownloadDelegate) {
+	go func() {
+		context := context.WithoutCancel(context.Background())
+		m := entry.Folder.client.app.Internals
+		folderID := entry.Folder.FolderID
+		info, ok, err := m.GlobalFileInfo(folderID, entry.info.FileName())
+		if err != nil {
+			delegate.OnError(err.Error())
+			return
+		}
+
+		if !ok {
+			delegate.OnError("file not found")
+			return
+		}
+
+		// Create file to download to
+		outFile, err := os.Create(toPath)
+		if err != nil {
+			delegate.OnError("could not open file for downloading to: " + err.Error())
+			return
+		}
+		// close fi on exit and check for its returned error
+		defer func() {
+			if err := outFile.Close(); err != nil {
+				panic(err)
+			}
+		}()
+
+		delegate.OnProgress(0.0)
+
+		for blockNo, block := range info.Blocks {
+			if delegate.IsCancelled() {
+				return
+			}
+			delegate.OnProgress(float64(block.Offset) / float64(info.Size))
+			av, err := m.BlockAvailability(folderID, info, block)
+			if err != nil {
+				delegate.OnError(fmt.Sprintf("could not fetch availability for block %d: %s", blockNo, err.Error()))
+				return
+			}
+			if len(av) < 1 {
+				delegate.OnError(fmt.Sprintf("Part of the file is not available (block %d)", blockNo))
+				return
+			}
+
+			// Fetch the block
+			buf, err := m.DownloadBlock(context, av[0].ID, folderID, info.Name, int(blockNo), block, false)
+			if err != nil {
+				delegate.OnError(fmt.Sprintf("could not fetch block %d: %s", blockNo, err.Error()))
+				return
+			}
+			_, err = outFile.Write(buf)
+			if err != nil {
+				delegate.OnError(fmt.Sprintf("could not write block %d: %s", blockNo, err.Error()))
+				return
+			}
+		}
+		delegate.OnFinished(toPath)
+	}()
 }
 
 func (entry *Entry) OnDemandURL() string {

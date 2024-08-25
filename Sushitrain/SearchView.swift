@@ -12,7 +12,6 @@ protocol SearchViewDelegate {
 }
 
 class SearchOperation: NSObject, ObservableObject, SushitrainSearchResultDelegateProtocol, @unchecked Sendable {
-    @Published var results: [SushitrainEntry] = []
     private var cancelled = false
     private var lock = NSLock()
     var view: SearchViewDelegate
