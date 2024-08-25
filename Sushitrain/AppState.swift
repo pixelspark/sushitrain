@@ -83,10 +83,12 @@ class AppState: ObservableObject, @unchecked Sendable {
     func updateBadge() {
         var numExtra = 0
         for folder in self.folders() {
-            var hasExtra: ObjCBool = false
-            let _ = try? folder.hasExtraneousFiles(&hasExtra)
-            if hasExtra.boolValue {
-                numExtra += 1
+            if folder.isIdle {
+                var hasExtra: ObjCBool = false
+                let _ = try? folder.hasExtraneousFiles(&hasExtra)
+                if hasExtra.boolValue {
+                    numExtra += 1
+                }
             }
         }
         let numExtraFinal = numExtra

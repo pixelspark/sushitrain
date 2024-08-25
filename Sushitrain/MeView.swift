@@ -226,10 +226,12 @@ struct MeView: View {
                 // List folders that have extra files
                 self.foldersWithExtraFiles = []
                 for folder in appState.folders() {
-                    var hasExtra: ObjCBool = false
-                    let _ = try? folder.hasExtraneousFiles(&hasExtra)
-                    if hasExtra.boolValue {
-                        self.foldersWithExtraFiles.append(folder.folderID)
+                    if folder.isIdle {
+                        var hasExtra: ObjCBool = false
+                        let _ = try? folder.hasExtraneousFiles(&hasExtra)
+                        if hasExtra.boolValue {
+                            self.foldersWithExtraFiles.append(folder.folderID)
+                        }
                     }
                 }
             }

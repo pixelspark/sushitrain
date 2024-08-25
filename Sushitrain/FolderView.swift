@@ -299,7 +299,7 @@ struct FolderStatusView: View {
 
 struct FolderSyncTypePicker: View {
     @ObservedObject var appState: AppState
-    @State private var hasExtraneousFiles = true
+    @State private var changeProhibited = true
     var folder: SushitrainFolder
     
     var body: some View {
@@ -309,11 +309,18 @@ struct FolderSyncTypePicker: View {
                 Text("Selected files").tag(true)
             }
             .pickerStyle(.menu)
-            .disabled(hasExtraneousFiles)
+            .disabled(changeProhibited)
             .onAppear {
+                // Only allow changes to selection mode when folder is idle
+                if !folder.isIdle {
+                    changeProhibited = true
+                    return
+                }
+                
+                // Prohibit change in selection mode when there are extraneous files
                 var hasExtra: ObjCBool = false
                 let _ = try! folder.hasExtraneousFiles(&hasExtra)
-                hasExtraneousFiles = hasExtra.boolValue
+                changeProhibited = hasExtra.boolValue
             }
         }
     }
@@ -323,7 +330,7 @@ struct FolderSyncTypePicker: View {
 struct FolderDirectionPicker: View {
     @ObservedObject var appState: AppState
     var folder: SushitrainFolder
-    @State private var hasExtraneousFiles: Bool = true
+    @State private var changeProhibited: Bool = true
     
     var body: some View {
         if folder.exists() {
@@ -332,11 +339,18 @@ struct FolderDirectionPicker: View {
                 Text("Receive only").tag(SushitrainFolderTypeReceiveOnly)
             }
             .pickerStyle(.menu)
-            .disabled(hasExtraneousFiles)
+            .disabled(changeProhibited)
             .onAppear {
+                // Only allow changes to selection mode when folder is idle
+                if !folder.isIdle {
+                    changeProhibited = true
+                    return
+                }
+                
+                // Prohibit change in selection mode when there are extraneous files
                 var hasExtra: ObjCBool = false
                 let _ = try! folder.hasExtraneousFiles(&hasExtra)
-                hasExtraneousFiles = hasExtra.boolValue
+                changeProhibited = hasExtra.boolValue
             }
         }
     }

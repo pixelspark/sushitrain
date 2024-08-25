@@ -121,13 +121,18 @@ fileprivate struct BrowserListView: View {
             
             subdirectories = self.listSubdirectories();
             files = self.listFiles();
-            var hasExtra: ObjCBool = false
-            do {
-                try folder.hasExtraneousFiles(&hasExtra)
-                hasExtraneousFiles = hasExtra.boolValue
+            if self.folder.isIdle {
+                var hasExtra: ObjCBool = false
+                do {
+                    try folder.hasExtraneousFiles(&hasExtra)
+                    hasExtraneousFiles = hasExtra.boolValue
+                }
+                catch let error {
+                    print("error checking for extraneous files: \(error.localizedDescription)")
+                }
             }
-            catch let error {
-                print("error checking for extraneous files: \(error.localizedDescription)")
+            else {
+                hasExtraneousFiles = false
             }
             self.isLoading = false
         }

@@ -88,7 +88,12 @@ struct ExtraFilesView: View {
                 }
             }
         }.onAppear {
-            extraFiles = try! folder.extraneousFiles().asArray().sorted()
+            if folder.isIdle {
+                extraFiles = try! folder.extraneousFiles().asArray().sorted()
+            }
+            else {
+                extraFiles = []
+            }
         }
         .navigationTitle("Extra files in folder \(folder.label())")
         .navigationBarTitleDisplayMode(.inline)
