@@ -155,7 +155,14 @@ func (entry *Entry) IsExplicitlySelected() bool {
 }
 
 func (entry *Entry) ignoreLine() string {
-	return "!/" + entry.info.FileName()
+	fn := entry.info.FileName()
+
+	// Escape special characters: https://docs.syncthing.net/users/ignoring.html
+	specialChars := []string{"\\", "!", "*", "?", "[", "]", "{", "}"}
+	for _, sp := range specialChars {
+		fn = strings.ReplaceAll(fn, sp, "\\"+sp)
+	}
+	return "!/" + fn
 }
 
 func (entry *Entry) SetExplicitlySelected(selected bool) error {
