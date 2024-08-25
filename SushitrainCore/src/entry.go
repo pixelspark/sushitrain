@@ -196,8 +196,21 @@ func (entry *Entry) SetExplicitlySelected(selected bool) error {
 	// Delete local file if !selected (and not still implicitly selected by parent folder)
 	if !selected && !entry.IsSelected() {
 		go func() {
-			entry.Folder.client.app.Internals.ScanFolders()
-			entry.Folder.DeleteLocalFile(entry.info.FileName())
+			// Force a (minimal) scan. The current implementation also reloads the ignore file here (regardless of the path that is scanned)
+			// Note, this could potentially take a while
+			err := entry.Folder.client.app.Internals.ScanFolderSubdirs(entry.Folder.FolderID, []string{ignoreFileName})
+			if err != nil {
+				Logger.Warnln("ScanFolderSubdirs failed in SetExplicitlySelected for entry " + entry.info.FileName())
+				return
+			}
+
+			// Delete the local file, if it is still deselected (the scan might take a while to complete)
+			if !entry.IsSelected() {
+				Logger.Infoln("Deleted local deselected file: " + entry.info.FileName())
+				entry.Folder.DeleteLocalFile(entry.info.FileName())
+			} else {
+				Logger.Infoln("Not deleting local deselected file, it apparently was reselected: " + entry.info.FileName())
+			}
 		}()
 	}
 	return nil
