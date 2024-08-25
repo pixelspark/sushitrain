@@ -80,12 +80,12 @@ struct FileDownloadView: View {
                 dismiss()
             }
         }))
-        .navigationTitle(file.name())
+        .navigationTitle(file.fileName())
         .task {
             let tempDir = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory:true)
             let downloadsDir = tempDir.appending(component: "Downloads-\(ProcessInfo().globallyUniqueString)")
             try! FileManager.default.createDirectory(at: downloadsDir, withIntermediateDirectories: true)
-            self.filePath = downloadsDir.appending(component: file.name())
+            self.filePath = downloadsDir.appending(component: file.fileName())
             self.file.download(filePath!.path(percentEncoded: false), delegate: self.downloadOperation)
         }
         .onDisappear {
