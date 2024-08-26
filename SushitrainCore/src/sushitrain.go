@@ -739,7 +739,7 @@ func (clt *Client) Search(text string, delegate SearchResultDelegate, maxResults
 			pathParts := strings.Split(f.FileName(), "/")
 			lowerFileName := strings.ToLower(pathParts[len(pathParts)-1])
 
-			if gimmeMore && strings.Contains(lowerFileName, text) {
+			if gimmeMore && !f.IsDeleted() && strings.Contains(lowerFileName, text) {
 				entry := &Entry{
 					Folder: &folderObject,
 					info:   f.(protocol.FileInfo),
