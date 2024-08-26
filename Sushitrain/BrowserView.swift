@@ -203,7 +203,8 @@ struct BrowserView: View {
         BrowserListView(appState: appState, folder: folder, prefix: prefix, searchText: $searchText, showSettings: $showSettings)
         .navigationTitle(folderName)
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search files in this folder...")
+        // Disabled due to glitchy transitions (on iOS 17.4 at least)
+        // .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search files in this folder...")
         .toolbar {
             if folder.exists() {
                 ToolbarItem {

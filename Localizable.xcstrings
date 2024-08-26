@@ -1524,6 +1524,7 @@
       }
     },
     "Search files in this folder..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "nl" : {
           "stringUnit" : {
