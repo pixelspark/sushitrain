@@ -32,6 +32,18 @@ Note that XCode will, by default, invoke the aforementioned Makefile for the Go 
 development it may be easier to build the framework by hand to be able to easily see any compiler output (a subsequent make
 invocation from XCode should be rather quick if nothing changed since the manual invocation).
 
+## Translations
+
+To translate using ChatGPT, use the [localize.mjs](./localize.mjs) script as follows:
+
+```bash
+OPENAI_KEY=sk-xxxx ./localize.mjs
+```
+
+The script will invoke ChatGPT for strings for which one or more translations are missing. Edit the script to set the supported
+locales. After running the script, open the `Localizable.xcstrings` file in XCode and save once to maintain the XCode-specific
+JSON formatting and not pollute the commit diff with whitespace changes.
+
 ### Using a custom fork of Syncthing
 
 By default, a [fork](https://github.com/pixelspark/syncthing) of Syncthing core is used for building this app. This fork
@@ -152,12 +164,12 @@ small bites. Additionally, 'SushiTrain' shares the 'SyncThing' initials.
 
 ## Contributing
 
-Pull requests to this repository are welcomed and will be considered. Contributors to this repository agree to license 
-their contributions under the license described below (MPLv2). Regardless of the license in effect, you retain the 
+Pull requests to this repository are welcomed and will be considered. Contributors to this repository agree to license
+their contributions under the license described below (MPLv2). Regardless of the license in effect, you retain the
 copyright to your contribution.
 
 If you have found an issue, please notify us through the TestFlight testing program. If this is not possible, you can use
-the discussions section on this repository. The developers are not obliged to answer any questions or fix any issues - 
+the discussions section on this repository. The developers are not obliged to answer any questions or fix any issues -
 remember this is free software. The planning of releases and the roadmap is solely up to the developers. If you have a
 specific need, you may contact the developers to discuss a commercial development project.
 

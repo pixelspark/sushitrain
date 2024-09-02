@@ -15,6 +15,18 @@
             "value" : "%1$@ (%2$@)"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (%2$@)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (%2$@)"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -37,6 +49,18 @@
             "value" : "%1$@: %2$@"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: %@"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -48,6 +72,18 @@
     "%lld MB" : {
       "localizations" : {
         "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld MB"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld MB"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld MB"
@@ -69,6 +105,18 @@
             "value" : "%lld Mbit/s"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Mbit/s"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Mbit/s"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -80,6 +128,18 @@
     "%lld%%" : {
       "localizations" : {
         "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld%%"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld%%"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld%%"
@@ -101,6 +161,18 @@
             "value" : "Über diese App"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acerca de esta app"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informazioni su questa app"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -115,6 +187,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hinzufügen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi"
           }
         },
         "nl" : {
@@ -133,6 +217,18 @@
             "value" : "Gerät hinzufügen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agregar dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi dispositivo"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -147,6 +243,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ordner hinzufügen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agregar carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi cartella"
           }
         },
         "nl" : {
@@ -165,6 +273,18 @@
             "value" : "Anderes Gerät hinzufügen..."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agregar otro dispositivo..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi un altro dispositivo..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -179,6 +299,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Anderen Ordner hinzufügen..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agregar otra carpeta..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi un'altra cartella..."
           }
         },
         "nl" : {
@@ -197,6 +329,18 @@
             "value" : "Füge dein erstes Gerät hinzu"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añade tu primer dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi il tuo primo dispositivo"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -211,6 +355,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fügen Sie Ihren ersten Ordner hinzu"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agrega tu primera carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi la tua prima cartella"
           }
         },
         "nl" : {
@@ -229,6 +385,18 @@
             "value" : "Hinzugefügte Geräte können auf eigene Initiative eine Verbindung zu diesem Gerät herstellen, während die App läuft. Dies kann zu einem zusätzlichen Batterieverbrauch führen. Es ist ratsam, dies nur zu aktivieren, wenn Sie Schwierigkeiten beim Verbinden mit anderen Geräten haben."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los dispositivos añadidos pueden conectarse a este dispositivo por su propia iniciativa mientras la aplicación está en funcionamiento. Esto puede causar un consumo adicional de batería. Se recomienda habilitar esta función solo si experimentas dificultades para conectarte a otros dispositivos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I dispositivi aggiunti possono connettersi a questo dispositivo di loro iniziativa, mentre l'app è in esecuzione. Questo potrebbe causare un consumo aggiuntivo della batteria. Si consiglia di abilitare questa funzione solo se si riscontrano difficoltà nel collegarsi ad altri dispositivi."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -243,6 +411,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Adressen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direcciones"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indirizzi"
           }
         },
         "nl" : {
@@ -261,6 +441,18 @@
             "value" : "Erweiterte Einstellungen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configuración avanzada"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impostazioni avanzate"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -275,6 +467,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Alle Geräte"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos los dispositivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutti i dispositivi"
           }
         },
         "nl" : {
@@ -293,6 +497,18 @@
             "value" : "Alle Dateien"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos los archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutti i file"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -307,6 +523,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Auch in lokalen Netzwerken begrenzen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "También limitar en redes locales"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limita anche nelle reti locali"
           }
         },
         "nl" : {
@@ -325,6 +553,18 @@
             "value" : "Ein Fehler ist aufgetreten"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se produjo un error"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si è verificato un errore"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -339,6 +579,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Weltweit ankündigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anunciar globalmente"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annuncia globalmente"
           }
         },
         "nl" : {
@@ -357,6 +609,18 @@
             "value" : "LAN-Adressen ankündigen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anunciar direcciones LAN"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annuncia indirizzi LAN"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -373,6 +637,18 @@
             "value" : "Im lokalen Netzwerk ankündigen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anunciar en redes locales"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annuncia sulle reti locali"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -384,6 +660,18 @@
     "App" : {
       "localizations" : {
         "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "App"
@@ -405,6 +693,18 @@
             "value" : "Möchten Sie wirklich %lld Dateien löschen? Dateien, die nicht mit anderen Geräten synchronisiert sind, gehen verloren. Dies kann nicht rückgängig gemacht werden!"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Está seguro de que desea eliminar %lld archivos? Los archivos que no estén sincronizados con otro dispositivo se perderán. ¡Esto no se puede deshacer!"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sei sicuro di voler eliminare %lld file? I file non sincronizzati con un altro dispositivo andranno persi. Questa azione non può essere annullata!"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -419,6 +719,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Möchten Sie diese Datei wirklich von allen Geräten entfernen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Estás seguro de que quieres eliminar este archivo de todos los dispositivos?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sei sicuro di voler rimuovere questo file da tutti i dispositivi?"
           }
         },
         "nl" : {
@@ -437,6 +749,18 @@
             "value" : "Sind Sie sicher, dass Sie diesen Ordner entfernen möchten? Bitte überlegen Sie sorgfältig. Alle Dateien in diesem Ordner werden von diesem Gerät entfernt. Dateien, die noch nicht auf andere Geräte synchronisiert wurden, können nicht wiederhergestellt werden."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Estás seguro de que quieres eliminar esta carpeta? Por favor, considéralo detenidamente. Todos los archivos en esta carpeta se eliminarán de este dispositivo. Los archivos que aún no se han sincronizado con otros dispositivos no se pueden recuperar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sei sicuro di voler rimuovere questa cartella? Considera attentamente. Tutti i file in questa cartella verranno rimossi da questo dispositivo. I file che non sono ancora stati sincronizzati con altri dispositivi non possono essere recuperati."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -451,6 +775,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Verknüpfte Geräte"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dispositivos asociados"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dispositivi associati"
           }
         },
         "nl" : {
@@ -469,6 +805,18 @@
             "value" : "Hintergrundsynchronisierung"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronización en segundo plano"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizzazione in background"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -483,6 +831,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Die Hintergrundsynchronisierung konnte nicht geplant werden. Bitte überprüfen Sie, ob die Hintergrundverarbeitung für diese App aktiviert ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo programar la sincronización en segundo plano. Verifica si el procesamiento en segundo plano está habilitado para esta aplicación."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronizzazione in background non può essere programmata. Verifica se l'elaborazione in background è abilitata per questa app."
           }
         },
         "nl" : {
@@ -501,6 +861,18 @@
             "value" : "Hintergrundsynchronisierung aktiviert"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronización en segundo plano habilitada"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizzazione in background abilitata"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -515,6 +887,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Es wurde eine Hintergrundsynchronisierung angefordert. Das System ermöglicht in der Regel eine Hintergrundsynchronisierung über Nacht, wenn das Gerät nicht verwendet wird und geladen wird."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se ha solicitado la sincronización en segundo plano. El sistema generalmente permite que la sincronización en segundo plano ocurra durante la noche, cuando el dispositivo no se está usando y está cargando."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "È stata richiesta la sincronizzazione in background. Il sistema generalmente consente che la sincronizzazione in background avvenga durante la notte, quando il dispositivo non viene utilizzato e si trova in carica."
           }
         },
         "nl" : {
@@ -533,6 +917,18 @@
             "value" : "Bevor wir starten, müssen wir einige Dinge durchgehen:"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antes de empezar, necesitamos repasar algunas cosas:"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prima di iniziare, dobbiamo rivedere alcune cose:"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -547,6 +943,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Von %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di %@"
           }
         },
         "nl" : {
@@ -565,6 +973,18 @@
             "value" : "Auf diesem Gerät"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En este dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su questo dispositivo"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -579,6 +999,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Abbrechen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annulla"
           }
         },
         "nl" : {
@@ -597,6 +1029,18 @@
             "value" : "Datei kann nicht angezeigt werden"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede mostrar el archivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile visualizzare il file"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -611,6 +1055,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bereinigen..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limpiando..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pulizia in corso..."
           }
         },
         "nl" : {
@@ -629,6 +1085,18 @@
             "value" : "Verbunden"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conectado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connesso"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -643,6 +1111,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Verbindungen zu anderen Geräten können nur von diesem Gerät initiiert werden, nicht von den anderen hinzugefügten Geräten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las conexiones a otros dispositivos solo pueden ser iniciadas por este dispositivo, no por los otros dispositivos añadidos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le connessioni ad altri dispositivi possono essere avviate solo da questo dispositivo, non dagli altri dispositivi aggiunti."
           }
         },
         "nl" : {
@@ -661,6 +1141,18 @@
             "value" : "Konnektivität"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conectividad"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connettività"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -675,6 +1167,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "In die Zwischenablage kopieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiar al portapapeles"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia negli appunti"
           }
         },
         "nl" : {
@@ -693,6 +1197,18 @@
             "value" : "Gerät konnte nicht hinzugefügt werden"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo agregar el dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile aggiungere il dispositivo"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -707,6 +1223,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ordner konnte nicht hinzugefügt werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo agregar la carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile aggiungere la cartella"
           }
         },
         "nl" : {
@@ -725,6 +1253,18 @@
             "value" : "Datei konnte nicht heruntergeladen werden"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo descargar el archivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile scaricare il file"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -739,6 +1279,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Der Verschlüsselungsschlüssel konnte nicht gesetzt werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo establecer la clave de cifrado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile impostare la chiave di crittografia"
           }
         },
         "nl" : {
@@ -757,6 +1309,18 @@
             "value" : "Benutzerdefinierte Konfiguration erkannt"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configuración personalizada detectada"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurazione personalizzata rilevata"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -771,6 +1335,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Löschen Sie meine Kopie dieser Datei"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar mi copia de este archivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina la mia copia di questo file"
           }
         },
         "nl" : {
@@ -789,6 +1365,18 @@
             "value" : "Geräte-ID"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID de dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID dispositivo"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -803,6 +1391,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gerätekennung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identificador del dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identificatore del dispositivo"
           }
         },
         "nl" : {
@@ -821,6 +1421,18 @@
             "value" : "Gerätename"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre del dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nome del dispositivo"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -835,6 +1447,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Geräte"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dispositivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dispositivi"
           }
         },
         "nl" : {
@@ -853,6 +1477,18 @@
             "value" : "Richtung"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dirección"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direzione"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -867,6 +1503,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Entdeckte Geräte"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dispositivos descubiertos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dispositivi scoperti"
           }
         },
         "nl" : {
@@ -885,6 +1533,18 @@
             "value" : "Entdeckte Ordner"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carpetas descubiertas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartelle scoperte"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -899,6 +1559,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Anzeigename"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre para mostrar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nome visualizzato"
           }
         },
         "nl" : {
@@ -917,6 +1589,18 @@
             "value" : "Fertig"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hecho"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fatto"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -931,6 +1615,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Heruntergeladen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descargado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scaricato"
           }
         },
         "nl" : {
@@ -949,6 +1645,18 @@
             "value" : "%lld Dateien werden heruntergeladen..."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descargando %lld archivos..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download di %lld file in corso..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -963,6 +1671,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Datei wird heruntergeladen..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descargando archivo..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download del file in corso..."
           }
         },
         "nl" : {
@@ -981,6 +1701,18 @@
             "value" : "Dauer"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duración"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durata"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -995,6 +1727,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "In den letzten 24 Stunden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durante las últimas 24 horas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nelle ultime 24 ore"
           }
         },
         "nl" : {
@@ -1013,6 +1757,18 @@
             "value" : "Aktiviere NAT-PMP / UPnP"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activar NAT-PMP / UPnP"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abilita NAT-PMP / UPnP"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1027,6 +1783,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Relais aktivieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habilitar retransmisión"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abilita il ritrasferimento"
           }
         },
         "nl" : {
@@ -1045,6 +1813,18 @@
             "value" : "Aktiviert"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habilitado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abilitato"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1059,6 +1839,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Verschlüsselungspasswort"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contraseña de cifrado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Password di crittografia"
           }
         },
         "nl" : {
@@ -1077,6 +1869,18 @@
             "value" : "Beendet"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finalizado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminato"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1091,6 +1895,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Geben Sie einen Text in das Suchfeld oben ein, um zu suchen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Introduce un texto en el campo de búsqueda de arriba para buscar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inserisci un testo nel campo di ricerca sopra per cercare."
           }
         },
         "nl" : {
@@ -1109,6 +1925,18 @@
             "value" : "Fehler"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Errore"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1123,6 +1951,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Es wurden zusätzliche Dateien gefunden. Da dies ein Nur-Empfangen-Ordner ist, werden diese Dateien nicht synchronisiert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se han encontrado archivos adicionales. Dado que esta es una carpeta de solo recepción, estos archivos no se sincronizarán."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sono stati trovati file extra. Poiché questa è una cartella di sola ricezione, questi file non verranno sincronizzati."
           }
         },
         "nl" : {
@@ -1141,6 +1981,18 @@
             "value" : "Zusätzliche Dateien wurden gefunden. Bitte entscheiden Sie für jede Datei, ob sie synchronisiert oder entfernt werden sollen."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se han encontrado archivos adicionales. Decida para cada archivo si deben sincronizarse o eliminarse."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sono stati trovati file extra. Decidi per ciascun file se devono essere sincronizzati o rimossi."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1155,6 +2007,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zusätzliche Dateien im Ordner %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivos adicionales en la carpeta %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File extra nella cartella %@"
           }
         },
         "nl" : {
@@ -1173,6 +2037,18 @@
             "value" : "Datei ist zu groß zum Vorschau anzeigen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo es demasiado grande para previsualizar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il file è troppo grande per l'anteprima"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1187,6 +2063,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dateigröße"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamaño de archivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dimensione file"
           }
         },
         "nl" : {
@@ -1205,6 +2093,18 @@
             "value" : "Datei wurde gelöscht"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivo eliminado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File eliminato"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1219,6 +2119,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dateien auf Gerät gespeichert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivos guardados en el dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File conservati sul dispositivo"
           }
         },
         "nl" : {
@@ -1237,6 +2149,18 @@
             "value" : "Dateien auf diesem Gerät gespeichert"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivos guardados en este dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File conservati su questo dispositivo"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1251,6 +2175,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ordner '%@' enthält zusätzliche Dateien"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La carpeta '%@' tiene archivos adicionales"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cartella '%@' ha file extra"
           }
         },
         "nl" : {
@@ -1269,6 +2205,18 @@
             "value" : "Ordner existiert nicht"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La carpeta no existe"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cartella non esiste"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1283,6 +2231,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ordner-ID"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID de carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID cartella"
           }
         },
         "nl" : {
@@ -1301,6 +2261,18 @@
             "value" : "Ordnereigenschaften"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Propiedades de la carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proprietà cartella"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1315,6 +2287,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ordner entfernt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carpeta eliminada"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartella rimossa"
           }
         },
         "nl" : {
@@ -1333,6 +2317,18 @@
             "value" : "Ordnereinstellungen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configuración de carpetas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impostazioni cartella"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1347,6 +2343,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ordnerstatistiken"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estadísticas de la carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistiche cartella"
           }
         },
         "nl" : {
@@ -1365,6 +2373,18 @@
             "value" : "Ordner wurde gelöscht"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carpeta eliminada"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartella eliminata"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1379,6 +2399,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ordner"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carpetas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartelle"
           }
         },
         "nl" : {
@@ -1397,6 +2429,18 @@
             "value" : "Ordner, die Ihre Aufmerksamkeit erfordern"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carpetas que requieren tu atención"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartelle che richiedono la tua attenzione"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1411,6 +2455,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Speicherplatz freigeben"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liberar espacio"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Libera spazio"
           }
         },
         "nl" : {
@@ -1429,6 +2485,18 @@
             "value" : "Voller Ordner"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carpeta llena"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartella piena"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1443,6 +2511,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Erste Schritte"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comenzar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniziare"
           }
         },
         "nl" : {
@@ -1461,6 +2541,18 @@
             "value" : "Hostname"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nombre de host"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hostname"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1475,6 +2567,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ich verstehe und stimme zu"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entiendo y acepto"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Capisco e sono d'accordo"
           }
         },
         "nl" : {
@@ -1493,6 +2597,18 @@
             "value" : "Ich verstehe, lass uns anfangen!"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entiendo, ¡comencemos!"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ho capito, iniziamo!"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1507,6 +2623,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wenn ein Gerät nicht aktiviert ist, wird die Synchronisierung mit diesem Gerät pausiert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si un dispositivo no está habilitado, la sincronización con este dispositivo se detiene."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se un dispositivo non è attivato, la sincronizzazione con questo dispositivo è sospesa."
           }
         },
         "nl" : {
@@ -1525,6 +2653,18 @@
             "value" : "Wenn einem Gerät nicht vertraut wird, ist für jeden Ordner, der mit dem Gerät synchronisiert wird, ein Verschlüsselungspasswort erforderlich."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si un dispositivo no es de confianza, se requiere una contraseña de cifrado para cada carpeta sincronizada con el dispositivo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se un dispositivo non è considerato attendibile, è necessaria una password di criptazione per ogni cartella sincronizzata con il dispositivo."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1539,6 +2679,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wenn dies unerwartet ist, stellen Sie sicher, dass die anderen Geräte das Synchronisieren dieses Ordners mit Ihrem Gerät akzeptiert haben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si esto es inesperado, asegúrate de que los otros dispositivos hayan aceptado sincronizar esta carpeta con tu dispositivo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se questo è inaspettato, assicurati che gli altri dispositivi abbiano accettato di sincronizzare questa cartella con il tuo dispositivo."
           }
         },
         "nl" : {
@@ -1557,6 +2709,18 @@
             "value" : "Letzte Hintergrundsynchronisierung"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Última sincronización en segundo plano"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima sincronizzazione in background"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1571,6 +2735,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zuletzt geändert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Última modificación"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima modifica"
           }
         },
         "nl" : {
@@ -1589,6 +2765,18 @@
             "value" : "Zuletzt geändert von"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Última modificación de"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima modifica da"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1603,6 +2791,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zuletzt gesehen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Última vez visto"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima visualizzazione"
           }
         },
         "nl" : {
@@ -1621,6 +2821,18 @@
             "value" : "Dateiübertragungsbandbreite begrenzen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limitar ancho de banda de transferencia de archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limita la larghezza di banda per il trasferimento file"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1635,6 +2847,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Empfangsbandbreite begrenzen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limitar el ancho de banda de recepción"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limita la larghezza di banda in ricezione"
           }
         },
         "nl" : {
@@ -1653,6 +2877,18 @@
             "value" : "Sendebandbreite begrenzen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limitar el ancho de banda de envío"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limita la larghezza di banda di invio"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1667,6 +2903,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Streaming begrenzen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limitar transmisión"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limita streaming"
           }
         },
         "nl" : {
@@ -1685,6 +2933,18 @@
             "value" : "Streaming-Bandbreite begrenzen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limitar ancho de banda de transmisión"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limita larghezza di banda dello streaming"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1699,6 +2959,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Auf eingehende Verbindungen hören"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escuchar conexiones entrantes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ascolta le connessioni in arrivo"
           }
         },
         "nl" : {
@@ -1717,6 +2989,18 @@
             "value" : "Standort"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ubicación"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posizione"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1731,6 +3015,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nie"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nunca"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mai"
           }
         },
         "nl" : {
@@ -1749,6 +3045,18 @@
             "value" : "Weiter"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siguiente"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avanti"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1763,6 +3071,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Noch keine Geräte hinzugefügt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no se han añadido dispositivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun dispositivo ancora aggiunto"
           }
         },
         "nl" : {
@@ -1781,6 +3101,18 @@
             "value" : "Keine zusätzlichen Dateien gefunden"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se encontraron archivos adicionales"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun file aggiuntivo trovato"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1795,6 +3127,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Keine Dateien gefunden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se encontraron archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun file trovato"
           }
         },
         "nl" : {
@@ -1813,6 +3157,18 @@
             "value" : "Keine Dateien ausgewählt"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se han seleccionado archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun file selezionato"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1827,6 +3183,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nicht verbunden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No conectado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non connesso"
           }
         },
         "nl" : {
@@ -1845,6 +3213,18 @@
             "value" : "Anzahl der Verzeichnisse"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Número de directorios"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Numero di directory"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1859,6 +3239,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Anzahl der Dateien"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Número de archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Numero di file"
           }
         },
         "nl" : {
@@ -1877,6 +3269,18 @@
             "value" : "Quellcode abrufen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obtener el código fuente"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ottieni il codice sorgente"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1891,6 +3295,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rufen Sie die Quellcode-Modifikationen ab"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obtener las modificaciones del código fuente"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ottieni le modifiche al codice sorgente"
           }
         },
         "nl" : {
@@ -1909,6 +3325,18 @@
             "value" : "Aus"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apagado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spento"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1920,6 +3348,18 @@
     "OK" : {
       "localizations" : {
         "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "OK"
@@ -1941,6 +3381,18 @@
             "value" : "Ein"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encender"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attiva"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1955,6 +3407,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Auf diesem Gerät: %lld%%"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En este dispositivo: %lld%%"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su questo dispositivo: %lld%%"
           }
         },
         "nl" : {
@@ -1973,6 +3437,18 @@
             "value" : "Eine Verbindung ist ausreichend"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una conexión es suficiente"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una connessione è sufficiente"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1987,6 +3463,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "In Dateien-App öffnen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir en la app Archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri nell'app File"
           }
         },
         "nl" : {
@@ -2005,6 +3493,18 @@
             "value" : "Open Source"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Código abierto"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open source"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2019,6 +3519,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open-Source-Komponenten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Componentes de código abierto"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Componenti open source"
           }
         },
         "nl" : {
@@ -2037,6 +3549,18 @@
             "value" : "Andere Geräte"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otros dispositivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Altri dispositivi"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2051,6 +3575,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Passwort"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contraseña"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Password"
           }
         },
         "nl" : {
@@ -2069,6 +3605,18 @@
             "value" : "Peer wurde entfernt"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peer fue eliminado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peer è stato rimosso"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2083,6 +3631,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Diese Datei dauerhaft löschen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar este archivo permanentemente"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina questo file in modo permanente"
           }
         },
         "nl" : {
@@ -2101,6 +3661,18 @@
             "value" : "Angetrieben von Syncthing"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impulsado por Syncthing"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supportato da Syncthing"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2115,6 +3687,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vorbereitung auf die Synchronisierung..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparando la sincronización..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparazione alla sincronizzazione..."
           }
         },
         "nl" : {
@@ -2133,6 +3717,18 @@
             "value" : "Vorschauen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vistas previas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anteprime"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2147,6 +3743,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vorherige"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anterior"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precedente"
           }
         },
         "nl" : {
@@ -2165,6 +3773,18 @@
             "value" : "Mehr erfahren auf syncthing.net"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lee más en syncthing.net"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leggi di più su syncthing.net"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2179,6 +3799,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nur empfangen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo recibir"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ricevi solo"
           }
         },
         "nl" : {
@@ -2197,6 +3829,18 @@
             "value" : "Aktuelle Änderungen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambios recientes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifiche recenti"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2211,6 +3855,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Entferne %lld Dateien von meinem Gerät"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar %lld archivos de mi dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi %lld file dal mio dispositivo"
           }
         },
         "nl" : {
@@ -2229,6 +3885,18 @@
             "value" : "Alle zusätzlichen Dateien entfernen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar todos los archivos extra"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi tutti i file extra"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2243,6 +3911,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Datei von allen Geräten entfernen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar archivo de todos los dispositivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi file da tutti i dispositivi"
           }
         },
         "nl" : {
@@ -2261,6 +3941,18 @@
             "value" : "Ordner löschen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi cartella"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2275,6 +3967,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Datei von allen Geräten entfernen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar el archivo de todos los dispositivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi il file da tutti i dispositivi"
           }
         },
         "nl" : {
@@ -2293,6 +3997,18 @@
             "value" : "Ordner und alle Dateien löschen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar la carpeta y todos los archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi la cartella e tutti i file"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2307,6 +4023,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hintergrundsynchronisation anfordern"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solicitar sincronización en segundo plano"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richiedi sincronizzazione in background"
           }
         },
         "nl" : {
@@ -2325,6 +4053,18 @@
             "value" : "Speichern"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salva"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2339,6 +4079,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gerät QR-Code scannen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escanea un código QR del dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scansiona un codice QR del dispositivo"
           }
         },
         "nl" : {
@@ -2357,6 +4109,18 @@
             "value" : "Scannen mit Kamera..."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escanear con la cámara..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scansiona con la fotocamera..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2371,6 +4135,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Scannen..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escaneando..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scansione in corso..."
           }
         },
         "nl" : {
@@ -2389,6 +4165,18 @@
             "value" : "Suche"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2403,6 +4191,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dateien nach Namen suchen..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar archivos por nombre..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca file per nome..."
           }
         },
         "nl" : {
@@ -2421,6 +4221,18 @@
             "value" : "Dateien in allen Ordnern durchsuchen..."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar archivos en todas las carpetas..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca file in tutte le cartelle..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2435,6 +4247,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Suchergebnisse (%lld)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resultados de búsqueda (%lld)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risultati di ricerca (%lld)"
           }
         },
         "nl" : {
@@ -2453,6 +4277,18 @@
             "value" : "Suchergebnisse (%lld+)"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resultados de búsqueda (%lld+)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risultati di ricerca (%lld+)"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2467,6 +4303,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wählen Sie ein Gerät aus"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selecciona un dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleziona un dispositivo"
           }
         },
         "nl" : {
@@ -2485,6 +4333,18 @@
             "value" : "Ordner auswählen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selecciona una carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleziona una cartella"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2499,6 +4359,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ausgewählte Dateien"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivos seleccionados"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File selezionati"
           }
         },
         "nl" : {
@@ -2517,6 +4389,18 @@
             "value" : "Auswahl"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selección"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selezione"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2531,6 +4415,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Senden und empfangen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar y recibir"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invia e ricevi"
           }
         },
         "nl" : {
@@ -2549,6 +4445,18 @@
             "value" : "Einstellungen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impostazioni"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2563,6 +4471,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Datei freigeben"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartir archivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condividi file"
           }
         },
         "nl" : {
@@ -2581,6 +4501,18 @@
             "value" : "Ordner freigeben"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartir carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condividi cartella"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2595,6 +4527,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Diesen Ordner mit anderen Geräten teilen, um Dateien zu synchronisieren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comparte esta carpeta con otros dispositivos para comenzar a sincronizar archivos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condividi questa cartella con altri dispositivi per iniziare a sincronizzare i file."
           }
         },
         "nl" : {
@@ -2613,6 +4557,18 @@
             "value" : "Mit allen Geräten teilen, die diesen Ordner anbieten"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartir con todos los dispositivos que ofrezcan esta carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condividi con tutti i dispositivi che offrono questa cartella"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2627,6 +4583,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mit Gerät teilen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartir con dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condividi con dispositivo"
           }
         },
         "nl" : {
@@ -2645,6 +4613,18 @@
             "value" : "Geteilte Ordner"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carpetas compartidas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartelle condivise"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2659,6 +4639,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Geteilt mit"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartido con"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condiviso con"
           }
         },
         "nl" : {
@@ -2677,6 +4669,18 @@
             "value" : "Adressen anzeigen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar direcciones"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra indirizzi"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2691,6 +4695,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bildvorschauen anzeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar vistas previas de imágenes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra anteprime immagini"
           }
         },
         "nl" : {
@@ -2709,6 +4725,18 @@
             "value" : "Einführungsbildschirm anzeigen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar pantalla de introducción"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra schermata introduttiva"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2723,6 +4751,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vorschau für große Dateien anzeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar vista previa para archivos grandes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra anteprima per file di grandi dimensioni"
           }
         },
         "nl" : {
@@ -2741,6 +4781,18 @@
             "value" : "QR-Code anzeigen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar código QR"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra codice QR"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2755,6 +4807,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Start"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inizia"
           }
         },
         "nl" : {
@@ -2773,6 +4837,18 @@
             "value" : "Gestartet"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avviato"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2787,6 +4863,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Statistiken"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estadísticas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistiche"
           }
         },
         "nl" : {
@@ -2805,6 +4893,18 @@
             "value" : "Stream"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transmitir"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Streaming"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2819,6 +4919,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Synchronisation deaktiviert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronización desactivada"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizzazione disabilitata"
           }
         },
         "nl" : {
@@ -2837,6 +4949,18 @@
             "value" : "Die Synchronisierung ist für diesen Ordner deaktiviert. Aktivieren Sie sie in den Ordnereinstellungen, um auf Dateien zuzugreifen."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronización ha sido desactivada para esta carpeta. Actívala en la configuración de la carpeta para acceder a los archivos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronizzazione è stata disabilitata per questa cartella. Abilitala nelle impostazioni della cartella per accedere ai file."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2851,6 +4975,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Synchronisierung ist keine Sicherung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronización no es una copia de seguridad"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronizzazione non è un backup"
           }
         },
         "nl" : {
@@ -2869,6 +5005,18 @@
             "value" : "Synchronisieren"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizza"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2883,6 +5031,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Datei synchronisieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizar archivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizza file"
           }
         },
         "nl" : {
@@ -2901,6 +5061,18 @@
             "value" : "Datei synchronisieren (bestehende überschreiben)"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizar archivo (sobrescribir existente)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizza file (sovrascrivi esistente)"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2915,6 +5087,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mit diesem Gerät synchronisieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizar con este dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizza con questo dispositivo"
           }
         },
         "nl" : {
@@ -2933,6 +5117,18 @@
             "value" : "Synchronisieren Sie Ihre Dateien sicher mit Ihren anderen Geräten."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincroniza tus archivos de forma segura con tus otros dispositivos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizza i tuoi file in modo sicuro con gli altri tuoi dispositivi."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2947,6 +5143,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Synchronisiert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizzato"
           }
         },
         "nl" : {
@@ -2965,6 +5173,18 @@
             "value" : "Dateien synchronisieren..."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizando archivos..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizzazione dei file..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2981,6 +5201,18 @@
             "value" : "Synchronisierung..."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizando..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizzazione in corso..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2992,6 +5224,18 @@
     "Syncthing" : {
       "localizations" : {
         "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Syncthing"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Syncthing"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Syncthing"
@@ -3013,6 +5257,18 @@
             "value" : "Synctrain ist © 2024, Tommy van der Vorst"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain es © 2024, Tommy van der Vorst"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain è © 2024, Tommy van der Vorst"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3027,6 +5283,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tippe hier, um die heruntergeladene Datei anzuzeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toca aquí para ver el archivo descargado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tocca qui per visualizzare il file scaricato"
           }
         },
         "nl" : {
@@ -3045,6 +5313,18 @@
             "value" : "Das Gerät wurde hinzugefügt"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El dispositivo ha sido agregado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il dispositivo è stato aggiunto"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3059,6 +5339,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Das Gerät wurde hinzugefügt. Stellen Sie sicher, dass eine Verbindung besteht, indem Sie das andere Gerät dieses Gerät akzeptieren lassen oder dieses Gerät auch dort hinzufügen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El dispositivo ha sido agregado. Para asegurar una conexión, asegúrate de que el otro dispositivo acepte este dispositivo, o añade este dispositivo allí también."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il dispositivo è stato aggiunto. Per garantire una connessione, assicurati che l'altro dispositivo accetti questo dispositivo, oppure aggiungi anche lì questo dispositivo."
           }
         },
         "nl" : {
@@ -3077,6 +5369,18 @@
             "value" : "Der Prozentsatz der gesamten Ordnergröße, den jedes Gerät lokal speichert."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El porcentaje del tamaño total de la carpeta que cada dispositivo almacena localmente."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La percentuale della dimensione totale della cartella che ciascun dispositivo memorizza localmente."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3091,6 +5395,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Der Quellcode dieser Anwendung ist unter der Mozilla Public License 2.0 verfügbar."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El código fuente de esta aplicación está disponible bajo la Mozilla Public License 2.0."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il codice sorgente di questa applicazione è disponibile sotto la Mozilla Public License 2.0."
           }
         },
         "nl" : {
@@ -3109,6 +5425,18 @@
             "value" : "In diesem Ordner befinden sich derzeit keine Dateien."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualmente no hay archivos en esta carpeta."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attualmente non ci sono file in questa cartella."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3123,6 +5451,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Diese App wird von Syncthing unterstützt. Diese App ist jedoch weder mit Syncthing noch seinen Entwicklern verbunden oder von ihnen genehmigt. Bitte erwarten Sie keinen Support von den Syncthing-Entwicklern. Wenden Sie sich stattdessen an den Hersteller dieser App, wenn Sie Fragen haben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta app funciona con Syncthing. Sin embargo, esta app no está asociada ni respaldada por Syncthing ni por sus desarrolladores. No espere apoyo de los desarrolladores de Syncthing. En su lugar, contacte al creador de esta app si tiene preguntas."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa app è alimentata da Syncthing. Questa app non è tuttavia associata né approvata da Syncthing né dai suoi sviluppatori. Non aspettatevi supporto dagli sviluppatori di Syncthing. In caso di domande, contattate il creatore di questa app."
           }
         },
         "nl" : {
@@ -3141,6 +5481,18 @@
             "value" : "Diese Anwendung integriert Syncthing, eine Open-Source-Software unter der Mozilla Public License 2.0. Syncthing ist ein Warenzeichen der Syncthing Foundation. Diese Anwendung steht in keiner Verbindung zur Syncthing Foundation oder zu den Syncthing-Beitragenden und wird von ihnen nicht unterstützt."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta aplicación incorpora Syncthing, que es software de código abierto bajo la Mozilla Public License 2.0. Syncthing es una marca registrada de la Syncthing Foundation. Esta aplicación no está asociada ni respaldada por la fundación Syncthing ni por los colaboradores de Syncthing."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa applicazione incorpora Syncthing, software open source sotto la Mozilla Public License 2.0. Syncthing è un marchio registrato della Syncthing Foundation. Questa applicazione non è associata né approvata dalla Syncthing Foundation né dai contributori di Syncthing."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3155,6 +5507,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dieses Gerät"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo dispositivo"
           }
         },
         "nl" : {
@@ -3173,6 +5537,18 @@
             "value" : "Die Gerätekennung"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El identificador de este dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'identificatore di questo dispositivo"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3187,6 +5563,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Diese Datei wurde gelöscht."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este archivo fue eliminado."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo file è stato eliminato."
           }
         },
         "nl" : {
@@ -3205,6 +5593,18 @@
             "value" : "Dieser Ordner hat neue Dateien"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta carpeta tiene archivos nuevos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa cartella contiene nuovi file"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3219,6 +5619,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dieser Ordner wurde gelöscht."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta carpeta fue eliminada."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa cartella è stata eliminata."
           }
         },
         "nl" : {
@@ -3237,6 +5649,18 @@
             "value" : "Dieser Ordner wurde entfernt."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta carpeta fue eliminada."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa cartella è stata rimossa."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3251,6 +5675,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dieses Element wird mit diesem Gerät synchronisiert, weil ein übergeordneter Ordner mit diesem Gerät synchronisiert wird."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este elemento se sincroniza con este dispositivo porque una carpeta superior está sincronizada con este dispositivo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo elemento è sincronizzato con questo dispositivo perché una cartella padre è sincronizzata con questo dispositivo."
           }
         },
         "nl" : {
@@ -3269,6 +5705,18 @@
             "value" : "Dieser Peer wurde gelöscht."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este par fue eliminado."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo peer è stato eliminato."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3283,6 +5731,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Um Dateien auf diesem Gerät zu behalten, navigieren Sie zu einer Datei und wählen Sie 'auf diesem Gerät behalten'. Ausgewählte Dateien werden hier angezeigt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para mantener archivos en este dispositivo, navegue a un archivo y seleccione 'mantener en este dispositivo'. Los archivos seleccionados aparecerán aquí."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per mantenere i file su questo dispositivo, vai su un file e seleziona 'mantieni su questo dispositivo'. I file selezionati verranno visualizzati qui."
           }
         },
         "nl" : {
@@ -3301,6 +5761,18 @@
             "value" : "Um Dateien zu synchronisieren, fügen Sie einen Ordner hinzu. Ordner mit derselben Ordner-ID auf mehreren Geräten werden miteinander synchronisiert."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para sincronizar archivos, añade una carpeta. Las carpetas que tengan el mismo ID de carpeta en varios dispositivos se sincronizarán entre sí."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per sincronizzare i file, aggiungi una cartella. Le cartelle con lo stesso ID cartella su più dispositivi verranno sincronizzate tra loro."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3315,6 +5787,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Um Dateien zu synchronisieren, füge zuerst ein externes Gerät hinzu. Wähle ein Gerät aus der untenstehenden Liste oder füge es manuell mit der Geräte-ID hinzu."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para sincronizar archivos, primero agrega un dispositivo remoto. Selecciona un dispositivo de la lista a continuación o agrégalo manualmente usando el ID del dispositivo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per sincronizzare i file, aggiungi prima un dispositivo remoto. Seleziona un dispositivo dall'elenco sottostante o aggiungilo manualmente utilizzando l'ID dispositivo."
           }
         },
         "nl" : {
@@ -3333,6 +5817,18 @@
             "value" : "Vertrauenswürdig"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confiable"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fidato"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3347,6 +5843,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nicht verfügbar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No disponible"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non disponibile"
           }
         },
         "nl" : {
@@ -3365,6 +5873,18 @@
             "value" : "Unbekannter Status"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado desconocido"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stato sconosciuto"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3379,6 +5899,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gerät entkoppeln"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desvincular dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scollega dispositivo"
           }
         },
         "nl" : {
@@ -3397,6 +5929,18 @@
             "value" : "Betriebszeit"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiempo de actividad"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durata operativa"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3411,6 +5955,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Versionsinformationen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Información de la versión"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informazioni sulla versione"
           }
         },
         "nl" : {
@@ -3429,6 +5985,18 @@
             "value" : "Datei anzeigen"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver archivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visualizza file"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3443,6 +6011,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Warten auf Bereinigung..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esperando para limpiar..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In attesa di pulizia..."
           }
         },
         "nl" : {
@@ -3461,6 +6041,18 @@
             "value" : "Warten auf Scan..."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esperando para escanear..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In attesa di scansione..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3475,6 +6067,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Warten auf Synchronisierung..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esperando para sincronizar..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In attesa di sincronizzazione..."
           }
         },
         "nl" : {
@@ -3493,6 +6097,18 @@
             "value" : "Willkommen bei Synctrain!"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Bienvenido a Synctrain!"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benvenuto su Synctrain!"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3507,6 +6123,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wenn diese Einstellung aktiviert ist, wird die App nicht versuchen, sich mit weiteren Geräten zu verbinden, nachdem eine Verbindung hergestellt wurde."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando esta configuración está habilitada, la app no intentará conectarse a más dispositivos una vez establecida una conexión."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando questa impostazione è abilitata, l'app non tenterà di connettersi ad altri dispositivi dopo che una connessione è stata stabilita."
           }
         },
         "nl" : {
@@ -3525,6 +6153,18 @@
             "value" : "Wenn Sie Dateien synchronisieren, werden alle Änderungen, einschließlich des Löschens von Dateien, auch auf Ihren anderen Geräten durchgeführt. Verwenden Sie Synctrain nicht für Sicherungszwecke und behalten Sie stets eine Sicherung Ihrer Daten."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando sincronizas archivos, todos los cambios, incluida la eliminación de archivos, también suceden en tus otros dispositivos. No utilices Synctrain para fines de respaldo y siempre mantén una copia de seguridad de tus datos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando sincronizzi i file, tutte le modifiche, compresa l'eliminazione dei file, avvengono anche sugli altri tuoi dispositivi. Non utilizzare Synctrain per scopi di backup e mantieni sempre un backup dei tuoi dati."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3536,6 +6176,18 @@
     "XXXX-XXXX" : {
       "localizations" : {
         "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "XXXX-XXXX"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "XXXX-XXXX"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "XXXX-XXXX"
@@ -3557,6 +6209,18 @@
             "value" : "Sie verwenden eine benutzerdefinierte Konfiguration. Diese darf nur zu Testzwecken und auf eigenes Risiko verwendet werden. Es werden möglicherweise nicht alle Konfigurationsoptionen unterstützt. Um die benutzerdefinierte Konfiguration zu deaktivieren, entfernen Sie die Konfigurationsdateien aus dem Ordner der App und starten Sie die App neu. Die Entwickler der App können nicht für Datenverlust haftbar gemacht werden!"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Está utilizando una configuración personalizada. Esto solo puede usarse para pruebas, bajo su propio riesgo. Es posible que no se admitan todas las opciones de configuración. Para desactivar la configuración personalizada, elimine los archivos de configuración de la carpeta de la aplicación y reinicie la aplicación. ¡Los creadores de la aplicación no pueden ser responsables de ninguna pérdida de datos que pueda ocurrir!"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stai utilizzando una configurazione personalizzata. Questa può essere utilizzata solo a scopo di test, a tuo rischio e pericolo. Non tutte le opzioni di configurazione potrebbero essere supportate. Per disabilitare la configurazione personalizzata, rimuovi i file di configurazione dalla cartella dell'app e riavvia l'app. I creatori dell'app non possono essere ritenuti responsabili per eventuali perdite di dati che potrebbero verificarsi!"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3573,6 +6237,18 @@
             "value" : "Sie entscheiden, mit welchen Geräten Sie welche Dateien teilen. Dies bedeutet auch, dass die App-Entwickler Ihnen nicht bei der Wiederherstellung verlorener Dateien helfen können."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tú decides con qué dispositivos compartes qué archivos. Esto también significa que los creadores de la app no pueden ayudarte a acceder o recuperar archivos perdidos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli tu con quali dispositivi condividere i file. Ciò significa anche che i creatori dell'app non possono aiutarti ad accedere o recuperare file persi."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3587,6 +6263,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ihre Geräte, Ihre Daten, Ihre Verantwortung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus dispositivos, tus datos, tu responsabilidad"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I tuoi dispositivi, i tuoi dati, la tua responsabilità"
           }
         },
         "nl" : {
