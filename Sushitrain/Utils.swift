@@ -73,36 +73,55 @@ extension SushitrainChange {
     }
 }
 
+import SwiftUI
+import Combine
+
 /** Utility for storing arbitrary Swift Codable types as user defaults */
 // Inspired by https://stackoverflow.com/questions/19720611/attempt-to-set-a-non-property-list-object-as-an-nsuserdefaults
 @propertyWrapper
-struct Setting<T: Codable> {
+class Setting<T: Codable & Equatable>: ObservableObject {
     let key: String
     let defaultValue: T
+    
+    private var cancellable: AnyCancellable?
     
     init(_ key: String, defaultValue: T) {
         self.key = key
         self.defaultValue = defaultValue
+        self.wrappedValue = defaultValue
+        
+        // Observe changes in UserDefaults
+        cancellable = UserDefaults.standard.publisher(for: \.self)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
     }
     
     var wrappedValue: T {
         get {
-            if let jsonData = UserDefaults.standard.object(forKey: key) as? Data,
+            if let jsonData = UserDefaults.standard.data(forKey: key),
                let user = try? JSONDecoder().decode(T.self, from: jsonData) {
                 return user
             }
-            
-            return  defaultValue
+            return defaultValue
         }
         set {
             if let jsonData = try? JSONEncoder().encode(newValue) {
                 UserDefaults.standard.set(jsonData, forKey: key)
+                objectWillChange.send() // Notify subscribers of the change
             }
         }
     }
+    
+    var projectedValue: Binding<T> {
+        Binding(
+            get: { self.wrappedValue },
+            set: { self.wrappedValue = $0 }
+        )
+    }
 }
 
-struct BackgroundSyncRun: Codable {
+struct BackgroundSyncRun: Codable, Equatable {
     var started: Date
     var ended: Date?
     

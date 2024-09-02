@@ -24,6 +24,7 @@ class AppState: ObservableObject, @unchecked Sendable {
     @Published var launchedAt = Date.now
     @Published var streamingProgress: StreamingProgress? = nil
     @Published var lastChanges: [SushitrainChange] = []
+    @Published var photoSync = PhotoSynchronisation()
     
     static let maxChanges = 25
     

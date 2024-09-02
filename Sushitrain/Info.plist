@@ -24,8 +24,6 @@
 		<string>audio</string>
 		<string>processing</string>
 	</array>
-	<key>NSCameraUsageDescription</key>
-	<string>Using the camera you can easily add devices by scanning a QR code. It is still possible to add devices manually without the camera.</string>
 	<key>UIFileSharingEnabled</key>
 	<true/>
 </dict>

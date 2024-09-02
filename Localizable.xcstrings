@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "(No folder selected)" : {
+
+    },
     "%@ (%@)" : {
       "localizations" : {
         "de" : {
@@ -516,6 +519,9 @@
           }
         }
       }
+    },
+    "Allow Synctrain to access photos" : {
+
     },
     "Also limit in local networks" : {
       "localizations" : {
@@ -1160,6 +1166,9 @@
           }
         }
       }
+    },
+    "Copy photos now" : {
+
     },
     "Copy to clipboard" : {
       "localizations" : {
@@ -2477,6 +2486,9 @@
         }
       }
     },
+    "From album" : {
+
+    },
     "Full folder" : {
       "localizations" : {
         "de" : {
@@ -3653,6 +3665,9 @@
         }
       }
     },
+    "Photos synchronization" : {
+
+    },
     "Powered by Syncthing" : {
       "localizations" : {
         "de" : {
@@ -4044,6 +4059,9 @@
           }
         }
       }
+    },
+    "Review permissions in the Settings app" : {
+
     },
     "Save" : {
       "localizations" : {
@@ -5249,6 +5267,9 @@
         }
       }
     },
+    "Synctrain cannot access your photo library right now" : {
+
+    },
     "Synctrain is © 2024, Tommy van der Vorst" : {
       "localizations" : {
         "de" : {
@@ -5724,6 +5745,9 @@
           }
         }
       }
+    },
+    "To folder" : {
+
     },
     "To keep files on this device, navigate to a file and select 'keep on this device'. Selected files will appear here." : {
       "localizations" : {

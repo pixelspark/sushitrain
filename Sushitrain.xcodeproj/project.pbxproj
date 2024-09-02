@@ -27,6 +27,7 @@
 		65AE126F2C3B14CC00E721D4 /* AddFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE126E2C3B14CC00E721D4 /* AddFolderView.swift */; };
 		65AE12732C3B163000E721D4 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE12722C3B163000E721D4 /* AppState.swift */; };
 		65BBF8452C4BFB9300EC59C4 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BBF8442C4BFB9300EC59C4 /* AboutView.swift */; };
+		65C8BFD62C864A6A00DF5EB0 /* PhotosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C8BFD52C864A6A00DF5EB0 /* PhotosView.swift */; };
 		65C9E1422C3C96E400EDCE6C /* FoldersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E1412C3C96E400EDCE6C /* FoldersView.swift */; };
 		65C9E1482C3F2FEF00EDCE6C /* PeersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E1472C3F2FEF00EDCE6C /* PeersView.swift */; };
 		65C9E14C2C3F341F00EDCE6C /* MeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E14B2C3F341F00EDCE6C /* MeView.swift */; };
@@ -80,6 +81,7 @@
 		65AE126E2C3B14CC00E721D4 /* AddFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFolderView.swift; sourceTree = "<group>"; };
 		65AE12722C3B163000E721D4 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		65BBF8442C4BFB9300EC59C4 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		65C8BFD52C864A6A00DF5EB0 /* PhotosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosView.swift; sourceTree = "<group>"; };
 		65C9E1412C3C96E400EDCE6C /* FoldersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldersView.swift; sourceTree = "<group>"; };
 		65C9E1452C3DB5C000EDCE6C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		65C9E1462C3DB67C00EDCE6C /* Sushitrain.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sushitrain.entitlements; sourceTree = "<group>"; };
@@ -122,31 +124,32 @@
 		65AE11FB2C39EE0E00E721D4 /* Sushitrain */ = {
 			isa = PBXGroup;
 			children = (
-				65C9E1462C3DB67C00EDCE6C /* Sushitrain.entitlements */,
-				65C9E1452C3DB5C000EDCE6C /* Info.plist */,
 				65BBF8442C4BFB9300EC59C4 /* AboutView.swift */,
 				65AE12662C3B04A100E721D4 /* AddDeviceView.swift */,
 				65AE126E2C3B14CC00E721D4 /* AddFolderView.swift */,
 				65AE12722C3B163000E721D4 /* AppState.swift */,
+				65AE12002C39EE0F00E721D4 /* Assets.xcassets */,
 				650615862C3B3676002B6EE6 /* BrowserView.swift */,
 				6575B3DE2C6012480057686E /* ChangesView.swift */,
 				65AE11FE2C39EE0E00E721D4 /* ContentView.swift */,
 				65C9E1532C42B9AE00EDCE6C /* ExtraFilesView.swift */,
+				654272972C7BC77000F2CEF8 /* FileDownloadView.swift */,
 				65C9E14F2C419FCA00EDCE6C /* FileView.swift */,
 				65C9E1412C3C96E400EDCE6C /* FoldersView.swift */,
 				65AE125E2C3AC6E100E721D4 /* FolderView.swift */,
+				65C9E1452C3DB5C000EDCE6C /* Info.plist */,
 				65C9E14B2C3F341F00EDCE6C /* MeView.swift */,
 				652763BF2C49589200250D3C /* OnboardingView.swift */,
 				65C9E1472C3F2FEF00EDCE6C /* PeersView.swift */,
 				65AE126A2C3B066F00E721D4 /* PeerView.swift */,
+				65C8BFD52C864A6A00DF5EB0 /* PhotosView.swift */,
+				65AE12022C39EE0F00E721D4 /* Preview Content */,
+				65AE123B2C39F34B00E721D4 /* PrivacyInfo.xcprivacy */,
 				652879A72C4D06F5004AF46F /* SearchView.swift */,
 				652763BA2C45C99200250D3C /* SettingsView.swift */,
+				65C9E1462C3DB67C00EDCE6C /* Sushitrain.entitlements */,
 				65AE11FC2C39EE0E00E721D4 /* SushitrainApp.swift */,
 				65AE12622C3AF50900E721D4 /* Utils.swift */,
-				65AE12002C39EE0F00E721D4 /* Assets.xcassets */,
-				65AE123B2C39F34B00E721D4 /* PrivacyInfo.xcprivacy */,
-				65AE12022C39EE0F00E721D4 /* Preview Content */,
-				654272972C7BC77000F2CEF8 /* FileDownloadView.swift */,
 			);
 			path = Sushitrain;
 			sourceTree = "<group>";
@@ -282,6 +285,7 @@
 				65AE11FD2C39EE0E00E721D4 /* SushitrainApp.swift in Sources */,
 				65AE125F2C3AC6E100E721D4 /* FolderView.swift in Sources */,
 				65C9E1542C42B9AE00EDCE6C /* ExtraFilesView.swift in Sources */,
+				65C8BFD62C864A6A00DF5EB0 /* PhotosView.swift in Sources */,
 				652763C02C49589200250D3C /* OnboardingView.swift in Sources */,
 				65AE12632C3AF50900E721D4 /* Utils.swift in Sources */,
 				65AE12732C3B163000E721D4 /* AppState.swift in Sources */,
@@ -438,6 +442,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Synctrain;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Using the camera you can easily add devices by scanning a QR code. It is still possible to add devices manually without the camera.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "When enabled, the app can load photos from the photo library and add them to synchronized folders.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -475,6 +481,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Synctrain;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Using the camera you can easily add devices by scanning a QR code. It is still possible to add devices manually without the camera.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "When enabled, the app can load photos from the photo library and add them to synchronized folders.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
