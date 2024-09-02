@@ -3,6 +3,12 @@
   "strings" : {
     "%@ (%@)" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (%@)"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
@@ -19,6 +25,12 @@
     },
     "%@: %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: %@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
@@ -35,6 +47,12 @@
     },
     "%lld MB" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld MB"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -45,6 +63,12 @@
     },
     "%lld Mbit/s" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Mbit/s"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -55,6 +79,12 @@
     },
     "%lld%%" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld%%"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -65,6 +95,12 @@
     },
     "About this app" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Über diese App"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -75,6 +111,12 @@
     },
     "Add" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hinzufügen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -85,6 +127,12 @@
     },
     "Add device" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerät hinzufügen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -95,6 +143,12 @@
     },
     "Add folder" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner hinzufügen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -105,6 +159,12 @@
     },
     "Add other device..." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anderes Gerät hinzufügen..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -115,6 +175,12 @@
     },
     "Add other folder..." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anderen Ordner hinzufügen..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -125,6 +191,12 @@
     },
     "Add your first device" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Füge dein erstes Gerät hinzu"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -135,6 +207,12 @@
     },
     "Add your first folder" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fügen Sie Ihren ersten Ordner hinzu"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -145,6 +223,12 @@
     },
     "Added devices can connect to this device on their initiative, while the app is running. This may cause additional battery drain. It is advisable to enable this only if you experience difficulty connecting to other devices." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hinzugefügte Geräte können auf eigene Initiative eine Verbindung zu diesem Gerät herstellen, während die App läuft. Dies kann zu einem zusätzlichen Batterieverbrauch führen. Es ist ratsam, dies nur zu aktivieren, wenn Sie Schwierigkeiten beim Verbinden mit anderen Geräten haben."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -155,6 +239,12 @@
     },
     "Addresses" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adressen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -165,6 +255,12 @@
     },
     "Advanced settings" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erweiterte Einstellungen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -175,6 +271,12 @@
     },
     "All devices" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Geräte"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -185,6 +287,12 @@
     },
     "All files" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Dateien"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -195,6 +303,12 @@
     },
     "Also limit in local networks" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auch in lokalen Netzwerken begrenzen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -205,6 +319,12 @@
     },
     "An error occured" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Fehler ist aufgetreten"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -215,6 +335,12 @@
     },
     "Announce globally" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weltweit ankündigen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -225,6 +351,12 @@
     },
     "Announce LAN addresses" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LAN-Adressen ankündigen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -235,6 +367,12 @@
     },
     "Announce on local networks" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im lokalen Netzwerk ankündigen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -245,6 +383,12 @@
     },
     "App" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -255,6 +399,12 @@
     },
     "Are you sure you want to delete %lld files? Files that are not synchronized to other device will be lost. This cannot be undone!" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Möchten Sie wirklich %lld Dateien löschen? Dateien, die nicht mit anderen Geräten synchronisiert sind, gehen verloren. Dies kann nicht rückgängig gemacht werden!"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -265,6 +415,12 @@
     },
     "Are you sure you want to remove this file from all devices?" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Möchten Sie diese Datei wirklich von allen Geräten entfernen?"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -275,6 +431,12 @@
     },
     "Are you sure you want to remove this folder? Please consider carefully. All files in this folder will be removed from this device. Files that have not been synchronized to other devices yet cannot be recoered." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sind Sie sicher, dass Sie diesen Ordner entfernen möchten? Bitte überlegen Sie sorgfältig. Alle Dateien in diesem Ordner werden von diesem Gerät entfernt. Dateien, die noch nicht auf andere Geräte synchronisiert wurden, können nicht wiederhergestellt werden."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -285,6 +447,12 @@
     },
     "Associated devices" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verknüpfte Geräte"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -295,6 +463,12 @@
     },
     "Background synchronization" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hintergrundsynchronisierung"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -305,6 +479,12 @@
     },
     "Background synchronization could not be scheduled. Please verify whether background processing is enabled for this app." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Hintergrundsynchronisierung konnte nicht geplant werden. Bitte überprüfen Sie, ob die Hintergrundverarbeitung für diese App aktiviert ist."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -315,6 +495,12 @@
     },
     "Background synchronization enabled" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hintergrundsynchronisierung aktiviert"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -325,6 +511,12 @@
     },
     "Background synchronization has been requested. The system will typically allow background synchronization to occur overnight, when the device is not used and charging." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es wurde eine Hintergrundsynchronisierung angefordert. Das System ermöglicht in der Regel eine Hintergrundsynchronisierung über Nacht, wenn das Gerät nicht verwendet wird und geladen wird."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -335,6 +527,12 @@
     },
     "Before we start, we need to go over a few things:" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bevor wir starten, müssen wir einige Dinge durchgehen:"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -345,6 +543,12 @@
     },
     "By %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von %@"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -355,6 +559,12 @@
     },
     "By this device" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auf diesem Gerät"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -365,6 +575,12 @@
     },
     "Cancel" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbrechen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -375,6 +591,12 @@
     },
     "Cannot display file" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei kann nicht angezeigt werden"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -385,6 +607,12 @@
     },
     "Cleaning up..." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereinigen..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -395,6 +623,12 @@
     },
     "Connected" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbunden"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -405,6 +639,12 @@
     },
     "Connections to other devices can only be initiated by this device, not by the other added devices." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbindungen zu anderen Geräten können nur von diesem Gerät initiiert werden, nicht von den anderen hinzugefügten Geräten."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -415,6 +655,12 @@
     },
     "Connectivity" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konnektivität"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -425,6 +671,12 @@
     },
     "Copy to clipboard" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In die Zwischenablage kopieren"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -435,6 +687,12 @@
     },
     "Could not add device" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerät konnte nicht hinzugefügt werden"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -445,6 +703,12 @@
     },
     "Could not add folder" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner konnte nicht hinzugefügt werden"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -455,6 +719,12 @@
     },
     "Could not download file" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei konnte nicht heruntergeladen werden"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -465,6 +735,12 @@
     },
     "Could not set encryption key" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Verschlüsselungsschlüssel konnte nicht gesetzt werden"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -475,6 +751,12 @@
     },
     "Custom configuration detected" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzerdefinierte Konfiguration erkannt"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -485,6 +767,12 @@
     },
     "Delete my copy of this file" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löschen Sie meine Kopie dieser Datei"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -495,6 +783,12 @@
     },
     "Device ID" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geräte-ID"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -505,6 +799,12 @@
     },
     "Device identifier" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerätekennung"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -515,6 +815,12 @@
     },
     "Device name" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerätename"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -525,6 +831,12 @@
     },
     "Devices" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geräte"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -535,6 +847,12 @@
     },
     "Direction" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richtung"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -545,6 +863,12 @@
     },
     "Discovered devices" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entdeckte Geräte"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -555,6 +879,12 @@
     },
     "Discovered folders" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entdeckte Ordner"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -565,6 +895,12 @@
     },
     "Display name" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anzeigename"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -575,6 +911,12 @@
     },
     "Done" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fertig"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -585,6 +927,12 @@
     },
     "Downloaded" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heruntergeladen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -595,6 +943,12 @@
     },
     "Downloading %lld files..." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Dateien werden heruntergeladen..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -605,6 +959,12 @@
     },
     "Downloading file..." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei wird heruntergeladen..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -615,6 +975,12 @@
     },
     "Duration" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dauer"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -625,6 +991,12 @@
     },
     "During the last 24 hours" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In den letzten 24 Stunden"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -635,6 +1007,12 @@
     },
     "Enable NAT-PMP / UPnP" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktiviere NAT-PMP / UPnP"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -645,6 +1023,12 @@
     },
     "Enable relaying" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Relais aktivieren"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -655,6 +1039,12 @@
     },
     "Enabled" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktiviert"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -665,6 +1055,12 @@
     },
     "Encryption password" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verschlüsselungspasswort"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -675,6 +1071,12 @@
     },
     "Ended" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beendet"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -685,6 +1087,12 @@
     },
     "Enter a text to search for in the search field above to search." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geben Sie einen Text in das Suchfeld oben ein, um zu suchen."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -695,6 +1103,12 @@
     },
     "Error" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fehler"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -705,6 +1119,12 @@
     },
     "Extra files have been found. Because this is a receive-only folder, these files will not be synchronized." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es wurden zusätzliche Dateien gefunden. Da dies ein Nur-Empfangen-Ordner ist, werden diese Dateien nicht synchronisiert."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -715,6 +1135,12 @@
     },
     "Extra files have been found. Please decide for each file whether they should be synchronized or removed." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zusätzliche Dateien wurden gefunden. Bitte entscheiden Sie für jede Datei, ob sie synchronisiert oder entfernt werden sollen."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -725,6 +1151,12 @@
     },
     "Extra files in folder %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zusätzliche Dateien im Ordner %@"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -735,6 +1167,12 @@
     },
     "File is too large to preview" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei ist zu groß zum Vorschau anzeigen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -745,6 +1183,12 @@
     },
     "File size" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateigröße"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -755,6 +1199,12 @@
     },
     "File was deleted" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei wurde gelöscht"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -765,6 +1215,12 @@
     },
     "Files kept on device" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien auf Gerät gespeichert"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -775,6 +1231,12 @@
     },
     "Files kept on this device" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien auf diesem Gerät gespeichert"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -785,6 +1247,12 @@
     },
     "Folder '%@' has extra files" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner '%@' enthält zusätzliche Dateien"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -795,6 +1263,12 @@
     },
     "Folder does not exist" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner existiert nicht"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -805,6 +1279,12 @@
     },
     "Folder ID" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner-ID"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -815,6 +1295,12 @@
     },
     "Folder properties" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordnereigenschaften"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -825,6 +1311,12 @@
     },
     "Folder removed" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner entfernt"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -835,6 +1327,12 @@
     },
     "Folder settings" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordnereinstellungen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -845,6 +1343,12 @@
     },
     "Folder statistics" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordnerstatistiken"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -855,6 +1359,12 @@
     },
     "Folder was deleted" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner wurde gelöscht"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -865,6 +1375,12 @@
     },
     "Folders" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -875,6 +1391,12 @@
     },
     "Folders that need your attention" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner, die Ihre Aufmerksamkeit erfordern"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -885,6 +1407,12 @@
     },
     "Free up space" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speicherplatz freigeben"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -895,6 +1423,12 @@
     },
     "Full folder" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voller Ordner"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -905,6 +1439,12 @@
     },
     "Getting started" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erste Schritte"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -915,6 +1455,12 @@
     },
     "hostname" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hostname"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -925,6 +1471,12 @@
     },
     "I understand and agree" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ich verstehe und stimme zu"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -935,6 +1487,12 @@
     },
     "I understand, let's get started!" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ich verstehe, lass uns anfangen!"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -945,6 +1503,12 @@
     },
     "If a device is not enabled, synchronization with this device is paused." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn ein Gerät nicht aktiviert ist, wird die Synchronisierung mit diesem Gerät pausiert."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -955,6 +1519,12 @@
     },
     "If a device is not trusted, an encryption password is required for each folder synchronized with the device." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn einem Gerät nicht vertraut wird, ist für jeden Ordner, der mit dem Gerät synchronisiert wird, ein Verschlüsselungspasswort erforderlich."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -965,6 +1535,12 @@
     },
     "If this is unexpected, ensure that the other devices have accepted syncing this folder with your device." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn dies unerwartet ist, stellen Sie sicher, dass die anderen Geräte das Synchronisieren dieses Ordners mit Ihrem Gerät akzeptiert haben."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -975,6 +1551,12 @@
     },
     "Last background synchronization" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzte Hintergrundsynchronisierung"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -985,6 +1567,12 @@
     },
     "Last modified" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuletzt geändert"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -995,6 +1583,12 @@
     },
     "Last modified from" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuletzt geändert von"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1005,6 +1599,12 @@
     },
     "Last seen" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuletzt gesehen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1015,6 +1615,12 @@
     },
     "Limit file transfer bandwidth" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateiübertragungsbandbreite begrenzen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1025,6 +1631,12 @@
     },
     "Limit receiving bandwidth" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empfangsbandbreite begrenzen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1035,6 +1647,12 @@
     },
     "Limit sending bandwidth" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sendebandbreite begrenzen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1045,6 +1663,12 @@
     },
     "Limit streaming" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Streaming begrenzen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1055,6 +1679,12 @@
     },
     "Limit streaming bandwidth" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Streaming-Bandbreite begrenzen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1065,6 +1695,12 @@
     },
     "Listen for incoming connections" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auf eingehende Verbindungen hören"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1075,6 +1711,12 @@
     },
     "Location" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standort"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1085,6 +1727,12 @@
     },
     "Never" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1095,6 +1743,12 @@
     },
     "Next" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weiter"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1105,6 +1759,12 @@
     },
     "No devices added yet" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Geräte hinzugefügt"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1115,6 +1775,12 @@
     },
     "No extra files found" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine zusätzlichen Dateien gefunden"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1125,6 +1791,12 @@
     },
     "No files found" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Dateien gefunden"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1135,6 +1807,12 @@
     },
     "No files selected" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Dateien ausgewählt"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1145,6 +1823,12 @@
     },
     "Not connected" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht verbunden"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1155,6 +1839,12 @@
     },
     "Number of directories" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anzahl der Verzeichnisse"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1165,6 +1855,12 @@
     },
     "Number of files" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anzahl der Dateien"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1175,6 +1871,12 @@
     },
     "Obtain the source code" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quellcode abrufen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1185,6 +1887,12 @@
     },
     "Obtain the source code modifications" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rufen Sie die Quellcode-Modifikationen ab"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1195,6 +1903,12 @@
     },
     "Off" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aus"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1205,6 +1919,12 @@
     },
     "OK" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1215,6 +1935,12 @@
     },
     "On" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1225,6 +1951,12 @@
     },
     "On this device: %lld%%" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auf diesem Gerät: %lld%%"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1235,6 +1967,12 @@
     },
     "One connection is enough" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Verbindung ist ausreichend"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1245,6 +1983,12 @@
     },
     "Open in Files app" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Dateien-App öffnen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1255,6 +1999,12 @@
     },
     "Open source" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Source"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1265,6 +2015,12 @@
     },
     "Open source components" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open-Source-Komponenten"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1275,6 +2031,12 @@
     },
     "Other devices" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Andere Geräte"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1285,6 +2047,12 @@
     },
     "Password" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passwort"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1295,6 +2063,12 @@
     },
     "Peer was removed" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peer wurde entfernt"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1305,6 +2079,12 @@
     },
     "Permanently delete this file" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Datei dauerhaft löschen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1315,6 +2095,12 @@
     },
     "Powered by Syncthing" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angetrieben von Syncthing"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1325,6 +2111,12 @@
     },
     "Preparing to synchronize..." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorbereitung auf die Synchronisierung..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1335,6 +2127,12 @@
     },
     "Previews" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorschauen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1345,6 +2143,12 @@
     },
     "Previous" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorherige"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1355,6 +2159,12 @@
     },
     "Read more at syncthing.net" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mehr erfahren auf syncthing.net"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1365,6 +2175,12 @@
     },
     "Receive only" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur empfangen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1375,6 +2191,12 @@
     },
     "Recent changes" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktuelle Änderungen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1385,6 +2207,12 @@
     },
     "Remove %lld files from my device" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entferne %lld Dateien von meinem Gerät"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1395,6 +2223,12 @@
     },
     "Remove all extra files" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle zusätzlichen Dateien entfernen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1405,6 +2239,12 @@
     },
     "Remove file from all devices" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei von allen Geräten entfernen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1415,6 +2255,12 @@
     },
     "Remove folder" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner löschen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1425,6 +2271,12 @@
     },
     "Remove the file from all devices" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei von allen Geräten entfernen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1435,6 +2287,12 @@
     },
     "Remove the folder and all files" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner und alle Dateien löschen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1445,6 +2303,12 @@
     },
     "Request background synchronization" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hintergrundsynchronisation anfordern"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1455,6 +2319,12 @@
     },
     "Save" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speichern"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1465,6 +2335,12 @@
     },
     "Scan a device QR code" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerät QR-Code scannen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1475,6 +2351,12 @@
     },
     "Scan using camera..." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scannen mit Kamera..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1485,6 +2367,12 @@
     },
     "Scanning..." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scannen..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1495,6 +2383,12 @@
     },
     "Search" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1505,6 +2399,12 @@
     },
     "Search files by name..." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien nach Namen suchen..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1515,6 +2415,12 @@
     },
     "Search files in all folders..." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien in allen Ordnern durchsuchen..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1523,19 +2429,14 @@
         }
       }
     },
-    "Search files in this folder..." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zoek bestanden in deze map..."
-          }
-        }
-      }
-    },
     "Search results (%lld)" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suchergebnisse (%lld)"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1546,6 +2447,12 @@
     },
     "Search results (%lld+)" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suchergebnisse (%lld+)"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1556,6 +2463,12 @@
     },
     "Select a device" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wählen Sie ein Gerät aus"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1566,6 +2479,12 @@
     },
     "Select a folder" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner auswählen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1576,6 +2495,12 @@
     },
     "Selected files" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgewählte Dateien"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1586,6 +2511,12 @@
     },
     "Selection" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auswahl"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1596,6 +2527,12 @@
     },
     "Send and receive" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senden und empfangen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1606,6 +2543,12 @@
     },
     "Settings" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1616,6 +2559,12 @@
     },
     "Share file" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei freigeben"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1626,6 +2575,12 @@
     },
     "Share folder" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner freigeben"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1636,6 +2591,12 @@
     },
     "Share this folder with other devices to start synchronizing files." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diesen Ordner mit anderen Geräten teilen, um Dateien zu synchronisieren."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1646,6 +2607,12 @@
     },
     "Share with all devices offering this folder" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit allen Geräten teilen, die diesen Ordner anbieten"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1656,6 +2623,12 @@
     },
     "Share with device" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit Gerät teilen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1666,6 +2639,12 @@
     },
     "Shared folders" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geteilte Ordner"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1676,6 +2655,12 @@
     },
     "Shared with" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geteilt mit"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1686,6 +2671,12 @@
     },
     "Show addresses" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adressen anzeigen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1696,6 +2687,12 @@
     },
     "Show image previews" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bildvorschauen anzeigen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1706,6 +2703,12 @@
     },
     "Show introduction screen" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einführungsbildschirm anzeigen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1716,6 +2719,12 @@
     },
     "Show preview for large files" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorschau für große Dateien anzeigen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1726,6 +2735,12 @@
     },
     "Show QR code" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QR-Code anzeigen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1736,6 +2751,12 @@
     },
     "Start" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1746,6 +2767,12 @@
     },
     "Started" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestartet"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1756,6 +2783,12 @@
     },
     "Statistics" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistiken"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1766,6 +2799,12 @@
     },
     "Stream" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stream"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1776,6 +2815,12 @@
     },
     "Synchronization disabled" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisation deaktiviert"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1786,6 +2831,12 @@
     },
     "Synchronization has been disabled for this folder. Enable it in folder settings to access files." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Synchronisierung ist für diesen Ordner deaktiviert. Aktivieren Sie sie in den Ordnereinstellungen, um auf Dateien zuzugreifen."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1796,6 +2847,12 @@
     },
     "Synchronization is not back-up" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisierung ist keine Sicherung"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1806,6 +2863,12 @@
     },
     "Synchronize" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisieren"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1816,6 +2879,12 @@
     },
     "Synchronize file" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei synchronisieren"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1826,6 +2895,12 @@
     },
     "Synchronize file (overwrite existing)" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei synchronisieren (bestehende überschreiben)"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1836,6 +2911,12 @@
     },
     "Synchronize with this device" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit diesem Gerät synchronisieren"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1846,6 +2927,12 @@
     },
     "Synchronize your files securely with your other devices." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisieren Sie Ihre Dateien sicher mit Ihren anderen Geräten."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1856,6 +2943,12 @@
     },
     "Synchronized" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisiert"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1866,6 +2959,12 @@
     },
     "Synchronizing files..." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien synchronisieren..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1876,6 +2975,12 @@
     },
     "Synchronizing..." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisierung..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1886,6 +2991,12 @@
     },
     "Syncthing" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Syncthing"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1896,6 +3007,12 @@
     },
     "Synctrain is © 2024, Tommy van der Vorst" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain ist © 2024, Tommy van der Vorst"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1906,6 +3023,12 @@
     },
     "Tap here to view the downloaded file" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tippe hier, um die heruntergeladene Datei anzuzeigen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1916,6 +3039,12 @@
     },
     "The device has been added" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Gerät wurde hinzugefügt"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1926,6 +3055,12 @@
     },
     "The device has been added. To ensure a connection, ensure the other device accepts this device, or add this device there as well." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Gerät wurde hinzugefügt. Stellen Sie sicher, dass eine Verbindung besteht, indem Sie das andere Gerät dieses Gerät akzeptieren lassen oder dieses Gerät auch dort hinzufügen."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1936,6 +3071,12 @@
     },
     "The percentage of the full folder's size that each device stores locally." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Prozentsatz der gesamten Ordnergröße, den jedes Gerät lokal speichert."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1946,6 +3087,12 @@
     },
     "The source code of this application is available under the Mozilla Public License 2.0." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Quellcode dieser Anwendung ist unter der Mozilla Public License 2.0 verfügbar."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1956,6 +3103,12 @@
     },
     "There are currently no files in this folder." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In diesem Ordner befinden sich derzeit keine Dateien."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1966,6 +3119,12 @@
     },
     "This app is powered by Syncthing. This app is however not associated with or endorsed by Syncthing nor its developers. Please do not expect support from the Syncthing developers. Instead, contact the maker of this app if you have questions." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese App wird von Syncthing unterstützt. Diese App ist jedoch weder mit Syncthing noch seinen Entwicklern verbunden oder von ihnen genehmigt. Bitte erwarten Sie keinen Support von den Syncthing-Entwicklern. Wenden Sie sich stattdessen an den Hersteller dieser App, wenn Sie Fragen haben."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1976,6 +3135,12 @@
     },
     "This application incorporates Syncthing, which is open source software under the Mozilla Public License 2.0. Syncthing is a trademark of the Syncthing Foundation. This application is not associated with nor endorsed by the Syncthing foundation nor Syncthing contributors." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Anwendung integriert Syncthing, eine Open-Source-Software unter der Mozilla Public License 2.0. Syncthing ist ein Warenzeichen der Syncthing Foundation. Diese Anwendung steht in keiner Verbindung zur Syncthing Foundation oder zu den Syncthing-Beitragenden und wird von ihnen nicht unterstützt."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1986,6 +3151,12 @@
     },
     "This device" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Gerät"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1996,6 +3167,12 @@
     },
     "This device's identifier" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Gerätekennung"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2006,6 +3183,12 @@
     },
     "This file was deleted." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Datei wurde gelöscht."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2016,6 +3199,12 @@
     },
     "This folder has new files" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Ordner hat neue Dateien"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2026,6 +3215,12 @@
     },
     "This folder was deleted." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Ordner wurde gelöscht."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2036,6 +3231,12 @@
     },
     "This folder was removed." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Ordner wurde entfernt."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2046,6 +3247,12 @@
     },
     "This item is synchronized with this device because a parent folder is synchronized with this device." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Element wird mit diesem Gerät synchronisiert, weil ein übergeordneter Ordner mit diesem Gerät synchronisiert wird."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2056,6 +3263,12 @@
     },
     "This peer was deleted." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Peer wurde gelöscht."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2066,6 +3279,12 @@
     },
     "To keep files on this device, navigate to a file and select 'keep on this device'. Selected files will appear here." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um Dateien auf diesem Gerät zu behalten, navigieren Sie zu einer Datei und wählen Sie 'auf diesem Gerät behalten'. Ausgewählte Dateien werden hier angezeigt."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2076,6 +3295,12 @@
     },
     "To synchronize files, add a folder. Folders that have the same folder ID on multiple devices will be synchronized with eachother." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um Dateien zu synchronisieren, fügen Sie einen Ordner hinzu. Ordner mit derselben Ordner-ID auf mehreren Geräten werden miteinander synchronisiert."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2086,6 +3311,12 @@
     },
     "To synchronize files, first add a remote device. Either select a device from the list below, or add manually using the device ID." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um Dateien zu synchronisieren, füge zuerst ein externes Gerät hinzu. Wähle ein Gerät aus der untenstehenden Liste oder füge es manuell mit der Geräte-ID hinzu."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2096,6 +3327,12 @@
     },
     "Trusted" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vertrauenswürdig"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2106,6 +3343,12 @@
     },
     "Unavailable" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht verfügbar"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2116,6 +3359,12 @@
     },
     "Unknown state" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unbekannter Status"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2126,6 +3375,12 @@
     },
     "Unlink device" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerät entkoppeln"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2136,6 +3391,12 @@
     },
     "Uptime" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betriebszeit"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2146,6 +3407,12 @@
     },
     "Version information" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versionsinformationen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2156,6 +3423,12 @@
     },
     "View file" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei anzeigen"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2166,6 +3439,12 @@
     },
     "Waiting to clean..." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Warten auf Bereinigung..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2176,6 +3455,12 @@
     },
     "Waiting to scan..." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Warten auf Scan..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2186,6 +3471,12 @@
     },
     "Waiting to synchronize..." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Warten auf Synchronisierung..."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2196,6 +3487,12 @@
     },
     "Welcome to Synctrain!" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Willkommen bei Synctrain!"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2206,6 +3503,12 @@
     },
     "When this setting is enabled, the app will not attempt to connect to more devices after one connection has been established." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn diese Einstellung aktiviert ist, wird die App nicht versuchen, sich mit weiteren Geräten zu verbinden, nachdem eine Verbindung hergestellt wurde."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2216,6 +3519,12 @@
     },
     "When you synchronize files, all changes, including deleting files, also happen on your other devices. Do not use Synctrain for back-up purposes, and always keep a back-up of your data." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn Sie Dateien synchronisieren, werden alle Änderungen, einschließlich des Löschens von Dateien, auch auf Ihren anderen Geräten durchgeführt. Verwenden Sie Synctrain nicht für Sicherungszwecke und behalten Sie stets eine Sicherung Ihrer Daten."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2226,6 +3535,12 @@
     },
     "XXXX-XXXX" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "XXXX-XXXX"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2236,6 +3551,12 @@
     },
     "You are using a custom configuration. This may be used for testing only, and at your own risk. Not all configuration options may be supported. To disable the custom configuration, remove the configuration files from the app's folder and restart the app. The makers of the app cannot be held liable for any data loss that may occur!" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie verwenden eine benutzerdefinierte Konfiguration. Diese darf nur zu Testzwecken und auf eigenes Risiko verwendet werden. Es werden möglicherweise nicht alle Konfigurationsoptionen unterstützt. Um die benutzerdefinierte Konfiguration zu deaktivieren, entfernen Sie die Konfigurationsdateien aus dem Ordner der App und starten Sie die App neu. Die Entwickler der App können nicht für Datenverlust haftbar gemacht werden!"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2246,6 +3567,12 @@
     },
     "You decide with which devices you share which files. This also means the app makers cannot help you access or recover any lost files." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie entscheiden, mit welchen Geräten Sie welche Dateien teilen. Dies bedeutet auch, dass die App-Entwickler Ihnen nicht bei der Wiederherstellung verlorener Dateien helfen können."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2256,6 +3583,12 @@
     },
     "Your devices, your data, your responsibility" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihre Geräte, Ihre Daten, Ihre Verantwortung"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",

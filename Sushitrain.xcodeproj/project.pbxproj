@@ -233,6 +233,7 @@
 				en,
 				Base,
 				nl,
+				de,
 			);
 			mainGroup = 65AE11F02C39EE0E00E721D4;
 			productRefGroup = 65AE11FA2C39EE0E00E721D4 /* Products */;
@@ -428,7 +429,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Sushitrain/Sushitrain.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Sushitrain/Preview Content\"";
 				DEVELOPMENT_TEAM = 2N89DJPQ2P;
 				ENABLE_PREVIEWS = YES;
@@ -465,7 +466,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Sushitrain/Sushitrain.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Sushitrain/Preview Content\"";
 				DEVELOPMENT_TEAM = 2N89DJPQ2P;
 				ENABLE_PREVIEWS = YES;
