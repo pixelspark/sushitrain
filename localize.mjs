@@ -37,7 +37,14 @@ async function main() {
   for (const k in input.strings) {
     if (Object.hasOwnProperty.call(input.strings, k)) {
       const string = k;
-      const locs = input.strings[k].localizations;
+      const stringData = input.strings[k];
+      if (
+        typeof stringData.localizations !== "object" ||
+        stringData.localizations === null
+      ) {
+        stringData.localizations = {};
+      }
+      const locs = stringData.localizations;
       const untranslatedLocales = LOCALES.filter((loc) => {
         return (
           !(loc in locs) ||

@@ -2,7 +2,32 @@
   "sourceLanguage" : "en",
   "strings" : {
     "(No folder selected)" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Kein Ordner ausgewählt)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(No se ha seleccionado ninguna carpeta)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Nessuna cartella selezionata)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Geen map geselecteerd)"
+          }
+        }
+      }
     },
     "%@ (%@)" : {
       "localizations" : {
@@ -521,7 +546,32 @@
       }
     },
     "Allow Synctrain to access photos" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaube Synctrain den Zugriff auf Fotos"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permitir que Synctrain acceda a las fotos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consenti a Synctrain di accedere alle foto"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sta Synctrain toe om foto's te openen"
+          }
+        }
+      }
     },
     "Also limit in local networks" : {
       "localizations" : {
@@ -1168,7 +1218,32 @@
       }
     },
     "Copy photos now" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotos jetzt kopieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiar fotos ahora"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia foto ora"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto's nu kopiëren"
+          }
+        }
+      }
     },
     "Copy to clipboard" : {
       "localizations" : {
@@ -2487,7 +2562,32 @@
       }
     },
     "From album" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aus Album"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desde álbum"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Da album"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Van album"
+          }
+        }
+      }
     },
     "Full folder" : {
       "localizations" : {
@@ -3666,7 +3766,32 @@
       }
     },
     "Photos synchronization" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotosynchronisierung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronización de fotos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizzazione foto"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotosynchronisatie"
+          }
+        }
+      }
     },
     "Powered by Syncthing" : {
       "localizations" : {
@@ -4061,7 +4186,32 @@
       }
     },
     "Review permissions in the Settings app" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Überprüfen Sie Berechtigungen in der Einstellungs-App"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revisar permisos en la app Configuración"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rivedi le autorizzazioni nell'app Impostazioni"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controleer de machtigingen in de Instellingen-app"
+          }
+        }
+      }
     },
     "Save" : {
       "localizations" : {
@@ -5268,7 +5418,32 @@
       }
     },
     "Synctrain cannot access your photo library right now" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain kann derzeit nicht auf Ihre Fotobibliothek zugreifen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain no puede acceder a tu biblioteca de fotos en este momento"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain non può accedere alla tua libreria fotografica in questo momento"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain kan op dit moment geen toegang krijgen tot je fotobibliotheek"
+          }
+        }
+      }
     },
     "Synctrain is © 2024, Tommy van der Vorst" : {
       "localizations" : {
@@ -5747,7 +5922,32 @@
       }
     },
     "To folder" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Ordner"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alla cartella"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Naar map"
+          }
+        }
+      }
     },
     "To keep files on this device, navigate to a file and select 'keep on this device'. Selected files will appear here." : {
       "localizations" : {
