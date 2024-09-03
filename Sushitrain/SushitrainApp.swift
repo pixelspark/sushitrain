@@ -155,6 +155,7 @@ extension SushitrainApp: SushitrainClientDelegateProtocol {
         let appState = self.appState
         DispatchQueue.main.async {
             appState.lastEvent = event ?? "unknown event"
+            appState.eventCounter += 1
             appState.update()
         }
         

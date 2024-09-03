@@ -39,6 +39,8 @@ struct FoldersView: View {
                                 NavigationLink(value: SelectedFolder(folder: folder)) {
                                     Label(folder.displayName, systemImage: "folder.fill")
                                 }
+                            }.onChange(of: appState.eventCounter) {
+                                self.updateFolders()
                             }
                         }
                         
@@ -96,11 +98,15 @@ struct FoldersView: View {
             AddFolderView(folderID: $addFolderID, appState: appState)
         })
         .onAppear {
-            folders = appState.folders().sorted()
+            self.updateFolders()
             
             let addedFolders = Set(appState.folders().map({f in f.folderID}))
             self.pendingFolderIds = ((try? self.appState.client.pendingFolderIDs())?.asArray() ?? []).filter({ folderID in !addedFolders.contains(folderID)
             })
         }
+    }
+    
+    private func updateFolders() {
+        folders = appState.folders().sorted()
     }
 }

@@ -19,6 +19,7 @@ struct StreamingProgress: Hashable, Equatable {
     @Published var alertShown: Bool = false
     @Published var localDeviceID: String = ""
     @Published var lastEvent: String = ""
+    @Published var eventCounter: Int = 0
     @Published var discoveredDevices: [String: [String]] = [:]
     @Published var listenAddresses = Set<String>()
     @Published var launchedAt = Date.now
