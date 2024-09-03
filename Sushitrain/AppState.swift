@@ -13,7 +13,7 @@ struct StreamingProgress: Hashable, Equatable {
     var bytesTotal: Int64
 }
 
-class AppState: ObservableObject, @unchecked Sendable {
+@MainActor class AppState: ObservableObject, @unchecked Sendable {
     var client: SushitrainClient
     @Published var alertMessage: String = ""
     @Published var alertShown: Bool = false
@@ -24,7 +24,7 @@ class AppState: ObservableObject, @unchecked Sendable {
     @Published var launchedAt = Date.now
     @Published var streamingProgress: StreamingProgress? = nil
     @Published var lastChanges: [SushitrainChange] = []
-    @Published var photoSync = PhotoSynchronisation()
+    var photoSync = PhotoSynchronisation()
     
     static let maxChanges = 25
     

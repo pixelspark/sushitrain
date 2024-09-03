@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "" : {
+
+    },
     "(No folder selected)" : {
       "localizations" : {
         "de" : {
@@ -149,6 +152,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld Mbit/s"
+          }
+        }
+      }
+    },
+    "%lld/%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld/%2$lld"
           }
         }
       }
@@ -1217,6 +1230,9 @@
         }
       }
     },
+    "Copy photos" : {
+
+    },
     "Copy photos now" : {
       "localizations" : {
         "de" : {
@@ -1245,6 +1261,9 @@
         }
       }
     },
+    "Copy photos periodically in the background" : {
+
+    },
     "Copy to clipboard" : {
       "localizations" : {
         "de" : {
@@ -1272,6 +1291,9 @@
           }
         }
       }
+    },
+    "Copying photos..." : {
+
     },
     "Could not add device" : {
       "localizations" : {
@@ -3289,6 +3311,9 @@
         }
       }
     },
+    "None" : {
+
+    },
     "Not connected" : {
       "localizations" : {
         "de" : {
@@ -3764,6 +3789,12 @@
           }
         }
       }
+    },
+    "Photo synchronization" : {
+
+    },
+    "Photos from the selected album will be saved in the selected folder, in sub folders by creation date. If a photo with the same file name already exists in the folder, or has been deleted from the folder before, it will not be saved again." : {
+
     },
     "Photos synchronization" : {
       "localizations" : {

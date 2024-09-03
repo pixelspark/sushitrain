@@ -5,14 +5,18 @@
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 import Foundation
 import SwiftUI
-import SushitrainCore
+@preconcurrency import SushitrainCore
 import Photos
 
 @MainActor
 class PhotoSynchronisation: ObservableObject {
     @AppStorage("photoSyncSelectedAlbumID") var  selectedAlbumID: String = ""
     @AppStorage("photoSyncFolderID") var selectedFolderID: String = ""
-    @State var isSynchronizing = false
+    @AppStorage("photoSyncEnableBackgroundCopy") var enableBackgroundCopy: Bool = false
+    @Published var isSynchronizing = false
+    @Published var progressIndex: Int = 0
+    @Published var progressTotal: Int = 0
+    @Published var syncTask: Task<(), Error>? = nil
     
     var selectedAlbumTitle: String? {
         get {
@@ -30,6 +34,12 @@ class PhotoSynchronisation: ObservableObject {
     }}
     
     @MainActor
+    func cancel() {
+        self.syncTask?.cancel()
+        self.syncTask = nil
+    }
+    
+    @MainActor
     func synchronize(_ appState: AppState) {
         if self.isSynchronizing {
             return
@@ -38,21 +48,24 @@ class PhotoSynchronisation: ObservableObject {
             return
         }
         self.isSynchronizing = true
+        self.progressIndex = 0
+        self.progressTotal = 0
         if self.selectedAlbumID.isEmpty {
             return
         }
         
         let selectedAlbumID = self.selectedAlbumID
         let selectedFolderID = self.selectedFolderID
+        let folder = appState.client.folder(withID: selectedFolderID)!
         
-        DispatchQueue.global(qos: .background).async {
+        self.syncTask = Task.detached(priority: .background) {
             defer {
                 DispatchQueue.main.async {
                     self.isSynchronizing = false
+                    self.syncTask = nil
                 }
             }
             
-            let folder = appState.client.folder(withID: selectedFolderID)!
             var err: NSError? = nil
             let folderPath = folder.localNativePath(&err)
             if let err = err {
@@ -67,19 +80,51 @@ class PhotoSynchronisation: ObservableObject {
             let isSelective = folder.isSelective()
             
             let assets = PHAsset.fetchAssets(in: album, options: nil)
-            assets.enumerateObjects { asset, _, _ in
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            let count = assets.count
+            
+            assets.enumerateObjects { asset, index, stop in
+                if Task.isCancelled {
+                    stop.pointee = true
+                    return
+                }
                 print("Asset: \(asset.description)")
+                sleep(1)
+                // Update progress
+                DispatchQueue.main.async {
+                    self.progressIndex = index
+                    self.progressTotal = count
+                }
+                
+                var specificFolderURL = folderURL
+                var inFolderURL = URL(fileURLWithPath: "/")
+                if let creationDate = asset.creationDate {
+                    let dateString = dateFormatter.string(from: creationDate)
+                    inFolderURL = URL(filePath: dateString)
+                    specificFolderURL = specificFolderURL.appending(path: dateString, directoryHint: .isDirectory)
+                    try! FileManager.default.createDirectory(at: specificFolderURL, withIntermediateDirectories: true)
+                }
+                let fileURL = specificFolderURL.appendingPathComponent(asset.originalFilename)
+                inFolderURL = inFolderURL.appendingPathComponent(asset.originalFilename)
+                let inFolderPath = inFolderURL.path(percentEncoded: false)
+                
+                // Check if this photo was deleted before
+                if let entry = try? folder.getFileInformation(inFolderPath), entry.isDeleted() {
+                    print("Entry at \(inFolderPath) was deleted, not saving")
+                    return
+                }
                 
                 // Save photo
-                let options = PHImageRequestOptions()
-                options.isSynchronous = true
-
-                PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
-                    if let data = data {
-                        let fileURL = folderURL.appendingPathComponent(asset.originalFilename)
-                        try! data.write(to: fileURL)
-                        if isSelective {
-                            try? folder.setLocalFileExplicitlySelected(fileURL.path(), toggle: true)
+                if !FileManager.default.fileExists(atPath: fileURL.path) {
+                    let options = PHImageRequestOptions()
+                    options.isSynchronous = true
+                    PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
+                        if let data = data {
+                            try! data.write(to: fileURL)
+                            if isSelective {
+                                try? folder.setLocalFileExplicitlySelected(inFolderPath, toggle: true)
+                            }
                         }
                     }
                 }
@@ -120,21 +165,48 @@ extension PHAsset {
     }
 }
 
+struct PhotoSyncButton: View {
+    @ObservedObject var appState: AppState
+    @ObservedObject var photoSync: PhotoSynchronisation
+    
+    var body: some View {
+        if photoSync.isSynchronizing {
+            let progress = photoSync.progressTotal > 0 ? Float(photoSync.progressIndex) / Float(photoSync.progressTotal) : 0.0
+            ProgressView(value: progress, total: 1.0) {
+                Label("Copying photos...", systemImage: "photo.badge.arrow.down.fill")
+                    .foregroundStyle(.orange)
+                    .badge(Text("\(photoSync.progressIndex)/\(photoSync.progressTotal)"))
+            }.tint(.orange)
+            
+            Button("Cancel") {
+                photoSync.cancel()
+            }
+        }
+        else {
+            Button("Copy photos now", systemImage: "photo.badge.arrow.down.fill") {
+                photoSync.synchronize(self.appState)
+            }.disabled(photoSync.isSynchronizing || !photoSync.isReady)
+        }
+    }
+}
+
 struct PhotoSettingsView: View {
     @ObservedObject var appState: AppState
     @State private var authorizationStatus: PHAuthorizationStatus = .notDetermined
     @State private var albumPickerShown = false
+    @ObservedObject var photoSync: PhotoSynchronisation
     
     var body: some View {
         Form {
             Section {
                 if authorizationStatus == .authorized {
-                    Picker("From album", selection: $appState.photoSync.selectedAlbumID) {
+                    Picker("From album", selection: $photoSync.selectedAlbumID) {
+                        Text("None").tag("")
                         ForEach(self.loadAlbums(), id: \.localIdentifier) { album in
                             Text(album.localizedTitle ?? "Unknown album").tag(album.localIdentifier)
                         }
                     }
-                    .pickerStyle(.menu)
+                    .pickerStyle(.menu).disabled(photoSync.isSynchronizing)
                 } else if authorizationStatus == .denied || authorizationStatus == .restricted {
                     Text("Synctrain cannot access your photo library right now")
                     Button("Review permissions in the Settings app") {
@@ -153,20 +225,28 @@ struct PhotoSettingsView: View {
                 
                 
                 if authorizationStatus == .authorized {
-                    Picker("To folder", selection: $appState.photoSync.selectedFolderID) {
+                    Picker("To folder", selection: $photoSync.selectedFolderID) {
                         Text("(No folder selected)").tag("")
                         ForEach(appState.folders(), id: \.self) { option in
                             Text(option.displayName).tag(option.folderID)
                         }
                     }
-                    .pickerStyle(.menu)
+                    .pickerStyle(.menu).disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
+                }
+            } header: {
+                Text("Copy photos")
+            } footer: {
+                if photoSync.isReady {
+                    Text("Photos from the selected album will be saved in the selected folder, in sub folders by creation date. If a photo with the same file name already exists in the folder, or has been deleted from the folder before, it will not be saved again.")
                 }
             }
             
             Section {
-                Button("Copy photos now") {
-                    appState.photoSync.synchronize(self.appState)
-                }.disabled(appState.photoSync.isSynchronizing || !appState.photoSync.isReady)
+                Toggle("Copy photos periodically in the background", isOn: photoSync.$enableBackgroundCopy)
+            }
+            
+            Section {
+                PhotoSyncButton(appState: appState, photoSync: photoSync)
             }
         }
         .navigationTitle("Photos synchronization")

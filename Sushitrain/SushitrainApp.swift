@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 import SwiftUI
-import SushitrainCore
+@preconcurrency import SushitrainCore
 import BackgroundTasks
 
 @main
@@ -34,7 +34,7 @@ class SushitrainApp: NSObject, App {
         
         // Schedule background synchronization task
         BGTaskScheduler.shared.register(forTaskWithIdentifier: SushitrainApp.BackgroundSyncID, using: nil) { task in
-            self.handleBackgroundSync(task: task)
+            Task { await self.handleBackgroundSync(task: task) }
         }
         _ = Self.scheduleBackgroundSync()
         self.appState.update()
@@ -42,14 +42,13 @@ class SushitrainApp: NSObject, App {
         let appState = self.appState
         DispatchQueue.global(qos: .userInitiated).async {
             do {
-                try appState.client.start();
+                try client.start();
                 
                 DispatchQueue.main.async {
                     appState.applySettings()
                     appState.update()
+                    appState.updateBadge()
                 }
-                
-                appState.updateBadge()
             }
             catch let error {
                 DispatchQueue.main.async {
@@ -77,9 +76,17 @@ class SushitrainApp: NSObject, App {
     }
     
     @MainActor
-    private func handleBackgroundSync(task: BGTask) {
+    private func handleBackgroundSync(task: BGTask) async {
         _ = Self.scheduleBackgroundSync()
         
+        // Start photo synchronization if the user has enabled it
+        var photoSyncTask: Task<(),Error>? = nil
+        if self.appState.photoSync.enableBackgroundCopy {
+            self.appState.photoSync.synchronize(self.appState)
+            photoSyncTask = self.appState.photoSync.syncTask
+        }
+        
+        // Start background sync
         if Settings.backgroundSyncEnabled {
             let start = Date.now
             self.currentBackgroundTask = task
@@ -94,10 +101,13 @@ class SushitrainApp: NSObject, App {
                 self.currentBackgroundTask = nil
                 Settings.lastBackgroundSyncRun = run
                 self.updateBackgroundRunHistory(appending: run)
+                self.appState.photoSync.cancel()
                 task.setTaskCompleted(success: true)
             }
         }
         else {
+            // Wait for photo sync to finish
+            try? await photoSyncTask?.value
             task.setTaskCompleted(success: true)
         }
     }
@@ -150,7 +160,9 @@ extension SushitrainApp: SushitrainClientDelegateProtocol {
         
         if event == "LocalIndexUpdated" || event == "LocalChangeDetected" {
             // Check for extraneous files and update app badge accordingly
-            appState.updateBadge()
+            DispatchQueue.main.async {
+                appState.updateBadge()
+            }
         }
     }
     

@@ -166,12 +166,13 @@ struct SearchResultsView: View, SearchViewDelegate {
         let folder = self.folder
         
         if !text.isEmpty {
+            let client = appState.client
             DispatchQueue.global(qos: .userInitiated).async {
                 do {
                     DispatchQueue.main.async {
                         sr.view.setStatus(searching: true)
                     }
-                    try appState.client.search(text, delegate: sr, maxResults: SearchOperation.MaxResultCount, folderID: folder, prefix: prefix)
+                    try client.search(text, delegate: sr, maxResults: SearchOperation.MaxResultCount, folderID: folder, prefix: prefix)
                     DispatchQueue.main.async {
                         sr.view.setStatus(searching: false)
                     }

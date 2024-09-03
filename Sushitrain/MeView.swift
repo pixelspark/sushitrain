@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 import SwiftUI
-import SushitrainCore
+@preconcurrency import SushitrainCore
 import CoreImage
 import CoreImage.CIFilterBuiltins
 
@@ -150,6 +150,13 @@ struct MeView: View {
                             ChangesView(appState: appState)) {
                 Text("Recent changes").badge(appState.lastChanges.count)
             }.disabled(appState.lastChanges.isEmpty)
+            
+            if appState.photoSync.isReady {
+                Section {
+                    PhotoSyncButton(appState: appState, photoSync: appState.photoSync)
+                }
+            }
+            
         }.navigationTitle("Start")
             .toolbar {
                 ToolbarItem {
@@ -225,15 +232,20 @@ struct MeView: View {
             .task {
                 // List folders that have extra files
                 self.foldersWithExtraFiles = []
-                for folder in appState.folders() {
-                    if folder.isIdle {
-                        var hasExtra: ObjCBool = false
-                        let _ = try? folder.hasExtraneousFiles(&hasExtra)
-                        if hasExtra.boolValue {
-                            self.foldersWithExtraFiles.append(folder.folderID)
+                let folders = appState.folders()
+                self.foldersWithExtraFiles = await (Task.detached {
+                    var myFoldersWithExtraFiles: [String] = []
+                    for folder in folders {
+                        if folder.isIdle {
+                            var hasExtra: ObjCBool = false
+                            let _ = try? folder.hasExtraneousFiles(&hasExtra)
+                            if hasExtra.boolValue {
+                                myFoldersWithExtraFiles.append(folder.folderID)
+                            }
                         }
                     }
-                }
+                    return myFoldersWithExtraFiles
+                }).value
             }
     }
 }
