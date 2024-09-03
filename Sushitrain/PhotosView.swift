@@ -89,8 +89,7 @@ class PhotoSynchronisation: ObservableObject {
                     stop.pointee = true
                     return
                 }
-                print("Asset: \(asset.description)")
-                sleep(1)
+                print("Asset: \(asset.originalFilename) \(asset.localIdentifier)")
                 // Update progress
                 DispatchQueue.main.async {
                     self.progressIndex = index
@@ -110,8 +109,13 @@ class PhotoSynchronisation: ObservableObject {
                 let inFolderPath = inFolderURL.path(percentEncoded: false)
                 
                 // Check if this photo was deleted before
-                if let entry = try? folder.getFileInformation(inFolderPath), entry.isDeleted() {
-                    print("Entry at \(inFolderPath) was deleted, not saving")
+                if let entry = try? folder.getFileInformation(inFolderPath) {
+                    if entry.isDeleted() {
+                        print("Entry at \(inFolderPath) was deleted, not saving")
+                    }
+                    else {
+                        print("Entry at \(inFolderPath) exists, not saving")
+                    }
                     return
                 }
                 
