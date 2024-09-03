@@ -8,6 +8,7 @@ package sushitrain
 import (
 	"errors"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/syncthing/syncthing/lib/config"
@@ -561,6 +562,36 @@ func (fld *Folder) DeleteLocalFile(path string) error {
 	err = fld.SetLocalFileExplicitlySelected(path, false)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (fld *Folder) SetLocalPathsExplicitlySelected(paths *ListOfStrings) error {
+	// Edit lines
+	lines, _, err := fld.client.app.Internals.Ignores(fld.FolderID)
+	if err != nil {
+		return err
+	}
+
+	for _, path := range paths.data {
+		line := IgnoreLineForSelectingPath(path)
+		if !slices.Contains(lines, line) {
+			Logger.Infof("Adding ignore line: %s", line)
+			lines = append([]string{line}, lines...)
+		}
+	}
+
+	// Save new ignores
+	err = fld.client.app.Internals.SetIgnores(fld.FolderID, lines)
+	if err != nil {
+		return err
+	}
+
+	// Do a small scan to force reloading ignores
+	err = fld.client.app.Internals.ScanFolderSubdirs(fld.FolderID, append(paths.data, ignoreFileName))
+	if err != nil {
+		return nil
 	}
 
 	return nil

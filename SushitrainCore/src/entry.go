@@ -113,14 +113,18 @@ func (entry *Entry) IsExplicitlySelected() bool {
 }
 
 func (entry *Entry) ignoreLine() string {
-	fn := entry.info.FileName()
+	path := entry.info.FileName()
+	return IgnoreLineForSelectingPath(path)
+}
 
+// Generate a line for use in the .stignore file that selects the file at `path`. The path should *not* start with a slash.
+func IgnoreLineForSelectingPath(path string) string {
 	// Escape special characters: https://docs.syncthing.net/users/ignoring.html
 	specialChars := []string{"\\", "!", "*", "?", "[", "]", "{", "}"}
 	for _, sp := range specialChars {
-		fn = strings.ReplaceAll(fn, sp, "\\"+sp)
+		path = strings.ReplaceAll(path, sp, "\\"+sp)
 	}
-	return "!/" + fn
+	return "!/" + path
 }
 
 func (entry *Entry) SetExplicitlySelected(selected bool) error {

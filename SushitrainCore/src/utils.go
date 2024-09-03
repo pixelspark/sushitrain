@@ -35,6 +35,14 @@ func (lst *ListOfStrings) ItemAt(index int) string {
 	return lst.data[index]
 }
 
+func (lst *ListOfStrings) Append(str string) {
+	lst.data = append(lst.data, str)
+}
+
+func NewListOfStrings() *ListOfStrings {
+	return List([]string{})
+}
+
 func Map[T, U any](ts []T, f func(T) U) []U {
 	us := make([]U, len(ts))
 	for i := range ts {
