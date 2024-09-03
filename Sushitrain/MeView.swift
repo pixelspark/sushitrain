@@ -148,7 +148,7 @@ struct MeView: View {
             
             NavigationLink(destination:
                             ChangesView(appState: appState)) {
-                Text("Recent changes").badge(appState.lastChanges.count)
+                Label("Recent changes", systemImage: "clock.arrow.2.circlepath").badge(appState.lastChanges.count)
             }.disabled(appState.lastChanges.isEmpty)
             
             if appState.photoSync.isReady {
