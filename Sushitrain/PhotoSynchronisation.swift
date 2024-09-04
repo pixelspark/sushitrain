@@ -296,6 +296,9 @@ fileprivate extension PHAsset {
             let dateString = dateFormatter.string(from: creationDate)
             inFolderURL = URL(filePath: dateString)
         }
+        if self.mediaType == .video {
+            inFolderURL = inFolderURL.appending(path: "Video", directoryHint: .isDirectory)
+        }
         return inFolderURL.path(percentEncoded: false)
     }
     
