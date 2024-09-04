@@ -82,7 +82,7 @@ class SushitrainApp: NSObject, App {
         // Start photo synchronization if the user has enabled it
         var photoSyncTask: Task<(),Error>? = nil
         if self.appState.photoSync.enableBackgroundCopy {
-            self.appState.photoSync.synchronize(self.appState)
+            self.appState.photoSync.synchronize(self.appState, fullExport: false)
             photoSyncTask = self.appState.photoSync.syncTask
         }
         

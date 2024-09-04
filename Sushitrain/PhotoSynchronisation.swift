@@ -40,7 +40,7 @@ class PhotoSynchronisation: ObservableObject {
     }
     
     @MainActor
-    func synchronize(_ appState: AppState) {
+    func synchronize(_ appState: AppState, fullExport: Bool) {
         if self.isSynchronizing {
             return
         }
@@ -88,15 +88,15 @@ class PhotoSynchronisation: ObservableObject {
             let isSelective = folder.isSelective()
             
             let assets = PHAsset.fetchAssets(in: album, options: nil)
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd"
+            
             let count = assets.count
             DispatchQueue.main.async {
                 self.progressTotal = count
                 self.progressIndex = 0
             }
             
-            var videosToExport: [(PHAsset, URL)] = []
+            var videosToExport: [(PHAsset, URL, String)] = []
+            var livePhotosToExport: [(PHAsset, URL, String)] = []
             var selectPaths: [String] = []
             
             assets.enumerateObjects { asset, index, stop in
@@ -105,35 +105,33 @@ class PhotoSynchronisation: ObservableObject {
                     return
                 }
                 print("Asset: \(asset.originalFilename) \(asset.localIdentifier)")
-                var specificFolderURL = folderURL
-                var inFolderURL = URL(fileURLWithPath: "")
-                if let creationDate = asset.creationDate {
-                    let dateString = dateFormatter.string(from: creationDate)
-                    inFolderURL = URL(filePath: dateString)
-                    specificFolderURL = specificFolderURL.appending(path: dateString, directoryHint: .isDirectory)
-                    try! FileManager.default.createDirectory(at: specificFolderURL, withIntermediateDirectories: true)
-                }
-                let fileURL = specificFolderURL.appendingPathComponent(asset.originalFilename)
-                inFolderURL = inFolderURL.appendingPathComponent(asset.originalFilename)
-                let inFolderPath = inFolderURL.path(percentEncoded: false)
+                
+                // Create containing directory
+                let dirInFolder = folderURL.appending(path: asset.directoryPathInFolder, directoryHint: .isDirectory)
+                try! FileManager.default.createDirectory(at: dirInFolder, withIntermediateDirectories: true)
+                
+                let inFolderPath = asset.pathInFolder;
                 
                 // Check if this photo was deleted before
-                if let entry = try? folder.getFileInformation(inFolderPath) {
-                    if entry.isDeleted() {
-                        print("Entry at \(inFolderPath) was deleted, not saving")
+                if !fullExport {
+                    if let entry = try? folder.getFileInformation(inFolderPath) {
+                        if entry.isDeleted() {
+                            print("Entry at \(inFolderPath) was deleted, not saving")
+                        }
+                        else {
+                            print("Entry at \(inFolderPath) exists, not saving")
+                        }
+                        return
                     }
-                    else {
-                        print("Entry at \(inFolderPath) exists, not saving")
-                    }
-                    return
                 }
                 
-                // Save asset
+                // Save asset if it doesn't exist already locally
+                let fileURL = folderURL.appending(path: inFolderPath, directoryHint: .notDirectory)
                 if !FileManager.default.fileExists(atPath: fileURL.path) {
                     // If a video: queue video export session
                     if asset.mediaType == .video {
                         print("Requesting video export session for \(asset.originalFilename)")
-                        videosToExport.append((asset, fileURL))
+                        videosToExport.append((asset, fileURL, inFolderPath))
                     }
                     else {
                         // Save image
@@ -143,24 +141,37 @@ class PhotoSynchronisation: ObservableObject {
                             if let data = data {
                                 try! data.write(to: fileURL)
                                 
+                                if isSelective {
+                                    selectPaths.append(inFolderPath)
+                                }
+                                
                                 DispatchQueue.main.async {
                                     self.progressIndex += 1
                                 }
                             }
                         }
                     }
+                }
+                
+                // If the image is a live photo, queue the live photo for saving as well
+                if asset.mediaType == .image && asset.mediaSubtypes.contains(.photoLive) {
+                    let liveInFolderPath = asset.livePhotoPathInFolder
+                    let liveDirectoryURL = folderURL.appending(path: asset.livePhotoDirectoryPathInFolder, directoryHint: .isDirectory)
+                    try! FileManager.default.createDirectory(at: liveDirectoryURL, withIntermediateDirectories: true)
+                    let liveFileURL = folderURL.appending(path: liveInFolderPath, directoryHint: .notDirectory)
+                    print("Found live photo \(asset.originalFilename) \(liveInFolderPath)")
                     
-                    if isSelective {
-                        selectPaths.append(inFolderPath)
+                    if !FileManager.default.fileExists(atPath: liveFileURL.path) {
+                        livePhotosToExport.append((asset, liveFileURL, liveInFolderPath))
                     }
                 }
             }
             
             // Export videos
             print("Starting video exports")
-            for (asset, fileURL) in videosToExport {
+            for (asset, fileURL, selectPath) in videosToExport {
                 if Task.isCancelled {
-                    return
+                    break
                 }
                 
                 await withCheckedContinuation { resolve in
@@ -178,6 +189,7 @@ class PhotoSynchronisation: ObservableObject {
                                 DispatchQueue.main.async {
                                     self.progressIndex += 1
                                 }
+                                selectPaths.append(selectPath)
                                 resolve.resume(returning: ())
                             }
                         }
@@ -185,9 +197,55 @@ class PhotoSynchronisation: ObservableObject {
                 }
             }
             
+            // Export live photos
+            print("Exporting live photos")
+            for (asset, destURL, selectPath) in livePhotosToExport {
+                if Task.isCancelled {
+                    break
+                }
+                print("Exporting live photo \(asset.originalFilename) \(selectPath)")
+                
+                await withCheckedContinuation { resolve in
+                    // Export live photo
+                    let options = PHLivePhotoRequestOptions()
+                    options.deliveryMode = .highQualityFormat
+                    print("RequestLivePhoto")
+                    var found = false
+                    PHImageManager.default().requestLivePhoto(for: asset, targetSize: CGSize(width: 1920, height: 1080), contentMode: PHImageContentMode.default, options: options) { livePhoto, info in
+                        if found {
+                            // The callback can be called twice
+                            return
+                        }
+                        found = true
+                        
+                        guard let livePhoto = livePhoto else {
+                            print("Did not receive live photo for \(asset.originalFilename)")
+                            resolve.resume()
+                            return
+                        }
+                        let assetResources = PHAssetResource.assetResources(for: livePhoto)
+                        guard let videoResource = assetResources.first(where: { $0.type == .pairedVideo }) else {
+                            print("Could not find paired video resource for \(asset.originalFilename) \(assetResources)")
+                            resolve.resume()
+                            return
+                        }
+                        
+                        PHAssetResourceManager.default().writeData(for: videoResource, toFile: destURL, options: nil) { error in
+                            if let error = error {
+                                print("Failed to save \(destURL): \(error.localizedDescription)")
+                            }
+                            else {
+                                selectPaths.append(selectPath)
+                            }
+                            resolve.resume()
+                        }
+                    }
+                }
+            }
+            
             // Select paths
-            print("Selecting paths")
             if isSelective {
+                print("Selecting paths")
                 let stList = SushitrainNewListOfStrings()!
                 for path in selectPaths {
                     stList.append(path)
@@ -202,7 +260,7 @@ class PhotoSynchronisation: ObservableObject {
 fileprivate extension PHAsset {
     var primaryResource: PHAssetResource? {
         let types: Set<PHAssetResourceType>
-
+        
         switch mediaType {
         case .video:
             types = [.video, .fullSizeVideo]
@@ -215,18 +273,46 @@ fileprivate extension PHAsset {
         @unknown default:
             types = []
         }
-
+        
         let resources = PHAssetResource.assetResources(for: self)
         let resource = resources.first { types.contains($0.type)}
-
+        
         return resource ?? resources.first
     }
-
+    
     var originalFilename: String {
         guard let result = primaryResource else {
             return "file"
         }
-
+        
         return result.originalFilename
+    }
+    
+    var directoryPathInFolder: String {
+        var inFolderURL = URL(fileURLWithPath: "")
+        if let creationDate = self.creationDate {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            let dateString = dateFormatter.string(from: creationDate)
+            inFolderURL = URL(filePath: dateString)
+        }
+        return inFolderURL.path(percentEncoded: false)
+    }
+    
+    var livePhotoDirectoryPathInFolder: String {
+        return URL(fileURLWithPath: directoryPathInFolder)
+            .appending(path: "Live", directoryHint: .isDirectory)
+            .path(percentEncoded: false)
+    }
+    
+    var livePhotoPathInFolder: String {
+        let fileName = self.originalFilename + ".MOV"
+        let url = URL(fileURLWithPath: self.livePhotoDirectoryPathInFolder).appendingPathComponent(fileName)
+        return url.path(percentEncoded: false)
+    }
+    
+    var pathInFolder: String {
+        let url = URL(fileURLWithPath: self.directoryPathInFolder).appendingPathComponent(self.originalFilename)
+        return url.path(percentEncoded: false)
     }
 }

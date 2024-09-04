@@ -1279,6 +1279,34 @@
         }
       }
     },
+    "Copy new photos now": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neue Fotos jetzt kopieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar nuevas fotos ahora"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copia nuove foto adesso"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nu nieuwe foto's kopiëren"
+          }
+        }
+      }
+    },
     "Copy photos": {
       "localizations": {
         "de": {
@@ -1308,6 +1336,7 @@
       }
     },
     "Copy photos now": {
+      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -4135,6 +4164,34 @@
         }
       }
     },
+    "Re-copy all photos now": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopieer alle foto's nu opnieuw"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Fotos jetzt erneut kopieren"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ricopia tutte le foto ora"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vuelve a copiar todas las fotos ahora"
+          }
+        }
+      }
+    },
     "Read more at syncthing.net": {
       "localizations": {
         "de": {
@@ -4467,6 +4524,62 @@
           "stringUnit": {
             "state": "translated",
             "value": "Opslaan"
+          }
+        }
+      }
+    },
+    "Saves all photos in the album to the folder, even if the photo was saved to the folder before. This will overwrite any modifications made to the photo file in the folder.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speichert alle Fotos im Album in den Ordner, auch wenn das Foto zuvor bereits im Ordner gespeichert wurde. Dadurch werden alle Änderungen überschrieben, die an der Fotodatei im Ordner vorgenommen wurden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guarda todas las fotos del álbum en la carpeta, incluso si la foto ya se había guardado en la carpeta antes. Esto sobrescribirá cualquier modificación hecha al archivo de la foto en la carpeta."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salva tutte le foto dell'album nella cartella, anche se la foto era già stata salvata nella cartella. Questo sovrascriverà eventuali modifiche apportate al file della foto nella cartella."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slaat alle foto's in het album op in de map, zelfs als de foto al eerder in de map was opgeslagen. Dit overschrijft eventuele aanpassingen die aan het fotobestand in de map zijn gemaakt."
+          }
+        }
+      }
+    },
+    "Saves photos in the album that have not been copied before to the folder.": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slaat foto's op in het album die nog niet eerder naar de map zijn gekopieerd."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speichert Fotos im Album, die noch nicht in den Ordner kopiert wurden."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salva le foto nell'album che non sono state precedentemente copiate nella cartella."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guarda las fotos en el álbum que no han sido copiadas antes a la carpeta."
           }
         }
       }

@@ -26,8 +26,8 @@ struct PhotoSyncButton: View {
             }
         }
         else {
-            Button("Copy photos now", systemImage: "photo.badge.arrow.down.fill") {
-                photoSync.synchronize(self.appState)
+            Button("Copy new photos now", systemImage: "photo.badge.arrow.down.fill") {
+                photoSync.synchronize(self.appState, fullExport: false)
             }.disabled(photoSync.isSynchronizing || !photoSync.isReady)
         }
     }
@@ -90,6 +90,16 @@ struct PhotoSettingsView: View {
             
             Section {
                 PhotoSyncButton(appState: appState, photoSync: photoSync)
+            } footer: {
+                Text("Saves photos in the album that have not been copied before to the folder.")
+            }
+            
+            Section {
+                Button("Re-copy all photos now", systemImage: "photo.badge.arrow.down.fill") {
+                    photoSync.synchronize(self.appState, fullExport: true)
+                }.disabled(photoSync.isSynchronizing || !photoSync.isReady)
+            } footer: {
+                Text("Saves all photos in the album to the folder, even if the photo was saved to the folder before. This will overwrite any modifications made to the photo file in the folder.")
             }
         }
         .navigationTitle("Photos synchronization")
