@@ -285,7 +285,7 @@ fileprivate extension PHAsset {
             return "file"
         }
         
-        return result.originalFilename
+        return result.originalFilename.replacingOccurrences(of: "/", with: "_")
     }
     
     var directoryPathInFolder: String {
