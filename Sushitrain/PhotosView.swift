@@ -101,6 +101,13 @@ struct PhotoSettingsView: View {
             } footer: {
                 Text("Saves all photos in the album to the folder, even if the photo was saved to the folder before. This will overwrite any modifications made to the photo file in the folder.")
             }
+            
+            if photoSync.lastCompletedDate > 0.0 {
+                let lastDate = Date(timeIntervalSinceReferenceDate: photoSync.lastCompletedDate)
+                Section {
+                    Text("Last completed").badge(lastDate.formatted(date: .abbreviated, time: .shortened))
+                }
+            }
         }
         .navigationTitle("Photos synchronization")
         .navigationBarTitleDisplayMode(.inline)

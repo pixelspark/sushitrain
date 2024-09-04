@@ -12,6 +12,7 @@ import Photos
 class PhotoSynchronisation: ObservableObject {
     @AppStorage("photoSyncSelectedAlbumID") var  selectedAlbumID: String = ""
     @AppStorage("photoSyncFolderID") var selectedFolderID: String = ""
+    @AppStorage("photoSyncLastCompletedDate") var lastCompletedDate: Double = -1.0
     @AppStorage("photoSyncEnableBackgroundCopy") var enableBackgroundCopy: Bool = false
     @Published var isSynchronizing = false
     @Published var progressIndex: Int = 0
@@ -251,6 +252,12 @@ class PhotoSynchronisation: ObservableObject {
                     stList.append(path)
                 }
                 try? folder.setLocalPathsExplicitlySelected(stList)
+            }
+            
+            // Write 'last completed' date
+            let completedDate = Date.now.timeIntervalSinceReferenceDate
+            DispatchQueue.main.async {
+                self.lastCompletedDate = completedDate
             }
             print("Done")
         }
