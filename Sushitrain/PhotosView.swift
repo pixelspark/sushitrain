@@ -26,7 +26,7 @@ struct PhotoSyncButton: View {
             }
         }
         else {
-            Button("Copy new photos now", systemImage: "photo.badge.arrow.down.fill") {
+            Button("Copy new photos", systemImage: "photo.badge.arrow.down.fill") {
                 photoSync.synchronize(self.appState, fullExport: false)
             }.disabled(photoSync.isSynchronizing || !photoSync.isReady)
         }
@@ -95,7 +95,7 @@ struct PhotoSettingsView: View {
             }
             
             Section {
-                Button("Re-copy all photos now", systemImage: "photo.badge.arrow.down.fill") {
+                Button("Re-copy all photos", systemImage: "photo.badge.arrow.down.fill") {
                     photoSync.synchronize(self.appState, fullExport: true)
                 }.disabled(photoSync.isSynchronizing || !photoSync.isReady)
             } footer: {

@@ -210,7 +210,6 @@ class PhotoSynchronisation: ObservableObject {
                     // Export live photo
                     let options = PHLivePhotoRequestOptions()
                     options.deliveryMode = .highQualityFormat
-                    print("RequestLivePhoto")
                     var found = false
                     PHImageManager.default().requestLivePhoto(for: asset, targetSize: CGSize(width: 1920, height: 1080), contentMode: PHImageContentMode.default, options: options) { livePhoto, info in
                         if found {
