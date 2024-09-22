@@ -190,6 +190,10 @@ class PhotoSynchronisation: ObservableObject {
                 }
                 print("Asset: \(asset.originalFilename) \(asset.localIdentifier)")
                 
+                DispatchQueue.main.async {
+                    self.progress = .exportingPhotos(index: index, total: count, current: asset.originalFilename)
+                }
+                
                 // Create containing directory
                 let dirInFolder = folderURL.appending(path: asset.directoryPathInFolder, directoryHint: .isDirectory)
                 try! FileManager.default.createDirectory(at: dirInFolder, withIntermediateDirectories: true)
@@ -227,10 +231,6 @@ class PhotoSynchronisation: ObservableObject {
                                 
                                 if isSelective {
                                     selectPaths.append(inFolderPath)
-                                }
-                                
-                                DispatchQueue.main.async {
-                                    self.progress = .exportingPhotos(index: index, total: count, current: asset.originalFilename)
                                 }
                             }
                         }
