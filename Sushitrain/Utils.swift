@@ -105,6 +105,13 @@ extension SushitrainFolder {
         return s == "idle"
     }
     
+    // When true, the folder's selection can be changed (files may be transferring, but otherwise the folder is idle)
+    var isIdleOrSyncing: Bool {
+        var error: NSError? = nil
+        let s = self.state(&error)
+        return s == "idle" || s == "syncing"
+    }
+    
     var displayName: String {
         let label = self.label()
         return label.isEmpty ? self.folderID : label

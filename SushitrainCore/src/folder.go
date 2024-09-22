@@ -6,6 +6,7 @@
 package sushitrain
 
 import (
+	"encoding/json"
 	"errors"
 	"path/filepath"
 	"slices"
@@ -14,6 +15,7 @@ import (
 	"github.com/syncthing/syncthing/lib/config"
 	"github.com/syncthing/syncthing/lib/fs"
 	"github.com/syncthing/syncthing/lib/ignore"
+	"github.com/syncthing/syncthing/lib/ignore/ignoreresult"
 	"github.com/syncthing/syncthing/lib/model"
 	"github.com/syncthing/syncthing/lib/protocol"
 )
@@ -376,21 +378,8 @@ func (fld *Folder) SetFolderType(folderType string) error {
 	})
 }
 
-func (fld *Folder) IsSelective() bool {
-	if fld.client.app == nil || fld.client.app.Internals == nil {
-		return false
-	}
-
-	fc := fld.folderConfiguration()
-	if fc == nil {
-		return false
-	}
-
-	lines, _, err := fld.client.app.Internals.Ignores(fld.FolderID)
-	if err != nil {
-		return false
-	}
-
+// Returns whether the provided set of ignore lines are valid for 'selective' mode
+func isSelectiveIgnore(lines []string) bool {
 	if len(lines) == 0 {
 		return false
 	}
@@ -409,6 +398,24 @@ func (fld *Folder) IsSelective() bool {
 	}
 
 	return true
+}
+
+func (fld *Folder) IsSelective() bool {
+	if fld.client.app == nil || fld.client.app.Internals == nil {
+		return false
+	}
+
+	fc := fld.folderConfiguration()
+	if fc == nil {
+		return false
+	}
+
+	ignores, err := fld.loadIgnores()
+	if err != nil {
+		return false
+	}
+
+	return isSelectiveIgnore(ignores.Lines())
 }
 
 func (fld *Folder) LocalNativePath() (string, error) {
@@ -454,20 +461,20 @@ func (fld *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 		return nil, errors.New("folder does not exist")
 	}
 
-	if !fld.IsSelective() {
-		return List([]string{}), nil
+	ignores, err := fld.loadIgnores()
+	if err != nil {
+		return nil, err
 	}
 
-	ignores := ignore.New(cfg.Filesystem(nil), ignore.WithCache(false))
-	if err := ignores.Load(ignoreFileName); err != nil && !fs.IsNotExist(err) {
-		return nil, err
+	if !isSelectiveIgnore(ignores.Lines()) {
+		return nil, errors.New("folder is not a selective folder")
 	}
 
 	extraFiles := make([]string, 0)
 
 	ffs := fld.folderConfiguration().Filesystem(nil)
 	foundOneError := errors.New("found one")
-	err := ffs.Walk("", func(path string, info fs.FileInfo, err error) error {
+	err = ffs.Walk("", func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			Logger.Warnln("error walking: ", path, err)
 			return nil
@@ -515,9 +522,13 @@ func (fld *Folder) CleanSelection() error {
 		fld.client.app.Internals.ScanFolders()
 
 		cfg := fld.folderConfiguration()
-		ignores := ignore.New(cfg.Filesystem(nil), ignore.WithCache(false))
-		if err := ignores.Load(ignoreFileName); err != nil && !fs.IsNotExist(err) {
+		ignores, err := fld.loadIgnores()
+		if err != nil {
 			return err
+		}
+
+		if !isSelectiveIgnore(ignores.Lines()) {
+			return errors.New("folder is not a selective folder")
 		}
 
 		ffs := fld.folderConfiguration().Filesystem(nil)
@@ -539,7 +550,7 @@ func (fld *Folder) CleanSelection() error {
 	})
 }
 
-func (fld *Folder) DeleteLocalFile(path string) error {
+func (fld *Folder) deleteLocalFile(path string) error {
 	ffs := fld.folderConfiguration().Filesystem(nil)
 	err := ffs.Remove(path)
 	if err != nil {
@@ -554,6 +565,14 @@ func (fld *Folder) DeleteLocalFile(path string) error {
 			ffs.Remove(dirPath) // Will only remove directories when empty
 		}
 	}
+	return nil
+}
+
+func (fld *Folder) DeselectAndDeleteLocalFile(path string) error {
+	err := fld.deleteLocalFile(path)
+	if err != nil {
+		return err
+	}
 
 	err = fld.client.app.Internals.ScanFolderSubdirs(fld.FolderID, []string{path})
 	if err != nil {
@@ -567,44 +586,134 @@ func (fld *Folder) DeleteLocalFile(path string) error {
 	return nil
 }
 
-func (fld *Folder) SetLocalPathsExplicitlySelected(paths *ListOfStrings) error {
-	// Edit lines
-	lines, _, err := fld.client.app.Internals.Ignores(fld.FolderID)
+func (fld *Folder) reloadIgnores() error {
+	if !fld.IsPaused() {
+		err := fld.SetPaused(true)
+		if err != nil {
+			return err
+		}
+		fld.SetPaused(false)
+
+		// Force a (minimal) scan. The current implementation also reloads the ignore file here (regardless of the path that is scanned)
+		// Note, this could potentially take a while
+		err = fld.client.app.Internals.ScanFolderSubdirs(fld.FolderID, []string{ignoreFileName})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (fld *Folder) SetExplicitlySelectedJSON(js []byte) error {
+	var paths map[string]bool
+	if err := json.Unmarshal(js, &paths); err != nil {
+		return err
+	}
+	return fld.setExplicitlySelected(paths)
+}
+
+func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
+	Logger.Infoln("Set explicitly selected: ", paths)
+	state, err := fld.State()
 	if err != nil {
 		return err
 	}
+	if state != "idle" && state != "syncing" {
+		return errors.New("cannot change explicit selection state when not idle or syncing")
+	}
 
-	for _, path := range paths.data {
+	// Check if we have any work to do
+	if len(paths) == 0 {
+		return nil
+	}
+
+	// Load ignores from file
+	ignores, err := fld.loadIgnores()
+	if err != nil {
+		return err
+	}
+	lines := ignores.Lines()
+
+	if !isSelectiveIgnore(lines) {
+		return errors.New("folder is not a selective folder")
+	}
+
+	hashBefore := ignores.Hash()
+	Logger.Debugf("Ignore hash before editing:", hashBefore)
+
+	// Edit lines
+	for path, selected := range paths {
 		line := IgnoreLineForSelectingPath(path)
-		if !slices.Contains(lines, line) {
-			Logger.Infof("Adding ignore line: %s", line)
+		Logger.Infof("Edit ignore line (%b): %s\n", selected, line)
+
+		// Is this entry currently selected explicitly?
+		currentlySelected := slices.Contains(lines, line)
+		if currentlySelected == selected {
+			Logger.Debugln("not changing selecting status for path " + path + ": it is the status quo")
+			continue
+		}
+
+		// To deselect, remove the relevant ignore line
+		countBefore := len(lines)
+		if !selected {
+			lines = Filter(lines, func(l string) bool {
+				return l != line
+			})
+			if len(lines) != countBefore-1 {
+				return errors.New("failed to remove ignore line: " + line)
+			}
+		} else {
+			// To select, prepend it
 			lines = append([]string{line}, lines...)
 		}
 	}
 
-	// Save new ignores
+	// Save new ignores (this triggers a reload of ignores and eventually a scan)
 	err = fld.client.app.Internals.SetIgnores(fld.FolderID, lines)
 	if err != nil {
 		return err
 	}
 
-	// Do a small scan to force reloading ignores
-	err = fld.client.app.Internals.ScanFolderSubdirs(fld.FolderID, append(paths.data, ignoreFileName))
+	// Delete files if necessary
+	ignores, err = fld.loadIgnores()
 	if err != nil {
-		return nil
+		return err
 	}
 
+	hashAfter := ignores.Hash()
+	if hashAfter == hashBefore {
+		Logger.Warnln("ignore file did not change after edits")
+	}
+	Logger.Debugf("Hash before", hashBefore, "after", hashAfter)
+
+	for path, selected := range paths {
+		// Delete local file if it is not selected anymore
+		if !selected {
+			// Check if not still implicitly selected
+			res := ignores.Match(path)
+			if res == ignoreresult.Ignored || res == ignoreresult.IgnoreAndSkip {
+				Logger.Infoln("Deleting local deselected file: " + path)
+				fld.deleteLocalFile(path)
+			} else {
+				Logger.Infoln("Not deleting local deselected file, it apparently was reselected: "+path, lines, res)
+			}
+		}
+	}
 	return nil
 }
 
-func (fld *Folder) SetLocalFileExplicitlySelected(path string, toggle bool) error {
-	mockEntry := Entry{
-		Folder: fld,
-		info: protocol.FileInfo{
-			Name: path,
-		},
+func (fld *Folder) SetLocalPathsExplicitlySelected(paths *ListOfStrings) error {
+	pathsMap := map[string]bool{}
+	for _, path := range paths.data {
+		pathsMap[path] = true
 	}
-	return mockEntry.SetExplicitlySelected(toggle)
+	return fld.setExplicitlySelected(pathsMap)
+}
+
+func (fld *Folder) SetLocalFileExplicitlySelected(path string, toggle bool) error {
+	pathsMap := map[string]bool{}
+	pathsMap[path] = toggle
+	return fld.setExplicitlySelected(pathsMap)
 }
 
 func (fld *Folder) Statistics() (*FolderStats, error) {

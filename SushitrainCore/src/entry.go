@@ -137,54 +137,9 @@ func PathForIgnoreLine(line string) string {
 }
 
 func (entry *Entry) SetExplicitlySelected(selected bool) error {
-	currentlySelected := entry.IsExplicitlySelected()
-
-	if currentlySelected == selected {
-		return nil
-	}
-
-	// Edit lines
-	lines, _, err := entry.Folder.client.app.Internals.Ignores(entry.Folder.FolderID)
-	if err != nil {
-		return err
-	}
-
-	line := entry.ignoreLine()
-	if !selected {
-		lines = Filter(lines, func(l string) bool {
-			return l != line
-		})
-	} else {
-		lines = append([]string{line}, lines...)
-	}
-
-	// Save new ignores
-	err = entry.Folder.client.app.Internals.SetIgnores(entry.Folder.FolderID, lines)
-	if err != nil {
-		return err
-	}
-
-	// Delete local file if !selected (and not still implicitly selected by parent folder)
-	if !selected && !entry.IsSelected() {
-		go func() {
-			// Force a (minimal) scan. The current implementation also reloads the ignore file here (regardless of the path that is scanned)
-			// Note, this could potentially take a while
-			err := entry.Folder.client.app.Internals.ScanFolderSubdirs(entry.Folder.FolderID, []string{ignoreFileName})
-			if err != nil {
-				Logger.Warnln("ScanFolderSubdirs failed in SetExplicitlySelected for entry " + entry.info.FileName())
-				return
-			}
-
-			// Delete the local file, if it is still deselected (the scan might take a while to complete)
-			if !entry.IsSelected() {
-				Logger.Infoln("Deleted local deselected file: " + entry.info.FileName())
-				entry.Folder.DeleteLocalFile(entry.info.FileName())
-			} else {
-				Logger.Infoln("Not deleting local deselected file, it apparently was reselected: " + entry.info.FileName())
-			}
-		}()
-	}
-	return nil
+	paths := map[string]bool{}
+	paths[entry.info.Name] = selected
+	return entry.Folder.setExplicitlySelected(paths)
 }
 
 type DownloadDelegate interface {
@@ -272,5 +227,5 @@ func (entry *Entry) MIMEType() string {
 }
 
 func (entry *Entry) Remove() error {
-	return entry.Folder.DeleteLocalFile(entry.Path())
+	return entry.Folder.DeselectAndDeleteLocalFile(entry.Path())
 }

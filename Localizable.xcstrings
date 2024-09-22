@@ -271,6 +271,9 @@
         }
       }
     },
+    "Action" : {
+
+    },
     "Add" : {
       "localizations" : {
         "de" : {
@@ -691,6 +694,9 @@
         }
       }
     },
+    "An error occurred" : {
+
+    },
     "Announce globally" : {
       "localizations" : {
         "de" : {
@@ -803,7 +809,11 @@
         }
       }
     },
+    "Apply" : {
+
+    },
     "Are you sure you want to delete %lld files? Files that are not synchronized to other device will be lost. This cannot be undone!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1559,7 +1569,11 @@
         }
       }
     },
+    "Delete file" : {
+
+    },
     "Delete my copy of this file" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2651,6 +2665,9 @@
         }
       }
     },
+    "For all files" : {
+
+    },
     "Free up space" : {
       "localizations" : {
         "de" : {
@@ -2958,6 +2975,9 @@
           }
         }
       }
+    },
+    "Keep file" : {
+
     },
     "Last background synchronization" : {
       "localizations" : {
@@ -3968,6 +3988,7 @@
       }
     },
     "Permanently delete this file" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4360,6 +4381,7 @@
       }
     },
     "Remove %lld files from my device" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4388,6 +4410,7 @@
       }
     },
     "Remove all extra files" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -5704,6 +5727,7 @@
       }
     },
     "Synchronize file" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -5732,6 +5756,7 @@
       }
     },
     "Synchronize file (overwrite existing)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

@@ -113,7 +113,7 @@ struct SelectiveFolderView: View {
                                     }
                                 }
                                 selectedPaths.remove(atOffsets: pathIndexes)
-                            }.disabled(!folder.isIdle)
+                            }.disabled(!folder.isIdleOrSyncing)
                         }
                     }
                     
@@ -319,7 +319,7 @@ struct FolderSyncTypePicker: View {
             .disabled(changeProhibited)
             .onAppear {
                 // Only allow changes to selection mode when folder is idle
-                if !folder.isIdle {
+                if !folder.isIdleOrSyncing {
                     changeProhibited = true
                     return
                 }
@@ -349,7 +349,7 @@ struct FolderDirectionPicker: View {
             .disabled(changeProhibited)
             .onAppear {
                 // Only allow changes to selection mode when folder is idle
-                if !folder.isIdle {
+                if !folder.isIdleOrSyncing {
                     changeProhibited = true
                     return
                 }

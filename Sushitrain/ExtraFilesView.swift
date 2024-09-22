@@ -11,94 +11,118 @@ import QuickLook
 struct ExtraFilesView: View {
     var folder: SushitrainFolder
     @ObservedObject var appState: AppState
-    @State private var adressedPaths = Set<String>()
     @State private var extraFiles: [String] = []
-    @State private var showCleanAll = false
-    @State private var localItemURL: URL? = nil
     @Environment(\.dismiss) private var dismiss
+    @State private var verdicts: [String: Bool] = [:]
+    @State private var localItemURL: URL? = nil
+    @State private var allVerdict: Bool? = nil
+    @State private var errorMessage: String? = nil
     
     var body: some View {
-        let unadressedExtraFiles = extraFiles.filter({ p in !self.adressedPaths.contains(p) })
-        
         Group {
-            if unadressedExtraFiles.isEmpty {
+            if extraFiles.isEmpty {
                 ContentUnavailableView("No extra files found", systemImage: "checkmark.circle")
             }
             else {
+                let folderNativePath = folder.localNativeURL!
+                
                 List {
-                    if folder.folderType() == SushitrainFolderTypeSendReceive {
-                        Text("Extra files have been found. Please decide for each file whether they should be synchronized or removed.").textFieldStyle(.plain)
-                    }
-                    else if folder.folderType() == SushitrainFolderTypeReceiveOnly {
-                        Text("Extra files have been found. Because this is a receive-only folder, these files will not be synchronized.").textFieldStyle(.plain)
-                    }
-                    
-                    Button("Remove all extra files", systemImage: "trash", role: .destructive) {
-                        showCleanAll = true
-                    }.confirmationDialog("Are you sure you want to delete \(unadressedExtraFiles.count) files? Files that are not synchronized to other device will be lost. This cannot be undone!", isPresented: $showCleanAll, titleVisibility: .visible, actions: {
-                        Button("Remove \(unadressedExtraFiles.count) files from my device", role: .destructive) {
-                            dismiss()
-                            try? folder.cleanSelection()
+                    Section {
+                        if folder.folderType() == SushitrainFolderTypeSendReceive {
+                            Text("Extra files have been found. Please decide for each file whether they should be synchronized or removed.").textFieldStyle(.plain)
                         }
-                    }).foregroundColor(.red)
+                        else if folder.folderType() == SushitrainFolderTypeReceiveOnly {
+                            Text("Extra files have been found. Because this is a receive-only folder, these files will not be synchronized.").textFieldStyle(.plain)
+                        }
+                    }
                     
-                    ForEach(unadressedExtraFiles, id: \.self) { path in
-                        let globalInfo = try? folder.getFileInformation(path)
-                        let isAlsoGlobalFile = globalInfo != nil && !(globalInfo!.isDeleted())
-                        Section {
-                            Button(path) {
-                                if let info = try? folder.getFileInformation(path) {
-                                    var error: NSError? = nil
-                                    let path = info.localNativePath(&error)
-                                    if error == nil {
-                                        self.localItemURL = URL(fileURLWithPath: path)
-                                    }
-                                }
-                            }
+                    Section {
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text("For all files").multilineTextAlignment(.leading)
+                            }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                             
-                            if isAlsoGlobalFile {
-                                Button("Delete my copy of this file", systemImage: "trash", role: .destructive, action: {
-                                    try! folder.deleteLocalFile(path)
-                                    self.adressedPaths.insert(path)
-                                }).foregroundColor(.red)
+                            Picker("Action", selection: Binding(get: {
+                                return allVerdict
+                            }, set: { s in
+                                allVerdict = s
+                                for f in extraFiles {
+                                    verdicts[f] = s
+                                }
+                            })) {
+                                Image(systemName: "trash").tint(.red).tag(false).accessibilityLabel("Delete file")
+                                Image(systemName: "square.and.arrow.down").tag(true).accessibilityLabel("Keep file")
                             }
-                            else {
-                                Button("Permanently delete this file", systemImage: "trash", role: .destructive, action: {
-                                    try! folder.deleteLocalFile(path)
-                                    self.adressedPaths.insert(path)
-                                }).foregroundColor(.red)
-                            }
+                            .pickerStyle(.segmented)
+                            .frame(width: 100)
+                        }
+                    }
+                    
+                    Section {
+                        ForEach(extraFiles, id: \.self) { path in
+                            let verdict = verdicts[path]
                             
-                            if folder.folderType() == SushitrainFolderTypeSendReceive {
-                                if isAlsoGlobalFile {
-                                    Button("Synchronize file (overwrite existing)", systemImage: "rectangle.2.swap", action: {
-                                        try! folder.setLocalFileExplicitlySelected(path, toggle: true)
-                                        self.adressedPaths.insert(path)
-                                    })
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Button(path) {
+                                        self.localItemURL = folderNativePath.appending(path: path)
+                                    }.multilineTextAlignment(.leading)
+                                        .dynamicTypeSize(.small)
+                                        .foregroundStyle(verdict == false ? .red : verdict == true ? .green : .primary)
+                                }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                                
+                                Picker("Action", selection: Binding(get: {
+                                    return verdicts[path]
+                                }, set: { s in
+                                    verdicts[path] = s
+                                    allVerdict = nil
+                                })) {
+                                    Image(systemName: "trash").tint(.red).tag(false).accessibilityLabel("Delete file")
+                                    Image(systemName: "square.and.arrow.down").tag(true).accessibilityLabel("Keep file")
                                 }
-                                else {
-                                    Button("Synchronize file", systemImage: "plus", action: {
-                                        try! folder.setLocalFileExplicitlySelected(path, toggle: true)
-                                        self.adressedPaths.insert(path)
-                                    })
-                                }
+                                .pickerStyle(.segmented)
+                                .frame(width: 100)
                             }
                         }
                     }
                 }
             }
         }.onAppear {
-            if folder.isIdle {
-                extraFiles = try! folder.extraneousFiles().asArray().sorted()
-            }
-            else {
-                extraFiles = []
-            }
+           reload()
         }
         .navigationTitle("Extra files in folder \(folder.label())")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction, content: {
+                Button("Apply", action: {
+                    do {
+                        let json = try JSONEncoder().encode(self.verdicts)
+                        try folder.setExplicitlySelectedJSON(json)
+                        verdicts = [:]
+                        allVerdict = nil
+                        dismiss()
+                    }
+                    catch {
+                        errorMessage = error.localizedDescription
+                        reload()
+                    }
+                }).disabled(!folder.isIdleOrSyncing || verdicts.isEmpty || extraFiles.isEmpty)
+            })
+        }
         .quickLookPreview(self.$localItemURL)
+        .alert(isPresented: Binding.constant(errorMessage != nil)) {
+            Alert(title: Text("An error occurred"), message: Text(errorMessage ?? ""), dismissButton: .default(Text("OK")) {
+                errorMessage = nil
+            })
+        }
     }
     
-    
+    private func reload() {
+        if folder.isIdleOrSyncing {
+            extraFiles = try! folder.extraneousFiles().asArray().sorted()
+        }
+        else {
+            extraFiles = []
+        }
+    }
 }

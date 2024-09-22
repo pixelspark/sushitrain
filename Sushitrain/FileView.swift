@@ -280,7 +280,7 @@ struct FileView: View {
                             file.isExplicitlySelected() || file.isSelected()
                         }, set: { s in
                             try? file.setExplicitlySelected(s)
-                        })).disabled(!folder.isIdle || (file.isSelected() && !file.isExplicitlySelected()))
+                        })).disabled(!folder.isIdleOrSyncing || (file.isSelected() && !file.isExplicitlySelected()))
                     }
                 } footer: {
                     if self.folder.isSelective() && (file.isSelected() && !file.isExplicitlySelected()) {
