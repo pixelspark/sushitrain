@@ -35,6 +35,7 @@
 		65C9E1502C419FCA00EDCE6C /* FileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E14F2C419FCA00EDCE6C /* FileView.swift */; };
 		65C9E1542C42B9AE00EDCE6C /* ExtraFilesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E1532C42B9AE00EDCE6C /* ExtraFilesView.swift */; };
 		65F15BFC2CA03CBE00E13DDD /* BackgroundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F15BFB2CA03CBA00E13DDD /* BackgroundManager.swift */; };
+		65F15BFD2CA03DCE00E13DDD /* SushitrainCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65AE125A2C3AB03E00E721D4 /* SushitrainCore.xcframework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -100,6 +101,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				65F15BFD2CA03DCE00E13DDD /* SushitrainCore.xcframework in Frameworks */,
 				65AE125B2C3AB03E00E721D4 /* SushitrainCore.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -436,7 +438,6 @@
 		65AE12082C39EE0F00E721D4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Sushitrain/Sushitrain.entitlements;
@@ -475,7 +476,6 @@
 		65AE12092C39EE0F00E721D4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Sushitrain/Sushitrain.entitlements;
