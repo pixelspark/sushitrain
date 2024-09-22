@@ -28,7 +28,7 @@ struct ChangesView: View {
                                     Text("By this device").dynamicTypeSize(.small).foregroundColor(.gray)
                                 }
                                 else {
-                                    Text("By \(peer.label)").dynamicTypeSize(.small).foregroundColor(.gray)
+                                    Text("By \(peer.displayName)").dynamicTypeSize(.small).foregroundColor(.gray)
                                 }
                             }
                         }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)

@@ -269,7 +269,7 @@ struct FileView: View {
                                     Text("Last modified from").badge(Text("This device"))
                                 }
                                 else {
-                                    Text("Last modified from").badge(modifyingDevice.label)
+                                    Text("Last modified from").badge(modifyingDevice.displayName)
                                 }
                             }
                         }

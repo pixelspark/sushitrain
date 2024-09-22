@@ -20,7 +20,7 @@ struct UploadView: View {
                 else {
                     ForEach(uploadingToPeers.asArray(), id: \.self) { peerID in
                         if let peer = appState.client.peer(withID: peerID) {
-                            Section(peer.label) {
+                            Section(peer.displayName) {
                                 if let uploadingFolders = appState.client.uploadingFolders(forPeer: peerID) {
                                     ForEach(uploadingFolders.asArray(), id: \.self) { folderID in
                                         if let folder = appState.client.folder(withID: folderID) {

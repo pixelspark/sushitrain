@@ -27,7 +27,7 @@ struct PeerView: View {
                 }
                 
                 LabeledContent {
-                    TextField(peer.label, text: Binding(get: { peer.name() }, set: {lbl in try? peer.setName(lbl) }))
+                    TextField(peer.displayName, text: Binding(get: { peer.name() }, set: {lbl in try? peer.setName(lbl) }))
                         .multilineTextAlignment(.trailing)
                 } label: {
                     Text("Display name")

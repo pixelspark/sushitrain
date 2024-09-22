@@ -19,7 +19,7 @@ extension SushitrainListOfStrings {
 }
 
 extension SushitrainPeer {
-    var label: String {
+    var displayName: String {
         let name = self.name()
         if !name.isEmpty {
             return name

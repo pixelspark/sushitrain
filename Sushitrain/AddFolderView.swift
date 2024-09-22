@@ -44,7 +44,7 @@ struct AddFolderView: View {
                                     sharedWith.remove(addr.deviceID())
                                 }
                             });
-                            Toggle(addr.label, systemImage: addr.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill", isOn: shared)
+                            Toggle(addr.displayName, systemImage: addr.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill", isOn: shared)
                                 .bold(pendingPeers.contains(addr.deviceID()))
                                 .disabled(addr.isUntrusted())
                         }
