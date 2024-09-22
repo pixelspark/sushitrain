@@ -89,7 +89,19 @@ struct PhotoSettingsView: View {
             }
             
             Section {
-                Toggle("Copy photos periodically in the background", isOn: photoSync.$enableBackgroundCopy)
+                Toggle("Copy photos periodically in the background", isOn: photoSync.$enableBackgroundCopy).disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
+            }
+            
+            Section("Save the following media types") {
+                Toggle("Photos", isOn: Binding(get: { photoSync.categories.contains(.photo) }, set: { s in
+                    photoSync.categories.toggle(.photo, s)
+                })).disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
+                Toggle("Live photos", isOn: Binding(get: { photoSync.categories.contains(.livePhoto) }, set: { s in
+                    photoSync.categories.toggle(.livePhoto, s)
+                })).disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
+                Toggle("Videos", isOn: Binding(get: { photoSync.categories.contains(.video) }, set: { s in
+                    photoSync.categories.toggle(.video, s)
+                })).disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
             }
             
             Section {

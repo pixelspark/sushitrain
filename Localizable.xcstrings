@@ -3441,6 +3441,34 @@
         }
       }
     },
+    "Live photos" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live-Fotos"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotos en vivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto live"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live foto's"
+          }
+        }
+      }
+    },
     "Location" : {
       "localizations" : {
         "de" : {
@@ -4169,6 +4197,34 @@
         }
       }
     },
+    "Photos" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotos"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto's"
+          }
+        }
+      }
+    },
     "Photos from the selected album will be saved in the selected folder, in sub folders by creation date. If a photo with the same file name already exists in the folder, or has been deleted from the folder before, it will not be saved again." : {
       "localizations" : {
         "de" : {
@@ -4725,6 +4781,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Opslaan"
+          }
+        }
+      }
+    },
+    "Save the following media types" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speichern Sie die folgenden Medientypen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guarda los siguientes tipos de medios"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salva i seguenti tipi di media"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sla de volgende mediatypen op"
           }
         }
       }
@@ -6853,6 +6937,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Versie-informatie"
+          }
+        }
+      }
+    },
+    "Videos" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Videos"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Videos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video's"
           }
         }
       }
