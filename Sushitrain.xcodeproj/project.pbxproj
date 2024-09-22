@@ -14,7 +14,7 @@
 		652879A82C4D06F5004AF46F /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652879A72C4D06F5004AF46F /* SearchView.swift */; };
 		654272982C7BC77000F2CEF8 /* FileDownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654272972C7BC77000F2CEF8 /* FileDownloadView.swift */; };
 		6575B3DF2C6012480057686E /* ChangesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6575B3DE2C6012480057686E /* ChangesView.swift */; };
-		65AE11FD2C39EE0E00E721D4 /* SushitrainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE11FC2C39EE0E00E721D4 /* SushitrainApp.swift */; };
+		65AE11FD2C39EE0E00E721D4 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE11FC2C39EE0E00E721D4 /* App.swift */; };
 		65AE11FF2C39EE0E00E721D4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE11FE2C39EE0E00E721D4 /* ContentView.swift */; };
 		65AE12012C39EE0F00E721D4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 65AE12002C39EE0F00E721D4 /* Assets.xcassets */; };
 		65AE12042C39EE0F00E721D4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 65AE12032C39EE0F00E721D4 /* Preview Assets.xcassets */; };
@@ -34,6 +34,7 @@
 		65C9E14C2C3F341F00EDCE6C /* MeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E14B2C3F341F00EDCE6C /* MeView.swift */; };
 		65C9E1502C419FCA00EDCE6C /* FileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E14F2C419FCA00EDCE6C /* FileView.swift */; };
 		65C9E1542C42B9AE00EDCE6C /* ExtraFilesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E1532C42B9AE00EDCE6C /* ExtraFilesView.swift */; };
+		65F15BFC2CA03CBE00E13DDD /* BackgroundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F15BFB2CA03CBA00E13DDD /* BackgroundManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,7 +69,7 @@
 		654272972C7BC77000F2CEF8 /* FileDownloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDownloadView.swift; sourceTree = "<group>"; };
 		6575B3DE2C6012480057686E /* ChangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangesView.swift; sourceTree = "<group>"; };
 		65AE11F92C39EE0E00E721D4 /* Sushitrain.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sushitrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		65AE11FC2C39EE0E00E721D4 /* SushitrainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SushitrainApp.swift; sourceTree = "<group>"; };
+		65AE11FC2C39EE0E00E721D4 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		65AE11FE2C39EE0E00E721D4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		65AE12002C39EE0F00E721D4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		65AE12032C39EE0F00E721D4 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -91,6 +92,7 @@
 		65C9E14B2C3F341F00EDCE6C /* MeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeView.swift; sourceTree = "<group>"; };
 		65C9E14F2C419FCA00EDCE6C /* FileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileView.swift; sourceTree = "<group>"; };
 		65C9E1532C42B9AE00EDCE6C /* ExtraFilesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraFilesView.swift; sourceTree = "<group>"; };
+		65F15BFB2CA03CBA00E13DDD /* BackgroundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,8 +131,10 @@
 				65BBF8442C4BFB9300EC59C4 /* AboutView.swift */,
 				65AE12662C3B04A100E721D4 /* AddDeviceView.swift */,
 				65AE126E2C3B14CC00E721D4 /* AddFolderView.swift */,
+				65AE11FC2C39EE0E00E721D4 /* App.swift */,
 				65AE12722C3B163000E721D4 /* AppState.swift */,
 				65AE12002C39EE0F00E721D4 /* Assets.xcassets */,
+				65F15BFB2CA03CBA00E13DDD /* BackgroundManager.swift */,
 				650615862C3B3676002B6EE6 /* BrowserView.swift */,
 				6575B3DE2C6012480057686E /* ChangesView.swift */,
 				65AE11FE2C39EE0E00E721D4 /* ContentView.swift */,
@@ -151,7 +155,6 @@
 				652879A72C4D06F5004AF46F /* SearchView.swift */,
 				652763BA2C45C99200250D3C /* SettingsView.swift */,
 				65C9E1462C3DB67C00EDCE6C /* Sushitrain.entitlements */,
-				65AE11FC2C39EE0E00E721D4 /* SushitrainApp.swift */,
 				65AE12622C3AF50900E721D4 /* Utils.swift */,
 			);
 			path = Sushitrain;
@@ -272,6 +275,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				652763BB2C45C99200250D3C /* SettingsView.swift in Sources */,
+				65F15BFC2CA03CBE00E13DDD /* BackgroundManager.swift in Sources */,
 				65C9E14C2C3F341F00EDCE6C /* MeView.swift in Sources */,
 				65BBF8452C4BFB9300EC59C4 /* AboutView.swift in Sources */,
 				65C9E1502C419FCA00EDCE6C /* FileView.swift in Sources */,
@@ -285,7 +289,7 @@
 				6575B3DF2C6012480057686E /* ChangesView.swift in Sources */,
 				652879A82C4D06F5004AF46F /* SearchView.swift in Sources */,
 				65AE12672C3B04A100E721D4 /* AddDeviceView.swift in Sources */,
-				65AE11FD2C39EE0E00E721D4 /* SushitrainApp.swift in Sources */,
+				65AE11FD2C39EE0E00E721D4 /* App.swift in Sources */,
 				65AE125F2C3AC6E100E721D4 /* FolderView.swift in Sources */,
 				65C9E1542C42B9AE00EDCE6C /* ExtraFilesView.swift in Sources */,
 				65C8BFD62C864A6A00DF5EB0 /* PhotosView.swift in Sources */,
