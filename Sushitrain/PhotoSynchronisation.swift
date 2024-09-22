@@ -8,6 +8,82 @@ import SwiftUI
 @preconcurrency import SushitrainCore
 import Photos
 
+enum PhotoSyncProgress {
+    case starting
+    case exportingPhotos(index: Int, total: Int, current: String?)
+    case exportingVideos(index: Int, total: Int, current: String?)
+    case exportingLivePhotos(index: Int, total: Int, current: String?)
+    case selecting
+    case finished(error: String?)
+    
+    var stepProgress: Float {
+        switch self {
+        case .starting: return 0.0
+            
+        case .exportingPhotos(index: let index, total: let total, current: _):
+            if total > 0 {
+                return Float(index) / Float(total)
+            }
+            return 1.0
+        case .exportingVideos(index: let index, total: let total, current: _):
+            if total > 0 {
+                return Float(index) / Float(total)
+            }
+            return 1.0
+        case .exportingLivePhotos(index: let index, total: let total, current: _):
+            if total > 0 {
+                return Float(index) / Float(total)
+            }
+            return 1.0
+        case .selecting:
+            return 0.0
+        case .finished(error: _):
+            return 1.0
+        }
+    }
+    
+    var badgeText: String {
+        switch self {
+        
+        case .starting:
+            return ""
+        case .exportingPhotos(index: let index, total: let total, current: _):
+            return String(localized: "\(index+1) of \(total)")
+        case .exportingVideos(index: let index, total: let total, current: _):
+            return String(localized: "\(index+1) of \(total)")
+        case .exportingLivePhotos(index: let index, total: let total, current: _):
+            return String(localized: "\(index+1) of \(total)")
+        case .selecting:
+            return ""
+        case .finished(error: _):
+            return ""
+        }
+    }
+    
+    var localizedDescription: String {
+        switch self {
+        case .starting:
+            return String(localized: "Preparing to save photos and videos")
+        case .exportingPhotos(index: _, total: _, current: _):
+            return String(localized: "Saving photos")
+        case .exportingVideos(index: _, total: _, current: _):
+            return String(localized: "Saving videos")
+        case .exportingLivePhotos(index: _, total: _, current: _):
+            return String(localized: "Saving live photos")
+        case .selecting:
+            return String(localized: "Selecting files to be synchronized")
+        case .finished(error: let error):
+            if let e = error {
+                return String(localized: "Failed: \(e)")
+            }
+            else {
+                return String(localized: "Finished")
+            }
+            
+        }
+    }
+}
+
 @MainActor
 class PhotoSynchronisation: ObservableObject {
     @AppStorage("photoSyncSelectedAlbumID") var  selectedAlbumID: String = ""
@@ -15,8 +91,7 @@ class PhotoSynchronisation: ObservableObject {
     @AppStorage("photoSyncLastCompletedDate") var lastCompletedDate: Double = -1.0
     @AppStorage("photoSyncEnableBackgroundCopy") var enableBackgroundCopy: Bool = false
     @Published var isSynchronizing = false
-    @Published var progressIndex: Int = 0
-    @Published var progressTotal: Int = 0
+    @Published var progress: PhotoSyncProgress = .finished(error: nil)
     @Published var syncTask: Task<(), Error>? = nil
     
     var selectedAlbumTitle: String? {
@@ -42,9 +117,6 @@ class PhotoSynchronisation: ObservableObject {
     
     @MainActor
     func synchronize(_ appState: AppState, fullExport: Bool) {
-        if self.isSynchronizing {
-            return
-        }
         if !self.isReady {
             return
         }
@@ -56,15 +128,21 @@ class PhotoSynchronisation: ObservableObject {
         let selectedAlbumID = self.selectedAlbumID
         let selectedFolderID = self.selectedFolderID
         
+        if self.syncTask != nil {
+            return
+        }
         self.isSynchronizing = true
-        self.progressIndex = 0
-        self.progressTotal = 0
-        
+
+        // Start the actual synchronization task
         self.syncTask = Task.detached(priority: .background) {
+            DispatchQueue.main.async {
+                self.progress = .starting
+            }
+            
             defer {
                 DispatchQueue.main.async {
-                    self.isSynchronizing = false
                     self.syncTask = nil
+                    self.isSynchronizing = false
                 }
             }
             
@@ -79,12 +157,17 @@ class PhotoSynchronisation: ObservableObject {
             var err: NSError? = nil
             let folderPath = folder.localNativePath(&err)
             if let err = err {
-                print("error getting path: \(err.localizedDescription)")
+                DispatchQueue.main.async {
+                    self.progress = .finished(error: err.localizedDescription)
+                }
                 return
             }
             let folderURL = URL(fileURLWithPath: folderPath)
             let fetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [selectedAlbumID], options: nil)
             guard let album = fetchResult.firstObject else {
+                DispatchQueue.main.async {
+                    self.progress = .finished(error: "Could not find selected album")
+                }
                 return
             }
             let isSelective = folder.isSelective()
@@ -93,8 +176,7 @@ class PhotoSynchronisation: ObservableObject {
             
             let count = assets.count
             DispatchQueue.main.async {
-                self.progressTotal = count
-                self.progressIndex = 0
+                self.progress = .exportingPhotos(index: 0, total: count, current: nil)
             }
             
             var videosToExport: [(PHAsset, URL, String)] = []
@@ -148,7 +230,7 @@ class PhotoSynchronisation: ObservableObject {
                                 }
                                 
                                 DispatchQueue.main.async {
-                                    self.progressIndex += 1
+                                    self.progress = .exportingPhotos(index: index, total: count, current: asset.originalFilename)
                                 }
                             }
                         }
@@ -171,9 +253,18 @@ class PhotoSynchronisation: ObservableObject {
             
             // Export videos
             print("Starting video exports")
-            for (asset, fileURL, selectPath) in videosToExport {
+            let videoCount =  videosToExport.count
+            DispatchQueue.main.async {
+                self.progress = .exportingVideos(index: 0, total: videoCount, current: nil)
+            }
+            
+            for (idx, (asset, fileURL, selectPath)) in videosToExport.enumerated() {
                 if Task.isCancelled {
                     break
+                }
+                
+                DispatchQueue.main.async {
+                    self.progress = .exportingVideos(index: idx, total: videoCount, current: nil)
                 }
                 
                 await withCheckedContinuation { resolve in
@@ -188,9 +279,6 @@ class PhotoSynchronisation: ObservableObject {
                             es.shouldOptimizeForNetworkUse = false
                             es.exportAsynchronously {
                                 print("Done exporting video \(asset.originalFilename)")
-                                DispatchQueue.main.async {
-                                    self.progressIndex += 1
-                                }
                                 resolve.resume(returning: ())
                             }
                         }
@@ -201,7 +289,11 @@ class PhotoSynchronisation: ObservableObject {
             
             // Export live photos
             print("Exporting live photos")
-            for (asset, destURL, selectPath) in livePhotosToExport {
+            let liveCount = livePhotosToExport.count
+            DispatchQueue.main.async {
+                self.progress = .exportingLivePhotos(index: 0, total: liveCount, current: nil)
+            }
+            for (idx, (asset, destURL, selectPath)) in livePhotosToExport.enumerated() {
                 if Task.isCancelled {
                     break
                 }
@@ -242,11 +334,19 @@ class PhotoSynchronisation: ObservableObject {
                         }
                     }
                 }
+                
+                DispatchQueue.main.async {
+                    self.progress = .exportingLivePhotos(index: idx, total: liveCount, current: nil)
+                }
             }
             
             // Select paths
             if isSelective {
                 print("Selecting paths")
+                DispatchQueue.main.async {
+                    self.progress = .selecting
+                }
+                
                 let stList = SushitrainNewListOfStrings()!
                 for path in selectPaths {
                     stList.append(path)
@@ -258,6 +358,10 @@ class PhotoSynchronisation: ObservableObject {
             let completedDate = Date.now.timeIntervalSinceReferenceDate
             DispatchQueue.main.async {
                 self.lastCompletedDate = completedDate
+            }
+            
+            DispatchQueue.main.async {
+                self.progress = .finished(error: nil)
             }
             print("Done")
         }

@@ -70,7 +70,7 @@ struct MeView: View {
                             let progress = self.appState.client.getTotalDownloadProgress()
                             if let progress = progress {
                                 ProgressView(value: progress.percentage, total: 1.0) {
-                                    Label("Receiving \(progress.filesTotal) files...", systemImage: "arrow.clockwise")
+                                    Label("Receiving \(progress.filesTotal) files...", systemImage: "arrow.down")
                                         .foregroundStyle(.green)
                                         .symbolEffect(.pulse, value: true)
                                         .badge(self.peerStatusText)

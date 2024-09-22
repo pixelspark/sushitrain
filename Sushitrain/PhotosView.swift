@@ -14,11 +14,11 @@ struct PhotoSyncButton: View {
     
     var body: some View {
         if photoSync.isSynchronizing {
-            let progress = photoSync.progressTotal > 0 ? Float(photoSync.progressIndex) / Float(photoSync.progressTotal) : 0.0
-            ProgressView(value: progress, total: 1.0) {
-                Label("Copying photos...", systemImage: "photo.badge.arrow.down.fill")
+            let progress = photoSync.progress
+            ProgressView(value: progress.stepProgress, total: 1.0) {
+                Label(progress.localizedDescription, systemImage: "photo.badge.arrow.down.fill")
                     .foregroundStyle(.orange)
-                    .badge(Text("\(photoSync.progressIndex)/\(photoSync.progressTotal)"))
+                    .badge(Text(progress.badgeText))
             }.tint(.orange)
             
             Button("Cancel") {

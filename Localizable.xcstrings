@@ -181,6 +181,40 @@
         }
       }
     },
+    "%lld of %lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld von %lld"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld de %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld di %lld"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld van %lld"
+          }
+        }
+      }
+    },
     "%lld/%lld" : {
       "localizations" : {
         "de" : {
@@ -272,7 +306,32 @@
       }
     },
     "Action" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktion"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acción"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Azione"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actie"
+          }
+        }
+      }
     },
     "Add" : {
       "localizations" : {
@@ -695,7 +754,32 @@
       }
     },
     "An error occurred" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Fehler ist aufgetreten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocurrió un error"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si è verificato un errore"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er is een fout opgetreden"
+          }
+        }
+      }
     },
     "Announce globally" : {
       "localizations" : {
@@ -810,33 +894,29 @@
       }
     },
     "Apply" : {
-
-    },
-    "Are you sure you want to delete %lld files? Files that are not synchronized to other device will be lost. This cannot be undone!" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Möchten Sie wirklich %lld Dateien löschen? Dateien, die nicht mit anderen Geräten synchronisiert sind, gehen verloren. Dies kann nicht rückgängig gemacht werden!"
+            "value" : "Anwenden"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "¿Está seguro de que desea eliminar %lld archivos? Los archivos que no estén sincronizados con otro dispositivo se perderán. ¡Esto no se puede deshacer!"
+            "value" : "Aplicar"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sei sicuro di voler eliminare %lld file? I file non sincronizzati con un altro dispositivo andranno persi. Questa azione non può essere annullata!"
+            "value" : "Applica"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Weet je zeker dat je %lld bestanden permanent wil verwijderen? Bestanden die niet zijn gesynchroniseerd naar andere apparaten kunnen kwijtraken. Dit kan niet ongedaan worden gemaakt!"
+            "value" : "Toepassen"
           }
         }
       }
@@ -1373,34 +1453,6 @@
         }
       }
     },
-    "Copying photos..." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fotos kopieren..."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Copiando fotos..."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Copia delle foto in corso..."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Foto's kopiëren..."
-          }
-        }
-      }
-    },
     "Could not add device" : {
       "localizations" : {
         "de" : {
@@ -1570,33 +1622,29 @@
       }
     },
     "Delete file" : {
-
-    },
-    "Delete my copy of this file" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Löschen Sie meine Kopie dieser Datei"
+            "value" : "Datei löschen"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Eliminar mi copia de este archivo"
+            "value" : "Eliminar archivo"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Elimina la mia copia di questo file"
+            "value" : "Elimina file"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verwijder mijn kopie van dit bestand"
+            "value" : "Verwijder bestand"
           }
         }
       }
@@ -2245,6 +2293,34 @@
         }
       }
     },
+    "Failed: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fehlgeschlagen: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fallido: %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fallito: %@"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mislukt: %@"
+          }
+        }
+      }
+    },
     "File is too large to preview" : {
       "localizations" : {
         "de" : {
@@ -2381,6 +2457,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Houd bestanden op dit apparaat"
+          }
+        }
+      }
+    },
+    "Finished" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fertig"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completato"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voltooid"
           }
         }
       }
@@ -2666,7 +2770,32 @@
       }
     },
     "For all files" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Für alle Dateien"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para todos los archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per tutti i file"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voor alle bestanden"
+          }
+        }
+      }
     },
     "Free up space" : {
       "localizations" : {
@@ -2977,7 +3106,32 @@
       }
     },
     "Keep file" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei behalten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conservar archivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantieni file"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestand bewaren"
+          }
+        }
+      }
     },
     "Last background synchronization" : {
       "localizations" : {
@@ -3987,35 +4141,6 @@
         }
       }
     },
-    "Permanently delete this file" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Diese Datei dauerhaft löschen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminar este archivo permanentemente"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elimina questo file in modo permanente"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bestand permanent verwijderen"
-          }
-        }
-      }
-    },
     "Photo synchronization" : {
       "localizations" : {
         "de" : {
@@ -4124,6 +4249,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Syncthing onder de motorkap"
+          }
+        }
+      }
+    },
+    "Preparing to save photos and videos" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorbereitung zum Speichern von Fotos und Videos"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparando para guardar fotos y videos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparazione per salvare foto e video"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voorbereiden op het opslaan van foto's en video's"
           }
         }
       }
@@ -4380,64 +4533,6 @@
         }
       }
     },
-    "Remove %lld files from my device" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entferne %lld Dateien von meinem Gerät"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminar %lld archivos de mi dispositivo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rimuovi %lld file dal mio dispositivo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verwijder %lld bestanden van mijn apparaat"
-          }
-        }
-      }
-    },
-    "Remove all extra files" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle zusätzlichen Dateien entfernen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminar todos los archivos extra"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rimuovi tutti i file extra"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verwijder alle extra bestanden"
-          }
-        }
-      }
-    },
     "Remove file from all devices" : {
       "localizations" : {
         "de" : {
@@ -4686,6 +4781,90 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Slaat foto's op in het album die nog niet eerder naar de map zijn gekopieerd."
+          }
+        }
+      }
+    },
+    "Saving live photos" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live-Fotos speichern"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar fotos en vivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salvataggio delle foto live"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Livefoto's opslaan"
+          }
+        }
+      }
+    },
+    "Saving photos" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotos speichern"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardando fotos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salvataggio foto"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto's opslaan"
+          }
+        }
+      }
+    },
+    "Saving videos" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Videos speichern"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardando videos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salvataggio video"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video's opslaan"
           }
         }
       }
@@ -4994,6 +5173,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Selectie"
+          }
+        }
+      }
+    },
+    "Selecting files to be synchronized" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien zum Synchronisieren auswählen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleccionar archivos para sincronizar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleziona i file da sincronizzare"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestanden selecteren om te synchroniseren"
           }
         }
       }
@@ -5722,64 +5929,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Synchroniseer"
-          }
-        }
-      }
-    },
-    "Synchronize file" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Datei synchronisieren"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronizar archivo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronizza file"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchroniseer bestand"
-          }
-        }
-      }
-    },
-    "Synchronize file (overwrite existing)" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Datei synchronisieren (bestehende überschreiben)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronizar archivo (sobrescribir existente)"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronizza file (sovrascrivi esistente)"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchroniseer bestand (overschrijf bestaande)"
           }
         }
       }
