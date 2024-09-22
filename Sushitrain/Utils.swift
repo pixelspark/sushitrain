@@ -34,28 +34,28 @@ extension SushitrainDate {
     }
 }
 
-extension SushitrainFolder: Comparable {
+extension SushitrainFolder: @retroactive Comparable {
     public static func < (lhs: SushitrainFolder, rhs: SushitrainFolder) -> Bool {
         return lhs.displayName < rhs.displayName
     }
 }
 
-extension SushitrainPeer: Comparable {
+extension SushitrainPeer: @retroactive Comparable {
     public static func < (lhs: SushitrainPeer, rhs: SushitrainPeer) -> Bool {
         return lhs.deviceID() < rhs.deviceID()
     }
 }
 
-extension SushitrainEntry: Comparable {
+extension SushitrainEntry: @retroactive Comparable {
     public static func < (lhs: SushitrainEntry, rhs: SushitrainEntry) -> Bool {
         return lhs.path() < rhs.path()
     }
 }
 
-extension SushitrainPeer: Identifiable {
+extension SushitrainPeer: @retroactive Identifiable {
 }
 
-extension SushitrainChange: Identifiable {
+extension SushitrainChange: @retroactive Identifiable {
 }
 
 extension SushitrainChange {
@@ -79,7 +79,7 @@ import Combine
 /** Utility for storing arbitrary Swift Codable types as user defaults */
 // Inspired by https://stackoverflow.com/questions/19720611/attempt-to-set-a-non-property-list-object-as-an-nsuserdefaults
 @propertyWrapper
-class Setting<T: Codable & Equatable>: ObservableObject {
+class Setting<T: Codable & Equatable & Sendable>: ObservableObject, @unchecked Sendable {
     let key: String
     let defaultValue: T
     

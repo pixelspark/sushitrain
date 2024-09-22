@@ -22,7 +22,6 @@ import (
 	"github.com/syncthing/syncthing/lib/model"
 	"github.com/syncthing/syncthing/lib/osutil"
 	"github.com/syncthing/syncthing/lib/protocol"
-	"github.com/syncthing/syncthing/lib/sha256"
 	"github.com/syncthing/syncthing/lib/svcutil"
 	"github.com/syncthing/syncthing/lib/syncthing"
 )
@@ -66,14 +65,12 @@ var (
 
 func NewClient(configPath string, filesPath string) (*Client, error) {
 	// Set version info
-	build.Version = "v1.27.9"
+	build.Version = "v1.27.13"
 	build.Host = "t-shaped.nl"
 	build.User = "sushitrain"
 
 	// Some early chores
 	osutil.MaximizeOpenFileLimit()
-	sha256.SelectAlgo()
-	sha256.Report()
 
 	// Set up logging and context for cancellation
 	ctx, cancel := context.WithCancel(context.Background())

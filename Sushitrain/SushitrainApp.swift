@@ -7,75 +7,31 @@ import SwiftUI
 @preconcurrency import SushitrainCore
 import BackgroundTasks
 
-@main
-class SushitrainApp: NSObject, App {
+class SushitrainAppDelegate: NSObject {
     fileprivate var appState: AppState
+    
+    required init(appState: AppState) {
+        self.appState = appState
+    }
+    
+    
+}
+
+@MainActor class BackgroundManager {
     private static let BackgroundSyncID = "nl.t-shaped.sushitrain.background-sync"
     private var currentBackgroundTask: BGTask? = nil
+    fileprivate var appState: AppState
     
-    required override init() {
-        let configDirectory = try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true);
-        let documentsDirectory = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true);
-        let documentsPath = documentsDirectory.path(percentEncoded: false)
-        let configPath = configDirectory.path(percentEncoded: false)
-        
-        var error: NSError? = nil
-        guard let client = SushitrainNewClient(configPath, documentsPath, &error) else {
-            print("Error initializing: \(error?.localizedDescription ?? "unknown error")")
-            exit(-1)
-        }
-        
-        self.appState = AppState(client: client)
-        super.init()
-        client.delegate = self;
-        client.server?.delegate = self;
-        
-        updateBackgroundRunHistory(appending: nil)
-        
+    required init(appState: AppState) {
+        self.appState = appState
         // Schedule background synchronization task
-        BGTaskScheduler.shared.register(forTaskWithIdentifier: SushitrainApp.BackgroundSyncID, using: nil) { task in
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.BackgroundSyncID, using: nil) { task in
             Task { await self.handleBackgroundSync(task: task) }
         }
+        updateBackgroundRunHistory(appending: nil)
         _ = Self.scheduleBackgroundSync()
-        self.appState.update()
-        
-        let appState = self.appState
-        DispatchQueue.global(qos: .userInitiated).async {
-            do {
-                try client.start();
-                
-                DispatchQueue.main.async {
-                    appState.applySettings()
-                    appState.update()
-                    appState.updateBadge()
-                }
-            }
-            catch let error {
-                DispatchQueue.main.async {
-                    appState.alert(message: error.localizedDescription)
-                }
-            }
-        }
     }
     
-    @MainActor
-    private func updateBackgroundRunHistory(appending run: BackgroundSyncRun?) {
-        var runs = Settings.backgroundSyncRuns
-        
-        // Remove old runs (older than 24h)
-        let now = Date.now
-        runs.removeAll(where: {r in
-            return now.timeIntervalSince(r.started) > (24 * 60 * 60)
-        })
-        
-        // Append our run
-        if let run = run {
-            runs.append(run)
-        }
-        Settings.backgroundSyncRuns = runs
-    }
-    
-    @MainActor
     private func handleBackgroundSync(task: BGTask) async {
         _ = Self.scheduleBackgroundSync()
         
@@ -113,7 +69,7 @@ class SushitrainApp: NSObject, App {
     }
     
     static func scheduleBackgroundSync() -> Bool {
-        let request = BGProcessingTaskRequest(identifier: SushitrainApp.BackgroundSyncID)
+        let request = BGProcessingTaskRequest(identifier: Self.BackgroundSyncID)
         request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60) // no earlier than within 15 minutes
         print("Scheduled next background sync for (no later than)", request.earliestBeginDate!)
         
@@ -126,6 +82,67 @@ class SushitrainApp: NSObject, App {
         }
     }
     
+    private func updateBackgroundRunHistory(appending run: BackgroundSyncRun?) {
+        var runs = Settings.backgroundSyncRuns
+        
+        // Remove old runs (older than 24h)
+        let now = Date.now
+        runs.removeAll(where: {r in
+            return now.timeIntervalSince(r.started) > (24 * 60 * 60)
+        })
+        
+        // Append our run
+        if let run = run {
+            runs.append(run)
+        }
+        Settings.backgroundSyncRuns = runs
+    }
+}
+
+@main
+struct SushitrainApp: App {
+    fileprivate var appState: AppState
+    fileprivate var delegate: SushitrainAppDelegate
+    fileprivate var backgroundManager: BackgroundManager
+    
+    init() {
+        let configDirectory = try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true);
+        let documentsDirectory = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true);
+        let documentsPath = documentsDirectory.path(percentEncoded: false)
+        let configPath = configDirectory.path(percentEncoded: false)
+        
+        var error: NSError? = nil
+        guard let client = SushitrainNewClient(configPath, documentsPath, &error) else {
+            print("Error initializing: \(error?.localizedDescription ?? "unknown error")")
+            exit(-1)
+        }
+        
+        self.appState = AppState(client: client)
+        self.delegate = SushitrainAppDelegate(appState: self.appState)
+        client.delegate = self.delegate;
+        client.server?.delegate = self.delegate;
+        self.backgroundManager = BackgroundManager(appState: self.appState)
+        self.appState.update()
+        
+        let appState = self.appState
+        DispatchQueue.global(qos: .userInitiated).async {
+            do {
+                try client.start();
+                
+                DispatchQueue.main.async {
+                    appState.applySettings()
+                    appState.update()
+                    appState.updateBadge()
+                }
+            }
+            catch let error {
+                DispatchQueue.main.async {
+                    appState.alert(message: error.localizedDescription)
+                }
+            }
+        }
+    }
+    
     var body: some Scene {
         WindowGroup { [appState] in
             ContentView(appState: appState)
@@ -133,9 +150,9 @@ class SushitrainApp: NSObject, App {
     }
 }
 
-extension SushitrainChange: @unchecked Sendable {}
+extension SushitrainChange: @unchecked @retroactive Sendable {}
 
-extension SushitrainApp: SushitrainClientDelegateProtocol {
+extension SushitrainAppDelegate: SushitrainClientDelegateProtocol {
     func onChange(_ change: SushitrainChange?) {
         if let change = change {
             let appState = self.appState
@@ -185,7 +202,7 @@ extension SushitrainApp: SushitrainClientDelegateProtocol {
     }
 }
 
-extension SushitrainApp: SushitrainStreamingServerDelegateProtocol {
+extension SushitrainAppDelegate: SushitrainStreamingServerDelegateProtocol {
     func onStreamChunk(_ folder: String?, path: String?, bytesSent: Int64, bytesTotal: Int64) {
         if let folder = folder, let path = path {
             let appState = self.appState;

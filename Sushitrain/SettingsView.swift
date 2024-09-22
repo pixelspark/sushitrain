@@ -169,7 +169,7 @@ struct BackgroundSettingsView: View {
             }
             
             Button("Request background synchronization") {
-                if SushitrainApp.scheduleBackgroundSync() {
+                if BackgroundManager.scheduleBackgroundSync() {
                     alertShown = true
                     alertMessage = String(localized: "Background synchronization has been requested. The system will typically allow background synchronization to occur overnight, when the device is not used and charging.")
                 }

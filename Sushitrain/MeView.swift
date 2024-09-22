@@ -232,9 +232,9 @@ struct MeView: View {
             .task {
                 // List folders that have extra files
                 self.foldersWithExtraFiles = []
-                let folders = appState.folders()
                 self.foldersWithExtraFiles = await (Task.detached {
                     var myFoldersWithExtraFiles: [String] = []
+                    let folders = await appState.folders()
                     for folder in folders {
                         if folder.isIdle {
                             var hasExtra: ObjCBool = false

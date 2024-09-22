@@ -55,13 +55,6 @@ class PhotoSynchronisation: ObservableObject {
         
         let selectedAlbumID = self.selectedAlbumID
         let selectedFolderID = self.selectedFolderID
-        guard let folder = appState.client.folder(withID: selectedFolderID) else {
-            return
-        }
-        
-        if !folder.exists() {
-            return
-        }
         
         self.isSynchronizing = true
         self.progressIndex = 0
@@ -73,6 +66,14 @@ class PhotoSynchronisation: ObservableObject {
                     self.isSynchronizing = false
                     self.syncTask = nil
                 }
+            }
+            
+            guard let folder = await appState.client.folder(withID: selectedFolderID) else {
+                return
+            }
+            
+            if !folder.exists() {
+                return
             }
             
             var err: NSError? = nil
@@ -190,12 +191,12 @@ class PhotoSynchronisation: ObservableObject {
                                 DispatchQueue.main.async {
                                     self.progressIndex += 1
                                 }
-                                selectPaths.append(selectPath)
                                 resolve.resume(returning: ())
                             }
                         }
                     }
                 }
+                selectPaths.append(selectPath)
             }
             
             // Export live photos
