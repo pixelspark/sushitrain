@@ -143,11 +143,11 @@ struct PhotoSettingsView: View {
         
         // Fetch system albums, including 'Recents'
         let systemAlbumsOptions = PHFetchOptions()
-        let systemAlbums = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .albumRegular, options: systemAlbumsOptions)
+        let systemAlbums = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .any, options: systemAlbumsOptions)
         systemAlbums.enumerateObjects { (collection, _, _) in
-            if collection.assetCollectionSubtype == .smartAlbumUserLibrary || collection.assetCollectionSubtype == .smartAlbumRecentlyAdded {
+//            if collection.assetCollectionSubtype == .smartAlbumUserLibrary || collection.assetCollectionSubtype == .smartAlbumRecentlyAdded {
                 albums.append(collection)
-            }
+//            }
         }
         return albums
     }
