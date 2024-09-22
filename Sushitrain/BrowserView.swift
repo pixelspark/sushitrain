@@ -53,7 +53,9 @@ fileprivate struct BrowserListView: View {
                                 }
                                 .contextMenu(ContextMenu(menuItems: {
                                     if let file = try? folder.getFileInformation(self.prefix + fileName) {
-                                        NavigationLink("Folder properties", destination: FileView(file: file, folder: self.folder, appState: self.appState))
+                                        NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState)) {
+                                            Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
+                                        }
                                     }
                                 }))
                             }

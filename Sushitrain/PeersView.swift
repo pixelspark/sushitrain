@@ -37,7 +37,7 @@ struct PeersView: View {
                         else {
                             ForEach(peers) { peer in
                                 NavigationLink(value: SelectedPeer(peer: peer)) {
-                                    Label(peer.name().isEmpty ? peer.deviceID() : peer.name(), systemImage: peer.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill")
+                                    Label(peer.name().isEmpty ? peer.deviceID() : peer.name(), systemImage: peer.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill").foregroundStyle(peer.isPaused() ? .gray: .blue)
                                 }
                             }
                             .onDelete(perform: { indexSet in

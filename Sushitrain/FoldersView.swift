@@ -37,8 +37,12 @@ struct FoldersView: View {
                         Section {
                             ForEach(folders, id: \.self) { folder in
                                 NavigationLink(value: SelectedFolder(folder: folder)) {
-                                    Label(folder.displayName, systemImage: "folder.fill")
-                                }
+                                    Label(folder.displayName, systemImage: "folder.fill").foregroundStyle(folder.isPaused() ? .gray: .blue)
+                                }.contextMenu(ContextMenu(menuItems: {
+                                    NavigationLink(destination: FolderView(folder: folder, appState: self.appState)) {
+                                        Label("Folder properties", systemImage: "folder.badge.gearshape")
+                                    }
+                                }))
                             }.onChange(of: appState.eventCounter) {
                                 self.updateFolders()
                             }
