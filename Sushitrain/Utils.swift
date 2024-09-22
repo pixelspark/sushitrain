@@ -75,52 +75,6 @@ extension SushitrainChange {
 
 import SwiftUI
 import Combine
-
-/** Utility for storing arbitrary Swift Codable types as user defaults */
-// Inspired by https://stackoverflow.com/questions/19720611/attempt-to-set-a-non-property-list-object-as-an-nsuserdefaults
-@propertyWrapper
-class Setting<T: Codable & Equatable & Sendable>: ObservableObject, @unchecked Sendable {
-    let key: String
-    let defaultValue: T
-    
-    private var cancellable: AnyCancellable?
-    
-    init(_ key: String, defaultValue: T) {
-        self.key = key
-        self.defaultValue = defaultValue
-        self.wrappedValue = defaultValue
-        
-        // Observe changes in UserDefaults
-        cancellable = UserDefaults.standard.publisher(for: \.self)
-            .sink { [weak self] _ in
-                self?.objectWillChange.send()
-            }
-    }
-    
-    var wrappedValue: T {
-        get {
-            if let jsonData = UserDefaults.standard.data(forKey: key),
-               let user = try? JSONDecoder().decode(T.self, from: jsonData) {
-                return user
-            }
-            return defaultValue
-        }
-        set {
-            if let jsonData = try? JSONEncoder().encode(newValue) {
-                UserDefaults.standard.set(jsonData, forKey: key)
-                objectWillChange.send() // Notify subscribers of the change
-            }
-        }
-    }
-    
-    var projectedValue: Binding<T> {
-        Binding(
-            get: { self.wrappedValue },
-            set: { self.wrappedValue = $0 }
-        )
-    }
-}
-
 struct BackgroundSyncRun: Codable, Equatable {
     var started: Date
     var ended: Date?
@@ -133,11 +87,15 @@ struct BackgroundSyncRun: Codable, Equatable {
     }
 }
 
-@MainActor
-enum Settings {
-    @Setting("backgroundSyncRuns", defaultValue: []) static var backgroundSyncRuns: [BackgroundSyncRun]
-    @Setting("lastBackgroundSyncRun", defaultValue: nil) static var lastBackgroundSyncRun: BackgroundSyncRun?
-    @Setting("backgroundSyncEnabled", defaultValue: true) static var backgroundSyncEnabled: Bool
+final class PublisherObservableObject: ObservableObject {
+    
+    var subscriber: AnyCancellable?
+    
+    init(publisher: AnyPublisher<Void, Never>) {
+        subscriber = publisher.sink(receiveValue: { [weak self] _ in
+            self?.objectWillChange.send()
+        })
+    }
 }
 
 extension SushitrainFolder {
@@ -234,4 +192,53 @@ extension Bundle {
         return self.infoDictionary?["CFBundleVersion"] as? String
     }
 
+}
+
+struct OptionalObject<T: Codable>: RawRepresentable {
+    let wrappedValue: T?
+    
+    init(_ wrappedObject: T? = nil) {
+        self.wrappedValue = wrappedObject
+    }
+    
+    init?(rawValue: String) {
+        if let data = rawValue.data(using: .utf8),
+              let result = try? JSONDecoder().decode(T.self, from: data)
+        {
+            self.wrappedValue = result
+        }
+        else {
+            self.wrappedValue = nil
+        }
+    }
+    
+    var rawValue: String {
+        guard let data = try? JSONEncoder().encode(wrappedValue),
+              let result = String(data: data, encoding: .utf8)
+        else {
+            return "null"
+        }
+        return result
+    }
+}
+
+// Allows all Codable Arrays to be saved using AppStorage
+extension Array: @retroactive RawRepresentable where Element: Codable {
+    public init?(rawValue: String) {
+        guard let data = rawValue.data(using: .utf8),
+              let result = try? JSONDecoder().decode([Element].self, from: data)
+        else {
+            return nil
+        }
+        self = result
+    }
+
+    public var rawValue: String {
+        guard let data = try? JSONEncoder().encode(self),
+              let result = String(data: data, encoding: .utf8)
+        else {
+            return "[]"
+        }
+        return result
+    }
 }

@@ -131,7 +131,6 @@ struct BackgroundSettingsView: View {
     let durationFormatter = DateComponentsFormatter()
     @State private var alertShown = false
     @State private var alertMessage = ""
-    @AppStorage("backgroundSyncEnabled") var backgroundSyncEnabled = false
     
     init(appState: AppState) {
         self.appState = appState
@@ -142,11 +141,11 @@ struct BackgroundSettingsView: View {
     var body: some View {
         Form {
             Section {
-                Toggle("Background synchronization enabled", isOn: $backgroundSyncEnabled)
+                Toggle("Background synchronization", isOn: appState.$backgroundSyncEnabled)
             }
             
             Section("Last background synchronization") {
-                if let lastSyncRun = Settings.lastBackgroundSyncRun {
+                if let lastSyncRun = appState.lastBackgroundSyncRun.wrappedValue {
                     Text("Started").badge(lastSyncRun.started.formatted(date: .abbreviated, time: .shortened))
                     
                     if let lastSyncEnded = lastSyncRun.ended {
@@ -159,7 +158,7 @@ struct BackgroundSettingsView: View {
                 }
             }
             
-            let backgroundSyncs = Settings.backgroundSyncRuns
+            let backgroundSyncs = appState.backgroundSyncRuns
             if !backgroundSyncs.isEmpty {
                 Section("During the last 24 hours") {
                     ForEach(backgroundSyncs, id: \.started) { (log: BackgroundSyncRun) in
@@ -192,7 +191,6 @@ struct BackgroundSettingsView: View {
 
 struct SettingsView: View {
     @ObservedObject var appState: AppState
-    @AppStorage("backgroundSyncEnabled") var backgroundSyncEnabled = false
     
     var body: some View {
         Form {
@@ -275,7 +273,7 @@ struct SettingsView: View {
             
             Section {
                 NavigationLink(destination: BackgroundSettingsView(appState: appState)) {
-                    Text("Background synchronization").badge(backgroundSyncEnabled ? "On": "Off")
+                    Text("Background synchronization").badge(appState.backgroundSyncEnabled ? "On": "Off")
                 }
                 
                 NavigationLink(destination: PhotoSettingsView(appState: appState, photoSync: appState.photoSync)) {

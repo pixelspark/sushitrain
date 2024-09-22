@@ -13,11 +13,7 @@ class SushitrainAppDelegate: NSObject {
     required init(appState: AppState) {
         self.appState = appState
     }
-    
-    
 }
-
-
 
 @main
 struct SushitrainApp: App {

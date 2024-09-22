@@ -33,19 +33,19 @@ import BackgroundTasks
         }
         
         // Start background sync
-        if Settings.backgroundSyncEnabled {
+        if appState.backgroundSyncEnabled {
             let start = Date.now
             self.currentBackgroundTask = task
             print("Start background sync at", start, task)
             
             var run = BackgroundSyncRun(started: start, ended: nil)
-            Settings.lastBackgroundSyncRun = run
+            appState.lastBackgroundSyncRun = OptionalObject(run)
             
             task.expirationHandler = {
                 run.ended = Date.now
                 print("Background sync expired at", run.ended!)
                 self.currentBackgroundTask = nil
-                Settings.lastBackgroundSyncRun = run
+                self.appState.lastBackgroundSyncRun = OptionalObject(run)
                 self.updateBackgroundRunHistory(appending: run)
                 self.appState.photoSync.cancel()
                 task.setTaskCompleted(success: true)
@@ -73,7 +73,7 @@ import BackgroundTasks
     }
     
     private func updateBackgroundRunHistory(appending run: BackgroundSyncRun?) {
-        var runs = Settings.backgroundSyncRuns
+        var runs = appState.backgroundSyncRuns
         
         // Remove old runs (older than 24h)
         let now = Date.now
@@ -85,6 +85,6 @@ import BackgroundTasks
         if let run = run {
             runs.append(run)
         }
-        Settings.backgroundSyncRuns = runs
+        appState.backgroundSyncRuns = runs
     }
 }

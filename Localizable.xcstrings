@@ -971,34 +971,6 @@
         }
       }
     },
-    "Background synchronization enabled" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hintergrundsynchronisierung aktiviert"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronización en segundo plano habilitada"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronizzazione in background abilitata"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchroniseren op de achtergrond"
-          }
-        }
-      }
-    },
     "Background synchronization has been requested. The system will typically allow background synchronization to occur overnight, when the device is not used and charging." : {
       "localizations" : {
         "de" : {

@@ -13,7 +13,9 @@ struct StreamingProgress: Hashable, Equatable {
     var bytesTotal: Int64
 }
 
-@MainActor class AppState: ObservableObject, @unchecked Sendable {
+import Combine
+
+@MainActor class AppState: ObservableObject {
     var client: SushitrainClient
     @Published var alertMessage: String = ""
     @Published var alertShown: Bool = false
@@ -25,12 +27,16 @@ struct StreamingProgress: Hashable, Equatable {
     @Published var launchedAt = Date.now
     @Published var streamingProgress: StreamingProgress? = nil
     @Published var lastChanges: [SushitrainChange] = []
+    
+    @AppStorage("backgroundSyncRuns") var backgroundSyncRuns: [BackgroundSyncRun] = []
+    @AppStorage("lastBackgroundSyncRun") var lastBackgroundSyncRun = OptionalObject<BackgroundSyncRun>()
+    @AppStorage("backgroundSyncEnabled") var backgroundSyncEnabled: Bool = true
+    @AppStorage("streamingLimitMbitsPerSec") var streamingLimitMbitsPerSec: Int = 0
+    @AppStorage("maxBytesForPreview") var maxBytesForPreview: Int = 2 * 1024 * 1024 // 2 MiB
+    
     var photoSync = PhotoSynchronisation()
     
     static let maxChanges = 25
-    
-    @AppStorage("streamingLimitMbitsPerSec") var streamingLimitMbitsPerSec = 0
-    @AppStorage("maxBytesForPreview") var maxBytesForPreview = 2 * 1024 * 1024 // 2 MiB
     
     init(client: SushitrainClient) {
         self.client = client;
