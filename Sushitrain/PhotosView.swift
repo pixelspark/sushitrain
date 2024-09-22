@@ -13,6 +13,10 @@ struct PhotoSyncButton: View {
     @ObservedObject var photoSync: PhotoSynchronisation
     
     var body: some View {
+        if case .finished(error: let e) = photoSync.progress, let e = e {
+            Text(e).foregroundStyle(.red)
+        }
+        
         if photoSync.isSynchronizing {
             let progress = photoSync.progress
             ProgressView(value: progress.stepProgress, total: 1.0) {
