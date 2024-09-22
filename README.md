@@ -10,9 +10,9 @@ The app consists of a framework in Go and front-end code in Swift.
 
 To build the app, you need a macOS computer with the following:
 
-- XCode (15.4, 15F31d is known to work) with the iOS 17.5 or higher SDK installed
+- XCode (16.0, 16A242d is known to work) with the iOS 17.5 or higher SDK installed
 - Developer certificates
-- Go (go1.22.5 is known to work)
+- Go (go1.22.6 is known to work)
 
 First, verify the Go framework builds correctly. Open a terminal and do the following:
 
@@ -37,23 +37,12 @@ invocation from XCode should be rather quick if nothing changed since the manual
 To translate using ChatGPT, use the [localize.mjs](./localize.mjs) script as follows:
 
 ```bash
-OPENAI_KEY=sk-xxxx ./localize.mjs
+OPENAI_KEY=sk-xxxx node ./localize.mjs
 ```
 
 The script will invoke ChatGPT for strings for which one or more translations are missing. Edit the script to set the supported
 locales. After running the script, open the `Localizable.xcstrings` file in XCode and save once to maintain the XCode-specific
 JSON formatting and not pollute the commit diff with whitespace changes.
-
-### Using a custom fork of Syncthing
-
-By default, a [fork](https://github.com/pixelspark/syncthing) of Syncthing core is used for building this app. This fork
-contains specific adjustments to allow Syncthing to run properly on iOS. If you want to use a local development branch of
-Syncthing, edit go.mod by commenting the first and uncommenting the second line shown below:
-
-```
-replace github.com/syncthing/syncthing => github.com/pixelspark/syncthing sushi
-//replace github.com/syncthing/syncthing => /Users/tommy/repos/syncthing
-```
 
 ## Architecture
 
@@ -74,12 +63,9 @@ Swift typically also happens on the main thread (i.e. in response to a UI action
 as most mutating operations are guarded by mutexes in Syncthing (e.g. the mechanism to change and save the configuration,
 which is used for a lot of functionality in the app).
 
-Technically the app runs a full-blown Syncthing node in-process. This means it supports all the synchronization features of Syncthing, as well as features around e.g. discovery, ignore files, et cetera. Not all features are exposed, however, for
+Technically the app runs a full-blown Syncthing node in-process. This means it supports all the synchronization features
+of Syncthing, as well as features around e.g. discovery, ignore files, et cetera. Not all features are exposed, however, for
 ease of use and/or because they do not make sense on iOS.
-
-Sushitrain currently uses a [fork](https://github.com/pixelspark/syncthing) of the syncthing code, which in turn is based
-on the [MobiusSync/syncthing](https://github.com/MobiusSync/syncthing) fork. The latter contains patches to make Syncthing
-work properly on iOS. The former only has minor changes to make certain functions accessible from our own Go code.
 
 ### Features
 
@@ -146,7 +132,8 @@ remote peer.
 
 #### Custom configurations
 
-By default, the app will create a device identity and default configuration on first launch, and store it in the 'Library/Application Support'-directory. Synced folders will end up in the `Documents` directory, where they will be visible from
+By default, the app will create a device identity and default configuration on first launch, and store it in the
+'Library/Application Support'-directory. Synced folders will end up in the `Documents` directory, where they will be visible from
 the iOS 'Files' app.
 
 A custom configuration can be loaded by placing `config.xml` in the `Documents` folder and restarting the app. This will
