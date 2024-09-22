@@ -356,12 +356,14 @@ struct FileView: View {
                     if file.isImage && file.mimeType() != "image/svg+xml" {
                         Section {
                             if file.isLocallyPresent() {
-                                Image(uiImage: UIImage(contentsOfFile: localPath!)!)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(maxWidth: .infinity, maxHeight: 200).onTapGesture {
-                                        showPreview = false
-                                    }
+                                if let localPath = localPath, let uiImage = UIImage(contentsOfFile: localPath) {
+                                    Image(uiImage: uiImage)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(maxWidth: .infinity, maxHeight: 200).onTapGesture {
+                                            showPreview = false
+                                        }
+                                }
                             }
                             else if showPreview || file.size() <= appState.maxBytesForPreview {
                                 AsyncImage(url: URL(string: file.onDemandURL())!) { image in

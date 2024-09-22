@@ -303,7 +303,7 @@ func (fld *Folder) SelectedPaths() (*ListOfStrings, error) {
 
 	for _, pattern := range lines {
 		if len(pattern) > 0 && pattern[0] == '!' {
-			paths.data = append(paths.data, strings.TrimPrefix(pattern, "!"))
+			paths.data = append(paths.data, PathForIgnoreLine(pattern))
 		}
 	}
 

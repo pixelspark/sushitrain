@@ -96,7 +96,14 @@ struct SelectiveFolderView: View {
                         List {
                             ForEach(selectedPaths, id: \.self) { item in
                                 if st.isEmpty || item.lowercased().contains(st) {
-                                    Label(item, systemImage: "pin")
+                                    if let file = try? folder.getFileInformation(item) {
+                                        NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState)) {
+                                            Label(item, systemImage: file.systemImage)
+                                        }
+                                    }
+                                    else {
+                                        Label(item, systemImage: "pin")
+                                    }
                                 }
                             }.onDelete { pathIndexes in
                                 let paths = pathIndexes.map({idx in selectedPaths[idx]})
@@ -428,13 +435,13 @@ struct FolderView: View {
                 }
                 
                 if self.folder.isSelective() {
-                    NavigationLink("Files kept on this device") {
-                        SelectiveFolderView(appState: appState, folder: folder)
+                    NavigationLink(destination: SelectiveFolderView(appState: appState, folder: folder)) {
+                        Label("Files kept on this device", systemImage: "pin")
                     }
                 }
                 
-                NavigationLink("Folder statistics") {
-                    FolderStatisticsView(appState: appState, folder: folder)
+                NavigationLink(destination: FolderStatisticsView(appState: appState, folder: folder)) {
+                    Label("Folder statistics", systemImage: "scalemass")
                 }
                 
                 Section {
