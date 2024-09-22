@@ -65,8 +65,11 @@ struct AddFolderView: View {
                             // Add the folder
                             try appState.client.addFolder(self.folderID);
                             
-                            // Add peers
                             if let folder = appState.client.folder(withID: self.folderID) {
+                                // By default, exclude from backup
+                                folder.isExcludedFromBackup = true
+                                
+                                // Add peers
                                 for devID in self.sharedWith {
                                     try folder.share(withDevice: devID, toggle: true, encryptionPassword: "")
                                 }

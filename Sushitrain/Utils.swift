@@ -109,6 +109,35 @@ extension SushitrainFolder {
         let label = self.label()
         return label.isEmpty ? self.folderID : label
     }
+    
+    var localNativeURL: URL? {
+        get {
+            var error: NSError? = nil
+            let localNativePath = self.localNativePath(&error)
+            
+            if let error = error {
+                print("Could not get local native URL for folder: \(error.localizedDescription)")
+            }
+            else {
+                return URL(fileURLWithPath: localNativePath)
+            }
+            return nil
+        }
+    }
+    
+    var isExcludedFromBackup: Bool? {
+        get {
+            guard let lu = self.localNativeURL else { return nil }
+            let values = try? lu.resourceValues(forKeys: [.isExcludedFromBackupKey])
+            return values?.isExcludedFromBackup
+        }
+        set {
+            guard var lu = self.localNativeURL else { return }
+            var values = try! lu.resourceValues(forKeys: [.isExcludedFromBackupKey])
+            values.isExcludedFromBackup = newValue
+            try! lu.setResourceValues(values)
+        }
+    }
 }
 
 extension SushitrainEntry {

@@ -438,6 +438,15 @@ struct FolderView: View {
                 }
                 
                 Section {
+                    Toggle("Include in device back-up", isOn: Binding(get: {
+                        if let f = folder.isExcludedFromBackup { return !f }
+                        return false
+                    }, set: { nv in
+                        folder.isExcludedFromBackup = !nv
+                    }))
+                }
+                
+                Section {
                     Button("Remove folder", systemImage: "trash", role:.destructive) {
                         showRemoveConfirmation = true
                     }
