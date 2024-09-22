@@ -6297,6 +6297,34 @@
         }
       }
     },
+    "The file is currently not available for preview." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Datei ist derzeit nicht zur Vorschau verfügbar."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo no está disponible actualmente para la vista previa."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il file non è attualmente disponibile per l'anteprima."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het bestand is momenteel niet beschikbaar voor voorbeeldweergave."
+          }
+        }
+      }
+    },
     "The percentage of the full folder's size that each device stores locally." : {
       "localizations" : {
         "de" : {

@@ -366,16 +366,21 @@ struct FileView: View {
                                 }
                             }
                             else if showPreview || file.size() <= appState.maxBytesForPreview {
-                                AsyncImage(url: URL(string: file.onDemandURL())!) { image in
-                                    image
-                                        .resizable()
-                                        .scaledToFill()
+                                AsyncImage(url: URL(string: file.onDemandURL())!, content: { phase in
+                                    switch phase {
+                                        case .empty:
+                                            HStack(alignment: .center, content: {
+                                                ProgressView()
+                                            })
+                                        case .success(let image):
+                                            image.resizable().scaledToFill()
+                                        case .failure(let error):
+                                            Text("The file is currently not available for preview.")
+                                        @unknown default:
+                                            EmptyView()
+                                    }
                                 }
-                            placeholder: {
-                                HStack(alignment: .center, content: {
-                                    ProgressView()
-                                })
-                            }
+                            )
                             .frame(maxWidth: .infinity, maxHeight: 200).onTapGesture {
                                 showPreview = false
                             }
