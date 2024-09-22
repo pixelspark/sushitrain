@@ -22,10 +22,20 @@ struct SushitrainApp: App {
     fileprivate var backgroundManager: BackgroundManager
     
     init() {
-        let configDirectory = try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true);
+        var configDirectory = try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true);
         let documentsDirectory = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true);
         let documentsPath = documentsDirectory.path(percentEncoded: false)
         let configPath = configDirectory.path(percentEncoded: false)
+        
+        // Exclude config and database directory from device back-up
+        var excludeFromBackup = URLResourceValues()
+        excludeFromBackup.isExcludedFromBackup = true
+        do {
+            try configDirectory.setResourceValues(excludeFromBackup)
+        }
+        catch {
+            print("Error excluding \(configDirectory.path) from backup: \(error.localizedDescription)")
+        }
         
         var error: NSError? = nil
         guard let client = SushitrainNewClient(configPath, documentsPath, &error) else {
