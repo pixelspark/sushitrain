@@ -8,6 +8,7 @@ package sushitrain
 import (
 	"context"
 	"crypto/ed25519"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -16,6 +17,7 @@ import (
 	"time"
 
 	"github.com/gotd/contrib/http_range"
+	"github.com/syncthing/syncthing/lib/protocol"
 	"github.com/syncthing/syncthing/lib/syncthing"
 )
 
@@ -103,6 +105,74 @@ func (srv *StreamingServer) Listen() error {
 	return nil
 }
 
+type miniPuller struct {
+	experiences map[protocol.DeviceID]bool
+	context     context.Context
+}
+
+func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, blockIndex int, file protocol.FileInfo, block protocol.BlockInfo) ([]byte, error) {
+	availables, err := m.BlockAvailability(folderID, file, block)
+	if err != nil {
+		return nil, err
+	}
+	if len(availables) < 1 {
+		return nil, errors.New("no peer available")
+	}
+
+	Logger.Infoln("Download block", availables, mp.experiences)
+
+	// Attempt to download the block from an available and 'known good' peers first
+	for _, available := range availables {
+		if exp, ok := mp.experiences[available.ID]; ok && exp {
+			buf, err := m.DownloadBlock(mp.context, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
+			// Remember our experience with this peer for next time
+			mp.experiences[available.ID] = err == nil
+			if err == nil {
+				return buf, nil
+			} else {
+				Logger.Infoln("- good peer error:", available.ID, err, len(buf))
+			}
+		}
+	}
+
+	// Failed to download from a good peer, let's try the others
+	for _, available := range availables {
+		if _, ok := mp.experiences[available.ID]; !ok {
+			buf, err := m.DownloadBlock(mp.context, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
+			// Remember our experience with this peer for next time
+			mp.experiences[available.ID] = err == nil
+			if err == nil {
+				return buf, nil
+			} else {
+				Logger.Infoln("- unknown peer error:", available.ID, err, len(buf))
+			}
+		}
+	}
+
+	// Failed to download from a good or unknown peer, let's try the 'bad' ones again
+	for _, available := range availables {
+		if exp, ok := mp.experiences[available.ID]; ok && !exp {
+			buf, err := m.DownloadBlock(mp.context, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
+			// Remember our experience with this peer for next time
+			mp.experiences[available.ID] = err == nil
+			if err == nil {
+				return buf, nil
+			} else {
+				Logger.Infoln("- bad peer error:", available.ID, err, len(buf))
+			}
+		}
+	}
+
+	return nil, errors.New("no peer to download this block from")
+}
+
+func newMiniPuller(ctx context.Context) *miniPuller {
+	return &miniPuller{
+		experiences: map[protocol.DeviceID]bool{},
+		context:     ctx,
+	}
+}
+
 func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error) {
 	// Generate a private key to sign URLs with
 	publicKey, privateKey, err := ed25519.GenerateKey(nil)
@@ -165,10 +235,13 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 				return
 			}
 
+			mp := newMiniPuller(r.Context())
+
 			blockSize := int64(info.BlockSize())
 			for _, rng := range parsedRanges {
 				startBlock := rng.Start / int64(blockSize)
 				blockCount := ceilDiv(rng.Length, blockSize)
+				Logger.Infoln("Range: ", rng, startBlock, blockCount, blockSize)
 				w.Header().Add("Content-Range", fmt.Sprintf("bytes %d-%d/%d", rng.Start, rng.Length+rng.Start-1, info.Size))
 				w.Header().Add("Content-length", fmt.Sprintf("%d", rng.Length))
 				w.WriteHeader(206) // partial content
@@ -180,16 +253,9 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 
 					// Fetch block
 					block := info.Blocks[blockIndex]
-					av, err := m.BlockAvailability(folder, info, block)
+					buf, err := mp.downloadBock(m, folder, int(blockIndex), info, block)
 					if err != nil {
-						return
-					}
-					if len(av) < 1 {
-						return
-					}
-
-					buf, err := m.DownloadBlock(r.Context(), av[0].ID, folder, info.Name, int(blockIndex), block, false)
-					if err != nil {
+						Logger.Warnln("error downloading block: ", err)
 						return
 					}
 
@@ -227,21 +293,15 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 				}
 			}
 		} else {
-			// Send all blocks
+			// Send all blocks (unthrottled)
 			w.Header().Add("Content-length", fmt.Sprintf("%d", info.Size))
 			w.WriteHeader(200)
 
 			fetchedBytes := int64(0)
-			for blockNo, block := range info.Blocks {
-				av, err := m.BlockAvailability(folder, info, block)
-				if err != nil {
-					return
-				}
-				if len(av) < 1 {
-					return
-				}
+			mp := newMiniPuller(r.Context())
 
-				buf, err := m.DownloadBlock(ctx, av[0].ID, folder, info.Name, blockNo, block, false)
+			for blockNo, block := range info.Blocks {
+				buf, err := mp.downloadBock(m, folder, blockNo, info, block)
 				if err != nil {
 					return
 				}
