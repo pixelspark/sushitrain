@@ -466,8 +466,9 @@ func (fld *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 		return nil, err
 	}
 
+	// Can't have extraneous files when you are not a selective ignore folder
 	if !isSelectiveIgnore(ignores.Lines()) {
-		return nil, errors.New("folder is not a selective folder")
+		return &ListOfStrings{}, nil
 	}
 
 	extraFiles := make([]string, 0)
