@@ -63,18 +63,30 @@ struct MeView: View {
         Form {
             Section {
                 if self.isConnected {
-                    if self.appState.client.isTransferring() {
-                        let progress = self.appState.client.getTotalDownloadProgress()
-                        if let progress = progress {
-                            ProgressView(value: progress.percentage, total: 1.0) {
-                                Label("Downloading \(progress.filesTotal) files...", systemImage: "arrow.clockwise")
-                                    .foregroundStyle(.green)
-                                    .symbolEffect(.pulse, value: true)
-                                    .badge(self.peerStatusText)
-                            }.tint(.green)
+                    let isDownloading = self.appState.client.isDownloading()
+                    let isUploading = self.appState.client.isUploading()
+                    if isDownloading || isUploading {
+                        if isDownloading {
+                            let progress = self.appState.client.getTotalDownloadProgress()
+                            if let progress = progress {
+                                ProgressView(value: progress.percentage, total: 1.0) {
+                                    Label("Receiving \(progress.filesTotal) files...", systemImage: "arrow.clockwise")
+                                        .foregroundStyle(.green)
+                                        .symbolEffect(.pulse, value: true)
+                                        .badge(self.peerStatusText)
+                                }.tint(.green)
+                            }
+                            else {
+                                Label("Receiving files...", systemImage: "arrow.down").foregroundStyle(.green).symbolEffect(.pulse, value: true).badge(self.peerStatusText)
+                            }
                         }
-                        else {
-                            Label("Synchronizing files...", systemImage: "arrow.clockwise").foregroundStyle(.green).symbolEffect(.pulse, value: true).badge(self.peerStatusText)
+                        
+                        // Uploads
+                        if isUploading {
+                            let upPeers = self.appState.client.uploadingToPeers()!
+                            NavigationLink(destination: UploadView(appState: self.appState)) {
+                                Label("Sending files...", systemImage: "arrow.up").foregroundStyle(.green).symbolEffect(.pulse, value: true).badge("\(upPeers.count())/\(self.appState.peers().count - 1)")
+                            }
                         }
                     }
                     else {

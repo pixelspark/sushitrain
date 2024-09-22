@@ -35,10 +35,11 @@ type Client struct {
 	connectedDeviceAddresses   map[string]string
 	ctx                        context.Context
 	Delegate                   ClientDelegate
-	downloadProgress           map[string]map[string]*model.PullerProgress
+	downloadProgress           map[string]map[string]*model.PullerProgress // folderID, path => progress
+	uploadProgress             map[string]map[string]map[string]int        // deviceID, folderID, path => block count
 	evLogger                   events.Logger
 	filesPath                  string
-	foldersTransferring        map[string]bool
+	foldersDownloading         map[string]bool
 	IgnoreEvents               bool
 	IsUsingCustomConfiguration bool
 	Server                     *StreamingServer
@@ -173,11 +174,12 @@ func NewClient(configPath string, filesPath string) (*Client, error) {
 		app:                        app,
 		evLogger:                   evLogger,
 		Server:                     server,
-		foldersTransferring:        make(map[string]bool, 0),
+		foldersDownloading:         make(map[string]bool, 0),
 		connectedDeviceAddresses:   make(map[string]string, 0),
 		IsUsingCustomConfiguration: isUsingCustomConfiguration,
 		filesPath:                  filesPath,
 		IgnoreEvents:               false,
+		uploadProgress:             make(map[string]map[string]map[string]int),
 	}, nil
 }
 
@@ -215,7 +217,7 @@ func (clt *Client) startEventListener() {
 				folder := data["folder"].(string)
 				state := data["to"].(string)
 				folderTransferring := (state == model.FolderSyncing.String() || state == model.FolderSyncWaiting.String() || state == model.FolderSyncPreparing.String())
-				clt.foldersTransferring[folder] = folderTransferring
+				clt.foldersDownloading[folder] = folderTransferring
 				if !clt.IgnoreEvents && clt.Delegate != nil {
 					clt.Delegate.OnEvent(evt.Type.String())
 				}
@@ -278,7 +280,27 @@ func (clt *Client) startEventListener() {
 					clt.Delegate.OnEvent(evt.Type.String())
 				}
 
-			case events.RemoteDownloadProgress, events.ItemFinished, events.ItemStarted:
+			case events.RemoteDownloadProgress:
+
+				peerData := evt.Data.(map[string]interface{})
+				peerID := peerData["device"].(string)
+				folderID := peerData["folder"].(string)
+				state := peerData["state"].(map[string]int) // path: number of blocks downloaded
+				if _, ok := clt.uploadProgress[peerID]; !ok {
+					clt.uploadProgress[peerID] = make(map[string]map[string]int)
+				}
+
+				if _, ok := clt.uploadProgress[peerID][folderID]; !ok {
+					clt.uploadProgress[peerID][folderID] = make(map[string]int)
+				}
+
+				clt.uploadProgress[peerID][folderID] = state
+
+				if !clt.IgnoreEvents && clt.Delegate != nil {
+					clt.Delegate.OnEvent(evt.Type.String())
+				}
+
+			case events.ItemFinished, events.ItemStarted:
 				// Ignore these events
 				break
 
@@ -290,6 +312,51 @@ func (clt *Client) startEventListener() {
 	}
 }
 
+func (clt *Client) IsUploading() bool {
+	for _, uploadsPerFolder := range clt.uploadProgress {
+		for _, uploads := range uploadsPerFolder {
+			if len(uploads) > 0 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (clt *Client) UploadingToPeers() *ListOfStrings {
+	peers := make([]string, 0)
+	for peerID, uploadsPerFolder := range clt.uploadProgress {
+		peerHasUploads := false
+		for _, uploads := range uploadsPerFolder {
+			if len(uploads) > 0 {
+				peerHasUploads = true
+				break
+			}
+		}
+		if peerHasUploads {
+			peers = append(peers, peerID)
+			break
+		}
+	}
+	return List(peers)
+}
+
+func (clt *Client) UploadingFilesForPeerAndFolder(deviceID string, folderID string) *ListOfStrings {
+	if uploads, ok := clt.uploadProgress[deviceID]; ok {
+		if files, ok := uploads[folderID]; ok {
+			return List(KeysOf(files))
+		}
+	}
+	return &ListOfStrings{}
+}
+
+func (clt *Client) UploadingFoldersForPeer(deviceID string) *ListOfStrings {
+	if uploads, ok := clt.uploadProgress[deviceID]; ok {
+		return List(KeysOf(uploads))
+	}
+	return &ListOfStrings{}
+}
+
 func (clt *Client) GetLastPeerAddress(deviceID string) string {
 	if addr, ok := clt.connectedDeviceAddresses[deviceID]; ok {
 		return addr
@@ -297,8 +364,8 @@ func (clt *Client) GetLastPeerAddress(deviceID string) string {
 	return ""
 }
 
-func (clt *Client) IsTransferring() bool {
-	for _, isTransferring := range clt.foldersTransferring {
+func (clt *Client) IsDownloading() bool {
+	for _, isTransferring := range clt.foldersDownloading {
 		if isTransferring {
 			return true
 		}

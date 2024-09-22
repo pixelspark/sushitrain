@@ -27,7 +27,7 @@ struct ContentView: View {
             NavigationStack {
                 MeView(appState: appState, tabSelection: $tabSelection)
             }.tabItem {
-                Label("Start", systemImage: self.appState.client.isTransferring() ? "arrow.clockwise.circle.fill" : (self.appState.client.connectedPeerCount() > 0 ? "checkmark.circle.fill" : "network.slash"))
+                Label("Start", systemImage: self.appState.client.isDownloading() ? "arrow.clockwise.circle.fill" : (self.appState.client.connectedPeerCount() > 0 ? "checkmark.circle.fill" : "network.slash"))
             }.tag(Tab.start)
             
             // Folders

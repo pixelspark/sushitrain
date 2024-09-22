@@ -1503,6 +1503,34 @@
         }
       }
     },
+    "Currently no files are being sent to other devices." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zurzeit werden keine Dateien an andere Geräte gesendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualmente no se están enviando archivos a otros dispositivos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attualmente nessun file viene inviato ad altri dispositivi."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Momenteel worden er geen bestanden naar andere apparaten verzonden."
+          }
+        }
+      }
+    },
     "Custom configuration detected" : {
       "localizations" : {
         "de" : {
@@ -1835,34 +1863,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gedownload"
-          }
-        }
-      }
-    },
-    "Downloading %lld files..." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld Dateien werden heruntergeladen..."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Descargando %lld archivos..."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Download di %lld file in corso..."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld bestanden downloaden..."
           }
         }
       }
@@ -3519,6 +3519,34 @@
         }
       }
     },
+    "Not uploading" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht hochladen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No subiendo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non in caricamento"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niet aan het uploaden"
+          }
+        }
+      }
+    },
     "Number of directories" : {
       "localizations" : {
         "de" : {
@@ -4247,6 +4275,62 @@
         }
       }
     },
+    "Receiving %lld files..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empfange %lld Dateien..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recibiendo %lld archivos..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ricezione di %lld file..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ontvangst van %lld bestanden..."
+          }
+        }
+      }
+    },
+    "Receiving files..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien empfangen..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recibiendo archivos..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ricezione file..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestanden ontvangen..."
+          }
+        }
+      }
+    },
     "Recent changes" : {
       "localizations" : {
         "de" : {
@@ -4943,6 +5027,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zenden en ontvangen"
+          }
+        }
+      }
+    },
+    "Sending files" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien senden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviando archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invio file"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestanden verzenden"
+          }
+        }
+      }
+    },
+    "Sending files..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien werden gesendet..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviando archivos..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invio dei file..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestanden verzenden..."
           }
         }
       }
@@ -5699,34 +5839,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gesynchroniseerd"
-          }
-        }
-      }
-    },
-    "Synchronizing files..." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dateien synchronisieren..."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronizando archivos..."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronizzazione dei file..."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bestanden uitwisselen..."
           }
         }
       }
