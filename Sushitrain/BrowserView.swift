@@ -7,6 +7,90 @@ import SwiftUI
 import SushitrainCore
 import QuickLook
 
+struct EntryView: View {
+    @ObservedObject var appState: AppState
+    let entry: SushitrainEntry
+    let folder: SushitrainFolder
+    let siblings: [SushitrainEntry]
+    
+    var body: some View {
+        if entry.isSymlink() {
+            // Find the destination
+            let targetEntry = try? entry.symlinkTargetEntry()
+            if let targetEntry = targetEntry {
+                if targetEntry.isDirectory() {
+                    NavigationLink(destination: BrowserView(
+                        appState: appState,
+                        folder: folder,
+                        prefix: targetEntry.path() + "/"
+                    )) {
+                        Label(entry.fileName(), systemImage: entry.systemImage)
+                    }
+                    .contextMenu {
+                        NavigationLink(destination: FileView(file: targetEntry, folder: self.folder, appState: self.appState, siblings: [])) {
+                            Label(targetEntry.fileName(), systemImage: targetEntry.systemImage)
+                        }
+                        NavigationLink(destination: FileView(file: entry, folder: self.folder, appState: self.appState, siblings: siblings)) {
+                            Label(entry.fileName(), systemImage: entry.systemImage)
+                        }
+                    }
+                }
+                else {
+                    NavigationLink(destination: FileView(file: targetEntry, folder: self.folder, appState: self.appState, siblings: [])) {
+                        Label(entry.fileName(), systemImage: entry.systemImage)
+                    }.contextMenu {
+                        NavigationLink(destination: FileView(file: targetEntry, folder: self.folder, appState: self.appState, siblings: [])) {
+                            Label(targetEntry.fileName(), systemImage: targetEntry.systemImage)
+                        }
+                        NavigationLink(destination: FileView(file: entry, folder: self.folder, appState: self.appState, siblings: siblings)) {
+                            Label(entry.fileName(), systemImage: entry.systemImage)
+                        }
+                    } preview: {
+                        if targetEntry.size() < appState.maxBytesForPreview || targetEntry.isLocallyPresent() {
+                            BareOnDemandFileView(appState: appState, file: targetEntry, isShown: .constant(true))
+                        }
+                        else {
+                            ContentUnavailableView("File is too large to preview", systemImage: "scalemass")
+                        }
+                    }
+                }
+            }
+            else if let targetURL = URL(string: entry.symlinkTarget()), targetURL.scheme == "https" || targetURL.scheme == "http" {
+                Link(destination: targetURL) {
+                    Label(entry.fileName(), systemImage: entry.systemImage)
+                }
+                .contextMenu {
+                    Link(destination: targetURL) {
+                        Label(targetURL.absoluteString, systemImage: "globe")
+                    }
+                    NavigationLink(destination: FileView(file: entry, folder: self.folder, appState: self.appState, siblings: siblings)) {
+                        Label(entry.fileName(), systemImage: entry.systemImage)
+                    }
+                }
+            }
+            else {
+                Label(entry.fileName(), systemImage: "questionmark.app.dashed")
+            }
+        }
+        else {
+            NavigationLink(destination: FileView(file: entry, folder: self.folder, appState: self.appState, siblings: siblings)) {
+                Label(entry.fileName(), systemImage: entry.systemImage)
+            }.contextMenu {
+                NavigationLink(destination: FileView(file: entry, folder: self.folder, appState: self.appState, siblings: siblings)) {
+                    Label(entry.fileName(), systemImage: entry.systemImage)
+                }
+            } preview: {
+                if entry.size() < appState.maxBytesForPreview || entry.isLocallyPresent() {
+                    BareOnDemandFileView(appState: appState, file: entry, isShown: .constant(true))
+                }
+                else {
+                    ContentUnavailableView("File is too large to preview", systemImage: "scalemass")
+                }
+            }
+        }
+    }
+}
+
 fileprivate struct BrowserListView: View {
     @ObservedObject var appState: AppState
     var folder: SushitrainFolder
@@ -64,20 +148,7 @@ fileprivate struct BrowserListView: View {
                         // List files
                         Section {
                             ForEach(files, id: \.self) { file in
-                                NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState, siblings: files)) {
-                                    Label(file.fileName(), systemImage: file.systemImage)
-                                }.contextMenu {
-                                    NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState, siblings: files)) {
-                                        Label(file.fileName(), systemImage: file.systemImage)
-                                    }
-                                } preview: {
-                                    if file.size() < appState.maxBytesForPreview || file.isLocallyPresent() {
-                                        BareOnDemandFileView(appState: appState, file: file, isShown: .constant(true))
-                                    }
-                                    else {
-                                        ContentUnavailableView("File is too large to preview", systemImage: "scalemass")
-                                    }
-                                }
+                                EntryView(appState: appState, entry: file, folder: folder, siblings: files)
                             }
                         }
                     }
@@ -166,7 +237,7 @@ fileprivate struct BrowserListView: View {
             for i in 0..<list.count() {
                 let path = list.item(at: i)
                 if let fileInfo = try? folder.getFileInformation(self.prefix + path) {
-                    if fileInfo.isDirectory() || fileInfo.isSymlink() || fileInfo.isDeleted() {
+                    if fileInfo.isDirectory() || fileInfo.isDeleted() {
                         continue
                     }
                     entries.append(fileInfo)

@@ -7,6 +7,7 @@ package sushitrain
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -42,6 +43,22 @@ func (entry *Entry) IsDirectory() bool {
 
 func (entry *Entry) IsSymlink() bool {
 	return entry.info.IsSymlink()
+}
+
+func (entry *Entry) SymlinkTarget() string {
+	return entry.info.SymlinkTarget
+}
+
+func (entry *Entry) SymlinkTargetEntry() (*Entry, error) {
+	if !entry.info.IsSymlink() {
+		return nil, errors.New("entry is not a symlink")
+	}
+	target := entry.info.SymlinkTarget
+	if !filepath.IsAbs(entry.info.SymlinkTarget) {
+		target = filepath.Join(entry.info.Name, "..", entry.info.SymlinkTarget)
+	}
+	Logger.Infoln("Symlink resolve: ", entry.info.Name, entry.info.SymlinkTarget, target)
+	return entry.Folder.GetFileInformation(target)
 }
 
 func (entry *Entry) Size() int64 {

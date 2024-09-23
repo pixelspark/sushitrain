@@ -149,6 +149,10 @@ extension SushitrainFolder {
 
 extension SushitrainEntry {
     var systemImage: String {
+        if self.isSymlink() {
+            return "link"
+        }
+        
         let base = self.isDirectory() ? "folder" : "doc"
         if self.isLocallyPresent() {
             return "\(base).fill"

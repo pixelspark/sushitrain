@@ -37,6 +37,7 @@
 		65F15BFC2CA03CBE00E13DDD /* BackgroundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F15BFB2CA03CBA00E13DDD /* BackgroundManager.swift */; };
 		65F15BFD2CA03DCE00E13DDD /* SushitrainCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65AE125A2C3AB03E00E721D4 /* SushitrainCore.xcframework */; };
 		65F15C012CA06B2300E13DDD /* UploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F15C002CA06B2100E13DDD /* UploadView.swift */; };
+		65F15C032CA1F85E00E13DDD /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F15C022CA1F85D00E13DDD /* SafariView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -96,6 +97,7 @@
 		65C9E1532C42B9AE00EDCE6C /* ExtraFilesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraFilesView.swift; sourceTree = "<group>"; };
 		65F15BFB2CA03CBA00E13DDD /* BackgroundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundManager.swift; sourceTree = "<group>"; };
 		65F15C002CA06B2100E13DDD /* UploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadView.swift; sourceTree = "<group>"; };
+		65F15C022CA1F85D00E13DDD /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +134,7 @@
 		65AE11FB2C39EE0E00E721D4 /* Sushitrain */ = {
 			isa = PBXGroup;
 			children = (
+				65F15C022CA1F85D00E13DDD /* SafariView.swift */,
 				65F15C002CA06B2100E13DDD /* UploadView.swift */,
 				65BBF8442C4BFB9300EC59C4 /* AboutView.swift */,
 				65AE12662C3B04A100E721D4 /* AddDeviceView.swift */,
@@ -298,6 +301,7 @@
 				65AE11FD2C39EE0E00E721D4 /* App.swift in Sources */,
 				65AE125F2C3AC6E100E721D4 /* FolderView.swift in Sources */,
 				65C9E1542C42B9AE00EDCE6C /* ExtraFilesView.swift in Sources */,
+				65F15C032CA1F85E00E13DDD /* SafariView.swift in Sources */,
 				65C8BFD62C864A6A00DF5EB0 /* PhotosView.swift in Sources */,
 				652763C02C49589200250D3C /* OnboardingView.swift in Sources */,
 				65AE12632C3AF50900E721D4 /* Utils.swift in Sources */,

@@ -254,12 +254,19 @@ struct FileView: View {
         }
         else {
             Form {
+                // Symbolic link: show link target
+                if file.isSymlink() {
+                    Section("Link destination") {
+                        Text(file.symlinkTarget())
+                    }
+                }
+                
                 Section {
-                    if !file.isDirectory() {
+                    if !file.isDirectory() && !file.isSymlink() {
                         Text("File size").badge(formatter.string(fromByteCount: file.size()))
                     }
                     
-                    if let md = file.modifiedAt()?.date() {
+                    if let md = file.modifiedAt()?.date(), !file.isSymlink() {
                         Text("Last modified").badge(md.formatted(date: .abbreviated, time: .shortened))
                         
                         let mby = file.modifiedByShortDeviceID()
@@ -275,7 +282,7 @@ struct FileView: View {
                         }
                     }
                     
-                    if self.folder.isSelective() {
+                    if self.folder.isSelective() && !file.isSymlink() {
                         Toggle("Synchronize with this device", systemImage: "pin", isOn: Binding(get: {
                             file.isExplicitlySelected() || file.isSelected()
                         }, set: { s in
@@ -283,7 +290,7 @@ struct FileView: View {
                         })).disabled(!folder.isIdleOrSyncing || (file.isSelected() && !file.isExplicitlySelected()))
                     }
                 } footer: {
-                    if self.folder.isSelective() && (file.isSelected() && !file.isExplicitlySelected()) {
+                    if !file.isSymlink() && self.folder.isSelective() && (file.isSelected() && !file.isExplicitlySelected()) {
                         Text("This item is synchronized with this device because a parent folder is synchronized with this device.")
                     }
                 }
@@ -294,7 +301,7 @@ struct FileView: View {
                     }
                 }
                 
-                if !file.isDirectory() {
+                if !file.isDirectory() && !file.isSymlink() {
                     var error: NSError? = nil
                     let localPath = file.isLocallyPresent() ? file.localNativePath(&error) : nil
                     

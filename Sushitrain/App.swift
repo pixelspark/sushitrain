@@ -71,7 +71,7 @@ struct SushitrainApp: App {
     
     var body: some Scene {
         WindowGroup { [appState] in
-            ContentView(appState: appState)
+            ContentView(appState: appState).handleOpenURLInApp()
         }
     }
 }
