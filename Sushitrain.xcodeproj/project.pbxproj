@@ -134,8 +134,6 @@
 		65AE11FB2C39EE0E00E721D4 /* Sushitrain */ = {
 			isa = PBXGroup;
 			children = (
-				65F15C022CA1F85D00E13DDD /* SafariView.swift */,
-				65F15C002CA06B2100E13DDD /* UploadView.swift */,
 				65BBF8442C4BFB9300EC59C4 /* AboutView.swift */,
 				65AE12662C3B04A100E721D4 /* AddDeviceView.swift */,
 				65AE126E2C3B14CC00E721D4 /* AddFolderView.swift */,
@@ -160,9 +158,11 @@
 				65C8BFD72C87977E00DF5EB0 /* PhotoSynchronisation.swift */,
 				65AE12022C39EE0F00E721D4 /* Preview Content */,
 				65AE123B2C39F34B00E721D4 /* PrivacyInfo.xcprivacy */,
+				65F15C022CA1F85D00E13DDD /* SafariView.swift */,
 				652879A72C4D06F5004AF46F /* SearchView.swift */,
 				652763BA2C45C99200250D3C /* SettingsView.swift */,
 				65C9E1462C3DB67C00EDCE6C /* Sushitrain.entitlements */,
+				65F15C002CA06B2100E13DDD /* UploadView.swift */,
 				65AE12622C3AF50900E721D4 /* Utils.swift */,
 			);
 			path = Sushitrain;

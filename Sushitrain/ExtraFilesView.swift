@@ -51,7 +51,12 @@ struct ExtraFilesView: View {
                                 }
                             })) {
                                 Image(systemName: "trash").tint(.red).tag(false).accessibilityLabel("Delete file")
-                                Image(systemName: "square.and.arrow.down").tag(true).accessibilityLabel("Keep file")
+                                if folder.folderType() == SushitrainFolderTypeReceiveOnly {
+                                    Image(systemName: "trash.slash").tag(true).accessibilityLabel("Keep file")
+                                }
+                                else {
+                                    Image(systemName: "square.and.arrow.down").tag(true).accessibilityLabel("Keep file")
+                                }
                             }
                             .pickerStyle(.segmented)
                             .frame(width: 100)
@@ -78,7 +83,12 @@ struct ExtraFilesView: View {
                                     allVerdict = nil
                                 })) {
                                     Image(systemName: "trash").tint(.red).tag(false).accessibilityLabel("Delete file")
-                                    Image(systemName: "square.and.arrow.down").tag(true).accessibilityLabel("Keep file")
+                                    if folder.folderType() == SushitrainFolderTypeReceiveOnly {
+                                        Image(systemName: "trash.slash").tag(true).accessibilityLabel("Keep file")
+                                    }
+                                    else {
+                                        Image(systemName: "square.and.arrow.down").tag(true).accessibilityLabel("Keep file")
+                                    }
                                 }
                                 .pickerStyle(.segmented)
                                 .frame(width: 100)
