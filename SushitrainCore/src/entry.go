@@ -57,7 +57,6 @@ func (entry *Entry) SymlinkTargetEntry() (*Entry, error) {
 	if !filepath.IsAbs(entry.info.SymlinkTarget) {
 		target = filepath.Join(entry.info.Name, "..", entry.info.SymlinkTarget)
 	}
-	Logger.Infoln("Symlink resolve: ", entry.info.Name, entry.info.SymlinkTarget, target)
 	return entry.Folder.GetFileInformation(target)
 }
 
