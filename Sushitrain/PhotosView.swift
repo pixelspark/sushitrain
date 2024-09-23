@@ -145,9 +145,7 @@ struct PhotoSettingsView: View {
         let systemAlbumsOptions = PHFetchOptions()
         let systemAlbums = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .any, options: systemAlbumsOptions)
         systemAlbums.enumerateObjects { (collection, _, _) in
-//            if collection.assetCollectionSubtype == .smartAlbumUserLibrary || collection.assetCollectionSubtype == .smartAlbumRecentlyAdded {
                 albums.append(collection)
-//            }
         }
         return albums
     }
