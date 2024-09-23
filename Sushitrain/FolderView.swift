@@ -434,6 +434,22 @@ struct FolderView: View {
                     }
                 }
                 
+                Section("System settings") {
+                    Toggle("Include in device back-up", isOn: Binding(get: {
+                        if let f = folder.isExcludedFromBackup { return !f }
+                        return false
+                    }, set: { nv in
+                        folder.isExcludedFromBackup = !nv
+                    }))
+                    
+                    Toggle("Hide in Files app", isOn: Binding(get: {
+                        if let f = folder.isHidden { return f }
+                        return false
+                    }, set: { nv in
+                        folder.isHidden = nv
+                    }))
+                }
+                
                 if self.folder.isSelective() {
                     NavigationLink(destination: SelectiveFolderView(appState: appState, folder: folder)) {
                         Label("Files kept on this device", systemImage: "pin")
@@ -442,15 +458,6 @@ struct FolderView: View {
                 
                 NavigationLink(destination: FolderStatisticsView(appState: appState, folder: folder)) {
                     Label("Folder statistics", systemImage: "scalemass")
-                }
-                
-                Section {
-                    Toggle("Include in device back-up", isOn: Binding(get: {
-                        if let f = folder.isExcludedFromBackup { return !f }
-                        return false
-                    }, set: { nv in
-                        folder.isExcludedFromBackup = !nv
-                    }))
                 }
                 
                 Section {

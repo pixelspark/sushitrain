@@ -145,6 +145,20 @@ extension SushitrainFolder {
             try! lu.setResourceValues(values)
         }
     }
+    
+    var isHidden: Bool? {
+        get {
+            guard let lu = self.localNativeURL else { return nil }
+            let values = try? lu.resourceValues(forKeys: [.isHiddenKey])
+            return values?.isHidden
+        }
+        set {
+            guard var lu = self.localNativeURL else { return }
+            var values = try! lu.resourceValues(forKeys: [.isHiddenKey])
+            values.isHidden = newValue
+            try! lu.setResourceValues(values)
+        }
+    }
 }
 
 extension SushitrainEntry {
