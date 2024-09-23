@@ -109,4 +109,22 @@ import Combine
             UNUserNotificationCenter.current().setBadgeCount(numExtraFinal)
         }
     }
+    
+    var systemImage: String {
+        let isDownloading = self.client.isDownloading()
+        let isUploading = self.client.isUploading()
+        if isDownloading && isUploading {
+            return "arrow.up.arrow.down.circle.fill"
+        }
+        else if isDownloading {
+            return "arrow.down.circle.fill"
+        }
+        else if isUploading {
+            return "arrow.up.circle.fill"
+        }
+        else if self.client.connectedPeerCount() > 0 {
+            return "checkmark.circle.fill"
+        }
+        return "network.slash"
+    }
 }
