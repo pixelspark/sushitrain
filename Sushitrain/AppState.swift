@@ -47,6 +47,10 @@ import Combine
         print("Apply settings; mbits/s streaming=", self.streamingLimitMbitsPerSec, "\n")
     }
     
+    var isFinished: Bool {
+        return !self.client.isDownloading() && !self.client.isUploading() && !self.photoSync.isSynchronizing
+    }
+    
     @MainActor
     func alert(message: String) {
         self.alertShown = true;

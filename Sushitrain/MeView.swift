@@ -41,13 +41,78 @@ fileprivate struct QRView: View {
     }
 }
 
-struct MeView: View {
+fileprivate struct WaitView: View {
     @ObservedObject var appState: AppState
-    @State private var settingsShown = false
-    @State private var searchShown = false
-    @State private var qrCodeShown = false
-    @Binding var tabSelection: ContentView.Tab
-    @State private var foldersWithExtraFiles: [String] = []
+    @Binding var isPresented: Bool
+    
+    @State private var position: CGPoint = .zero
+    @State private var velocity: CGSize = CGSize(width: 1, height: 1)
+    @State private var timer: Timer? = nil
+    
+    let spinnerSize = CGSize(width: 240, height: 70)
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                Color.black
+                    .edgesIgnoringSafeArea(.all)
+                
+                if !appState.isFinished {
+                    VStack(alignment: .leading, spacing: 10) {
+                        OverallStatusView(appState: appState).frame(maxWidth: .infinity)
+                        Text(velocity.height > 0 ? "Tap to close" : "The screen will stay on until finished")
+                            .dynamicTypeSize(.xSmall)
+                            .foregroundStyle(.gray)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .frame(width: spinnerSize.width, height: spinnerSize.height)
+                    .position(position)
+                }
+            }
+            .statusBar(hidden: true)
+            .persistentSystemOverlays(.hidden)
+            .onTapGesture {
+                isPresented = false
+            }
+            .onAppear {
+                UIApplication.shared.isIdleTimerDisabled = true
+                position = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
+                startTimer(in: geometry.size)
+            }
+            .onDisappear {
+                UIApplication.shared.isIdleTimerDisabled = false
+                timer?.invalidate()
+            }
+        }
+    }
+    
+    private func startTimer(in size: CGSize) {
+        timer = Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { _ in
+            DispatchQueue.main.async {
+                if appState.isFinished {
+                    self.isPresented = false
+                    return
+                }
+                
+                // Update position
+                position.x += velocity.width
+                position.y += velocity.height
+                
+                // Bounce off walls
+                if position.x - spinnerSize.width / 2 <= 0 || position.x + spinnerSize.width / 2 >= size.width {
+                    velocity.width *= -1
+                }
+                if position.y - spinnerSize.height / 2 <= 0 || position.y + spinnerSize.height / 2 >= size.height {
+                    velocity.height *= -1
+                }
+            }
+        }
+    }
+}
+
+fileprivate struct OverallStatusView: View {
+    @ObservedObject var appState: AppState
     
     var peerStatusText: String {
         return "\(self.appState.client.connectedPeerCount())/\(self.appState.peers().count - 1)"
@@ -57,44 +122,77 @@ struct MeView: View {
         return self.appState.client.connectedPeerCount() > 0
     }
     
+    var body: some View {
+        if self.isConnected {
+            let isDownloading = self.appState.client.isDownloading()
+            let isUploading = self.appState.client.isUploading()
+            if isDownloading || isUploading {
+                if isDownloading {
+                    let progress = self.appState.client.getTotalDownloadProgress()
+                    if let progress = progress {
+                        ProgressView(value: progress.percentage, total: 1.0) {
+                            Label("Receiving \(progress.filesTotal) files...", systemImage: "arrow.down")
+                                .foregroundStyle(.green)
+                                .symbolEffect(.pulse, value: true)
+                                .badge(self.peerStatusText)
+                                .frame(maxWidth: .infinity)
+                        }.tint(.green)
+                    }
+                    else {
+                        Label("Receiving files...", systemImage: "arrow.down")
+                            .foregroundStyle(.green)
+                            .symbolEffect(.pulse, value: true)
+                            .badge(self.peerStatusText)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                
+                // Uploads
+                if isUploading {
+                    let upPeers = self.appState.client.uploadingToPeers()!
+                    NavigationLink(destination: UploadView(appState: self.appState)) {
+                        Label("Sending files...", systemImage: "arrow.up")
+                            .foregroundStyle(.green)
+                            .symbolEffect(.pulse, value: true)
+                            .badge("\(upPeers.count())/\(self.appState.peers().count - 1)")
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+            }
+            else {
+                Label("Connected", systemImage: "checkmark.circle.fill").foregroundStyle(.green).badge(Text(self.peerStatusText))
+            }
+        }
+        else {
+            Label("Not connected", systemImage: "network.slash").badge(Text(self.peerStatusText)).foregroundColor(.gray)
+        }
+    }
+}
+
+struct MeView: View {
+    @ObservedObject var appState: AppState
+    @Binding var tabSelection: ContentView.Tab
+    
+    @State private var settingsShown = false
+    @State private var searchShown = false
+    @State private var qrCodeShown = false
+    @State private var foldersWithExtraFiles: [String] = []
+    @State private var showWaitScreen: Bool = false
     @State private var showAddresses = false
     
     var body: some View {
         Form {
             Section {
-                if self.isConnected {
-                    let isDownloading = self.appState.client.isDownloading()
-                    let isUploading = self.appState.client.isUploading()
-                    if isDownloading || isUploading {
-                        if isDownloading {
-                            let progress = self.appState.client.getTotalDownloadProgress()
-                            if let progress = progress {
-                                ProgressView(value: progress.percentage, total: 1.0) {
-                                    Label("Receiving \(progress.filesTotal) files...", systemImage: "arrow.down")
-                                        .foregroundStyle(.green)
-                                        .symbolEffect(.pulse, value: true)
-                                        .badge(self.peerStatusText)
-                                }.tint(.green)
-                            }
-                            else {
-                                Label("Receiving files...", systemImage: "arrow.down").foregroundStyle(.green).symbolEffect(.pulse, value: true).badge(self.peerStatusText)
-                            }
-                        }
-                        
-                        // Uploads
-                        if isUploading {
-                            let upPeers = self.appState.client.uploadingToPeers()!
-                            NavigationLink(destination: UploadView(appState: self.appState)) {
-                                Label("Sending files...", systemImage: "arrow.up").foregroundStyle(.green).symbolEffect(.pulse, value: true).badge("\(upPeers.count())/\(self.appState.peers().count - 1)")
-                            }
+                OverallStatusView(appState: appState).contextMenu {
+                    if !self.appState.isFinished {
+                        Button(action: {
+                            self.showWaitScreen = true
+                        }) {
+                            Text("Wait for completion")
+                            Image(systemName: "hourglass.circle")
                         }
                     }
-                    else {
-                        Label("Connected", systemImage: "checkmark.circle.fill").foregroundStyle(.green).badge(Text(self.peerStatusText))
-                    }
-                }
-                else {
-                    Label("Not connected", systemImage: "network.slash").badge(Text(self.peerStatusText)).foregroundColor(.gray)
                 }
             }
             
@@ -241,6 +339,9 @@ struct MeView: View {
                         })
                 }
             })
+            .fullScreenCover(isPresented: $showWaitScreen) {
+                WaitView(appState: appState, isPresented: $showWaitScreen)
+            }
             .task {
                 // List folders that have extra files
                 self.foldersWithExtraFiles = []

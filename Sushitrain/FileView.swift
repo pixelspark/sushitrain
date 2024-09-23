@@ -374,16 +374,15 @@ struct FileView: View {
                                             })
                                         case .success(let image):
                                             image.resizable().scaledToFill()
-                                        case .failure(let error):
+                                        case .failure(_):
                                             Text("The file is currently not available for preview.")
                                         @unknown default:
                                             EmptyView()
                                     }
+                                })
+                                .frame(maxWidth: .infinity, maxHeight: 200).onTapGesture {
+                                    showPreview = false
                                 }
-                            )
-                            .frame(maxWidth: .infinity, maxHeight: 200).onTapGesture {
-                                showPreview = false
-                            }
                             }
                             else {
                                 Button("Show preview for large files") {
