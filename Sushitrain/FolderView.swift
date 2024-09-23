@@ -54,7 +54,6 @@ struct FolderStatisticsView: View {
                 
                 if !devices.isEmpty {
                     Section {
-                        
                         ForEach(devices, id: \.self) { deviceID in
                             if let completion = try? self.folder.completion(forDevice: deviceID) {
                                 if let device = peers[deviceID] {

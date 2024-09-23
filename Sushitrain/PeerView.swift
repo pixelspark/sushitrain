@@ -60,7 +60,12 @@ struct PeerView: View {
                 if !sharedFolderIDs.isEmpty {
                     Section("Shared folders") {
                         ForEach(sharedFolderIDs, id: \.self) { fid in
-                            Label(fid, systemImage: "folder")
+                            if let folder = self.appState.client.folder(withID: fid), let completion = try? folder.completion(forDevice: peer.deviceID()) {
+                                Label(folder.displayName, systemImage: "folder").badge(Text("\(Int(completion.completionPct))%"))
+                            }
+                            else {
+                                Label(fid, systemImage: "folder")
+                            }
                         }
                     }
                 }
