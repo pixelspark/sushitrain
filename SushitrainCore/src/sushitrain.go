@@ -43,6 +43,7 @@ type Client struct {
 	IgnoreEvents               bool
 	IsUsingCustomConfiguration bool
 	Server                     *StreamingServer
+	ListenAddresses            map[string][]string
 }
 
 type Change struct {
@@ -180,6 +181,7 @@ func NewClient(configPath string, filesPath string) (*Client, error) {
 		filesPath:                  filesPath,
 		IgnoreEvents:               false,
 		uploadProgress:             make(map[string]map[string]map[string]int),
+		ListenAddresses:            make(map[string][]string),
 	}, nil
 }
 
@@ -226,6 +228,7 @@ func (clt *Client) startEventListener() {
 				if !clt.IgnoreEvents && clt.Delegate != nil {
 					addrs := make([]string, 0)
 					data := evt.Data.(map[string]interface{})
+					addressSpec := data["address"].(*url.URL)
 					wanAddresses := data["wan"].([]*url.URL)
 					lanAddresses := data["lan"].([]*url.URL)
 
@@ -235,8 +238,14 @@ func (clt *Client) startEventListener() {
 					for _, la := range lanAddresses {
 						addrs = append(addrs, la.String())
 					}
+					clt.ListenAddresses[addressSpec.String()] = addrs
 
-					clt.Delegate.OnListenAddressesChanged(List(addrs))
+					// Get all current addresses and send to client
+					currentResolved := make([]string, 0)
+					for _, addrs := range clt.ListenAddresses {
+						currentResolved = append(currentResolved, addrs...)
+					}
+					clt.Delegate.OnListenAddressesChanged(List(currentResolved))
 				}
 
 			case events.DeviceConnected:

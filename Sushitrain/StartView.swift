@@ -116,6 +116,25 @@ fileprivate struct WaitView: View {
     }
 }
 
+fileprivate struct AddressesView: View {
+    @ObservedObject var appState: AppState
+    
+    var body: some View {
+        List {
+            ForEach(Array(self.appState.listenAddresses), id: \.self) { addr in
+                Text(addr).contextMenu {
+                    Button(action: {
+                        UIPasteboard.general.string = addr
+                    }) {
+                        Text("Copy to clipboard")
+                        Image(systemName: "doc.on.doc")
+                    }
+                }
+            }
+        }
+    }
+}
+
 fileprivate struct OverallStatusView: View {
     @ObservedObject var appState: AppState
     
@@ -289,18 +308,7 @@ struct StartView: View {
         }
         .sheet(isPresented: $showAddresses) {
             NavigationStack {
-                List {
-                    ForEach(Array(self.appState.listenAddresses), id: \.self) { addr in
-                        Text(addr).contextMenu {
-                            Button(action: {
-                                UIPasteboard.general.string = addr
-                            }) {
-                                Text("Copy to clipboard")
-                                Image(systemName: "doc.on.doc")
-                            }
-                        }
-                    }
-                }
+                AddressesView(appState: appState)
                 .navigationTitle("Addresses")
                 .toolbar(content: {
                     ToolbarItem(placement: .confirmationAction, content: {
