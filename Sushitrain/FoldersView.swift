@@ -15,6 +15,9 @@ struct FoldersView: View {
     @State private var selectedFolder: SelectedFolder?
     @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
     @State private var folders: [SushitrainFolder] = []
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    
+    @State private var tabSelection: ContentView.Tab = .start
     
     fileprivate struct SelectedFolder: Hashable, Equatable {
         var folder: SushitrainFolder
@@ -34,6 +37,17 @@ struct FoldersView: View {
                 columnVisibility: $columnVisibility,
                 sidebar: {
                     List(selection: $selectedFolder) {
+                        if horizontalSizeClass == .compact {
+                            Section {
+                                NavigationLink(destination: MeView(appState: self.appState, tabSelection: $tabSelection)) {
+                                    Label("Start", systemImage: self.appState.systemImage)
+                                }
+                                NavigationLink(destination: PeersView(appState: appState)) {
+                                    Label("Devices", systemImage: "externaldevice.fill")
+                                }
+                            }
+                        }
+                        
                         Section {
                             ForEach(folders, id: \.self) { folder in
                                 NavigationLink(value: SelectedFolder(folder: folder)) {
