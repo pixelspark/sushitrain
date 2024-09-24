@@ -60,6 +60,11 @@ fileprivate struct WaitView: View {
                 if !appState.isFinished {
                     VStack(alignment: .leading, spacing: 10) {
                         OverallStatusView(appState: appState).frame(maxWidth: .infinity)
+                        
+                        if appState.photoSync.isSynchronizing {
+                            PhotoSyncProgressView(photoSync: appState.photoSync)
+                        }
+                        
                         Text(velocity.height > 0 ? "Tap to close" : "The screen will stay on until finished")
                             .dynamicTypeSize(.xSmall)
                             .foregroundStyle(.gray)
@@ -170,16 +175,15 @@ fileprivate struct OverallStatusView: View {
     }
 }
 
-struct MeView: View {
+struct StartView: View {
     @ObservedObject var appState: AppState
-    @Binding var tabSelection: ContentView.Tab
-    
-    @State private var settingsShown = false
-    @State private var searchShown = false
+    @Binding var route: Route?
     @State private var qrCodeShown = false
     @State private var foldersWithExtraFiles: [String] = []
     @State private var showWaitScreen: Bool = false
     @State private var showAddresses = false
+    @State private var showAddFolderSheet = false
+    @State private var addFolderID = ""
     
     var body: some View {
         Form {
@@ -227,7 +231,7 @@ struct MeView: View {
                         Label("Add your first device", systemImage: "externaldrive.badge.plus").bold()
                         Text("To synchronize files, first add a remote device. Either select a device from the list below, or add manually using the device ID.")
                     }.onTapGesture {
-                        tabSelection = .peers
+                        route = .devices
                     }
                 }
             }
@@ -238,8 +242,11 @@ struct MeView: View {
                         Label("Add your first folder", systemImage: "folder.badge.plus").bold()
                         Text("To synchronize files, add a folder. Folders that have the same folder ID on multiple devices will be synchronized with eachother.")
                     }.onTapGesture {
-                        tabSelection = .folders
+                        showAddFolderSheet = true
                     }
+                    .sheet(isPresented: $showAddFolderSheet, content: {
+                        AddFolderView(folderID: $addFolderID, appState: appState)
+                    })
                 }
             }
             
@@ -256,8 +263,7 @@ struct MeView: View {
                 }
             }
             
-            NavigationLink(destination:
-                            ChangesView(appState: appState)) {
+            NavigationLink(destination: ChangesView(appState: appState)) {
                 Label("Recent changes", systemImage: "clock.arrow.2.circlepath").badge(appState.lastChanges.count)
             }.disabled(appState.lastChanges.isEmpty)
             
@@ -267,98 +273,76 @@ struct MeView: View {
                 }
             }
             
-        }.navigationTitle("Start")
-            .toolbar {
-                ToolbarItem {
-                    Button("Settings", systemImage: "gear", action: {
-                        settingsShown = true
-                    }).labelStyle(.iconOnly)
-                }
-                ToolbarItem {
-                    Button("Search", systemImage: "magnifyingglass") {
-                        searchShown = true
-                    }
+        }
+        .navigationTitle("Start")
+        .toolbar {
+            ToolbarItem {
+                NavigationLink(destination: SettingsView(appState: self.appState)) {
+                    Image(systemName: "gear").accessibilityLabel("Settings")
                 }
             }
-            .sheet(isPresented: $settingsShown, content: {
-                NavigationStack {
-                    SettingsView(appState: self.appState).toolbar(content: {
-                        ToolbarItem(placement: .confirmationAction, content: {
-                            Button("Done") {
-                                appState.applySettings()
-                                settingsShown = false
-                            }
-                        })
-                    })
-                }
-            })
-            .sheet(isPresented: $searchShown) {
-                NavigationStack {
-                    SearchView(appState: appState).toolbar(content: {
-                        ToolbarItem(placement: .confirmationAction, content: {
-                            Button("Done") {
-                                self.searchShown = false
-                            }
-                        })
-                    })
+            ToolbarItem {
+                NavigationLink(destination: SearchView(appState: appState)) {
+                    Image(systemName: "magnifyingglass").accessibilityLabel("Search")
                 }
             }
-            .sheet(isPresented: $showAddresses) {
-                NavigationStack {
-                    List {
-                        ForEach(Array(self.appState.listenAddresses), id: \.self) { addr in
-                            Text(addr).contextMenu {
-                                Button(action: {
-                                    UIPasteboard.general.string = addr
-                                }) {
-                                    Text("Copy to clipboard")
-                                    Image(systemName: "doc.on.doc")
-                                }
+        }
+        .sheet(isPresented: $showAddresses) {
+            NavigationStack {
+                List {
+                    ForEach(Array(self.appState.listenAddresses), id: \.self) { addr in
+                        Text(addr).contextMenu {
+                            Button(action: {
+                                UIPasteboard.general.string = addr
+                            }) {
+                                Text("Copy to clipboard")
+                                Image(systemName: "doc.on.doc")
                             }
                         }
                     }
-                    .navigationTitle("Addresses")
+                }
+                .navigationTitle("Addresses")
+                .toolbar(content: {
+                    ToolbarItem(placement: .confirmationAction, content: {
+                        Button("Done") {
+                            self.showAddresses = false
+                        }
+                    })
+                })
+            }
+        }
+        .sheet(isPresented: $qrCodeShown, content: {
+            NavigationStack {
+                QRView(text: self.appState.localDeviceID)
                     .toolbar(content: {
                         ToolbarItem(placement: .confirmationAction, content: {
                             Button("Done") {
-                                self.showAddresses = false
+                                self.qrCodeShown = false
                             }
                         })
                     })
-                }
             }
-            .sheet(isPresented: $qrCodeShown, content: {
-                NavigationStack {
-                    QRView(text: self.appState.localDeviceID)
-                        .toolbar(content: {
-                            ToolbarItem(placement: .confirmationAction, content: {
-                                Button("Done") {
-                                    self.qrCodeShown = false
-                                }
-                            })
-                        })
-                }
-            })
-            .fullScreenCover(isPresented: $showWaitScreen) {
-                WaitView(appState: appState, isPresented: $showWaitScreen)
-            }
-            .task {
-                // List folders that have extra files
-                self.foldersWithExtraFiles = []
-                self.foldersWithExtraFiles = await (Task.detached {
-                    var myFoldersWithExtraFiles: [String] = []
-                    let folders = await appState.folders()
-                    for folder in folders {
-                        if folder.isIdle {
-                            var hasExtra: ObjCBool = false
-                            let _ = try? folder.hasExtraneousFiles(&hasExtra)
-                            if hasExtra.boolValue {
-                                myFoldersWithExtraFiles.append(folder.folderID)
-                            }
+        })
+        .fullScreenCover(isPresented: $showWaitScreen) {
+            WaitView(appState: appState, isPresented: $showWaitScreen)
+        }
+        .task {
+            // List folders that have extra files
+            self.foldersWithExtraFiles = []
+            self.foldersWithExtraFiles = await (Task.detached {
+                var myFoldersWithExtraFiles: [String] = []
+                let folders = await appState.folders()
+                for folder in folders {
+                    if folder.isIdle {
+                        var hasExtra: ObjCBool = false
+                        let _ = try? folder.hasExtraneousFiles(&hasExtra)
+                        if hasExtra.boolValue {
+                            myFoldersWithExtraFiles.append(folder.folderID)
                         }
                     }
-                    return myFoldersWithExtraFiles
-                }).value
-            }
+                }
+                return myFoldersWithExtraFiles
+            }).value
+        }
     }
 }

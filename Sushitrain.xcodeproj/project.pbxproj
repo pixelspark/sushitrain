@@ -23,15 +23,15 @@
 		65AE125F2C3AC6E100E721D4 /* FolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE125E2C3AC6E100E721D4 /* FolderView.swift */; };
 		65AE12632C3AF50900E721D4 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE12622C3AF50900E721D4 /* Utils.swift */; };
 		65AE12672C3B04A100E721D4 /* AddDeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE12662C3B04A100E721D4 /* AddDeviceView.swift */; };
-		65AE126B2C3B066F00E721D4 /* PeerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE126A2C3B066F00E721D4 /* PeerView.swift */; };
+		65AE126B2C3B066F00E721D4 /* DeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE126A2C3B066F00E721D4 /* DeviceView.swift */; };
 		65AE126F2C3B14CC00E721D4 /* AddFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE126E2C3B14CC00E721D4 /* AddFolderView.swift */; };
 		65AE12732C3B163000E721D4 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE12722C3B163000E721D4 /* AppState.swift */; };
 		65BBF8452C4BFB9300EC59C4 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BBF8442C4BFB9300EC59C4 /* AboutView.swift */; };
 		65C8BFD62C864A6A00DF5EB0 /* PhotosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C8BFD52C864A6A00DF5EB0 /* PhotosView.swift */; };
 		65C8BFD82C87977E00DF5EB0 /* PhotoSynchronisation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C8BFD72C87977E00DF5EB0 /* PhotoSynchronisation.swift */; };
 		65C9E1422C3C96E400EDCE6C /* FoldersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E1412C3C96E400EDCE6C /* FoldersView.swift */; };
-		65C9E1482C3F2FEF00EDCE6C /* PeersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E1472C3F2FEF00EDCE6C /* PeersView.swift */; };
-		65C9E14C2C3F341F00EDCE6C /* MeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E14B2C3F341F00EDCE6C /* MeView.swift */; };
+		65C9E1482C3F2FEF00EDCE6C /* DevicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E1472C3F2FEF00EDCE6C /* DevicesView.swift */; };
+		65C9E14C2C3F341F00EDCE6C /* StartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E14B2C3F341F00EDCE6C /* StartView.swift */; };
 		65C9E1502C419FCA00EDCE6C /* FileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E14F2C419FCA00EDCE6C /* FileView.swift */; };
 		65C9E1542C42B9AE00EDCE6C /* ExtraFilesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E1532C42B9AE00EDCE6C /* ExtraFilesView.swift */; };
 		65F15BFC2CA03CBE00E13DDD /* BackgroundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F15BFB2CA03CBA00E13DDD /* BackgroundManager.swift */; };
@@ -82,7 +82,7 @@
 		65AE125E2C3AC6E100E721D4 /* FolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderView.swift; sourceTree = "<group>"; };
 		65AE12622C3AF50900E721D4 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		65AE12662C3B04A100E721D4 /* AddDeviceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddDeviceView.swift; sourceTree = "<group>"; };
-		65AE126A2C3B066F00E721D4 /* PeerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerView.swift; sourceTree = "<group>"; };
+		65AE126A2C3B066F00E721D4 /* DeviceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceView.swift; sourceTree = "<group>"; };
 		65AE126E2C3B14CC00E721D4 /* AddFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFolderView.swift; sourceTree = "<group>"; };
 		65AE12722C3B163000E721D4 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		65BBF8442C4BFB9300EC59C4 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
@@ -91,8 +91,8 @@
 		65C9E1412C3C96E400EDCE6C /* FoldersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldersView.swift; sourceTree = "<group>"; };
 		65C9E1452C3DB5C000EDCE6C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		65C9E1462C3DB67C00EDCE6C /* Sushitrain.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sushitrain.entitlements; sourceTree = "<group>"; };
-		65C9E1472C3F2FEF00EDCE6C /* PeersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeersView.swift; sourceTree = "<group>"; };
-		65C9E14B2C3F341F00EDCE6C /* MeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeView.swift; sourceTree = "<group>"; };
+		65C9E1472C3F2FEF00EDCE6C /* DevicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevicesView.swift; sourceTree = "<group>"; };
+		65C9E14B2C3F341F00EDCE6C /* StartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartView.swift; sourceTree = "<group>"; };
 		65C9E14F2C419FCA00EDCE6C /* FileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileView.swift; sourceTree = "<group>"; };
 		65C9E1532C42B9AE00EDCE6C /* ExtraFilesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraFilesView.swift; sourceTree = "<group>"; };
 		65F15BFB2CA03CBA00E13DDD /* BackgroundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundManager.swift; sourceTree = "<group>"; };
@@ -144,16 +144,15 @@
 				650615862C3B3676002B6EE6 /* BrowserView.swift */,
 				6575B3DE2C6012480057686E /* ChangesView.swift */,
 				65AE11FE2C39EE0E00E721D4 /* ContentView.swift */,
+				65AE126A2C3B066F00E721D4 /* DeviceView.swift */,
 				65C9E1532C42B9AE00EDCE6C /* ExtraFilesView.swift */,
 				654272972C7BC77000F2CEF8 /* FileDownloadView.swift */,
 				65C9E14F2C419FCA00EDCE6C /* FileView.swift */,
 				65C9E1412C3C96E400EDCE6C /* FoldersView.swift */,
 				65AE125E2C3AC6E100E721D4 /* FolderView.swift */,
 				65C9E1452C3DB5C000EDCE6C /* Info.plist */,
-				65C9E14B2C3F341F00EDCE6C /* MeView.swift */,
 				652763BF2C49589200250D3C /* OnboardingView.swift */,
-				65C9E1472C3F2FEF00EDCE6C /* PeersView.swift */,
-				65AE126A2C3B066F00E721D4 /* PeerView.swift */,
+				65C9E1472C3F2FEF00EDCE6C /* DevicesView.swift */,
 				65C8BFD52C864A6A00DF5EB0 /* PhotosView.swift */,
 				65C8BFD72C87977E00DF5EB0 /* PhotoSynchronisation.swift */,
 				65AE12022C39EE0F00E721D4 /* Preview Content */,
@@ -161,6 +160,7 @@
 				65F15C022CA1F85D00E13DDD /* SafariView.swift */,
 				652879A72C4D06F5004AF46F /* SearchView.swift */,
 				652763BA2C45C99200250D3C /* SettingsView.swift */,
+				65C9E14B2C3F341F00EDCE6C /* StartView.swift */,
 				65C9E1462C3DB67C00EDCE6C /* Sushitrain.entitlements */,
 				65F15C002CA06B2100E13DDD /* UploadView.swift */,
 				65AE12622C3AF50900E721D4 /* Utils.swift */,
@@ -284,12 +284,12 @@
 			files = (
 				652763BB2C45C99200250D3C /* SettingsView.swift in Sources */,
 				65F15BFC2CA03CBE00E13DDD /* BackgroundManager.swift in Sources */,
-				65C9E14C2C3F341F00EDCE6C /* MeView.swift in Sources */,
+				65C9E14C2C3F341F00EDCE6C /* StartView.swift in Sources */,
 				65F15C012CA06B2300E13DDD /* UploadView.swift in Sources */,
 				65BBF8452C4BFB9300EC59C4 /* AboutView.swift in Sources */,
 				65C9E1502C419FCA00EDCE6C /* FileView.swift in Sources */,
-				65C9E1482C3F2FEF00EDCE6C /* PeersView.swift in Sources */,
-				65AE126B2C3B066F00E721D4 /* PeerView.swift in Sources */,
+				65C9E1482C3F2FEF00EDCE6C /* DevicesView.swift in Sources */,
+				65AE126B2C3B066F00E721D4 /* DeviceView.swift in Sources */,
 				65AE126F2C3B14CC00E721D4 /* AddFolderView.swift in Sources */,
 				65C9E1422C3C96E400EDCE6C /* FoldersView.swift in Sources */,
 				654272982C7BC77000F2CEF8 /* FileDownloadView.swift in Sources */,

@@ -12,7 +12,7 @@ struct AboutView: View {
     
     var body: some View {
         Form {
-            Section("About this app") {
+            Section {
                 Text("Synctrain is © 2024, Tommy van der Vorst")
             }
             

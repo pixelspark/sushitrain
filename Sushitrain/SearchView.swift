@@ -131,6 +131,9 @@ struct SearchResultsView: View, SearchViewDelegate {
                 if searchCount > 0 {
                     ProgressView()
                 }
+                else if searchText.isEmpty {
+                    ContentUnavailableView("Search for files", systemImage: "magnifyingglass", description: Text("Enter a text to search for in the search field above to search."))
+                }
                 else {
                     ContentUnavailableView("No files found", systemImage: "magnifyingglass", description: Text("Enter a text to search for in the search field above to search."))
                 }

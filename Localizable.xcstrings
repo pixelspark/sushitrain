@@ -389,6 +389,34 @@
         }
       }
     },
+    "Add device..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerät hinzufügen..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir dispositivo..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi dispositivo..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apparaat toevoegen…"
+          }
+        }
+      }
+    },
     "Add folder" : {
       "localizations" : {
         "de" : {
@@ -417,58 +445,30 @@
         }
       }
     },
-    "Add other device..." : {
+    "Add folder..." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Anderes Gerät hinzufügen..."
+            "value" : "Ordner hinzufügen..."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Agregar otro dispositivo..."
+            "value" : "Agregar carpeta..."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aggiungi un altro dispositivo..."
+            "value" : "Aggiungi cartella..."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Voeg ander apparaat toe..."
-          }
-        }
-      }
-    },
-    "Add other folder..." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anderen Ordner hinzufügen..."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Agregar otra carpeta..."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aggiungi un'altra cartella..."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voeg andere map toe..."
+            "value" : "Map toevoegen…"
           }
         }
       }
@@ -2573,34 +2573,6 @@
         }
       }
     },
-    "Folder properties" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ordnereigenschaften"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Propiedades de la carpeta"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proprietà cartella"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mapeigenschappen"
-          }
-        }
-      }
-    },
     "Folder removed" : {
       "localizations" : {
         "de" : {
@@ -4197,34 +4169,6 @@
         }
       }
     },
-    "Peer was removed" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Peer wurde entfernt"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Peer fue eliminado"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Peer è stato rimosso"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apparaat is ontkoppeld"
-          }
-        }
-      }
-    },
     "Photo synchronization" : {
       "localizations" : {
         "de" : {
@@ -5177,6 +5121,34 @@
         }
       }
     },
+    "Search for files" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien suchen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca file"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoek bestanden"
+          }
+        }
+      }
+    },
     "Search results (%lld)" : {
       "localizations" : {
         "de" : {
@@ -5229,34 +5201,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zoekresultaten (%lld+)"
-          }
-        }
-      }
-    },
-    "Select a device" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wählen Sie ein Gerät aus"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Selecciona un dispositivo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Seleziona un dispositivo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Selecteer een apparaat"
           }
         }
       }
@@ -6797,34 +6741,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dit item wordt gesynchroniseerd met dit apparaat, omdat een bovenliggende map wordt gesynchroniseerd met dit apparaat."
-          }
-        }
-      }
-    },
-    "This peer was deleted." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dieser Peer wurde gelöscht."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Este par fue eliminado."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Questo peer è stato eliminato."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dit apparaat is ontkoppeld."
           }
         }
       }

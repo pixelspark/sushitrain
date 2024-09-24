@@ -8,6 +8,19 @@ import SwiftUI
 import SushitrainCore
 import Photos
 
+struct PhotoSyncProgressView: View {
+    @ObservedObject var photoSync: PhotoSynchronisation
+    
+    var body: some View {
+        let progress = photoSync.progress
+        ProgressView(value: progress.stepProgress, total: 1.0) {
+            Label(progress.localizedDescription, systemImage: "photo.badge.arrow.down.fill")
+                .foregroundStyle(.orange)
+                .badge(Text(progress.badgeText))
+        }.tint(.orange)
+    }
+}
+
 struct PhotoSyncButton: View {
     @ObservedObject var appState: AppState
     @ObservedObject var photoSync: PhotoSynchronisation
@@ -18,12 +31,7 @@ struct PhotoSyncButton: View {
         }
         
         if photoSync.isSynchronizing {
-            let progress = photoSync.progress
-            ProgressView(value: progress.stepProgress, total: 1.0) {
-                Label(progress.localizedDescription, systemImage: "photo.badge.arrow.down.fill")
-                    .foregroundStyle(.orange)
-                    .badge(Text(progress.badgeText))
-            }.tint(.orange)
+            PhotoSyncProgressView(photoSync: photoSync)
             
             Button("Cancel") {
                 photoSync.cancel()

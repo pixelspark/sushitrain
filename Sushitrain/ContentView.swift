@@ -8,45 +8,117 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ContentView: View {
+    @AppStorage("onboardingVersionShown") var onboardingVersionShown = 0
+    
     @ObservedObject var appState: AppState
     @Environment(\.scenePhase) var scenePhase
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    
     @State private var showCustomConfigWarning = false
     @State private var showOnboarding = false
-    @AppStorage("onboardingVersionShown") var onboardingVersionShown = 0
-    @State private var tabSelection: Tab = .start
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @State private var route: Route? = .start
+    @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
+    
+    var tabbedBody: some View {
+        TabView(selection: $route) {
+            // Me
+            NavigationStack {
+                StartView(appState: appState, route: $route)
+            }
+            .tabItem {
+                Label("Start", systemImage: self.appState.systemImage)
+            }.tag(Route.start)
 
-    enum Tab: Int {
-        case start = 1
-        case peers
-        case folders
+            // Folders
+            NavigationStack {
+                FoldersView(appState: appState)
+            }
+            .tabItem {
+                Label("Folders", systemImage: "folder.fill")
+            }.tag(Route.folder(folderID: nil))
+
+            // Peers
+            NavigationStack {
+                DevicesView(appState: appState)
+            }
+            .tabItem {
+                Label("Devices", systemImage: "externaldrive.fill")
+            }.tag(Route.devices)
+        }
+    }
+    
+    var splitBody: some View {
+        NavigationSplitView(
+            columnVisibility: $columnVisibility,
+            sidebar: {
+                List(selection: $route) {
+                    if horizontalSizeClass != .compact {
+                        Section {
+                            NavigationLink(value: Route.start) {
+                                Label("Start", systemImage: self.appState.systemImage)
+                            }
+                        }
+                        Section {
+                            NavigationLink(value: Route.devices) {
+                                Label("Devices", systemImage: "externaldrive.fill")
+                            }
+                        }
+                    }
+                    
+                    FoldersSections(appState: self.appState)
+                }
+                .toolbar {
+                    Button("Open in Files app", systemImage: "arrow.up.forward.app", action: {
+                        let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                        let sharedurl = documentsUrl.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
+                        let furl = URL(string: sharedurl)!
+                        UIApplication.shared.open(furl, options: [:], completionHandler: nil)
+                    }).labelStyle(.iconOnly)
+                }
+            }, detail: {
+                NavigationStack {
+                    switch self.route {
+                    case .start:
+                        StartView(appState: self.appState, route: $route)
+                        
+                    case .devices:
+                        DevicesView(appState: self.appState)
+                        
+                    case .folder(folderID: let folderID):
+                        if let folderID = folderID, let folder = self.appState.client.folder(withID: folderID) {
+                            if folder.exists() {
+                                BrowserView(
+                                    appState: self.appState,
+                                    folder: folder,
+                                    prefix: ""
+                                ).id(folder.folderID)
+                            }
+                            else {
+                                ContentUnavailableView("Folder was deleted", systemImage: "trash", description: Text("This folder was deleted."))
+                            }
+                        }
+                        else {
+                            ContentUnavailableView("Select a folder", systemImage: "folder").onTapGesture {
+                                columnVisibility = .doubleColumn
+                            }
+                        }
+                        
+                    case nil:
+                        ContentUnavailableView("Select a folder", systemImage: "folder").onTapGesture {
+                            columnVisibility = .doubleColumn
+                        }
+                    }
+                }
+            })
+        .navigationSplitViewStyle(.balanced)
     }
 
     var body: some View {
         Group {
             if horizontalSizeClass == .compact {
-                TabView(selection: $tabSelection) {
-                    // Me
-                    NavigationStack {
-                        MeView(appState: appState, tabSelection: $tabSelection)
-                    }.tabItem {
-                        Label("Start", systemImage: self.appState.systemImage)
-                    }.tag(Tab.start)
-
-                    // Folders
-                    FoldersView(appState: appState)
-                        .tabItem {
-                            Label("Folders", systemImage: "folder.fill")
-                        }.tag(Tab.folders)
-
-                    // Peers
-                    PeersView(appState: appState)
-                        .tabItem {
-                            Label("Devices", systemImage: "externaldrive.fill")
-                        }.tag(Tab.peers)
-                }
+                self.tabbedBody
             } else {
-                FoldersView(appState: appState)
+                self.splitBody
             }
         }
         .sheet(

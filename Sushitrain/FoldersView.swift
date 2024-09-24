@@ -6,116 +6,53 @@
 import SwiftUI
 import SushitrainCore
 
+enum Route: Hashable, Equatable {
+    case start
+    case folder(folderID: String?)
+    case devices
+}
 
-struct FoldersView: View {
+struct FoldersSections: View {
     @ObservedObject var appState: AppState
+    
     @State private var showingAddFolderPopup = false
     @State private var pendingFolderIds: [String] = []
     @State private var addFolderID = ""
-    @State private var selectedFolder: SelectedFolder?
-    @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
     @State private var folders: [SushitrainFolder] = []
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    
-    @State private var tabSelection: ContentView.Tab = .start
-    
-    fileprivate struct SelectedFolder: Hashable, Equatable {
-        var folder: SushitrainFolder
-        
-        func hash(into hasher: inout Hasher) {
-            self.folder.folderID.hash(into: &hasher)
-        }
-        
-        static func == (lhs: Self, rhs: Self) -> Bool {
-            return lhs.folder.folderID == rhs.folder.folderID
-        }
-    }
+    @State private var showFolderProperties: SushitrainFolder? = nil
     
     var body: some View {
-        Group {
-            NavigationSplitView(
-                columnVisibility: $columnVisibility,
-                sidebar: {
-                    List(selection: $selectedFolder) {
-                        if horizontalSizeClass == .compact {
-                            Section {
-                                NavigationLink(destination: MeView(appState: self.appState, tabSelection: $tabSelection)) {
-                                    Label("Start", systemImage: self.appState.systemImage)
-                                }
-                                NavigationLink(destination: PeersView(appState: appState)) {
-                                    Label("Devices", systemImage: "externaldevice.fill")
-                                }
-                            }
-                        }
-                        
-                        Section {
-                            ForEach(folders, id: \.self) { folder in
-                                NavigationLink(value: SelectedFolder(folder: folder)) {
-                                    if folder.isPaused() {
-                                        Label(folder.displayName, systemImage: "folder.fill").foregroundStyle(.gray)
-                                    }
-                                    else {
-                                        Label(folder.displayName, systemImage: "folder.fill")
-                                    }
-                                }.contextMenu(ContextMenu(menuItems: {
-                                    NavigationLink(destination: FolderView(folder: folder, appState: self.appState)) {
-                                        Label("Folder properties", systemImage: "folder.badge.gearshape")
-                                    }
-                                }))
-                            }.onChange(of: appState.eventCounter) {
-                                self.updateFolders()
-                            }
-                        }
-                        
-                        if !pendingFolderIds.isEmpty {
-                            Section("Discovered folders") {
-                                ForEach(pendingFolderIds, id: \.self) { folderID in
-                                    Button(folderID, systemImage: "plus", action: {
-                                        addFolderID = folderID
-                                        showingAddFolderPopup = true
-                                    })
-                                }
-                            }
-                        }
-                        
-                        Section {
-                            Button("Add other folder...", systemImage: "plus", action: {
-                                addFolderID = ""
-                                showingAddFolderPopup = true
-                            })
-                        }
+        Section("Folders") {
+            ForEach(folders, id: \.self) { (folder: SushitrainFolder) in
+                NavigationLink(value: Route.folder(folderID: folder.folderID)) {
+                    if folder.isPaused() {
+                        Label(folder.displayName, systemImage: "folder.fill").foregroundStyle(.gray)
                     }
-                    .navigationTitle("Folders")
-                    .toolbar {
-                        Button("Open in Files app", systemImage: "arrow.up.forward.app", action: {
-                            let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                            let sharedurl = documentsUrl.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
-                            let furl = URL(string: sharedurl)!
-                            UIApplication.shared.open(furl, options: [:], completionHandler: nil)
-                        }).labelStyle(.iconOnly)
+                    else {
+                        Label(folder.displayName, systemImage: "folder.fill")
                     }
-                }, detail: {
-                    NavigationStack {
-                        if let folder = selectedFolder {
-                            if folder.folder.exists() {
-                                BrowserView(
-                                    appState: self.appState,
-                                    folder: folder.folder,
-                                    prefix: ""
-                                ).id(folder.folder.folderID)
-                            }
-                            else {
-                                ContentUnavailableView("Folder was deleted", systemImage: "trash", description: Text("This folder was deleted."))
-                            }
-                        }
-                        else {
-                            ContentUnavailableView("Select a folder", systemImage: "folder").onTapGesture {
-                                columnVisibility = .doubleColumn
-                            }
-                        }
-                    }
-                })
-            .navigationSplitViewStyle(.balanced)
+                }
+            }.onChange(of: appState.eventCounter) {
+                self.updateFolders()
+            }
+        }
+        
+        if !pendingFolderIds.isEmpty {
+            Section("Discovered folders") {
+                ForEach(pendingFolderIds, id: \.self) { folderID in
+                    Button(folderID, systemImage: "plus", action: {
+                        addFolderID = folderID
+                        showingAddFolderPopup = true
+                    })
+                }
+            }
+        }
+        
+        Section {
+            Button("Add folder...", systemImage: "plus", action: {
+                addFolderID = ""
+                showingAddFolderPopup = true
+            })
         }
         .sheet(isPresented: $showingAddFolderPopup, content: {
             AddFolderView(folderID: $addFolderID, appState: appState)
@@ -124,12 +61,47 @@ struct FoldersView: View {
             self.updateFolders()
             
             let addedFolders = Set(appState.folders().map({f in f.folderID}))
-            self.pendingFolderIds = ((try? self.appState.client.pendingFolderIDs())?.asArray() ?? []).filter({ folderID in !addedFolders.contains(folderID)
+            self.pendingFolderIds = ((try? self.appState.client.pendingFolderIDs())?.asArray() ?? []).filter({ folderID in
+                !addedFolders.contains(folderID)
             })
         }
     }
     
     private func updateFolders() {
         folders = appState.folders().sorted()
+    }
+}
+
+struct FoldersView: View {
+    @ObservedObject var appState: AppState
+    
+    var body: some View {
+        List {
+            FoldersSections(appState: self.appState)
+        }
+        .navigationTitle("Folders")
+        .navigationDestination(for: Route.self, destination: {r in
+            switch r {
+            case .folder(folderID: let folderID):
+                if let folderID = folderID, let folder = self.appState.client.folder(withID: folderID) {
+                    if folder.exists() {
+                        BrowserView(
+                            appState: self.appState,
+                            folder: folder,
+                            prefix: ""
+                        ).id(folder.folderID)
+                    }
+                    else {
+                        ContentUnavailableView("Folder was deleted", systemImage: "trash", description: Text("This folder was deleted."))
+                    }
+                }
+                else {
+                    ContentUnavailableView("Select a folder", systemImage: "folder")
+                }
+                
+            default:
+                Text("")
+            }
+        })
     }
 }
