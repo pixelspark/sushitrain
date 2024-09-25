@@ -13,6 +13,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"sync"
 
 	"github.com/syncthing/syncthing/lib/build"
 	"github.com/syncthing/syncthing/lib/config"
@@ -32,18 +33,20 @@ type Client struct {
 	cancel                     context.CancelFunc
 	cert                       tls.Certificate
 	config                     config.Wrapper
-	connectedDeviceAddresses   map[string]string
 	ctx                        context.Context
 	Delegate                   ClientDelegate
-	downloadProgress           map[string]map[string]*model.PullerProgress // folderID, path => progress
-	uploadProgress             map[string]map[string]map[string]int        // deviceID, folderID, path => block count
 	evLogger                   events.Logger
 	filesPath                  string
-	foldersDownloading         map[string]bool
 	IgnoreEvents               bool
 	IsUsingCustomConfiguration bool
 	Server                     *StreamingServer
-	ListenAddresses            map[string][]string
+
+	connectedDeviceAddresses map[string]string
+	downloadProgress         map[string]map[string]*model.PullerProgress // folderID, path => progress
+	uploadProgress           map[string]map[string]map[string]int        // deviceID, folderID, path => block count
+	foldersDownloading       map[string]bool
+	ListenAddresses          map[string][]string
+	mutex                    sync.Mutex
 }
 
 type Change struct {
@@ -191,6 +194,128 @@ func (clt *Client) Stop() {
 	clt.app.Wait()
 }
 
+func (clt *Client) handleEvent(evt events.Event) {
+	clt.mutex.Lock()
+	defer clt.mutex.Unlock()
+
+	switch evt.Type {
+	case events.DeviceDiscovered:
+		if !clt.IgnoreEvents && clt.Delegate != nil {
+			data := evt.Data.(map[string]interface{})
+			devID := data["device"].(string)
+			addresses := data["addrs"].([]string)
+			clt.Delegate.OnDeviceDiscovered(devID, &ListOfStrings{data: addresses})
+		}
+
+	case events.FolderRejected:
+		// FolderRejected is deprecated
+		break
+
+	case events.StateChanged:
+		// Keep track of which folders are in syncing state. We need to know whether we are idling or not
+		data := evt.Data.(map[string]interface{})
+		folder := data["folder"].(string)
+		state := data["to"].(string)
+		folderTransferring := (state == model.FolderSyncing.String() || state == model.FolderSyncWaiting.String() || state == model.FolderSyncPreparing.String())
+		clt.foldersDownloading[folder] = folderTransferring
+		if !clt.IgnoreEvents && clt.Delegate != nil {
+			clt.Delegate.OnEvent(evt.Type.String())
+		}
+
+	case events.ListenAddressesChanged:
+		if !clt.IgnoreEvents && clt.Delegate != nil {
+			addrs := make([]string, 0)
+			data := evt.Data.(map[string]interface{})
+			addressSpec := data["address"].(*url.URL)
+			wanAddresses := data["wan"].([]*url.URL)
+			lanAddresses := data["lan"].([]*url.URL)
+
+			for _, wa := range wanAddresses {
+				addrs = append(addrs, wa.String())
+			}
+			for _, la := range lanAddresses {
+				addrs = append(addrs, la.String())
+			}
+			clt.ListenAddresses[addressSpec.String()] = addrs
+
+			// Get all current addresses and send to client
+			currentResolved := make([]string, 0)
+			for _, addrs := range clt.ListenAddresses {
+				currentResolved = append(currentResolved, addrs...)
+			}
+			clt.Delegate.OnListenAddressesChanged(List(currentResolved))
+		}
+
+	case events.DeviceConnected:
+		data := evt.Data.(map[string]string)
+		devID := data["id"]
+		address := data["addr"]
+		clt.connectedDeviceAddresses[devID] = address
+
+		if !clt.IgnoreEvents && clt.Delegate != nil {
+			clt.Delegate.OnEvent(evt.Type.String())
+		}
+
+	case events.LocalChangeDetected, events.RemoteChangeDetected:
+		data := evt.Data.(map[string]string)
+		modifiedBy, ok := data["modifiedBy"]
+		if !ok {
+			modifiedBy = clt.DeviceID()
+		}
+
+		if !clt.IgnoreEvents && clt.Delegate != nil {
+			clt.Delegate.OnChange(&Change{
+				FolderID: data["folder"],
+				ShortID:  modifiedBy,
+				Action:   data["action"],
+				Path:     data["path"],
+				Time:     &Date{time: evt.Time},
+			})
+			clt.Delegate.OnEvent(evt.Type.String())
+		}
+
+	case events.LocalIndexUpdated, events.DeviceDisconnected, events.ConfigSaved,
+		events.ClusterConfigReceived, events.FolderResumed, events.FolderPaused:
+		// Just deliver the event
+		if !clt.IgnoreEvents && clt.Delegate != nil {
+			clt.Delegate.OnEvent(evt.Type.String())
+		}
+
+	case events.DownloadProgress:
+		clt.downloadProgress = evt.Data.(map[string]map[string]*model.PullerProgress)
+		if !clt.IgnoreEvents && clt.Delegate != nil {
+			clt.Delegate.OnEvent(evt.Type.String())
+		}
+
+	case events.RemoteDownloadProgress:
+
+		peerData := evt.Data.(map[string]interface{})
+		peerID := peerData["device"].(string)
+		folderID := peerData["folder"].(string)
+		state := peerData["state"].(map[string]int) // path: number of blocks downloaded
+		if _, ok := clt.uploadProgress[peerID]; !ok {
+			clt.uploadProgress[peerID] = make(map[string]map[string]int)
+		}
+
+		if _, ok := clt.uploadProgress[peerID][folderID]; !ok {
+			clt.uploadProgress[peerID][folderID] = make(map[string]int)
+		}
+
+		clt.uploadProgress[peerID][folderID] = state
+
+		if !clt.IgnoreEvents && clt.Delegate != nil {
+			clt.Delegate.OnEvent(evt.Type.String())
+		}
+
+	case events.ItemFinished, events.ItemStarted:
+		// Ignore these events
+		break
+
+	default:
+		Logger.Debugln("EVENT", evt.Type.String(), evt)
+	}
+}
+
 func (clt *Client) startEventListener() {
 	sub := clt.evLogger.Subscribe(events.AllEvents)
 	defer sub.Unsubscribe()
@@ -200,128 +325,15 @@ func (clt *Client) startEventListener() {
 		case <-clt.ctx.Done():
 			return
 		case evt := <-sub.C():
-			switch evt.Type {
-			case events.DeviceDiscovered:
-				if !clt.IgnoreEvents && clt.Delegate != nil {
-					data := evt.Data.(map[string]interface{})
-					devID := data["device"].(string)
-					addresses := data["addrs"].([]string)
-					clt.Delegate.OnDeviceDiscovered(devID, &ListOfStrings{data: addresses})
-				}
-
-			case events.FolderRejected:
-				// FolderRejected is deprecated
-				break
-
-			case events.StateChanged:
-				// Keep track of which folders are in syncing state. We need to know whether we are idling or not
-				data := evt.Data.(map[string]interface{})
-				folder := data["folder"].(string)
-				state := data["to"].(string)
-				folderTransferring := (state == model.FolderSyncing.String() || state == model.FolderSyncWaiting.String() || state == model.FolderSyncPreparing.String())
-				clt.foldersDownloading[folder] = folderTransferring
-				if !clt.IgnoreEvents && clt.Delegate != nil {
-					clt.Delegate.OnEvent(evt.Type.String())
-				}
-
-			case events.ListenAddressesChanged:
-				if !clt.IgnoreEvents && clt.Delegate != nil {
-					addrs := make([]string, 0)
-					data := evt.Data.(map[string]interface{})
-					addressSpec := data["address"].(*url.URL)
-					wanAddresses := data["wan"].([]*url.URL)
-					lanAddresses := data["lan"].([]*url.URL)
-
-					for _, wa := range wanAddresses {
-						addrs = append(addrs, wa.String())
-					}
-					for _, la := range lanAddresses {
-						addrs = append(addrs, la.String())
-					}
-					clt.ListenAddresses[addressSpec.String()] = addrs
-
-					// Get all current addresses and send to client
-					currentResolved := make([]string, 0)
-					for _, addrs := range clt.ListenAddresses {
-						currentResolved = append(currentResolved, addrs...)
-					}
-					clt.Delegate.OnListenAddressesChanged(List(currentResolved))
-				}
-
-			case events.DeviceConnected:
-				data := evt.Data.(map[string]string)
-				devID := data["id"]
-				address := data["addr"]
-				clt.connectedDeviceAddresses[devID] = address
-
-				if !clt.IgnoreEvents && clt.Delegate != nil {
-					clt.Delegate.OnEvent(evt.Type.String())
-				}
-
-			case events.LocalChangeDetected, events.RemoteChangeDetected:
-				data := evt.Data.(map[string]string)
-				modifiedBy, ok := data["modifiedBy"]
-				if !ok {
-					modifiedBy = clt.DeviceID()
-				}
-
-				if !clt.IgnoreEvents && clt.Delegate != nil {
-					clt.Delegate.OnChange(&Change{
-						FolderID: data["folder"],
-						ShortID:  modifiedBy,
-						Action:   data["action"],
-						Path:     data["path"],
-						Time:     &Date{time: evt.Time},
-					})
-					clt.Delegate.OnEvent(evt.Type.String())
-				}
-
-			case events.LocalIndexUpdated, events.DeviceDisconnected, events.ConfigSaved,
-				events.ClusterConfigReceived, events.FolderResumed, events.FolderPaused:
-				// Just deliver the event
-				if !clt.IgnoreEvents && clt.Delegate != nil {
-					clt.Delegate.OnEvent(evt.Type.String())
-				}
-
-			case events.DownloadProgress:
-				clt.downloadProgress = evt.Data.(map[string]map[string]*model.PullerProgress)
-				if !clt.IgnoreEvents && clt.Delegate != nil {
-					clt.Delegate.OnEvent(evt.Type.String())
-				}
-
-			case events.RemoteDownloadProgress:
-
-				peerData := evt.Data.(map[string]interface{})
-				peerID := peerData["device"].(string)
-				folderID := peerData["folder"].(string)
-				state := peerData["state"].(map[string]int) // path: number of blocks downloaded
-				if _, ok := clt.uploadProgress[peerID]; !ok {
-					clt.uploadProgress[peerID] = make(map[string]map[string]int)
-				}
-
-				if _, ok := clt.uploadProgress[peerID][folderID]; !ok {
-					clt.uploadProgress[peerID][folderID] = make(map[string]int)
-				}
-
-				clt.uploadProgress[peerID][folderID] = state
-
-				if !clt.IgnoreEvents && clt.Delegate != nil {
-					clt.Delegate.OnEvent(evt.Type.String())
-				}
-
-			case events.ItemFinished, events.ItemStarted:
-				// Ignore these events
-				break
-
-			default:
-				Logger.Debugln("EVENT", evt.Type.String(), evt)
-			}
-
+			clt.handleEvent(evt)
 		}
 	}
 }
 
 func (clt *Client) IsUploading() bool {
+	clt.mutex.Lock()
+	defer clt.mutex.Unlock()
+
 	for _, uploadsPerFolder := range clt.uploadProgress {
 		for _, uploads := range uploadsPerFolder {
 			if len(uploads) > 0 {
@@ -333,6 +345,9 @@ func (clt *Client) IsUploading() bool {
 }
 
 func (clt *Client) UploadingToPeers() *ListOfStrings {
+	clt.mutex.Lock()
+	defer clt.mutex.Unlock()
+
 	peers := make([]string, 0)
 	for peerID, uploadsPerFolder := range clt.uploadProgress {
 		peerHasUploads := false
@@ -351,6 +366,9 @@ func (clt *Client) UploadingToPeers() *ListOfStrings {
 }
 
 func (clt *Client) UploadingFilesForPeerAndFolder(deviceID string, folderID string) *ListOfStrings {
+	clt.mutex.Lock()
+	defer clt.mutex.Unlock()
+
 	if uploads, ok := clt.uploadProgress[deviceID]; ok {
 		if files, ok := uploads[folderID]; ok {
 			return List(KeysOf(files))
@@ -360,6 +378,9 @@ func (clt *Client) UploadingFilesForPeerAndFolder(deviceID string, folderID stri
 }
 
 func (clt *Client) UploadingFoldersForPeer(deviceID string) *ListOfStrings {
+	clt.mutex.Lock()
+	defer clt.mutex.Unlock()
+
 	if uploads, ok := clt.uploadProgress[deviceID]; ok {
 		return List(KeysOf(uploads))
 	}
@@ -367,6 +388,9 @@ func (clt *Client) UploadingFoldersForPeer(deviceID string) *ListOfStrings {
 }
 
 func (clt *Client) GetLastPeerAddress(deviceID string) string {
+	clt.mutex.Lock()
+	defer clt.mutex.Unlock()
+
 	if addr, ok := clt.connectedDeviceAddresses[deviceID]; ok {
 		return addr
 	}
@@ -374,6 +398,9 @@ func (clt *Client) GetLastPeerAddress(deviceID string) string {
 }
 
 func (clt *Client) IsDownloading() bool {
+	clt.mutex.Lock()
+	defer clt.mutex.Unlock()
+
 	for _, isTransferring := range clt.foldersDownloading {
 		if isTransferring {
 			return true
@@ -668,6 +695,9 @@ type Progress struct {
 }
 
 func (clt *Client) GetTotalDownloadProgress() *Progress {
+	clt.mutex.Lock()
+	defer clt.mutex.Unlock()
+
 	if clt.downloadProgress == nil {
 		return nil
 	}
@@ -697,6 +727,9 @@ func (clt *Client) GetTotalDownloadProgress() *Progress {
 }
 
 func (clt *Client) GetDownloadProgressForFile(path string, folder string) *Progress {
+	clt.mutex.Lock()
+	defer clt.mutex.Unlock()
+
 	if clt.downloadProgress == nil {
 		return nil
 	}
