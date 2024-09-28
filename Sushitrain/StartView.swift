@@ -8,10 +8,13 @@ import SwiftUI
 import CoreImage
 import CoreImage.CIFilterBuiltins
 
-#if os(iOS)
 fileprivate struct QRView: View {
     private var text: String
-    @State private var image: UIImage? = nil
+    #if os(iOS)
+        @State private var image: UIImage? = nil
+    #elseif os(macOS)
+        @State private var image: NSImage? = nil
+    #endif
     
     init(text: String) {
         self.text = text
@@ -20,16 +23,24 @@ fileprivate struct QRView: View {
     var body: some View {
         ZStack {
             if let image = image {
-                Image(uiImage: image)
+                #if os(iOS)
+                    Image(uiImage: image)
+                        .resizable()
+                        .frame(width: 200, height: 200)
+                #elseif os(macOS)
+                    Image(nsImage: image)
                     .resizable()
                     .frame(width: 200, height: 200)
+                #endif
             }
             else {
                 ProgressView()
             }
         }
         .navigationTitle("Device ID")
-        .navigationBarTitleDisplayMode(.inline)
+        #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+        #endif
         .onAppear {
             let filter = CIFilter.qrCodeGenerator()
             let data = text.data(using: .ascii, allowLossyConversion: false)!
@@ -37,11 +48,16 @@ fileprivate struct QRView: View {
             let ciimage = filter.outputImage!
             let transform = CGAffineTransform(scaleX: 10, y: 10)
             let scaledCIImage = ciimage.transformed(by: transform)
+            #if os(iOS)
             image = UIImage(data: UIImage(ciImage: scaledCIImage).pngData()!)
+            #elseif os(macOS)
+            image  = NSImage.fromCIImage(scaledCIImage)
+            #endif
         }
     }
 }
 
+#if os(iOS)
 fileprivate struct WaitView: View {
     @ObservedObject var appState: AppState
     @Binding var isPresented: Bool
@@ -140,6 +156,9 @@ fileprivate struct AddressesView: View {
                 }
             }
         }
+        #if os(macOS)
+            .frame(minHeight: 320)
+        #endif
     }
 }
 
@@ -307,6 +326,9 @@ struct StartView: View {
             }
             
         }
+#if os(macOS)
+        .formStyle(.grouped)
+#endif
         .navigationTitle("Start")
         .toolbar {
             ToolbarItem {
@@ -333,7 +355,6 @@ struct StartView: View {
                 })
             }
         }
-#if os(iOS)
         .sheet(isPresented: $qrCodeShown, content: {
             NavigationStack {
                 QRView(text: self.appState.localDeviceID)
@@ -346,10 +367,11 @@ struct StartView: View {
                     })
             }
         })
+        #if os(iOS)
         .fullScreenCover(isPresented: $showWaitScreen) {
             WaitView(appState: appState, isPresented: $showWaitScreen)
         }
-#endif
+        #endif
         .task {
             // List folders that have extra files
             self.foldersWithExtraFiles = []

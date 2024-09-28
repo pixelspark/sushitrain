@@ -28,7 +28,7 @@ struct DeviceView: View {
                 }
                 
                 LabeledContent {
-                    TextField(device.displayName, text: Binding(get: {
+                    TextField("", text: Binding(get: {
                         if let cn = changedDeviceName {
                             return cn
                         }
@@ -38,7 +38,7 @@ struct DeviceView: View {
                         Task {
                             try? device.setName(lbl)
                         }
-                    }))
+                    }), prompt: Text(device.displayName))
                         .multilineTextAlignment(.trailing)
                 } label: {
                     Text("Display name")
@@ -114,6 +114,10 @@ struct DeviceView: View {
                     }).foregroundColor(.red)
                 }
             }
-        }.navigationTitle(!device.exists() || device.name().isEmpty ? device.deviceID() : device.name())
+        }
+#if os(macOS)
+        .formStyle(.grouped)
+#endif
+        .navigationTitle(!device.exists() || device.name().isEmpty ? device.deviceID() : device.name())
     }
 }

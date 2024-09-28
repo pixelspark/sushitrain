@@ -1,38 +1,90 @@
 {
-  "images" : [
+  "images": [
     {
-      "filename" : "sushitrain.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "size" : "1024x1024"
+      "filename": "sushitrain.png",
+      "idiom": "universal",
+      "platform": "ios",
+      "size": "1024x1024"
     },
     {
-      "appearances" : [
+      "appearances": [
         {
-          "appearance" : "luminosity",
-          "value" : "dark"
+          "appearance": "luminosity",
+          "value": "dark"
         }
       ],
-      "filename" : "sushitrain-transparent.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "size" : "1024x1024"
+      "filename": "sushitrain-transparent.png",
+      "idiom": "universal",
+      "platform": "ios",
+      "size": "1024x1024"
     },
     {
-      "appearances" : [
+      "appearances": [
         {
-          "appearance" : "luminosity",
-          "value" : "tinted"
+          "appearance": "luminosity",
+          "value": "tinted"
         }
       ],
-      "filename" : "sushitrain-tinted.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "size" : "1024x1024"
+      "filename": "sushitrain-tinted.png",
+      "idiom": "universal",
+      "platform": "ios",
+      "size": "1024x1024"
+    },
+    {
+      "idiom": "mac",
+      "scale": "1x",
+      "size": "16x16"
+    },
+    {
+      "idiom": "mac",
+      "scale": "2x",
+      "size": "16x16"
+    },
+    {
+      "idiom": "mac",
+      "scale": "1x",
+      "size": "32x32"
+    },
+    {
+      "idiom": "mac",
+      "scale": "2x",
+      "size": "32x32"
+    },
+    {
+      "idiom": "mac",
+      "scale": "1x",
+      "size": "128x128"
+    },
+    {
+      "filename": "sushitrain-macos-256.png",
+      "idiom": "mac",
+      "scale": "2x",
+      "size": "128x128"
+    },
+    {
+      "idiom": "mac",
+      "scale": "1x",
+      "size": "256x256"
+    },
+    {
+      "filename": "sushitrain-macos-512.png",
+      "idiom": "mac",
+      "scale": "2x",
+      "size": "256x256"
+    },
+    {
+      "idiom": "mac",
+      "scale": "1x",
+      "size": "512x512"
+    },
+    {
+      "idiom": "mac",
+      "scale": "2x",
+      "size": "512x512"
     }
   ],
-  "info" : {
-    "author" : "xcode",
-    "version" : 1
+  "info": {
+    "author": "xcode",
+    "version": 1
   }
 }

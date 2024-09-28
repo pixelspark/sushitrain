@@ -33,14 +33,10 @@ struct ContentView: View {
             NavigationStack {
                 FoldersView(appState: appState)
                 .toolbar {
-#if os(iOS)
-                    Button("Open in Files app", systemImage: "arrow.up.forward.app", action: {
+                    Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
                         let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                        let sharedurl = documentsUrl.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
-                        let furl = URL(string: sharedurl)!
-                        UIApplication.shared.open(furl, options: [:], completionHandler: nil)
+                        openURLInSystemFilesApp(url: documentsUrl)
                     }).labelStyle(.iconOnly)
-#endif
                 }
             }
             .tabItem {
@@ -77,16 +73,14 @@ struct ContentView: View {
                     
                     FoldersSections(appState: self.appState)
                 }
+                #if os(iOS)
                 .toolbar {
-#if os(iOS)
-                    Button("Open in Files app", systemImage: "arrow.up.forward.app", action: {
+                    Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
                         let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                        let sharedurl = documentsUrl.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
-                        let furl = URL(string: sharedurl)!
-                        UIApplication.shared.open(furl, options: [:], completionHandler: nil)
+                        openURLInSystemFilesApp(url: documentsUrl)
                     }).labelStyle(.iconOnly)
-#endif
                 }
+                #endif
             }, detail: {
                 NavigationStack {
                     switch self.route {

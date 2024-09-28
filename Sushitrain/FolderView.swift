@@ -71,6 +71,9 @@ struct FolderStatisticsView: View {
                 }
             }
         }
+#if os(macOS)
+        .formStyle(.grouped)
+#endif
         .navigationTitle("Folder statistics")
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -135,6 +138,9 @@ struct SelectiveFolderView: View {
                         }
                     }
                 }
+#if os(macOS)
+                .formStyle(.grouped)
+#endif
             }
             else {
                 ContentUnavailableView("No files selected", systemImage: "pin.slash.fill", description: Text("To keep files on this device, navigate to a file and select 'keep on this device'. Selected files will appear here."))
@@ -179,6 +185,9 @@ struct FolderDeviceView: View {
                         .focused($passwordFieldFocus)
                 }
             }
+#if os(macOS)
+            .formStyle(.grouped)
+#endif
             .onAppear {
                 self.newPassword = folder.encryptionPassword(for: deviceID)
                 passwordFieldFocus = true
@@ -399,7 +408,7 @@ struct FolderView: View {
                     Text("Folder ID").badge(Text(folder.folderID))
                     
                     LabeledContent {
-                        TextField(folder.folderID, text: Binding(get: { folder.label() }, set: {lbl in try? folder.setLabel(lbl) }))
+                        TextField("", text: Binding(get: { folder.label() }, set: {lbl in try? folder.setLabel(lbl) }), prompt: Text(folder.folderID))
                             .multilineTextAlignment(.trailing)
                     } label: {
                         Text("Display name")
@@ -441,6 +450,7 @@ struct FolderView: View {
                     }
                 }
                 
+#if os(iOS)
                 Section("System settings") {
                     Toggle("Include in device back-up", isOn: Binding(get: {
                         if let f = folder.isExcludedFromBackup { return !f }
@@ -456,6 +466,7 @@ struct FolderView: View {
                         folder.isHidden = nv
                     }))
                 }
+#endif
                 
                 if self.folder.isSelective() {
                     NavigationLink(destination: SelectiveFolderView(appState: appState, folder: folder)) {
@@ -487,6 +498,9 @@ struct FolderView: View {
                 }
             }
         }
+#if os(macOS)
+        .formStyle(.grouped)
+#endif
         .navigationTitle(folder.displayName)
         .sheet(isPresented: $showEditEncryptionPassword) {
             FolderDeviceView(appState: self.appState, folder: self.folder, deviceID: $editEncryptionPasswordDeviceID)

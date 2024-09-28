@@ -14,6 +14,7 @@
 		652879A82C4D06F5004AF46F /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652879A72C4D06F5004AF46F /* SearchView.swift */; };
 		654272982C7BC77000F2CEF8 /* FileDownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654272972C7BC77000F2CEF8 /* FileDownloadView.swift */; };
 		6575B3DF2C6012480057686E /* ChangesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6575B3DE2C6012480057686E /* ChangesView.swift */; };
+		658A29F02CA821950061D1D5 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 658A29EF2CA821950061D1D5 /* AVKit.framework */; };
 		65AE11FD2C39EE0E00E721D4 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE11FC2C39EE0E00E721D4 /* App.swift */; };
 		65AE11FF2C39EE0E00E721D4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE11FE2C39EE0E00E721D4 /* ContentView.swift */; };
 		65AE12012C39EE0F00E721D4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 65AE12002C39EE0F00E721D4 /* Assets.xcassets */; };
@@ -71,6 +72,7 @@
 		652879A72C4D06F5004AF46F /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		654272972C7BC77000F2CEF8 /* FileDownloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDownloadView.swift; sourceTree = "<group>"; };
 		6575B3DE2C6012480057686E /* ChangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangesView.swift; sourceTree = "<group>"; };
+		658A29EF2CA821950061D1D5 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		65AE11F92C39EE0E00E721D4 /* Sushitrain.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sushitrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		65AE11FC2C39EE0E00E721D4 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		65AE11FE2C39EE0E00E721D4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -107,6 +109,7 @@
 			files = (
 				65F15BFD2CA03DCE00E13DDD /* SushitrainCore.xcframework in Frameworks */,
 				65AE125B2C3AB03E00E721D4 /* SushitrainCore.xcframework in Frameworks */,
+				658A29F02CA821950061D1D5 /* AVKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -179,6 +182,7 @@
 		65AE12132C39F0CD00E721D4 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				658A29EF2CA821950061D1D5 /* AVKit.framework */,
 				65AE125A2C3AB03E00E721D4 /* SushitrainCore.xcframework */,
 				65AE12142C39F0CD00E721D4 /* UniformTypeIdentifiers.framework */,
 			);
@@ -470,12 +474,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "nl.t-shaped.Sushitrain";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -509,12 +515,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "nl.t-shaped.Sushitrain";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

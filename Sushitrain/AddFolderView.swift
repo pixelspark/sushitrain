@@ -27,7 +27,7 @@ struct AddFolderView: View {
         NavigationStack {
             Form {
                 Section(header: Text("Folder ID")) {
-                    TextField("XXXX-XXXX", text: $folderID)
+                    TextField("", text: $folderID, prompt: Text("XXXX-XXXX"))
                         .focused($idFieldFocus)
 #if os(iOS)
                         .textInputAutocapitalization(.never)
@@ -59,6 +59,9 @@ struct AddFolderView: View {
                     }.disabled(pendingPeers.isEmpty)
                 }
             }
+#if os(macOS)
+            .formStyle(.grouped)
+#endif
             .onAppear {
                 idFieldFocus = true
             }

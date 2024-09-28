@@ -157,6 +157,9 @@ fileprivate struct BrowserListView: View {
                             }
                         }
                     }
+                    #if os(macOS)
+                        .listStyle(.inset(alternatesRowBackgrounds: true))
+                    #endif
                 }
                 else {
                     // Search
@@ -293,18 +296,13 @@ struct BrowserView: View {
                     }).labelStyle(.iconOnly)
                 }
                 ToolbarItem {
-#if os(iOS)
-                    Button("Open in Files app", systemImage: "arrow.up.forward.app", action: {
+                    Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
                         if let localNativeURL = self.localNativeURL {
-                            let sharedURL = localNativeURL.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
-                            let furl: URL = URL(string: sharedURL)!
-                            UIApplication.shared.open(furl, options: [:], completionHandler: nil)
+                            openURLInSystemFilesApp(url: localNativeURL)
                         }
                     })
                     .labelStyle(.iconOnly)
                     .disabled(localNativeURL == nil)
-#endif
-                    //! TODO: add open Finder button
                 }
             }
         }

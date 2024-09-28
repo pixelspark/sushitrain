@@ -32,9 +32,13 @@ struct TotalStatisticsView: View {
                     Text("File size").badge(formatter.string(fromByteCount: stats.local!.bytes))
                 }
             }
-        }.navigationTitle("Statistics")
+        }
+        .navigationTitle("Statistics")
 #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.inline)
+#endif
+#if os(macOS)
+        .formStyle(.grouped)
 #endif
     }
 }
@@ -125,6 +129,9 @@ struct AdvancedSettingsView: View {
             }
         }
         .navigationTitle("Advanced settings")
+#if os(macOS)
+        .formStyle(.grouped)
+#endif
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
@@ -316,7 +323,11 @@ fileprivate struct BandwidthSettingsView: View {
                     Stepper("\(appState.streamingLimitMbitsPerSec) Mbit/s", value: appState.$streamingLimitMbitsPerSec, in: 1...100)
                 }
             }
-        }.navigationTitle("Bandwidth limitations")
+        }
+        .navigationTitle("Bandwidth limitations")
+#if os(macOS)
+        .formStyle(.grouped)
+#endif
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
@@ -374,6 +385,10 @@ struct SettingsView: View {
                     AboutView()
                 }
             }
-        }.navigationTitle("Settings")
+        }
+        .navigationTitle("Settings")
+        #if os(macOS)
+        .formStyle(.grouped)
+        #endif
     }
 }

@@ -330,3 +330,36 @@ extension Set {
         }
     }
 }
+
+@MainActor
+func openURLInSystemFilesApp(url: URL) {
+#if os(iOS)
+    let sharedURL = url.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
+    let furl: URL = URL(string: sharedURL)!
+    UIApplication.shared.open(furl, options: [:], completionHandler: nil)
+#endif
+    
+#if os(macOS)
+    print("Open external URL", url)
+    NSWorkspace.shared.activateFileViewerSelecting([url])
+#endif
+}
+
+#if os(iOS)
+let openInFilesAppLabel = String(localized: "Open in Files app")
+#endif
+
+#if os(macOS)
+let openInFilesAppLabel = String(localized: "Show in Finder")
+#endif
+
+#if os(macOS)
+extension NSImage {
+    static func fromCIImage(_ ciImage: CIImage) -> NSImage {
+        let rep = NSCIImageRep(ciImage: ciImage)
+        let nsImage = NSImage(size: rep.size)
+        nsImage.addRepresentation(rep)
+        return nsImage
+    }
+}
+#endif

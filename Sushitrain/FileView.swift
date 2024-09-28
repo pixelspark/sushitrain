@@ -9,38 +9,43 @@ import QuickLook
 import WebKit
 import AVKit
 
-#if os(iOS)
 fileprivate struct FileMediaPlayer: View {
+#if os(iOS)
     @State private var session = AVAudioSession.sharedInstance()
+#endif
     @State private var player: AVPlayer?
     @ObservedObject var appState: AppState
     var file: SushitrainEntry
     @State var visible: Binding<Bool>
     
     private func activateSession() {
-        do {
-            try session.setCategory(
-                .playback,
-                mode: .default,
-                options: []
-            )
-        } catch _ {}
-        
-        do {
-            try session.setActive(true, options: .notifyOthersOnDeactivation)
-        } catch _ {}
-        
-        do {
-            try session.overrideOutputAudioPort(.speaker)
-        } catch _ {}
+        #if os(iOS)
+            do {
+                try session.setCategory(
+                    .playback,
+                    mode: .default,
+                    options: []
+                )
+            } catch _ {}
+            
+            do {
+                try session.setActive(true, options: .notifyOthersOnDeactivation)
+            } catch _ {}
+            
+            do {
+                try session.overrideOutputAudioPort(.speaker)
+            } catch _ {}
+        #endif
     }
     
     private func deactivateSession() {
-        do {
-            try session.setActive(false, options: .notifyOthersOnDeactivation)
-        } catch let error as NSError {
-            print("Failed to deactivate audio session: \(error.localizedDescription)")
-        }
+        #if os(iOS)
+            do {
+                try session.setActive(false, options: .notifyOthersOnDeactivation)
+            } catch let error as NSError {
+                print("Failed to deactivate audio session: \(error.localizedDescription)")
+            }
+        #endif
     }
     
     var body: some View {
@@ -70,6 +75,7 @@ fileprivate struct FileMediaPlayer: View {
             let player = AVPlayer(url: URL(string: self.file.onDemandURL())!)
             // TODO: External playback requires us to use http://devicename.local:xxx/file/.. URLs rather than http://localhost.
             // Resolve using Bonjour perhaps?
+            player.preventsDisplaySleepDuringVideoPlayback = true
             player.allowsExternalPlayback = false
             player.audiovisualBackgroundPlaybackPolicy = .automatic
             player.preventsDisplaySleepDuringVideoPlayback = file.isAudio
@@ -85,7 +91,6 @@ fileprivate struct FileMediaPlayer: View {
         .ignoresSafeArea(file.isVideo ? .all : [])
     }
 }
-#endif
 
 fileprivate extension SushitrainEntry {
     var isMedia: Bool {
@@ -112,7 +117,10 @@ fileprivate extension SushitrainEntry {
     }
 }
 
-#if os(iOS)
+#if os(macOS)
+typealias UIViewRepresentable = NSViewRepresentable
+#endif
+
 fileprivate struct WebView: UIViewRepresentable {
     let url: URL
     @Binding var isLoading: Bool
@@ -148,6 +156,7 @@ fileprivate struct WebView: UIViewRepresentable {
         return WebViewCoordinator(self)
     }
     
+    #if os(iOS)
     func makeUIView(context: Context) -> WKWebView {
         let view = WKWebView()
         view.navigationDelegate = context.coordinator
@@ -162,6 +171,24 @@ fileprivate struct WebView: UIViewRepresentable {
             webView.load(request)
         }
     }
+    #endif
+    
+    #if os(macOS)
+    func makeNSView(context: Context) -> WKWebView {
+        let view = WKWebView()
+        view.navigationDelegate = context.coordinator
+        let request = URLRequest(url: url)
+        view.load(request)
+        return view
+    }
+    
+    func updateNSView(_ webView: WKWebView, context: Context) {
+        if webView.url != url {
+            let request = URLRequest(url: url)
+            webView.load(request)
+        }
+    }
+    #endif
 }
 
 struct BareOnDemandFileView: View {
@@ -188,7 +215,9 @@ struct OnDemandFileView: View {
         NavigationStack {
             BareOnDemandFileView(appState: appState, file: file, isShown: $isShown)
                 .navigationTitle(file.fileName())
+                #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
+                #endif
                 .toolbar(content: {
                     ToolbarItem(placement: .confirmationAction, content: {
                         Button("Done", action: {
@@ -223,7 +252,9 @@ fileprivate struct OnDemandWebFileView: View {
             }
         }
         .navigationTitle(file.fileName())
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
         .toolbar(content: {
             ToolbarItem(placement: .cancellationAction, content: {
                 if isLoading {
@@ -233,7 +264,6 @@ fileprivate struct OnDemandWebFileView: View {
         })
     }
 }
-#endif
 
 struct FileView: View {
     @State var file: SushitrainEntry
@@ -316,8 +346,6 @@ struct FileView: View {
                                     Button("View file", systemImage: "eye", action: {
                                         localItemURL = URL(fileURLWithPath: localPath!)
                                     })
-                                }
-                                Section {
                                     ShareLink("Share file", item: URL(fileURLWithPath: localPath!))
                                 }
                             }
@@ -363,18 +391,32 @@ struct FileView: View {
                     
                     // Image preview
                     // AsyncImage does not support SVGs, it seems
-#if os(iOS)
                     if file.isImage && file.mimeType() != "image/svg+xml" {
                         Section {
                             if file.isLocallyPresent() {
                                 
-                                if let localPath = localPath, let uiImage = UIImage(contentsOfFile: localPath) {
-                                    Image(uiImage: uiImage)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(maxWidth: .infinity, maxHeight: 200).onTapGesture {
-                                            showPreview = false
-                                        }
+                                if let localPath = localPath {
+                                    #if os(iOS)
+                                    if let uiImage = UIImage(contentsOfFile: localPath) {
+                                        Image(uiImage: uiImage)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(maxWidth: .infinity, maxHeight: 200).onTapGesture {
+                                                showPreview = false
+                                            }
+                                    }
+                                    #endif
+                                    
+                                    #if os(macOS)
+                                    if let uiImage = NSImage(contentsOfFile: localPath) {
+                                        Image(nsImage: uiImage)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(maxWidth: .infinity, maxHeight: 200).onTapGesture {
+                                                showPreview = false
+                                            }
+                                    }
+                                    #endif
                                 }
                             }
                             else if showPreview || file.size() <= appState.maxBytesForPreview {
@@ -403,7 +445,6 @@ struct FileView: View {
                             }
                         }
                     }
-#endif
                     
                     // Remove file
                     if file.isSelected() && file.isLocallyPresent() && folder.folderType() == SushitrainFolderTypeSendReceive {
@@ -421,16 +462,24 @@ struct FileView: View {
                         }
                     }
                 }
-            }.navigationTitle(file.fileName())
+            }
+            #if os(macOS)
+                .formStyle(.grouped)
+            #endif
+            .navigationTitle(file.fileName())
                 .quickLookPreview(self.$localItemURL)
-#if os(iOS)
-                .fullScreenCover(isPresented: $showVideoPlayer, content: {
-                    FileMediaPlayer(appState: appState, file: file, visible: $showVideoPlayer)
-                })
-                .sheet(isPresented: $showOnDemandPreview, content: {
+                #if os(iOS)
+                    .fullScreenCover(isPresented: $showVideoPlayer, content: {
+                        FileMediaPlayer(appState: appState, file: file, visible: $showVideoPlayer)
+                    })
+                #elseif os(macOS)
+                    .sheet(isPresented: $showVideoPlayer) {
+                        FileMediaPlayer(appState: appState, file: file, visible: $showVideoPlayer).frame(minWidth: 640, minHeight: 480)
+                    }
+                #endif
+                .sheet(isPresented: $showOnDemandPreview) {
                     OnDemandFileView(appState: appState, file: file, isShown: $showOnDemandPreview)
-                })
-#endif
+                }
                 .sheet(isPresented: $showDownloader, content: {
                     NavigationStack {
                         FileDownloadView(file: file, appState: self.appState)

@@ -43,6 +43,9 @@ struct AboutView: View {
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
+#if os(macOS)
+            .formStyle(.grouped)
+#endif
         .sheet(isPresented: $showOnboarding, content: {
             OnboardingView().interactiveDismissDisabled()
         })

@@ -38,6 +38,9 @@ struct AddDeviceView: View {
 #endif
                 }
             }
+#if os(macOS)
+            .formStyle(.grouped)
+#endif
             .onAppear {
                 idFieldFocus = true
                 deviceID = suggestedDeviceID

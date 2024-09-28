@@ -98,9 +98,11 @@ struct PhotoSettingsView: View {
                 }
             }
             
+#if os(macOS)
             Section {
                 Toggle("Copy photos periodically in the background", isOn: photoSync.$enableBackgroundCopy).disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
             }
+#endif
             
             Section("Save the following media types") {
                 Toggle("Photos", isOn: Binding(get: { photoSync.categories.contains(.photo) }, set: { s in
@@ -135,6 +137,9 @@ struct PhotoSettingsView: View {
                 }
             }
         }
+#if os(macOS)
+        .formStyle(.grouped)
+#endif
         .navigationTitle("Photos synchronization")
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
