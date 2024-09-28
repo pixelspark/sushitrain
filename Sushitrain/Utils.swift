@@ -180,6 +180,7 @@ extension SushitrainEntry {
     }
 }
 
+#if os(iOS)
 struct QRScannerViewRepresentable: UIViewControllerRepresentable {
     @Binding var scannedText: String
     @Binding var shouldStartScanning: Bool
@@ -236,6 +237,7 @@ struct QRScannerViewRepresentable: UIViewControllerRepresentable {
         Coordinator(self)
     }
 }
+#endif
 
 extension Bundle {
     var releaseVersionNumber: String? {

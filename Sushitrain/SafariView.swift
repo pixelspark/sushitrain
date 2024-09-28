@@ -6,6 +6,7 @@
 import SwiftUI
 import SafariServices
 
+#if os(iOS)
 struct SafariView: UIViewControllerRepresentable {
     let url: URL
 
@@ -47,3 +48,4 @@ extension View {
         modifier(SafariViewControllerViewModifier())
     }
 }
+#endif

@@ -39,13 +39,18 @@ import Combine
     @AppStorage("maxBytesForPreview") var maxBytesForPreview: Int = 2 * 1024 * 1024 // 2 MiB
     
     var photoSync = PhotoSynchronisation()
+    
+#if os(iOS)
     var backgroundManager: BackgroundManager!
+#endif
     
     static let maxChanges = 25
     
     init(client: SushitrainClient) {
         self.client = client;
+#if os(iOS)
         self.backgroundManager = BackgroundManager(appState: self)
+#endif
     }
     
     func applySettings() {
@@ -99,6 +104,7 @@ import Combine
     }
     
     func updateBadge() {
+#if os(iOS)
         var numExtra = 0
         for folder in self.folders() {
             if folder.isIdle {
@@ -114,6 +120,8 @@ import Combine
         DispatchQueue.main.async {
             UNUserNotificationCenter.current().setBadgeCount(numExtraFinal)
         }
+#endif
+        //! TODO: set Dock badge count on macOS
     }
     
     var systemImage: String {
@@ -135,6 +143,7 @@ import Combine
     }
     
     static func requestNotificationPermissionIfNecessary() {
+#if os(iOS)
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             if settings.authorizationStatus == .notDetermined {
                 let options: UNAuthorizationOptions = [.alert, .badge, .provisional]
@@ -144,5 +153,6 @@ import Combine
                 }
             }
         }
+#endif
     }
 }

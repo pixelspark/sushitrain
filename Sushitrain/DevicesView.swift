@@ -77,9 +77,11 @@ struct DevicesView: View {
             }
             .navigationTitle("Devices")
             .toolbar {
+#if os(iOS)
                 if !peers.isEmpty {
                     EditButton()
                 }
+#endif
             }
         }
         .sheet(isPresented: $showingAddDevicePopup) {

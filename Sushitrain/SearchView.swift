@@ -63,7 +63,9 @@ struct SearchView: View {
         )
         .navigationTitle("Search")
         .searchable(text: $searchText, placement: .toolbar, prompt: "Search files in all folders...")
+#if os(iOS)
         .textInputAutocapitalization(.never)
+#endif
         .autocorrectionDisabled()
         // The below works from iOS18
         //.searchFocused($isSearchFieldFocused)

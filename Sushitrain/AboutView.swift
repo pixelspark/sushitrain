@@ -40,7 +40,9 @@ struct AboutView: View {
             }
         }
         .navigationTitle("About this app")
+#if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+#endif
         .sheet(isPresented: $showOnboarding, content: {
             OnboardingView().interactiveDismissDisabled()
         })

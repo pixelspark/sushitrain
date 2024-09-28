@@ -24,20 +24,25 @@ struct AddDeviceView: View {
                 Section("Device identifier") {
                     TextField("XXXX-XXXX", text: $deviceID, axis: .vertical)
                         .focused($idFieldFocus)
+#if os(iOS)
                         .textInputAutocapitalization(.never)
+#endif
                         .foregroundColor(SushitrainIsValidDeviceID(deviceID) ? .green: .red)
                     
+#if os(iOS)
                     if DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
                         Button("Scan using camera...", systemImage: "qrcode") {
                             showQRScanner = true
                         }
                     }
+#endif
                 }
             }
             .onAppear {
                 idFieldFocus = true
                 deviceID = suggestedDeviceID
             }
+#if os(iOS)
             .sheet(isPresented: $showQRScanner, content: {
                 if DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
                     NavigationStack {
@@ -58,6 +63,7 @@ struct AddDeviceView: View {
                     }
                 }
             })
+#endif
             .toolbar(content: {
                 ToolbarItem(placement: .confirmationAction, content: {
                     Button("Add") {
@@ -79,7 +85,9 @@ struct AddDeviceView: View {
                 
             })
             .navigationTitle("Add device")
+#if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+#endif
             .alert(isPresented: $showError, content: {
                 Alert(title: Text("Could not add device"), message: Text(errorText), dismissButton: .default(Text("OK")))
             })

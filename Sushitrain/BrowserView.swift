@@ -45,13 +45,16 @@ struct EntryView: View {
                         NavigationLink(destination: FileView(file: entry, folder: self.folder, appState: self.appState, siblings: siblings)) {
                             Label(entry.fileName(), systemImage: entry.systemImage)
                         }
-                    } preview: {
+                    }
+                    preview: {
+#if os(iOS)
                         if targetEntry.size() < appState.maxBytesForPreview || targetEntry.isLocallyPresent() {
                             BareOnDemandFileView(appState: appState, file: targetEntry, isShown: .constant(true))
                         }
                         else {
                             ContentUnavailableView("File is too large to preview", systemImage: "scalemass")
                         }
+#endif
                     }
                 }
             }
@@ -80,12 +83,14 @@ struct EntryView: View {
                     Label(entry.fileName(), systemImage: entry.systemImage)
                 }
             } preview: {
+#if os(iOS)
                 if entry.size() < appState.maxBytesForPreview || entry.isLocallyPresent() {
                     BareOnDemandFileView(appState: appState, file: entry, isShown: .constant(true))
                 }
                 else {
                     ContentUnavailableView("File is too large to preview", systemImage: "scalemass")
-                }
+                }   
+#endif
             }
         }
     }
@@ -275,7 +280,9 @@ struct BrowserView: View {
     var body: some View {
         BrowserListView(appState: appState, folder: folder, prefix: prefix, searchText: $searchText, showSettings: $showSettings)
         .navigationTitle(folderName)
+#if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+#endif
         // Disabled due to glitchy transitions (on iOS 17.4 at least)
         // .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search files in this folder...")
         .toolbar {
@@ -286,6 +293,7 @@ struct BrowserView: View {
                     }).labelStyle(.iconOnly)
                 }
                 ToolbarItem {
+#if os(iOS)
                     Button("Open in Files app", systemImage: "arrow.up.forward.app", action: {
                         if let localNativeURL = self.localNativeURL {
                             let sharedURL = localNativeURL.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
@@ -295,6 +303,8 @@ struct BrowserView: View {
                     })
                     .labelStyle(.iconOnly)
                     .disabled(localNativeURL == nil)
+#endif
+                    //! TODO: add open Finder button
                 }
             }
         }

@@ -9,6 +9,7 @@ import QuickLook
 import WebKit
 import AVKit
 
+#if os(iOS)
 fileprivate struct FileMediaPlayer: View {
     @State private var session = AVAudioSession.sharedInstance()
     @State private var player: AVPlayer?
@@ -84,6 +85,7 @@ fileprivate struct FileMediaPlayer: View {
         .ignoresSafeArea(file.isVideo ? .all : [])
     }
 }
+#endif
 
 fileprivate extension SushitrainEntry {
     var isMedia: Bool {
@@ -110,6 +112,7 @@ fileprivate extension SushitrainEntry {
     }
 }
 
+#if os(iOS)
 fileprivate struct WebView: UIViewRepresentable {
     let url: URL
     @Binding var isLoading: Bool
@@ -160,7 +163,6 @@ fileprivate struct WebView: UIViewRepresentable {
         }
     }
 }
-
 
 struct BareOnDemandFileView: View {
     @ObservedObject var appState: AppState
@@ -231,6 +233,7 @@ fileprivate struct OnDemandWebFileView: View {
         })
     }
 }
+#endif
 
 struct FileView: View {
     @State var file: SushitrainEntry
@@ -360,9 +363,11 @@ struct FileView: View {
                     
                     // Image preview
                     // AsyncImage does not support SVGs, it seems
+#if os(iOS)
                     if file.isImage && file.mimeType() != "image/svg+xml" {
                         Section {
                             if file.isLocallyPresent() {
+                                
                                 if let localPath = localPath, let uiImage = UIImage(contentsOfFile: localPath) {
                                     Image(uiImage: uiImage)
                                         .resizable()
@@ -398,6 +403,7 @@ struct FileView: View {
                             }
                         }
                     }
+#endif
                     
                     // Remove file
                     if file.isSelected() && file.isLocallyPresent() && folder.folderType() == SushitrainFolderTypeSendReceive {
@@ -417,16 +423,20 @@ struct FileView: View {
                 }
             }.navigationTitle(file.fileName())
                 .quickLookPreview(self.$localItemURL)
+#if os(iOS)
                 .fullScreenCover(isPresented: $showVideoPlayer, content: {
                     FileMediaPlayer(appState: appState, file: file, visible: $showVideoPlayer)
                 })
                 .sheet(isPresented: $showOnDemandPreview, content: {
                     OnDemandFileView(appState: appState, file: file, isShown: $showOnDemandPreview)
                 })
+#endif
                 .sheet(isPresented: $showDownloader, content: {
                     NavigationStack {
                         FileDownloadView(file: file, appState: self.appState)
+#if os(iOS)
                             .navigationBarTitleDisplayMode(.inline)
+#endif
                             .toolbar(content: {
                                 ToolbarItem(placement: .cancellationAction, content: {
                                     Button("Cancel") {

@@ -33,7 +33,9 @@ struct TotalStatisticsView: View {
                 }
             }
         }.navigationTitle("Statistics")
+#if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+#endif
     }
 }
 
@@ -121,11 +123,15 @@ struct AdvancedSettingsView: View {
                     }), in: 1...100)
                 }
             }
-        }.navigationTitle("Advanced settings")
-            .navigationBarTitleDisplayMode(.inline)
+        }
+        .navigationTitle("Advanced settings")
+#if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+#endif
     }
 }
 
+#if os(iOS)
 struct BackgroundSettingsView: View {
     @ObservedObject var appState: AppState
     let durationFormatter = DateComponentsFormatter()
@@ -236,6 +242,7 @@ struct BackgroundSettingsView: View {
         }
     }
 }
+#endif
 
 fileprivate struct BandwidthSettingsView: View {
     @ObservedObject var appState: AppState
@@ -309,7 +316,10 @@ fileprivate struct BandwidthSettingsView: View {
                     Stepper("\(appState.streamingLimitMbitsPerSec) Mbit/s", value: appState.$streamingLimitMbitsPerSec, in: 1...100)
                 }
             }
-        }.navigationTitle("Bandwidth limitations").navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle("Bandwidth limitations")
+#if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+#endif
     }
 }
 
@@ -338,9 +348,11 @@ struct SettingsView: View {
                     Text("Bandwidth limitations").badge(limitsEnabled  ? "On": "Off")
                 }
            
+#if os(iOS)
                 NavigationLink(destination: BackgroundSettingsView(appState: appState)) {
                     Text("Background synchronization").badge(appState.longBackgroundSyncEnabled || appState.shortBackgroundSyncEnabled ? "On": "Off")
                 }
+#endif
           
                 NavigationLink(destination: PhotoSettingsView(appState: appState, photoSync: appState.photoSync)) {
                     Text("Photo synchronization").badge(appState.photoSync.isReady && appState.photoSync.enableBackgroundCopy ? "On" : "")

@@ -64,9 +64,11 @@ struct PhotoSettingsView: View {
                     .pickerStyle(.menu).disabled(photoSync.isSynchronizing)
                 } else if authorizationStatus == .denied || authorizationStatus == .restricted {
                     Text("Synctrain cannot access your photo library right now")
+#if os(iOS)
                     Button("Review permissions in the Settings app") {
                         openAppSettings()
                     }
+#endif
                 } else {
                     Text("Synctrain cannot access your photo library right now")
                     Button("Allow Synctrain to access photos") {
@@ -134,7 +136,9 @@ struct PhotoSettingsView: View {
             }
         }
         .navigationTitle("Photos synchronization")
+#if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+#endif
         .task {
             authorizationStatus = PHPhotoLibrary.authorizationStatus()
         }
@@ -158,6 +162,7 @@ struct PhotoSettingsView: View {
         return albums
     }
     
+#if os(iOS)
     func openAppSettings() {
         guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
             return
@@ -167,4 +172,5 @@ struct PhotoSettingsView: View {
             UIApplication.shared.open(settingsUrl)
         }
     }
+#endif
 }

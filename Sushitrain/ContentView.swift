@@ -33,12 +33,14 @@ struct ContentView: View {
             NavigationStack {
                 FoldersView(appState: appState)
                 .toolbar {
+#if os(iOS)
                     Button("Open in Files app", systemImage: "arrow.up.forward.app", action: {
                         let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                         let sharedurl = documentsUrl.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
                         let furl = URL(string: sharedurl)!
                         UIApplication.shared.open(furl, options: [:], completionHandler: nil)
                     }).labelStyle(.iconOnly)
+#endif
                 }
             }
             .tabItem {
@@ -76,12 +78,14 @@ struct ContentView: View {
                     FoldersSections(appState: self.appState)
                 }
                 .toolbar {
+#if os(iOS)
                     Button("Open in Files app", systemImage: "arrow.up.forward.app", action: {
                         let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                         let sharedurl = documentsUrl.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
                         let furl = URL(string: sharedurl)!
                         UIApplication.shared.open(furl, options: [:], completionHandler: nil)
                     }).labelStyle(.iconOnly)
+#endif
                 }
             }, detail: {
                 NavigationStack {
@@ -158,9 +162,11 @@ struct ContentView: View {
 
             case .active:
                 try? self.appState.client.setReconnectIntervalS(1)
+#if os(iOS)
                 Task {
                     await self.appState.backgroundManager.rescheduleWatchdogNotification()
                 }
+#endif
                 self.rebindServer()
                 self.appState.client.ignoreEvents = false
                 break

@@ -27,7 +27,11 @@ struct AddFolderView: View {
         NavigationStack {
             Form {
                 Section(header: Text("Folder ID")) {
-                    TextField("XXXX-XXXX", text: $folderID).focused($idFieldFocus).textInputAutocapitalization(.never)
+                    TextField("XXXX-XXXX", text: $folderID)
+                        .focused($idFieldFocus)
+#if os(iOS)
+                        .textInputAutocapitalization(.never)
+#endif
                 }
                 
                 if !possiblePeers.isEmpty {

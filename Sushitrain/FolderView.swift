@@ -70,7 +70,11 @@ struct FolderStatisticsView: View {
                     }
                 }
             }
-        }.navigationTitle("Folder statistics").navigationBarTitleDisplayMode(.inline)
+        }
+        .navigationTitle("Folder statistics")
+#if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+#endif
     }
 }
 
@@ -137,7 +141,9 @@ struct SelectiveFolderView: View {
             }
         }
         .navigationTitle("Selected files")
+#if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+#endif
         .searchable(text: $searchString, prompt: "Search files by name...")
         .task {
             self.isLoading = true
@@ -166,7 +172,9 @@ struct FolderDeviceView: View {
                 Section("Encryption password") {
                     TextField("Password", text: $newPassword)
                         .textContentType(.password)
+#if os(iOS)
                         .textInputAutocapitalization(.never)
+#endif
                         .monospaced()
                         .focused($passwordFieldFocus)
                 }

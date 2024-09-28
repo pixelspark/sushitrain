@@ -8,6 +8,7 @@ import SwiftUI
 import CoreImage
 import CoreImage.CIFilterBuiltins
 
+#if os(iOS)
 fileprivate struct QRView: View {
     private var text: String
     @State private var image: UIImage? = nil
@@ -115,6 +116,7 @@ fileprivate struct WaitView: View {
         }
     }
 }
+#endif
 
 fileprivate struct AddressesView: View {
     @ObservedObject var appState: AppState
@@ -124,7 +126,13 @@ fileprivate struct AddressesView: View {
             ForEach(Array(self.appState.listenAddresses), id: \.self) { addr in
                 Text(addr).contextMenu {
                     Button(action: {
+#if os(iOS)
                         UIPasteboard.general.string = addr
+#endif
+                        
+#if os(macOS)
+                        NSPasteboard.general.setString(addr, forType: .string)
+#endif
                     }) {
                         Text("Copy to clipboard")
                         Image(systemName: "doc.on.doc")
@@ -222,7 +230,13 @@ struct StartView: View {
             Section(header: Text("This device's identifier")) {
                 Label(self.appState.localDeviceID, systemImage: "qrcode").contextMenu {
                     Button(action: {
+#if os(iOS)
                         UIPasteboard.general.string = self.appState.localDeviceID
+#endif
+                        
+#if os(macOS)
+                        NSPasteboard.general.setString(self.appState.localDeviceID, forType: .string)
+#endif
                     }) {
                         Text("Copy to clipboard")
                         Image(systemName: "doc.on.doc")
@@ -319,6 +333,7 @@ struct StartView: View {
                 })
             }
         }
+#if os(iOS)
         .sheet(isPresented: $qrCodeShown, content: {
             NavigationStack {
                 QRView(text: self.appState.localDeviceID)
@@ -334,6 +349,7 @@ struct StartView: View {
         .fullScreenCover(isPresented: $showWaitScreen) {
             WaitView(appState: appState, isPresented: $showWaitScreen)
         }
+#endif
         .task {
             // List folders that have extra files
             self.foldersWithExtraFiles = []

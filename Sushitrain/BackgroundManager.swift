@@ -7,6 +7,7 @@ import SwiftUI
 @preconcurrency import SushitrainCore
 import BackgroundTasks
 
+#if os(iOS)
 @MainActor class BackgroundManager: ObservableObject {
     private static let LongBackgroundSyncID = "nl.t-shaped.sushitrain.background-sync"
     private static let ShortBackgroundSyncID = "nl.t-shaped.sushitrain.short-background-sync"
@@ -17,6 +18,8 @@ import BackgroundTasks
     
     required init(appState: AppState) {
         self.appState = appState
+        
+
         // Schedule background synchronization task
         BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.LongBackgroundSyncID, using: nil) { task in
             Task { await self.handleBackgroundSync(task: task) }
@@ -26,6 +29,7 @@ import BackgroundTasks
         }
         updateBackgroundRunHistory(appending: nil)
         _ = self.scheduleBackgroundSync()
+        
         Task.detached {
             await self.rescheduleWatchdogNotification()
         }
@@ -189,3 +193,4 @@ import BackgroundTasks
         appState.backgroundSyncRuns = runs
     }
 }
+#endif

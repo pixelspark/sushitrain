@@ -59,7 +59,13 @@ struct DeviceView: View {
                 Section("Device ID") {
                     Label(device.deviceID(), systemImage: "qrcode").contextMenu {
                         Button(action: {
+#if os(iOS)
                             UIPasteboard.general.string = device.deviceID()
+#endif
+                            
+#if os(macOS)
+                            NSPasteboard.general.setString(device.deviceID(), forType: .string)
+#endif
                         }) {
                             Text("Copy to clipboard")
                             Image(systemName: "doc.on.doc")
@@ -86,7 +92,13 @@ struct DeviceView: View {
                     Section("Addresses") {
                         Label(lastAddress, systemImage: "network").contextMenu {
                             Button(action: {
+#if os(iOS)
                                 UIPasteboard.general.string = lastAddress
+#endif
+                                
+#if os(macOS)
+                                NSPasteboard.general.setString(lastAddress, forType: .string)
+#endif
                             }) {
                                 Text("Copy to clipboard")
                                 Image(systemName: "doc.on.doc")
