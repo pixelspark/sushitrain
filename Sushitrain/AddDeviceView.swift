@@ -22,7 +22,7 @@ struct AddDeviceView: View {
         NavigationStack {
             Form {
                 Section("Device identifier") {
-                    TextField("XXXX-XXXX", text: $deviceID, axis: .vertical)
+                    TextField("", text: $deviceID, prompt: Text("XXXX-XXXX"), axis: .vertical)
                         .focused($idFieldFocus)
 #if os(iOS)
                         .textInputAutocapitalization(.never)

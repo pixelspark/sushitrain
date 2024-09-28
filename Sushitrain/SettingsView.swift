@@ -346,7 +346,7 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Section("Device name") {
-                TextField("hostname", text: Binding(get: {
+                TextField("Host name", text: Binding(get: {
                     var err: NSError? = nil
                     return appState.client.getName(&err)
                 }, set: { nn in
