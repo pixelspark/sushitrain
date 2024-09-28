@@ -10,6 +10,7 @@ struct DeviceView: View {
     var device: SushitrainPeer
     @ObservedObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
+    @State var changedDeviceName: String? = nil
     
     var body: some View {
         Form {
@@ -27,7 +28,17 @@ struct DeviceView: View {
                 }
                 
                 LabeledContent {
-                    TextField(device.displayName, text: Binding(get: { device.name() }, set: {lbl in try? device.setName(lbl) }))
+                    TextField(device.displayName, text: Binding(get: {
+                        if let cn = changedDeviceName {
+                            return cn
+                        }
+                        return device.name()
+                    }, set: { lbl in
+                        self.changedDeviceName = lbl
+                        Task {
+                            try? device.setName(lbl)
+                        }
+                    }))
                         .multilineTextAlignment(.trailing)
                 } label: {
                     Text("Display name")
