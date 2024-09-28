@@ -32,6 +32,14 @@ struct ContentView: View {
             // Folders
             NavigationStack {
                 FoldersView(appState: appState)
+                .toolbar {
+                    Button("Open in Files app", systemImage: "arrow.up.forward.app", action: {
+                        let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                        let sharedurl = documentsUrl.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
+                        let furl = URL(string: sharedurl)!
+                        UIApplication.shared.open(furl, options: [:], completionHandler: nil)
+                    }).labelStyle(.iconOnly)
+                }
             }
             .tabItem {
                 Label("Folders", systemImage: "folder.fill")
