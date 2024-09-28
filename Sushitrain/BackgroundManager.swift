@@ -10,6 +10,8 @@ import BackgroundTasks
 @MainActor class BackgroundManager: ObservableObject {
     private static let LongBackgroundSyncID = "nl.t-shaped.sushitrain.background-sync"
     private static let ShortBackgroundSyncID = "nl.t-shaped.sushitrain.short-background-sync"
+    private static let WatchdogNotificationID = "nl.t-shaped.sushitrain.watchdog-notification"
+    
     private var currentBackgroundTask: BGTask? = nil
     fileprivate var appState: AppState
     
@@ -24,6 +26,9 @@ import BackgroundTasks
         }
         updateBackgroundRunHistory(appending: nil)
         _ = self.scheduleBackgroundSync()
+        Task.detached {
+            await self.rescheduleWatchdogNotification()
+        }
     }
     
     private func handleBackgroundSync(task: BGTask) async {
@@ -33,6 +38,7 @@ import BackgroundTasks
         DispatchQueue.main.async {
             _ = self.scheduleBackgroundSync()
         }
+        await self.rescheduleWatchdogNotification()
         
         // Start photo synchronization if the user has enabled it
         var photoSyncTask: Task<(),Error>? = nil
@@ -125,6 +131,46 @@ import BackgroundTasks
         }
         
         return success
+    }
+    
+    @MainActor
+    func rescheduleWatchdogNotification() async {
+        print("Re-schedule watchdog notification")
+        let notificationCenter = UNUserNotificationCenter.current()
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [Self.WatchdogNotificationID])
+        
+        let appState = self.appState
+        var interval: TimeInterval = TimeInterval(appState.watchdogIntervalHours * 60 * 60) // seconds
+        if interval < 60.0 {
+            interval = 60.0 * 60.0 // one hour minimum
+        }
+        
+        if appState.watchdogNotificationEnabled {
+            notificationCenter.getNotificationSettings { @MainActor settings in
+                let status = settings.authorizationStatus
+                if status == .authorized || status == .provisional {
+                    let content = UNMutableNotificationContent()
+                    content.title = String(localized: "Synchronisation did not run")
+                    content.body = String(localized: "Background synchronization last ran more than \(Int(interval)) seconds ago. Open the app to synchronize.")
+                    content.interruptionLevel = .passive
+                    content.sound = .none
+                    content.badge = 1
+                    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: interval, repeats: true)
+                    let request = UNNotificationRequest(identifier: Self.WatchdogNotificationID, content: content, trigger: trigger)
+                    notificationCenter.add(request) {err in
+                        if let err = err {
+                            print("Could not add watchdog notification: \(err.localizedDescription)")
+                        }
+                        else {
+                            print("Watchdog notification added")
+                        }
+                    }
+                }
+                else {
+                    print("Watchdog not enabled or denied, not reinstalling")
+                }
+            }
+        }
     }
     
     private func updateBackgroundRunHistory(appending run: BackgroundSyncRun?) {

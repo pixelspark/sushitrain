@@ -613,6 +613,34 @@
         }
       }
     },
+    "After %lld hours" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach %lld Stunden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Después de %lld horas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dopo %lld ore"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na %lld uur"
+          }
+        }
+      }
+    },
     "All devices" : {
       "localizations" : {
         "de" : {
@@ -1061,89 +1089,30 @@
         }
       }
     },
-    "Background synchronization could not be scheduled. Please verify whether background processing is enabled for this app." : {
-      "extractionState" : "stale",
+    "Background synchronization last ran more than %lld seconds ago. Open the app to synchronize." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Hintergrundsynchronisierung konnte nicht geplant werden. Bitte überprüfen Sie, ob die Hintergrundverarbeitung für diese App aktiviert ist."
+            "value" : "Die Hintergrundsynchronisation wurde zuletzt vor mehr als %lld Sekunden ausgeführt. Öffnen Sie die App, um zu synchronisieren."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No se pudo programar la sincronización en segundo plano. Verifica si el procesamiento en segundo plano está habilitado para esta aplicación."
+            "value" : "La sincronización en segundo plano se realizó hace más de %lld segundos. Abre la aplicación para sincronizar."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La sincronizzazione in background non può essere programmata. Verifica se l'elaborazione in background è abilitata per questa app."
+            "value" : "La sincronizzazione in background è stata eseguita più di %lld secondi fa. Apri l'app per sincronizzare."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synchronisatie op de achtergrond kon niet worden gepland. Controleer of 'Ververs op de achtergrond' is ingeschakeld voor deze app."
-          }
-        }
-      }
-    },
-    "Background synchronization has been requested. The system will typically allow background synchronization to occur overnight, when the device is not used and charging." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Es wurde eine Hintergrundsynchronisierung angefordert. Das System ermöglicht in der Regel eine Hintergrundsynchronisierung über Nacht, wenn das Gerät nicht verwendet wird und geladen wird."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se ha solicitado la sincronización en segundo plano. El sistema generalmente permite que la sincronización en segundo plano ocurra durante la noche, cuando el dispositivo no se está usando y está cargando."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "È stata richiesta la sincronizzazione in background. Il sistema generalmente consente che la sincronizzazione in background avvenga durante la notte, quando il dispositivo non viene utilizzato e si trova in carica."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchronisatie op de achtergrond is aangevraagd. Het systeem zal dit meestal 's nachts toestaan, wanneer het apparaat niet wordt gebruikt en is opgeladen."
-          }
-        }
-      }
-    },
-    "Background synchronization ran for %lf seconds" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hintergrundsynchronisation lief für %lf Sekunden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La sincronización en segundo plano se ejecutó durante %lf segundos"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La sincronizzazione in background è durata %lf secondi"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Achtergrond synchronisatie duurde %lf seconden"
+            "value" : "Achtergrondsynchronisatie werd meer dan %lld seconden geleden uitgevoerd. Open de app om te synchroniseren."
           }
         }
       }
@@ -1172,6 +1141,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Achtergrondsynchronisatie liep voor %lld seconden"
+          }
+        }
+      }
+    },
+    "Bandwidth limitations" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bandbreitenbeschränkungen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limitaciones de ancho de banda"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limitazioni di larghezza di banda"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bandbreedtebeperkingen"
           }
         }
       }
@@ -3052,35 +3049,6 @@
         }
       }
     },
-    "Go to the Settings app to alllow notifications" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gehe zur App \"Einstellungen\", um Benachrichtigungen zu erlauben"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ve a la aplicación Configuración para permitir notificaciones"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vai all'app Impostazioni per consentire le notifiche"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ga naar de app Instellingen om meldingen toe te staan"
-          }
-        }
-      }
-    },
     "Go to the Settings app to alllow notifications." : {
       "localizations" : {
         "de" : {
@@ -4005,30 +3973,30 @@
         }
       }
     },
-    "Notify when background synchronization completes" : {
+    "Notifications" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Benachrichtigen, wenn die Hintergrundsynchronisation abgeschlossen ist"
+            "value" : "Benachrichtigungen"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notificar cuando se complete la sincronización en segundo plano"
+            "value" : "Notificaciones"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notificare al completamento della sincronizzazione in background"
+            "value" : "Notifiche"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Meld wanneer achtergrondsynchronisatie voltooid is"
+            "value" : "Meldingen"
           }
         }
       }
@@ -4953,35 +4921,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Verwijder deze map en alle bestanden"
-          }
-        }
-      }
-    },
-    "Request background synchronization" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hintergrundsynchronisation anfordern"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Solicitar sincronización en segundo plano"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Richiedi sincronizzazione in background"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vraag synchronisatie aan"
           }
         }
       }
@@ -6162,6 +6101,34 @@
         }
       }
     },
+    "Synchronisation did not run" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisierung wurde nicht ausgeführt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronización no se ejecutó"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronizzazione non è stata eseguita"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisatie is niet uitgevoerd"
+          }
+        }
+      }
+    },
     "Synchronization disabled" : {
       "localizations" : {
         "de" : {
@@ -6634,35 +6601,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Het bestand is momenteel niet beschikbaar voor voorbeeldweergave."
-          }
-        }
-      }
-    },
-    "The operating system will grant the app a few minutes of time in the background each hour, depending on network connectivity and battery status." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Das Betriebssystem gewährt der App jede Stunde ein paar Minuten im Hintergrund, abhängig von der Netzwerkverbindung und dem Batteriestatus."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El sistema operativo otorgará a la app unos minutos de tiempo en segundo plano cada hora, dependiendo de la conectividad de red y del estado de la batería."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il sistema operativo concederà all'app pochi minuti di tempo in background ogni ora, a seconda della connettività di rete e dello stato della batteria."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Het besturingssysteem geeft de app elk uur, afhankelijk van de netwerkverbinding en de batterijstatus, een paar minuten de tijd om op de achtergrond te werken."
           }
         }
       }
@@ -7531,6 +7469,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Welkom bij Synctrain!"
+          }
+        }
+      }
+    },
+    "When background synchronization completes" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn die Hintergrundsynchronisierung abgeschlossen ist"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando la sincronización en segundo plano se complete"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando la sincronizzazione in background è completata"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer achtergrondsynchronisatie voltooid is"
+          }
+        }
+      }
+    },
+    "When last synchronization happened long ago" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als die letzte Synchronisierung lange her ist"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando la última sincronización ocurrió hace mucho tiempo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando l'ultima sincronizzazione è avvenuta molto tempo fa"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer de laatste synchronisatie lang geleden plaatsvond"
           }
         }
       }

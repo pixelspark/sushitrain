@@ -160,10 +160,28 @@ struct BackgroundSettingsView: View {
                     }
                 }
                 else {
-                    Toggle("Notify when background synchronization completes", isOn: appState.$notifyWhenBackgroundSyncCompletes)
-                        .disabled((!appState.longBackgroundSyncEnabled && !appState.shortBackgroundSyncEnabled) || authorizationStatus != .authorized)
+                    Toggle("When background synchronization completes", isOn: appState.$notifyWhenBackgroundSyncCompletes)
+                        .disabled((!appState.longBackgroundSyncEnabled && !appState.shortBackgroundSyncEnabled) || (authorizationStatus != .authorized && authorizationStatus != .provisional))
                 }
-            } footer: {
+            }
+            header: {
+                Text("Notifications")
+            }
+            
+            Section {
+                if self.authorizationStatus != .notDetermined {
+                    Toggle("When last synchronization happened long ago", isOn: appState.$watchdogNotificationEnabled)
+                        .disabled(authorizationStatus != .authorized && authorizationStatus != .provisional)
+                        .onChange(of: appState.watchdogNotificationEnabled) {
+                            self.updateNotificationStatus()
+                        }
+                    
+                    if appState.watchdogNotificationEnabled {
+                        Stepper("After \(appState.watchdogIntervalHours) hours", value: appState.$watchdogIntervalHours, in: 1...(24*7))
+                    }
+                }
+            }
+            footer: {
                 if self.authorizationStatus == .denied {
                     Text("Go to the Settings app to alllow notifications.")
                 }
@@ -200,9 +218,10 @@ struct BackgroundSettingsView: View {
             updateNotificationStatus()
         }
         .onDisappear {
-            DispatchQueue.main.async {
-                _ = self.appState.backgroundManager.scheduleBackgroundSync()
-            }
+                Task.detached {
+                    _ = await self.appState.backgroundManager.scheduleBackgroundSync()
+                    await self.appState.backgroundManager.rescheduleWatchdogNotification()
+                }
         }
         .navigationTitle("Background synchronization")
         .navigationBarTitleDisplayMode(.inline)
@@ -218,20 +237,11 @@ struct BackgroundSettingsView: View {
     }
 }
 
-struct SettingsView: View {
+fileprivate struct BandwidthSettingsView: View {
     @ObservedObject var appState: AppState
     
     var body: some View {
         Form {
-            Section("Device name") {
-                TextField("hostname", text: Binding(get: {
-                    var err: NSError? = nil
-                    return appState.client.getName(&err)
-                }, set: { nn in
-                    try? appState.client.setName(nn)
-                }))
-            }
-            
             Section("Limit file transfer bandwidth") {
                 // Global down
                 Toggle("Limit receiving bandwidth", isOn: Binding(get: {
@@ -299,24 +309,55 @@ struct SettingsView: View {
                     Stepper("\(appState.streamingLimitMbitsPerSec) Mbit/s", value: appState.$streamingLimitMbitsPerSec, in: 1...100)
                 }
             }
+        }.navigationTitle("Bandwidth limitations").navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct SettingsView: View {
+    @ObservedObject var appState: AppState
+                
+    var limitsEnabled: Bool {
+        return self.appState.streamingLimitMbitsPerSec > 0
+            || self.appState.client.getBandwidthLimitUpMbitsPerSec() > 0
+            || self.appState.client.getBandwidthLimitDownMbitsPerSec() > 0
+    }
+    
+    var body: some View {
+        Form {
+            Section("Device name") {
+                TextField("hostname", text: Binding(get: {
+                    var err: NSError? = nil
+                    return appState.client.getName(&err)
+                }, set: { nn in
+                    try? appState.client.setName(nn)
+                }))
+            }
             
             Section {
+                NavigationLink(destination: BandwidthSettingsView(appState: appState)) {
+                    Text("Bandwidth limitations").badge(limitsEnabled  ? "On": "Off")
+                }
+           
                 NavigationLink(destination: BackgroundSettingsView(appState: appState)) {
                     Text("Background synchronization").badge(appState.longBackgroundSyncEnabled || appState.shortBackgroundSyncEnabled ? "On": "Off")
                 }
-                
+          
                 NavigationLink(destination: PhotoSettingsView(appState: appState, photoSync: appState.photoSync)) {
                     Text("Photo synchronization").badge(appState.photoSync.isReady && appState.photoSync.enableBackgroundCopy ? "On" : "")
                 }
-                
+           
                 NavigationLink("Advanced settings") {
                     AdvancedSettingsView(appState: appState)
                 }
-                
+            }
+             
+            Section {
                 NavigationLink("Statistics") {
                     TotalStatisticsView(appState: appState)
                 }
-                
+            }
+             
+            Section {
                 NavigationLink("About this app") {
                     AboutView()
                 }
