@@ -30,16 +30,20 @@ import Combine
     
     @AppStorage("backgroundSyncRuns") var backgroundSyncRuns: [BackgroundSyncRun] = []
     @AppStorage("lastBackgroundSyncRun") var lastBackgroundSyncRun = OptionalObject<BackgroundSyncRun>()
-    @AppStorage("backgroundSyncEnabled") var backgroundSyncEnabled: Bool = true
+    @AppStorage("backgroundSyncEnabled") var longBackgroundSyncEnabled: Bool = true
+    @AppStorage("shortBackgroundSyncEnabled") var shortBackgroundSyncEnabled: Bool = false
+    @AppStorage("notifyWhenBackgroundSyncCompletes") var notifyWhenBackgroundSyncCompletes: Bool = false
     @AppStorage("streamingLimitMbitsPerSec") var streamingLimitMbitsPerSec: Int = 0
     @AppStorage("maxBytesForPreview") var maxBytesForPreview: Int = 2 * 1024 * 1024 // 2 MiB
     
     var photoSync = PhotoSynchronisation()
+    var backgroundManager: BackgroundManager!
     
     static let maxChanges = 25
     
     init(client: SushitrainClient) {
         self.client = client;
+        self.backgroundManager = BackgroundManager(appState: self)
     }
     
     func applySettings() {
@@ -126,5 +130,17 @@ import Combine
             return "checkmark.circle.fill"
         }
         return "network.slash"
+    }
+    
+    static func requestNotificationPermissionIfNecessary() {
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            if settings.authorizationStatus == .notDetermined {
+                let options: UNAuthorizationOptions = [.badge, .provisional]
+                UNUserNotificationCenter.current().requestAuthorization(options: options) {
+                    (status, error) in
+                    print("Notifications requested: \(status) \(error?.localizedDescription ?? "")")
+                }
+            }
+        }
     }
 }

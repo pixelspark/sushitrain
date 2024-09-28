@@ -19,7 +19,6 @@ class SushitrainAppDelegate: NSObject {
 struct SushitrainApp: App {
     fileprivate var appState: AppState
     fileprivate var delegate: SushitrainAppDelegate
-    fileprivate var backgroundManager: BackgroundManager
     
     init() {
         var configDirectory = try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true);
@@ -47,7 +46,6 @@ struct SushitrainApp: App {
         self.delegate = SushitrainAppDelegate(appState: self.appState)
         client.delegate = self.delegate;
         client.server?.delegate = self.delegate;
-        self.backgroundManager = BackgroundManager(appState: self.appState)
         self.appState.update()
         
         let appState = self.appState

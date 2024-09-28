@@ -131,6 +131,7 @@ struct BackgroundSettingsView: View {
     let durationFormatter = DateComponentsFormatter()
     @State private var alertShown = false
     @State private var alertMessage = ""
+    @State private var authorizationStatus: UNAuthorizationStatus = .notDetermined
     
     init(appState: AppState) {
         self.appState = appState
@@ -141,7 +142,31 @@ struct BackgroundSettingsView: View {
     var body: some View {
         Form {
             Section {
-                Toggle("Background synchronization", isOn: appState.$backgroundSyncEnabled)
+                Toggle("Enable while charging (long)", isOn: appState.$longBackgroundSyncEnabled)
+                Toggle("Enable on battery (short)", isOn: appState.$shortBackgroundSyncEnabled)
+            }
+            header: {
+                Text("Background synchronization")
+            }
+            footer: {
+                Text("The operating system will periodically grant the app a few minutes of time in the background, depending on network connectivity and battery status.")
+            }
+            
+            Section {
+                if self.authorizationStatus == .notDetermined {
+                    Button("Enable notifications") {
+                        AppState.requestNotificationPermissionIfNecessary()
+                        self.updateNotificationStatus()
+                    }
+                }
+                else {
+                    Toggle("Notify when background synchronization completes", isOn: appState.$notifyWhenBackgroundSyncCompletes)
+                        .disabled((!appState.longBackgroundSyncEnabled && !appState.shortBackgroundSyncEnabled) || authorizationStatus != .authorized)
+                }
+            } footer: {
+                if self.authorizationStatus == .denied {
+                    Text("Go to the Settings app to alllow notifications.")
+                }
             }
             
             Section("Last background synchronization") {
@@ -167,25 +192,29 @@ struct BackgroundSettingsView: View {
                 }
             }
             
-            Button("Request background synchronization") {
-                if BackgroundManager.scheduleBackgroundSync() {
-                    alertShown = true
-                    alertMessage = String(localized: "Background synchronization has been requested. The system will typically allow background synchronization to occur overnight, when the device is not used and charging.")
-                }
-                else {
-                    alertShown = true
-                    alertMessage = String(localized: "Background synchronization could not be scheduled. Please verify whether background processing is enabled for this app.")
-                }
-            }
-            
             Section {
                 Text("Uptime").badge(durationFormatter.string(from: Date.now.timeIntervalSince(appState.launchedAt)))
             }
-        }.navigationTitle("Background synchronization")
-            .navigationBarTitleDisplayMode(.inline)
-            .alert(isPresented: $alertShown, content: {
-                Alert(title: Text("Background synchronization"), message: Text(alertMessage))
-            })
+        }
+        .task {
+            updateNotificationStatus()
+        }
+        .onDisappear {
+            DispatchQueue.main.async {
+                _ = self.appState.backgroundManager.scheduleBackgroundSync()
+            }
+        }
+        .navigationTitle("Background synchronization")
+        .navigationBarTitleDisplayMode(.inline)
+        .alert(isPresented: $alertShown, content: {
+            Alert(title: Text("Background synchronization"), message: Text(alertMessage))
+        })
+    }
+    
+    private func updateNotificationStatus() {
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            self.authorizationStatus = settings.authorizationStatus
+        }
     }
 }
 
@@ -273,7 +302,7 @@ struct SettingsView: View {
             
             Section {
                 NavigationLink(destination: BackgroundSettingsView(appState: appState)) {
-                    Text("Background synchronization").badge(appState.backgroundSyncEnabled ? "On": "Off")
+                    Text("Background synchronization").badge(appState.longBackgroundSyncEnabled || appState.shortBackgroundSyncEnabled ? "On": "Off")
                 }
                 
                 NavigationLink(destination: PhotoSettingsView(appState: appState, photoSync: appState.photoSync)) {

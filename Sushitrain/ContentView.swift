@@ -178,24 +178,12 @@ struct ContentView: View {
         .onChange(of: showOnboarding) { _, shown in
             if !shown {
                 // End of onboarding, request notification authorization
-                self.requestNotificationPermissionIfNecessary()
+                AppState.requestNotificationPermissionIfNecessary()
             }
         }
     }
 
     private static let currentOnboardingVersion = 1
-
-    private func requestNotificationPermissionIfNecessary() {
-        UNUserNotificationCenter.current().getNotificationSettings { settings in
-            if settings.authorizationStatus == .notDetermined {
-                let options: UNAuthorizationOptions = [.badge]
-                UNUserNotificationCenter.current().requestAuthorization(options: options) {
-                    (status, error) in
-                    print("Notifications requested: \(status) \(error?.localizedDescription ?? "")")
-                }
-            }
-        }
-    }
 
     private func showOnboardingIfNecessary() {
         print(
@@ -206,7 +194,7 @@ struct ContentView: View {
             onboardingVersionShown = Self.currentOnboardingVersion
         } else {
             // Go straight on to request notification permissions
-            self.requestNotificationPermissionIfNecessary()
+            AppState.requestNotificationPermissionIfNecessary()
         }
     }
 

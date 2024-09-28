@@ -1033,7 +1033,36 @@
         }
       }
     },
+    "Background synchronization completed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hintergrundsynchronisation abgeschlossen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronización en segundo plano completada"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizzazione in background completata"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Achtergrond synchronisatie voltooid"
+          }
+        }
+      }
+    },
     "Background synchronization could not be scheduled. Please verify whether background processing is enabled for this app." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1062,6 +1091,7 @@
       }
     },
     "Background synchronization has been requested. The system will typically allow background synchronization to occur overnight, when the device is not used and charging." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1085,6 +1115,63 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Synchronisatie op de achtergrond is aangevraagd. Het systeem zal dit meestal 's nachts toestaan, wanneer het apparaat niet wordt gebruikt en is opgeladen."
+          }
+        }
+      }
+    },
+    "Background synchronization ran for %lf seconds" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hintergrundsynchronisation lief für %lf Sekunden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronización en segundo plano se ejecutó durante %lf segundos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronizzazione in background è durata %lf secondi"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Achtergrond synchronisatie duurde %lf seconden"
+          }
+        }
+      }
+    },
+    "Background synchronization ran for %lld seconds" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hintergrundsynchronisation lief für %lld Sekunden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronización en segundo plano se ejecutó durante %lld segundos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronizzazione in background è durata %lld secondi"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Achtergrondsynchronisatie liep voor %lld seconden"
           }
         }
       }
@@ -2041,6 +2128,62 @@
         }
       }
     },
+    "Enable notifications" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benachrichtigungen aktivieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activar notificaciones"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abilita notifiche"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meldingen inschakelen"
+          }
+        }
+      }
+    },
+    "Enable on battery (short)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bei Batteriebetrieb aktivieren (kurz)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activar con batería (corto)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abilita con batteria (breve)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inschakelen op batterij (kort)"
+          }
+        }
+      }
+    },
     "Enable relaying" : {
       "localizations" : {
         "de" : {
@@ -2065,6 +2208,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gebruik relays"
+          }
+        }
+      }
+    },
+    "Enable while charging (long)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bei Ladevorgang aktivieren (lang)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habilitar mientras se carga (largo)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abilita durante la ricarica (lungo)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inschakelen tijdens opladen (lang)"
           }
         }
       }
@@ -2877,6 +3048,63 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aan de slag"
+          }
+        }
+      }
+    },
+    "Go to the Settings app to alllow notifications" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gehe zur App \"Einstellungen\", um Benachrichtigungen zu erlauben"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ve a la aplicación Configuración para permitir notificaciones"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vai all'app Impostazioni per consentire le notifiche"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ga naar de app Instellingen om meldingen toe te staan"
+          }
+        }
+      }
+    },
+    "Go to the Settings app to alllow notifications." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gehe zur App „Einstellungen“, um Benachrichtigungen zuzulassen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ve a la aplicación Configuración para permitir notificaciones."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vai all'app Impostazioni per consentire le notifiche."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ga naar de app Instellingen om meldingen toe te staan."
           }
         }
       }
@@ -3773,6 +4001,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Niet aan het uploaden"
+          }
+        }
+      }
+    },
+    "Notify when background synchronization completes" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benachrichtigen, wenn die Hintergrundsynchronisation abgeschlossen ist"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notificar cuando se complete la sincronización en segundo plano"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notificare al completamento della sincronizzazione in background"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meld wanneer achtergrondsynchronisatie voltooid is"
           }
         }
       }
@@ -4702,6 +4958,7 @@
       }
     },
     "Request background synchronization" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -6377,6 +6634,63 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Het bestand is momenteel niet beschikbaar voor voorbeeldweergave."
+          }
+        }
+      }
+    },
+    "The operating system will grant the app a few minutes of time in the background each hour, depending on network connectivity and battery status." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Betriebssystem gewährt der App jede Stunde ein paar Minuten im Hintergrund, abhängig von der Netzwerkverbindung und dem Batteriestatus."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El sistema operativo otorgará a la app unos minutos de tiempo en segundo plano cada hora, dependiendo de la conectividad de red y del estado de la batería."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il sistema operativo concederà all'app pochi minuti di tempo in background ogni ora, a seconda della connettività di rete e dello stato della batteria."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het besturingssysteem geeft de app elk uur, afhankelijk van de netwerkverbinding en de batterijstatus, een paar minuten de tijd om op de achtergrond te werken."
+          }
+        }
+      }
+    },
+    "The operating system will periodically grant the app a few minutes of time in the background, depending on network connectivity and battery status." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Betriebssystem gibt der App je nach Netzwerkverbindung und Batteriestatus gelegentlich ein paar Minuten im Hintergrund."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El sistema operativo otorgará a la aplicación periódicamente algunos minutos en segundo plano, dependiendo de la conectividad de red y el estado de la batería."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il sistema operativo concederà periodicamente all'applicazione alcuni minuti in background, a seconda della connettività di rete e dello stato della batteria."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het besturingssysteem geeft de app af en toe een paar minuten tijd op de achtergrond, afhankelijk van de netwerkverbinding en de batterijstatus."
           }
         }
       }
