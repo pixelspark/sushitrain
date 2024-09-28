@@ -158,6 +158,9 @@ struct ContentView: View {
 
             case .active:
                 try? self.appState.client.setReconnectIntervalS(1)
+                Task {
+                    await self.appState.backgroundManager.rescheduleWatchdogNotification()
+                }
                 self.rebindServer()
                 self.appState.client.ignoreEvents = false
                 break
