@@ -283,11 +283,15 @@ struct BrowserView: View {
     var body: some View {
         BrowserListView(appState: appState, folder: folder, prefix: prefix, searchText: $searchText, showSettings: $showSettings)
         .navigationTitle(folderName)
-#if os(iOS)
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
-#endif
+        #endif
+        
+        #if os(macOS)
         // Disabled due to glitchy transitions (on iOS 17.4 at least)
-        // .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search files in this folder...")
+         // .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search files in this folder...")
+        .searchable(text: $searchText, placement: .toolbar, prompt: "Search files in this folder...")
+        #endif
         .toolbar {
             if folder.exists() {
                 ToolbarItem {

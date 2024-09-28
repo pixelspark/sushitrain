@@ -5346,6 +5346,34 @@
         }
       }
     },
+    "Search files in this folder...": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoek naar bestanden in deze map..."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dateien in diesem Ordner suchen..."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerca file in questa cartella..."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar archivos en esta carpeta..."
+          }
+        }
+      }
+    },
     "Search for files": {
       "localizations": {
         "de": {
