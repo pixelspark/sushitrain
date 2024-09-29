@@ -163,6 +163,21 @@ class PhotoSynchronisation: ObservableObject {
                 return
             }
             
+            // Let iOS know we are about to do some background stuff
+            #if os(iOS)
+            let bgIdentifier = await UIApplication.shared.beginBackgroundTask(withName: "Photo synchronization", expirationHandler: {
+                print("Cancelling background task due to expiration")
+                self.cancel()
+            })
+            defer {
+                print("Signalling end of background task")
+                DispatchQueue.main.async {
+                    UIApplication.shared.endBackgroundTask(bgIdentifier)
+                }
+            }
+            print("Background time remaining:", await UIApplication.shared.backgroundTimeRemaining)
+            #endif
+            
             var err: NSError? = nil
             let folderPath = folder.localNativePath(&err)
             if let err = err {
@@ -267,6 +282,10 @@ class PhotoSynchronisation: ObservableObject {
             // Export videos
             if categories.contains(.video) {
                 print("Starting video exports")
+                #if os(iOS)
+                print("Background time remaining:", await UIApplication.shared.backgroundTimeRemaining)
+                #endif
+                
                 let videoCount =  videosToExport.count
                 DispatchQueue.main.async {
                     self.progress = .exportingVideos(index: 0, total: videoCount, current: nil)
@@ -305,6 +324,10 @@ class PhotoSynchronisation: ObservableObject {
             // Export live photos
             if categories.contains(.livePhoto) {
                 print("Exporting live photos")
+                #if os(iOS)
+                print("Background time remaining:", await UIApplication.shared.backgroundTimeRemaining)
+                #endif
+            
                 let liveCount = livePhotosToExport.count
                 DispatchQueue.main.async {
                     self.progress = .exportingLivePhotos(index: 0, total: liveCount, current: nil)
@@ -360,6 +383,10 @@ class PhotoSynchronisation: ObservableObject {
             // Select paths
             if isSelective {
                 print("Selecting paths")
+                #if os(iOS)
+                print("Background time remaining:", await UIApplication.shared.backgroundTimeRemaining)
+                #endif
+                
                 DispatchQueue.main.async {
                     self.progress = .selecting
                 }
@@ -381,6 +408,9 @@ class PhotoSynchronisation: ObservableObject {
                 self.progress = .finished(error: nil)
             }
             print("Done")
+            #if os(iOS)
+            print("Background time remaining:", await UIApplication.shared.backgroundTimeRemaining)
+            #endif
         }
     }
 }
