@@ -9,14 +9,17 @@ import QuickLook
 import WebKit
 import AVKit
 
-fileprivate struct FileMediaPlayer: View {
+fileprivate struct FileMediaPlayer<Content: View>: View {
 #if os(iOS)
     @State private var session = AVAudioSession.sharedInstance()
 #endif
+    
     @State private var player: AVPlayer?
     @ObservedObject var appState: AppState
     var file: SushitrainEntry
     @State var visible: Binding<Bool>
+    
+    @ViewBuilder var videoOverlay: () -> Content
     
     private func activateSession() {
         #if os(iOS)
@@ -60,6 +63,7 @@ fileprivate struct FileMediaPlayer: View {
                             .onTapGesture {
                                 visible.wrappedValue = false
                             }
+                        self.videoOverlay()
                         
                         if let sp = appState.streamingProgress, sp.bytesTotal > 0 && sp.bytesSent < sp.bytesTotal {
                             ProgressView(value: Float(sp.bytesSent), total: Float(sp.bytesTotal)).foregroundColor(.gray).progressViewStyle(.linear).frame(maxWidth: 64)
@@ -72,23 +76,37 @@ fileprivate struct FileMediaPlayer: View {
             }
         }
         .onAppear {
-            let player = AVPlayer(url: URL(string: self.file.onDemandURL())!)
-            // TODO: External playback requires us to use http://devicename.local:xxx/file/.. URLs rather than http://localhost.
-            // Resolve using Bonjour perhaps?
-            player.preventsDisplaySleepDuringVideoPlayback = true
-            player.allowsExternalPlayback = false
-            player.audiovisualBackgroundPlaybackPolicy = .automatic
-            player.preventsDisplaySleepDuringVideoPlayback = file.isAudio
-            activateSession()
-            player.playImmediately(atRate: 1.0)
-            self.player = player
+            startPlayer()
         }
         .onDisappear {
-            self.player?.pause()
+            stopPlayer()
+        }
+        .onChange(of: file) {
+            startPlayer()
+        }
+        .ignoresSafeArea(file.isVideo ? .all : [])
+    }
+    
+    private func stopPlayer() {
+        if let player = self.player {
+            player.pause()
             self.player = nil
             self.deactivateSession()
         }
-        .ignoresSafeArea(file.isVideo ? .all : [])
+    }
+    
+    private func startPlayer() {
+        self.stopPlayer()
+        let player = AVPlayer(url: URL(string: self.file.onDemandURL())!)
+        // TODO: External playback requires us to use http://devicename.local:xxx/file/.. URLs rather than http://localhost.
+        // Resolve using Bonjour perhaps?
+        player.preventsDisplaySleepDuringVideoPlayback = true
+        player.allowsExternalPlayback = false
+        player.audiovisualBackgroundPlaybackPolicy = .automatic
+        player.preventsDisplaySleepDuringVideoPlayback = file.isAudio
+        activateSession()
+        player.playImmediately(atRate: 1.0)
+        self.player = player
     }
 }
 
@@ -198,10 +216,10 @@ struct BareOnDemandFileView: View {
     
     var body: some View {
         if !file.isLocallyPresent() && file.isMedia {
-            FileMediaPlayer(appState: appState, file: file, visible: $isShown)
+            FileMediaPlayer(appState: appState, file: file, visible: $isShown, videoOverlay: {
+            })
         }
         else {
-            OnDemandWebFileView(file: file)
         }
     }
 }
@@ -470,11 +488,33 @@ struct FileView: View {
                 .quickLookPreview(self.$localItemURL)
                 #if os(iOS)
                     .fullScreenCover(isPresented: $showVideoPlayer, content: {
-                        FileMediaPlayer(appState: appState, file: file, visible: $showVideoPlayer)
+                        FileMediaPlayer(appState: appState, file: file, visible: $showVideoPlayer, videoOverlay: {
+                            if let selfIndex = selfIndex, let siblings = siblings {
+                                Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1).labelStyle(.iconOnly)
+                                Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1).labelStyle(.iconOnly)
+                            }
+                        })
                     })
                 #elseif os(macOS)
                     .sheet(isPresented: $showVideoPlayer) {
-                        FileMediaPlayer(appState: appState, file: file, visible: $showVideoPlayer).frame(minWidth: 640, minHeight: 480)
+                        NavigationStack {
+                            FileMediaPlayer(appState: appState, file: file, visible: $showVideoPlayer, videoOverlay: {
+                               // Empty on macOS, we already have a toolbar
+                            })
+                            .frame(minWidth: 640, minHeight: 480)
+                            .navigationTitle(file.fileName())
+                            .toolbar {
+                                ToolbarItem(placement: .confirmationAction) {
+                                    Button("Done") { showVideoPlayer = false }
+                                }
+                                if let selfIndex = selfIndex, let siblings = siblings {
+                                    ToolbarItemGroup(placement: .automatic) {
+                                        Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1)
+                                        Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1)
+                                    }
+                                }
+                            }
+                        }
                     }
                 #endif
                 .sheet(isPresented: $showOnDemandPreview) {
