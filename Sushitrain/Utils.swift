@@ -167,7 +167,7 @@ extension SushitrainEntry {
             return "link"
         }
         
-        let base = self.isDirectory() ? "folder" : "doc"
+        let base = self.isDirectory() ? "folder" : "document"
         if self.isLocallyPresent() {
             return "\(base).fill"
         }

@@ -313,7 +313,7 @@ struct FolderStatusView: View {
                 }
                 
                 if let error = error {
-                    Text(error.localizedDescription)
+                    Text(error.localizedDescription).foregroundStyle(.red)
                 }
             }
         }
