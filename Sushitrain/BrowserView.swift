@@ -49,7 +49,9 @@ struct EntryView: View {
                     preview: {
 #if os(iOS)
                         if targetEntry.size() < appState.maxBytesForPreview || targetEntry.isLocallyPresent() {
-                            BareOnDemandFileView(appState: appState, file: targetEntry, isShown: .constant(true))
+                            BareOnDemandFileView(appState: appState, file: targetEntry, isShown: .constant(true), videoOverlay: {
+                                // Nothing
+                            })
                         }
                         else {
                             ContentUnavailableView("File is too large to preview", systemImage: "scalemass")
@@ -85,7 +87,9 @@ struct EntryView: View {
             } preview: {
 #if os(iOS)
                 if entry.size() < appState.maxBytesForPreview || entry.isLocallyPresent() {
-                    BareOnDemandFileView(appState: appState, file: entry, isShown: .constant(true))
+                    BareOnDemandFileView(appState: appState, file: entry, isShown: .constant(true), videoOverlay: {
+                        // Nothing
+                    })
                 }
                 else {
                     ContentUnavailableView("File is too large to preview", systemImage: "scalemass")

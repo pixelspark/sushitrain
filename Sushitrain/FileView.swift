@@ -209,29 +209,31 @@ fileprivate struct WebView: UIViewRepresentable {
     #endif
 }
 
-struct BareOnDemandFileView: View {
+struct BareOnDemandFileView<Content: View>: View {
     @ObservedObject var appState: AppState
     var file: SushitrainEntry
     @Binding var isShown: Bool
     
+    @ViewBuilder var videoOverlay: () -> Content
+    
     var body: some View {
         if !file.isLocallyPresent() && file.isMedia {
-            FileMediaPlayer(appState: appState, file: file, visible: $isShown, videoOverlay: {
-            })
+            FileMediaPlayer(appState: appState, file: file, visible: $isShown, videoOverlay: videoOverlay)
         }
         else {
         }
     }
 }
 
-struct OnDemandFileView: View {
+struct OnDemandFileView<Content: View>: View {
     @ObservedObject var appState: AppState
     var file: SushitrainEntry
     @Binding var isShown: Bool
+    @ViewBuilder var videoOverlay: () -> Content
     
     var body: some View {
         NavigationStack {
-            BareOnDemandFileView(appState: appState, file: file, isShown: $isShown)
+            BareOnDemandFileView(appState: appState, file: file, isShown: $isShown, videoOverlay: videoOverlay)
                 .navigationTitle(file.fileName())
                 #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
@@ -495,6 +497,14 @@ struct FileView: View {
                             }
                         })
                     })
+                    .sheet(isPresented: $showOnDemandPreview) {
+                        OnDemandFileView(appState: appState, file: file, isShown: $showOnDemandPreview, videoOverlay: {
+                                if let selfIndex = selfIndex, let siblings = siblings {
+                                    Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1).labelStyle(.iconOnly)
+                                    Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1).labelStyle(.iconOnly)
+                                }
+                        })
+                    }
                 #elseif os(macOS)
                     .sheet(isPresented: $showVideoPlayer) {
                         NavigationStack {
@@ -516,10 +526,26 @@ struct FileView: View {
                             }
                         }
                     }
+                    .sheet(isPresented: $showOnDemandPreview) {
+                        OnDemandFileView(appState: appState, file: file, isShown: $showOnDemandPreview, videoOverlay: {
+                            // Empty on macOS, we already have a toolbar
+                        })
+                        .frame(minWidth: 640, minHeight: 480)
+                        .navigationTitle(file.fileName())
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("Done") { showOnDemandPreview = false }
+                            }
+                            if let selfIndex = selfIndex, let siblings = siblings {
+                                ToolbarItemGroup(placement: .automatic) {
+                                    Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1)
+                                    Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1)
+                                }
+                            }
+                        }
+                    }
                 #endif
-                .sheet(isPresented: $showOnDemandPreview) {
-                    OnDemandFileView(appState: appState, file: file, isShown: $showOnDemandPreview)
-                }
+                
                 .sheet(isPresented: $showDownloader, content: {
                     NavigationStack {
                         FileDownloadView(file: file, appState: self.appState)
@@ -537,10 +563,8 @@ struct FileView: View {
                 })
                 .toolbar {
                     if let selfIndex = selfIndex, let siblings = siblings {
-                        ToolbarItem(placement: .navigation) {
+                        ToolbarItemGroup(placement: .navigation) {
                             Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1)
-                        }
-                        ToolbarItem(placement: .navigation) {
                             Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1)
                         }
                     }
