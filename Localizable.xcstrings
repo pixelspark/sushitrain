@@ -29,6 +29,34 @@
         }
       }
     },
+    "(Default location)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Standardstandort)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Ubicación predeterminada)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Posizione predefinita)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Standaardlocatie)"
+          }
+        }
+      }
+    },
     "(No folder selected)" : {
       "localizations" : {
         "de" : {
@@ -2737,6 +2765,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Map-ID"
+          }
+        }
+      }
+    },
+    "Folder location" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordnerstandort"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ubicación de la carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posizione cartella"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maplocatie"
           }
         }
       }
@@ -5482,6 +5538,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Selecteer een map"
+          }
+        }
+      }
+    },
+    "Select folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner wählen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleccionar carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleziona cartella"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selecteer map"
           }
         }
       }

@@ -15,7 +15,12 @@ struct AddFolderView: View {
     @ObservedObject var appState: AppState
     @State var showError = false
     @State var errorText = ""
+    @State var folderPath: URL? = nil
     @State private var possiblePeers: [SushitrainPeer] = []
+    
+    #if os(macOS)
+    @State private var showPathSelector: Bool = false
+    #endif
     
     var folderExists: Bool {
         get {
@@ -29,10 +34,24 @@ struct AddFolderView: View {
                 Section(header: Text("Folder ID")) {
                     TextField("", text: $folderID, prompt: Text("XXXX-XXXX"))
                         .focused($idFieldFocus)
-#if os(iOS)
+                        #if os(iOS)
                         .textInputAutocapitalization(.never)
-#endif
+                        #endif
                 }
+                
+                #if os(macOS)
+                Section("Folder location") {
+                    if let u = self.folderPath {
+                        Text(u.path(percentEncoded: false))
+                    }
+                    else {
+                        Text("(Default location)")
+                    }
+                    Button("Select folder") {
+                        self.showPathSelector = true
+                    }
+                }
+                #endif
                 
                 if !possiblePeers.isEmpty {
                     let pendingPeers = (try? appState.client.devicesPendingFolder(self.folderID))?.asArray() ?? []
@@ -70,7 +89,12 @@ struct AddFolderView: View {
                     Button("Add folder") {
                         do {
                             // Add the folder
-                            try appState.client.addFolder(self.folderID);
+                            if let fp = self.folderPath {
+                                try appState.client.addFolder(self.folderID, folderPath: fp.path(percentEncoded: false))
+                            }
+                            else {
+                                try appState.client.addFolder(self.folderID, folderPath: "")
+                            }
                             
                             if let folder = appState.client.folder(withID: self.folderID) {
                                 // By default, exclude from backup
@@ -108,6 +132,17 @@ struct AddFolderView: View {
             .onAppear {
                 self.possiblePeers = appState.peers().sorted().filter({d in !d.isSelf()})
             }
+            #if os(macOS)
+            .fileImporter(isPresented: $showPathSelector, allowedContentTypes: [.folder], onCompletion: {result in
+                switch result {
+                case .success(let url):
+                    self.folderPath = url
+                case .failure(let e):
+                    print("Failed to select folder: \(e.localizedDescription)")
+                    self.folderPath = nil
+                }
+            })
+            #endif
         }
     }
 }
