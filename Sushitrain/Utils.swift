@@ -154,9 +154,10 @@ extension SushitrainFolder {
         }
         set {
             guard var lu = self.localNativeURL else { return }
-            var values = try! lu.resourceValues(forKeys: [.isHiddenKey])
-            values.isHidden = newValue
-            try! lu.setResourceValues(values)
+            if var values = try? lu.resourceValues(forKeys: [.isHiddenKey]) {
+                values.isHidden = newValue
+                try? lu.setResourceValues(values)
+            }
         }
     }
 }
