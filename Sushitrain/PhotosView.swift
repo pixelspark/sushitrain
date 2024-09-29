@@ -98,7 +98,7 @@ struct PhotoSettingsView: View {
                 }
             }
             
-#if os(macOS)
+#if os(iOS)
             Section {
                 Toggle("Copy photos periodically in the background", isOn: photoSync.$enableBackgroundCopy).disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
             }
