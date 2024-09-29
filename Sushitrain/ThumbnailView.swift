@@ -38,7 +38,7 @@ struct ThumbnailView: View {
                 }
             }
             else if showPreview || file.size() <= appState.maxBytesForPreview {
-                AsyncImage(url: URL(string: file.onDemandURL())!, content: { phase in
+                CachedAsyncImage(cacheKey: file.blocksHash(), url: URL(string: file.onDemandURL())!, content: { phase in
                     switch phase {
                         case .empty:
                             HStack(alignment: .center, content: {
@@ -61,9 +61,9 @@ struct ThumbnailView: View {
             }
         }
         else {
-            VStack(alignment: .center, content: {
+            VStack(alignment: .center, spacing: 6.0, content: {
                 Image(systemName: file.systemImage).dynamicTypeSize(.large)
-                Text(file.fileName())
+                Text(file.fileName()).lineLimit(1).padding(.horizontal, 4)
             })
         }
     }

@@ -390,3 +390,64 @@ extension NSImage {
     }
 }
 #endif
+
+struct CachedAsyncImage<Content>: View where Content: View {
+    private let cacheKey: String
+    private let url: URL
+    private let scale: CGFloat
+    private let transaction: Transaction
+    private let content: (AsyncImagePhase) -> Content
+    
+    init(
+        cacheKey: String,
+        url: URL,
+        scale: CGFloat = 1.0,
+        transaction: Transaction = Transaction(),
+        @ViewBuilder content: @escaping (AsyncImagePhase) -> Content
+    ) {
+        self.cacheKey = cacheKey
+        self.url = url
+        self.scale = scale
+        self.transaction = transaction
+        self.content = content
+    }
+    
+    var body: some View {
+        if let cached = ImageCache[cacheKey] {
+            let _ = print("cached: \(cacheKey)")
+            content(.success(cached))
+        }
+        else {
+            let _ = print("request: \(cacheKey)")
+            AsyncImage(url: url, scale: scale, transaction: transaction) { phase in
+                cacheAndRender(phase: phase)
+            }
+        }
+    }
+    
+    func cacheAndRender(phase: AsyncImagePhase) -> some View {
+        if case .success(let image) = phase {
+            ImageCache[cacheKey] = image
+        }
+        return content(phase)
+    }
+}
+
+@MainActor
+fileprivate class ImageCache {
+    static private var cache: [String: Image] = [:]
+    static private var maxCacheSize = 64
+    
+    static subscript(cacheKey: String) -> Image? {
+        get {
+            ImageCache.cache[cacheKey]
+        }
+        set {
+            while cache.count >= maxCacheSize {
+                // This is a rather random way to remove items from the cache, investigate using an ordered map
+                _ = ImageCache.cache.popFirst()
+            }
+            ImageCache.cache[cacheKey] = newValue
+        }
+    }
+}

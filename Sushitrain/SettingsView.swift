@@ -366,7 +366,7 @@ struct SettingsView: View {
 #endif
           
                 NavigationLink(destination: PhotoSettingsView(appState: appState, photoSync: appState.photoSync)) {
-                    Text("Photo synchronization").badge(appState.photoSync.isReady && appState.photoSync.enableBackgroundCopy ? "On" : "")
+                    Text("Photo synchronization").badge(appState.photoSync.isReady && appState.photoSync.enableBackgroundCopy ? "On" : "Off")
                 }
            
                 NavigationLink("Advanced settings") {

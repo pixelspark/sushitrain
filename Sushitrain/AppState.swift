@@ -37,6 +37,8 @@ import Combine
     @AppStorage("watchdogIntervalHours") var watchdogIntervalHours: Int = 2 * 24 // 2 days
     @AppStorage("streamingLimitMbitsPerSec") var streamingLimitMbitsPerSec: Int = 0
     @AppStorage("maxBytesForPreview") var maxBytesForPreview: Int = 2 * 1024 * 1024 // 2 MiB
+    @AppStorage("browserViewStyle") var browserViewStyle: BrowserViewStyle = .list
+    @AppStorage("browserGridColumns") var browserGridColumns: Int = 3
     
     var photoSync = PhotoSynchronisation()
     

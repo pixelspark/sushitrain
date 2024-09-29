@@ -7,6 +7,11 @@ import SwiftUI
 import SushitrainCore
 import QuickLook
 
+enum BrowserViewStyle: String {
+    case grid = "grid"
+    case list = "list"
+}
+
 struct EntryView: View {
     @ObservedObject var appState: AppState
     let entry: SushitrainEntry
@@ -106,7 +111,7 @@ fileprivate struct BrowserListView: View {
     var prefix: String
     @Binding var searchText: String
     @Binding var showSettings: Bool
-    @Binding var isGrid: Bool
+    @Binding var viewStyle: BrowserViewStyle
     
     @State private var subdirectories: [SushitrainEntry] = []
     @State private var files: [SushitrainEntry] = []
@@ -121,17 +126,29 @@ fileprivate struct BrowserListView: View {
         Group {
             if self.folder.exists() {
                 if !isSearching {
-                    if self.isGrid {
+                    switch self.viewStyle {
+                    case .grid:
                         VStack {
                             ScrollView {
-                                FolderStatusView(appState: appState, folder: folder).padding(.all, 10)
+                                HStack {
+                                    FolderStatusView(appState: appState, folder: folder).padding(.all, 10)
+                                    
+                                    Spacer()
+                                    
+                                    Slider(value: Binding(get: {
+                                        return Double(appState.browserGridColumns)
+                                    }, set: { nv in
+                                        appState.browserGridColumns = Int(nv)
+                                    }), in: 1.0...10.0, step: 1.0)
+                                    .frame(minWidth: 50, maxWidth: 100)
+                                    .padding(.horizontal, 10)
+                                }
                                 
-                                GridFilesView(appState: appState, files: files, folder: folder)
+                                GridFilesView(appState: appState, prefix: self.prefix, files: files, subdirectories: subdirectories, folder: folder)
                                     .padding(.horizontal, 15)
                             }
                         }
-                    }
-                    else {
+                    case .list:
                         List {
                             Section {
                                 FolderStatusView(appState: appState, folder: folder)
@@ -279,13 +296,12 @@ fileprivate struct BrowserListView: View {
 
 struct BrowserView: View {
     @ObservedObject var appState: AppState
-    var folder: SushitrainFolder;
-    var prefix: String;
+    var folder: SushitrainFolder
+    var prefix: String
     
     @State private var showSettings = false
     @State private var searchText = ""
     @State private var localNativeURL: URL? = nil
-    @State private var isGrid: Bool = false
     
     var folderName: String {
         if prefix.isEmpty {
@@ -299,7 +315,7 @@ struct BrowserView: View {
     }
     
     var body: some View {
-        BrowserListView(appState: appState, folder: folder, prefix: prefix, searchText: $searchText, showSettings: $showSettings, isGrid: $isGrid)
+        BrowserListView(appState: appState, folder: folder, prefix: prefix, searchText: $searchText, showSettings: $showSettings, viewStyle: appState.$browserViewStyle)
         .navigationTitle(folderName)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -312,10 +328,10 @@ struct BrowserView: View {
         .toolbar {
             if folder.exists() {
                 #if os(macOS)
-                ToolbarItem(placement: .status) {
-                    Picker("View as", selection: $isGrid) {
-                        Image(systemName: "list.bullet").tag(false).accessibilityLabel(Text("List"))
-                        Image(systemName: "square.grid.2x2").tag(true).accessibilityLabel(Text("Grid"))
+                ToolbarItemGroup(placement: .status) {
+                    Picker("View as", selection: appState.$browserViewStyle) {
+                        Image(systemName: "list.bullet").tag(BrowserViewStyle.list).accessibilityLabel(Text("List"))
+                        Image(systemName: "square.grid.2x2").tag(BrowserViewStyle.grid).accessibilityLabel(Text("Grid"))
                     }
                     .pickerStyle(.segmented)
                 }
@@ -336,15 +352,15 @@ struct BrowserView: View {
                 #elseif os(iOS)
                 ToolbarItem {
                     Menu(content: {
-                        Picker("View as", selection: $isGrid) {
+                        Picker("View as", selection: appState.$browserViewStyle) {
                             HStack {
                                 Image(systemName: "list.bullet")
                                 Text("List")
-                            }.tag(false)
+                            }.tag(BrowserViewStyle.list)
                             HStack {
                                 Image(systemName: "square.grid.2x2")
                                 Text("Grid")
-                            }.tag(true)
+                            }.tag(BrowserViewStyle.grid)
                         }
                         .pickerStyle(.menu)
                         

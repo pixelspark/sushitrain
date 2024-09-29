@@ -7,6 +7,7 @@ package sushitrain
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"os"
@@ -87,6 +88,10 @@ func (entry *Entry) LocalNativePath() (string, error) {
 		return "", err
 	}
 	return path.Join(localFolderPath, nativeFilename), nil
+}
+
+func (entry *Entry) BlocksHash() string {
+	return base64.StdEncoding.EncodeToString(entry.info.BlocksHash)
 }
 
 func (entry *Entry) IsLocallyPresent() bool {
