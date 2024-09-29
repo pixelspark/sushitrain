@@ -445,10 +445,26 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 		conf.Defaults.Folder.IgnorePerms = true          // iOS doesn't expose permissions to users
 		conf.Options.RelayReconnectIntervalM = 1         // Set this to one minute (from the default 10) because on mobile networks this is more often necessary
 
-		// For each folder, set the path to be filesPath/folderID
+		// On iOS and probably macOS, the absolute path to the apps container that has the synchronized folders changes on each
+		// run. Therefore we re-set the absolute folder path here to [app documents directory]/[folder ID] if we don't have
+		// a folder marker in the old location but do have one in the new.
 		for _, folderConfig := range conf.Folders {
-			folderConfig.Path = path.Join(filesPath, folderConfig.ID)
-			conf.SetFolder(folderConfig)
+			standardPath := path.Join(filesPath, folderConfig.ID)
+			if folderConfig.Path != standardPath {
+				Logger.Warnln("Configured folder path differs from expected path:", folderConfig.Path, standardPath)
+
+				oldMarkerPath := path.Join(folderConfig.Path, folderConfig.MarkerName)
+				if _, err := os.Stat(oldMarkerPath); errors.Is(err, os.ErrNotExist) {
+					newMarkerPath := path.Join(standardPath, folderConfig.MarkerName)
+					if _, err := os.Stat(newMarkerPath); errors.Is(err, os.ErrNotExist) {
+						Logger.Warnln("Marker does not exist at either old or new location, not changing anything", oldMarkerPath, newMarkerPath)
+					} else {
+						Logger.Warnln("Marker does not exist at old location and exists at new location, resetting standard path", oldMarkerPath, newMarkerPath)
+						folderConfig.Path = standardPath
+						conf.SetFolder(folderConfig)
+					}
+				}
+			}
 		}
 	})
 
