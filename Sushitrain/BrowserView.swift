@@ -106,6 +106,7 @@ fileprivate struct BrowserListView: View {
     var prefix: String
     @Binding var searchText: String
     @Binding var showSettings: Bool
+    @Binding var isGrid: Bool
     
     @State private var subdirectories: [SushitrainEntry] = []
     @State private var files: [SushitrainEntry] = []
@@ -120,50 +121,62 @@ fileprivate struct BrowserListView: View {
         Group {
             if self.folder.exists() {
                 if !isSearching {
-                    List {
-                        Section {
-                            FolderStatusView(appState: appState, folder: folder)
-                            
-                            if hasExtraneousFiles {
-                                NavigationLink(destination: {
-                                    ExtraFilesView(folder: self.folder, appState: self.appState)
-                                }) {
-                                    Label("This folder has new files", systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange)
-                                }
-                            }
-                        }
-                        
-                        // List subdirectories
-                        Section {
-                            ForEach(subdirectories, id: \.self) { (subDirEntry: SushitrainEntry) in
-                                let fileName = subDirEntry.fileName()
-                                NavigationLink(destination: BrowserView(
-                                    appState: appState,
-                                    folder: folder,
-                                    prefix: "\(prefix)\(fileName)/"
-                                )) {
-                                    Label(fileName, systemImage: subDirEntry.systemImage)
-                                }
-                                .contextMenu(ContextMenu(menuItems: {
-                                    if let file = try? folder.getFileInformation(self.prefix + fileName) {
-                                        NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState)) {
-                                            Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
-                                        }
-                                    }
-                                }))
-                            }
-                        }
-                        
-                        // List files
-                        Section {
-                            ForEach(files, id: \.self) { file in
-                                EntryView(appState: appState, entry: file, folder: folder, siblings: files)
+                    if self.isGrid {
+                        VStack {
+                            ScrollView {
+                                FolderStatusView(appState: appState, folder: folder).padding(.all, 10)
+                                
+                                GridFilesView(appState: appState, files: files, folder: folder)
+                                    .padding(.horizontal, 15)
                             }
                         }
                     }
-                    #if os(macOS)
+                    else {
+                        List {
+                            Section {
+                                FolderStatusView(appState: appState, folder: folder)
+                                
+                                if hasExtraneousFiles {
+                                    NavigationLink(destination: {
+                                        ExtraFilesView(folder: self.folder, appState: self.appState)
+                                    }) {
+                                        Label("This folder has new files", systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                                    }
+                                }
+                            }
+                            
+                            // List subdirectories
+                            Section {
+                                ForEach(subdirectories, id: \.self) { (subDirEntry: SushitrainEntry) in
+                                    let fileName = subDirEntry.fileName()
+                                    NavigationLink(destination: BrowserView(
+                                        appState: appState,
+                                        folder: folder,
+                                        prefix: "\(prefix)\(fileName)/"
+                                    )) {
+                                        Label(fileName, systemImage: subDirEntry.systemImage)
+                                    }
+                                    .contextMenu(ContextMenu(menuItems: {
+                                        if let file = try? folder.getFileInformation(self.prefix + fileName) {
+                                            NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState)) {
+                                                Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
+                                            }
+                                        }
+                                    }))
+                                }
+                            }
+                            
+                            // List files
+                            Section {
+                                ForEach(files, id: \.self) { file in
+                                    EntryView(appState: appState, entry: file, folder: folder, siblings: files)
+                                }
+                            }
+                        }
+                        #if os(macOS)
                         .listStyle(.inset(alternatesRowBackgrounds: true))
-                    #endif
+                        #endif
+                    }
                 }
                 else {
                     // Search
@@ -272,6 +285,7 @@ struct BrowserView: View {
     @State private var showSettings = false
     @State private var searchText = ""
     @State private var localNativeURL: URL? = nil
+    @State private var isGrid: Bool = false
     
     var folderName: String {
         if prefix.isEmpty {
@@ -285,21 +299,28 @@ struct BrowserView: View {
     }
     
     var body: some View {
-        BrowserListView(appState: appState, folder: folder, prefix: prefix, searchText: $searchText, showSettings: $showSettings)
+        BrowserListView(appState: appState, folder: folder, prefix: prefix, searchText: $searchText, showSettings: $showSettings, isGrid: $isGrid)
         .navigationTitle(folderName)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-        
         #if os(macOS)
         // Disabled due to glitchy transitions (on iOS 17.4 at least)
          // .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search files in this folder...")
-        .searchable(text: $searchText, placement: .toolbar, prompt: "Search files in this folder...")
+        .searchable(text: $searchText, placement: SearchFieldPlacement.toolbar, prompt: "Search files in this folder...")
         #endif
         .toolbar {
             if folder.exists() {
+                #if os(macOS)
+                ToolbarItem(placement: .status) {
+                    Picker("View as", selection: $isGrid) {
+                        Image(systemName: "list.bullet").tag(false).accessibilityLabel(Text("List"))
+                        Image(systemName: "square.grid.2x2").tag(true).accessibilityLabel(Text("Grid"))
+                    }
+                    .pickerStyle(.segmented)
+                }
                 ToolbarItem {
-                    Button("Settings", systemImage: "folder.badge.gearshape", action: {
+                    Button("Folder settings", systemImage: "folder.badge.gearshape", action: {
                         showSettings = true
                     }).labelStyle(.iconOnly)
                 }
@@ -312,6 +333,35 @@ struct BrowserView: View {
                     .labelStyle(.iconOnly)
                     .disabled(localNativeURL == nil)
                 }
+                #elseif os(iOS)
+                ToolbarItem {
+                    Menu(content: {
+                        Picker("View as", selection: $isGrid) {
+                            HStack {
+                                Image(systemName: "list.bullet")
+                                Text("List")
+                            }.tag(false)
+                            HStack {
+                                Image(systemName: "square.grid.2x2")
+                                Text("Grid")
+                            }.tag(true)
+                        }
+                        .pickerStyle(.menu)
+                        
+                        Button("Folder settings", systemImage: "folder.badge.gearshape", action: {
+                            showSettings = true
+                        }).labelStyle(.iconOnly)
+                        
+                        Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
+                            if let localNativeURL = self.localNativeURL {
+                                openURLInSystemFilesApp(url: localNativeURL)
+                            }
+                        })
+                        .labelStyle(.iconOnly)
+                        .disabled(localNativeURL == nil)
+                    }, label: { Image(systemName: "ellipsis.circle").accessibilityLabel(Text("Menu")) })
+                }
+                #endif
             }
         }
         .sheet(isPresented: $showSettings, content: {

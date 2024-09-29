@@ -110,31 +110,6 @@ fileprivate struct FileMediaPlayer<Content: View>: View {
     }
 }
 
-fileprivate extension SushitrainEntry {
-    var isMedia: Bool {
-        get {
-            return self.isVideo || self.isAudio
-        }
-    }
-    
-    var isImage: Bool {
-        get {
-            return self.mimeType().starts(with: "image/")
-        }
-    }
-    
-    var isVideo: Bool {
-        get {
-            return self.mimeType().starts(with: "video/")
-        }
-    }
-    var isAudio: Bool {
-        get {
-            return self.mimeType().starts(with: "audio/")
-        }
-    }
-}
-
 #if os(macOS)
 typealias UIViewRepresentable = NSViewRepresentable
 #endif
@@ -291,7 +266,6 @@ struct FileView: View {
     @ObservedObject var appState: AppState
     @State var localItemURL: URL? = nil
     @State var showVideoPlayer = false
-    @State var showPreview = false
     @State var showOnDemandPreview = false
     @State var showRemoveConfirmation = false
     @State var showDownloader = false
@@ -410,59 +384,9 @@ struct FileView: View {
                     
                     
                     // Image preview
-                    // AsyncImage does not support SVGs, it seems
-                    if file.isImage && file.mimeType() != "image/svg+xml" {
+                    if file.canThumbnail {
                         Section {
-                            if file.isLocallyPresent() {
-                                
-                                if let localPath = localPath {
-                                    #if os(iOS)
-                                    if let uiImage = UIImage(contentsOfFile: localPath) {
-                                        Image(uiImage: uiImage)
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(maxWidth: .infinity, maxHeight: 200).onTapGesture {
-                                                showPreview = false
-                                            }
-                                    }
-                                    #endif
-                                    
-                                    #if os(macOS)
-                                    if let uiImage = NSImage(contentsOfFile: localPath) {
-                                        Image(nsImage: uiImage)
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(maxWidth: .infinity, maxHeight: 200).onTapGesture {
-                                                showPreview = false
-                                            }
-                                    }
-                                    #endif
-                                }
-                            }
-                            else if showPreview || file.size() <= appState.maxBytesForPreview {
-                                AsyncImage(url: URL(string: file.onDemandURL())!, content: { phase in
-                                    switch phase {
-                                        case .empty:
-                                            HStack(alignment: .center, content: {
-                                                ProgressView()
-                                            })
-                                        case .success(let image):
-                                            image.resizable().scaledToFill()
-                                        case .failure(_):
-                                            Text("The file is currently not available for preview.")
-                                        @unknown default:
-                                            EmptyView()
-                                    }
-                                })
-                                .frame(maxWidth: .infinity, maxHeight: 200).onTapGesture {
-                                    showPreview = false
-                                }
-                            }
-                            else {
-                                Button("Show preview for large files") {
-                                    showPreview = true
-                                }
-                            }
+                            ThumbnailView(file: file, appState: appState).padding(.all, 10).cornerRadius(8.0)
                         }
                     }
                     

@@ -178,6 +178,33 @@ extension SushitrainEntry {
             return "\(base)"
         }
     }
+    
+    var isMedia: Bool {
+        get {
+            return self.isVideo || self.isAudio
+        }
+    }
+    
+    var isImage: Bool {
+        get {
+            return self.mimeType().starts(with: "image/")
+        }
+    }
+    
+    var isVideo: Bool {
+        get {
+            return self.mimeType().starts(with: "video/")
+        }
+    }
+    var isAudio: Bool {
+        get {
+            return self.mimeType().starts(with: "audio/")
+        }
+    }
+    
+    var canThumbnail: Bool {
+        return self.isImage && self.mimeType() != "image/svg+xml"
+    }
 }
 
 #if os(iOS)
