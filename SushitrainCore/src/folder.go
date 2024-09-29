@@ -39,7 +39,11 @@ func (fld *Folder) folderConfiguration() *config.FolderConfiguration {
 }
 
 func (fld *Folder) Remove() error {
-	ffs := fld.folderConfiguration().Filesystem(nil)
+	fc := fld.folderConfiguration()
+	if fc == nil {
+		return errors.New("folder does not exist")
+	}
+	ffs := fc.Filesystem(nil)
 	err := fld.client.changeConfiguration(func(cfg *config.Configuration) {
 		folders := make([]config.FolderConfiguration, 0)
 		for _, fc := range cfg.Folders {
@@ -74,6 +78,9 @@ func (fld *Folder) IsPaused() bool {
 func (fld *Folder) SetPaused(paused bool) error {
 	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
 		config := fld.folderConfiguration()
+		if config == nil {
+			return
+		}
 		config.Paused = paused
 		cfg.SetFolder(*config)
 	})
@@ -145,6 +152,9 @@ func (fld *Folder) ShareWithDevice(deviceID string, toggle bool, encryptionPassw
 
 	err = fld.client.changeConfiguration(func(cfg *config.Configuration) {
 		fc := fld.folderConfiguration()
+		if fc == nil {
+			return
+		}
 
 		devices := make([]config.FolderDeviceConfiguration, 0)
 		for _, fc := range fc.Devices {
@@ -242,8 +252,10 @@ func (fld *Folder) Label() string {
 func (fld *Folder) SetLabel(label string) error {
 	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
 		config := fld.folderConfiguration()
-		config.Label = label
-		cfg.SetFolder(*config)
+		if config != nil {
+			config.Label = label
+			cfg.SetFolder(*config)
+		}
 	})
 }
 
@@ -365,6 +377,10 @@ func (fld *Folder) FolderType() string {
 func (fld *Folder) SetFolderType(folderType string) error {
 	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
 		fc := fld.folderConfiguration()
+		if fc == nil {
+			return
+		}
+
 		switch folderType {
 		case FolderTypeReceiveOnly:
 			fc.Type = config.FolderTypeReceiveOnly
@@ -434,6 +450,10 @@ func (fld *Folder) LocalNativePath() (string, error) {
 
 func (fld *Folder) loadIgnores() (*ignore.Matcher, error) {
 	cfg := fld.folderConfiguration()
+	if cfg == nil {
+		return nil, errors.New("folder does not exist")
+	}
+
 	ignores := ignore.New(cfg.Filesystem(nil), ignore.WithCache(false))
 	if err := ignores.Load(ignoreFileName); err != nil && !fs.IsNotExist(err) {
 		return nil, err
@@ -523,6 +543,10 @@ func (fld *Folder) CleanSelection() error {
 		fld.client.app.Internals.ScanFolders()
 
 		cfg := fld.folderConfiguration()
+		if cfg == nil {
+			return errors.New("folder does not exist")
+		}
+
 		ignores, err := fld.loadIgnores()
 		if err != nil {
 			return err
@@ -532,7 +556,11 @@ func (fld *Folder) CleanSelection() error {
 			return errors.New("folder is not a selective folder")
 		}
 
-		ffs := fld.folderConfiguration().Filesystem(nil)
+		fc := fld.folderConfiguration()
+		if fc == nil {
+			return errors.New("folder does not exist")
+		}
+		ffs := fc.Filesystem(nil)
 		return ffs.Walk("", func(path string, info fs.FileInfo, err error) error {
 			if strings.HasPrefix(path, cfg.MarkerName) {
 				return nil

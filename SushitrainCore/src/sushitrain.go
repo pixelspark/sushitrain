@@ -598,7 +598,8 @@ func (clt *Client) AddPeer(deviceID string) error {
 	})
 }
 
-func (clt *Client) AddFolder(folderID string) error {
+// Leave path empty to add folder at default location
+func (clt *Client) AddFolder(folderID string, folderPath string) error {
 	if clt.app == nil || clt.app.Internals == nil {
 		return ErrStillLoading
 	}
@@ -606,7 +607,11 @@ func (clt *Client) AddFolder(folderID string) error {
 	folderConfig := clt.config.DefaultFolder()
 	folderConfig.ID = folderID
 	folderConfig.Label = folderID
-	folderConfig.Path = path.Join(clt.filesPath, folderID)
+	if len(folderPath) == 0 {
+		folderConfig.Path = path.Join(clt.filesPath, folderID)
+	} else {
+		folderConfig.Path = folderPath
+	}
 	folderConfig.FSWatcherEnabled = false
 	folderConfig.Paused = false
 

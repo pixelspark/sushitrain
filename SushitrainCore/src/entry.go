@@ -90,7 +90,12 @@ func (entry *Entry) LocalNativePath() (string, error) {
 }
 
 func (entry *Entry) IsLocallyPresent() bool {
-	ffs := entry.Folder.folderConfiguration().Filesystem(nil)
+	fc := entry.Folder.folderConfiguration()
+	if fc == nil {
+		return false
+	}
+
+	ffs := fc.Filesystem(nil)
 	nativeFilename := osutil.NativeFilename(entry.info.FileName())
 	_, err := ffs.Stat(nativeFilename)
 	return err == nil
