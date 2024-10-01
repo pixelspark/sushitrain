@@ -474,8 +474,16 @@ struct FolderView: View {
                     }
                 }
                 
-                NavigationLink(destination: FolderStatisticsView(appState: appState, folder: folder)) {
-                    Label("Folder statistics", systemImage: "scalemass")
+                Section {
+                    Button("Re-scan folder") {
+                        do {
+                            try folder.rescan()
+                        }
+                        catch let error {
+                            showError = true
+                            errorText = error.localizedDescription
+                        }
+                    }
                 }
                 
                 Section {

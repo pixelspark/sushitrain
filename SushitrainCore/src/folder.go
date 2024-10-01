@@ -38,6 +38,10 @@ func (fld *Folder) folderConfiguration() *config.FolderConfiguration {
 	return &folderInfo
 }
 
+func (fld *Folder) Rescan() error {
+	return fld.client.app.Internals.ScanFolderSubdirs(fld.FolderID, nil)
+}
+
 func (fld *Folder) Remove() error {
 	fc := fld.folderConfiguration()
 	if fc == nil {

@@ -364,10 +364,6 @@ struct BrowserView: View {
                         }
                         .pickerStyle(.menu)
                         
-                        Button("Folder settings", systemImage: "folder.badge.gearshape", action: {
-                            showSettings = true
-                        }).labelStyle(.iconOnly)
-                        
                         Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
                             if let localNativeURL = self.localNativeURL {
                                 openURLInSystemFilesApp(url: localNativeURL)
@@ -375,6 +371,15 @@ struct BrowserView: View {
                         })
                         .labelStyle(.iconOnly)
                         .disabled(localNativeURL == nil)
+                        
+                        NavigationLink(destination: FolderStatisticsView(appState: appState, folder: folder)) {
+                            Label("Folder statistics", systemImage: "scalemass")
+                        }
+                        
+                        Button("Folder settings", systemImage: "folder.badge.gearshape", action: {
+                            showSettings = true
+                        }).labelStyle(.iconOnly)
+                        
                     }, label: { Image(systemName: "ellipsis.circle").accessibilityLabel(Text("Menu")) })
                 }
                 #endif

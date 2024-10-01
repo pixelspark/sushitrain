@@ -4981,6 +4981,34 @@
         }
       }
     },
+    "Re-scan folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner erneut scannen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volver a escanear carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riscansiona cartella"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map opnieuw scannen"
+          }
+        }
+      }
+    },
     "Read more at syncthing.net" : {
       "localizations" : {
         "de" : {
@@ -6998,6 +7026,7 @@
       }
     },
     "The configuration file has been saved as config.xml in the application folder." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -7021,6 +7050,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Het configuratiebestand is opgeslagen als config.xml in de applicatiemap."
+          }
+        }
+      }
+    },
+    "The configuration file has been saved as config.xml in the application folder. Restart the app to apply the custom configuration." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Konfigurationsdatei wurde als config.xml im Anwendungsordner gespeichert. Starten Sie die App neu, um die benutzerdefinierte Konfiguration anzuwenden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo de configuración se ha guardado como config.xml en la carpeta de la aplicación. Reinicia la aplicación para aplicar la configuración personalizada."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il file di configurazione è stato salvato come config.xml nella cartella dell'applicazione. Riavvia l'app per applicare la configurazione personalizzata."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het configuratiebestand is opgeslagen als config.xml in de applicatiemap. Herstart de app om de aangepaste configuratie toe te passen."
           }
         }
       }
