@@ -486,6 +486,15 @@ struct FolderView: View {
                     }
                 }
                 
+                #if os(macOS)
+                // On iOS, this is in the folder popup menu instead
+                Section {
+                    NavigationLink(destination: FolderStatisticsView(appState: appState, folder: folder)) {
+                        Label("Folder statistics", systemImage: "scalemass")
+                    }
+                }
+                #endif
+                
                 Section {
                     Button("Remove folder", systemImage: "trash", role:.destructive) {
                         showRemoveConfirmation = true
