@@ -39,7 +39,10 @@ func (fld *Folder) folderConfiguration() *config.FolderConfiguration {
 }
 
 func (fld *Folder) Rescan() error {
-	return fld.client.app.Internals.ScanFolderSubdirs(fld.FolderID, nil)
+	go func() {
+		fld.client.app.Internals.ScanFolderSubdirs(fld.FolderID, nil)
+	}()
+	return nil
 }
 
 func (fld *Folder) Remove() error {
