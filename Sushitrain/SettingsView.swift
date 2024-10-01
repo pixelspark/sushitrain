@@ -43,8 +43,38 @@ struct TotalStatisticsView: View {
     }
 }
 
+fileprivate struct ExportButtonView: View {
+    @State private var error: Error? = nil
+    @State private var showSuccess: Bool = false
+    @ObservedObject var appState: AppState
+    
+    var body: some View {
+        Button("Export configuration file") {
+            do {
+                try self.appState.client.exportConfigurationFile()
+                showSuccess = true
+            }
+            catch {
+                self.error =  error
+            }
+        }
+        .disabled(self.appState.client.isUsingCustomConfiguration)
+        .alert(isPresented: Binding(get: { return self.error != nil }, set: { nv in
+            if !nv {
+                self.error = nil
+            }
+        })) {
+            Alert(title: Text("An error occurred"), message: Text(self.error!.localizedDescription), dismissButton: .default(Text("OK")))
+        }
+        .alert(isPresented: $showSuccess) {
+            Alert(title: Text("Custom configuration saved"), message: Text("The configuration file has been saved as config.xml in the application folder. Restart the app to apply the custom configuration."), dismissButton: .default(Text("OK")))
+        }
+    }
+}
+
 struct AdvancedSettingsView: View {
     @ObservedObject var appState: AppState
+    
     
     var body: some View {
         Form {
@@ -149,6 +179,14 @@ struct AdvancedSettingsView: View {
                     else {
                         Text("Logging slows down the app and uses more battery. Only enable it if you are experiencing problems.")
                     }
+                }
+            }
+            
+            Section {
+                ExportButtonView(appState: appState)
+            } footer: {
+                if self.appState.client.isUsingCustomConfiguration {
+                    Text("The app is currently using a custom configuration from config.xml in the application directory. Remove it and restart the app to revert back to the default configuration.")
                 }
             }
         }

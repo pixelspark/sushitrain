@@ -223,6 +223,26 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 	}, nil
 }
 
+func (clt *Client) ExportConfigurationFile() error {
+	cfg := clt.config.RawCopy()
+	homeDir := locations.GetBaseDir(locations.UserHomeBaseDir)
+	customConfigFilePath := path.Join(homeDir, "config.xml")
+	fd, err := osutil.CreateAtomic(customConfigFilePath)
+	if err != nil {
+		return err
+	}
+
+	if err := cfg.WriteXML(osutil.LineEndingsWriter(fd)); err != nil {
+		fd.Close()
+		return err
+	}
+
+	if err := fd.Close(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (clt *Client) Stop() {
 	clt.app.Stop(svcutil.ExitSuccess)
 	clt.cancel()

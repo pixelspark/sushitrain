@@ -1761,6 +1761,34 @@
         }
       }
     },
+    "Custom configuration saved" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzerdefinierte Konfiguration gespeichert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configuración personalizada guardada"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurazione personalizzata salvata"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aangepaste configuratie opgeslagen"
+          }
+        }
+      }
+    },
     "Delete file" : {
       "localizations" : {
         "de" : {
@@ -2457,6 +2485,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fout"
+          }
+        }
+      }
+    },
+    "Export configuration file" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konfigurationsdatei exportieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exportar archivo de configuración"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esporta file di configurazione"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exporteer configuratiebestand"
           }
         }
       }
@@ -3269,35 +3325,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hostnaam"
-          }
-        }
-      }
-    },
-    "hostname" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hostname"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "nombre de host"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "hostname"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "hostnaam"
           }
         }
       }
@@ -6914,6 +6941,34 @@
         }
       }
     },
+    "The app is currently using a custom configuration from config.xml in the application directory. Remove it and restart the app to revert back to the default configuration." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die App verwendet derzeit eine benutzerdefinierte Konfiguration aus der config.xml im Anwendungsverzeichnis. Entfernen Sie diese und starten Sie die App neu, um zur Standardkonfiguration zurückzukehren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La aplicación está utilizando actualmente una configuración personalizada de config.xml en el directorio de la aplicación. Elimínala y reinicia la aplicación para volver a la configuración predeterminada."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'app sta attualmente utilizzando una configurazione personalizzata dal file config.xml nella directory dell'applicazione. Rimuovila e riavvia l'app per tornare alla configurazione predefinita."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De app gebruikt momenteel een aangepaste configuratie uit config.xml in de applicatiemap. Verwijder deze en start de app opnieuw om terug te keren naar de standaardconfiguratie."
+          }
+        }
+      }
+    },
     "The app is logging to a file in the application folder, which you can share with the developers." : {
       "localizations" : {
         "de" : {
@@ -6938,6 +6993,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "De app logt naar een bestand in de toepassingsmap, dat je kunt delen met de ontwikkelaars."
+          }
+        }
+      }
+    },
+    "The configuration file has been saved as config.xml in the application folder." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Konfigurationsdatei wurde als config.xml im Anwendungsordner gespeichert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo de configuración se ha guardado como config.xml en la carpeta de la aplicación."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il file di configurazione è stato salvato come config.xml nella cartella dell'applicazione."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het configuratiebestand is opgeslagen als config.xml in de applicatiemap."
           }
         }
       }
