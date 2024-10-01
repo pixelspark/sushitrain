@@ -27,6 +27,7 @@ import Combine
     @Published var launchedAt = Date.now
     @Published var streamingProgress: StreamingProgress? = nil
     @Published var lastChanges: [SushitrainChange] = []
+    @Published var isLogging: Bool = false
     
     @AppStorage("backgroundSyncRuns") var backgroundSyncRuns: [BackgroundSyncRun] = []
     @AppStorage("lastBackgroundSyncRun") var lastBackgroundSyncRun = OptionalObject<BackgroundSyncRun>()
@@ -39,6 +40,7 @@ import Combine
     @AppStorage("maxBytesForPreview") var maxBytesForPreview: Int = 2 * 1024 * 1024 // 2 MiB
     @AppStorage("browserViewStyle") var browserViewStyle: BrowserViewStyle = .list
     @AppStorage("browserGridColumns") var browserGridColumns: Int = 3
+    @AppStorage("loggingEnabled") var loggingEnabled: Bool = false
     
     var photoSync = PhotoSynchronisation()
     

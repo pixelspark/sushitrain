@@ -669,6 +669,34 @@
         }
       }
     },
+    "After restarting the app, the app will write a log file in the application folder, which you can then share with the developers." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach dem Neustart der App wird im Anwendungsverzeichnis eine Protokolldatei erstellt, die Sie dann mit den Entwicklern teilen können."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Después de reiniciar la aplicación, se escribirá un archivo de registro en la carpeta de la aplicación, que luego podrás compartir con los desarrolladores."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dopo aver riavviato l'app, verrà scritto un file di log nella cartella dell'applicazione, che potrai poi condividere con gli sviluppatori."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na het opnieuw opstarten van de app, wordt er een logbestand in de applicatiemap geschreven, dat je vervolgens kunt delen met de ontwikkelaars."
+          }
+        }
+      }
+    },
     "All devices" : {
       "localizations" : {
         "de" : {
@@ -1112,7 +1140,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Achtergrond synchronisatie voltooid"
+            "value" : "Synchronisatie op de achtergrond voltooid"
           }
         }
       }
@@ -2121,6 +2149,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "In de afgelopen 24 uur"
+          }
+        }
+      }
+    },
+    "Enable debug logging" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktiviere Debug-Logging"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habilitar registro de depuración"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abilita registrazione debug"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schakel foutopsporing logging in"
           }
         }
       }
@@ -3862,6 +3918,62 @@
         }
       }
     },
+    "Logging" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protokollierung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registro"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrazione"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loggen"
+          }
+        }
+      }
+    },
+    "Logging slows down the app and uses more battery. Only enable it if you are experiencing problems." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Protokollieren verlangsamt die App und verbraucht mehr Akku. Aktivieren Sie es nur, wenn Sie Probleme haben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El registro ralentiza la app y consume más batería. Actívalo solo si experimentas problemas."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La registrazione rallenta l'app e consuma più batteria. Abilitalo solo se riscontri problemi."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loggen vertraagt de app en gebruikt meer batterij. Schakel het alleen in als je problemen ondervindt."
+          }
+        }
+      }
+    },
     "Menu" : {
       "localizations" : {
         "de" : {
@@ -5090,6 +5202,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Verwijder deze map en alle bestanden"
+          }
+        }
+      }
+    },
+    "Restart the app to stop logging." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starte die App neu, um die Protokollierung zu stoppen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reinicia la aplicación para detener el registro."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riavvia l'app per interrompere la registrazione dei log."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herstart de app om het loggen te stoppen."
           }
         }
       }
@@ -6770,6 +6910,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tik om te sluiten"
+          }
+        }
+      }
+    },
+    "The app is logging to a file in the application folder, which you can share with the developers." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die App protokolliert in eine Datei im Anwendungsordner, die Sie mit den Entwicklern teilen können."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La app está registrando en un archivo dentro de la carpeta de la aplicación, que puedes compartir con los desarrolladores."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'app sta registrando su un file nella cartella delle applicazioni, che puoi condividere con gli sviluppatori."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De app logt naar een bestand in de toepassingsmap, dat je kunt delen met de ontwikkelaars."
           }
         }
       }

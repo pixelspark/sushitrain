@@ -127,6 +127,30 @@ struct AdvancedSettingsView: View {
                     }), in: 1...100)
                 }
             }
+            
+            Section {
+                Toggle("Enable debug logging", isOn: appState.$loggingEnabled)
+            }
+            header: {
+                Text("Logging")
+            }
+            footer: {
+                if appState.loggingEnabled {
+                    if appState.isLogging {
+                        Text("The app is logging to a file in the application folder, which you can share with the developers.")
+                    } else {
+                        Text("After restarting the app, the app will write a log file in the application folder, which you can then share with the developers.")
+                    }
+                }
+                else {
+                    if appState.isLogging {
+                        Text("Restart the app to stop logging.")
+                    }
+                    else {
+                        Text("Logging slows down the app and uses more battery. Only enable it if you are experiencing problems.")
+                    }
+                }
+            }
         }
         .navigationTitle("Advanced settings")
 #if os(macOS)

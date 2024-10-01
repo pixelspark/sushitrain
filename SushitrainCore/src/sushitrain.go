@@ -6,20 +6,24 @@
 package sushitrain
 
 import (
+	"bufio"
 	"context"
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"net/url"
 	"os"
 	"path"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/syncthing/syncthing/lib/build"
 	"github.com/syncthing/syncthing/lib/config"
 	"github.com/syncthing/syncthing/lib/db/backend"
 	"github.com/syncthing/syncthing/lib/events"
 	"github.com/syncthing/syncthing/lib/locations"
+	"github.com/syncthing/syncthing/lib/logger"
 	"github.com/syncthing/syncthing/lib/model"
 	"github.com/syncthing/syncthing/lib/osutil"
 	"github.com/syncthing/syncthing/lib/protocol"
@@ -68,11 +72,42 @@ var (
 	ErrStillLoading = errors.New("still loading")
 )
 
-func NewClient(configPath string, filesPath string) (*Client, error) {
+func NewClient(configPath string, filesPath string, saveLog bool) (*Client, error) {
 	// Set version info
 	build.Version = "v1.27.13"
 	build.Host = "t-shaped.nl"
 	build.User = "sushitrain"
+
+	// Log to file
+	if saveLog {
+		logFilePath := path.Join(filesPath, fmt.Sprintf("%s.log", time.Now().UTC().Format("synctrain-2006-2-1-15-04-05.log")))
+		logFile, err := os.Create(logFilePath)
+		if err != nil {
+			fmt.Println(err)
+		}
+		writer := bufio.NewWriter(logFile)
+		logger.DefaultLogger.AddHandler(logger.LevelVerbose, func(l logger.LogLevel, msg string) {
+			timeStamp := time.Now().UTC().Format("2006-02-01 15:04:05")
+			var level string
+			switch l {
+			case logger.LevelDebug:
+				level = "DEBUG"
+			case logger.LevelInfo:
+				level = "INFO"
+			case logger.LevelWarn:
+				level = "WARN"
+			case logger.LevelVerbose:
+				level = "VERBO"
+			default:
+				level = "OTHER"
+			}
+
+			_, err := writer.WriteString(fmt.Sprintf("%s\t%s: %s\n", level, timeStamp, msg))
+			if err != nil {
+				return
+			}
+		})
+	}
 
 	// Some early chores
 	osutil.MaximizeOpenFileLimit()

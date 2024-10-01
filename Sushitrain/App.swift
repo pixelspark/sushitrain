@@ -36,13 +36,16 @@ struct SushitrainApp: App {
             print("Error excluding \(configDirectory.path) from backup: \(error.localizedDescription)")
         }
         
+        let enableLogging = UserDefaults.standard.bool(forKey: "loggingEnabled")
+        print("Logging enabled: \(enableLogging)")
         var error: NSError? = nil
-        guard let client = SushitrainNewClient(configPath, documentsPath, &error) else {
+        guard let client = SushitrainNewClient(configPath, documentsPath, enableLogging, &error) else {
             print("Error initializing: \(error?.localizedDescription ?? "unknown error")")
             exit(-1)
         }
         
         self.appState = AppState(client: client)
+        self.appState.isLogging = enableLogging
         self.delegate = SushitrainAppDelegate(appState: self.appState)
         client.delegate = self.delegate;
         client.server?.delegate = self.delegate;
