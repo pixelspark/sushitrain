@@ -514,7 +514,7 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 					if _, err := os.Stat(newMarkerPath); errors.Is(err, os.ErrNotExist) {
 						Logger.Warnln("Marker does not exist at either old or new location, not changing anything", oldMarkerPath, newMarkerPath)
 					} else {
-						Logger.Warnln("Marker does not exist at old location and exists at new location, resetting standard path", oldMarkerPath, newMarkerPath)
+						Logger.Warnln("Marker does not exist at old location and exists at new location, resetting standard path", oldMarkerPath, newMarkerPath, standardPath)
 						folderConfig.Path = standardPath
 						conf.SetFolder(folderConfig)
 					}
