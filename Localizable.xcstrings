@@ -7025,35 +7025,6 @@
         }
       }
     },
-    "The configuration file has been saved as config.xml in the application folder." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Konfigurationsdatei wurde als config.xml im Anwendungsordner gespeichert."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El archivo de configuración se ha guardado como config.xml en la carpeta de la aplicación."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il file di configurazione è stato salvato come config.xml nella cartella dell'applicazione."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Het configuratiebestand is opgeslagen als config.xml in de applicatiemap."
-          }
-        }
-      }
-    },
     "The configuration file has been saved as config.xml in the application folder. Restart the app to apply the custom configuration." : {
       "localizations" : {
         "de" : {
