@@ -75,7 +75,6 @@ fileprivate struct ExportButtonView: View {
 struct AdvancedSettingsView: View {
     @ObservedObject var appState: AppState
     
-    
     var body: some View {
         Form {
             Section {
@@ -84,6 +83,17 @@ struct AdvancedSettingsView: View {
                 }, set: { listening in
                     try? appState.client.setListening(listening)
                 }))
+                
+                NavigationLink(destination:
+                    AddressesView(appState: appState, addresses: Binding(get: {
+                        return self.appState.client.listenAddresses()?.asArray() ?? []
+                    }, set: { nv in
+                        try! self.appState.client.setListenAddresses(SushitrainListOfStrings.from(nv))
+                    }), editingAddresses: self.appState.client.listenAddresses()?.asArray() ?? [], addressType: .listening)
+                    .navigationTitle("Listening addresses")
+                ) {
+                    Label("Listening addresses", systemImage: "envelope.front")
+                }.disabled(!appState.client.isListening())
             } header: {
                 Text("Connectivity")
             } footer: {

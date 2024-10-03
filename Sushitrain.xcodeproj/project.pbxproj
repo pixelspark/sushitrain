@@ -41,6 +41,7 @@
 		65F15BFD2CA03DCE00E13DDD /* SushitrainCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65AE125A2C3AB03E00E721D4 /* SushitrainCore.xcframework */; };
 		65F15C012CA06B2300E13DDD /* UploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F15C002CA06B2100E13DDD /* UploadView.swift */; };
 		65F15C032CA1F85E00E13DDD /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F15C022CA1F85D00E13DDD /* SafariView.swift */; };
+		65F825EC2CAF1E0900564F57 /* AddressesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F825EB2CAF1E0600564F57 /* AddressesView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -104,6 +105,7 @@
 		65F15BFB2CA03CBA00E13DDD /* BackgroundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundManager.swift; sourceTree = "<group>"; };
 		65F15C002CA06B2100E13DDD /* UploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadView.swift; sourceTree = "<group>"; };
 		65F15C022CA1F85D00E13DDD /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
+		65F825EB2CAF1E0600564F57 /* AddressesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressesView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,6 +143,7 @@
 		65AE11FB2C39EE0E00E721D4 /* Sushitrain */ = {
 			isa = PBXGroup;
 			children = (
+				65F825EB2CAF1E0600564F57 /* AddressesView.swift */,
 				65BBF8442C4BFB9300EC59C4 /* AboutView.swift */,
 				65AE12662C3B04A100E721D4 /* AddDeviceView.swift */,
 				65AE126E2C3B14CC00E721D4 /* AddFolderView.swift */,
@@ -295,6 +298,7 @@
 				652763BB2C45C99200250D3C /* SettingsView.swift in Sources */,
 				65F15BFC2CA03CBE00E13DDD /* BackgroundManager.swift in Sources */,
 				6505643D2CA98930009FFFB9 /* GridFilesView.swift in Sources */,
+				65F825EC2CAF1E0900564F57 /* AddressesView.swift in Sources */,
 				65C9E14C2C3F341F00EDCE6C /* StartView.swift in Sources */,
 				65F15C012CA06B2300E13DDD /* UploadView.swift in Sources */,
 				65BBF8452C4BFB9300EC59C4 /* AboutView.swift in Sources */,

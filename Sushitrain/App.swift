@@ -118,7 +118,7 @@ extension SushitrainAppDelegate: SushitrainClientDelegateProtocol {
         let appState = self.appState
         let addressSet = Set(addresses?.asArray() ?? [])
         DispatchQueue.main.async {
-            appState.listenAddresses = addressSet
+            appState.resolvedListenAddresses = addressSet
         }
     }
     

@@ -16,6 +16,14 @@ extension SushitrainListOfStrings {
         }
         return data
     }
+    
+    static func from(_ array: [String]) -> SushitrainListOfStrings {
+        let list = SushitrainNewListOfStrings()!
+        for item in array {
+            list.append(item)
+        }
+        return list
+    }
 }
 
 extension SushitrainPeer {

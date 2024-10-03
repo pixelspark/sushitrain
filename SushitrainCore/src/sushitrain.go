@@ -49,7 +49,7 @@ type Client struct {
 	downloadProgress         map[string]map[string]*model.PullerProgress // folderID, path => progress
 	uploadProgress           map[string]map[string]map[string]int        // deviceID, folderID, path => block count
 	foldersDownloading       map[string]bool
-	ListenAddresses          map[string][]string
+	ResolvedListenAddresses  map[string][]string
 	mutex                    sync.Mutex
 }
 
@@ -219,7 +219,7 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 		filesPath:                  filesPath,
 		IgnoreEvents:               false,
 		uploadProgress:             make(map[string]map[string]map[string]int),
-		ListenAddresses:            make(map[string][]string),
+		ResolvedListenAddresses:    make(map[string][]string),
 	}, nil
 }
 
@@ -291,11 +291,11 @@ func (clt *Client) handleEvent(evt events.Event) {
 			for _, la := range lanAddresses {
 				addrs = append(addrs, la.String())
 			}
-			clt.ListenAddresses[addressSpec.String()] = addrs
+			clt.ResolvedListenAddresses[addressSpec.String()] = addrs
 
 			// Get all current addresses and send to client
 			currentResolved := make([]string, 0)
-			for _, addrs := range clt.ListenAddresses {
+			for _, addrs := range clt.ResolvedListenAddresses {
 				currentResolved = append(currentResolved, addrs...)
 			}
 			clt.Delegate.OnListenAddressesChanged(List(currentResolved))
@@ -1024,6 +1024,16 @@ func (clt *Client) SetReconnectIntervalS(secs int) error {
 	Logger.Infoln("Set reconnect interval to", secs)
 	return clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.Options.ReconnectIntervalS = secs
+	})
+}
+
+func (clt *Client) ListenAddresses() *ListOfStrings {
+	return List(clt.config.Options().RawListenAddresses)
+}
+
+func (clt *Client) SetListenAddresses(addrs *ListOfStrings) error {
+	return clt.changeConfiguration(func(cfg *config.Configuration) {
+		cfg.Options.RawListenAddresses = addrs.data
 	})
 }
 

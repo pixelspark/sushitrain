@@ -104,12 +104,18 @@ func (peer *Peer) IsPaused() bool {
 }
 
 func (peer *Peer) SetUntrusted(untrusted bool) error {
+	return peer.changeDeviceConfiguration(func(dc *config.DeviceConfiguration) {
+		dc.Untrusted = untrusted
+	})
+}
+
+func (peer *Peer) changeDeviceConfiguration(block func(*config.DeviceConfiguration)) error {
 	return peer.client.changeConfiguration(func(cfg *config.Configuration) {
 		dc, ok := cfg.DeviceMap()[peer.deviceID]
 		if !ok {
 			return
 		}
-		dc.Untrusted = untrusted
+		block(&dc)
 		cfg.SetDevice(dc)
 	})
 }
@@ -166,4 +172,10 @@ func (peer *Peer) PendingFolderIDs() (*ListOfStrings, error) {
 
 func (peer *Peer) Exists() bool {
 	return peer.deviceConfiguration() != nil
+}
+
+func (peer *Peer) SetAddresses(addrs *ListOfStrings) error {
+	return peer.changeDeviceConfiguration(func(cfg *config.DeviceConfiguration) {
+		cfg.Addresses = addrs.data
+	})
 }

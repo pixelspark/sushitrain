@@ -23,7 +23,7 @@ import Combine
     @Published var lastEvent: String = ""
     @Published var eventCounter: Int = 0
     @Published var discoveredDevices: [String: [String]] = [:]
-    @Published var listenAddresses = Set<String>()
+    @Published var resolvedListenAddresses = Set<String>()
     @Published var launchedAt = Date.now
     @Published var streamingProgress: StreamingProgress? = nil
     @Published var lastChanges: [SushitrainChange] = []

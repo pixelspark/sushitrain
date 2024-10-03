@@ -134,12 +134,12 @@ fileprivate struct WaitView: View {
 }
 #endif
 
-fileprivate struct AddressesView: View {
+fileprivate struct ResolvedAddressesView: View {
     @ObservedObject var appState: AppState
     
     var body: some View {
         List {
-            ForEach(Array(self.appState.listenAddresses), id: \.self) { addr in
+            ForEach(Array(self.appState.resolvedListenAddresses), id: \.self) { addr in
                 Text(addr).contextMenu {
                     Button(action: {
 #if os(iOS)
@@ -344,7 +344,7 @@ struct StartView: View {
         }
         .sheet(isPresented: $showAddresses) {
             NavigationStack {
-                AddressesView(appState: appState)
+                ResolvedAddressesView(appState: appState)
                 .navigationTitle("Addresses")
                 .toolbar(content: {
                     ToolbarItem(placement: .confirmationAction, content: {

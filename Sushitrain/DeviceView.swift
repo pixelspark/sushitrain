@@ -6,6 +6,21 @@
 import SwiftUI
 import SushitrainCore
 
+fileprivate struct DeviceAddressesView: View {
+    var device: SushitrainPeer
+    @ObservedObject var appState: AppState
+     @State private var addresses: [String] = []
+    
+    var body: some View {
+        AddressesView(appState: appState, addresses: Binding(get: {
+            return self.device.addresses()?.asArray() ?? []
+        }, set: { nv in
+            try! self.device.setAddresses(SushitrainListOfStrings.from(nv))
+        }), editingAddresses: self.device.addresses()?.asArray() ?? [], addressType: .device)
+        .navigationTitle("Device addresses")
+    }
+}
+
 struct DeviceView: View {
     var device: SushitrainPeer
     @ObservedObject var appState: AppState
@@ -59,18 +74,22 @@ struct DeviceView: View {
                 Section("Device ID") {
                     Label(device.deviceID(), systemImage: "qrcode").contextMenu {
                         Button(action: {
-#if os(iOS)
+                            #if os(iOS)
                             UIPasteboard.general.string = device.deviceID()
-#endif
+                            #endif
                             
-#if os(macOS)
+                            #if os(macOS)
                             NSPasteboard.general.setString(device.deviceID(), forType: .string)
-#endif
+                            #endif
                         }) {
                             Text("Copy to clipboard")
                             Image(systemName: "doc.on.doc")
                         }
                     }.monospaced()
+                }
+                
+                NavigationLink(destination: DeviceAddressesView(device: device, appState: appState)) {
+                    Label("Addresses", systemImage: "envelope.front")
                 }
                 
                 let sharedFolderIDs = device.sharedFolderIDs()?.asArray().sorted() ?? []
@@ -89,16 +108,16 @@ struct DeviceView: View {
                 
                 let lastAddress = self.appState.client.getLastPeerAddress(self.device.deviceID())
                 if !lastAddress.isEmpty {
-                    Section("Addresses") {
+                    Section("Current addresses") {
                         Label(lastAddress, systemImage: "network").contextMenu {
                             Button(action: {
-#if os(iOS)
-                                UIPasteboard.general.string = lastAddress
-#endif
+                                #if os(iOS)
+                                    UIPasteboard.general.string = lastAddress
+                                #endif
                                 
-#if os(macOS)
-                                NSPasteboard.general.setString(lastAddress, forType: .string)
-#endif
+                                #if os(macOS)
+                                    NSPasteboard.general.setString(lastAddress, forType: .string)
+                                #endif
                             }) {
                                 Text("Copy to clipboard")
                                 Image(systemName: "doc.on.doc")
