@@ -56,6 +56,7 @@ struct GridFilesView: View {
                     )) {
                         GridItemView(appState: appState, size: geo.size.width, file: subDirEntry)
                     }
+                    .buttonStyle(PlainButtonStyle())
                     .contextMenu(ContextMenu(menuItems: {
                         if let file = try? folder.getFileInformation(self.prefix + fileName) {
                             NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState)) {
@@ -65,7 +66,7 @@ struct GridFilesView: View {
                     }))
                 }
                 .aspectRatio(1, contentMode: .fit)
-                .cornerRadius(8.0)
+                .clipShape(.rect(cornerSize: CGSize(width: 8.0, height: 8.0)))
             }
             
             ForEach(files, id: \.self) { file in
@@ -73,8 +74,9 @@ struct GridFilesView: View {
                     NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState, siblings: [])) {
                         GridItemView(appState: appState, size: geo.size.width, file: file)
                     }
+                    .buttonStyle(PlainButtonStyle())
                 }
-                .cornerRadius(8.0)
+                .clipShape(.rect(cornerSize: CGSize(width: 8.0, height: 8.0)))
                 .aspectRatio(1, contentMode: .fit)
             }
         }
