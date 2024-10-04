@@ -17,6 +17,9 @@ fileprivate struct DeviceAddressesView: View {
         }, set: { nv in
             try! self.device.setAddresses(SushitrainListOfStrings.from(nv))
         }), editingAddresses: self.device.addresses()?.asArray() ?? [], addressType: .device)
+        #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+        #endif
         .navigationTitle("Device addresses")
     }
 }

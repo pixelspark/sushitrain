@@ -18,6 +18,8 @@ struct ThumbnailView: View {
                 let localPath = file.isLocallyPresent() ? file.localNativePath(&error) : nil
                 
                 if let localPath = localPath {
+                    
+                    
                     #if os(iOS)
                     if let uiImage = UIImage(contentsOfFile: localPath) {
                         Image(uiImage: uiImage)

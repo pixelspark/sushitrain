@@ -236,8 +236,11 @@ struct AddressesView: View {
                 }.deleteDisabled(true)
             }
         }
+        #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+        #endif
         #if os(macOS)
-        .formStyle(.grouped)
+            .formStyle(.grouped)
         #endif
         .onDisappear {
             self.addresses = self.editingAddresses
