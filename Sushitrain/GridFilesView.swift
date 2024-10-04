@@ -13,18 +13,23 @@ fileprivate struct GridItemView: View {
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
+            Rectangle()
+                .frame(width: size, height: size)
+                .backgroundStyle(Color.primary)
+                .opacity(0.05)
+            
             ThumbnailView(file: file, appState: appState)
-            .frame(width: size, height: size)
-            .contextMenu(menuItems: {
-                Text(file.fileName())
-            }, preview: {
-                NavigationStack { // to force the image to take up all available space
-                    VStack {
-                        ThumbnailView(file: file, appState: appState)
-                            .frame(minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
+                .frame(width: size, height: size)
+                .contextMenu(menuItems: {
+                    Text(file.fileName())
+                }, preview: {
+                    NavigationStack { // to force the image to take up all available space
+                        VStack {
+                            ThumbnailView(file: file, appState: appState)
+                                .frame(minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
+                        }
                     }
-                }
-            })
+                })
         }
     }
 }

@@ -62,8 +62,14 @@ struct ThumbnailView: View {
         }
         else {
             VStack(alignment: .center, spacing: 6.0, content: {
-                Image(systemName: file.systemImage).dynamicTypeSize(.large)
-                Text(file.fileName()).lineLimit(1).padding(.horizontal, 4)
+                Image(systemName: file.systemImage)
+                    .dynamicTypeSize(.large)
+                    .foregroundStyle(Color.accentColor)
+                Text(file.fileName())
+                    .lineLimit(1)
+                    .padding(.horizontal, 4)
+                    .foregroundStyle(Color.primary)
+                    .multilineTextAlignment(.center)
             })
         }
     }
