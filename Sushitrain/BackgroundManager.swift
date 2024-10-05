@@ -155,7 +155,7 @@ import BackgroundTasks
                 if status == .authorized || status == .provisional {
                     let content = UNMutableNotificationContent()
                     content.title = String(localized: "Synchronisation did not run")
-                    content.body = String(localized: "Background synchronization last ran more than \(Int(interval)) seconds ago. Open the app to synchronize.")
+                    content.body = String(localized: "Background synchronization last ran more than \(Int(interval / 3600)) hours ago. Open the app to synchronize.")
                     content.interruptionLevel = .passive
                     content.sound = .none
                     content.badge = 1
