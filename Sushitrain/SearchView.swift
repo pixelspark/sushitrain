@@ -123,6 +123,10 @@ struct SearchResultsView: View, SearchViewDelegate {
                             Spacer()
                             if searchCount > 0 {
                                 ProgressView()
+                                #if os(macOS)
+                                    .controlSize(.mini)
+                                    .frame(maxHeight: 10)
+                                #endif
                             }
                         }
                     }
