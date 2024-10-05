@@ -104,16 +104,18 @@ struct SushitrainApp: App {
                 NavigationStack {
                     TabbedSettingsView(appState: appState)
                 }
-            }.windowResizability(.contentSize)
+            }
+            .windowResizability(.contentSize)
             
             // About window
-            Window("About Synctrain", id: "about") {
+            WindowGroup("About Synctrain", id: "about") {
                 AboutView()
-            }.windowResizability(.contentSize)
+            }
+            .windowResizability(.contentSize)
         
-            Window("Statistics", id: "stats") {
+            WindowGroup("Statistics", id: "stats") {
                 TotalStatisticsView(appState: appState)
-                    .frame(minWidth: 320, minHeight: 480)
+                    .frame(maxWidth: 320)
             }
             .windowResizability(.contentSize)
         #endif
