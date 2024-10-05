@@ -29,6 +29,14 @@ func (entry *Entry) Path() string {
 	return entry.info.FileName()
 }
 
+func (entry *Entry) ParentPath() string {
+	p := path.Dir(entry.info.FileName())
+	if p == "/" || p == "." {
+		return ""
+	}
+	return p + "/"
+}
+
 func (entry *Entry) FileName() string {
 	ps := strings.Split(entry.info.FileName(), "/")
 	return ps[len(ps)-1]

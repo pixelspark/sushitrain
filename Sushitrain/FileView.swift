@@ -324,7 +324,9 @@ struct FileView: View {
                 
                 if showPath {
                     Section("Location") {
-                        Text("\(folder.label()): \(file.path())")
+                        NavigationLink(destination: BrowserView(appState: appState, folder: folder, prefix: file.parentPath())) {
+                            Label("\(folder.label()): \(file.parentPath())", systemImage: "folder")
+                        }
                     }
                 }
                 

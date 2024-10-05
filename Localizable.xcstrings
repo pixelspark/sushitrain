@@ -4563,16 +4563,16 @@
     },
     "Manage files and folders": {
       "localizations": {
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bestanden en mappen beheren"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Dateien und Ordner verwalten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gestionar archivos y carpetas"
           }
         },
         "it": {
@@ -4581,10 +4581,10 @@
             "value": "Gestisci file e cartelle"
           }
         },
-        "es": {
+        "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gestionar archivos y carpetas"
+            "value": "Bestanden en mappen beheren"
           }
         }
       }
