@@ -73,16 +73,19 @@ struct DevicesView: View {
                         addingDeviceID = ""
                         showingAddDevicePopup = true
                     })
+                    #if os(macOS)
+                        .buttonStyle(.borderless)
+                    #endif
                 }
             }
             .navigationTitle("Devices")
-            .toolbar {
-#if os(iOS)
-                if !peers.isEmpty {
-                    EditButton()
+            #if os(iOS)
+                .toolbar {
+                    if !peers.isEmpty {
+                        EditButton()
+                    }
                 }
-#endif
-            }
+            #endif
         }
         .sheet(isPresented: $showingAddDevicePopup) {
             AddDeviceView(appState: appState, suggestedDeviceID: $addingDeviceID)

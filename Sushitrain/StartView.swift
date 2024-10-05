@@ -315,9 +315,11 @@ struct StartView: View {
                 }
             }
             
-            NavigationLink(destination: ChangesView(appState: appState)) {
-                Label("Recent changes", systemImage: "clock.arrow.2.circlepath").badge(appState.lastChanges.count)
-            }.disabled(appState.lastChanges.isEmpty)
+            Section("Manage files and folders") {
+                NavigationLink(destination: ChangesView(appState: appState)) {
+                    Label("Recent changes", systemImage: "clock.arrow.2.circlepath").badge(appState.lastChanges.count)
+                }.disabled(appState.lastChanges.isEmpty)
+            }
             
             if appState.photoSync.isReady {
                 Section {
@@ -326,22 +328,19 @@ struct StartView: View {
             }
             
         }
-#if os(macOS)
-        .formStyle(.grouped)
-#endif
+        #if os(macOS)
+            .formStyle(.grouped)
+        #endif
         .navigationTitle("Start")
-        .toolbar {
-            ToolbarItem {
-                NavigationLink(destination: SettingsView(appState: self.appState)) {
-                    Image(systemName: "gear").accessibilityLabel("Settings")
+        #if os(iOS)
+            .toolbar {
+                ToolbarItem {
+                    NavigationLink(destination: SettingsView(appState: self.appState)) {
+                        Image(systemName: "gear").accessibilityLabel("Settings")
+                    }
                 }
             }
-            ToolbarItem {
-                NavigationLink(destination: SearchView(appState: appState)) {
-                    Image(systemName: "magnifyingglass").accessibilityLabel("Search")
-                }
-            }
-        }
+        #endif
         .sheet(isPresented: $showAddresses) {
             NavigationStack {
                 ResolvedAddressesView(appState: appState)

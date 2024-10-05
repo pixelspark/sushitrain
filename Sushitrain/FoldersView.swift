@@ -53,6 +53,9 @@ struct FoldersSections: View {
                 addFolderID = ""
                 showingAddFolderPopup = true
             })
+            #if os(macOS)
+                .buttonStyle(.borderless)
+            #endif
         }
         .sheet(isPresented: $showingAddFolderPopup, content: {
             AddFolderView(folderID: $addFolderID, appState: appState)

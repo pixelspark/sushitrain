@@ -40,7 +40,8 @@ struct PhotoSyncButton: View {
         else {
             Button("Copy new photos", systemImage: "photo.badge.arrow.down.fill") {
                 photoSync.synchronize(self.appState, fullExport: false)
-            }.disabled(photoSync.isSynchronizing || !photoSync.isReady)
+            }
+            .disabled(photoSync.isSynchronizing || !photoSync.isReady)
         }
     }
 }

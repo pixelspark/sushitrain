@@ -19,6 +19,9 @@ class SushitrainAppDelegate: NSObject {
 struct SushitrainApp: App {
     fileprivate var appState: AppState
     fileprivate var delegate: SushitrainAppDelegate
+    #if os(macOS)
+        @Environment(\.openWindow) private var openWindow
+    #endif
     
     init() {
         var configDirectory = try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true);
@@ -73,10 +76,47 @@ struct SushitrainApp: App {
     var body: some Scene {
         WindowGroup { [appState] in
             ContentView(appState: appState)
-#if os(iOS)
-            .handleOpenURLInApp()
-#endif
+            #if os(iOS)
+                .handleOpenURLInApp()
+            #endif
         }
+        #if os(macOS)
+            .commands {
+                CommandGroup(replacing: CommandGroupPlacement.appInfo) {
+                    Button(action: {
+                        // Open the "about" window
+                        openWindow(id: "about")
+                    }, label: {
+                        Text("About Synctrain")
+                    })
+                    
+                    Button(action: {
+                        openWindow(id: "stats")
+                    }, label: {
+                        Text("Statistics...")
+                    })
+                }
+            }
+        #endif
+        
+        #if os(macOS)
+            Settings {
+                NavigationStack {
+                    TabbedSettingsView(appState: appState)
+                }
+            }.windowResizability(.contentSize)
+            
+            // About window
+            Window("About Synctrain", id: "about") {
+                AboutView()
+            }.windowResizability(.contentSize)
+        
+            Window("Statistics", id: "stats") {
+                TotalStatisticsView(appState: appState)
+                    .frame(minWidth: 320, minHeight: 480)
+            }
+            .windowResizability(.contentSize)
+        #endif
     }
 }
 

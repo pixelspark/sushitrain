@@ -406,6 +406,54 @@ fileprivate struct BandwidthSettingsView: View {
     }
 }
 
+#if os(macOS)
+struct TabbedSettingsView: View {
+    @ObservedObject var appState: AppState
+    
+    var body: some View {
+        TabView {
+            GeneralSettingsView(appState: appState)
+                .tabItem {
+                    Label("General", systemImage: "app.badge.checkmark.fill")
+                }
+            BandwidthSettingsView(appState: appState)
+                .tabItem {
+                    Label("Bandwidth", systemImage: "tachometer")
+                }
+            PhotoSettingsView(appState: appState, photoSync: appState.photoSync)
+                .tabItem {
+                    Label("Photo synchronization", systemImage: "photo")
+                }
+            AdvancedSettingsView(appState: appState)
+                .tabItem {
+                    Label("Advanced", systemImage: "gear")
+                }
+        }
+        .frame(minWidth: 500, minHeight: 450)
+        .windowResizeBehavior(.automatic)
+        .formStyle(.grouped)
+    }
+}
+
+struct GeneralSettingsView: View {
+    @ObservedObject var appState: AppState
+    
+    var body: some View {
+        Form {
+            Section {
+                TextField("Host name", text: Binding(get: {
+                    var err: NSError? = nil
+                    return appState.client.getName(&err)
+                }, set: { nn in
+                    try? appState.client.setName(nn)
+                }))
+            }
+        }
+    }
+}
+#endif
+
+#if os(iOS)
 struct SettingsView: View {
     @ObservedObject var appState: AppState
                 
@@ -464,3 +512,4 @@ struct SettingsView: View {
         #endif
     }
 }
+#endif

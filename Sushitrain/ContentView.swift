@@ -23,7 +23,7 @@ struct ContentView: View {
         TabView(selection: $route) {
             // Me
             NavigationStack {
-                StartView(appState: appState, route: $route)
+                StartOrSearchView(appState: appState, route: $route)
             }
             .tabItem {
                 Label("Start", systemImage: self.appState.systemImage)
@@ -63,8 +63,7 @@ struct ContentView: View {
                             NavigationLink(value: Route.start) {
                                 Label("Start", systemImage: self.appState.systemImage)
                             }
-                        }
-                        Section {
+
                             NavigationLink(value: Route.devices) {
                                 Label("Devices", systemImage: "externaldrive.fill")
                             }
@@ -85,7 +84,7 @@ struct ContentView: View {
                 NavigationStack {
                     switch self.route {
                     case .start:
-                        StartView(appState: self.appState, route: $route)
+                        StartOrSearchView(appState: self.appState, route: $route)
                         
                     case .devices:
                         DevicesView(appState: self.appState)
@@ -216,5 +215,46 @@ struct ContentView: View {
         } catch let error {
             print("Error activating streaming server:", error)
         }
+    }
+}
+
+fileprivate struct StartOrSearchView: View {
+    @ObservedObject var appState: AppState
+    @Binding var route: Route?
+    @State private var searchText: String = ""
+    
+    // This is needed because isSearching is not available from the parent view
+    struct InnerView: View {
+        @ObservedObject var appState: AppState
+        @Binding var route: Route?
+        @Binding var searchText: String
+        @Environment(\.isSearching) private var isSearching
+        
+        var body: some View {
+            if isSearching {
+                SearchResultsView(
+                    appState: self.appState,
+                    searchText: $searchText,
+                    folder: .constant(""),
+                    prefix: .constant("")
+                )
+            }
+            else {
+                StartView(appState: appState, route: $route)
+            }
+        }
+    }
+    
+    var body: some View {
+        ZStack {
+            InnerView(appState: appState, route: $route, searchText: $searchText)
+        }
+        .searchable(text: $searchText, placement: SearchFieldPlacement.toolbar, prompt: "Search files and folders...")
+        #if os(iOS)
+            .textInputAutocapitalization(.never)
+        #endif
+        .autocorrectionDisabled()
+        // The below works from iOS18
+        //.searchFocused($isSearchFieldFocused)
     }
 }
