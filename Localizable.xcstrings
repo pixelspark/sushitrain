@@ -613,6 +613,34 @@
         }
       }
     },
+    "Add to album": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toevoegen aan album"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Album hinzufügen"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi all'album"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agregar al álbum"
+          }
+        }
+      }
+    },
     "Add your first device": {
       "localizations": {
         "de": {
@@ -809,6 +837,34 @@
         }
       }
     },
+    "After %lld days": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na %lld dagen"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach %lld Tagen"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dopo %lld giorni"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Después de %lld días"
+          }
+        }
+      }
+    },
     "After %lld hours": {
       "localizations": {
         "de": {
@@ -861,6 +917,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Na het opnieuw opstarten van de app, wordt er een logbestand in de applicatiemap geschreven, dat je vervolgens kunt delen met de ontwikkelaars."
+          }
+        }
+      }
+    },
+    "After saving": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Na opslaan"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach dem Speichern"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dopo il salvataggio"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Después de guardar"
           }
         }
       }
@@ -1393,6 +1477,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bandbreedtebeperkingen"
+          }
+        }
+      }
+    },
+    "Because of the setting below to immediately delete photos after saving, newly saved photos will not be added to this album.": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vanwege de onderstaande instelling om foto's onmiddellijk te verwijderen na het opslaan, worden nieuw opgeslagen foto's niet aan dit album toegevoegd."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aufgrund der untenstehenden Einstellung zum sofortigen Löschen von Fotos nach dem Speichern werden neu gespeicherte Fotos nicht zu diesem Album hinzugefügt."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A causa dell'impostazione sottostante che elimina immediatamente le foto dopo il salvataggio, le nuove foto salvate non verranno aggiunte a questo album."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debido a la configuración de abajo para eliminar fotos inmediatamente después de guardarlas, las fotos recién guardadas no se agregarán a este álbum."
           }
         }
       }
@@ -1987,16 +2099,16 @@
     },
     "Delete": {
       "localizations": {
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verwijderen"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Löschen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar"
           }
         },
         "it": {
@@ -2005,10 +2117,10 @@
             "value": "Elimina"
           }
         },
-        "es": {
+        "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eliminar"
+            "value": "Verwijderen"
           }
         }
       }
@@ -3721,6 +3833,34 @@
         }
       }
     },
+    "Immediately": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onmiddellijk"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sofort"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Immediatamente"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inmediatamente"
+          }
+        }
+      }
+    },
     "Include in device back-up": {
       "localizations": {
         "de": {
@@ -5065,6 +5205,34 @@
         }
       }
     },
+    "Photos cannot be removed while the app is in the background - a permission screen will be shown.": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foto's kunnen niet worden verwijderd terwijl de app op de achtergrond is - een toestemmingsscherm wordt weergegeven."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fotos können nicht gelöscht werden, während die App im Hintergrund läuft - ein Berechtigungsbildschirm wird angezeigt."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le foto non possono essere rimosse mentre l'app è in background - verrà visualizzata una schermata di autorizzazione."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las fotos no se pueden eliminar mientras la app está en segundo plano; se mostrará una pantalla de permisos."
+          }
+        }
+      }
+    },
     "Photos from the selected album will be saved in the selected folder, in sub folders by creation date. If a photo with the same file name already exists in the folder, or has been deleted from the folder before, it will not be saved again.": {
       "localizations": {
         "de": {
@@ -5681,6 +5849,34 @@
         }
       }
     },
+    "Remove saved photos from source": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwijder opgeslagen foto's van bron"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherte Fotos aus der Quelle entfernen"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rimuovi le foto salvate dalla fonte"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar fotos guardadas de la fuente"
+          }
+        }
+      }
+    },
     "Remove the file from all devices": {
       "localizations": {
         "de": {
@@ -5733,6 +5929,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Verwijder deze map en alle bestanden"
+          }
+        }
+      }
+    },
+    "Removing originals": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oorspronkelijke bestanden verwijderen"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Originale entfernen"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rimozione degli originali"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminando originales"
           }
         }
       }

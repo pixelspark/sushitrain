@@ -20,6 +20,7 @@ enum PhotoSyncProgress {
     case exportingVideos(index: Int, total: Int, current: String?)
     case exportingLivePhotos(index: Int, total: Int, current: String?)
     case selecting
+    case purging
     case finished(error: String?)
     
     var stepProgress: Float {
@@ -43,6 +44,8 @@ enum PhotoSyncProgress {
             return 1.0
         case .selecting:
             return 0.0
+        case .purging:
+            return 0.0
         case .finished(error: _):
             return 1.0
         }
@@ -59,6 +62,8 @@ enum PhotoSyncProgress {
             return String(localized: "\(index+1) of \(total)")
         case .exportingLivePhotos(index: let index, total: let total, current: _):
             return String(localized: "\(index+1) of \(total)")
+        case .purging:
+            return ""
         case .selecting:
             return ""
         case .finished(error: _):
@@ -76,6 +81,8 @@ enum PhotoSyncProgress {
             return String(localized: "Saving videos")
         case .exportingLivePhotos(index: _, total: _, current: _):
             return String(localized: "Saving live photos")
+        case .purging:
+            return String(localized: "Removing originals")
         case .selecting:
             return String(localized: "Selecting files to be synchronized")
         case .finished(error: let error):
@@ -85,7 +92,6 @@ enum PhotoSyncProgress {
             else {
                 return String(localized: "Finished")
             }
-            
         }
     }
 }
@@ -94,9 +100,12 @@ enum PhotoSyncProgress {
 class PhotoSynchronisation: ObservableObject {
     @AppStorage("photoSyncSelectedAlbumID") var  selectedAlbumID: String = ""
     @AppStorage("photoSyncFolderID") var selectedFolderID: String = ""
+    @AppStorage("photoSyncSavedAlbumID") var savedAlbumID: String = "" // Album to put photos that have been saved in
     @AppStorage("photoSyncLastCompletedDate") var lastCompletedDate: Double = -1.0
     @AppStorage("photoSyncEnableBackgroundCopy") var enableBackgroundCopy: Bool = false
     @AppStorage("photoSyncCategories") var categories: Set<PhotoSyncCategories> = Set([.photo, .video, .livePhoto])
+    @AppStorage("photoSyncPurgeEnabled") var purgeEnabled = false
+    @AppStorage("photoSyncPurgeAfterDays") var purgeAfterDays = 7
     
     @Published var isSynchronizing = false
     @Published var progress: PhotoSyncProgress = .finished(error: nil)
@@ -135,7 +144,10 @@ class PhotoSynchronisation: ObservableObject {
         
         let selectedAlbumID = self.selectedAlbumID
         let selectedFolderID = self.selectedFolderID
+        let savedAlbumID = self.savedAlbumID
         let categories = self.categories
+        let purgeEnabled = self.purgeEnabled
+        let purgeCutoffDate = Date.now - Double.maximum(Double(self.purgeAfterDays), 0.0) * 86400.0
         
         if self.syncTask != nil {
             return
@@ -195,6 +207,7 @@ class PhotoSynchronisation: ObservableObject {
                 return
             }
             let isSelective = folder.isSelective()
+            let myShortDeviceID = await appState.client.shortDeviceID()
             
             let assets = PHAsset.fetchAssets(in: album, options: nil)
             
@@ -206,6 +219,8 @@ class PhotoSynchronisation: ObservableObject {
             var videosToExport: [(PHAsset, URL, String)] = []
             var livePhotosToExport: [(PHAsset, URL, String)] = []
             var selectPaths: [String] = []
+            var originalsToPurge: [PHAsset] = []
+            var assetsSavedSuccessfully: [PHAsset] = []
             
             assets.enumerateObjects { asset, index, stop in
                 if Task.isCancelled {
@@ -224,22 +239,44 @@ class PhotoSynchronisation: ObservableObject {
                 
                 let inFolderPath = asset.pathInFolder;
                 
-                // Check if this photo was deleted before
-                if !fullExport {
+                // Check if this photo was saved or deleted before
+                if purgeEnabled || !fullExport {
                     if let entry = try? folder.getFileInformation(inFolderPath) {
-                        if entry.isDeleted() {
-                            print("Entry at \(inFolderPath) was deleted, not saving")
+                        // If purging is enabled, check if we should remove the photo from the source
+                        if purgeEnabled {
+                            if let mTime = entry.modifiedAt(), mTime.date() < purgeCutoffDate {
+                                let lastModifiedByShortDeviceID = entry.modifiedByShortDeviceID()
+                                if lastModifiedByShortDeviceID == myShortDeviceID {
+                                    // The photo is already saved and was last modified by this device; we can delete from source
+                                    print("Purge entry: \(inFolderPath) \(mTime.date()) \(lastModifiedByShortDeviceID)")
+                                    originalsToPurge.append(asset)
+                                }
+                                else {
+                                    // The photo already exists but it was not last modified by us; do not delete from source
+                                    
+                                }
+                            }
+                            else {
+                                // Could not fetch modified date or modified too recently; do not delete from source
+                            }
                         }
-                        else {
-                            print("Entry at \(inFolderPath) exists, not saving")
+                        
+                        // If the photo was saved then deleted, do not try to save again (unless we are in full export)
+                        if !fullExport {
+                            if entry.isDeleted() {
+                                print("Entry at \(inFolderPath) was deleted, not saving again")
+                            }
+                            else {
+                                print("Entry at \(inFolderPath) exists, not saving again")
+                            }
+                            return
                         }
-                        return
                     }
                 }
                 
                 // Save asset if it doesn't exist already locally
                 let fileURL = folderURL.appending(path: inFolderPath, directoryHint: .notDirectory)
-                if !FileManager.default.fileExists(atPath: fileURL.path) {
+                if !FileManager.default.fileExists(atPath: fileURL.path) || fullExport {
                     // If a video: queue video export session
                     if asset.mediaType == .video {
                         if categories.contains(.video) {
@@ -255,10 +292,8 @@ class PhotoSynchronisation: ObservableObject {
                             PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
                                 if let data = data {
                                     try! data.write(to: fileURL)
-                                    
-                                    if isSelective {
-                                        selectPaths.append(inFolderPath)
-                                    }
+                                    assetsSavedSuccessfully.append(asset)
+                                    selectPaths.append(inFolderPath)
                                 }
                             }
                         }
@@ -281,12 +316,12 @@ class PhotoSynchronisation: ObservableObject {
             
             // Export videos
             if categories.contains(.video) {
-                print("Starting video exports")
+                let videoCount =  videosToExport.count
+                print("Starting video exports for \(videoCount) videos")
                 #if os(iOS)
                 print("Background time remaining:", await UIApplication.shared.backgroundTimeRemaining)
                 #endif
                 
-                let videoCount =  videosToExport.count
                 DispatchQueue.main.async {
                     self.progress = .exportingVideos(index: 0, total: videoCount, current: nil)
                 }
@@ -300,7 +335,7 @@ class PhotoSynchronisation: ObservableObject {
                         self.progress = .exportingVideos(index: idx, total: videoCount, current: nil)
                     }
                     
-                    await withCheckedContinuation { resolve in
+                    _ = await withCheckedContinuation { resolve in
                         print("Exporting video \(asset.originalFilename)")
                         let options = PHVideoRequestOptions()
                         options.deliveryMode = .highQualityFormat
@@ -310,14 +345,17 @@ class PhotoSynchronisation: ObservableObject {
                                 es.outputURL = fileURL
                                 es.outputFileType = .mov
                                 es.shouldOptimizeForNetworkUse = false
+                                
                                 es.exportAsynchronously {
                                     print("Done exporting video \(asset.originalFilename)")
-                                    resolve.resume(returning: ())
+                                    resolve.resume(returning: true)
                                 }
                             }
                         }
                     }
+                    
                     selectPaths.append(selectPath)
+                    assetsSavedSuccessfully.append(asset)
                 }
             }
             
@@ -368,6 +406,7 @@ class PhotoSynchronisation: ObservableObject {
                                 }
                                 else {
                                     selectPaths.append(selectPath)
+                                    assetsSavedSuccessfully.append(asset)
                                 }
                                 resolve.resume()
                             }
@@ -396,6 +435,31 @@ class PhotoSynchronisation: ObservableObject {
                     stList.append(path)
                 }
                 try? folder.setLocalPathsExplicitlySelected(stList)
+            }
+            
+            // Tag saved items
+            if !savedAlbumID.isEmpty && !assetsSavedSuccessfully.isEmpty {
+                print("Tagging \(assetsSavedSuccessfully.count) saved items")
+                if let savedAlbum = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [savedAlbumID], options: nil).firstObject {
+                    let assets = PHAsset.fetchAssets(withLocalIdentifiers: assetsSavedSuccessfully.map {$0.localIdentifier}, options: nil)
+                    try? await PHPhotoLibrary.shared().performChanges {
+                        PHAssetCollectionChangeRequest(for: savedAlbum)!.addAssets(assets)
+                    }
+                }
+            }
+            
+            // Purge
+            if purgeEnabled && !originalsToPurge.isEmpty {
+                print("Purge \(originalsToPurge.count) originals")
+                DispatchQueue.main.async {
+                    self.progress = .purging
+                }
+                let assets = PHAsset.fetchAssets(withLocalIdentifiers: originalsToPurge.map {$0.localIdentifier}, options: nil)
+                
+                // this could fail in the background
+                try? await PHPhotoLibrary.shared().performChanges {
+                    PHAssetChangeRequest.deleteAssets(assets)
+                }
             }
             
             // Write 'last completed' date

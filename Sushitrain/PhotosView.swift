@@ -52,12 +52,14 @@ struct PhotoSettingsView: View {
     @ObservedObject var photoSync: PhotoSynchronisation
     
     var body: some View {
+        let albums = self.authorizationStatus == .authorized ? self.loadAlbums() : []
+        
         Form {
             Section {
                 if authorizationStatus == .authorized {
                     Picker("From album", selection: $photoSync.selectedAlbumID) {
                         Text("None").tag("")
-                        ForEach(self.loadAlbums(), id: \.localIdentifier) { album in
+                        ForEach(albums, id: \.localIdentifier) { album in
                             Text(album.localizedTitle ?? "Unknown album").tag(album.localIdentifier)
                         }
                     }
@@ -115,6 +117,36 @@ struct PhotoSettingsView: View {
                     photoSync.categories.toggle(.video, s)
                 })).disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
             }
+            
+            Section {
+                Picker("Add to album", selection: $photoSync.savedAlbumID) {
+                    Text("None").tag("")
+                    ForEach(albums, id: \.localIdentifier) { album in
+                        Text(album.localizedTitle ?? "Unknown album").tag(album.localIdentifier)
+                    }
+                }
+                .pickerStyle(.menu)
+                .disabled(photoSync.isSynchronizing || self.authorizationStatus != .authorized)
+            }
+            header: {
+                Text("After saving")
+            }
+            footer: {
+                if(photoSync.purgeEnabled && photoSync.purgeAfterDays <= 0) {
+                    Text("Because of the setting below to immediately delete photos after saving, newly saved photos will not be added to this album.")
+                }
+            }
+            
+            Section {
+                Toggle("Remove saved photos from source", isOn: photoSync.$purgeEnabled)
+                if photoSync.purgeEnabled {
+                    Stepper(photoSync.purgeAfterDays <= 0 ? "Immediately" : "After \(photoSync.purgeAfterDays) days", value: photoSync.$purgeAfterDays, in: 0...30)
+                }
+            } footer: {
+                if photoSync.purgeEnabled && photoSync.enableBackgroundCopy {
+                    Text("Photos cannot be removed while the app is in the background - a permission screen will be shown.")
+                }
+            }.disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
             
             Section {
                 PhotoSyncButton(appState: appState, photoSync: photoSync)

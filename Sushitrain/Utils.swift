@@ -314,6 +314,10 @@ struct OptionalObject<T: Codable>: RawRepresentable {
     }
 }
 
+protocol Defaultable {
+    init()
+}
+
 // Allows all Codable Arrays to be saved using AppStorage
 extension Array: @retroactive RawRepresentable where Element: Codable {
     public init?(rawValue: String) {

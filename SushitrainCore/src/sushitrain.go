@@ -536,9 +536,14 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 	return cfg, err
 }
 
-/** Returns the device ID */
+/** Returns our node's device ID */
 func (clt *Client) DeviceID() string {
 	return protocol.NewDeviceID(clt.cert.Certificate[0]).String()
+}
+
+/** Returns our node's short device ID */
+func (clt *Client) ShortDeviceID() string {
+	return protocol.NewDeviceID(clt.cert.Certificate[0]).Short().String()
 }
 
 func (clt *Client) deviceID() protocol.DeviceID {
