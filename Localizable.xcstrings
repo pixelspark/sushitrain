@@ -1369,6 +1369,34 @@
         }
       }
     },
+    "Are you sure you want to unlink this folder? The folder will not be synchronized any longer. Files currently on this device will not be deleted.": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weet je zeker dat je deze map wilt ontkoppelen? De map wordt niet langer gesynchroniseerd. Bestanden die momenteel op dit apparaat staan worden niet verwijderd."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Möchten Sie diesen Ordner wirklich trennen? Der Ordner wird nicht mehr synchronisiert. Dateien, die sich derzeit auf diesem Gerät befinden, werden nicht gelöscht."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sei sicuro di voler scollegare questa cartella? La cartella non verrà più sincronizzata. I file attualmente presenti su questo dispositivo non verranno eliminati."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Estás seguro de que quieres desvincular esta carpeta? La carpeta ya no se sincronizará. Los archivos actualmente en este dispositivo no se eliminarán."
+          }
+        }
+      }
+    },
     "Associated devices": {
       "localizations": {
         "de": {
@@ -8701,6 +8729,62 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ontkoppel apparaat"
+          }
+        }
+      }
+    },
+    "Unlink folder": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koppel map los"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordner trennen"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scollega cartella"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desvincular carpeta"
+          }
+        }
+      }
+    },
+    "Unlink the folder": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koppel de map los"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordner trennen"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scollega la cartella"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desvincular la carpeta"
           }
         }
       }

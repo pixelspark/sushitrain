@@ -45,12 +45,11 @@ func (fld *Folder) Rescan() error {
 	return nil
 }
 
-func (fld *Folder) Remove() error {
+func (fld *Folder) Unlink() error {
 	fc := fld.folderConfiguration()
 	if fc == nil {
 		return errors.New("folder does not exist")
 	}
-	ffs := fc.Filesystem(nil)
 	err := fld.client.changeConfiguration(func(cfg *config.Configuration) {
 		folders := make([]config.FolderConfiguration, 0)
 		for _, fc := range cfg.Folders {
@@ -61,6 +60,20 @@ func (fld *Folder) Remove() error {
 		cfg.Folders = folders
 	})
 
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (fld *Folder) Remove() error {
+	fc := fld.folderConfiguration()
+	if fc == nil {
+		return errors.New("folder does not exist")
+	}
+	ffs := fc.Filesystem(nil)
+	err := fld.Unlink()
 	if err != nil {
 		return err
 	}

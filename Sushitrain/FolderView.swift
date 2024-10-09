@@ -389,6 +389,7 @@ struct FolderView: View {
     @State var editEncryptionPasswordDeviceID = ""
     @State var showEditEncryptionPassword = false
     @State var showRemoveConfirmation = false
+    @State var showUnlinkConfirmation = false
     
     var possiblePeers: [SushitrainPeer] {
         get {
@@ -474,17 +475,6 @@ struct FolderView: View {
                     }
                 }
                 
-                Section {
-                    Button("Re-scan folder", systemImage: "sparkle.magnifyingglass") {
-                        do {
-                            try folder.rescan()
-                        }
-                        catch let error {
-                            showError = true
-                            errorText = error.localizedDescription
-                        }
-                    }
-                }
                 
                 #if os(macOS)
                 // On iOS, this is in the folder popup menu instead
@@ -496,6 +486,33 @@ struct FolderView: View {
                 #endif
                 
                 Section {
+                    Button("Re-scan folder", systemImage: "sparkle.magnifyingglass") {
+                        do {
+                            try folder.rescan()
+                        }
+                        catch let error {
+                            showError = true
+                            errorText = error.localizedDescription
+                        }
+                    }
+                    
+                    Button("Unlink folder", systemImage: "folder.badge.minus", role:.destructive) {
+                        showUnlinkConfirmation = true
+                    }
+                    .foregroundColor(.red)
+                    .confirmationDialog("Are you sure you want to unlink this folder? The folder will not be synchronized any longer. Files currently on this device will not be deleted.", isPresented: $showUnlinkConfirmation, titleVisibility: .visible) {
+                        Button("Unlink the folder", role: .destructive) {
+                            do {
+                                dismiss()
+                                try folder.unlink()
+                            }
+                            catch let error {
+                                showError = true
+                                errorText = error.localizedDescription
+                            }
+                        }
+                    }
+ 
                     Button("Remove folder", systemImage: "trash", role:.destructive) {
                         showRemoveConfirmation = true
                     }
