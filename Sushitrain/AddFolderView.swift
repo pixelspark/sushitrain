@@ -18,9 +18,7 @@ struct AddFolderView: View {
     @State var folderPath: URL? = nil
     @State private var possiblePeers: [SushitrainPeer] = []
     
-    #if os(macOS)
     @State private var showPathSelector: Bool = false
-    #endif
     
     var folderExists: Bool {
         get {
@@ -39,19 +37,28 @@ struct AddFolderView: View {
                         #endif
                 }
                 
-                #if os(macOS)
                 Section("Folder location") {
-                    if let u = self.folderPath {
-                        Text(u.path(percentEncoded: false))
+                    Button(action: {
+                        self.folderPath = nil
+                    }) {
+                        Label("Create a new folder", systemImage: self.folderPath == nil ? "checkmark" : "")
                     }
-                    else {
-                        Text("(Default location)")
-                    }
-                    Button("Select folder") {
+                    
+                    Button(action: {
                         self.showPathSelector = true
+                    }) {
+                        if let u = self.folderPath {
+                            Label(u.lastPathComponent, systemImage: "checkmark").contextMenu {
+                                Text(u.path(percentEncoded: false))
+                            }
+                        }
+                        else {
+                            Label("Select existing folder...", systemImage: "")
+                        }
                     }
+                    
+                    
                 }
-                #endif
                 
                 if !possiblePeers.isEmpty {
                     let pendingPeers = (try? appState.client.devicesPendingFolder(self.folderID))?.asArray() ?? []
@@ -132,7 +139,6 @@ struct AddFolderView: View {
             .onAppear {
                 self.possiblePeers = appState.peers().sorted().filter({d in !d.isSelf()})
             }
-            #if os(macOS)
             .fileImporter(isPresented: $showPathSelector, allowedContentTypes: [.folder], onCompletion: {result in
                 switch result {
                 case .success(let url):
@@ -142,7 +148,6 @@ struct AddFolderView: View {
                     self.folderPath = nil
                 }
             })
-            #endif
         }
     }
 }
