@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 import SwiftUI
-import SushitrainCore
+@preconcurrency import SushitrainCore
 import QuickLook
 
 enum BrowserViewStyle: String {
@@ -117,6 +117,7 @@ fileprivate struct BrowserListView: View {
     @State private var files: [SushitrainEntry] = []
     @State private var hasExtraneousFiles = false
     @State private var isLoading = true
+    @State private var showSpinner = false
     
     @Environment(\.isSearching) private var isSearching
     
@@ -211,7 +212,9 @@ fileprivate struct BrowserListView: View {
                 ContentUnavailableView("Folder removed", systemImage: "trash", description: Text("This folder was removed."))
             }
             else if isLoading {
-                ProgressView()
+                if showSpinner {
+                    ProgressView()
+                }
             }
             else if isEmpty && self.prefix == "" {
                 if self.folder.isPaused() {
@@ -233,64 +236,76 @@ fileprivate struct BrowserListView: View {
         }
         .task(id: self.folder.folderStateForUpdating) {
             self.isLoading = true
+            self.showSpinner = false
+            let loadingSpinnerTask = Task {
+                try await Task.sleep(nanoseconds: 300_000_000)
+                if !Task.isCancelled && self.isLoading {
+                    self.showSpinner = true
+                }
+            }
             
-            subdirectories = self.listSubdirectories();
-            files = self.listFiles();
-            if self.folder.isIdle {
-                var hasExtra: ObjCBool = false
+            let folder = self.folder
+            let prefix = self.prefix
+            subdirectories = await Task.detached {
+                if !folder.exists() {
+                    return []
+                }
                 do {
-                    try folder.hasExtraneousFiles(&hasExtra)
-                    hasExtraneousFiles = hasExtra.boolValue
+                    let dirNames = try folder.list(prefix, directories: true).asArray().sorted()
+                    return try dirNames.map({ dirName in
+                        return try folder.getFileInformation(prefix + dirName)
+                    })
                 }
                 catch let error {
-                    print("error checking for extraneous files: \(error.localizedDescription)")
+                    print("Error listing: \(error.localizedDescription)")
                 }
+                return []
+            }.value
+            
+            files = await Task.detached {
+                if !folder.exists() {
+                    return []
+                }
+                do {
+                    let list = try folder.list(self.prefix, directories: false)
+                    var entries: [SushitrainEntry] = [];
+                    for i in 0..<list.count() {
+                        let path = list.item(at: i)
+                        if let fileInfo = try? folder.getFileInformation(self.prefix + path) {
+                            if fileInfo.isDirectory() || fileInfo.isDeleted() {
+                                continue
+                            }
+                            entries.append(fileInfo)
+                        }
+                    }
+                    return entries.sorted()
+                }
+                catch let error {
+                    print("Error listing: \(error.localizedDescription)")
+                }
+                return []
+            }.value
+            
+            if self.folder.isIdle {
+                hasExtraneousFiles = await Task.detached {
+                    var hasExtra: ObjCBool = false
+                    do {
+                        try folder.hasExtraneousFiles(&hasExtra)
+                        return hasExtra.boolValue
+                    }
+                    catch let error {
+                        print("error checking for extraneous files: \(error.localizedDescription)")
+                    }
+                    return false
+                }.value
             }
             else {
                 hasExtraneousFiles = false
             }
+            
             self.isLoading = false
+            loadingSpinnerTask.cancel()
         }
-    }
-    
-    private func listSubdirectories() -> [SushitrainEntry] {
-        if !folder.exists() {
-            return []
-        }
-        do {
-            let dirNames = try folder.list(self.prefix, directories: true).asArray().sorted()
-            return try dirNames.map({ dirName in
-                return try folder.getFileInformation(self.prefix + dirName)
-            })
-        }
-        catch let error {
-            print("Error listing: \(error.localizedDescription)")
-        }
-        return []
-    }
-    
-    private func listFiles() -> [SushitrainEntry] {
-        if !folder.exists() {
-            return []
-        }
-        do {
-            let list = try folder.list(self.prefix, directories: false)
-            var entries: [SushitrainEntry] = [];
-            for i in 0..<list.count() {
-                let path = list.item(at: i)
-                if let fileInfo = try? folder.getFileInformation(self.prefix + path) {
-                    if fileInfo.isDirectory() || fileInfo.isDeleted() {
-                        continue
-                    }
-                    entries.append(fileInfo)
-                }
-            }
-            return entries.sorted()
-        }
-        catch let error {
-            print("Error listing: \(error.localizedDescription)")
-        }
-        return []
     }
 }
 

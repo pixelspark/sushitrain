@@ -122,8 +122,6 @@ struct SushitrainApp: App {
     }
 }
 
-extension SushitrainChange: @unchecked @retroactive Sendable {}
-
 extension SushitrainAppDelegate: SushitrainClientDelegateProtocol {
     func onChange(_ change: SushitrainChange?) {
         if let change = change {

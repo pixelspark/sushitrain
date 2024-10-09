@@ -464,3 +464,7 @@ fileprivate class ImageCache {
         }
     }
 }
+
+extension SushitrainChange: @unchecked @retroactive Sendable {}
+extension SushitrainFolder: @unchecked @retroactive Sendable {}
+extension SushitrainEntry: @unchecked @retroactive Sendable {}
