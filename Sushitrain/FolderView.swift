@@ -475,7 +475,7 @@ struct FolderView: View {
                 }
                 
                 Section {
-                    Button("Re-scan folder") {
+                    Button("Re-scan folder", systemImage: "sparkle.magnifyingglass") {
                         do {
                             try folder.rescan()
                         }
