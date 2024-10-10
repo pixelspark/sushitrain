@@ -273,7 +273,12 @@ struct FileView: View {
     var showPath = false
     var siblings: [SushitrainEntry]? = nil
     @State var selfIndex: Int? = nil
+    
     @Environment(\.dismiss) private var dismiss
+    
+    #if os(macOS)
+    @Environment(\.openURL) private var openURL
+    #endif
     
     var body: some View {
         if file.isDeleted() {
@@ -331,6 +336,14 @@ struct FileView: View {
                 }
                 
                 if !file.isDirectory() && !file.isSymlink() {
+                    #if os(macOS)
+                        let openInSafariButton = Button("Open in Safari", systemImage: "safari", action: {
+                            if let u = URL(string: file.onDemandURL()) {
+                                openURL(u)
+                            }
+                        }).disabled(folder.connectedPeerCount() == 0)
+                    #endif
+                    
                     var error: NSError? = nil
                     let localPath = file.isLocallyPresent() ? file.localNativePath(&error) : nil
                     
@@ -364,24 +377,44 @@ struct FileView: View {
                         }
                     }
                     else {
-                        if file.isMedia {
-                            Section {
+                        let streamButton = Button("Stream", systemImage: file.isVideo ? "tv" : "music.note", action: {
+                            if file.isVideo {
+                                showVideoPlayer = true
+                            }
+                            else if file.isAudio {
+                                showOnDemandPreview = true
+                            }
+                        }).disabled(folder.connectedPeerCount() == 0)
+                        
+                        let quickViewButton = Button("View file", systemImage: "arrow.down.circle", action: {
+                            showDownloader = true
+                        }).disabled(folder.connectedPeerCount() == 0);
+                        
+                        Section {
+                            if file.isMedia {
                                 // Stream button
-                                Button("Stream", systemImage: file.isVideo ? "tv" : "music.note", action: {
-                                    if file.isVideo {
-                                        showVideoPlayer = true
+                                #if os(macOS)
+                                    HStack {
+                                        streamButton
+                                        quickViewButton
+                                        openInSafariButton
                                     }
-                                    else if file.isAudio {
-                                        showOnDemandPreview = true
+                                #else
+                                    streamButton
+                                    quickViewButton
+                                #endif
+                            }
+                            else {
+                                #if os(macOS)
+                                    HStack {
+                                        quickViewButton
+                                        openInSafariButton
                                     }
-                                }).disabled(folder.connectedPeerCount() == 0)
+                                #else
+                                    quickViewButton
+                                #endif
                             }
                         }
-                        
-                        // Download button
-                        Button("View file", systemImage: "arrow.down.circle", action: {
-                           showDownloader = true
-                        }).disabled(folder.connectedPeerCount() == 0)
                     }
                     
                     
@@ -474,10 +507,10 @@ struct FileView: View {
                 
                 .sheet(isPresented: $showDownloader, content: {
                     NavigationStack {
-                        FileDownloadView(file: file, appState: self.appState)
-#if os(iOS)
-                            .navigationBarTitleDisplayMode(.inline)
-#endif
+                        FileQuickLookView(file: file, appState: self.appState)
+                            #if os(iOS)
+                                .navigationBarTitleDisplayMode(.inline)
+                            #endif
                             .toolbar(content: {
                                 ToolbarItem(placement: .cancellationAction, content: {
                                     Button("Cancel") {

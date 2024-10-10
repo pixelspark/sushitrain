@@ -48,7 +48,7 @@ fileprivate class DownloadOperation: NSObject, ObservableObject, SushitrainDownl
     }
 }
 
-struct FileDownloadView: View {
+struct FileQuickLookView: View {
     @State var file: SushitrainEntry
     @ObservedObject var appState: AppState
     @StateObject private var downloadOperation: DownloadOperation = DownloadOperation()
