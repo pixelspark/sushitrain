@@ -329,6 +329,7 @@ struct BrowserView: View {
     @State private var showSettings = false
     @State private var searchText = ""
     @State private var localNativeURL: URL? = nil
+    @State private var folderExists = false
     
     var folderName: String {
         if prefix.isEmpty {
@@ -353,7 +354,7 @@ struct BrowserView: View {
         .searchable(text: $searchText, placement: SearchFieldPlacement.toolbar, prompt: "Search files in this folder...")
         #endif
         .toolbar {
-            if folder.exists() {
+            if folderExists {
                 #if os(macOS)
                 ToolbarItemGroup(placement: .status) {
                     Picker("View as", selection: appState.$browserViewStyle) {
@@ -424,6 +425,7 @@ struct BrowserView: View {
             }
         })
         .task {
+            self.folderExists = folder.exists()
             self.localNativeURL = nil
             var error: NSError? = nil
             let localNativePath = self.folder.localNativePath(&error)
