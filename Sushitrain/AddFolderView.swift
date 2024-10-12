@@ -19,6 +19,7 @@ struct AddFolderView: View {
     @State private var possiblePeers: [SushitrainPeer] = []
     
     @State private var showPathSelector: Bool = false
+    @State private var showAddingExternalWarning: Bool = false
     
     var folderExists: Bool {
         get {
@@ -34,6 +35,8 @@ struct AddFolderView: View {
                         .focused($idFieldFocus)
                         #if os(iOS)
                         .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .keyboardType(.asciiCapable)
                         #endif
                 }
                 
@@ -43,12 +46,15 @@ struct AddFolderView: View {
                     }) {
                         Label("Create a new folder", systemImage: self.folderPath == nil ? "checkmark" : "")
                     }
+                    #if os(macOS)
+                        .buttonStyle(.link)
+                    #endif
                     
                     Button(action: {
                         self.showPathSelector = true
                     }) {
                         if let u = self.folderPath {
-                            Label(u.lastPathComponent, systemImage: "checkmark").contextMenu {
+                            Label("Existing folder: '\(u.lastPathComponent)'", systemImage: "checkmark").contextMenu {
                                 Text(u.path(percentEncoded: false))
                             }
                         }
@@ -56,8 +62,9 @@ struct AddFolderView: View {
                             Label("Select existing folder...", systemImage: "")
                         }
                     }
-                    
-                    
+                    #if os(macOS)
+                        .buttonStyle(.link)
+                    #endif
                 }
                 
                 if !possiblePeers.isEmpty {
@@ -85,45 +92,33 @@ struct AddFolderView: View {
                     }.disabled(pendingPeers.isEmpty)
                 }
             }
-#if os(macOS)
-            .formStyle(.grouped)
-#endif
+            #if os(macOS)
+                .formStyle(.grouped)
+            #endif
             .onAppear {
                 idFieldFocus = true
             }
             .toolbar(content: {
                 ToolbarItem(placement: .confirmationAction, content: {
                     Button("Add folder") {
-                        do {
-                            // Add the folder
-                            if let fp = self.folderPath {
-                                try appState.client.addFolder(self.folderID, folderPath: fp.path(percentEncoded: false))
-                            }
-                            else {
-                                try appState.client.addFolder(self.folderID, folderPath: "")
-                            }
-                            
-                            if let folder = appState.client.folder(withID: self.folderID) {
-                                // By default, exclude from backup
-                                folder.isExcludedFromBackup = true
-                                
-                                // Add peers
-                                for devID in self.sharedWith {
-                                    try folder.share(withDevice: devID, toggle: true, encryptionPassword: "")
-                                }
-                                dismiss()
-                            }
-                            else {
-                                // Something went wrong creating the folder
-                                showError = true
-                                errorText = "Folder could not be added"
-                            }
+                        if self.folderPath != nil {
+                            self.showAddingExternalWarning = true
                         }
-                        catch let error {
-                            showError = true
-                            errorText = error.localizedDescription
+                        else {
+                            self.add()
                         }
-                    }.disabled(folderID.isEmpty || folderExists)
+                    }
+                    .disabled(folderID.isEmpty || folderExists)
+                    .alert(isPresented: $showAddingExternalWarning, content: {
+                        Alert(
+                            title: Text("Adding a folder from another app"),
+                            message: Text("You are adding a folder that may be controlled by another app. This can cause issues, for instance when synchronization changes the app's files structure in an unsupported way. Are you sure you want to continue?"),
+                            primaryButton: .destructive(Text("Continue")) {
+                                self.add()
+                            },
+                            secondaryButton: .cancel(Text("Cancel"))
+                        )
+                    })
                 })
                 ToolbarItem(placement: .cancellationAction, content: {
                     Button("Cancel") {
@@ -139,15 +134,56 @@ struct AddFolderView: View {
             .onAppear {
                 self.possiblePeers = appState.peers().sorted().filter({d in !d.isSelf()})
             }
-            .fileImporter(isPresented: $showPathSelector, allowedContentTypes: [.folder], onCompletion: {result in
+            .fileImporter(isPresented: $showPathSelector, allowedContentTypes: [.folder], onCompletion: { result in
                 switch result {
                 case .success(let url):
-                    self.folderPath = url
+                    // Check if the folder path is or is inside our regular folder path - that is not allowed
+                    if url.resolvingSymlinksInPath().path(percentEncoded: false).hasPrefix(SushitrainApp.documentsDirectory.resolvingSymlinksInPath().path(percentEncoded: false)) {
+                        self.errorText = String(localized: "The folder you have selected is inside the app folder. Only folders outside the app folder can be selected.")
+                        self.showError = true
+                        self.folderPath = nil
+                    }
+                    else {
+                        self.folderPath = url
+                    }
                 case .failure(let e):
                     print("Failed to select folder: \(e.localizedDescription)")
                     self.folderPath = nil
                 }
             })
+        }
+    }
+    
+    private func add() {
+        do {
+            // Add the folder
+            if let fp = self.folderPath {
+                try BookmarkManager.shared.saveBookmark(folderID: self.folderID, url: fp)
+                try appState.client.addFolder(self.folderID, folderPath: fp.path(percentEncoded: false), createAsOnDemand: false)
+            }
+            else {
+                try appState.client.addFolder(self.folderID, folderPath: "", createAsOnDemand: true)
+            }
+            
+            if let folder = appState.client.folder(withID: self.folderID) {
+                // By default, exclude from backup
+                folder.isExcludedFromBackup = true
+                
+                // Add peers
+                for devID in self.sharedWith {
+                    try folder.share(withDevice: devID, toggle: true, encryptionPassword: "")
+                }
+                dismiss()
+            }
+            else {
+                // Something went wrong creating the folder
+                showError = true
+                errorText = "Folder could not be added"
+            }
+        }
+        catch let error {
+            showError = true
+            errorText = error.localizedDescription
         }
     }
 }

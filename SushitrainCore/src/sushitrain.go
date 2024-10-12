@@ -73,9 +73,10 @@ var (
 )
 
 const (
-	ConfigFileName = "config.xml"
-	CertFileName   = "cert.pem"
-	KeyFileName    = "key.pem"
+	ConfigFileName   = "config.xml"
+	CertFileName     = "cert.pem"
+	KeyFileName      = "key.pem"
+	bookmarkFileName = "sushitrain-bookmark.dat"
 )
 
 func NewClient(configPath string, filesPath string, saveLog bool) (*Client, error) {
@@ -664,7 +665,7 @@ func (clt *Client) AddPeer(deviceID string) error {
 }
 
 // Leave path empty to add folder at default location
-func (clt *Client) AddFolder(folderID string, folderPath string) error {
+func (clt *Client) AddFolder(folderID string, folderPath string, createAsOnDemand bool) error {
 	if clt.app == nil || clt.app.Internals == nil {
 		return ErrStillLoading
 	}
@@ -680,6 +681,7 @@ func (clt *Client) AddFolder(folderID string, folderPath string) error {
 	folderConfig.FSWatcherEnabled = false
 	folderConfig.Paused = false
 
+	// Add to configuration
 	err := clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.SetFolder(folderConfig)
 	})
@@ -688,7 +690,12 @@ func (clt *Client) AddFolder(folderID string, folderPath string) error {
 	}
 
 	// Set default ignores for on-demand sync
-	return clt.app.Internals.SetIgnores(folderID, []string{"*"})
+	if createAsOnDemand {
+		return clt.app.Internals.SetIgnores(folderID, []string{"*"})
+	} else {
+		// Create empty .stignore anyway because there may be an old one lingering around
+		return clt.app.Internals.SetIgnores(folderID, []string{})
+	}
 }
 
 func (clt *Client) SetNATEnabled(enabled bool) error {

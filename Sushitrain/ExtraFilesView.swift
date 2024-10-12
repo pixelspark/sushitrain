@@ -97,8 +97,8 @@ struct ExtraFilesView: View {
                     }
                 }
             }
-        }.onAppear {
-           reload()
+        }.task {
+            await reload()
         }
         .navigationTitle("Extra files in folder \(folder.label())")
 #if os(iOS)
@@ -116,7 +116,9 @@ struct ExtraFilesView: View {
                     }
                     catch {
                         errorMessage = error.localizedDescription
-                        reload()
+                        Task {
+                            await reload()
+                        }
                     }
                 }).disabled(!folder.isIdleOrSyncing || verdicts.isEmpty || extraFiles.isEmpty)
             })
@@ -129,9 +131,11 @@ struct ExtraFilesView: View {
         }
     }
     
-    private func reload() {
+    private func reload() async {
         if folder.isIdleOrSyncing {
-            extraFiles = try! folder.extraneousFiles().asArray().sorted()
+            extraFiles = await Task.detached {
+                return try! folder.extraneousFiles().asArray().sorted()
+            }.value
         }
         else {
             extraFiles = []

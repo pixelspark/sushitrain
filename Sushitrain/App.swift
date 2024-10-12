@@ -27,9 +27,13 @@ struct SushitrainApp: App {
         return try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
     }
     
+    static var documentsDirectory: URL {
+        return try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+    }
+    
     init() {
         var configDirectory = Self.configDirectory
-        let documentsDirectory = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+        let documentsDirectory = Self.documentsDirectory
         let documentsPath = documentsDirectory.path(percentEncoded: false)
         let configPath = configDirectory.path(percentEncoded: false)
         
@@ -59,6 +63,28 @@ struct SushitrainApp: App {
         self.appState.update()
         
         let appState = self.appState
+        
+        // Resolve bookmarks
+        let folderIDs = client.folders()?.asArray() ?? []
+        for folderID in folderIDs {
+            do {
+                if let bm = try BookmarkManager.shared.resolveBookmark(folderID: folderID) {
+                    print("We have a bookmark for folder \(folderID): \(bm)")
+                    if let folder = client.folder(withID: folderID) {
+                        try folder.setPath(bm.path(percentEncoded: false))
+                    }
+                    else {
+                        print("Cannot obtain folder configuration for \(folderID) for setting bookmark; skipping")
+                    }
+                }
+            }
+            catch {
+                print("Error restoring bookmark for \(folderID): \(error.localizedDescription)")
+            }
+        }
+        BookmarkManager.shared.removeBookmarksForFoldersNotIn(Set(folderIDs))
+        
+        // Start Syncthing node in the background
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 try client.start();

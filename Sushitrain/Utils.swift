@@ -114,6 +114,16 @@ extension SushitrainFolder {
         return s == "idle"
     }
     
+    var isExternal: Bool? {
+        var isExternal: ObjCBool = false
+        do {
+            try self.isExternal(&isExternal)
+            return isExternal.boolValue
+        } catch {
+            return nil
+        }
+    }
+    
     // When true, the folder's selection can be changed (files may be transferring, but otherwise the folder is idle)
     var isIdleOrSyncing: Bool {
         var error: NSError? = nil
@@ -151,7 +161,12 @@ extension SushitrainFolder {
             guard var lu = self.localNativeURL else { return }
             var values = try! lu.resourceValues(forKeys: [.isExcludedFromBackupKey])
             values.isExcludedFromBackup = newValue
-            try! lu.setResourceValues(values)
+            do {
+                try lu.setResourceValues(values)
+            }
+            catch {
+                print("Unable to set back-up excluded setting: \(error.localizedDescription)")
+            }
         }
     }
     
@@ -165,9 +180,26 @@ extension SushitrainFolder {
             guard var lu = self.localNativeURL else { return }
             if var values = try? lu.resourceValues(forKeys: [.isHiddenKey]) {
                 values.isHidden = newValue
-                try? lu.setResourceValues(values)
+                do {
+                    try lu.setResourceValues(values)
+                }
+                catch {
+                    print("Unable to set hide setting: \(error.localizedDescription)")
+                }
             }
         }
+    }
+    
+    @MainActor
+    func removeAndRemoveBookmark() throws {
+        BookmarkManager.shared.removeBookmarkFor(folderID: self.folderID)
+        try self.remove()
+    }
+    
+    @MainActor
+    func unlinkAndRemoveBookmark() throws {
+        BookmarkManager.shared.removeBookmarkFor(folderID: self.folderID)
+        try self.unlink()
     }
 }
 
@@ -542,4 +574,93 @@ struct WebView: UIViewRepresentable {
         }
     }
     #endif
+}
+
+@MainActor
+struct BookmarkManager {
+    static var shared = BookmarkManager()
+    private static let DefaultsKey = "bookmarksByFolderID"
+    private var bookmarks: [String: Data] = [:]
+    private var accessing: [String: Accessor] = [:]
+    
+    enum BookmarkManagerError: Error {
+        case cannotAccess
+    }
+    
+    class Accessor {
+        var url: URL
+        
+        init(url: URL) throws {
+            self.url = url
+            if !url.startAccessingSecurityScopedResource() {
+                throw BookmarkManagerError.cannotAccess
+            }
+            print("Start accessing \(url)")
+        }
+        
+        deinit {
+            print("Stop accessing \(url)")
+            url.stopAccessingSecurityScopedResource()
+        }
+    }
+    
+    init() {
+        self.load()
+    }
+    
+    mutating func saveBookmark(folderID: String, url: URL) throws {
+        self.accessing[folderID] = try Accessor(url: url)
+        bookmarks[folderID] = try url.bookmarkData(options: .minimalBookmark, includingResourceValuesForKeys: nil, relativeTo: nil)
+        self.save()
+    }
+    
+    mutating func removeBookmarkFor(folderID: String) {
+        self.bookmarks.removeValue(forKey: folderID)
+        self.accessing.removeValue(forKey: folderID)
+        self.save()
+    }
+    
+    func hasBookmarkFor(folderID: String) -> Bool {
+        return self.bookmarks[folderID] != nil
+    }
+    
+    mutating func resolveBookmark(folderID: String) throws -> URL? {
+        guard let bookmarkData = bookmarks[folderID] else { return nil }
+        var isStale = false
+        let url = try URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &isStale)
+        guard !isStale else {
+            print("Bookmark for \(folderID) is stale")
+            self.bookmarks.removeValue(forKey: folderID)
+            return nil
+        }
+        
+        // Start accessing
+        if let currentAccessor = self.accessing[folderID] {
+            if currentAccessor.url != url {
+                self.accessing[folderID] = try Accessor(url: url)
+            }
+        }
+        else {
+            self.accessing[folderID] = try Accessor(url: url)
+        }
+        return url
+    }
+    
+    private mutating func load() {
+        self.bookmarks = UserDefaults.standard.object(forKey: Self.DefaultsKey) as? [String: Data] ?? [:]
+        print("Load bookmarks: \(self.bookmarks)")
+    }
+    
+    private func save() {
+        print("Saving bookmarks: \(self.bookmarks)")
+        UserDefaults.standard.set(self.bookmarks, forKey: Self.DefaultsKey)
+    }
+    
+    mutating func removeBookmarksForFoldersNotIn(_ folderIDs: Set<String>) {
+        let toRemove = self.bookmarks.keys.filter({ !folderIDs.contains($0) })
+        for toRemoveKey in toRemove {
+            print("Removing stale bookmark \(toRemoveKey)")
+            self.bookmarks.removeValue(forKey: toRemoveKey)
+        }
+    }
 }

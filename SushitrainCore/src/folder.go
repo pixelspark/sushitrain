@@ -8,6 +8,7 @@ package sushitrain
 import (
 	"encoding/json"
 	"errors"
+	"path"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -392,6 +393,28 @@ func (fld *Folder) FolderType() string {
 	case config.FolderTypeSendReceive:
 		return FolderTypeSendReceive
 	}
+}
+
+// Returns true when this folder is 'external', i.e. some other app's folder
+func (fld *Folder) IsExternal() (bool, error) {
+	fc := fld.folderConfiguration()
+	if fc == nil {
+		return false, errors.New("cannot obtain folder configuration")
+	}
+
+	defaultPath := path.Join(fld.client.filesPath, fld.FolderID)
+	return defaultPath != fc.Path, nil
+}
+
+func (fld *Folder) SetPath(path string) error {
+	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
+		fc := fld.folderConfiguration()
+		if fc == nil {
+			return
+		}
+		fc.Path = path
+		cfg.SetFolder(*fc)
+	})
 }
 
 func (fld *Folder) SetFolderType(folderType string) error {

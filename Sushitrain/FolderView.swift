@@ -341,14 +341,18 @@ struct FolderSyncTypePicker: View {
                 }
                 
                 // Prohibit change in selection mode when there are extraneous files
-                var hasExtra: ObjCBool = false
-                let _ = try! folder.hasExtraneousFiles(&hasExtra)
-                changeProhibited = hasExtra.boolValue
+                Task.detached {
+                    var hasExtra: ObjCBool = false
+                    let _ = try! folder.hasExtraneousFiles(&hasExtra)
+                    let hasExtraFinal = hasExtra
+                    DispatchQueue.main.async {
+                        changeProhibited = hasExtraFinal.boolValue
+                    }
+                }
             }
         }
     }
 }
-
 
 struct FolderDirectionPicker: View {
     @ObservedObject var appState: AppState
@@ -371,14 +375,41 @@ struct FolderDirectionPicker: View {
                 }
                 
                 // Prohibit change in selection mode when there are extraneous files
-                var hasExtra: ObjCBool = false
-                let _ = try! folder.hasExtraneousFiles(&hasExtra)
-                changeProhibited = hasExtra.boolValue
+                Task.detached {
+                    var hasExtra: ObjCBool = false
+                    let _ = try! folder.hasExtraneousFiles(&hasExtra)
+                    let hasExtraFinal = hasExtra
+                    DispatchQueue.main.async {
+                        changeProhibited = hasExtraFinal.boolValue
+                    }
+                }
             }
         }
     }
 }
 
+fileprivate struct ExternalFolderSectionView: View {
+    var folderID: String
+    
+    var body: some View {
+        let isAccessible = BookmarkManager.shared.hasBookmarkFor(folderID: folderID)
+        Section {
+            if isAccessible {
+                Label("External folder", systemImage: "app.badge.checkmark").foregroundStyle(.pink)
+            }
+            else {
+                Label("Inaccessible external folder", systemImage: "xmark.app").foregroundStyle(.red)
+            }
+        } footer: {
+            if isAccessible {
+                Text("This folder is not in the default location, and may belong to another app.")
+            }
+            else {
+                Text("This folder is external to this app, and cannot be accessed anymore. To resolve this issue, unlink the folder and re-add it.")
+            }
+        }
+    }
+}
 
 struct FolderView: View {
     var folder: SushitrainFolder
@@ -400,10 +431,15 @@ struct FolderView: View {
     var body: some View {
         let sharedWith = folder.sharedWithDeviceIDs()?.asArray() ?? [];
         let sharedEncrypted = folder.sharedEncryptedWithDeviceIDs()?.asArray() ?? [];
+        let isExternal = folder.isExternal
         
         Form {
             if folder.exists() {
                 FolderStatusView(appState: appState, folder: folder)
+                
+                if isExternal == true {
+                    ExternalFolderSectionView(folderID: folder.folderID)
+                }
                 
                 Section("Folder settings") {
                     Text("Folder ID").badge(Text(folder.folderID))
@@ -451,23 +487,23 @@ struct FolderView: View {
                     }
                 }
                 
-#if os(iOS)
-                Section("System settings") {
-                    Toggle("Include in device back-up", isOn: Binding(get: {
-                        if let f = folder.isExcludedFromBackup { return !f }
-                        return false
-                    }, set: { nv in
-                        folder.isExcludedFromBackup = !nv
-                    }))
-                    
-                    Toggle("Hide in Files app", isOn: Binding(get: {
-                        if let f = folder.isHidden { return f }
-                        return false
-                    }, set: { nv in
-                        folder.isHidden = nv
-                    }))
-                }
-#endif
+                #if os(iOS)
+                    Section("System settings") {
+                        Toggle("Include in device back-up", isOn: Binding(get: {
+                            if let f = folder.isExcludedFromBackup { return !f }
+                            return false
+                        }, set: { nv in
+                            folder.isExcludedFromBackup = !nv
+                        })).disabled(isExternal != false)
+                        
+                        Toggle("Hide in Files app", isOn: Binding(get: {
+                            if let f = folder.isHidden { return f }
+                            return false
+                        }, set: { nv in
+                            folder.isHidden = nv
+                        })).disabled(isExternal != false)
+                    }
+                #endif
                 
                 if self.folder.isSelective() {
                     NavigationLink(destination: SelectiveFolderView(appState: appState, folder: folder)) {
@@ -504,7 +540,7 @@ struct FolderView: View {
                         Button("Unlink the folder", role: .destructive) {
                             do {
                                 dismiss()
-                                try folder.unlink()
+                                try folder.unlinkAndRemoveBookmark()
                             }
                             catch let error {
                                 showError = true
@@ -516,12 +552,13 @@ struct FolderView: View {
                     Button("Remove folder", systemImage: "trash", role:.destructive) {
                         showRemoveConfirmation = true
                     }
+                    .disabled(isExternal != false)
                     .foregroundColor(.red)
                     .confirmationDialog("Are you sure you want to remove this folder? Please consider carefully. All files in this folder will be removed from this device. Files that have not been synchronized to other devices yet cannot be recoered.", isPresented: $showRemoveConfirmation, titleVisibility: .visible) {
                         Button("Remove the folder and all files", role: .destructive) {
                             do {
                                 dismiss()
-                                try folder.remove()
+                                try folder.removeAndRemoveBookmark()
                             }
                             catch let error {
                                 showError = true

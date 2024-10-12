@@ -305,12 +305,14 @@ struct StartView: View {
             if !foldersWithExtraFiles.isEmpty {
                 Section("Folders that need your attention") {
                     ForEach(foldersWithExtraFiles, id: \.self) { folderID in
-                        let folder = appState.client.folder(withID: folderID)!
-                        NavigationLink(destination: {
-                            ExtraFilesView(folder: folder, appState: appState)
-                        }) {
-                            Label("Folder '\(folder.displayName)' has extra files", systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                        if let folder = appState.client.folder(withID: folderID) {
+                            NavigationLink(destination: {
+                                ExtraFilesView(folder: folder, appState: appState)
+                            }) {
+                                Label("Folder '\(folder.displayName)' has extra files", systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                            }
                         }
+                        // Folder may have been recently deleted; in that case it cannot be accessed anymore
                     }
                 }
             }

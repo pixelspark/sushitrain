@@ -24,4 +24,4 @@ build/SushitrainCore.xcframework: src/*.go Makefile go.mod notices.html
 install: build
 
 clean:
-	rm -rf build/*
+	rm -rf build/* notices.html

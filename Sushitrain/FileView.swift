@@ -282,7 +282,13 @@ struct FileView: View {
                                     Button("View file", systemImage: "eye", action: {
                                         localItemURL = URL(fileURLWithPath: localPath!)
                                     })
+                                    #if os(macOS)
+                                        .buttonStyle(.link)
+                                    #endif
                                     ShareLink("Share file", item: URL(fileURLWithPath: localPath!))
+                                    #if os(macOS)
+                                        .buttonStyle(.link)
+                                    #endif
                                 }
                             }
                         }
@@ -312,10 +318,16 @@ struct FileView: View {
                                 showOnDemandPreview = true
                             }
                         }).disabled(folder.connectedPeerCount() == 0)
+                        #if os(macOS)
+                            .buttonStyle(.link)
+                        #endif
                         
                         let quickViewButton = Button("View file", systemImage: "arrow.down.circle", action: {
                             showDownloader = true
-                        }).disabled(folder.connectedPeerCount() == 0);
+                        }).disabled(folder.connectedPeerCount() == 0)
+                        #if os(macOS)
+                            .buttonStyle(.link)
+                        #endif
                         
                         Section {
                             if file.isMedia {
@@ -358,6 +370,9 @@ struct FileView: View {
                             Button("Remove file from all devices", systemImage: "trash", role: .destructive) {
                                 showRemoveConfirmation = true
                             }
+                            #if os(macOS)
+                                .buttonStyle(.link)
+                            #endif
                             .foregroundColor(.red)
                             .confirmationDialog("Are you sure you want to remove this file from all devices?", isPresented: $showRemoveConfirmation, titleVisibility: .visible) {
                                 Button("Remove the file from all devices", role: .destructive) {
