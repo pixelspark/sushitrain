@@ -441,7 +441,7 @@ struct FolderView: View {
                                 }
                             });
                             HStack {
-                                Toggle(addr.name(), systemImage: addr.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill", isOn: shared).bold(pendingPeerIDs.contains(addr.deviceID()))
+                                Toggle(addr.displayName, systemImage: addr.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill", isOn: shared).bold(pendingPeerIDs.contains(addr.deviceID()))
                                 Button("Encryption password", systemImage: sharedEncrypted.contains(addr.deviceID()) ? "lock" : "lock.open", action: {
                                     editEncryptionPasswordDeviceID = addr.deviceID()
                                     showEditEncryptionPassword = true
