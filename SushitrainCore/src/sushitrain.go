@@ -72,6 +72,12 @@ var (
 	ErrStillLoading = errors.New("still loading")
 )
 
+const (
+	ConfigFileName = "config.xml"
+	CertFileName   = "cert.pem"
+	KeyFileName    = "key.pem"
+)
+
 func NewClient(configPath string, filesPath string, saveLog bool) (*Client, error) {
 	// Set version info
 	build.Version = "v1.27.13"
@@ -126,7 +132,7 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 
 	// Check for custom user-provided config file
 	isUsingCustomConfiguration := false
-	customConfigFilePath := path.Join(filesPath, "config.xml")
+	customConfigFilePath := path.Join(filesPath, ConfigFileName)
 	if info, err := os.Stat(customConfigFilePath); err == nil {
 		if !info.IsDir() {
 			Logger.Infoln("Config XML exists in files dir, using it at", customConfigFilePath)
@@ -136,8 +142,8 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 	}
 
 	// Check for custom user-provided identity
-	customCertPath := path.Join(filesPath, "cert.pem")
-	customKeyPath := path.Join(filesPath, "key.pem")
+	customCertPath := path.Join(filesPath, CertFileName)
+	customKeyPath := path.Join(filesPath, KeyFileName)
 	if keyInfo, err := os.Stat(customKeyPath); err == nil {
 		if !keyInfo.IsDir() {
 			if certInfo, err := os.Stat(customCertPath); err == nil {
@@ -226,7 +232,7 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 func (clt *Client) ExportConfigurationFile() error {
 	cfg := clt.config.RawCopy()
 	homeDir := locations.GetBaseDir(locations.UserHomeBaseDir)
-	customConfigFilePath := path.Join(homeDir, "config.xml")
+	customConfigFilePath := path.Join(homeDir, ConfigFileName)
 	fd, err := osutil.CreateAtomic(customConfigFilePath)
 	if err != nil {
 		return err
@@ -343,7 +349,6 @@ func (clt *Client) handleEvent(evt events.Event) {
 		}
 
 	case events.RemoteDownloadProgress:
-
 		peerData := evt.Data.(map[string]interface{})
 		peerID := peerData["device"].(string)
 		folderID := peerData["folder"].(string)

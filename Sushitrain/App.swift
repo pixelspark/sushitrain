@@ -23,9 +23,13 @@ struct SushitrainApp: App {
         @Environment(\.openWindow) private var openWindow
     #endif
     
+    private static var configDirectory: URL {
+        return try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+    }
+    
     init() {
-        var configDirectory = try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true);
-        let documentsDirectory = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true);
+        var configDirectory = Self.configDirectory
+        let documentsDirectory = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
         let documentsPath = documentsDirectory.path(percentEncoded: false)
         let configPath = configDirectory.path(percentEncoded: false)
         
@@ -63,6 +67,7 @@ struct SushitrainApp: App {
                     appState.applySettings()
                     appState.update()
                     appState.updateBadge()
+                    Self.protectFiles()
                 }
             }
             catch let error {
@@ -119,6 +124,22 @@ struct SushitrainApp: App {
             }
             .windowResizability(.contentSize)
         #endif
+    }
+    
+    @MainActor private static func protectFiles() {
+        // Set data protection for config file and keys
+        let configDirectoryURL = Self.configDirectory
+        let files = [SushitrainConfigFileName, SushitrainKeyFileName, SushitrainCertFileName]
+        for file in files {
+            do {
+                let fileURL = configDirectoryURL.appendingPathComponent(SushitrainConfigFileName, isDirectory: false)
+                try (fileURL as NSURL).setResourceValue(URLFileProtection.completeUntilFirstUserAuthentication, forKey: .fileProtectionKey)
+                print("Data protection class set for \(fileURL)")
+            }
+            catch {
+                print("Error setting data protection class for \(file): \(error.localizedDescription)")
+            }
+        }
     }
 }
 
