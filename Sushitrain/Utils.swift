@@ -7,6 +7,7 @@ import Foundation
 import SwiftUI
 import SushitrainCore
 import VisionKit
+import WebKit
 
 extension SushitrainListOfStrings {
     public func asArray() -> [String] {
@@ -468,3 +469,77 @@ fileprivate class ImageCache {
 extension SushitrainChange: @unchecked @retroactive Sendable {}
 extension SushitrainFolder: @unchecked @retroactive Sendable {}
 extension SushitrainEntry: @unchecked @retroactive Sendable {}
+
+#if os(macOS)
+typealias UIViewRepresentable = NSViewRepresentable
+#endif
+
+struct WebView: UIViewRepresentable {
+    let url: URL
+    @Binding var isLoading: Bool
+    @Binding var error: Error?
+    
+    // With thanks to https://www.swiftyplace.com/blog/loading-a-web-view-in-swiftui-with-wkwebview
+    class WebViewCoordinator: NSObject, WKNavigationDelegate {
+        var parent: WebView
+        
+        init(_ parent: WebView) {
+            self.parent = parent
+        }
+        
+        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+            parent.isLoading = true
+        }
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            parent.isLoading = false
+        }
+        
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: any Error) {
+            parent.isLoading = false
+            parent.error = error
+        }
+        
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: any Error) {
+            parent.isLoading = false
+            parent.error = error
+        }
+    }
+    
+    func makeCoordinator() -> WebViewCoordinator {
+        return WebViewCoordinator(self)
+    }
+    
+    #if os(iOS)
+    func makeUIView(context: Context) -> WKWebView {
+        let view = WKWebView()
+        view.navigationDelegate = context.coordinator
+        let request = URLRequest(url: url)
+        view.load(request)
+        return view
+    }
+    
+    func updateUIView(_ webView: WKWebView, context: Context) {
+        if webView.url != url {
+            let request = URLRequest(url: url)
+            webView.load(request)
+        }
+    }
+    #endif
+    
+    #if os(macOS)
+    func makeNSView(context: Context) -> WKWebView {
+        let view = WKWebView()
+        view.navigationDelegate = context.coordinator
+        let request = URLRequest(url: url)
+        view.load(request)
+        return view
+    }
+    
+    func updateNSView(_ webView: WKWebView, context: Context) {
+        if webView.url != url {
+            let request = URLRequest(url: url)
+            webView.load(request)
+        }
+    }
+    #endif
+}

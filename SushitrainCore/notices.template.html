@@ -1,0 +1,72 @@
+<!--
+Copyright (C) 2024 Tommy van der Vorst
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this file,
+You can obtain one at https://mozilla.org/MPL/2.0/.
+-->
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+    <title>License notices</title>
+    <style type="text/css">
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        width: 100%;
+      }
+
+      body {
+        width: 100%;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont;
+        line-height: 1.1em;
+        font-size: 12pt;
+        padding: 10px;
+      }
+
+      p {
+        line-height: 1.2em;
+        margin-bottom: 20px;
+      }
+
+      h1 {
+        font-size: 12pt;
+        line-height: 1.2em;
+      }
+
+      ul.licenses li {
+        display: block;
+        margin-bottom: 20px;
+        line-height: 1.2em;
+      }
+
+      ul.licenses li > span {
+        white-space: wrap;
+        word-break: break-all;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Legal notices</h1>
+    <p>This software uses the following licensed software components.</p>
+
+    <ul class="licenses">
+      {{ range . }} {{ if eq (printf "%.8s" .Name) "t-shaped" }} {{ else }}
+      <li>
+        <span>{{ .Name }} {{ .Version }}</span>
+        <details>
+          <summary>{{ .LicenseName }} License</summary>
+          <pre>{{ .LicenseText }}</pre>
+        </details>
+      </li>
+      {{ end }} {{ end }}
+    </ul>
+  </body>
+</html>

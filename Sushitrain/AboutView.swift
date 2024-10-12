@@ -9,6 +9,7 @@ import SushitrainCore
 
 struct AboutView: View {
     @State private var showOnboarding = false
+    @State private var showNotices = false
     
     var body: some View {
         Form {
@@ -24,6 +25,12 @@ struct AboutView: View {
             Section("Open source components") {
                 Text("This application incorporates Syncthing, which is open source software under the Mozilla Public License 2.0. Syncthing is a trademark of the Syncthing Foundation. This application is not associated with nor endorsed by the Syncthing foundation nor Syncthing contributors.")
                 Link("Read more at syncthing.net", destination: URL(string: "https://syncthing.net")!)
+                Button("Legal notices") {
+                    showNotices = true
+                }
+                #if os(macOS)
+                    .buttonStyle(.link)
+                #endif
                 Link("Obtain the source code", destination: URL(string: "https://github.com/syncthing/syncthing")!)
                 Link("Obtain the source code modifications", destination: URL(string: "https://github.com/pixelspark/syncthing/tree/sushi")!)
             }
@@ -46,8 +53,23 @@ struct AboutView: View {
 #if os(macOS)
             .formStyle(.grouped)
 #endif
-        .sheet(isPresented: $showOnboarding, content: {
+        .sheet(isPresented: $showOnboarding) {
             OnboardingView().interactiveDismissDisabled()
-        })
+        }
+        .sheet(isPresented: $showNotices) {
+            let url = Bundle.main.url(forResource: "notices", withExtension: "html")!
+            NavigationStack {
+                WebView(url: url, isLoading: Binding.constant(false), error: Binding.constant(nil))
+                    .frame(minHeight: 480)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction, content: {
+                            Button("Close") {
+                                showNotices = false
+                            }
+                        })
+                    }
+                    .navigationTitle("Legal notices")
+            }
+        }
     }
 }
