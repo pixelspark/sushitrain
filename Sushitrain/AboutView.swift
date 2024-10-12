@@ -47,12 +47,12 @@ struct AboutView: View {
             }
         }
         .navigationTitle("About this app")
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-#endif
-#if os(macOS)
+        #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+        #endif
+        #if os(macOS)
             .formStyle(.grouped)
-#endif
+        #endif
         .sheet(isPresented: $showOnboarding) {
             OnboardingView().interactiveDismissDisabled()
         }
@@ -69,6 +69,9 @@ struct AboutView: View {
                         })
                     }
                     .navigationTitle("Legal notices")
+                    #if os(iOS)
+                        .navigationBarTitleDisplayMode(.inline)
+                    #endif
             }
         }
     }

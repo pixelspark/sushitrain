@@ -20,6 +20,9 @@ You can obtain one at https://mozilla.org/MPL/2.0/.
 
       html {
         width: 100%;
+        color-scheme: light dark;
+        background-color: Canvas;
+        color: CanvasText;
       }
 
       body {
@@ -38,6 +41,7 @@ You can obtain one at https://mozilla.org/MPL/2.0/.
       h1 {
         font-size: 12pt;
         line-height: 1.2em;
+        margin-bottom: 0.9em;
       }
 
       ul.licenses li {
@@ -50,6 +54,16 @@ You can obtain one at https://mozilla.org/MPL/2.0/.
         white-space: wrap;
         word-break: break-all;
       }
+
+      ul.licenses details {
+        margin-top: 0.9em;
+        margin-bottom: 0.9em;
+      }
+
+      pre {
+        max-width: 100%;
+        overflow-x: auto;
+      }
     </style>
   </head>
 
@@ -60,7 +74,7 @@ You can obtain one at https://mozilla.org/MPL/2.0/.
     <ul class="licenses">
       {{ range . }} {{ if eq (printf "%.8s" .Name) "t-shaped" }} {{ else }}
       <li>
-        <span>{{ .Name }} {{ .Version }}</span>
+        <span><strong>{{ .Name }}</strong> {{ .Version }}</span>
         <details>
           <summary>{{ .LicenseName }} License</summary>
           <pre>{{ .LicenseText }}</pre>
