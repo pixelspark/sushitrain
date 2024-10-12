@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/syncthing/syncthing/lib/config"
 	"github.com/syncthing/syncthing/lib/fs"
@@ -25,9 +26,15 @@ const (
 	ignoreFileName string = ".stignore"
 )
 
+type CachedIgnore struct {
+	matcher *ignore.Matcher
+	modTime time.Time
+}
+
 type Folder struct {
-	client   *Client
-	FolderID string
+	client       *Client
+	FolderID     string
+	cachedIgnore CachedIgnore
 }
 
 func (fld *Folder) folderConfiguration() *config.FolderConfiguration {
@@ -297,20 +304,24 @@ func (fld *Folder) whilePaused(block func() error) error {
 }
 
 func (fld *Folder) SetSelective(selective bool) error {
+	fld.cachedIgnore.matcher = nil // Purge our cache
 	if fld.client.app == nil || fld.client.app.Internals == nil {
 		return errNoClient
 	}
 
 	return fld.whilePaused(func() error {
 		if selective {
+			fld.cachedIgnore.matcher = nil // Purge our cache
 			return fld.client.app.Internals.SetIgnores(fld.FolderID, []string{"*"})
 		} else {
+			fld.cachedIgnore.matcher = nil // Purge our cache
 			return fld.client.app.Internals.SetIgnores(fld.FolderID, []string{})
 		}
 	})
 }
 
 func (fld *Folder) ClearSelection() error {
+	fld.cachedIgnore.matcher = nil // Purge our cache
 	err := fld.client.app.Internals.SetIgnores(fld.FolderID, []string{"*"})
 	if err != nil {
 		return err
@@ -497,9 +508,25 @@ func (fld *Folder) loadIgnores() (*ignore.Matcher, error) {
 		return nil, errors.New("folder does not exist")
 	}
 
+	ffs := cfg.Filesystem(nil)
+	stat, statErr := ffs.Lstat(ignoreFileName)
+
+	// If we have a matcher cached and the 'last modified time' matches, assume it's the same
+	if fld.cachedIgnore.matcher != nil && !fld.cachedIgnore.modTime.IsZero() && statErr == nil {
+		if stat.ModTime().Equal(fld.cachedIgnore.modTime) {
+			return fld.cachedIgnore.matcher, nil
+		}
+	}
+
 	ignores := ignore.New(cfg.Filesystem(nil), ignore.WithCache(false))
 	if err := ignores.Load(ignoreFileName); err != nil && !fs.IsNotExist(err) {
 		return nil, err
+	}
+
+	// Save to cache
+	if statErr == nil {
+		fld.cachedIgnore.modTime = stat.ModTime()
+		fld.cachedIgnore.matcher = ignores
 	}
 	return ignores, nil
 }
@@ -686,6 +713,7 @@ func (fld *Folder) SetExplicitlySelectedJSON(js []byte) error {
 
 func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
 	Logger.Infoln("Set explicitly selected: ", paths)
+	fld.cachedIgnore.matcher = nil // Purge our cache
 	state, err := fld.State()
 	if err != nil {
 		return err
