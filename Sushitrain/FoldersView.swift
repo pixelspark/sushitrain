@@ -44,6 +44,9 @@ struct FoldersSections: View {
                         addFolderID = folderID
                         showingAddFolderPopup = true
                     })
+                    #if os(macOS)
+                        .buttonStyle(.link)
+                    #endif
                 }
             }
         }

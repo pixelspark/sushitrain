@@ -234,6 +234,9 @@ struct AddressesView: View {
                 Button("Add address") {
                     self.editingAddresses.append("tcp://0.0.0.0:22000")
                 }.deleteDisabled(true)
+                #if os(macOS)
+                    .buttonStyle(.link)
+                #endif
             }
         }
         #if os(iOS)

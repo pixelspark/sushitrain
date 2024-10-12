@@ -36,11 +36,17 @@ struct PhotoSyncButton: View {
             Button("Cancel") {
                 photoSync.cancel()
             }
+            #if os(macOS)
+                .buttonStyle(.link)
+            #endif
         }
         else {
             Button("Copy new photos", systemImage: "photo.badge.arrow.down.fill") {
                 photoSync.synchronize(self.appState, fullExport: false)
             }
+            #if os(macOS)
+                .buttonStyle(.link)
+            #endif
             .disabled(photoSync.isSynchronizing || !photoSync.isReady)
         }
     }

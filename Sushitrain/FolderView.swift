@@ -531,10 +531,16 @@ struct FolderView: View {
                             errorText = error.localizedDescription
                         }
                     }
+                    #if os(macOS)
+                        .buttonStyle(.link)
+                    #endif
                     
                     Button("Unlink folder", systemImage: "folder.badge.minus", role:.destructive) {
                         showUnlinkConfirmation = true
                     }
+                    #if os(macOS)
+                        .buttonStyle(.link)
+                    #endif
                     .foregroundColor(.red)
                     .confirmationDialog("Are you sure you want to unlink this folder? The folder will not be synchronized any longer. Files currently on this device will not be deleted.", isPresented: $showUnlinkConfirmation, titleVisibility: .visible) {
                         Button("Unlink the folder", role: .destructive) {
@@ -552,6 +558,9 @@ struct FolderView: View {
                     Button("Remove folder", systemImage: "trash", role:.destructive) {
                         showRemoveConfirmation = true
                     }
+                    #if os(macOS)
+                        .buttonStyle(.link)
+                    #endif
                     .disabled(isExternal != false)
                     .foregroundColor(.red)
                     .confirmationDialog("Are you sure you want to remove this folder? Please consider carefully. All files in this folder will be removed from this device. Files that have not been synchronized to other devices yet cannot be recoered.", isPresented: $showRemoveConfirmation, titleVisibility: .visible) {

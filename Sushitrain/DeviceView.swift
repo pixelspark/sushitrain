@@ -133,7 +133,11 @@ struct DeviceView: View {
                     Button("Unlink device", systemImage: "trash", role:.destructive, action: {
                         try? device.remove()
                         dismiss()
-                    }).foregroundColor(.red)
+                    })
+                    .foregroundColor(.red)
+                    #if os(macOS)
+                        .buttonStyle(.link)
+                    #endif
                 }
             }
         }
