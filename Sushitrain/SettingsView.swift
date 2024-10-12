@@ -169,6 +169,12 @@ struct AdvancedSettingsView: View {
             }
             
             Section {
+                Toggle("Hide dotfiles", isOn: appState.$dotFilesHidden)
+            } footer: {
+                Text("When enabled, files and directories whose name start with a dot will not be shown when browsing a folder. These files and directories will remain visible in search results.")
+            }
+            
+            Section {
                 Toggle("Enable debug logging", isOn: appState.$loggingEnabled)
             }
             header: {

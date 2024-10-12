@@ -41,6 +41,7 @@ import Combine
     @AppStorage("browserViewStyle") var browserViewStyle: BrowserViewStyle = .list
     @AppStorage("browserGridColumns") var browserGridColumns: Int = 3
     @AppStorage("loggingEnabled") var loggingEnabled: Bool = false
+    @AppStorage("dotFilesHidden") var dotFilesHidden: Bool = true
     
     var photoSync = PhotoSynchronisation()
     

@@ -235,77 +235,89 @@ fileprivate struct BrowserListView: View {
             }
         }
         .task(id: self.folder.folderStateForUpdating) {
-            self.isLoading = true
-            self.showSpinner = false
-            let loadingSpinnerTask = Task {
-                try await Task.sleep(nanoseconds: 300_000_000)
-                if !Task.isCancelled && self.isLoading {
-                    self.showSpinner = true
-                }
-            }
-            
-            let folder = self.folder
-            let prefix = self.prefix
-            subdirectories = await Task.detached {
-                if !folder.exists() {
-                    return []
-                }
-                do {
-                    let dirNames = try folder.list(prefix, directories: true).asArray().sorted()
-                    return try dirNames.map({ dirName in
-                        return try folder.getFileInformation(prefix + dirName)
-                    })
-                }
-                catch let error {
-                    print("Error listing: \(error.localizedDescription)")
-                }
-                return []
-            }.value
-            
-            files = await Task.detached {
-                if !folder.exists() {
-                    return []
-                }
-                do {
-                    let list = try folder.list(self.prefix, directories: false)
-                    var entries: [SushitrainEntry] = [];
-                    for i in 0..<list.count() {
-                        let path = list.item(at: i)
-                        if let fileInfo = try? folder.getFileInformation(self.prefix + path) {
-                            if fileInfo.isDirectory() || fileInfo.isDeleted() {
-                                continue
-                            }
-                            entries.append(fileInfo)
-                        }
-                    }
-                    return entries.sorted()
-                }
-                catch let error {
-                    print("Error listing: \(error.localizedDescription)")
-                }
-                return []
-            }.value
-            
-            if self.folder.isIdle {
-                hasExtraneousFiles = await Task.detached {
-                    var hasExtra: ObjCBool = false
-                    do {
-                        try folder.hasExtraneousFiles(&hasExtra)
-                        return hasExtra.boolValue
-                    }
-                    catch let error {
-                        print("error checking for extraneous files: \(error.localizedDescription)")
-                    }
-                    return false
-                }.value
-            }
-            else {
-                hasExtraneousFiles = false
-            }
-            
-            self.isLoading = false
-            loadingSpinnerTask.cancel()
+            await self.reload()
         }
+    }
+    
+    private func reload() async {
+        self.isLoading = true
+        self.showSpinner = false
+        let loadingSpinnerTask = Task {
+            try await Task.sleep(nanoseconds: 300_000_000)
+            if !Task.isCancelled && self.isLoading {
+                self.showSpinner = true
+            }
+        }
+        
+        let folder = self.folder
+        let prefix = self.prefix
+        let dotFilesHidden = self.appState.dotFilesHidden
+        
+        subdirectories = await Task.detached {
+            if !folder.exists() {
+                return []
+            }
+            do {
+                var dirNames = try folder.list(prefix, directories: true).asArray().sorted()
+                if dotFilesHidden {
+                    dirNames = dirNames.filter({ !$0.starts(with: ".") })
+                }
+                return try dirNames.map({ dirName in
+                    return try folder.getFileInformation(prefix + dirName)
+                })
+            }
+            catch let error {
+                print("Error listing: \(error.localizedDescription)")
+            }
+            return []
+        }.value
+        
+        files = await Task.detached {
+            if !folder.exists() {
+                return []
+            }
+            do {
+                let list = try folder.list(self.prefix, directories: false)
+                var entries: [SushitrainEntry] = [];
+                for i in 0..<list.count() {
+                    let path = list.item(at: i)
+                    if dotFilesHidden && path.starts(with: ".") {
+                        continue
+                    }
+                    if let fileInfo = try? folder.getFileInformation(self.prefix + path) {
+                        if fileInfo.isDirectory() || fileInfo.isDeleted() {
+                            continue
+                        }
+                        entries.append(fileInfo)
+                    }
+                }
+                return entries.sorted()
+            }
+            catch let error {
+                print("Error listing: \(error.localizedDescription)")
+            }
+            return []
+        }.value
+        
+        if self.folder.isIdle {
+            hasExtraneousFiles = await Task.detached {
+                var hasExtra: ObjCBool = false
+                do {
+                    try folder.hasExtraneousFiles(&hasExtra)
+                    return hasExtra.boolValue
+                }
+                catch let error {
+                    print("error checking for extraneous files: \(error.localizedDescription)")
+                }
+                return false
+            }.value
+        }
+        else {
+            hasExtraneousFiles = false
+        }
+        
+        self.isLoading = false
+        loadingSpinnerTask.cancel()
     }
 }
 
