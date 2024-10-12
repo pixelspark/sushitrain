@@ -38,6 +38,9 @@ async function main() {
     if (Object.hasOwnProperty.call(input.strings, k)) {
       const string = k;
       const stringData = input.strings[k];
+
+      if (stringData.shouldTranslate === false) continue;
+
       if (
         typeof stringData.localizations !== "object" ||
         stringData.localizations === null
