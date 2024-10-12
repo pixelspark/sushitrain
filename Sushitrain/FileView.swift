@@ -268,7 +268,9 @@ struct FileView: View {
                             if let u = URL(string: file.onDemandURL()) {
                                 openURL(u)
                             }
-                        }).disabled(folder.connectedPeerCount() == 0)
+                        })
+                        .buttonStyle(.link)
+                        .disabled(folder.connectedPeerCount() == 0)
                     #endif
                     
                     var error: NSError? = nil
