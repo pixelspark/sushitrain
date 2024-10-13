@@ -379,7 +379,7 @@ struct FileView: View {
                             .confirmationDialog("Are you sure you want to remove this file from all devices?", isPresented: $showRemoveConfirmation, titleVisibility: .visible) {
                                 Button("Remove the file from all devices", role: .destructive) {
                                     dismiss()
-                                    try! file.remove()
+                                    try? file.remove()
                                 }
                             }
                         }
