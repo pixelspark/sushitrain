@@ -67,7 +67,7 @@ fileprivate struct ExportButtonView: View {
             Alert(title: Text("An error occurred"), message: Text(self.error!.localizedDescription), dismissButton: .default(Text("OK")))
         }
         .alert(isPresented: $showSuccess) {
-            Alert(title: Text("Custom configuration saved"), message: Text("The configuration file has been saved as config.xml in the application folder. Restart the app to apply the custom configuration."), dismissButton: .default(Text("OK")))
+            Alert(title: Text("Custom configuration saved"), message: Text("The configuration file has been saved in the application folder."), dismissButton: .default(Text("OK")))
         }
     }
 }

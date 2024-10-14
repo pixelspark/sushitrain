@@ -73,10 +73,11 @@ var (
 )
 
 const (
-	ConfigFileName   = "config.xml"
-	CertFileName     = "cert.pem"
-	KeyFileName      = "key.pem"
-	bookmarkFileName = "sushitrain-bookmark.dat"
+	ConfigFileName       = "config.xml"
+	ExportConfigFileName = "exported-config.xml"
+	CertFileName         = "cert.pem"
+	KeyFileName          = "key.pem"
+	bookmarkFileName     = "sushitrain-bookmark.dat"
 )
 
 func NewClient(configPath string, filesPath string, saveLog bool) (*Client, error) {
@@ -233,7 +234,7 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 func (clt *Client) ExportConfigurationFile() error {
 	cfg := clt.config.RawCopy()
 	homeDir := locations.GetBaseDir(locations.UserHomeBaseDir)
-	customConfigFilePath := path.Join(homeDir, ConfigFileName)
+	customConfigFilePath := path.Join(homeDir, ExportConfigFileName)
 	fd, err := osutil.CreateAtomic(customConfigFilePath)
 	if err != nil {
 		return err
