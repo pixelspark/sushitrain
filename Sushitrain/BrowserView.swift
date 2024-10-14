@@ -330,6 +330,7 @@ struct BrowserView: View {
     @State private var searchText = ""
     @State private var localNativeURL: URL? = nil
     @State private var folderExists = false
+    @State private var folderIsSelective = false
     
     var folderName: String {
         if prefix.isEmpty {
@@ -349,13 +350,12 @@ struct BrowserView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         #if os(macOS)
-        // Disabled due to glitchy transitions (on iOS 17.4 at least)
-         // .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search files in this folder...")
-        .searchable(text: $searchText, placement: SearchFieldPlacement.toolbar, prompt: "Search files in this folder...")
+            // Disabled due to glitchy transitions (on iOS 17.4 at least)
+             // .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search files in this folder...")
+            .searchable(text: $searchText, placement: SearchFieldPlacement.toolbar, prompt: "Search files in this folder...")
         #endif
         .toolbar {
-            if folderExists {
-                #if os(macOS)
+            #if os(macOS)
                 ToolbarItemGroup(placement: .status) {
                     Picker("View as", selection: appState.$browserViewStyle) {
                         Image(systemName: "list.bullet").tag(BrowserViewStyle.list).accessibilityLabel(Text("List"))
@@ -363,11 +363,9 @@ struct BrowserView: View {
                     }
                     .pickerStyle(.segmented)
                 }
-                ToolbarItem {
-                    Button("Folder settings", systemImage: "folder.badge.gearshape", action: {
-                        showSettings = true
-                    }).labelStyle(.iconOnly)
-                }
+            #endif
+            
+            #if os(macOS)
                 ToolbarItem {
                     Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
                         if let localNativeURL = self.localNativeURL {
@@ -375,9 +373,36 @@ struct BrowserView: View {
                         }
                     })
                     .labelStyle(.iconOnly)
-                    .disabled(localNativeURL == nil)
+                    .disabled(!folderExists || localNativeURL == nil)
                 }
-                #elseif os(iOS)
+            
+            ToolbarItem {
+                Menu {
+                    if folderExists {
+                        NavigationLink(destination: FolderStatisticsView(appState: appState, folder: folder)) {
+                            Label("Folder statistics...", systemImage: "scalemass")
+                        }
+                    }
+                    
+                    if folderExists && folderIsSelective {
+                        NavigationLink(destination: SelectiveFolderView(appState: appState, folder: folder)) {
+                            Label("Files kept on this device...", systemImage: "pin")
+                        }
+                    }
+                    
+                    Divider()
+                    
+                    Button {
+                        showSettings = true
+                    } label: {
+                        Label("Folder settings...", systemImage: "folder.badge.gearshape")
+                    }
+                    
+                } label: {
+                    Label("Folder settings", systemImage:  "folder.badge.gearshape")
+                }.disabled(!folderExists)
+            }
+            #elseif os(iOS)
                 ToolbarItem {
                     Menu(content: {
                         Picker("View as", selection: appState.$browserViewStyle) {
@@ -390,7 +415,7 @@ struct BrowserView: View {
                                 Text("Grid")
                             }.tag(BrowserViewStyle.grid)
                         }
-                        .pickerStyle(.menu)
+                        .pickerStyle(.inline)
                         
                         Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
                             if let localNativeURL = self.localNativeURL {
@@ -398,20 +423,27 @@ struct BrowserView: View {
                             }
                         })
                         .labelStyle(.iconOnly)
-                        .disabled(localNativeURL == nil)
+                        .disabled(localNativeURL == nil || !folderExists)
                         
-                        NavigationLink(destination: FolderStatisticsView(appState: appState, folder: folder)) {
-                            Label("Folder statistics", systemImage: "scalemass")
+                        if folderExists {
+                            NavigationLink(destination: FolderStatisticsView(appState: appState, folder: folder)) {
+                                Label("Folder statistics...", systemImage: "scalemass")
+                            }
+                            
+                            NavigationLink(destination: SelectiveFolderView(appState: appState, folder: folder)) {
+                                Label("Files kept on this device...", systemImage: "pin")
+                            }.disabled(!folderIsSelective)
                         }
                         
-                        Button("Folder settings", systemImage: "folder.badge.gearshape", action: {
+                        Divider()
+                        
+                        Button("Folder settings...", systemImage: "folder.badge.gearshape", action: {
                             showSettings = true
-                        }).labelStyle(.iconOnly)
+                        }).labelStyle(.iconOnly).disabled(!folderExists)
                         
                     }, label: { Image(systemName: "ellipsis.circle").accessibilityLabel(Text("Menu")) })
                 }
-                #endif
-            }
+            #endif
         }
         .sheet(isPresented: $showSettings, content: {
             NavigationStack {
@@ -426,6 +458,8 @@ struct BrowserView: View {
         })
         .task {
             self.folderExists = folder.exists()
+            
+            // Get local native URL
             self.localNativeURL = nil
             var error: NSError? = nil
             let localNativePath = self.folder.localNativePath(&error)
@@ -437,12 +471,10 @@ struct BrowserView: View {
                     self.localNativeURL = localNativeURL
                 }
             }
+            self.folderIsSelective = folder.isSelective()
         }
     }
-    
-    
 }
-
 
 extension SushitrainFolder {
     fileprivate var folderStateForUpdating: Int {

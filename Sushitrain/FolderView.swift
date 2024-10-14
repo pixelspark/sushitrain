@@ -73,89 +73,13 @@ struct FolderStatisticsView: View {
         }
 #if os(macOS)
         .formStyle(.grouped)
+        .navigationTitle("Folder statistics: '\(self.folder.displayName)'")
 #endif
+        
+#if os(iOS)
         .navigationTitle("Folder statistics")
-#if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
-    }
-}
-
-struct SelectiveFolderView: View {
-    @ObservedObject var appState: AppState
-    var folder: SushitrainFolder
-    @State private var showError = false
-    @State private var errorText = ""
-    @State private var searchString = ""
-    @State private var isLoading = true
-    @State private var selectedPaths: [String] = []
-    
-    var body: some View {
-        Group {
-            if isLoading {
-                ProgressView()
-            }
-            else if !selectedPaths.isEmpty {
-                Form {
-                    let st = searchString.lowercased()
-                    Section("Files kept on device") {
-                        List {
-                            ForEach(selectedPaths, id: \.self) { item in
-                                if st.isEmpty || item.lowercased().contains(st) {
-                                    if let file = try? folder.getFileInformation(item) {
-                                        NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState)) {
-                                            Label(item, systemImage: file.systemImage)
-                                        }
-                                    }
-                                    else {
-                                        Label(item, systemImage: "pin")
-                                    }
-                                }
-                            }.onDelete { pathIndexes in
-                                let paths = pathIndexes.map({idx in selectedPaths[idx]})
-                                paths.forEach { path in
-                                    if let file = try? folder.getFileInformation(path) {
-                                        try? file.setExplicitlySelected(false)
-                                    }
-                                }
-                                selectedPaths.remove(atOffsets: pathIndexes)
-                            }.disabled(!folder.isIdleOrSyncing)
-                        }
-                    }
-                    
-                    if st.isEmpty {
-                        Section {
-                            Button("Free up space", systemImage: "pin.slash", action: {
-                                do {
-                                    try folder.clearSelection()
-                                    self.selectedPaths.removeAll()
-                                }
-                                catch let error {
-                                    showError = true
-                                    errorText = error.localizedDescription
-                                }
-                            })
-                        }
-                    }
-                }
-#if os(macOS)
-                .formStyle(.grouped)
-#endif
-            }
-            else {
-                ContentUnavailableView("No files selected", systemImage: "pin.slash.fill", description: Text("To keep files on this device, navigate to a file and select 'keep on this device'. Selected files will appear here."))
-            }
-        }
-        .navigationTitle("Selected files")
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-#endif
-        .searchable(text: $searchString, prompt: "Search files by name...")
-        .task {
-            self.isLoading = true
-            self.selectedPaths = try! self.folder.selectedPaths().asArray().sorted()
-            self.isLoading = false
-        }
     }
 }
 
@@ -247,6 +171,7 @@ struct FolderStatusView: View {
             }
         }
         else if !self.folder.isPaused() {
+            let isSelective = self.folder.isSelective()
             Section {
                 if !isAvailable {
                     Label("Not connected", systemImage: "network.slash").badge(Text(peerStatusText)).foregroundColor(.gray)
@@ -254,7 +179,7 @@ struct FolderStatusView: View {
                 
                 // Sync status (in case non-selective or selective with selected files
                 else if status == "idle" {
-                    if !folder.isSelective() {
+                    if !isSelective {
                         Label("Synchronized", systemImage: "checkmark.circle.fill").foregroundStyle(.green).badge(Text(peerStatusText))
                     }
                     else {
@@ -267,7 +192,7 @@ struct FolderStatusView: View {
                     }
                 }
                 else if status == "syncing" {
-                    if !folder.isSelective() {
+                    if !isSelective {
                         if let statistics = try? folder.statistics(), statistics.global!.bytes > 0 {
                             let formatter = ByteCountFormatter()
                             let globalBytes = statistics.global!.bytes;
@@ -435,7 +360,9 @@ struct FolderView: View {
         
         Form {
             if folder.exists() {
-                FolderStatusView(appState: appState, folder: folder)
+                #if os(iOS)
+                    FolderStatusView(appState: appState, folder: folder)
+                #endif
                 
                 if isExternal == true {
                     ExternalFolderSectionView(folderID: folder.folderID)
@@ -503,22 +430,6 @@ struct FolderView: View {
                             folder.isHidden = nv
                         })).disabled(isExternal != false)
                     }
-                #endif
-                
-                if self.folder.isSelective() {
-                    NavigationLink(destination: SelectiveFolderView(appState: appState, folder: folder)) {
-                        Label("Files kept on this device", systemImage: "pin")
-                    }
-                }
-                
-                
-                #if os(macOS)
-                // On iOS, this is in the folder popup menu instead
-                Section {
-                    NavigationLink(destination: FolderStatisticsView(appState: appState, folder: folder)) {
-                        Label("Folder statistics", systemImage: "scalemass")
-                    }
-                }
                 #endif
                 
                 Section {

@@ -3352,30 +3352,58 @@
         }
       }
     },
-    "Files kept on this device" : {
+    "Files kept on this device in '%@'" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dateien auf diesem Gerät gespeichert"
+            "value" : "Dateien auf diesem Gerät in '%@'"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Archivos guardados en este dispositivo"
+            "value" : "Archivos guardados en este dispositivo en \"%@\""
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "File conservati su questo dispositivo"
+            "value" : "File conservati su questo dispositivo in \"%@\""
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Houd bestanden op dit apparaat"
+            "value" : "Bestanden op dit apparaat in '%@'"
+          }
+        }
+      }
+    },
+    "Files kept on this device..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien auf diesem Gerät gespeichert..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivos guardados en este dispositivo..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File conservati su questo dispositivo..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestanden bewaard op dit apparaat..."
           }
         }
       }
@@ -3576,6 +3604,34 @@
         }
       }
     },
+    "Folder settings..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner-Einstellungen..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configuración de carpeta..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impostazioni cartella..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mapinstellingen..."
+          }
+        }
+      }
+    },
     "Folder statistics" : {
       "localizations" : {
         "de" : {
@@ -3600,6 +3656,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mapstatistieken"
+          }
+        }
+      }
+    },
+    "Folder statistics: '%@'" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordnerstatistik: '%@'"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estadísticas de carpeta: '%@'"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistiche cartella: '%@'"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mapstatistieken: '%@'"
+          }
+        }
+      }
+    },
+    "Folder statistics..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordnerstatistiken..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estadísticas de la carpeta..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistiche cartella..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mapstatistieken..."
           }
         }
       }
@@ -5872,6 +5984,34 @@
         }
       }
     },
+    "Properties..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eigenschaften..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Propiedades..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proprietà..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eigenschappen..."
+          }
+        }
+      }
+    },
     "quic" : {
       "localizations" : {
         "de" : {
@@ -6316,6 +6456,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Verwijder het bestand van alle apparaten"
+          }
+        }
+      }
+    },
+    "Remove the files shown in the list from this device, but do not remove them from other devices." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entferne die in der Liste angezeigten Dateien von diesem Gerät, aber entferne sie nicht von anderen Geräten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina los archivos que se muestran en la lista de este dispositivo, pero no los elimines de otros dispositivos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi i file mostrati nell'elenco da questo dispositivo, ma non rimuoverli dagli altri dispositivi."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder de bestanden in de lijst van dit apparaat, maar verwijder ze niet van andere apparaten."
           }
         }
       }

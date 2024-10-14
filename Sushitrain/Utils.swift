@@ -213,6 +213,9 @@ extension SushitrainEntry {
         if self.isLocallyPresent() {
             return "\(base).fill"
         }
+        else if self.isDeleted() {
+            return "trash"
+        }
         else if self.isSelected() {
             return "\(base).badge.ellipsis"
         }
