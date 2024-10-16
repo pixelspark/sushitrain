@@ -249,7 +249,7 @@ fileprivate struct StartOrSearchView: View {
         ZStack {
             InnerView(appState: appState, route: $route, searchText: $searchText)
         }
-        .searchable(text: $searchText, placement: SearchFieldPlacement.toolbar, prompt: "Search files and folders...")
+        .searchable(text: $searchText, placement: SearchFieldPlacement.toolbar, prompt: "Search all files and folders...")
         #if os(iOS)
             .textInputAutocapitalization(.never)
         #endif

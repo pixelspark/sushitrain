@@ -331,6 +331,7 @@ struct BrowserView: View {
     @State private var localNativeURL: URL? = nil
     @State private var folderExists = false
     @State private var folderIsSelective = false
+    @State private var showSearch = false
     
     var folderName: String {
         if prefix.isEmpty {
@@ -350,9 +351,11 @@ struct BrowserView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         #if os(macOS)
-            // Disabled due to glitchy transitions (on iOS 17.4 at least)
-             // .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search files in this folder...")
             .searchable(text: $searchText, placement: SearchFieldPlacement.toolbar, prompt: "Search files in this folder...")
+        #elseif os(iOS)
+            .if(showSearch) {
+                $0.searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search files in this folder...")
+            }
         #endif
         .toolbar {
             #if os(macOS)
@@ -417,12 +420,13 @@ struct BrowserView: View {
                         }
                         .pickerStyle(.inline)
                         
+                        Toggle("Show search field", systemImage: "magnifyingglass", isOn: $showSearch).disabled(!folderExists)
+                        
                         Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
                             if let localNativeURL = self.localNativeURL {
                                 openURLInSystemFilesApp(url: localNativeURL)
                             }
                         })
-                        .labelStyle(.iconOnly)
                         .disabled(localNativeURL == nil || !folderExists)
                         
                         if folderExists {
@@ -439,7 +443,7 @@ struct BrowserView: View {
                         
                         Button("Folder settings...", systemImage: "folder.badge.gearshape", action: {
                             showSettings = true
-                        }).labelStyle(.iconOnly).disabled(!folderExists)
+                        }).disabled(!folderExists)
                         
                     }, label: { Image(systemName: "ellipsis.circle").accessibilityLabel(Text("Menu")) })
                 }

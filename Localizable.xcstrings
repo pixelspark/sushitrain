@@ -6908,30 +6908,30 @@
         }
       }
     },
-    "Search files and folders..." : {
+    "Search all files and folders..." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dateien und Ordner durchsuchen..."
+            "value" : "Alle Dateien und Ordner durchsuchen..."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Buscar archivos y carpetas..."
+            "value" : "Buscar en todos los archivos y carpetas..."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cerca file e cartelle..."
+            "value" : "Cerca tutti i file e le cartelle..."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zoek bestanden en mappen..."
+            "value" : "Zoek in alle bestanden en mappen..."
           }
         }
       }
@@ -7716,6 +7716,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Toon QR-code"
+          }
+        }
+      }
+    },
+    "Show search field" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suchfeld anzeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar campo de búsqueda"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra campo di ricerca"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toon zoekveld"
           }
         }
       }
