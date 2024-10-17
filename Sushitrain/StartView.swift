@@ -142,13 +142,13 @@ fileprivate struct ResolvedAddressesView: View {
             ForEach(Array(self.appState.resolvedListenAddresses), id: \.self) { addr in
                 Text(addr).contextMenu {
                     Button(action: {
-#if os(iOS)
+                        #if os(iOS)
                         UIPasteboard.general.string = addr
-#endif
+                        #endif
                         
-#if os(macOS)
+                        #if os(macOS)
                         NSPasteboard.general.setString(addr, forType: .string)
-#endif
+                        #endif
                     }) {
                         Text("Copy to clipboard")
                         Image(systemName: "doc.on.doc")
@@ -162,7 +162,7 @@ fileprivate struct ResolvedAddressesView: View {
     }
 }
 
-fileprivate struct OverallStatusView: View {
+struct OverallStatusView: View {
     @ObservedObject var appState: AppState
     
     var peerStatusText: String {

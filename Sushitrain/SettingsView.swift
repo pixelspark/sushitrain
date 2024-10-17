@@ -415,10 +415,11 @@ fileprivate struct BandwidthSettingsView: View {
 #if os(macOS)
 struct TabbedSettingsView: View {
     @ObservedObject var appState: AppState
+    @Binding var hideInDock: Bool
     
     var body: some View {
         TabView {
-            GeneralSettingsView(appState: appState)
+            GeneralSettingsView(appState: appState, hideInDock: $hideInDock)
                 .tabItem {
                     Label("General", systemImage: "app.badge.checkmark.fill")
                 }
@@ -443,6 +444,7 @@ struct TabbedSettingsView: View {
 
 struct GeneralSettingsView: View {
     @ObservedObject var appState: AppState
+    @Binding var hideInDock: Bool
     
     var body: some View {
         Form {
@@ -453,6 +455,12 @@ struct GeneralSettingsView: View {
                 }, set: { nn in
                     try? appState.client.setName(nn)
                 }))
+            }
+            
+            Section {
+                Toggle(isOn: $hideInDock) {
+                    Label("Hide dock menu icon", systemImage: "eye.slash")
+                }
             }
         }
     }

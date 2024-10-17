@@ -143,25 +143,29 @@ struct ContentView: View {
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
             case .background:
-                try? self.appState.client.setReconnectIntervalS(60)
-                self.appState.client.ignoreEvents = true
+                #if os(iOS)
+                    try? self.appState.client.setReconnectIntervalS(60)
+                    self.appState.client.ignoreEvents = true
+                #endif
                 self.appState.updateBadge()
                 break
 
             case .inactive:
                 self.appState.updateBadge()
-                self.appState.client.ignoreEvents = true
+                #if os(iOS)
+                    self.appState.client.ignoreEvents = true
+                #endif
                 break
 
             case .active:
+                #if os(iOS)
                 try? self.appState.client.setReconnectIntervalS(1)
-#if os(iOS)
                 Task {
                     await self.appState.backgroundManager.rescheduleWatchdogNotification()
                 }
-#endif
                 self.rebindServer()
                 self.appState.client.ignoreEvents = false
+                #endif
                 break
 
             @unknown default:

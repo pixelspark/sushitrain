@@ -21,6 +21,7 @@ struct SushitrainApp: App {
     fileprivate var delegate: SushitrainAppDelegate
     #if os(macOS)
         @Environment(\.openWindow) private var openWindow
+        @AppStorage("hideInDock") var hideInDock: Bool = false
     #endif
     
     private static var configDirectory: URL {
@@ -85,6 +86,7 @@ struct SushitrainApp: App {
         BookmarkManager.shared.removeBookmarksForFoldersNotIn(Set(folderIDs))
         
         // Start Syncthing node in the background
+        let hideInDock = self.hideInDock
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 try client.start();
@@ -101,17 +103,26 @@ struct SushitrainApp: App {
                     appState.alert(message: error.localizedDescription)
                 }
             }
+            
+            DispatchQueue.main.async {
+                NSApp.setActivationPolicy(hideInDock ? .accessory : .regular)
+            }
         }
     }
     
     var body: some Scene {
-        WindowGroup { [appState] in
+        WindowGroup(id: "main") { [appState] in
             ContentView(appState: appState)
             #if os(iOS)
                 .handleOpenURLInApp()
             #endif
         }
         #if os(macOS)
+            .onChange(of: hideInDock, initial: true) { _ov, nv in
+                NSApp.setActivationPolicy(nv ? .accessory : .regular)
+                NSApp.activate(ignoringOtherApps: true)
+            }
+        
             .commands {
                 CommandGroup(replacing: CommandGroupPlacement.appInfo) {
                     Button(action: {
@@ -128,12 +139,18 @@ struct SushitrainApp: App {
                     })
                 }
             }
+            
+            .defaultLaunchBehavior(hideInDock ? .suppressed : .presented)
+            .restorationBehavior(hideInDock ? .disabled : .automatic)
+            
         #endif
         
         #if os(macOS)
+            MenuBarExtraView(hideInDock: $hideInDock, appState: appState)
+        
             Settings {
                 NavigationStack {
-                    TabbedSettingsView(appState: appState)
+                    TabbedSettingsView(appState: appState, hideInDock: $hideInDock)
                 }
             }
             .windowResizability(.contentSize)
@@ -234,3 +251,75 @@ extension SushitrainAppDelegate: SushitrainStreamingServerDelegateProtocol {
         }
     }
 }
+
+#if os(macOS)
+struct MenuBarExtraView: Scene {
+    @Binding var hideInDock: Bool
+    @ObservedObject var appState: AppState
+    @Environment(\.openWindow) private var openWindow
+    
+    var body: some Scene {
+        Window("Settings", id: "appSettings") {
+            NavigationStack {
+                TabbedSettingsView(appState: appState, hideInDock: $hideInDock)
+            }
+        }
+        
+        MenuBarExtra("Synctrain", systemImage: self.menuIcon, isInserted: $hideInDock) {
+            OverallStatusView(appState: appState)
+            
+            Button("Open file browser...") {
+                openWindow(id: "main")
+                NSApplication.shared.activate()
+            }
+            
+            Divider()
+            
+            Button(action: {
+                // Open the "about" window
+                openWindow(id: "appSettings")
+                NSApplication.shared.activate()
+            }, label: {
+                Text("Settings...")
+            })
+            
+            Button(action: {
+                openWindow(id: "stats")
+                NSApplication.shared.activate()
+            }, label: {
+                Text("Statistics...")
+            })
+            
+            Button(action: {
+                // Open the "about" window
+                openWindow(id: "about")
+                NSApplication.shared.activate()
+            }, label: {
+                Text("About...")
+            })
+            
+            Divider()
+            
+            Toggle(isOn: $hideInDock) {
+                Label("Hide in dock", systemImage: "eye.slash")
+            }
+
+            Button("Quit Synctrain") {
+                NSApplication.shared.terminate(nil)
+            }
+        }
+    }
+    
+    private var menuIcon: String {
+        if self.appState.client.connectedPeerCount() > 0 {
+            if self.appState.client.isDownloading() || self.appState.client.isUploading() {
+                return "folder.fill.badge.gearshape"
+            }
+            return "folder.fill"
+        }
+        else {
+            return "folder"
+        }
+    }
+}
+#endif
