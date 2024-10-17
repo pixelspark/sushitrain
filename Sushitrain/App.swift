@@ -86,7 +86,10 @@ struct SushitrainApp: App {
         BookmarkManager.shared.removeBookmarksForFoldersNotIn(Set(folderIDs))
         
         // Start Syncthing node in the background
-        let hideInDock = self.hideInDock
+        #if os(macOS)
+            let hideInDock = self.hideInDock
+        #endif
+        
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 try client.start();
@@ -104,9 +107,11 @@ struct SushitrainApp: App {
                 }
             }
             
-            DispatchQueue.main.async {
-                NSApp.setActivationPolicy(hideInDock ? .accessory : .regular)
-            }
+            #if os(macOS)
+                DispatchQueue.main.async {
+                    NSApp.setActivationPolicy(hideInDock ? .accessory : .regular)
+                }
+            #endif
         }
     }
     
