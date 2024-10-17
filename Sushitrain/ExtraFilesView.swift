@@ -134,7 +134,7 @@ struct ExtraFilesView: View {
     private func reload() async {
         if folder.isIdleOrSyncing {
             extraFiles = await Task.detached {
-                return try! folder.extraneousFiles().asArray().sorted()
+                return (try? folder.extraneousFiles().asArray().sorted()) ?? []
             }.value
         }
         else {

@@ -268,10 +268,18 @@ struct FolderSyncTypePicker: View {
                 // Prohibit change in selection mode when there are extraneous files
                 Task.detached {
                     var hasExtra: ObjCBool = false
-                    let _ = try! folder.hasExtraneousFiles(&hasExtra)
-                    let hasExtraFinal = hasExtra
-                    DispatchQueue.main.async {
-                        changeProhibited = hasExtraFinal.boolValue
+                    do {
+                        let _ = try folder.hasExtraneousFiles(&hasExtra)
+                        let hasExtraFinal = hasExtra
+                        DispatchQueue.main.async {
+                            changeProhibited = hasExtraFinal.boolValue
+                        }
+                    }
+                    catch {
+                        print("Error calling hasExtraneousFiles: \(error.localizedDescription)")
+                        DispatchQueue.main.async {
+                            changeProhibited = true
+                        }
                     }
                 }
             }
@@ -301,11 +309,19 @@ struct FolderDirectionPicker: View {
                 
                 // Prohibit change in selection mode when there are extraneous files
                 Task.detached {
-                    var hasExtra: ObjCBool = false
-                    let _ = try! folder.hasExtraneousFiles(&hasExtra)
-                    let hasExtraFinal = hasExtra
-                    DispatchQueue.main.async {
-                        changeProhibited = hasExtraFinal.boolValue
+                    do {
+                        var hasExtra: ObjCBool = false
+                        let _ = try folder.hasExtraneousFiles(&hasExtra)
+                        let hasExtraFinal = hasExtra
+                        DispatchQueue.main.async {
+                            changeProhibited = hasExtraFinal.boolValue
+                        }
+                    }
+                    catch {
+                        print("Error calling hasExtraneousFiles: \(error.localizedDescription)")
+                        DispatchQueue.main.async {
+                            changeProhibited = true
+                        }
                     }
                 }
             }

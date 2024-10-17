@@ -113,8 +113,15 @@ struct SelectiveFolderView: View {
     }
     
     private func update() {
-        self.isLoading = true
-        self.selectedPaths = try! self.folder.selectedPaths().asArray().sorted()
+        do {
+            self.isLoading = true
+            self.selectedPaths = try self.folder.selectedPaths().asArray().sorted()
+        }
+        catch {
+            self.errorText = error.localizedDescription
+            self.showError = true
+            self.selectedPaths = []
+        }
         self.isLoading = false
     }
     

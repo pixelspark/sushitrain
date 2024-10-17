@@ -159,9 +159,10 @@ extension SushitrainFolder {
         }
         set {
             guard var lu = self.localNativeURL else { return }
-            var values = try! lu.resourceValues(forKeys: [.isExcludedFromBackupKey])
-            values.isExcludedFromBackup = newValue
+            
             do {
+                var values = try lu.resourceValues(forKeys: [.isExcludedFromBackupKey])
+                values.isExcludedFromBackup = newValue
                 try lu.setResourceValues(values)
             }
             catch {
