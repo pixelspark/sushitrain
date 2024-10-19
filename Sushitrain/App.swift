@@ -144,7 +144,6 @@ struct SushitrainApp: App {
                     })
                 }
             }
-            
             .defaultLaunchBehavior(hideInDock ? .suppressed : .presented)
             .restorationBehavior(hideInDock ? .disabled : .automatic)
             

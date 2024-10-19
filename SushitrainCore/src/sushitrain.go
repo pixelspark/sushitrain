@@ -14,6 +14,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -640,6 +641,41 @@ func (clt *Client) PeerWithShortID(shortID string) *Peer {
 	return nil
 }
 
+func (clt *Client) SuspendPeers() (*ListOfStrings, error) {
+	suspended := make([]string, 0)
+	clt.changeConfiguration(func(cfg *config.Configuration) {
+		for _, dc := range clt.config.DeviceList() {
+			if !dc.Paused {
+				dc.Paused = true
+				cfg.SetDevice(dc)
+				suspended = append(suspended, dc.DeviceID.String())
+			}
+		}
+	})
+	Logger.Infoln("Suspended devices", suspended)
+	return List(suspended), nil
+}
+
+func (clt *Client) Unsuspend(peers *ListOfStrings) error {
+	ids := peers.data
+	Logger.Infoln("Unsuspend IDs", ids)
+
+	clt.changeConfiguration(func(cfg *config.Configuration) {
+		for _, dc := range clt.config.DeviceList() {
+			Logger.Infoln("Unsuspend?", dc.Paused, dc.DeviceID.String())
+			if dc.Paused && slices.ContainsFunc(ids, func(v string) bool {
+				did, err := protocol.DeviceIDFromString(v)
+				return err == nil && dc.DeviceID.Equals(did)
+			}) {
+				dc.Paused = false
+				cfg.SetDevice(dc)
+				Logger.Infoln("Unsuspend", dc.DeviceID.String())
+			}
+		}
+	})
+	return nil
+}
+
 func (clt *Client) changeConfiguration(block config.ModifyFunction) error {
 	waiter, err := clt.config.Modify(block)
 	if err != nil {
@@ -1062,4 +1098,8 @@ func IsValidDeviceID(devID string) bool {
 
 func Version() string {
 	return build.Version
+}
+
+func LogInfo(message string) {
+	Logger.Infoln("[S] " + message)
 }

@@ -233,8 +233,9 @@ struct BackgroundSettingsView: View {
     var body: some View {
         Form {
             Section {
-                Toggle("Enable while charging (long)", isOn: appState.$longBackgroundSyncEnabled)
-                Toggle("Enable on battery (short)", isOn: appState.$shortBackgroundSyncEnabled)
+                Toggle("While charging (long)", isOn: appState.$longBackgroundSyncEnabled)
+                Toggle("While on battery (short)", isOn: appState.$shortBackgroundSyncEnabled)
+                Toggle("Briefly after leaving app", isOn: appState.$lingeringEnabled)
             }
             header: {
                 Text("Background synchronization")
@@ -493,11 +494,11 @@ struct SettingsView: View {
                     Text("Bandwidth limitations").badge(limitsEnabled  ? "On": "Off")
                 }
            
-#if os(iOS)
-                NavigationLink(destination: BackgroundSettingsView(appState: appState)) {
-                    Text("Background synchronization").badge(appState.longBackgroundSyncEnabled || appState.shortBackgroundSyncEnabled ? "On": "Off")
-                }
-#endif
+                #if os(iOS)
+                    NavigationLink(destination: BackgroundSettingsView(appState: appState)) {
+                        Text("Background synchronization").badge(appState.longBackgroundSyncEnabled || appState.shortBackgroundSyncEnabled ? "On": "Off")
+                    }
+                #endif
           
                 NavigationLink(destination: PhotoSettingsView(appState: appState, photoSync: appState.photoSync)) {
                     Text("Photo synchronization").badge(appState.photoSync.isReady && appState.photoSync.enableBackgroundCopy ? "On" : "Off")

@@ -1672,6 +1672,34 @@
         }
       }
     },
+    "Briefly after leaving app" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kurz nach dem Verlassen der App"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poco después de salir de la app"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subito dopo aver lasciato l'app"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kort na verlaten app"
+          }
+        }
+      }
+    },
     "By %@" : {
       "localizations" : {
         "de" : {
@@ -2848,34 +2876,6 @@
         }
       }
     },
-    "Enable on battery (short)" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bei Batteriebetrieb aktivieren (kurz)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activar con batería (corto)"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abilita con batteria (breve)"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inschakelen op batterij (kort)"
-          }
-        }
-      }
-    },
     "Enable relaying" : {
       "localizations" : {
         "de" : {
@@ -2900,34 +2900,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gebruik relays"
-          }
-        }
-      }
-    },
-    "Enable while charging (long)" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bei Ladevorgang aktivieren (lang)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Habilitar mientras se carga (largo)"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abilita durante la ricarica (lungo)"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inschakelen tijdens opladen (lang)"
           }
         }
       }
@@ -10040,6 +10012,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wanneer je bestanden synchroniseert, worden alle wijzigingen, ook verwijderen, doorgegeven aan je andere apparaten. Gebruik Synctrain niet voor het maken van back-ups, en zorg dat je altijd beschikt over een back-up van je gegevens."
+          }
+        }
+      }
+    },
+    "While charging (long)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beim Laden (lang)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mientras se carga (largo)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durante la ricarica (lungo)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tijdens het opladen (lang)"
+          }
+        }
+      }
+    },
+    "While on battery (short)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bei Batteriebetrieb (kurz)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con batería (corto)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con batteria (breve)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tijdens batterijgebruik (kort)"
           }
         }
       }

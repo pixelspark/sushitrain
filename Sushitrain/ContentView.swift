@@ -8,6 +8,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ContentView: View {
+    private static let currentOnboardingVersion = 1
     @AppStorage("onboardingVersionShown") var onboardingVersionShown = 0
     
     @ObservedObject var appState: AppState
@@ -141,36 +142,7 @@ struct ContentView: View {
             }
         )
         .onChange(of: scenePhase) { _, newPhase in
-            switch newPhase {
-            case .background:
-                #if os(iOS)
-                    try? self.appState.client.setReconnectIntervalS(60)
-                    self.appState.client.ignoreEvents = true
-                #endif
-                self.appState.updateBadge()
-                break
-
-            case .inactive:
-                self.appState.updateBadge()
-                #if os(iOS)
-                    self.appState.client.ignoreEvents = true
-                #endif
-                break
-
-            case .active:
-                #if os(iOS)
-                try? self.appState.client.setReconnectIntervalS(1)
-                Task {
-                    await self.appState.backgroundManager.rescheduleWatchdogNotification()
-                }
-                self.rebindServer()
-                self.appState.client.ignoreEvents = false
-                #endif
-                break
-
-            @unknown default:
-                break
-            }
+            self.appState.onScenePhaseChange(to: newPhase)
         }
         .alert(isPresented: $showCustomConfigWarning) {
             Alert(
@@ -196,9 +168,7 @@ struct ContentView: View {
             }
         }
     }
-
-    private static let currentOnboardingVersion = 1
-
+    
     private func showOnboardingIfNecessary() {
         print(
             "Current onboarding version is \(Self.currentOnboardingVersion), user last saw \(self.onboardingVersionShown)"
@@ -209,15 +179,6 @@ struct ContentView: View {
         } else {
             // Go straight on to request notification permissions
             AppState.requestNotificationPermissionIfNecessary()
-        }
-    }
-
-    private func rebindServer() {
-        print("(Re-)activate streaming server")
-        do {
-            try self.appState.client.server?.listen()
-        } catch let error {
-            print("Error activating streaming server:", error)
         }
     }
 }

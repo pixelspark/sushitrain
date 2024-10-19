@@ -679,3 +679,9 @@ extension View {
         }
     }
 }
+
+final class Log {
+    static func info(_ message: String) {
+        SushitrainLogInfo(message)
+    }
+}

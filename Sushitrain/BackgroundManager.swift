@@ -14,7 +14,7 @@ import BackgroundTasks
     private static let WatchdogNotificationID = "nl.t-shaped.sushitrain.watchdog-notification"
     
     private var currentBackgroundTask: BGTask? = nil
-    fileprivate var appState: AppState
+    fileprivate unowned var appState: AppState
     
     required init(appState: AppState) {
         self.appState = appState
@@ -53,6 +53,7 @@ import BackgroundTasks
         
         // Start background sync on long and short sync task
         if appState.longBackgroundSyncEnabled || appState.shortBackgroundSyncEnabled {
+            self.appState.suspend(false)
             var run = BackgroundSyncRun(started: start, ended: nil)
             appState.lastBackgroundSyncRun = OptionalObject(run)
             
@@ -60,10 +61,11 @@ import BackgroundTasks
             task.expirationHandler = {
                 run.ended = Date.now
                 print("Background sync expired at", run.ended!)
+                self.appState.photoSync.cancel()
+                self.appState.suspend(true)
                 self.currentBackgroundTask = nil
                 self.appState.lastBackgroundSyncRun = OptionalObject(run)
                 self.updateBackgroundRunHistory(appending: run)
-                self.appState.photoSync.cancel()
                 self.notifyUserOfBackgroundSyncCompletion(start: start, end: run.ended!)
                 task.setTaskCompleted(success: true)
             }
