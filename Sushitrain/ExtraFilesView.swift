@@ -71,9 +71,13 @@ struct ExtraFilesView: View {
                                 VStack(alignment: .leading) {
                                     Button(path) {
                                         self.localItemURL = folderNativePath.appending(path: path)
-                                    }.multilineTextAlignment(.leading)
-                                        .dynamicTypeSize(.small)
-                                        .foregroundStyle(verdict == false ? .red : verdict == true ? .green : .primary)
+                                    }
+                                    .multilineTextAlignment(.leading)
+                                    .dynamicTypeSize(.small)
+                                    .foregroundStyle(verdict == false ? .red : verdict == true ? .green : .primary)
+                                    #if os(macOS)
+                                        .buttonStyle(.link)
+                                    #endif
                                 }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                                 
                                 Picker("Action", selection: Binding(get: {

@@ -212,6 +212,9 @@ struct FileView: View {
             ContentUnavailableView("File was deleted", systemImage: "trash", description: Text("This file was deleted."))
         }
         else {
+            var error: NSError? = nil
+            let localPath = file.isLocallyPresent() ? file.localNativePath(&error) : nil
+            
             Form {
                 // Symbolic link: show link target
                 if file.isSymlink() {
@@ -272,9 +275,6 @@ struct FileView: View {
                         .buttonStyle(.link)
                         .disabled(folder.connectedPeerCount() == 0)
                     #endif
-                    
-                    var error: NSError? = nil
-                    let localPath = file.isLocallyPresent() ? file.localNativePath(&error) : nil
                     
                     if file.isSelected() {
                         // Selective sync uses copy in working dir
@@ -471,6 +471,18 @@ struct FileView: View {
                             Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1)
                         }
                     }
+                    
+                    #if os(macOS)
+                    ToolbarItem(id: "open-in-finder", placement: .primaryAction) {
+                        Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
+                            if let localPathActual = localPath {
+                                openURLInSystemFilesApp(url: URL(fileURLWithPath: localPathActual))
+                            }
+                        })
+                        .labelStyle(.iconOnly)
+                        .disabled(localPath == nil)
+                    }
+                    #endif
                 }
                 .onAppear {
                     selfIndex = self.siblings?.firstIndex(of: file)
