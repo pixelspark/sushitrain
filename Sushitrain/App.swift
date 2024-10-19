@@ -45,14 +45,14 @@ struct SushitrainApp: App {
             try configDirectory.setResourceValues(excludeFromBackup)
         }
         catch {
-            print("Error excluding \(configDirectory.path) from backup: \(error.localizedDescription)")
+            Log.warn("Error excluding \(configDirectory.path) from backup: \(error.localizedDescription)")
         }
         
         let enableLogging = UserDefaults.standard.bool(forKey: "loggingEnabled")
-        print("Logging enabled: \(enableLogging)")
+        Log.info("Logging enabled: \(enableLogging)")
         var error: NSError? = nil
         guard let client = SushitrainNewClient(configPath, documentsPath, enableLogging, &error) else {
-            print("Error initializing: \(error?.localizedDescription ?? "unknown error")")
+            Log.warn("Error initializing: \(error?.localizedDescription ?? "unknown error")")
             exit(-1)
         }
         
@@ -70,17 +70,17 @@ struct SushitrainApp: App {
         for folderID in folderIDs {
             do {
                 if let bm = try BookmarkManager.shared.resolveBookmark(folderID: folderID) {
-                    print("We have a bookmark for folder \(folderID): \(bm)")
+                    Log.info("We have a bookmark for folder \(folderID): \(bm)")
                     if let folder = client.folder(withID: folderID) {
                         try folder.setPath(bm.path(percentEncoded: false))
                     }
                     else {
-                        print("Cannot obtain folder configuration for \(folderID) for setting bookmark; skipping")
+                        Log.warn("Cannot obtain folder configuration for \(folderID) for setting bookmark; skipping")
                     }
                 }
             }
             catch {
-                print("Error restoring bookmark for \(folderID): \(error.localizedDescription)")
+                Log.warn("Error restoring bookmark for \(folderID): \(error.localizedDescription)")
             }
         }
         BookmarkManager.shared.removeBookmarksForFoldersNotIn(Set(folderIDs))
@@ -181,10 +181,10 @@ struct SushitrainApp: App {
             do {
                 let fileURL = configDirectoryURL.appendingPathComponent(SushitrainConfigFileName, isDirectory: false)
                 try (fileURL as NSURL).setResourceValue(URLFileProtection.completeUntilFirstUserAuthentication, forKey: .fileProtectionKey)
-                print("Data protection class set for \(fileURL)")
+                Log.info("Data protection class set for \(fileURL)")
             }
             catch {
-                print("Error setting data protection class for \(file): \(error.localizedDescription)")
+                Log.warn("Error setting data protection class for \(file): \(error.localizedDescription)")
             }
         }
     }

@@ -67,7 +67,7 @@ import Combine
     
     func applySettings() {
         self.client.server?.maxMbitsPerSecondsStreaming = Int64(self.streamingLimitMbitsPerSec)
-        print("Apply settings; mbits/s streaming=", self.streamingLimitMbitsPerSec, "\n")
+        Log.info("Apply settings; streaming limit=\(self.streamingLimitMbitsPerSec) mbits/s")
     }
     
     var isFinished: Bool {
@@ -137,11 +137,11 @@ import Combine
     }
     
     private func rebindServer() {
-        print("(Re-)activate streaming server")
+        Log.info("(Re-)activate streaming server")
         do {
             try self.client.server?.listen()
         } catch let error {
-            print("Error activating streaming server:", error)
+            Log.warn("Error activating streaming server: " + error.localizedDescription)
         }
     }
     
@@ -149,7 +149,7 @@ import Combine
         do {
             if suspend {
                 if !self.suspendedPeerIds.isEmpty {
-                    print("Suspending, but there are still suspended peers, this should not happen (working around it anyway)")
+                    Log.warn("Suspending, but there are still suspended peers, this should not happen (working around it anyway)")
                 }
                 let suspendedPeers = try self.client.suspendPeers()
                 var suspendedIds = suspendedPeers.asArray()
@@ -158,17 +158,17 @@ import Combine
             }
             else {
                 if self.suspendedPeerIds.isEmpty {
-                    print("No peers to unsuspend")
+                    Log.info("No peers to unsuspend")
                 }
                 else {
-                    print("Requesting unsuspend of devices", self.suspendedPeerIds)
+                    Log.info("Requesting unsuspend of devices:" + self.suspendedPeerIds.debugDescription)
                     try self.client.unsuspend(SushitrainListOfStrings.from(self.suspendedPeerIds))
                     self.suspendedPeerIds = []
                 }
             }
         }
         catch {
-            print("Could not suspend \(suspend): \(error.localizedDescription)")
+            Log.warn("Could not suspend \(suspend): \(error.localizedDescription)")
         }
     }
     
@@ -238,7 +238,7 @@ import Combine
                     let options: UNAuthorizationOptions = [.alert, .badge, .provisional]
                     UNUserNotificationCenter.current().requestAuthorization(options: options) {
                         (status, error) in
-                        print("Notifications requested: \(status) \(error?.localizedDescription ?? "")")
+                        Log.info("Notifications requested: \(status) \(error?.localizedDescription ?? "")")
                     }
                 }
             }

@@ -1101,5 +1101,9 @@ func Version() string {
 }
 
 func LogInfo(message string) {
-	Logger.Infoln("[S] " + message)
+	Logger.Infoln("[App] " + message)
+}
+
+func LogWarn(message string) {
+	Logger.Warnln("[App] " + message)
 }

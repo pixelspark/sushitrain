@@ -38,7 +38,7 @@ import BackgroundTasks
     private func handleBackgroundSync(task: BGTask) async {
         let start = Date.now
         self.currentBackgroundTask = task
-        print("Start background sync at", start, task)
+        Log.info("Start background sync at \(start) \(task)")
         DispatchQueue.main.async {
             _ = self.scheduleBackgroundSync()
         }
@@ -60,7 +60,7 @@ import BackgroundTasks
             // Run to expiration
             task.expirationHandler = {
                 run.ended = Date.now
-                print("Background sync expired at", run.ended!)
+                Log.info("Background sync expired at \(run.ended!.debugDescription)")
                 self.appState.photoSync.cancel()
                 self.appState.suspend(true)
                 self.currentBackgroundTask = nil
@@ -114,12 +114,12 @@ import BackgroundTasks
             longRequest.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60) // no earlier than within 15 minutes
             longRequest.requiresExternalPower = true
             longRequest.requiresNetworkConnectivity = true
-            print("Scheduling next long background sync for (no later than)", longRequest.earliestBeginDate!)
+            Log.info("Scheduling next long background sync for (no later than) \(longRequest.earliestBeginDate!)")
             
             do {
                 try BGTaskScheduler.shared.submit(longRequest)
             } catch {
-                print("Could not schedule background sync: \(error)")
+                Log.warn("Could not schedule background sync: \(error)")
                 success = false
             }
         }
@@ -127,11 +127,11 @@ import BackgroundTasks
         if appState.shortBackgroundSyncEnabled {
             let shortRequest = BGAppRefreshTaskRequest(identifier: Self.ShortBackgroundSyncID)
             shortRequest.earliestBeginDate = Date(timeIntervalSinceNow: 30 * 60) // no earlier than within 15 minutes
-            print("Scheduling next short background sync for (no later than)", shortRequest.earliestBeginDate!)
+            Log.info("Scheduling next short background sync for (no later than) \(shortRequest.earliestBeginDate!))")
             do {
                 try BGTaskScheduler.shared.submit(shortRequest)
             } catch {
-                print("Could not schedule short background sync: \(error)")
+                Log.warn("Could not schedule short background sync: \(error)")
                 success = false
             }
         }
@@ -141,7 +141,7 @@ import BackgroundTasks
     
     @MainActor
     func rescheduleWatchdogNotification() async {
-        print("Re-schedule watchdog notification")
+        Log.info("Re-schedule watchdog notification")
         let notificationCenter = UNUserNotificationCenter.current()
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [Self.WatchdogNotificationID])
         
@@ -165,15 +165,15 @@ import BackgroundTasks
                     let request = UNNotificationRequest(identifier: Self.WatchdogNotificationID, content: content, trigger: trigger)
                     notificationCenter.add(request) {err in
                         if let err = err {
-                            print("Could not add watchdog notification: \(err.localizedDescription)")
+                            Log.warn("Could not add watchdog notification: \(err.localizedDescription)")
                         }
                         else {
-                            print("Watchdog notification added")
+                            Log.info("Watchdog notification added")
                         }
                     }
                 }
                 else {
-                    print("Watchdog not enabled or denied, not reinstalling")
+                    Log.warn("Watchdog not enabled or denied, not reinstalling")
                 }
             }
         }

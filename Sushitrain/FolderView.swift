@@ -276,7 +276,7 @@ struct FolderSyncTypePicker: View {
                         }
                     }
                     catch {
-                        print("Error calling hasExtraneousFiles: \(error.localizedDescription)")
+                        Log.warn("Error calling hasExtraneousFiles: \(error.localizedDescription)")
                         DispatchQueue.main.async {
                             changeProhibited = true
                         }
@@ -318,7 +318,7 @@ struct FolderDirectionPicker: View {
                         }
                     }
                     catch {
-                        print("Error calling hasExtraneousFiles: \(error.localizedDescription)")
+                        Log.warn("Error calling hasExtraneousFiles: \(error.localizedDescription)")
                         DispatchQueue.main.async {
                             changeProhibited = true
                         }
@@ -416,7 +416,7 @@ struct FolderView: View {
                                     }
                                 }
                                 catch let error {
-                                    print(error.localizedDescription)
+                                    Log.warn("Error sharing folder: " + error.localizedDescription)
                                 }
                             });
                             HStack {

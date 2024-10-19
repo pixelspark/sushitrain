@@ -178,16 +178,16 @@ class PhotoSynchronisation: ObservableObject {
             // Let iOS know we are about to do some background stuff
             #if os(iOS)
             let bgIdentifier = await UIApplication.shared.beginBackgroundTask(withName: "Photo synchronization", expirationHandler: {
-                print("Cancelling background task due to expiration")
+                Log.info("Cancelling background task due to expiration")
                 self.cancel()
             })
             defer {
-                print("Signalling end of background task")
+                Log.info("Signalling end of background task")
                 DispatchQueue.main.async {
                     UIApplication.shared.endBackgroundTask(bgIdentifier)
                 }
             }
-            print("Background time remaining:", await UIApplication.shared.backgroundTimeRemaining)
+            Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining))")
             #endif
             
             var err: NSError? = nil
@@ -227,7 +227,7 @@ class PhotoSynchronisation: ObservableObject {
                     stop.pointee = true
                     return
                 }
-                print("Asset: \(asset.originalFilename) \(asset.localIdentifier)")
+                Log.info("Asset: \(asset.originalFilename) \(asset.localIdentifier)")
                 
                 DispatchQueue.main.async {
                     self.progress = .exportingPhotos(index: index, total: count, current: asset.originalFilename)
@@ -248,7 +248,7 @@ class PhotoSynchronisation: ObservableObject {
                                 let lastModifiedByShortDeviceID = entry.modifiedByShortDeviceID()
                                 if lastModifiedByShortDeviceID == myShortDeviceID {
                                     // The photo is already saved and was last modified by this device; we can delete from source
-                                    print("Purge entry: \(inFolderPath) \(mTime.date()) \(lastModifiedByShortDeviceID)")
+                                    Log.info("Purge entry: \(inFolderPath) \(mTime.date()) \(lastModifiedByShortDeviceID)")
                                     originalsToPurge.append(asset)
                                 }
                                 else {
@@ -264,10 +264,10 @@ class PhotoSynchronisation: ObservableObject {
                         // If the photo was saved then deleted, do not try to save again (unless we are in full export)
                         if !fullExport {
                             if entry.isDeleted() {
-                                print("Entry at \(inFolderPath) was deleted, not saving again")
+                                Log.info("Entry at \(inFolderPath) was deleted, not saving again")
                             }
                             else {
-                                print("Entry at \(inFolderPath) exists, not saving again")
+                                Log.info("Entry at \(inFolderPath) exists, not saving again")
                             }
                             return
                         }
@@ -280,7 +280,7 @@ class PhotoSynchronisation: ObservableObject {
                     // If a video: queue video export session
                     if asset.mediaType == .video {
                         if categories.contains(.video) {
-                            print("Requesting video export session for \(asset.originalFilename)")
+                            Log.info("Requesting video export session for \(asset.originalFilename)")
                             videosToExport.append((asset, fileURL, inFolderPath))
                         }
                     }
@@ -306,7 +306,7 @@ class PhotoSynchronisation: ObservableObject {
                     let liveDirectoryURL = folderURL.appending(path: asset.livePhotoDirectoryPathInFolder, directoryHint: .isDirectory)
                     try! FileManager.default.createDirectory(at: liveDirectoryURL, withIntermediateDirectories: true)
                     let liveFileURL = folderURL.appending(path: liveInFolderPath, directoryHint: .notDirectory)
-                    print("Found live photo \(asset.originalFilename) \(liveInFolderPath)")
+                    Log.info("Found live photo \(asset.originalFilename) \(liveInFolderPath)")
                     
                     if !FileManager.default.fileExists(atPath: liveFileURL.path) {
                         livePhotosToExport.append((asset, liveFileURL, liveInFolderPath))
@@ -317,9 +317,9 @@ class PhotoSynchronisation: ObservableObject {
             // Export videos
             if categories.contains(.video) {
                 let videoCount =  videosToExport.count
-                print("Starting video exports for \(videoCount) videos")
+                Log.info("Starting video exports for \(videoCount) videos")
                 #if os(iOS)
-                print("Background time remaining:", await UIApplication.shared.backgroundTimeRemaining)
+                Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining)")
                 #endif
                 
                 DispatchQueue.main.async {
@@ -336,7 +336,7 @@ class PhotoSynchronisation: ObservableObject {
                     }
                     
                     _ = await withCheckedContinuation { resolve in
-                        print("Exporting video \(asset.originalFilename)")
+                        Log.info("Exporting video \(asset.originalFilename)")
                         let options = PHVideoRequestOptions()
                         options.deliveryMode = .highQualityFormat
                         
@@ -347,7 +347,7 @@ class PhotoSynchronisation: ObservableObject {
                                 es.shouldOptimizeForNetworkUse = false
                                 
                                 es.exportAsynchronously {
-                                    print("Done exporting video \(asset.originalFilename)")
+                                    Log.info("Done exporting video \(asset.originalFilename)")
                                     resolve.resume(returning: true)
                                 }
                             }
@@ -361,9 +361,9 @@ class PhotoSynchronisation: ObservableObject {
             
             // Export live photos
             if categories.contains(.livePhoto) {
-                print("Exporting live photos")
+                Log.info("Exporting live photos")
                 #if os(iOS)
-                print("Background time remaining:", await UIApplication.shared.backgroundTimeRemaining)
+                Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining))")
                 #endif
             
                 let liveCount = livePhotosToExport.count
@@ -374,7 +374,7 @@ class PhotoSynchronisation: ObservableObject {
                     if Task.isCancelled {
                         break
                     }
-                    print("Exporting live photo \(asset.originalFilename) \(selectPath)")
+                    Log.info("Exporting live photo \(asset.originalFilename) \(selectPath)")
                     
                     await withCheckedContinuation { resolve in
                         // Export live photo
@@ -389,20 +389,20 @@ class PhotoSynchronisation: ObservableObject {
                             found = true
                             
                             guard let livePhoto = livePhoto else {
-                                print("Did not receive live photo for \(asset.originalFilename)")
+                                Log.warn("Did not receive live photo for \(asset.originalFilename)")
                                 resolve.resume()
                                 return
                             }
                             let assetResources = PHAssetResource.assetResources(for: livePhoto)
                             guard let videoResource = assetResources.first(where: { $0.type == .pairedVideo }) else {
-                                print("Could not find paired video resource for \(asset.originalFilename) \(assetResources)")
+                                Log.warn("Could not find paired video resource for \(asset.originalFilename) \(assetResources)")
                                 resolve.resume()
                                 return
                             }
                             
                             PHAssetResourceManager.default().writeData(for: videoResource, toFile: destURL, options: nil) { error in
                                 if let error = error {
-                                    print("Failed to save \(destURL): \(error.localizedDescription)")
+                                    Log.warn("Failed to save \(destURL): \(error.localizedDescription)")
                                 }
                                 else {
                                     selectPaths.append(selectPath)
@@ -421,9 +421,9 @@ class PhotoSynchronisation: ObservableObject {
             
             // Select paths
             if isSelective {
-                print("Selecting paths")
+                Log.info("Selecting paths")
                 #if os(iOS)
-                print("Background time remaining:", await UIApplication.shared.backgroundTimeRemaining)
+                    Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining))")
                 #endif
                 
                 DispatchQueue.main.async {
@@ -439,7 +439,7 @@ class PhotoSynchronisation: ObservableObject {
             
             // Tag saved items
             if !savedAlbumID.isEmpty && !assetsSavedSuccessfully.isEmpty {
-                print("Tagging \(assetsSavedSuccessfully.count) saved items")
+                Log.info("Tagging \(assetsSavedSuccessfully.count) saved items")
                 if let savedAlbum = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [savedAlbumID], options: nil).firstObject {
                     let assets = PHAsset.fetchAssets(withLocalIdentifiers: assetsSavedSuccessfully.map {$0.localIdentifier}, options: nil)
                     try? await PHPhotoLibrary.shared().performChanges {
@@ -450,7 +450,7 @@ class PhotoSynchronisation: ObservableObject {
             
             // Purge
             if purgeEnabled && !originalsToPurge.isEmpty {
-                print("Purge \(originalsToPurge.count) originals")
+                Log.info("Purge \(originalsToPurge.count) originals")
                 DispatchQueue.main.async {
                     self.progress = .purging
                 }
@@ -471,9 +471,10 @@ class PhotoSynchronisation: ObservableObject {
             DispatchQueue.main.async {
                 self.progress = .finished(error: nil)
             }
-            print("Done")
+            Log.info("Photo synchronization done")
+            
             #if os(iOS)
-            print("Background time remaining:", await UIApplication.shared.backgroundTimeRemaining)
+                Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining))")
             #endif
         }
     }

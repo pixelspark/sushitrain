@@ -142,7 +142,7 @@ extension SushitrainFolder {
             let localNativePath = self.localNativePath(&error)
             
             if let error = error {
-                print("Could not get local native URL for folder: \(error.localizedDescription)")
+                Log.warn("Could not get local native URL for folder: \(error.localizedDescription)")
             }
             else {
                 return URL(fileURLWithPath: localNativePath)
@@ -166,7 +166,7 @@ extension SushitrainFolder {
                 try lu.setResourceValues(values)
             }
             catch {
-                print("Unable to set back-up excluded setting: \(error.localizedDescription)")
+                Log.warn("Unable to set back-up excluded setting: \(error.localizedDescription)")
             }
         }
     }
@@ -185,7 +185,7 @@ extension SushitrainFolder {
                     try lu.setResourceValues(values)
                 }
                 catch {
-                    print("Unable to set hide setting: \(error.localizedDescription)")
+                    Log.info("Unable to set hide setting: \(error.localizedDescription)")
                 }
             }
         }
@@ -410,35 +410,34 @@ extension Set {
 
 @MainActor
 func openURLInSystemFilesApp(url: URL) {
-#if os(iOS)
-    let sharedURL = url.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
-    let furl: URL = URL(string: sharedURL)!
-    UIApplication.shared.open(furl, options: [:], completionHandler: nil)
-#endif
-    
-#if os(macOS)
-    print("Open external URL", url)
-    NSWorkspace.shared.activateFileViewerSelecting([url])
-#endif
+    #if os(iOS)
+        let sharedURL = url.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
+        let furl: URL = URL(string: sharedURL)!
+        UIApplication.shared.open(furl, options: [:], completionHandler: nil)
+    #endif
+        
+    #if os(macOS)
+        NSWorkspace.shared.activateFileViewerSelecting([url])
+    #endif
 }
 
 #if os(iOS)
-let openInFilesAppLabel = String(localized: "Open in Files app")
+    let openInFilesAppLabel = String(localized: "Open in Files app")
 #endif
 
 #if os(macOS)
-let openInFilesAppLabel = String(localized: "Show in Finder")
+    let openInFilesAppLabel = String(localized: "Show in Finder")
 #endif
 
 #if os(macOS)
-extension NSImage {
-    static func fromCIImage(_ ciImage: CIImage) -> NSImage {
-        let rep = NSCIImageRep(ciImage: ciImage)
-        let nsImage = NSImage(size: rep.size)
-        nsImage.addRepresentation(rep)
-        return nsImage
+    extension NSImage {
+        static func fromCIImage(_ ciImage: CIImage) -> NSImage {
+            let rep = NSCIImageRep(ciImage: ciImage)
+            let nsImage = NSImage(size: rep.size)
+            nsImage.addRepresentation(rep)
+            return nsImage
+        }
     }
-}
 #endif
 
 struct CachedAsyncImage<Content>: View where Content: View {
@@ -464,11 +463,11 @@ struct CachedAsyncImage<Content>: View where Content: View {
     
     var body: some View {
         if let cached = ImageCache[cacheKey] {
-            let _ = print("cached: \(cacheKey)")
+            let _ = Log.info("cached: \(cacheKey)")
             content(.success(cached))
         }
         else {
-            let _ = print("request: \(cacheKey)")
+            let _ = Log.info("request: \(cacheKey)")
             AsyncImage(url: url, scale: scale, transaction: transaction) { phase in
                 cacheAndRender(phase: phase)
             }
@@ -599,11 +598,11 @@ struct BookmarkManager {
             if !url.startAccessingSecurityScopedResource() {
                 throw BookmarkManagerError.cannotAccess
             }
-            print("Start accessing \(url)")
+            Log.info("Start accessing \(url)")
         }
         
         deinit {
-            print("Stop accessing \(url)")
+            Log.info("Stop accessing \(url)")
             url.stopAccessingSecurityScopedResource()
         }
     }
@@ -633,7 +632,7 @@ struct BookmarkManager {
         var isStale = false
         let url = try URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &isStale)
         guard !isStale else {
-            print("Bookmark for \(folderID) is stale")
+            Log.info("Bookmark for \(folderID) is stale")
             self.bookmarks.removeValue(forKey: folderID)
             return nil
         }
@@ -652,18 +651,18 @@ struct BookmarkManager {
     
     private mutating func load() {
         self.bookmarks = UserDefaults.standard.object(forKey: Self.DefaultsKey) as? [String: Data] ?? [:]
-        print("Load bookmarks: \(self.bookmarks)")
+        Log.info("Load bookmarks: \(self.bookmarks)")
     }
     
     private func save() {
-        print("Saving bookmarks: \(self.bookmarks)")
+        Log.info("Saving bookmarks: \(self.bookmarks)")
         UserDefaults.standard.set(self.bookmarks, forKey: Self.DefaultsKey)
     }
     
     mutating func removeBookmarksForFoldersNotIn(_ folderIDs: Set<String>) {
         let toRemove = self.bookmarks.keys.filter({ !folderIDs.contains($0) })
         for toRemoveKey in toRemove {
-            print("Removing stale bookmark \(toRemoveKey)")
+            Log.warn("Removing stale bookmark \(toRemoveKey)")
             self.bookmarks.removeValue(forKey: toRemoveKey)
         }
     }
@@ -683,5 +682,9 @@ extension View {
 final class Log {
     static func info(_ message: String) {
         SushitrainLogInfo(message)
+    }
+    
+    static func warn(_ message: String) {
+        SushitrainLogWarn(message)
     }
 }

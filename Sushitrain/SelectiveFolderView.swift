@@ -140,7 +140,7 @@ struct SelectiveFolderView: View {
             }
         }
         catch {
-            print("Could not deselect: \(error.localizedDescription)")
+            Log.warn("Could not deselect: \(error.localizedDescription)")
         }
     }
     
@@ -155,7 +155,7 @@ struct SelectiveFolderView: View {
             selectedPaths.remove(atOffsets: pathIndexes)
         }
         catch {
-            print("Could not deselect: \(error.localizedDescription)")
+            Log.warn("Could not deselect: \(error.localizedDescription)")
         }
     }
 }

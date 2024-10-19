@@ -187,7 +187,7 @@ struct SearchResultsView: View, SearchViewDelegate {
                     }
                 }
                 catch let error {
-                    print(error)
+                    Log.info("Error searching: " + error.localizedDescription)
                 }
             }
         }

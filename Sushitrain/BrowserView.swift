@@ -267,7 +267,7 @@ fileprivate struct BrowserListView: View {
                 })
             }
             catch let error {
-                print("Error listing: \(error.localizedDescription)")
+                Log.warn("Error listing: \(error.localizedDescription)")
             }
             return []
         }.value
@@ -294,7 +294,7 @@ fileprivate struct BrowserListView: View {
                 return entries.sorted()
             }
             catch let error {
-                print("Error listing: \(error.localizedDescription)")
+                Log.warn("Error listing: \(error.localizedDescription)")
             }
             return []
         }.value
@@ -307,7 +307,7 @@ fileprivate struct BrowserListView: View {
                     return hasExtra.boolValue
                 }
                 catch let error {
-                    print("error checking for extraneous files: \(error.localizedDescription)")
+                    Log.warn("error checking for extraneous files: \(error.localizedDescription)")
                 }
                 return false
             }.value

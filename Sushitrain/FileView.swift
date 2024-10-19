@@ -46,7 +46,7 @@ fileprivate struct FileMediaPlayer<Content: View>: View {
             do {
                 try session.setActive(false, options: .notifyOthersOnDeactivation)
             } catch let error as NSError {
-                print("Failed to deactivate audio session: \(error.localizedDescription)")
+                Log.warn("Failed to deactivate audio session: \(error.localizedDescription)")
             }
         #endif
     }

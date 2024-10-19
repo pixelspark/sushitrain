@@ -147,7 +147,7 @@ struct AddFolderView: View {
                         self.folderPath = url
                     }
                 case .failure(let e):
-                    print("Failed to select folder: \(e.localizedDescription)")
+                    Log.warn("Failed to select folder: \(e.localizedDescription)")
                     self.folderPath = nil
                 }
             })

@@ -170,7 +170,7 @@ struct ContentView: View {
     }
     
     private func showOnboardingIfNecessary() {
-        print(
+        Log.info(
             "Current onboarding version is \(Self.currentOnboardingVersion), user last saw \(self.onboardingVersionShown)"
         )
         if onboardingVersionShown < Self.currentOnboardingVersion {
