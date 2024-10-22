@@ -141,8 +141,8 @@ struct ContentView: View {
                     dismissButton: .default(Text("OK")))
             }
         )
-        .onChange(of: scenePhase) { _, newPhase in
-            self.appState.onScenePhaseChange(to: newPhase)
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            self.appState.onScenePhaseChange(from: oldPhase, to: newPhase)
         }
         .alert(isPresented: $showCustomConfigWarning) {
             Alert(

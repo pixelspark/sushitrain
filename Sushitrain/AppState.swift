@@ -44,16 +44,20 @@ import Combine
     @AppStorage("dotFilesHidden") var dotFilesHidden: Bool = true
     @AppStorage("lingeringEnabled") var lingeringEnabled: Bool = true
     
-    // The IDs of the peers that were suspended when the app last entered background, and should be re-enabled when the
-    // app enters the foreground state.
-    @AppStorage("suspendedPeerIds") private var suspendedPeerIds: [String] = []
-    
     var photoSync = PhotoSynchronisation()
     
-#if os(iOS)
-    var backgroundManager: BackgroundManager!
-    private var lingerManager: LingerManager!
-#endif
+    #if os(iOS)
+        // The IDs of the peers that were suspended when the app last entered background, and should be re-enabled when the
+        // app enters the foreground state.
+        @AppStorage("suspendedPeerIds") private var suspendedPeerIds: [String] = []
+        
+        var backgroundManager: BackgroundManager!
+        private var lingerManager: LingerManager!
+        
+        var isSuspended: Bool {
+            return !self.suspendedPeerIds.isEmpty
+        }
+    #endif
     
     static let maxChanges = 25
     
@@ -145,39 +149,45 @@ import Combine
         }
     }
     
-    func suspend(_ suspend: Bool) {
-        do {
-            if suspend {
-                if !self.suspendedPeerIds.isEmpty {
-                    Log.warn("Suspending, but there are still suspended peers, this should not happen (working around it anyway)")
-                }
-                let suspendedPeers = try self.client.suspendPeers()
-                var suspendedIds = suspendedPeers.asArray()
-                suspendedIds.append(contentsOf: self.suspendedPeerIds)
-                self.suspendedPeerIds = suspendedIds
-            }
-            else {
-                if self.suspendedPeerIds.isEmpty {
-                    Log.info("No peers to unsuspend")
+    #if os(iOS)
+        func suspend(_ suspend: Bool) {
+            do {
+                if suspend {
+                    if !self.suspendedPeerIds.isEmpty {
+                        Log.warn("Suspending, but there are still suspended peers, this should not happen (working around it anyway)")
+                    }
+                    let suspendedPeers = try self.client.suspendPeers()
+                    var suspendedIds = suspendedPeers.asArray()
+                    suspendedIds.append(contentsOf: self.suspendedPeerIds)
+                    self.suspendedPeerIds = suspendedIds
                 }
                 else {
-                    Log.info("Requesting unsuspend of devices:" + self.suspendedPeerIds.debugDescription)
-                    try self.client.unsuspend(SushitrainListOfStrings.from(self.suspendedPeerIds))
-                    self.suspendedPeerIds = []
+                    if self.suspendedPeerIds.isEmpty {
+                        Log.info("No peers to unsuspend")
+                    }
+                    else {
+                        Log.info("Requesting unsuspend of devices:" + self.suspendedPeerIds.debugDescription)
+                        try self.client.unsuspend(SushitrainListOfStrings.from(self.suspendedPeerIds))
+                        self.suspendedPeerIds = []
+                    }
                 }
             }
+            catch {
+                Log.warn("Could not suspend \(suspend): \(error.localizedDescription)")
+            }
         }
-        catch {
-            Log.warn("Could not suspend \(suspend): \(error.localizedDescription)")
-        }
-    }
+    #endif
     
-    func onScenePhaseChange(to newPhase: ScenePhase) {
+    func onScenePhaseChange(from oldPhase: ScenePhase, to newPhase: ScenePhase) {
+        Log.info("Phase change from \(oldPhase) to \(newPhase) lingeringEnabled=\(self.lingeringEnabled)")
+        
         switch newPhase {
         case .background:
             #if os(iOS)
                 if self.lingeringEnabled {
+                    Log.info("Background time remaining: \(UIApplication.shared.backgroundTimeRemaining)")
                     self.lingerManager.lingerThenSuspend()
+                    Log.info("Background time remaining (2): \(UIApplication.shared.backgroundTimeRemaining)")
                 }
                 else {
                      self.suspend(true)
@@ -268,48 +278,49 @@ fileprivate class LingerManager {
         self.lingerTimer = nil
         self.wantsSuspendAfterLinger = false
     }
+    
+    private func afterLingering() {
+        Log.info("After lingering: suspend=\(self.wantsSuspendAfterLinger)")
+        if self.wantsSuspendAfterLinger {
+            self.wantsSuspendAfterLinger = false
+            self.appState.suspend(true)
+        }
+        self.cancelLingering()
+    }
 
     func lingerThenSuspend() {
         Log.info("Linger then suspend")
+        
+        if self.appState.isSuspended {
+            // Already suspended?
+            Log.info("Already suspended (suspended peer list is not empty), not lingering")
+            self.afterLingering()
+        }
+        
         self.wantsSuspendAfterLinger = true
         if self.lingerTask == nil {
             self.lingerTask = UIApplication.shared.beginBackgroundTask(withName: "Short-term connection persistence", expirationHandler: {
                 Log.info("Suspend after expiration of linger time")
-                if self.wantsSuspendAfterLinger {
-                    self.wantsSuspendAfterLinger = false
-                    self.appState.suspend(true)
-                }
-                self.cancelLingering()
+                self.afterLingering()
             })
             Log.info("Lingering before suspend: \(UIApplication.shared.backgroundTimeRemaining) remaining")
         }
         
+        // Try to stay awake for 3/4th of the estimated background time remaining, at most 29s
+        // (at 30s the system appears to terminate)
+        let lingerTime = min(29.0, UIApplication.shared.backgroundTimeRemaining * 3.0 / 4.0)
+        let minimumLingerTime: TimeInterval = 1.0 // Don't bother if we get less than one second
+        if lingerTime < minimumLingerTime {
+            Log.info("Lingering time allotted by the system is too short, suspending immediately")
+            return afterLingering()
+        }
+        
         if self.lingerTimer?.isValid != true {
-            // Try to stay awake for 3/4th of the estimated background time remaining, at most 29s
-            // (at 30s the system appears to terminate)
-            let lingerTime = min(29.0, UIApplication.shared.backgroundTimeRemaining * 3.0 / 4.0)
-            if lingerTime < 1.0 {
-                // Too short, just end lingering now
-                Log.info("Lingering time allotted by the system is too short, suspending immediately")
-                self.wantsSuspendAfterLinger = false
-                self.appState.suspend(true)
-                if let lt = self.lingerTask {
-                    UIApplication.shared.endBackgroundTask(lt)
-                }
-                self.lingerTask = nil
-            }
-            else {
-                Log.info("Start lingering timer for \(lingerTime)")
-                self.lingerTimer = Timer.scheduledTimer(withTimeInterval: lingerTime, repeats: false) { _ in
-                    DispatchQueue.main.async {
-                        Log.info("Suspend after linger")
-                        self.wantsSuspendAfterLinger = false
-                        self.appState.suspend(true)
-                        if let lt = self.lingerTask {
-                            UIApplication.shared.endBackgroundTask(lt)
-                        }
-                        self.lingerTask = nil
-                    }
+            Log.info("Start lingering timer for \(lingerTime)")
+            self.lingerTimer = Timer.scheduledTimer(withTimeInterval: lingerTime, repeats: false) { _ in
+                DispatchQueue.main.async {
+                    Log.info("Suspend after linger")
+                    self.afterLingering()
                 }
             }
         }
