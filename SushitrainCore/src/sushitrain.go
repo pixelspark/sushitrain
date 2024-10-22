@@ -115,6 +115,11 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 			if err != nil {
 				return
 			}
+
+			err = writer.Flush()
+			if err != nil {
+				return
+			}
 		})
 	}
 
