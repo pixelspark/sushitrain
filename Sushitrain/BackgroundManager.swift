@@ -14,6 +14,9 @@ import BackgroundTasks
     private static let WatchdogNotificationID = "nl.t-shaped.sushitrain.watchdog-notification"
     
     private var currentBackgroundTask: BGTask? = nil
+    private var expireTimer: Timer? = nil
+    private var isEndingBackgroundTask = false
+    private var currentRun: BackgroundSyncRun? = nil
     fileprivate unowned var appState: AppState
     
     required init(appState: AppState) {
@@ -38,36 +41,42 @@ import BackgroundTasks
     private func handleBackgroundSync(task: BGTask) async {
         let start = Date.now
         self.currentBackgroundTask = task
-        Log.info("Start background sync at \(start) \(task)")
+        Log.info("Start background task at \(start) \(task.identifier)")
         DispatchQueue.main.async {
             _ = self.scheduleBackgroundSync()
         }
+        Log.info("Rescheduling watchdog")
         await self.rescheduleWatchdogNotification()
         
         // Start photo synchronization if the user has enabled it
         var photoSyncTask: Task<(),Error>? = nil
         if self.appState.photoSync.enableBackgroundCopy {
+            Log.info("Start photo sync task")
             self.appState.photoSync.synchronize(self.appState, fullExport: false)
             photoSyncTask = self.appState.photoSync.syncTask
         }
         
         // Start background sync on long and short sync task
         if appState.longBackgroundSyncEnabled || appState.shortBackgroundSyncEnabled {
+            Log.info("Start background sync, time remaining = \(UIApplication.shared.backgroundTimeRemaining)")
             self.appState.suspend(false)
-            var run = BackgroundSyncRun(started: start, ended: nil)
-            appState.lastBackgroundSyncRun = OptionalObject(run)
+            currentRun = BackgroundSyncRun(started: start, ended: nil)
+            appState.lastBackgroundSyncRun = OptionalObject(currentRun)
+            
+            expireTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { t in
+                DispatchQueue.main.async {
+                    let remaining = UIApplication.shared.backgroundTimeRemaining
+                    Log.info("Check background time remaining: \(remaining)")
+                    if remaining <= 1.0 {
+                        Log.info("End of our background stint is nearing")
+                        self.endBackgroundTask()
+                    }
+                }
+            }
             
             // Run to expiration
             task.expirationHandler = {
-                run.ended = Date.now
-                Log.info("Background sync expired at \(run.ended!.debugDescription)")
-                self.appState.photoSync.cancel()
-                self.appState.suspend(true)
-                self.currentBackgroundTask = nil
-                self.appState.lastBackgroundSyncRun = OptionalObject(run)
-                self.updateBackgroundRunHistory(appending: run)
-                self.notifyUserOfBackgroundSyncCompletion(start: start, end: run.ended!)
-                task.setTaskCompleted(success: true)
+                Log.info("Background task expired")
             }
         }
         else {
@@ -87,6 +96,30 @@ import BackgroundTasks
                 task.setTaskCompleted(success: true)
                 self.currentBackgroundTask = nil
             }
+        }
+    }
+    
+    private func endBackgroundTask() {
+        Log.info("endBackgroundTask invalidate expire timer")
+        expireTimer?.invalidate()
+        expireTimer = nil
+        
+        if var run = currentRun, let task = currentBackgroundTask, !isEndingBackgroundTask {
+            isEndingBackgroundTask = true
+            run.ended = Date.now
+            Log.info("Background sync stopped at \(run.ended!.debugDescription)")
+            self.appState.photoSync.cancel()
+            Log.info("Suspending peers")
+            self.appState.suspend(true)
+            Log.info("Doing background task bookkeeping")
+            self.currentBackgroundTask = nil
+            self.appState.lastBackgroundSyncRun = OptionalObject(run)
+            self.updateBackgroundRunHistory(appending: run)
+            Log.info("Setting task completed")
+            task.setTaskCompleted(success: true)
+            
+            Log.info("Notify user of background sync completion")
+            self.notifyUserOfBackgroundSyncCompletion(start: run.started, end: run.ended!)
         }
     }
     
