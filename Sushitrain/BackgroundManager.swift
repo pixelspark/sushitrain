@@ -67,7 +67,7 @@ import BackgroundTasks
                 DispatchQueue.main.async {
                     let remaining = UIApplication.shared.backgroundTimeRemaining
                     Log.info("Check background time remaining: \(remaining)")
-                    if remaining <= 1.0 {
+                    if remaining <= 1.8 { // We want about a second left for cleaning up
                         Log.info("End of our background stint is nearing")
                         self.endBackgroundTask()
                     }
@@ -76,7 +76,8 @@ import BackgroundTasks
             
             // Run to expiration
             task.expirationHandler = {
-                Log.info("Background task expired")
+                Log.warn("Background task expired (this should not happen because our timer should have expired the task first; perhaps iOS changed its mind?)")
+                self.endBackgroundTask()
             }
         }
         else {
