@@ -101,12 +101,12 @@ import BackgroundTasks
     }
     
     private func endBackgroundTask() {
-        Log.info("endBackgroundTask invalidate expire timer")
+        Log.info("endBackgroundTask: expireTimer=\(expireTimer != nil), run = \(currentRun != nil) task = \(currentBackgroundTask != nil), isEndingBackgroundTask = \(isEndingBackgroundTask)")
         expireTimer?.invalidate()
         expireTimer = nil
         
         if var run = currentRun, let task = currentBackgroundTask, !isEndingBackgroundTask {
-            isEndingBackgroundTask = true
+            self.isEndingBackgroundTask = true
             run.ended = Date.now
             Log.info("Background sync stopped at \(run.ended!.debugDescription)")
             self.appState.photoSync.cancel()
@@ -114,6 +114,7 @@ import BackgroundTasks
             self.appState.suspend(true)
             Log.info("Doing background task bookkeeping")
             self.currentBackgroundTask = nil
+            self.currentRun = nil
             self.appState.lastBackgroundSyncRun = OptionalObject(run)
             self.updateBackgroundRunHistory(appending: run)
             Log.info("Setting task completed")
@@ -121,6 +122,7 @@ import BackgroundTasks
             
             Log.info("Notify user of background sync completion")
             self.notifyUserOfBackgroundSyncCompletion(start: run.started, end: run.ended!)
+            self.isEndingBackgroundTask = false
         }
     }
     
