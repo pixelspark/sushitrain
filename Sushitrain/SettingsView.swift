@@ -34,15 +34,16 @@ struct TotalStatisticsView: View {
             }
         }
         .navigationTitle("Statistics")
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-#endif
-#if os(macOS)
-        .formStyle(.grouped)
-#endif
+        #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+        #endif
+        #if os(macOS)
+            .formStyle(.grouped)
+        #endif
     }
 }
 
+#if os(iOS)
 fileprivate struct ExportButtonView: View {
     @State private var error: Error? = nil
     @State private var showSuccess: Bool = false
@@ -71,6 +72,93 @@ fileprivate struct ExportButtonView: View {
         }
     }
 }
+#endif
+
+#if os(macOS)
+struct ConfigurationSettingsView: View {
+    @State private var showHomeDirectorySelector = false
+    @State private var currentPath: URL? = nil
+    @State private var showRestartAlert: Bool = false
+    
+    var body: some View {
+        Form {
+            Section {
+                HStack {
+                    if let p = currentPath {
+                        Text(p.path(percentEncoded: false))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .multilineTextAlignment(.leading)
+                        Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
+                            openURLInSystemFilesApp(url: p)
+                        }).labelStyle(.iconOnly)
+                    }
+                    else {
+                        Text("(Default location)")
+                    }
+                }
+                
+                Button("Select configuration folder...") {
+                    self.showHomeDirectorySelector = true
+                }
+                .buttonStyle(.link)
+                
+                if currentPath != nil {
+                    Button("Use default configuration location") {
+                        self.setBookmark(nil)
+                    }
+                    .buttonStyle(.link)
+                }
+            }
+            header: {
+                Text("Configuration folder location")
+            }
+            footer: {
+                Text("The configuration folder contains the settings for the app, as well as the keys to communicate with other devices and bookkeeping of synchronized folders. By default, the configuration folder is managed by the app.")
+            }
+        }
+        .formStyle(.grouped)
+        .navigationTitle("Configuration settings")
+        .fileImporter(isPresented: $showHomeDirectorySelector, allowedContentTypes: [.directory]) { result in
+            switch result {
+            case .success(let url):
+                _ = url.startAccessingSecurityScopedResource()
+                if let bookmark = try? url.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) {
+                    self.setBookmark(bookmark)
+                }
+            case .failure(let err):
+                Log.info("Failed to select home dir: \(err.localizedDescription)")
+            }
+        }
+        .alert("Configuration folder changed", isPresented: $showRestartAlert, actions: {
+            Button("Close the app") {
+                exit(0)
+            }
+        }, message: {
+            Text("The path to the configuration folder was changed and will be used when the app is restarted. The app will now close.")
+        })
+        .task {
+            self.updatePath()
+        }
+    }
+    
+    private func setBookmark(_ data: Data?) {
+        UserDefaults.standard.setValue(data, forKey: "configDirectoryBookmark")
+        self.updatePath()
+        self.showRestartAlert = true
+    }
+    
+    private func updatePath() {
+        var isStale: Bool = false
+        if let bd = UserDefaults.standard.data(forKey: "configDirectoryBookmark"),
+           let url = try? URL(resolvingBookmarkData: bd, options: [.withSecurityScope, .withoutUI], bookmarkDataIsStale: &isStale), !isStale {
+            self.currentPath = url
+        }
+        else {
+            self.currentPath = nil
+        }
+    }
+}
+#endif
 
 struct AdvancedSettingsView: View {
     @ObservedObject var appState: AppState
@@ -198,13 +286,23 @@ struct AdvancedSettingsView: View {
                 }
             }
             
-            Section {
-                ExportButtonView(appState: appState)
-            } footer: {
-                if self.appState.client.isUsingCustomConfiguration {
-                    Text("The app is currently using a custom configuration from config.xml in the application directory. Remove it and restart the app to revert back to the default configuration.")
+            #if os(iOS)
+                Section {
+                    ExportButtonView(appState: appState)
+                } footer: {
+                    if self.appState.client.isUsingCustomConfiguration {
+                        Text("The app is currently using a custom configuration from config.xml in the application directory. Remove it and restart the app to revert back to the default configuration.")
+                    }
                 }
-            }
+            #endif
+            
+            #if os(macOS)
+                Section {
+                    NavigationLink(destination: ConfigurationSettingsView()) {
+                        Text("Configuration settings")
+                    }
+                }
+            #endif
         }
         .navigationTitle("Advanced settings")
 #if os(macOS)
@@ -404,12 +502,12 @@ fileprivate struct BandwidthSettingsView: View {
             }
         }
         .navigationTitle("Bandwidth limitations")
-#if os(macOS)
-        .formStyle(.grouped)
-#endif
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-#endif
+        #if os(macOS)
+            .formStyle(.grouped)
+        #endif
+        #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
 }
 
@@ -417,25 +515,33 @@ fileprivate struct BandwidthSettingsView: View {
 struct TabbedSettingsView: View {
     @ObservedObject var appState: AppState
     @Binding var hideInDock: Bool
+    @State private var selection: String = "general"
     
     var body: some View {
-        TabView {
-            GeneralSettingsView(appState: appState, hideInDock: $hideInDock)
-                .tabItem {
-                    Label("General", systemImage: "app.badge.checkmark.fill")
-                }
-            BandwidthSettingsView(appState: appState)
-                .tabItem {
-                    Label("Bandwidth", systemImage: "tachometer")
-                }
-            PhotoSettingsView(appState: appState, photoSync: appState.photoSync)
-                .tabItem {
-                    Label("Photo synchronization", systemImage: "photo")
-                }
-            AdvancedSettingsView(appState: appState)
-                .tabItem {
-                    Label("Advanced", systemImage: "gear")
-                }
+        TabView(selection: $selection) {
+            Tab(value: "general", content: {
+                GeneralSettingsView(appState: appState, hideInDock: $hideInDock)
+            }, label: {
+                Label("General", systemImage: "app.badge.checkmark.fill")
+            })
+            
+            Tab(value: "bandwidth", content: {
+                BandwidthSettingsView(appState: appState)
+            }, label: {
+                Label("Bandwidth", systemImage: "tachometer")
+            })
+            
+            Tab(value: "photo", content: {
+                PhotoSettingsView(appState: appState, photoSync: appState.photoSync)
+            }, label: {
+                Label("Photo synchronization", systemImage: "photo")
+            })
+            
+            Tab(value: "advanced", content: {
+                AdvancedSettingsView(appState: appState)
+            }, label: {
+                Label("Advanced", systemImage: "gear")
+            })
         }
         .frame(minWidth: 500, minHeight: 450)
         .windowResizeBehavior(.automatic)

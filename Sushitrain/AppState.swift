@@ -17,6 +17,9 @@ import Combine
 
 @MainActor class AppState: ObservableObject {
     var client: SushitrainClient
+    private let documentsDirectory: URL
+    private let configDirectory: URL
+    
     @Published var alertMessage: String = ""
     @Published var alertShown: Bool = false
     @Published var localDeviceID: String = ""
@@ -61,12 +64,30 @@ import Combine
     
     static let maxChanges = 25
     
-    init(client: SushitrainClient) {
+    init(client: SushitrainClient, documentsDirectory: URL, configDirectory: URL) {
         self.client = client;
+        self.documentsDirectory = documentsDirectory;
+        self.configDirectory = configDirectory;
         #if os(iOS)
             self.backgroundManager = BackgroundManager(appState: self)
             self.lingerManager = LingerManager(appState: self)
         #endif
+    }
+    
+    func protectFiles() {
+        // Set data protection for config file and keys
+        let configDirectoryURL = self.configDirectory
+        let files = [SushitrainConfigFileName, SushitrainKeyFileName, SushitrainCertFileName]
+        for file in files {
+            do {
+                let fileURL = configDirectoryURL.appendingPathComponent(file, isDirectory: false)
+                try (fileURL as NSURL).setResourceValue(URLFileProtection.completeUntilFirstUserAuthentication, forKey: .fileProtectionKey)
+                Log.info("Data protection class set for \(fileURL)")
+            }
+            catch {
+                Log.warn("Error setting data protection class for \(file): \(error.localizedDescription)")
+            }
+        }
     }
     
     func applySettings() {
@@ -221,6 +242,11 @@ import Combine
         @unknown default:
             break
         }
+    }
+    
+    func isInsideDocumentsFolder(_ url: URL) -> Bool {
+        return url.resolvingSymlinksInPath().path(percentEncoded: false)
+            .hasPrefix(documentsDirectory.resolvingSymlinksInPath().path(percentEncoded: false))
     }
     
     var systemImage: String {

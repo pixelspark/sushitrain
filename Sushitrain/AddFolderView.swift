@@ -137,8 +137,8 @@ struct AddFolderView: View {
             .fileImporter(isPresented: $showPathSelector, allowedContentTypes: [.folder], onCompletion: { result in
                 switch result {
                 case .success(let url):
-                    // Check if the folder path is or is inside our regular folder path - that is not allowed
-                    if url.resolvingSymlinksInPath().path(percentEncoded: false).hasPrefix(SushitrainApp.documentsDirectory.resolvingSymlinksInPath().path(percentEncoded: false)) {
+                    if appState.isInsideDocumentsFolder(url) {
+                        // Check if the folder path is or is inside our regular folder path - that is not allowed
                         self.errorText = String(localized: "The folder you have selected is inside the app folder. Only folders outside the app folder can be selected.")
                         self.showError = true
                         self.folderPath = nil

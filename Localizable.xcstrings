@@ -52,6 +52,34 @@
       },
       "shouldTranslate": false
     },
+    "(Default location)": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(Standaardlocatie)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(Standardort)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(Posizione predefinita)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(Ubicación predeterminada)"
+          }
+        }
+      }
+    },
     "(No folder selected)": {
       "localizations": {
         "de": {
@@ -1864,6 +1892,118 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sluiten"
+          }
+        }
+      }
+    },
+    "Close the app": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sluit de app"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App schließen"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiudi l'app"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerrar la app"
+          }
+        }
+      }
+    },
+    "Configuration folder changed": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configuratiemap gewijzigd"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konfigurationsordner geändert"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cartella di configurazione modificata"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carpeta de configuración cambiada"
+          }
+        }
+      }
+    },
+    "Configuration folder location": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configuratiemaplocatie"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konfigurationsordnerpfad"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posizione cartella di configurazione"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ubicación de la carpeta de configuración"
+          }
+        }
+      }
+    },
+    "Configuration settings": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configuratie-instellingen"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konfigurationseinstellungen"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impostazioni di configurazione"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustes de configuración"
           }
         }
       }
@@ -7244,6 +7384,34 @@
         }
       }
     },
+    "Select configuration folder...": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecteer configuratiemap..."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konfigurationsordner auswählen..."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleziona la cartella di configurazione..."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleccionar carpeta de configuración..."
+          }
+        }
+      }
+    },
     "Select existing folder...": {
       "localizations": {
         "de": {
@@ -8644,6 +8812,34 @@
         }
       }
     },
+    "The configuration folder contains the settings for the app, as well as the keys to communicate with other devices and bookkeeping of synchronized folders. By default, the configuration folder is managed by the app.": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De configuratiemap bevat de instellingen voor de app, evenals de sleutels om te communiceren met andere apparaten en de administratie van gesynchroniseerde mappen. Standaard wordt de configuratiemap beheerd door de app."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Konfigurationsordner enthält die Einstellungen für die App sowie die Schlüssel zur Kommunikation mit anderen Geräten und die Buchhaltung der synchronisierten Ordner. Standardmäßig wird der Konfigurationsordner von der App verwaltet."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cartella di configurazione contiene le impostazioni per l'app, nonché le chiavi per comunicare con altri dispositivi e la gestione delle cartelle sincronizzate. Per impostazione predefinita, la cartella di configurazione è gestita dall'app."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La carpeta de configuración contiene los ajustes de la aplicación, así como las claves para comunicarse con otros dispositivos y el registro de las carpetas sincronizadas. Por defecto, la carpeta de configuración es gestionada por la aplicación."
+          }
+        }
+      }
+    },
     "The device has been added": {
       "localizations": {
         "de": {
@@ -8780,6 +8976,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Het besturingssysteem geeft de app af en toe een paar minuten tijd op de achtergrond, afhankelijk van de netwerkverbinding en de batterijstatus."
+          }
+        }
+      }
+    },
+    "The path to the configuration folder was changed and will be used when the app is restarted. The app will now close.": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Het pad naar de configuratiemap is gewijzigd en zal worden gebruikt wanneer de app opnieuw wordt gestart. De app zal nu sluiten."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Pfad zum Konfigurationsordner wurde geändert und wird nach dem Neustart der App verwendet. Die App wird jetzt geschlossen."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il percorso della cartella di configurazione è stato modificato e verrà utilizzato al riavvio dell'app. L'app verrà ora chiusa."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La ruta a la carpeta de configuración fue cambiada y se usará cuando la app se reinicie. La app se cerrará ahora."
           }
         }
       }
@@ -9564,6 +9788,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gebruik standaardadressen"
+          }
+        }
+      }
+    },
+    "Use default configuration location": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gebruik standaard configuratielocatie"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standardkonfigurationsort verwenden"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usa la posizione di configurazione predefinita"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usar ubicación de configuración predeterminada"
           }
         }
       }

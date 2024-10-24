@@ -80,6 +80,8 @@
 		652EA4142CBA60AA009EC5FE /* notices.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = notices.html; path = SushitrainCore/notices.html; sourceTree = SOURCE_ROOT; };
 		654272972C7BC77000F2CEF8 /* FileQuickLookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileQuickLookView.swift; sourceTree = "<group>"; };
 		6575B3DE2C6012480057686E /* ChangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangesView.swift; sourceTree = "<group>"; };
+		658365872CC8245400F7889A /* Sushitrain copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Sushitrain copy-Info.plist"; path = "/Users/tommy/Git/Sushitrain/Sushitrain copy-Info.plist"; sourceTree = "<absolute>"; };
+		658365B82CC8256D00F7889A /* Sushitrain copy2-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Sushitrain copy2-Info.plist"; path = "/Users/tommy/Git/Sushitrain/Sushitrain copy2-Info.plist"; sourceTree = "<absolute>"; };
 		658A29EF2CA821950061D1D5 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		65AE11F92C39EE0E00E721D4 /* Sushitrain.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sushitrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		65AE11FC2C39EE0E00E721D4 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
@@ -132,6 +134,8 @@
 				6506158A2C3C4EA9002B6EE6 /* Localizable.xcstrings */,
 				65AE11FB2C39EE0E00E721D4 /* Sushitrain */,
 				65AE12132C39F0CD00E721D4 /* Frameworks */,
+				658365872CC8245400F7889A /* Sushitrain copy-Info.plist */,
+				658365B82CC8256D00F7889A /* Sushitrain copy2-Info.plist */,
 				65AE11FA2C39EE0E00E721D4 /* Products */,
 			);
 			sourceTree = "<group>";

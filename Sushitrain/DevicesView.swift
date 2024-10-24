@@ -29,7 +29,11 @@ struct DevicesView: View {
             List {
                 Section("Associated devices") {
                     if peers.isEmpty {
-                        ContentUnavailableView("No devices added yet", systemImage: "externaldrive.badge.questionmark", description: Text("To synchronize files, first add a remote device. Either select a device from the list below, or add manually using the device ID."))
+                        HStack {
+                            Spacer()
+                            ContentUnavailableView("No devices added yet", systemImage: "externaldrive.badge.questionmark", description: Text("To synchronize files, first add a remote device. Either select a device from the list below, or add manually using the device ID."))
+                            Spacer()
+                        }
                     }
                     else {
                         ForEach(peers) { peer in

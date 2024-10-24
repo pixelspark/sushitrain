@@ -24,29 +24,12 @@ struct SushitrainApp: App {
         @AppStorage("hideInDock") var hideInDock: Bool = false
     #endif
     
-    private static var configDirectory: URL {
-        return try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-    }
-    
-    static var documentsDirectory: URL {
-        return try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-    }
-    
     init() {
-        var configDirectory = Self.configDirectory
-        let documentsDirectory = Self.documentsDirectory
+        let configDirectory = Self.configDirectoryURL()
+        
+        let documentsDirectory = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
         let documentsPath = documentsDirectory.path(percentEncoded: false)
         let configPath = configDirectory.path(percentEncoded: false)
-        
-        // Exclude config and database directory from device back-up
-        var excludeFromBackup = URLResourceValues()
-        excludeFromBackup.isExcludedFromBackup = true
-        do {
-            try configDirectory.setResourceValues(excludeFromBackup)
-        }
-        catch {
-            Log.warn("Error excluding \(configDirectory.path) from backup: \(error.localizedDescription)")
-        }
         
         let enableLogging = UserDefaults.standard.bool(forKey: "loggingEnabled")
         Log.info("Logging enabled: \(enableLogging)")
@@ -56,7 +39,7 @@ struct SushitrainApp: App {
             exit(-1)
         }
         
-        self.appState = AppState(client: client)
+        self.appState = AppState(client: client, documentsDirectory: documentsDirectory, configDirectory: configDirectory)
         self.appState.isLogging = enableLogging
         self.delegate = SushitrainAppDelegate(appState: self.appState)
         client.delegate = self.delegate;
@@ -98,7 +81,7 @@ struct SushitrainApp: App {
                     appState.applySettings()
                     appState.update()
                     appState.updateBadge()
-                    Self.protectFiles()
+                    appState.protectFiles()
                 }
             }
             catch let error {
@@ -113,6 +96,42 @@ struct SushitrainApp: App {
                 }
             #endif
         }
+    }
+    
+    private static func configDirectoryURL() -> URL {
+        // Determine the config directory (on macOS the user can choose a directory)
+        var isCustom = false
+        #if os(macOS)
+            var configDirectory: URL
+            var isStale = false
+            if let configDirectoryBookmark = UserDefaults.standard.data(forKey: "configDirectoryBookmark"),
+               let cd = try? URL(resolvingBookmarkData: configDirectoryBookmark, options: [.withSecurityScope], bookmarkDataIsStale: &isStale),
+               !isStale,
+               cd.startAccessingSecurityScopedResource() {
+                configDirectory = cd
+                Log.info("Using custom config directory: \(configDirectory)")
+                isCustom = true
+            }
+            else {
+                configDirectory = try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+            }
+        #else
+            var configDirectory = try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+        #endif
+        
+        if !isCustom {
+            // Exclude config and database directory from device back-up
+            var excludeFromBackup = URLResourceValues()
+            excludeFromBackup.isExcludedFromBackup = true
+            do {
+                try configDirectory.setResourceValues(excludeFromBackup)
+            }
+            catch {
+                Log.warn("Error excluding \(configDirectory.path) from backup: \(error.localizedDescription)")
+            }
+        }
+        
+        return configDirectory
     }
     
     var body: some Scene {
@@ -171,22 +190,6 @@ struct SushitrainApp: App {
             }
             .windowResizability(.contentSize)
         #endif
-    }
-    
-    @MainActor private static func protectFiles() {
-        // Set data protection for config file and keys
-        let configDirectoryURL = Self.configDirectory
-        let files = [SushitrainConfigFileName, SushitrainKeyFileName, SushitrainCertFileName]
-        for file in files {
-            do {
-                let fileURL = configDirectoryURL.appendingPathComponent(SushitrainConfigFileName, isDirectory: false)
-                try (fileURL as NSURL).setResourceValue(URLFileProtection.completeUntilFirstUserAuthentication, forKey: .fileProtectionKey)
-                Log.info("Data protection class set for \(fileURL)")
-            }
-            catch {
-                Log.warn("Error setting data protection class for \(file): \(error.localizedDescription)")
-            }
-        }
     }
 }
 

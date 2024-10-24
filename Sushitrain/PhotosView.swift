@@ -164,7 +164,11 @@ struct PhotoSettingsView: View {
             Section {
                 Button("Re-copy all photos", systemImage: "photo.badge.arrow.down.fill") {
                     photoSync.synchronize(self.appState, fullExport: true)
-                }.disabled(photoSync.isSynchronizing || !photoSync.isReady)
+                }
+                .disabled(photoSync.isSynchronizing || !photoSync.isReady)
+                #if os(macOS)
+                .buttonStyle(.link)
+                #endif
             } footer: {
                 Text("Saves all photos in the album to the folder, even if the photo was saved to the folder before. This will overwrite any modifications made to the photo file in the folder.")
             }
@@ -176,13 +180,13 @@ struct PhotoSettingsView: View {
                 }
             }
         }
-#if os(macOS)
-        .formStyle(.grouped)
-#endif
         .navigationTitle("Photos synchronization")
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-#endif
+        #if os(macOS)
+            .formStyle(.grouped)
+        #endif
+        #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+        #endif
         .task {
             authorizationStatus = PHPhotoLibrary.authorizationStatus()
         }
