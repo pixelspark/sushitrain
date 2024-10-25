@@ -67,7 +67,7 @@ import BackgroundTasks
                 DispatchQueue.main.async {
                     let remaining = UIApplication.shared.backgroundTimeRemaining
                     Log.info("Check background time remaining: \(remaining)")
-                    if remaining <= 1.8 { // We want about a second left for cleaning up
+                    if remaining <= 5.6 { // iOS seems to start expiring us at 5 seconds before the end
                         Log.info("End of our background stint is nearing")
                         self.endBackgroundTask()
                     }
@@ -76,7 +76,7 @@ import BackgroundTasks
             
             // Run to expiration
             task.expirationHandler = {
-                Log.warn("Background task expired (this should not happen because our timer should have expired the task first; perhaps iOS changed its mind?)")
+                Log.warn("Background task expired (this should not happen because our timer should have expired the task first; perhaps iOS changed its mind?) Remaining = \(UIApplication.shared.backgroundTimeRemaining)")
                 self.endBackgroundTask()
             }
         }
@@ -108,21 +108,27 @@ import BackgroundTasks
         if var run = currentRun, let task = currentBackgroundTask, !isEndingBackgroundTask {
             self.isEndingBackgroundTask = true
             run.ended = Date.now
+            
             Log.info("Background sync stopped at \(run.ended!.debugDescription)")
             self.appState.photoSync.cancel()
+            
             Log.info("Suspending peers")
             self.appState.suspend(true)
-            Log.info("Doing background task bookkeeping")
-            self.currentBackgroundTask = nil
-            self.currentRun = nil
-            self.appState.lastBackgroundSyncRun = OptionalObject(run)
-            self.updateBackgroundRunHistory(appending: run)
+            
             Log.info("Setting task completed")
             task.setTaskCompleted(success: true)
             
+            Log.info("Doing background task bookkeeping")
+            self.appState.lastBackgroundSyncRun = OptionalObject(run)
+            self.updateBackgroundRunHistory(appending: run)
+            
             Log.info("Notify user of background sync completion")
             self.notifyUserOfBackgroundSyncCompletion(start: run.started, end: run.ended!)
+            
+            Log.info("Final cleanup")
             self.isEndingBackgroundTask = false
+            self.currentBackgroundTask = nil
+            self.currentRun = nil
         }
     }
     
