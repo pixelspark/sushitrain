@@ -11,13 +11,13 @@
             buildForTesting = "NO"
             buildForRunning = "YES"
             buildForProfiling = "YES"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
+            buildForArchiving = "YES"
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "65AE11F82C39EE0E00E721D4"
-               BuildableName = "Sushitrain.app"
-               BlueprintName = "Sushitrain"
+               BuildableName = "Synctrain.app"
+               BlueprintName = "Synctrain"
                ReferencedContainer = "container:Sushitrain.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,35 +32,28 @@
    </TestAction>
    <LaunchAction
       buildConfiguration = "Release"
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      language = "en"
-      launchStyle = "0"
+      selectedDebuggerIdentifier = ""
+      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
+      disableMainThreadChecker = "YES"
+      disablePerformanceAntipatternChecker = "YES"
+      launchStyle = "1"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
-      debugDocumentVersioning = "YES"
+      debugDocumentVersioning = "NO"
       debugXPCServices = "NO"
       debugServiceExtension = "internal"
-      allowLocationSimulation = "YES"
-      viewDebuggingEnabled = "No"
-      queueDebuggingEnabled = "No">
+      allowLocationSimulation = "NO"
+      viewDebuggingEnabled = "No">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "65AE11F82C39EE0E00E721D4"
-            BuildableName = "Sushitrain.app"
-            BlueprintName = "Sushitrain"
+            BuildableName = "Synctrain.app"
+            BlueprintName = "Synctrain"
             ReferencedContainer = "container:Sushitrain.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <AdditionalOptions>
-         <AdditionalOption
-            key = "APP_DISTRIBUTOR_ID_OVERRIDE"
-            value = "com.apple.AppStore"
-            isEnabled = "YES">
-         </AdditionalOption>
-      </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -73,8 +66,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "65AE11F82C39EE0E00E721D4"
-            BuildableName = "Sushitrain.app"
-            BlueprintName = "Sushitrain"
+            BuildableName = "Synctrain.app"
+            BlueprintName = "Synctrain"
             ReferencedContainer = "container:Sushitrain.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

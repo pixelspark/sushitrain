@@ -81,7 +81,7 @@
 		654272972C7BC77000F2CEF8 /* FileQuickLookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileQuickLookView.swift; sourceTree = "<group>"; };
 		6575B3DE2C6012480057686E /* ChangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangesView.swift; sourceTree = "<group>"; };
 		658A29EF2CA821950061D1D5 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
-		65AE11F92C39EE0E00E721D4 /* Sushitrain.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sushitrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		65AE11F92C39EE0E00E721D4 /* Synctrain.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Synctrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		65AE11FC2C39EE0E00E721D4 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		65AE11FE2C39EE0E00E721D4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		65AE12002C39EE0F00E721D4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -139,7 +139,7 @@
 		65AE11FA2C39EE0E00E721D4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				65AE11F92C39EE0E00E721D4 /* Sushitrain.app */,
+				65AE11F92C39EE0E00E721D4 /* Synctrain.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -224,9 +224,9 @@
 /* End PBXLegacyTarget section */
 
 /* Begin PBXNativeTarget section */
-		65AE11F82C39EE0E00E721D4 /* Sushitrain */ = {
+		65AE11F82C39EE0E00E721D4 /* Synctrain */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 65AE12072C39EE0F00E721D4 /* Build configuration list for PBXNativeTarget "Sushitrain" */;
+			buildConfigurationList = 65AE12072C39EE0F00E721D4 /* Build configuration list for PBXNativeTarget "Synctrain" */;
 			buildPhases = (
 				65AE11F52C39EE0E00E721D4 /* Sources */,
 				65AE11F62C39EE0E00E721D4 /* Frameworks */,
@@ -238,9 +238,9 @@
 			dependencies = (
 				65AE12522C3A7ED400E721D4 /* PBXTargetDependency */,
 			);
-			name = Sushitrain;
+			name = Synctrain;
 			productName = Sushitrain;
-			productReference = 65AE11F92C39EE0E00E721D4 /* Sushitrain.app */;
+			productReference = 65AE11F92C39EE0E00E721D4 /* Synctrain.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -276,7 +276,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				65AE11F82C39EE0E00E721D4 /* Sushitrain */,
+				65AE11F82C39EE0E00E721D4 /* Synctrain */,
 				65AE124B2C3A7E7700E721D4 /* SushitrainCore */,
 			);
 		};
@@ -592,7 +592,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		65AE12072C39EE0F00E721D4 /* Build configuration list for PBXNativeTarget "Sushitrain" */ = {
+		65AE12072C39EE0F00E721D4 /* Build configuration list for PBXNativeTarget "Synctrain" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				65AE12082C39EE0F00E721D4 /* Debug */,
