@@ -68,18 +68,22 @@ struct SelectiveFolderView: View {
                     
                     Section {
                         Button("Free up space", systemImage: "pin.slash", action: {
-                            do {
-                                if searchString.isEmpty {
-                                    try folder.clearSelection()
-                                    self.selectedPaths.removeAll()
+                            if searchString.isEmpty {
+                                Task.detached {
+                                    do {
+                                        try folder.clearSelection()
+                                    }
+                                    catch let error {
+                                        DispatchQueue.main.async {
+                                            showError = true
+                                            errorText = error.localizedDescription
+                                        }
+                                    }
                                 }
-                                else {
-                                    self.deselectSearchResults()
-                                }
+                                self.selectedPaths.removeAll()
                             }
-                            catch let error {
-                                showError = true
-                                errorText = error.localizedDescription
+                            else {
+                                self.deselectSearchResults()
                             }
                         })
                         .help("Remove the files shown in the list from this device, but do not remove them from other devices.")
