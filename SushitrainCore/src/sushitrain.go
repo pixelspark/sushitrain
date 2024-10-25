@@ -89,7 +89,7 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 
 	// Log to file
 	if saveLog {
-		logFilePath := path.Join(filesPath, fmt.Sprintf("%s.log", time.Now().UTC().Format("synctrain-2006-2-1-15-04-05.log")))
+		logFilePath := path.Join(filesPath, fmt.Sprintf("%s.log", time.Now().UTC().Format("synctrain-2006-2-1-15-04-05")))
 		logFile, err := os.Create(logFilePath)
 		if err != nil {
 			fmt.Println(err)
