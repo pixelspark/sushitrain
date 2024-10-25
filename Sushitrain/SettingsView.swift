@@ -122,7 +122,7 @@ struct ConfigurationSettingsView: View {
             switch result {
             case .success(let url):
                 _ = url.startAccessingSecurityScopedResource()
-                if let bookmark = try? url.bookmarkData(options: [.withSecurityScope], includingResourceValuesForKeys: nil, relativeTo: nil) {
+                if let bookmark = try? url.bookmarkData(options: [.withSecurityScope]) {
                     self.setBookmark(bookmark)
                 }
             case .failure(let err):

@@ -106,11 +106,17 @@ struct SushitrainApp: App {
             var isStale = false
             if let configDirectoryBookmark = UserDefaults.standard.data(forKey: "configDirectoryBookmark"),
                let cd = try? URL(resolvingBookmarkData: configDirectoryBookmark, options: [.withSecurityScope], bookmarkDataIsStale: &isStale),
-               !isStale,
                cd.startAccessingSecurityScopedResource() {
                 configDirectory = cd
                 Log.info("Using custom config directory: \(configDirectory)")
                 isCustom = true
+                
+                if isStale {
+                    Log.info("Config directory bookmark is stale, recreating bookmark")
+                    if let bookmarkData = try? cd.bookmarkData(options: [.withSecurityScope]) {
+                        UserDefaults.standard.setValue(bookmarkData, forKey: "configDirectoryBookmark")
+                    }
+                }
             }
             else {
                 configDirectory = try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
