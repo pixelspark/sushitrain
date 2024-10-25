@@ -613,7 +613,11 @@ struct BookmarkManager {
     
     mutating func saveBookmark(folderID: String, url: URL) throws {
         self.accessing[folderID] = try Accessor(url: url)
-        bookmarks[folderID] = try url.bookmarkData(options: .minimalBookmark, includingResourceValuesForKeys: nil, relativeTo: nil)
+        #if os(macOS)
+            bookmarks[folderID] = try url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
+        #else
+            bookmarks[folderID] = try url.bookmarkData(options: .minimalBookmark, includingResourceValuesForKeys: nil, relativeTo: nil)
+        #endif
         self.save()
     }
     
@@ -630,7 +634,12 @@ struct BookmarkManager {
     mutating func resolveBookmark(folderID: String) throws -> URL? {
         guard let bookmarkData = bookmarks[folderID] else { return nil }
         var isStale = false
-        let url = try URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &isStale)
+        
+        #if os(macOS)
+            let url = try URL(resolvingBookmarkData: bookmarkData, options: [.withSecurityScope], bookmarkDataIsStale: &isStale)
+        #else
+            let url = try URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &isStale)
+        #endif
         guard !isStale else {
             Log.info("Bookmark for \(folderID) is stale")
             self.bookmarks.removeValue(forKey: folderID)
