@@ -10,14 +10,6 @@
 	<array>
 		<string>group.nl.t-shaped.sushitrain.sync</string>
 	</array>
-	<key>com.apple.security.assets.movies.read-write</key>
-	<true/>
-	<key>com.apple.security.assets.music.read-write</key>
-	<true/>
-	<key>com.apple.security.assets.pictures.read-write</key>
-	<true/>
-	<key>com.apple.security.files.downloads.read-write</key>
-	<true/>
 	<key>com.apple.security.files.user-selected.read-write</key>
 	<true/>
 	<key>com.apple.security.network.client</key>
