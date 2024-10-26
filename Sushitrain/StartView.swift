@@ -234,16 +234,19 @@ struct StartView: View {
     var body: some View {
         Form {
             Section {
-                OverallStatusView(appState: appState).contextMenu {
-                    if !self.appState.isFinished {
-                        Button(action: {
-                            self.showWaitScreen = true
-                        }) {
-                            Text("Wait for completion")
-                            Image(systemName: "hourglass.circle")
+                OverallStatusView(appState: appState)
+                #if os(iOS)
+                    .contextMenu {
+                        if !self.appState.isFinished {
+                            Button(action: {
+                                self.showWaitScreen = true
+                            }) {
+                                Text("Wait for completion")
+                                Image(systemName: "hourglass.circle")
+                            }
                         }
                     }
-                }
+                #endif
             }
             
             Section(header: Text("This device's identifier")) {
