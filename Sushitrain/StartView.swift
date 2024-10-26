@@ -252,13 +252,13 @@ struct StartView: View {
             Section(header: Text("This device's identifier")) {
                 Label(self.appState.localDeviceID, systemImage: "qrcode").contextMenu {
                     Button(action: {
-#if os(iOS)
-                        UIPasteboard.general.string = self.appState.localDeviceID
-#endif
+                        #if os(iOS)
+                            UIPasteboard.general.string = self.appState.localDeviceID
+                        #endif
                         
-#if os(macOS)
-                        NSPasteboard.general.setString(self.appState.localDeviceID, forType: .string)
-#endif
+                        #if os(macOS)
+                            NSPasteboard.general.setString(self.appState.localDeviceID, forType: .string)
+                        #endif
                     }) {
                         Text("Copy to clipboard")
                         Image(systemName: "doc.on.doc")
