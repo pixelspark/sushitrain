@@ -276,6 +276,13 @@ struct FileView: View {
                         .disabled(folder.connectedPeerCount() == 0)
                     #endif
                     
+                    // Image preview
+                    if file.canThumbnail {
+                        Section {
+                            ThumbnailView(file: file, appState: appState).padding(.all, 10).cornerRadius(8.0)
+                        }
+                    }
+                    
                     if file.isSelected() {
                         // Selective sync uses copy in working dir
                         if file.isLocallyPresent() {
@@ -355,14 +362,6 @@ struct FileView: View {
                                     quickViewButton
                                 #endif
                             }
-                        }
-                    }
-                    
-                    
-                    // Image preview
-                    if file.canThumbnail {
-                        Section {
-                            ThumbnailView(file: file, appState: appState).padding(.all, 10).cornerRadius(8.0)
                         }
                     }
                     
