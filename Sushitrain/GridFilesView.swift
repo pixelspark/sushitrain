@@ -59,7 +59,7 @@ struct GridFilesView: View {
                     .buttonStyle(PlainButtonStyle())
                     .contextMenu(ContextMenu(menuItems: {
                         if let file = try? folder.getFileInformation(self.prefix + fileName) {
-                            NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState)) {
+                            NavigationLink(destination: FileView(file: file, appState: self.appState)) {
                                 Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
                             }
                         }
@@ -71,7 +71,7 @@ struct GridFilesView: View {
             
             ForEach(files, id: \.self) { file in
                 GeometryReader { geo in
-                    NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState, siblings: [])) {
+                    NavigationLink(destination: FileView(file: file, appState: self.appState, siblings: [])) {
                         GridItemView(appState: appState, size: geo.size.width, file: file)
                     }
                     .buttonStyle(PlainButtonStyle())

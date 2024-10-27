@@ -44,14 +44,14 @@ struct SelectiveFolderView: View {
                                         }
                                         .contextMenu {
                                             if let file = maybeFile {
-                                                NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState)) {
+                                                NavigationLink(destination: FileView(file: file, appState: self.appState)) {
                                                     Label("Properties...", systemImage: file.systemImage)
                                                 }
                                             }
                                         }
                                     #elseif os(iOS)
                                         if let file = try? folder.getFileInformation(item) {
-                                            NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState)) {
+                                            NavigationLink(destination: FileView(file: file, appState: self.appState)) {
                                                 Label(item, systemImage: file.systemImage)
                                             }
                                         }

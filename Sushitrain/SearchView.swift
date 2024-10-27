@@ -53,22 +53,32 @@ class SearchOperation: NSObject, ObservableObject, SushitrainSearchResultDelegat
 struct SearchView: View {
     @ObservedObject var appState: AppState
     @State private var searchText = ""
+    var prefix: String = ""
     
     var body: some View {
         SearchResultsView(
             appState: self.appState,
             searchText: $searchText,
             folder: .constant(""), 
-            prefix: .constant("")
+            prefix: .constant(self.prefix)
         )
         .navigationTitle("Search")
-        .searchable(text: $searchText, placement: .toolbar, prompt: "Search files in all folders...")
-#if os(iOS)
-        .textInputAutocapitalization(.never)
-#endif
+        .searchable(text: $searchText, placement: .toolbar, prompt: self.prompt)
+        #if os(iOS)
+            .textInputAutocapitalization(.never)
+        #endif
         .autocorrectionDisabled()
         // The below works from iOS18
         //.searchFocused($isSearchFieldFocused)
+    }
+    
+    var prompt: String {
+        if self.prefix == "" {
+            return String(localized: "Search files in all folders...")
+        }
+        else {
+            return String(localized: "Search in this folder...")
+        }
     }
 }
 
@@ -107,7 +117,9 @@ struct SearchResultsView: View, SearchViewDelegate {
                                 }
                             }
                             else {
-                                NavigationLink(destination: FileView(file: item, folder: item.folder!, appState: self.appState, showPath: true, siblings: results)) {
+                                NavigationLink(destination: { [appState, results, item] in
+                                    FileView(file: item, appState: appState, showPath: true, siblings: results)
+                                }) {
                                     Label(item.fileName(), systemImage: item.isLocallyPresent() ? "doc.fill" : (item.isSelected() ? "doc.badge.ellipsis" : "doc"))
                                 }
                             }

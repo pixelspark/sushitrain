@@ -32,22 +32,22 @@ struct EntryView: View {
                         Label(entry.fileName(), systemImage: entry.systemImage)
                     }
                     .contextMenu {
-                        NavigationLink(destination: FileView(file: targetEntry, folder: self.folder, appState: self.appState, siblings: [])) {
+                        NavigationLink(destination: FileView(file: targetEntry, appState: self.appState, siblings: [])) {
                             Label(targetEntry.fileName(), systemImage: targetEntry.systemImage)
                         }
-                        NavigationLink(destination: FileView(file: entry, folder: self.folder, appState: self.appState, siblings: siblings)) {
+                        NavigationLink(destination: FileView(file: entry, appState: self.appState, siblings: siblings)) {
                             Label(entry.fileName(), systemImage: entry.systemImage)
                         }
                     }
                 }
                 else {
-                    NavigationLink(destination: FileView(file: targetEntry, folder: self.folder, appState: self.appState, siblings: [])) {
+                    NavigationLink(destination: FileView(file: targetEntry, appState: self.appState, siblings: [])) {
                         Label(entry.fileName(), systemImage: entry.systemImage)
                     }.contextMenu {
-                        NavigationLink(destination: FileView(file: targetEntry, folder: self.folder, appState: self.appState, siblings: [])) {
+                        NavigationLink(destination: FileView(file: targetEntry, appState: self.appState, siblings: [])) {
                             Label(targetEntry.fileName(), systemImage: targetEntry.systemImage)
                         }
-                        NavigationLink(destination: FileView(file: entry, folder: self.folder, appState: self.appState, siblings: siblings)) {
+                        NavigationLink(destination: FileView(file: entry, appState: self.appState, siblings: siblings)) {
                             Label(entry.fileName(), systemImage: entry.systemImage)
                         }
                     }
@@ -73,7 +73,7 @@ struct EntryView: View {
                     Link(destination: targetURL) {
                         Label(targetURL.absoluteString, systemImage: "globe")
                     }
-                    NavigationLink(destination: FileView(file: entry, folder: self.folder, appState: self.appState, siblings: siblings)) {
+                    NavigationLink(destination: FileView(file: entry, appState: self.appState, siblings: siblings)) {
                         Label(entry.fileName(), systemImage: entry.systemImage)
                     }
                 }
@@ -83,10 +83,10 @@ struct EntryView: View {
             }
         }
         else {
-            NavigationLink(destination: FileView(file: entry, folder: self.folder, appState: self.appState, siblings: siblings)) {
+            NavigationLink(destination: FileView(file: entry, appState: self.appState, siblings: siblings)) {
                 Label(entry.fileName(), systemImage: entry.systemImage)
             }.contextMenu {
-                NavigationLink(destination: FileView(file: entry, folder: self.folder, appState: self.appState, siblings: siblings)) {
+                NavigationLink(destination: FileView(file: entry, appState: self.appState, siblings: siblings)) {
                     Label(entry.fileName(), systemImage: entry.systemImage)
                 }
             } preview: {
@@ -176,7 +176,7 @@ fileprivate struct BrowserListView: View {
                                     }
                                     .contextMenu(ContextMenu(menuItems: {
                                         if let file = try? folder.getFileInformation(self.prefix + fileName) {
-                                            NavigationLink(destination: FileView(file: file, folder: self.folder, appState: self.appState)) {
+                                            NavigationLink(destination: FileView(file: file, appState: self.appState)) {
                                                 Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
                                             }
                                         }
@@ -353,8 +353,19 @@ struct BrowserView: View {
         #if os(macOS)
             .searchable(text: $searchText, placement: SearchFieldPlacement.toolbar, prompt: "Search files in this folder...")
         #elseif os(iOS)
-            .if(showSearch) {
-                $0.searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search files in this folder...")
+            .sheet(isPresented: $showSearch) {
+                NavigationStack {
+                    SearchView(appState: self.appState, prefix: self.prefix)
+                        .navigationTitle("Search in this folder")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar(content: {
+                            ToolbarItem(placement: .cancellationAction, content: {
+                                Button("Cancel") {
+                                    showSearch = false
+                                }
+                            })
+                        })
+                }
             }
         #endif
         .toolbar {
@@ -420,7 +431,7 @@ struct BrowserView: View {
                         }
                         .pickerStyle(.inline)
                         
-                        Toggle("Show search field", systemImage: "magnifyingglass", isOn: $showSearch).disabled(!folderExists)
+                        Toggle("Search here...", systemImage: "magnifyingglass", isOn: $showSearch).disabled(!folderExists)
                         
                         Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
                             if let localNativeURL = self.localNativeURL {

@@ -188,24 +188,34 @@ fileprivate struct OnDemandWebFileView: View {
 }
 
 struct FileView: View {
-    @State var file: SushitrainEntry
-    var folder: SushitrainFolder
-    @ObservedObject var appState: AppState
-    @State var localItemURL: URL? = nil
-    @State var showVideoPlayer = false
-    @State var showOnDemandPreview = false
-    @State var showRemoveConfirmation = false
-    @State var showDownloader = false
-    let formatter = ByteCountFormatter()
-    var showPath = false
-    var siblings: [SushitrainEntry]? = nil
-    @State var selfIndex: Int? = nil
+    @State private var file: SushitrainEntry
+    @ObservedObject private var appState: AppState
+    private var showPath = false
+    private var siblings: [SushitrainEntry]? = nil
+    private var folder: SushitrainFolder
+        
+    @State private var localItemURL: URL? = nil
+    @State private var showVideoPlayer = false
+    @State private var showOnDemandPreview = false
+    @State private var showRemoveConfirmation = false
+    @State private var showDownloader = false
+    @State private var selfIndex: Int? = nil
+    
+    private static let formatter = ByteCountFormatter()
     
     @Environment(\.dismiss) private var dismiss
     
     #if os(macOS)
-    @Environment(\.openURL) private var openURL
+        @Environment(\.openURL) private var openURL
     #endif
+    
+    init(file: SushitrainEntry, appState: AppState, showPath: Bool = false, siblings: [SushitrainEntry]? = nil) {
+        self.file = file
+        self.appState = appState
+        self.showPath = showPath
+        self.siblings = siblings
+        self.folder = file.folder!
+    }
     
     var body: some View {
         if file.isDeleted() {
@@ -225,7 +235,7 @@ struct FileView: View {
                 
                 Section {
                     if !file.isDirectory() && !file.isSymlink() {
-                        Text("File size").badge(formatter.string(fromByteCount: file.size()))
+                        Text("File size").badge(Self.formatter.string(fromByteCount: file.size()))
                     }
                     
                     if let md = file.modifiedAt()?.date(), !file.isSymlink() {
