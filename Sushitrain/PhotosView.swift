@@ -133,7 +133,7 @@ struct PhotoSettingsView: View {
                     }
                 }
                 .pickerStyle(.menu)
-                .disabled(photoSync.isSynchronizing || self.authorizationStatus != .authorized)
+                .disabled(photoSync.isSynchronizing || self.authorizationStatus != .authorized || photoSync.selectedAlbumID.isEmpty)
             }
             header: {
                 Text("After saving")
