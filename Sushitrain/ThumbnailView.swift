@@ -13,45 +13,22 @@ struct ThumbnailView: View {
     
     var body: some View {
         if file.canThumbnail {
-            if file.isLocallyPresent() {
-                var error: NSError? = nil
-                let localPath = file.isLocallyPresent() ? file.localNativePath(&error) : nil
-                
-                if let localPath = localPath {
+            let isLocallyPresent = file.isLocallyPresent()
+            if isLocallyPresent || showPreview || file.size() <= appState.maxBytesForPreview {
+                let url = isLocallyPresent ? file.localNativeFileURL! : URL(string: file.onDemandURL())!
                     
-                    
-                    #if os(iOS)
-                    if let uiImage = UIImage(contentsOfFile: localPath) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(maxWidth: .infinity, maxHeight: 200)
-                    }
-                    #endif
-                    
-                    #if os(macOS)
-                    if let uiImage = NSImage(contentsOfFile: localPath) {
-                        Image(nsImage: uiImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(maxWidth: .infinity, maxHeight: 200)
-                    }
-                    #endif
-                }
-            }
-            else if showPreview || file.size() <= appState.maxBytesForPreview {
-                CachedAsyncImage(cacheKey: file.blocksHash(), url: URL(string: file.onDemandURL())!, content: { phase in
+                ThumbnailImage(cacheKey: file.blocksHash(), url: url, content: { phase in
                     switch phase {
-                        case .empty:
-                            HStack(alignment: .center, content: {
-                                ProgressView()
-                            })
-                        case .success(let image):
-                            image.resizable().scaledToFill()
-                        case .failure(_):
-                            Text("The file is currently not available for preview.")
-                        @unknown default:
-                            EmptyView()
+                    case .empty:
+                        HStack(alignment: .center, content: {
+                            ProgressView()
+                        })
+                    case .success(let image):
+                        image.resizable().scaledToFill()
+                    case .failure(_):
+                        Text("The file is currently not available for preview.")
+                    @unknown default:
+                        EmptyView()
                     }
                 })
                 .frame(maxWidth: .infinity, maxHeight: 200)
@@ -60,6 +37,9 @@ struct ThumbnailView: View {
                 Button("Show preview for large files") {
                     showPreview = true
                 }
+                #if os(macOS)
+                    .buttonStyle(.link)
+                #endif
             }
         }
         else {

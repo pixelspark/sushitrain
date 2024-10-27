@@ -249,7 +249,18 @@ extension SushitrainEntry {
     }
     
     var canThumbnail: Bool {
-        return self.isImage && self.mimeType() != "image/svg+xml"
+        return (self.isImage && self.mimeType() != "image/svg+xml") || (!self.isDirectory() && self.isLocallyPresent())
+    }
+    
+    var localNativeFileURL: URL? {
+        var error: NSError? = nil
+        if self.isLocallyPresent() {
+            let path = self.localNativePath(&error)
+            if error == nil {
+                return URL(fileURLWithPath: path)
+            }
+        }
+        return nil
     }
 }
 
@@ -428,78 +439,6 @@ func openURLInSystemFilesApp(url: URL) {
 #if os(macOS)
     let openInFilesAppLabel = String(localized: "Show in Finder")
 #endif
-
-#if os(macOS)
-    extension NSImage {
-        static func fromCIImage(_ ciImage: CIImage) -> NSImage {
-            let rep = NSCIImageRep(ciImage: ciImage)
-            let nsImage = NSImage(size: rep.size)
-            nsImage.addRepresentation(rep)
-            return nsImage
-        }
-    }
-#endif
-
-struct CachedAsyncImage<Content>: View where Content: View {
-    private let cacheKey: String
-    private let url: URL
-    private let scale: CGFloat
-    private let transaction: Transaction
-    private let content: (AsyncImagePhase) -> Content
-    
-    init(
-        cacheKey: String,
-        url: URL,
-        scale: CGFloat = 1.0,
-        transaction: Transaction = Transaction(),
-        @ViewBuilder content: @escaping (AsyncImagePhase) -> Content
-    ) {
-        self.cacheKey = cacheKey
-        self.url = url
-        self.scale = scale
-        self.transaction = transaction
-        self.content = content
-    }
-    
-    var body: some View {
-        if let cached = ImageCache[cacheKey] {
-            let _ = Log.info("cached: \(cacheKey)")
-            content(.success(cached))
-        }
-        else {
-            let _ = Log.info("request: \(cacheKey)")
-            AsyncImage(url: url, scale: scale, transaction: transaction) { phase in
-                cacheAndRender(phase: phase)
-            }
-        }
-    }
-    
-    func cacheAndRender(phase: AsyncImagePhase) -> some View {
-        if case .success(let image) = phase {
-            ImageCache[cacheKey] = image
-        }
-        return content(phase)
-    }
-}
-
-@MainActor
-fileprivate class ImageCache {
-    static private var cache: [String: Image] = [:]
-    static private var maxCacheSize = 64
-    
-    static subscript(cacheKey: String) -> Image? {
-        get {
-            ImageCache.cache[cacheKey]
-        }
-        set {
-            while cache.count >= maxCacheSize {
-                // This is a rather random way to remove items from the cache, investigate using an ordered map
-                _ = ImageCache.cache.popFirst()
-            }
-            ImageCache.cache[cacheKey] = newValue
-        }
-    }
-}
 
 extension SushitrainChange: @unchecked @retroactive Sendable {}
 extension SushitrainFolder: @unchecked @retroactive Sendable {}

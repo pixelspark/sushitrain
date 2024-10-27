@@ -71,7 +71,7 @@ struct GridFilesView: View {
             
             ForEach(files, id: \.self) { file in
                 GeometryReader { geo in
-                    NavigationLink(destination: FileView(file: file, appState: self.appState, siblings: [])) {
+                    NavigationLink(destination: FileView(file: file, appState: self.appState, siblings: files)) {
                         GridItemView(appState: appState, size: geo.size.width, file: file)
                     }
                     .buttonStyle(PlainButtonStyle())

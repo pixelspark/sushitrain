@@ -18,6 +18,7 @@
 		654272982C7BC77000F2CEF8 /* FileQuickLookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654272972C7BC77000F2CEF8 /* FileQuickLookView.swift */; };
 		6575B3DF2C6012480057686E /* ChangesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6575B3DE2C6012480057686E /* ChangesView.swift */; };
 		658A29F02CA821950061D1D5 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 658A29EF2CA821950061D1D5 /* AVKit.framework */; };
+		65A3D2222CCEEEA600117501 /* ThumbnailImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A3D2212CCEEEA200117501 /* ThumbnailImage.swift */; };
 		65AE11FD2C39EE0E00E721D4 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE11FC2C39EE0E00E721D4 /* App.swift */; };
 		65AE11FF2C39EE0E00E721D4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE11FE2C39EE0E00E721D4 /* ContentView.swift */; };
 		65AE12012C39EE0F00E721D4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 65AE12002C39EE0F00E721D4 /* Assets.xcassets */; };
@@ -81,6 +82,7 @@
 		654272972C7BC77000F2CEF8 /* FileQuickLookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileQuickLookView.swift; sourceTree = "<group>"; };
 		6575B3DE2C6012480057686E /* ChangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangesView.swift; sourceTree = "<group>"; };
 		658A29EF2CA821950061D1D5 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
+		65A3D2212CCEEEA200117501 /* ThumbnailImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailImage.swift; sourceTree = "<group>"; };
 		65AE11F92C39EE0E00E721D4 /* Synctrain.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Synctrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		65AE11FC2C39EE0E00E721D4 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		65AE11FE2C39EE0E00E721D4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -179,6 +181,7 @@
 				652763BA2C45C99200250D3C /* SettingsView.swift */,
 				65C9E14B2C3F341F00EDCE6C /* StartView.swift */,
 				65C9E1462C3DB67C00EDCE6C /* Sushitrain.entitlements */,
+				65A3D2212CCEEEA200117501 /* ThumbnailImage.swift */,
 				6505643E2CA98D1F009FFFB9 /* ThumbnailView.swift */,
 				65F15C002CA06B2100E13DDD /* UploadView.swift */,
 				65AE12622C3AF50900E721D4 /* Utils.swift */,
@@ -330,6 +333,7 @@
 				65AE12632C3AF50900E721D4 /* Utils.swift in Sources */,
 				65C8BFD82C87977E00DF5EB0 /* PhotoSynchronisation.swift in Sources */,
 				65AE12732C3B163000E721D4 /* AppState.swift in Sources */,
+				65A3D2222CCEEEA600117501 /* ThumbnailImage.swift in Sources */,
 				65D40FCC2CBDB10600CAE91A /* SelectiveFolderView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
