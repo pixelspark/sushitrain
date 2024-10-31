@@ -16,6 +16,7 @@ import (
 	"strings"
 
 	"github.com/syncthing/syncthing/lib/ignore/ignoreresult"
+	"github.com/syncthing/syncthing/lib/model"
 	"github.com/syncthing/syncthing/lib/osutil"
 	"github.com/syncthing/syncthing/lib/protocol"
 )
@@ -174,6 +175,148 @@ func (entry *Entry) SetExplicitlySelected(selected bool) error {
 	paths := map[string]bool{}
 	paths[entry.info.Name] = selected
 	return entry.Folder.setExplicitlySelected(paths)
+}
+
+func walkEntries(prefix string, entries []*model.TreeEntry, block func(prefix string, entry *model.TreeEntry) (bool, error)) error {
+	for _, entry := range entries {
+		goOn, err := block(prefix, entry)
+		if err != nil {
+			return err
+		}
+		if !goOn {
+			return nil
+		}
+
+		subPrefix := prefix + "/" + entry.Name
+		err = walkEntries(subPrefix, entry.Children, block)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (entry *Entry) PeersWithFullCopy() (*ListOfStrings, error) {
+	if entry.IsDeleted() {
+		return nil, errors.New("file was deleted")
+	}
+
+	if entry.IsDirectory() {
+		// Enumerate all files and check availability
+		fullPeers := make(map[protocol.DeviceID]bool)
+		allPeers, err := entry.Folder.sharedWith()
+		if err != nil {
+			return nil, err
+		}
+
+		for _, p := range allPeers {
+			fullPeers[p] = true
+		}
+
+		prefix := entry.Path() + "/"
+		Logger.Infoln("Determining peers that have a full copy of folder", prefix)
+		leaves, err := entry.Folder.listEntries(prefix, false, true)
+		if err != nil {
+			return nil, err
+		}
+
+		err = walkEntries(entry.Path(), leaves, func(leafPrefix string, leaf *model.TreeEntry) (bool, error) {
+			if len(fullPeers) == 0 {
+				return false, nil
+			}
+
+			leafEntry, err := entry.Folder.GetFileInformation(leafPrefix + "/" + leaf.Name)
+			if err != nil {
+				return false, err
+			}
+
+			if leafEntry == nil {
+				return false, errors.New("leaf entry not found: " + leaf.Name)
+			}
+
+			if leafEntry.IsDeleted() || leafEntry.IsSymlink() || leafEntry.IsDirectory() {
+				return true, nil
+			}
+
+			// Check if this file is available
+			leafBlocksPerDevice, leafBlockCount, err := leafEntry.availabilityPerDevice()
+			if err != nil {
+				return false, err
+			}
+
+			for deviceID, _ := range fullPeers {
+				// Check if the per has this leaf in full
+				blocksOnPeer, ok := leafBlocksPerDevice[deviceID]
+				if !ok || blocksOnPeer != leafBlockCount {
+					// This peer does not have this file in full, remove it from the list
+					delete(fullPeers, deviceID)
+				}
+			}
+			return true, nil
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		// Return the list of peers that have all the files
+		peerIDStrings := make([]string, 0)
+		for deviceID, _ := range fullPeers {
+			peerIDStrings = append(peerIDStrings, deviceID.String())
+		}
+
+		return List(peerIDStrings), nil
+	}
+
+	// Single file availability
+	blocksPerDevice, blockCount, err := entry.availabilityPerDevice()
+	if err != nil {
+		return nil, err
+	}
+
+	devices := make([]string, 0)
+	for deviceID, blocksOnDevice := range blocksPerDevice {
+		if blocksOnDevice == blockCount {
+			devices = append(devices, deviceID.String())
+		}
+	}
+
+	return List(devices), nil
+}
+
+func (entry *Entry) availabilityPerDevice() (map[protocol.DeviceID]int, int, error) {
+	m := entry.Folder.client.app.Internals
+	folderID := entry.Folder.FolderID
+
+	info, ok, err := m.GlobalFileInfo(folderID, entry.info.FileName())
+	if err != nil {
+		return nil, 0, err
+	}
+
+	if !ok {
+		return nil, 0, errors.New("file not found globally")
+	}
+
+	var deviceStatus = make(map[protocol.DeviceID]int)
+
+	for _, block := range info.Blocks {
+		avs, err := m.BlockAvailability(folderID, info, block)
+		if err != nil {
+			return nil, 0, err
+		}
+
+		for _, av := range avs {
+			blockCount, ok := deviceStatus[av.ID]
+			if !ok {
+				deviceStatus[av.ID] = 1
+			} else {
+				deviceStatus[av.ID] = blockCount + 1
+			}
+		}
+	}
+
+	return deviceStatus, len(info.Blocks), nil
 }
 
 type DownloadDelegate interface {

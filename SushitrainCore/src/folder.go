@@ -156,14 +156,24 @@ func (fld *Folder) GetFileInformation(path string) (*Entry, error) {
 	}, nil
 }
 
-func (fld *Folder) List(prefix string, directories bool) (*ListOfStrings, error) {
+func (fld *Folder) listEntries(prefix string, directories bool, recurse bool) ([]*model.TreeEntry, error) {
 	if fld.client.app == nil {
 		return nil, nil
 	}
 	if fld.client.app.Internals == nil {
 		return nil, nil
 	}
-	entries, err := fld.client.app.Internals.GlobalTree(fld.FolderID, prefix, 1, directories)
+
+	levels := 1
+	if recurse {
+		levels = -1
+	}
+
+	return fld.client.app.Internals.GlobalTree(fld.FolderID, prefix, levels, directories)
+}
+
+func (fld *Folder) List(prefix string, directories bool, recurse bool) (*ListOfStrings, error) {
+	entries, err := fld.listEntries(prefix, directories, recurse)
 	if err != nil {
 		return nil, err
 	}
@@ -204,13 +214,22 @@ func (fld *Folder) ShareWithDevice(deviceID string, toggle bool, encryptionPassw
 	return err
 }
 
-func (fld *Folder) SharedWithDeviceIDs() *ListOfStrings {
+func (fld *Folder) sharedWith() ([]protocol.DeviceID, error) {
 	fc := fld.folderConfiguration()
 	if fc == nil {
+		return nil, errors.New("folder configuration does not exist")
+	}
+
+	return fc.DeviceIDs(), nil
+}
+
+func (fld *Folder) SharedWithDeviceIDs() *ListOfStrings {
+	devIDs, err := fld.sharedWith()
+	if err != nil {
 		return nil
 	}
 
-	return List(Map(fc.DeviceIDs(), func(di protocol.DeviceID) string {
+	return List(Map(devIDs, func(di protocol.DeviceID) string {
 		return di.String()
 	}))
 }

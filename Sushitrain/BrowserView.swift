@@ -258,7 +258,7 @@ fileprivate struct BrowserListView: View {
                 return []
             }
             do {
-                var dirNames = try folder.list(prefix, directories: true).asArray().sorted()
+                var dirNames = try folder.list(prefix, directories: true, recurse: false).asArray().sorted()
                 if dotFilesHidden {
                     dirNames = dirNames.filter({ !$0.starts(with: ".") })
                 }
@@ -277,7 +277,7 @@ fileprivate struct BrowserListView: View {
                 return []
             }
             do {
-                let list = try folder.list(self.prefix, directories: false)
+                let list = try folder.list(self.prefix, directories: false, recurse: false)
                 var entries: [SushitrainEntry] = [];
                 for i in 0..<list.count() {
                     let path = list.item(at: i)

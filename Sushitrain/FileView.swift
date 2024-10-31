@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 import SwiftUI
-import SushitrainCore
+@preconcurrency import SushitrainCore
 import QuickLook
 import WebKit
 import AVKit
@@ -200,6 +200,8 @@ struct FileView: View {
     @State private var showRemoveConfirmation = false
     @State private var showDownloader = false
     @State private var selfIndex: Int? = nil
+    @State private var fullyAvailableOnDevices: [SushitrainPeer]? = nil
+    @State private var availabilityError: Error? = nil
     
     private static let formatter = ByteCountFormatter()
     
@@ -215,6 +217,10 @@ struct FileView: View {
         self.showPath = showPath
         self.siblings = siblings
         self.folder = file.folder!
+    }
+    
+    var localIsOnlyCopy: Bool {
+        return file.isLocallyPresent() && (self.fullyAvailableOnDevices == nil || self.fullyAvailableOnDevices!.isEmpty)
     }
     
     var body: some View {
@@ -255,15 +261,40 @@ struct FileView: View {
                     }
                     
                     if self.folder.isSelective() && !file.isSymlink() {
+                        let isExplicitlySelected = file.isExplicitlySelected()
                         Toggle("Synchronize with this device", systemImage: "pin", isOn: Binding(get: {
                             file.isExplicitlySelected() || file.isSelected()
                         }, set: { s in
                             try? file.setExplicitlySelected(s)
-                        })).disabled(!folder.isIdleOrSyncing || (file.isSelected() && !file.isExplicitlySelected()))
+                        }))
+                        .disabled(!folder.isIdleOrSyncing || (file.isSelected() && !isExplicitlySelected) || (isExplicitlySelected && localIsOnlyCopy))
                     }
                 } footer: {
                     if !file.isSymlink() && self.folder.isSelective() && (file.isSelected() && !file.isExplicitlySelected()) {
                         Text("This item is synchronized with this device because a parent folder is synchronized with this device.")
+                    }
+                    if file.isExplicitlySelected() && localIsOnlyCopy {
+                        Text("There are currently no other devices connected that have a full copy of this file.")
+                    }
+                }
+                
+                // Devices that have this file
+                if let availability = self.fullyAvailableOnDevices {
+                    if availability.isEmpty {
+                        Label("This file it not fully available on any connected device", systemImage: "externaldrive.trianglebadge.exclamationmark")
+                        .foregroundStyle(.orange)
+                    }
+                }
+                else {
+                    if let err = self.availabilityError {
+                        Label(
+                            "Could not determine file availability: \(err)", systemImage: "externaldrive.trianglebadge.exclamationmark"
+                        ).foregroundStyle(.orange)
+                    }
+                    else {
+                        Label(
+                            "Checking availability on other devices...", systemImage: "externaldrive.badge.questionmark"
+                        ).foregroundStyle(.gray)
                     }
                 }
                 
@@ -375,6 +406,17 @@ struct FileView: View {
                         }
                     }
                     
+                    // Devices that have this file
+                    if let availability = self.fullyAvailableOnDevices {
+                        if !availability.isEmpty {
+                            Section("This file is fully available on") {
+                                List(availability, id: \.self) { device in
+                                    Label(device.displayName, systemImage: "externaldrive")
+                                }
+                            }
+                        }
+                    }
+                    
                     // Remove file
                     if file.isSelected() && file.isLocallyPresent() && folder.folderType() == SushitrainFolderTypeSendReceive {
                         Section {
@@ -385,10 +427,23 @@ struct FileView: View {
                                 .buttonStyle(.link)
                             #endif
                             .foregroundColor(.red)
-                            .confirmationDialog("Are you sure you want to remove this file from all devices?", isPresented: $showRemoveConfirmation, titleVisibility: .visible) {
+                            .confirmationDialog(self.localIsOnlyCopy ? "Are you sure you want to remove this file from all devices? The local copy of this file is the only one currently available on any device. This will remove the last copy. It will not be possible to recover the file after removing it." : "Are you sure you want to remove this file from all devices?", isPresented: $showRemoveConfirmation, titleVisibility: .visible) {
                                 Button("Remove the file from all devices", role: .destructive) {
                                     dismiss()
                                     try? file.remove()
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                if file.isDirectory() {
+                    // Devices that have this folder and all its contents
+                    if let availability = self.fullyAvailableOnDevices {
+                        if !availability.isEmpty {
+                            Section("This subdirectory and all its contents are fully available on") {
+                                List(availability, id: \.self) { device in
+                                    Label(device.displayName, systemImage: "externaldrive")
                                 }
                             }
                         }
@@ -482,19 +537,40 @@ struct FileView: View {
                     }
                     
                     #if os(macOS)
-                    ToolbarItem(id: "open-in-finder", placement: .primaryAction) {
-                        Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
-                            if let localPathActual = localPath {
-                                openURLInSystemFilesApp(url: URL(fileURLWithPath: localPathActual))
-                            }
-                        })
-                        .labelStyle(.iconOnly)
-                        .disabled(localPath == nil)
-                    }
+                        ToolbarItem(id: "open-in-finder", placement: .primaryAction) {
+                            Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
+                                if let localPathActual = localPath {
+                                    openURLInSystemFilesApp(url: URL(fileURLWithPath: localPathActual))
+                                }
+                            })
+                            .labelStyle(.iconOnly)
+                            .disabled(localPath == nil)
+                        }
                     #endif
                 }
                 .onAppear {
                     selfIndex = self.siblings?.firstIndex(of: file)
+                }
+                .task {
+                    let fileEntry = self.file
+                    do {
+                        self.fullyAvailableOnDevices = nil
+                        self.availabilityError = nil
+                        let availability = try await Task.detached { [fileEntry] in
+                            return (try fileEntry.peersWithFullCopy()).asArray()
+                        }.value
+                        
+                        self.fullyAvailableOnDevices = availability.flatMap { devID in
+                            if let p = self.appState.client.peer(withID: devID) {
+                                return [p]
+                            }
+                            return []
+                        }
+                    }
+                    catch {
+                        self.availabilityError = error
+                        self.fullyAvailableOnDevices = nil
+                    }
                 }
         }
     }
