@@ -143,6 +143,7 @@ fileprivate struct BrowserListView: View {
                                     }), in: 1.0...10.0, step: 1.0)
                                     .frame(minWidth: 50, maxWidth: 100)
                                     .padding(.horizontal, 10)
+                                    .padding(.vertical, 5)
                                 }
                                 
                                 GridFilesView(appState: appState, prefix: self.prefix, files: files, subdirectories: subdirectories, folder: folder)
