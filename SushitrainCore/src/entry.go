@@ -242,7 +242,6 @@ func (entry *Entry) PeersWithFullCopy() (*ListOfStrings, error) {
 		}
 
 		prefix := entry.Path() + "/"
-		Logger.Infoln("Determining peers that have a full copy of folder", prefix)
 		leaves, err := entry.Folder.listEntries(prefix, false, true)
 		if err != nil {
 			return nil, err
