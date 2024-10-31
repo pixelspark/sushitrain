@@ -2344,35 +2344,6 @@
         }
       }
     },
-    "Could not determine file availability" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dateiverfügbarkeit konnte nicht festgestellt werden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No se pudo determinar la disponibilidad del archivo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossibile determinare la disponibilità del file"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kan beschikbaarheid van bestand niet bepalen"
-          }
-        }
-      }
-    },
     "Could not download file" : {
       "localizations" : {
         "de" : {
@@ -3461,35 +3432,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mislukt: %@"
-          }
-        }
-      }
-    },
-    "File is fully available on" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Datei ist vollständig verfügbar auf"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El archivo está completamente disponible en"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il file è completamente disponibile su"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Het volledige bestand is aanwezig op"
           }
         }
       }
