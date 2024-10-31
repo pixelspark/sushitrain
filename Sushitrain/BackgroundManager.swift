@@ -13,6 +13,9 @@ import BackgroundTasks
     private static let ShortBackgroundSyncID = "nl.t-shaped.sushitrain.short-background-sync"
     private static let WatchdogNotificationID = "nl.t-shaped.sushitrain.watchdog-notification"
     
+    // Time before the end of allotted background time to start ending the task to prevent forceful expiration by the OS
+    private static let BackgroundTimeReserve: TimeInterval = 5.6
+    
     private var currentBackgroundTask: BGTask? = nil
     private var expireTimer: Timer? = nil
     private var isEndingBackgroundTask = false
@@ -67,7 +70,7 @@ import BackgroundTasks
                 DispatchQueue.main.async {
                     let remaining = UIApplication.shared.backgroundTimeRemaining
                     Log.info("Check background time remaining: \(remaining)")
-                    if remaining <= 5.6 { // iOS seems to start expiring us at 5 seconds before the end
+                    if remaining <= Self.BackgroundTimeReserve { // iOS seems to start expiring us at 5 seconds before the end
                         Log.info("End of our background stint is nearing")
                         self.endBackgroundTask()
                     }
@@ -81,19 +84,37 @@ import BackgroundTasks
             }
         }
         else {
+            // We're just doing some photo syncing this time
             if task.identifier == Self.LongBackgroundSyncID {
                 // When background task expires, end photo sync
                 task.expirationHandler = {
+                    Log.warn("Photo sync task expiry with \(UIApplication.shared.backgroundTimeRemaining) remaining.")
                     self.appState.photoSync.cancel()
+                }
+                
+                expireTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { t in
+                    DispatchQueue.main.async {
+                        let remaining = UIApplication.shared.backgroundTimeRemaining
+                        Log.info("Check background time remaining (photo sync): \(remaining)")
+                        if remaining <= Self.BackgroundTimeReserve { // iOS seems to start expiring us at 5 seconds before the end
+                            Log.info("End of our background stint is nearing (photo sync)")
+                            self.appState.photoSync.cancel()
+                        }
+                    }
                 }
                 
                 // Wait for photo sync to finish
                 try? await photoSyncTask?.value
+                Log.info("Photo sync ended gracefully")
                 task.setTaskCompleted(success: true)
+                self.expireTimer?.invalidate()
+                self.expireTimer = nil
                 self.currentBackgroundTask = nil
+                Log.info("Photo sync task ended gracefully")
             }
             else {
                 // Do not do any photo sync on short background refresh
+                Log.info("Photo sync not started on short background refresh")
                 task.setTaskCompleted(success: true)
                 self.currentBackgroundTask = nil
             }

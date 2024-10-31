@@ -177,17 +177,17 @@ class PhotoSynchronisation: ObservableObject {
             
             // Let iOS know we are about to do some background stuff
             #if os(iOS)
-            let bgIdentifier = await UIApplication.shared.beginBackgroundTask(withName: "Photo synchronization", expirationHandler: {
-                Log.info("Cancelling background task due to expiration")
-                self.cancel()
-            })
-            defer {
-                Log.info("Signalling end of background task")
-                DispatchQueue.main.async {
-                    UIApplication.shared.endBackgroundTask(bgIdentifier)
+                let bgIdentifier = await UIApplication.shared.beginBackgroundTask(withName: "Photo synchronization", expirationHandler: {
+                    Log.info("Cancelling background task due to expiration")
+                    self.cancel()
+                })
+                defer {
+                    Log.info("Signalling end of background task")
+                    DispatchQueue.main.async {
+                        UIApplication.shared.endBackgroundTask(bgIdentifier)
+                    }
                 }
-            }
-            Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining))")
+                Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining))")
             #endif
             
             var err: NSError? = nil
