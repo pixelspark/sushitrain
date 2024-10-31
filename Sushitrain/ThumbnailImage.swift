@@ -36,7 +36,7 @@ fileprivate func fetchQuicklookThumbnail(_ url: URL, size: CGSize) async -> Asyn
         #if os(iOS)
             return .success(Image(uiImage: thumb.uiImage))
         #else
-            return .success(Image(nsImage: thumb.nsImage))
+        return .success(Image(decorative: thumb.cgImage, scale: 1, orientation: .up))
         #endif
     }
     catch {
