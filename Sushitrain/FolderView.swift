@@ -46,7 +46,7 @@ struct FolderStatisticsView: View {
                     Text("Number of directories").badge(stats.local!.directories.formatted())
                     Text("File size").badge(formatter.string(fromByteCount: stats.local!.bytes))
                 } header: {
-                    Text("On this device: \(myCompletion)%")
+                    Text("On this device: \(myCompletion)% of the full folder")
                 }
                 
                 let devices = self.folder.sharedWithDeviceIDs()?.asArray() ?? []
@@ -63,10 +63,10 @@ struct FolderStatisticsView: View {
                         }
                     }
                     header: {
-                        Text("Other devices")
+                        Text("Other devices progress")
                     }
                     footer : {
-                        Text("The percentage of the full folder's size that each device stores locally.")
+                        Text("The percentage of the files a device has synchronized, relative to the part of the folder it wants to synchronize. Because devices may ignore certain files or not synchronize any files at all, the percentage does not indicate the percentage of the full folder actually present on the device.")
                     }
                 }
             }

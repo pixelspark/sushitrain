@@ -5705,6 +5705,7 @@
       }
     },
     "On this device: %lld%%": {
+      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -5728,6 +5729,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Op dit apparaat: %lld%%"
+          }
+        }
+      }
+    },
+    "On this device: %lld%% of the full folder": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Op dit apparaat: %lld%% van de volledige map"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf diesem Gerät: %lld%% des gesamten Ordners"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Su questo dispositivo: %lld%% della cartella completa"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En este dispositivo: %lld%% de la carpeta completa"
           }
         }
       }
@@ -5901,6 +5930,7 @@
       }
     },
     "Other devices": {
+      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -5924,6 +5954,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Andere apparaten"
+          }
+        }
+      }
+    },
+    "Other devices progress": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voortgang van andere apparaten"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fortschritt anderer Geräte"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avanzamento di altri dispositivi"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progreso de otros dispositivos"
           }
         }
       }
@@ -6686,16 +6744,16 @@
     },
     "Remove files": {
       "localizations": {
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verwijder bestanden"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Dateien entfernen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar archivos"
           }
         },
         "it": {
@@ -6704,10 +6762,10 @@
             "value": "Rimuovi file"
           }
         },
-        "es": {
+        "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eliminar archivos"
+            "value": "Verwijder bestanden"
           }
         }
       }
@@ -6742,16 +6800,16 @@
     },
     "Remove from this device, keep on %lld others": {
       "localizations": {
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verwijderen van dit apparaat, bewaren op %lld andere(n)"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Von diesem Gerät entfernen, auf %lld anderen behalten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar de este dispositivo, mantener en %lld otros"
           }
         },
         "it": {
@@ -6760,10 +6818,10 @@
             "value": "Rimuovi da questo dispositivo, mantieni su %lld altri"
           }
         },
-        "es": {
+        "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eliminar de este dispositivo, mantener en %lld otros"
+            "value": "Verwijderen van dit apparaat, bewaren op %lld andere(n)"
           }
         }
       }
@@ -8394,16 +8452,16 @@
     },
     "Subdirectory properties...": {
       "localizations": {
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Eigenschappen submap..."
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Unterverzeichnis-Eigenschaften..."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Propiedades del subdirectorio..."
           }
         },
         "it": {
@@ -8412,10 +8470,10 @@
             "value": "Proprietà della sottodirectory..."
           }
         },
-        "es": {
+        "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Propiedades del subdirectorio..."
+            "value": "Eigenschappen submap..."
           }
         }
       }
@@ -9204,7 +9262,36 @@
         }
       }
     },
+    "The percentage of the files a device has synchronized, relative to the part of the folder it wants to synchronize. Because devices may ignore certain files or not synchronize any files at all, the percentage does not indicate the percentage of the full folder actually present on the device.": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Het percentage van de bestanden dat een apparaat heeft gesynchroniseerd, ten opzichte van het deel van de map dat het wil synchroniseren. Omdat apparaten bepaalde bestanden kunnen negeren of helemaal geen bestanden kunnen synchroniseren, geeft het percentage niet aan welk percentage van de volledige map daadwerkelijk op het apparaat aanwezig is."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Prozentsatz der Dateien, die ein Gerät synchronisiert hat, relativ zu dem Teil des Ordners, den es synchronisieren möchte. Da Geräte bestimmte Dateien ignorieren oder überhaupt keine Dateien synchronisieren könnten, gibt der Prozentsatz nicht das Verhältnis des tatsächlich auf dem Gerät vorhandenen Ordners an."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La percentuale dei file che un dispositivo ha sincronizzato, rispetto alla parte della cartella che desidera sincronizzare. Poiché i dispositivi possono ignorare determinati file o non sincronizzarne affatto, la percentuale non indica la percentuale dell'intera cartella effettivamente presente sul dispositivo."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El porcentaje de archivos que un dispositivo ha sincronizado, en relación con la parte de la carpeta que desea sincronizar. Debido a que los dispositivos pueden ignorar ciertos archivos o no sincronizar ninguno, el porcentaje no indica el porcentaje de la carpeta completa que está realmente presente en el dispositivo."
+          }
+        }
+      }
+    },
     "The percentage of the full folder's size that each device stores locally.": {
+      "extractionState": "stale",
       "localizations": {
         "de": {
           "stringUnit": {
@@ -9766,16 +9853,16 @@
     },
     "This will remove all locally stored copies of files in this folder. Any files that are not also present on another device will be permanently lost and cannot be recovered. Are you sure yu want to continue?": {
       "localizations": {
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hiermee worden alle lokaal opgeslagen kopieën van bestanden in deze map verwijderd. Alle bestanden die niet op een ander apparaat aanwezig zijn, gaan permanent verloren en kunnen niet worden hersteld. Weet u zeker dat u wilt doorgaan?"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Dadurch werden alle lokal gespeicherten Kopien von Dateien in diesem Ordner entfernt. Alle Dateien, die nicht auf einem anderen Gerät vorhanden sind, gehen dauerhaft verloren und können nicht wiederhergestellt werden. Sind Sie sicher, dass Sie fortfahren möchten?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esto eliminará todas las copias de archivos almacenadas localmente en esta carpeta. Cualquier archivo que no esté presente en otro dispositivo se perderá permanentemente y no podrá recuperarse. ¿Estás seguro de que deseas continuar?"
           }
         },
         "it": {
@@ -9784,10 +9871,10 @@
             "value": "Questo rimuoverà tutte le copie dei file memorizzate localmente in questa cartella. Qualsiasi file che non è presente anche su un altro dispositivo verrà perso in modo permanente e non potrà essere recuperato. Sei sicuro di voler continuare?"
           }
         },
-        "es": {
+        "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esto eliminará todas las copias de archivos almacenadas localmente en esta carpeta. Cualquier archivo que no esté presente en otro dispositivo se perderá permanentemente y no podrá recuperarse. ¿Estás seguro de que deseas continuar?"
+            "value": "Hiermee worden alle lokaal opgeslagen kopieën van bestanden in deze map verwijderd. Alle bestanden die niet op een ander apparaat aanwezig zijn, gaan permanent verloren en kunnen niet worden hersteld. Weet u zeker dat u wilt doorgaan?"
           }
         }
       }
