@@ -35,6 +35,10 @@ extension SushitrainPeer {
         }
         return self.deviceID()
     }
+    
+    var systemImage: String {
+        return self.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill"
+    }
 }
 
 extension SushitrainDate {

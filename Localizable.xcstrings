@@ -7832,30 +7832,30 @@
         }
       }
     },
-    "Share folder" : {
+    "Share folder '%@'" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ordner freigeben"
+            "value" : "Ordner '%@' freigeben"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Compartir carpeta"
+            "value" : "Compartir carpeta '%@'"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Condividi cartella"
+            "value" : "Condividi cartella '%@'"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Deel map"
+            "value" : "Map '%@' delen"
           }
         }
       }

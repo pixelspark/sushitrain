@@ -42,7 +42,7 @@ struct DevicesView: View {
                                     Label(peer.displayName, systemImage: "externaldrive.fill").foregroundStyle(.gray)
                                 }
                                 else {
-                                    Label(peer.displayName, systemImage: peer.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill")
+                                    Label(peer.displayName, systemImage: peer.systemImage)
                                 }
                             }
                         }

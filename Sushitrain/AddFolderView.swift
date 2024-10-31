@@ -71,19 +71,19 @@ struct AddFolderView: View {
                     let pendingPeers = (try? appState.client.devicesPendingFolder(self.folderID))?.asArray() ?? []
                     
                     Section(header: Text("Shared with")) {
-                        ForEach(self.possiblePeers, id: \.self) { (addr: SushitrainPeer) in
-                            let isShared = sharedWith.contains(addr.deviceID());
+                        ForEach(self.possiblePeers, id: \.self) { (peer: SushitrainPeer) in
+                            let isShared = sharedWith.contains(peer.deviceID());
                             let shared = Binding(get: { return isShared }, set: {share in
                                 if share {
-                                    sharedWith.insert(addr.deviceID())
+                                    sharedWith.insert(peer.deviceID())
                                 }
                                 else {
-                                    sharedWith.remove(addr.deviceID())
+                                    sharedWith.remove(peer.deviceID())
                                 }
                             });
-                            Toggle(addr.displayName, systemImage: addr.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill", isOn: shared)
-                                .bold(pendingPeers.contains(addr.deviceID()))
-                                .disabled(addr.isUntrusted())
+                            Toggle(peer.displayName, systemImage: peer.systemImage, isOn: shared)
+                                .bold(pendingPeers.contains(peer.deviceID()))
+                                .disabled(peer.isUntrusted())
                         }
                     }
                     

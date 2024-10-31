@@ -78,11 +78,11 @@ struct DeviceView: View {
                     Label(device.deviceID(), systemImage: "qrcode").contextMenu {
                         Button(action: {
                             #if os(iOS)
-                            UIPasteboard.general.string = device.deviceID()
+                                UIPasteboard.general.string = device.deviceID()
                             #endif
                             
                             #if os(macOS)
-                            NSPasteboard.general.setString(device.deviceID(), forType: .string)
+                                NSPasteboard.general.setString(device.deviceID(), forType: .string)
                             #endif
                         }) {
                             Text("Copy to clipboard")
@@ -95,17 +95,10 @@ struct DeviceView: View {
                     Label("Addresses", systemImage: "envelope.front")
                 }
                 
-                let sharedFolderIDs = device.sharedFolderIDs()?.asArray().sorted() ?? []
-                if !sharedFolderIDs.isEmpty {
-                    Section("Shared folders") {
-                        ForEach(sharedFolderIDs, id: \.self) { fid in
-                            if let folder = self.appState.client.folder(withID: fid), let completion = try? folder.completion(forDevice: device.deviceID()) {
-                                Label(folder.displayName, systemImage: "folder").badge(Text("\(Int(completion.completionPct))%"))
-                            }
-                            else {
-                                Label(fid, systemImage: "folder")
-                            }
-                        }
+                let folders = appState.folders()
+                Section("Shared folders") {
+                    ForEach(folders, id: \.self) { (folder: SushitrainFolder) in
+                        ShareWithDeviceToggleView(appState: self.appState, peer: self.device, folder: folder, showFolderName: true)
                     }
                 }
                 

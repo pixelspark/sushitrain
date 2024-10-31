@@ -71,19 +71,19 @@ struct FolderStatisticsView: View {
                 }
             }
         }
-#if os(macOS)
-        .formStyle(.grouped)
-        .navigationTitle("Folder statistics: '\(self.folder.displayName)'")
-#endif
+        #if os(macOS)
+            .formStyle(.grouped)
+            .navigationTitle("Folder statistics: '\(self.folder.displayName)'")
+        #endif
         
-#if os(iOS)
-        .navigationTitle("Folder statistics")
-        .navigationBarTitleDisplayMode(.inline)
-#endif
+        #if os(iOS)
+            .navigationTitle("Folder statistics")
+            .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
 }
 
-struct FolderDeviceView: View {
+struct ShareFolderWithDeviceDetailsView: View {
     @ObservedObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
     var folder: SushitrainFolder
@@ -102,21 +102,24 @@ struct FolderDeviceView: View {
                 Section("Encryption password") {
                     TextField("Password", text: $newPassword)
                         .textContentType(.password)
-#if os(iOS)
-                        .textInputAutocapitalization(.never)
-#endif
+                        #if os(iOS)
+                            .textInputAutocapitalization(.never)
+                        #endif
                         .monospaced()
                         .focused($passwordFieldFocus)
                 }
             }
-#if os(macOS)
-            .formStyle(.grouped)
-#endif
+            #if os(macOS)
+                .formStyle(.grouped)
+            #endif
             .onAppear {
                 self.newPassword = folder.encryptionPassword(for: deviceID)
                 passwordFieldFocus = true
             }
-            .navigationTitle("Share folder")
+            .navigationTitle("Share folder '\(folder.displayName)'")
+            #if os(iOS)
+                .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar(content: {
                 ToolbarItem(placement: .confirmationAction, content: {
                     Button("Save") {
@@ -358,8 +361,6 @@ struct FolderView: View {
     @Environment(\.dismiss) private var dismiss
     @State var showError = false
     @State var errorText = ""
-    @State var editEncryptionPasswordDeviceID = ""
-    @State var showEditEncryptionPassword = false
     @State var showRemoveConfirmation = false
     @State var showUnlinkConfirmation = false
     
@@ -370,8 +371,6 @@ struct FolderView: View {
     }
     
     var body: some View {
-        let sharedWith = folder.sharedWithDeviceIDs()?.asArray() ?? [];
-        let sharedEncrypted = folder.sharedEncryptedWithDeviceIDs()?.asArray() ?? [];
         let isExternal = folder.isExternal
         
         Form {
@@ -401,31 +400,9 @@ struct FolderView: View {
                 }
                 
                 if !possiblePeers.isEmpty {
-                    let pendingPeerIDs = Set((try? appState.client.devicesPendingFolder(self.folder.folderID))?.asArray() ?? [])
                     Section(header: Text("Shared with")) {
                         ForEach(self.possiblePeers, id: \.self) { (addr: SushitrainPeer) in
-                            let isShared = sharedWith.contains(addr.deviceID());
-                            let shared = Binding(get: { return isShared }, set: {share in
-                                do {
-                                    if share && addr.isUntrusted() {
-                                        editEncryptionPasswordDeviceID = addr.deviceID()
-                                        showEditEncryptionPassword = true
-                                    }
-                                    else {
-                                        try folder.share(withDevice: addr.deviceID(), toggle: share, encryptionPassword: "")
-                                    }
-                                }
-                                catch let error {
-                                    Log.warn("Error sharing folder: " + error.localizedDescription)
-                                }
-                            });
-                            HStack {
-                                Toggle(addr.displayName, systemImage: addr.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill", isOn: shared).bold(pendingPeerIDs.contains(addr.deviceID()))
-                                Button("Encryption password", systemImage: sharedEncrypted.contains(addr.deviceID()) ? "lock" : "lock.open", action: {
-                                    editEncryptionPasswordDeviceID = addr.deviceID()
-                                    showEditEncryptionPassword = true
-                                }).labelStyle(.iconOnly)
-                            }
+                            ShareWithDeviceToggleView(appState: appState, peer: addr, folder: folder, showFolderName: false)
                         }
                     }
                 }
@@ -505,15 +482,81 @@ struct FolderView: View {
                 }
             }
         }
-#if os(macOS)
-        .formStyle(.grouped)
-#endif
+        #if os(macOS)
+            .formStyle(.grouped)
+        #endif
         .navigationTitle(folder.displayName)
-        .sheet(isPresented: $showEditEncryptionPassword) {
-            FolderDeviceView(appState: self.appState, folder: self.folder, deviceID: $editEncryptionPasswordDeviceID)
-        }
         .alert(isPresented: $showError, content: {
             Alert(title: Text("An error occured"), message: Text(errorText), dismissButton: .default(Text("OK")))
         })
+    }
+}
+
+struct ShareWithDeviceToggleView: View {
+    @ObservedObject var appState: AppState
+    let peer: SushitrainPeer
+    let folder: SushitrainFolder
+    let showFolderName: Bool
+    
+    @State private var editEncryptionPasswordDeviceID = ""
+    @State private var showEditEncryptionPassword = false
+    
+    private var isShared: Bool {
+        if let swid = folder.sharedWithDeviceIDs() {
+            return swid.asArray().contains(peer.deviceID())
+        }
+        return false
+    }
+    
+    private func share(_ shared: Bool) {
+        do {
+            if shared && peer.isUntrusted() {
+                editEncryptionPasswordDeviceID = peer.deviceID()
+                showEditEncryptionPassword = true
+            }
+            else {
+                try folder.share(withDevice: peer.deviceID(), toggle: shared, encryptionPassword: "")
+            }
+        }
+        catch let error {
+            Log.warn("Error sharing folder: " + error.localizedDescription)
+        }
+    }
+    
+    private var isPending: Bool {
+        let pendingPeerIDs = Set((try? appState.client.devicesPendingFolder(self.folder.folderID))?.asArray() ?? [])
+        return pendingPeerIDs.contains(self.peer.deviceID())
+    }
+    
+    private var isSharedEncrypted: Bool {
+        let sharedEncrypted = folder.sharedEncryptedWithDeviceIDs()?.asArray() ?? [];
+        return sharedEncrypted.contains(peer.deviceID())
+    }
+    
+    var body: some View {
+        HStack {
+            let isShared = Binding(get: {
+                return self.isShared
+            }, set: { nv in
+                share(nv)
+            })
+            
+            if showFolderName {
+                Toggle(folder.displayName, systemImage: "folder.fill", isOn: isShared)
+                    .bold(isPending)
+            }
+            else {
+                Toggle(peer.displayName, systemImage: peer.systemImage, isOn: isShared)
+                    .bold(isPending)
+            }
+            
+            Button("Encryption password", systemImage: isSharedEncrypted ? "lock" : "lock.open", action: {
+                editEncryptionPasswordDeviceID = peer.deviceID()
+                showEditEncryptionPassword = true
+            }).labelStyle(.iconOnly)
+        }
+        .sheet(isPresented: $showEditEncryptionPassword) {
+            ShareFolderWithDeviceDetailsView(appState: self.appState, folder: self.folder, deviceID: $editEncryptionPasswordDeviceID)
+        }
     }
 }
