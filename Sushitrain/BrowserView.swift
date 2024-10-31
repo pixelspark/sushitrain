@@ -508,6 +508,13 @@ struct BrowserView: View {
             self.updateLocalURL()
             self.folderIsSelective = folder.isSelective()
         }
+        .contextMenu {
+            if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
+                NavigationLink(destination: FileView(file: entry, appState: self.appState)) {
+                    Label("Subdirectory properties...", systemImage: entry.systemImage)
+                }
+            }
+        }
     }
     
     private func updateLocalURL() {
