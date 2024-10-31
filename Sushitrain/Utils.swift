@@ -640,3 +640,12 @@ final class Log {
         SushitrainLogWarn(message)
     }
 }
+
+extension String {
+    var withoutEndingSlash: String {
+        if self.last == "/" {
+            return String(self.dropLast())
+        }
+        return self
+    }
+}

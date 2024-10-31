@@ -382,13 +382,28 @@ struct BrowserView: View {
             
             #if os(macOS)
                 ToolbarItem {
-                    Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
-                        if let localNativeURL = self.localNativeURL {
-                            openURLInSystemFilesApp(url: localNativeURL)
+                    // Open in Finder/Files (and possibly materialize empty folder)
+                    if let localNativeURL = self.localNativeURL {
+                        Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
+                            if let localNativeURL = self.localNativeURL {
+                                openURLInSystemFilesApp(url: localNativeURL)
+                            }
+                        }).disabled(!folderExists)
+                    }
+                    else if folderExists {
+                        if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
+                            if entry.isDirectory() && !entry.isLocallyPresent() {
+                                Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
+                                    try? entry.materializeSubdirectory()
+                                    self.updateLocalURL()
+                                    
+                                    if let localNativeURL = self.localNativeURL {
+                                        openURLInSystemFilesApp(url: localNativeURL)
+                                    }
+                                })
+                            }
                         }
-                    })
-                    .labelStyle(.iconOnly)
-                    .disabled(!folderExists || localNativeURL == nil)
+                    }
                 }
             
             ToolbarItem {
@@ -434,14 +449,30 @@ struct BrowserView: View {
                         
                         Toggle("Search here...", systemImage: "magnifyingglass", isOn: $showSearch).disabled(!folderExists)
                         
-                        Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
-                            if let localNativeURL = self.localNativeURL {
-                                openURLInSystemFilesApp(url: localNativeURL)
-                            }
-                        })
-                        .disabled(localNativeURL == nil || !folderExists)
-                        
                         if folderExists {
+                            // Open in Finder/Files (and possibly materialize empty folder)
+                            if let localNativeURL = self.localNativeURL {
+                                Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
+                                    if let localNativeURL = self.localNativeURL {
+                                        openURLInSystemFilesApp(url: localNativeURL)
+                                    }
+                                })
+                            }
+                            else {
+                                if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
+                                    if entry.isDirectory() && !entry.isLocallyPresent() {
+                                        Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
+                                            try? entry.materializeSubdirectory()
+                                            self.updateLocalURL()
+                                            
+                                            if let localNativeURL = self.localNativeURL {
+                                                openURLInSystemFilesApp(url: localNativeURL)
+                                            }
+                                        })
+                                    }
+                                }
+                            }
+                            
                             NavigationLink(destination: FolderStatisticsView(appState: appState, folder: folder)) {
                                 Label("Folder statistics...", systemImage: "scalemass")
                             }
@@ -474,20 +505,23 @@ struct BrowserView: View {
         })
         .task {
             self.folderExists = folder.exists()
-            
-            // Get local native URL
-            self.localNativeURL = nil
-            var error: NSError? = nil
-            let localNativePath = self.folder.localNativePath(&error)
-            
-            if error == nil {
-                let localNativeURL = URL(fileURLWithPath: localNativePath).appendingPathComponent(self.prefix)
-                
-                if FileManager.default.fileExists(atPath: localNativeURL.path) {
-                    self.localNativeURL = localNativeURL
-                }
-            }
+            self.updateLocalURL()
             self.folderIsSelective = folder.isSelective()
+        }
+    }
+    
+    private func updateLocalURL() {
+        // Get local native URL
+        self.localNativeURL = nil
+        var error: NSError? = nil
+        let localNativePath = self.folder.localNativePath(&error)
+        
+        if error == nil {
+            let localNativeURL = URL(fileURLWithPath: localNativePath).appendingPathComponent(self.prefix)
+            
+            if FileManager.default.fileExists(atPath: localNativeURL.path) {
+                self.localNativeURL = localNativeURL
+            }
         }
     }
 }

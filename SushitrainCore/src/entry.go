@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/syncthing/syncthing/lib/fs"
 	"github.com/syncthing/syncthing/lib/ignore/ignoreresult"
 	"github.com/syncthing/syncthing/lib/model"
 	"github.com/syncthing/syncthing/lib/osutil"
@@ -101,6 +102,32 @@ func (entry *Entry) LocalNativePath() (string, error) {
 
 func (entry *Entry) BlocksHash() string {
 	return base64.StdEncoding.EncodeToString(entry.info.BlocksHash)
+}
+
+// Creates a subdirectory locally (including intermediate directories) so files can be placed in it, in selectively synced folders
+func (entry *Entry) MaterializeSubdirectory() error {
+	fc := entry.Folder.folderConfiguration()
+	if fc == nil {
+		return errors.New("invalid folder configuration")
+	}
+
+	if !entry.Folder.IsSelective() {
+		return errors.New("folder is not selective")
+	}
+
+	if !entry.IsDirectory() || entry.IsDeleted() {
+		return errors.New("entry is not a directory or was deleted")
+	}
+
+	ffs := fc.Filesystem(nil)
+	nativeFilename := osutil.NativeFilename(entry.info.FileName())
+	mode := fs.FileMode(entry.info.Permissions & 0o777)
+	if fc.IgnorePerms || entry.info.NoPermissions {
+		mode = 0o777
+	}
+	ffs.MkdirAll(nativeFilename, mode)
+
+	return nil
 }
 
 func (entry *Entry) IsLocallyPresent() bool {
