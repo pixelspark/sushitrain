@@ -425,7 +425,7 @@ struct FileView: View {
                     if let availability = self.fullyAvailableOnDevices {
                         if !availability.isEmpty {
                             Section("This file is fully available on") {
-                                List(availability, id: \.self) { device in
+                                ForEach(availability, id: \.self) { device in
                                     Label(device.displayName, systemImage: "externaldrive")
                                 }
                             }
