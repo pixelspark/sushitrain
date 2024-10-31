@@ -385,9 +385,7 @@ struct BrowserView: View {
                     // Open in Finder/Files (and possibly materialize empty folder)
                     if let localNativeURL = self.localNativeURL {
                         Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
-                            if let localNativeURL = self.localNativeURL {
-                                openURLInSystemFilesApp(url: localNativeURL)
-                            }
+                            openURLInSystemFilesApp(url: localNativeURL)
                         }).disabled(!folderExists)
                     }
                     else if folderExists {

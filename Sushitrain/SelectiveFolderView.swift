@@ -15,6 +15,7 @@ struct SelectiveFolderView: View {
     @State private var searchString = ""
     @State private var isLoading = true
     @State private var selectedPaths: [String] = []
+    @State private var showConfirmClearSelection = false
     
     var body: some View {
         Group {
@@ -25,67 +26,35 @@ struct SelectiveFolderView: View {
                 Form {
                     let st = searchString.lowercased()
                     Section("Files kept on device") {
-                        List {
-                            ForEach(selectedPaths.indices, id: \.self) { itemIndex in
-                                let item = selectedPaths[itemIndex]
-                                if st.isEmpty || item.lowercased().contains(st) {
-                                    #if os(macOS)
-                                        let maybeFile = try? folder.getFileInformation(item)
-                                        HStack {
-                                            Label(item, systemImage: maybeFile?.systemImage ?? "pin")
-                                            Spacer()
-                                            
-                                            Button("Delete", systemImage: "pin.slash") {
-                                                self.deselectIndexes(IndexSet([itemIndex]))
-                                            }
-                                            .labelStyle(.iconOnly)
-                                            .foregroundStyle(.red)
-                                            .buttonStyle(.borderless)
-                                        }
-                                        .contextMenu {
-                                            if let file = maybeFile {
-                                                NavigationLink(destination: FileView(file: file, appState: self.appState)) {
-                                                    Label("Properties...", systemImage: file.systemImage)
-                                                }
-                                            }
-                                        }
-                                    #elseif os(iOS)
-                                        if let file = try? folder.getFileInformation(item) {
-                                            NavigationLink(destination: FileView(file: file, appState: self.appState)) {
-                                                Label(item, systemImage: file.systemImage)
-                                            }
-                                        }
-                                        else {
-                                            Label(item, systemImage: "pin")
-                                        }
-                                    #endif
-                                }
-                            }.onDelete { pathIndexes in
-                                deselectIndexes(pathIndexes)
-                            }.disabled(!folder.isIdleOrSyncing)
-                        }
+                        ForEach(selectedPaths.indices, id: \.self) { itemIndex in
+                            let item = selectedPaths[itemIndex]
+                            if st.isEmpty || item.lowercased().contains(st) {
+                                SelectiveFileView(appState: appState, path: item, folder: folder, deselect: {
+                                    self.deselectIndexes(IndexSet([itemIndex]))
+                                })
+                            }
+                        }.onDelete { pathIndexes in
+                            deselectIndexes(pathIndexes)
+                        }.disabled(!folder.isIdleOrSyncing)
                     }
                     
                     Section {
                         Button("Free up space", systemImage: "pin.slash", action: {
-                            if searchString.isEmpty {
-                                Task.detached {
-                                    do {
-                                        try folder.clearSelection()
-                                    }
-                                    catch let error {
-                                        DispatchQueue.main.async {
-                                            showError = true
-                                            errorText = error.localizedDescription
-                                        }
-                                    }
-                                }
-                                self.selectedPaths.removeAll()
-                            }
-                            else {
-                                self.deselectSearchResults()
-                            }
+                            showConfirmClearSelection = true
                         })
+                        .alert(isPresented: $showConfirmClearSelection) {
+                            Alert(
+                                title: Text("Free up space"),
+                                message: Text("This will remove all locally stored copies of files in this folder. Any files that are not also present on another device will be permanently lost and cannot be recovered. Are you sure yu want to continue?"),
+                                primaryButton: .destructive(Text("Remove files")) {
+                                    showConfirmClearSelection = false
+                                    self.clearSelection()
+                                },
+                                secondaryButton: .cancel() {
+                                    showConfirmClearSelection = false
+                                }
+                            )
+                        }
                         .help("Remove the files shown in the list from this device, but do not remove them from other devices.")
                         #if os(macOS)
                             .buttonStyle(.link)
@@ -113,6 +82,26 @@ struct SelectiveFolderView: View {
         .searchable(text: $searchString, prompt: "Search files by name...")
         .task {
             self.update()
+        }
+    }
+    
+    private func clearSelection() {
+        if searchString.isEmpty {
+            Task.detached {
+                do {
+                    try folder.clearSelection()
+                }
+                catch let error {
+                    DispatchQueue.main.async {
+                        showError = true
+                        errorText = error.localizedDescription
+                    }
+                }
+            }
+            self.selectedPaths.removeAll()
+        }
+        else {
+            self.deselectSearchResults()
         }
     }
     
@@ -160,6 +149,74 @@ struct SelectiveFolderView: View {
         }
         catch {
             Log.warn("Could not deselect: \(error.localizedDescription)")
+        }
+    }
+}
+
+fileprivate struct SelectiveFileView: View {
+    @ObservedObject var appState: AppState
+    let path: String
+    let folder: SushitrainFolder
+    let deselect: () -> Void
+    
+    @State private var entry: SushitrainEntry? = nil
+    @State private var fullyAvailableOnDevices: [SushitrainPeer]? = nil
+    
+    var body: some View {
+        ZStack {
+            if let file = self.entry, !file.isDeleted() {
+                #if os(macOS)
+                    HStack {
+                        if let fa = self.fullyAvailableOnDevices {
+                            Label(path, systemImage: file.systemImage).badge(fa.count)
+                            
+                            Spacer()
+                            
+                            if !fa.isEmpty {
+                                Button("Remove from this device, keep on \(fa.count) others", systemImage: "pin.slash") {
+                                    self.deselect()
+                                }
+                                .labelStyle(.iconOnly)
+                                .foregroundStyle(.red)
+                                .buttonStyle(.borderless)
+                            }
+                        }
+                        else {
+                            Label(path, systemImage: file.systemImage)
+                        }
+                    }
+                    .contextMenu {
+                        NavigationLink(destination: FileView(file: file, appState: self.appState)) {
+                            Label("Properties...", systemImage: file.systemImage)
+                        }
+                    }
+                #else
+                    NavigationLink(destination: FileView(file: file, appState: self.appState)) {
+                        Label(path, systemImage: file.systemImage)
+                    }
+                #endif
+            }
+        }
+        .task {
+            do {
+                self.entry = try? folder.getFileInformation(path)
+                if let fileEntry = self.entry {
+                    let availability = try await Task.detached { [fileEntry] in
+                        return (try fileEntry.peersWithFullCopy()).asArray()
+                    }.value
+                    
+                    self.fullyAvailableOnDevices = availability.flatMap { devID in
+                        if let p = self.appState.client.peer(withID: devID) {
+                            return [p]
+                        }
+                        return []
+                    }
+                }
+            }
+            catch {
+                print("Error fetching file info: \(error.localizedDescription)")
+                self.entry = nil
+            }
         }
     }
 }

@@ -62,9 +62,9 @@ struct FolderStatisticsView: View {
                             }
                         }
                     }
-                header: {
-                    Text("Other devices")
-                }
+                    header: {
+                        Text("Other devices")
+                    }
                     footer : {
                         Text("The percentage of the full folder's size that each device stores locally.")
                     }
