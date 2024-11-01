@@ -10,7 +10,6 @@ import (
 	"errors"
 	"path"
 	"path/filepath"
-	"slices"
 	"strings"
 	"time"
 
@@ -364,14 +363,8 @@ func (fld *Folder) SelectedPaths() (*ListOfStrings, error) {
 		return nil, err
 	}
 
-	paths := ListOfStrings{data: []string{}}
-
-	for _, pattern := range lines {
-		if len(pattern) > 0 && pattern[0] == '!' {
-			paths.data = append(paths.data, PathForIgnoreLine(pattern))
-		}
-	}
-
+	selection := NewSelection(lines)
+	paths := ListOfStrings{data: selection.SelectedPaths()}
 	return &paths, nil
 }
 
@@ -467,28 +460,6 @@ func (fld *Folder) SetFolderType(folderType string) error {
 	})
 }
 
-// Returns whether the provided set of ignore lines are valid for 'selective' mode
-func isSelectiveIgnore(lines []string) bool {
-	if len(lines) == 0 {
-		return false
-	}
-
-	// All except the last pattern must start with '!', the last pattern must be  '*'
-	for idx, pattern := range lines {
-		if idx == len(lines)-1 {
-			if pattern != "*" {
-				return false
-			}
-		} else {
-			if len(pattern) == 0 || pattern[0] != '!' {
-				return false
-			}
-		}
-	}
-
-	return true
-}
-
 func (fld *Folder) IsSelective() bool {
 	if fld.client.app == nil || fld.client.app.Internals == nil {
 		return false
@@ -504,7 +475,7 @@ func (fld *Folder) IsSelective() bool {
 		return false
 	}
 
-	return isSelectiveIgnore(ignores.Lines())
+	return NewSelection(ignores.Lines()).isSelectiveIgnore()
 }
 
 func (fld *Folder) LocalNativePath() (string, error) {
@@ -575,8 +546,10 @@ func (fld *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 		return nil, err
 	}
 
+	selection := NewSelection(ignores.Lines())
+
 	// Can't have extraneous files when you are not a selective ignore folder
-	if !isSelectiveIgnore(ignores.Lines()) {
+	if !selection.isSelectiveIgnore() {
 		return &ListOfStrings{}, nil
 	}
 
@@ -641,7 +614,9 @@ func (fld *Folder) CleanSelection() error {
 			return err
 		}
 
-		if !isSelectiveIgnore(ignores.Lines()) {
+		selection := NewSelection(ignores.Lines())
+
+		if !selection.isSelectiveIgnore() {
 			return errors.New("folder is not a selective folder")
 		}
 
@@ -751,9 +726,9 @@ func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
 	if err != nil {
 		return err
 	}
-	lines := ignores.Lines()
 
-	if !isSelectiveIgnore(lines) {
+	selection := NewSelection(ignores.Lines())
+	if !selection.isSelectiveIgnore() {
 		return errors.New("folder is not a selective folder")
 	}
 
@@ -761,34 +736,13 @@ func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
 	Logger.Debugf("Ignore hash before editing:", hashBefore)
 
 	// Edit lines
-	for path, selected := range paths {
-		line := IgnoreLineForSelectingPath(path)
-		Logger.Infof("Edit ignore line (%b): %s\n", selected, line)
-
-		// Is this entry currently selected explicitly?
-		currentlySelected := slices.Contains(lines, line)
-		if currentlySelected == selected {
-			Logger.Debugln("not changing selecting status for path " + path + ": it is the status quo")
-			continue
-		}
-
-		// To deselect, remove the relevant ignore line
-		countBefore := len(lines)
-		if !selected {
-			lines = Filter(lines, func(l string) bool {
-				return l != line
-			})
-			if len(lines) != countBefore-1 {
-				return errors.New("failed to remove ignore line: " + line)
-			}
-		} else {
-			// To select, prepend it
-			lines = append([]string{line}, lines...)
-		}
+	err = selection.SetExplicitlySelected(paths)
+	if err != nil {
+		return err
 	}
 
 	// Save new ignores (this triggers a reload of ignores and eventually a scan)
-	err = fld.client.app.Internals.SetIgnores(fld.FolderID, lines)
+	err = fld.client.app.Internals.SetIgnores(fld.FolderID, selection.Lines())
 	if err != nil {
 		return err
 	}
@@ -814,7 +768,7 @@ func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
 				Logger.Infoln("Deleting local deselected file: " + path)
 				fld.deleteLocalFile(path)
 			} else {
-				Logger.Infoln("Not deleting local deselected file, it apparently was reselected: "+path, lines, res)
+				Logger.Infoln("Not deleting local deselected file, it apparently was reselected: "+path, res)
 			}
 		}
 	}

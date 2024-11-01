@@ -163,39 +163,8 @@ func (entry *Entry) IsExplicitlySelected() bool {
 		return false
 	}
 
-	ignoreLine := entry.ignoreLine()
-	for _, line := range lines {
-		if len(line) > 0 && line[0] == '!' {
-			if line == ignoreLine {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-func (entry *Entry) ignoreLine() string {
-	path := entry.info.FileName()
-	return IgnoreLineForSelectingPath(path)
-}
-
-// Escape special characters: https://docs.syncthing.net/users/ignoring.html
-var specialChars = []string{"\\", "!", "*", "?", "[", "]", "{", "}"}
-
-// Generate a line for use in the .stignore file that selects the file at `path`. The path should *not* start with a slash.
-func IgnoreLineForSelectingPath(path string) string {
-	for _, sp := range specialChars {
-		path = strings.ReplaceAll(path, sp, "\\"+sp)
-	}
-	return "!/" + path
-}
-
-func PathForIgnoreLine(line string) string {
-	line = strings.TrimPrefix(line, "!/")
-	for _, sp := range specialChars {
-		line = strings.ReplaceAll(line, "\\"+sp, sp)
-	}
-	return line
+	selection := NewSelection(lines)
+	return selection.IsEntryExplicitlySelected(entry)
 }
 
 func (entry *Entry) SetExplicitlySelected(selected bool) error {
