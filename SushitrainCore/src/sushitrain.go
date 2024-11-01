@@ -237,6 +237,10 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 	}, nil
 }
 
+func (clt *Client) CurrentConfigDirectory() string {
+	return locations.GetBaseDir(locations.ConfigBaseDir)
+}
+
 func (clt *Client) ExportConfigurationFile() error {
 	cfg := clt.config.RawCopy()
 	homeDir := locations.GetBaseDir(locations.UserHomeBaseDir)

@@ -76,6 +76,7 @@ fileprivate struct ExportButtonView: View {
 
 #if os(macOS)
 struct ConfigurationSettingsView: View {
+    @ObservedObject var appState: AppState
     @State private var showHomeDirectorySelector = false
     @State private var currentPath: URL? = nil
     @State private var showRestartAlert: Bool = false
@@ -94,6 +95,12 @@ struct ConfigurationSettingsView: View {
                     }
                     else {
                         Text("(Default location)")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .multilineTextAlignment(.leading)
+                        Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
+                            let url = URL(fileURLWithPath: self.appState.client.currentConfigDirectory())
+                            openURLInSystemFilesApp(url: url)
+                        }).labelStyle(.iconOnly)
                     }
                 }
                 
@@ -298,7 +305,7 @@ struct AdvancedSettingsView: View {
             
             #if os(macOS)
                 Section {
-                    NavigationLink(destination: ConfigurationSettingsView()) {
+                    NavigationLink(destination: ConfigurationSettingsView(appState: appState)) {
                         Text("Configuration settings")
                     }
                 }
