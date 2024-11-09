@@ -235,6 +235,9 @@ fileprivate struct BrowserListView: View {
                 }
             }
         }
+        .refreshable {
+            await self.reload()
+        }
         .task(id: self.folder.folderStateForUpdating) {
             await self.reload()
         }
