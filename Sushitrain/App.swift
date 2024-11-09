@@ -152,7 +152,6 @@ struct SushitrainApp: App {
                 NSApp.setActivationPolicy(nv ? .accessory : .regular)
                 NSApp.activate(ignoringOtherApps: true)
             }
-        
             .commands {
                 CommandGroup(replacing: CommandGroupPlacement.appInfo) {
                     Button(action: {

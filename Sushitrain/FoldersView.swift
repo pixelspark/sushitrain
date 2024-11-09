@@ -32,12 +32,18 @@ fileprivate struct FolderMetricView: View {
             switch self.metric {
             case .localFileCount:
                 if let cnt = stats.local?.files {
+                    if cnt <= 0 {
+                        return Text("-")
+                    }
                     return Text(cnt.formatted())
                 }
                 return Text("")
                 
             case .globalFileCount:
                 if let cnt = stats.global?.files {
+                    if cnt <= 0 {
+                        return Text("-")
+                    }
                     return Text(cnt.formatted())
                 }
                 return Text("")
@@ -45,6 +51,9 @@ fileprivate struct FolderMetricView: View {
             case .localSize:
                 let formatter = ByteCountFormatter()
                 if let cnt = stats.local?.bytes {
+                    if cnt <= 0 {
+                        return Text("-")
+                    }
                     return Text(formatter.string(fromByteCount: cnt))
                 }
                 return Text("")
@@ -52,6 +61,9 @@ fileprivate struct FolderMetricView: View {
             case .globalSize:
                 let formatter = ByteCountFormatter()
                 if let cnt = stats.global?.bytes {
+                    if cnt <= 0 {
+                        return Text("-")
+                    }
                     return Text(formatter.string(fromByteCount: cnt))
                 }
                 return Text("")
@@ -59,13 +71,9 @@ fileprivate struct FolderMetricView: View {
             case .localPercentage:
                 if let local = stats.local, let global = stats.global {
                     let p = global.bytes > 0 ? Int(Double(local.bytes) / Double(global.bytes) * 100) : 100
-                    return Text("\(p)%")
-                }
-                return Text("")
-                
-            case .localCompletion:
-                if let localNeed = stats.localNeed, let local = stats.local {
-                    let p = localNeed.bytes > 0 ? Int(Double(local.bytes) / Double(localNeed.bytes) * 100) : 100
+                    if p <= 0 {
+                        return Text("-")
+                    }
                     return Text("\(p)%")
                 }
                 return Text("")
@@ -200,44 +208,47 @@ struct FoldersView: View {
         .toolbar {
             ToolbarItem {
                 Menu(content: {
-                    Picker("Show metric", selection: self.appState.$viewMetric) {
-                        HStack {
-                            Text("None")
-                        }.tag(FolderMetric.none)
-                        
-                        HStack {
-                            Image(systemName: "number.circle.fill")
-                            Text("Files on this device")
-                        }.tag(FolderMetric.localFileCount)
-                        
-                        HStack {
-                            Image(systemName: "number.circle")
-                            Text("Total number of files")
-                        }.tag(FolderMetric.globalFileCount)
-                        
-                        HStack {
-                            Image(systemName: "scalemass.fill")
-                            Text("Size on this device")
-                        }.tag(FolderMetric.localSize)
-                        
-                        HStack {
-                            Image(systemName: "scalemass")
-                            Text("Total folder size")
-                        }.tag(FolderMetric.globalSize)
-                        
-                        HStack {
-                            Image(systemName: "percent")
-                            Text("Percentage on device")
-                        }.tag(FolderMetric.localPercentage)
-                        
-                        HStack {
-                            Image(systemName: "percent")
-                            Text("Percentage completed")
-                        }.tag(FolderMetric.localCompletion)
-                    }
-                    .pickerStyle(.inline)
+                    FolderMetricPickerView(appState: self.appState)
                 }, label: { Image(systemName: "ellipsis.circle").accessibilityLabel(Text("Menu")) })
             }
         }
+    }
+}
+
+struct FolderMetricPickerView: View {
+    @ObservedObject var appState: AppState
+    
+    var body: some View {
+        Picker("Show metric", selection: self.appState.$viewMetric) {
+            HStack {
+                Text("None")
+            }.tag(FolderMetric.none)
+            
+            HStack {
+                Image(systemName: "number.circle.fill")
+                Text("Files on this device")
+            }.tag(FolderMetric.localFileCount)
+            
+            HStack {
+                Image(systemName: "number.circle")
+                Text("Total number of files")
+            }.tag(FolderMetric.globalFileCount)
+            
+            HStack {
+                Image(systemName: "scalemass.fill")
+                Text("Size on this device")
+            }.tag(FolderMetric.localSize)
+            
+            HStack {
+                Image(systemName: "scalemass")
+                Text("Total folder size")
+            }.tag(FolderMetric.globalSize)
+            
+            HStack {
+                Image(systemName: "percent")
+                Text("Percentage on device")
+            }.tag(FolderMetric.localPercentage)
+        }
+        .pickerStyle(.inline)
     }
 }

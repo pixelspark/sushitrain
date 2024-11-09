@@ -21,7 +21,6 @@ enum FolderMetric: String {
     case globalFileCount = "globalFileCount"
     case globalSize = "globalSize"
     case localPercentage = "localPercentage"
-    case localCompletion = "localCompletion"
 }
 
 @MainActor class AppState: ObservableObject {

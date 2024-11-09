@@ -24,6 +24,34 @@
       },
       "shouldTranslate" : false
     },
+    "-" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "-"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "-"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "-"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "-"
+          }
+        }
+      }
+    },
     "(Default location)" : {
       "localizations" : {
         "de" : {
@@ -5788,36 +5816,30 @@
         }
       }
     },
-    "On this device: %lld%% of the full folder, %lld%% completed" : {
+    "On this device: %lld%% of the full folder" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Auf diesem Gerät: %lld%% des gesamten Ordners, %lld%% abgeschlossen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "On this device: %1$lld%% of the full folder, %2$lld%% completed"
+            "value" : "Auf diesem Gerät: %lld%% des gesamten Ordners"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "En este dispositivo: %lld%% de la carpeta completa, %lld%% completado"
+            "value" : "En este dispositivo: %lld%% de la carpeta completa"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Su questo dispositivo: %lld%% della cartella completa, %lld%% completato"
+            "value" : "Su questo dispositivo: %lld%% della cartella completa"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Op dit apparaat: %lld%% van de volledige map, %lld%% voltooid"
+            "value" : "Op dit apparaat: %lld%% van de volledige map"
           }
         }
       }

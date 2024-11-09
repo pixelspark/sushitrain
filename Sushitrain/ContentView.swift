@@ -72,14 +72,19 @@ struct ContentView: View {
                     }
                     
                     FoldersSections(appState: self.appState)
+                    #if os(macOS)
+                        .contextMenu {
+                            FolderMetricPickerView(appState: self.appState)
+                        }
+                    #endif
                 }
                 #if os(iOS)
-                .toolbar {
-                    Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
-                        let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                        openURLInSystemFilesApp(url: documentsUrl)
-                    }).labelStyle(.iconOnly)
-                }
+                    .toolbar {
+                        Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
+                            let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                            openURLInSystemFilesApp(url: documentsUrl)
+                        }).labelStyle(.iconOnly)
+                    }
                 #endif
             }, detail: {
                 NavigationStack {
