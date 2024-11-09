@@ -10,13 +10,15 @@ import QuickLook
 enum BrowserViewStyle: String {
     case grid = "grid"
     case list = "list"
+    case thumbnailList = "thumbnailList"
 }
 
-struct EntryView: View {
+fileprivate struct EntryView: View {
     @ObservedObject var appState: AppState
     let entry: SushitrainEntry
     let folder: SushitrainFolder
     let siblings: [SushitrainEntry]
+    let showThumbnail: Bool
     
     var body: some View {
         if entry.isSymlink() {
@@ -52,16 +54,12 @@ struct EntryView: View {
                         }
                     }
                     preview: {
-#if os(iOS)
-                        if targetEntry.size() < appState.maxBytesForPreview || targetEntry.isLocallyPresent() {
-                            BareOnDemandFileView(appState: appState, file: targetEntry, isShown: .constant(true), videoOverlay: {
-                                // Nothing
-                            })
+                        NavigationStack { // to force the image to take up all available space
+                            VStack {
+                                ThumbnailView(file: targetEntry, appState: appState)
+                                    .frame(minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
+                            }
                         }
-                        else {
-                            ContentUnavailableView("File is too large to preview", systemImage: "scalemass")
-                        }
-#endif
                     }
                 }
             }
@@ -84,22 +82,29 @@ struct EntryView: View {
         }
         else {
             NavigationLink(destination: FileView(file: entry, appState: self.appState, siblings: siblings)) {
-                Label(entry.fileName(), systemImage: entry.systemImage)
+                if self.showThumbnail {
+                    HStack(alignment: .center, spacing: 9.0) {
+                        ThumbnailView(file: entry, appState: appState, minimal: true)
+                            .frame(width: 60, height: 40)
+                            .cornerRadius(6.0)
+                        Text(entry.fileName())
+                    }
+                    .padding(0)
+                }
+                else {
+                    Label(entry.fileName(), systemImage: entry.systemImage)
+                }
             }.contextMenu {
                 NavigationLink(destination: FileView(file: entry, appState: self.appState, siblings: siblings)) {
                     Label(entry.fileName(), systemImage: entry.systemImage)
                 }
             } preview: {
-#if os(iOS)
-                if entry.size() < appState.maxBytesForPreview || entry.isLocallyPresent() {
-                    BareOnDemandFileView(appState: appState, file: entry, isShown: .constant(true), videoOverlay: {
-                        // Nothing
-                    })
+                NavigationStack { // to force the image to take up all available space
+                    VStack {
+                        ThumbnailView(file: entry, appState: appState)
+                            .frame(minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
+                    }
                 }
-                else {
-                    ContentUnavailableView("File is too large to preview", systemImage: "scalemass")
-                }   
-#endif
             }
         }
     }
@@ -150,7 +155,7 @@ fileprivate struct BrowserListView: View {
                                     .padding(.horizontal, 15)
                             }
                         }
-                    case .list:
+                    case .list, .thumbnailList:
                         List {
                             Section {
                                 FolderStatusView(appState: appState, folder: folder)
@@ -188,7 +193,7 @@ fileprivate struct BrowserListView: View {
                             // List files
                             Section {
                                 ForEach(files, id: \.self) { file in
-                                    EntryView(appState: appState, entry: file, folder: folder, siblings: files)
+                                    EntryView(appState: appState, entry: file, folder: folder, siblings: files, showThumbnail: self.viewStyle == .thumbnailList)
                                 }
                             }
                         }
@@ -377,6 +382,7 @@ struct BrowserView: View {
                 ToolbarItemGroup(placement: .status) {
                     Picker("View as", selection: appState.$browserViewStyle) {
                         Image(systemName: "list.bullet").tag(BrowserViewStyle.list).accessibilityLabel(Text("List"))
+                        Image(systemName: "checklist.unchecked").tag(BrowserViewStyle.thumbnailList).accessibilityLabel(Text("List with previews"))
                         Image(systemName: "square.grid.2x2").tag(BrowserViewStyle.grid).accessibilityLabel(Text("Grid"))
                     }
                     .pickerStyle(.segmented)
@@ -442,8 +448,12 @@ struct BrowserView: View {
                                 Text("List")
                             }.tag(BrowserViewStyle.list)
                             HStack {
+                                Image(systemName: "checklist.unchecked")
+                                Text("List with previews")
+                            }.tag(BrowserViewStyle.thumbnailList)
+                            HStack {
                                 Image(systemName: "square.grid.2x2")
-                                Text("Grid")
+                                Text("Grid with previews")
                             }.tag(BrowserViewStyle.grid)
                         }
                         .pickerStyle(.inline)

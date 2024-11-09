@@ -10,6 +10,7 @@ struct ThumbnailView: View {
     var file: SushitrainEntry
     @ObservedObject var appState: AppState
     @State var showPreview = false
+    var minimal: Bool = false
     
     var body: some View {
         if file.canThumbnail {
@@ -26,7 +27,12 @@ struct ThumbnailView: View {
                     case .success(let image):
                         image.resizable().scaledToFill()
                     case .failure(_):
-                        Text("The file is currently not available for preview.")
+                        if self.minimal {
+                            self.iconBody
+                        }
+                        else {
+                            Text("The file is currently not available for preview.")
+                        }
                     @unknown default:
                         EmptyView()
                     }
@@ -34,25 +40,36 @@ struct ThumbnailView: View {
                 .frame(maxWidth: .infinity, maxHeight: 200)
             }
             else {
-                Button("Show preview for large files") {
-                    showPreview = true
+                if self.minimal {
+                    self.iconBody
                 }
-                #if os(macOS)
-                    .buttonStyle(.link)
-                #endif
+                else {
+                    Button("Show preview for large files") {
+                        showPreview = true
+                    }
+                    #if os(macOS)
+                        .buttonStyle(.link)
+                    #endif
+                }
             }
         }
         else {
             VStack(alignment: .center, spacing: 6.0, content: {
-                Image(systemName: file.systemImage)
-                    .dynamicTypeSize(.large)
-                    .foregroundStyle(Color.accentColor)
-                Text(file.fileName())
-                    .lineLimit(1)
-                    .padding(.horizontal, 4)
-                    .foregroundStyle(Color.primary)
-                    .multilineTextAlignment(.center)
+                self.iconBody
+                if !self.minimal {
+                    Text(file.fileName())
+                        .lineLimit(1)
+                        .padding(.horizontal, 4)
+                        .foregroundStyle(Color.primary)
+                        .multilineTextAlignment(.center)
+                }
             })
         }
+    }
+    
+    private var iconBody: some View {
+        Image(systemName: file.systemImage)
+            .dynamicTypeSize(.large)
+            .foregroundStyle(Color.accentColor)
     }
 }

@@ -3549,6 +3549,7 @@
       }
     },
     "File is too large to preview" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4356,6 +4357,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Raster"
+          }
+        }
+      }
+    },
+    "Grid with previews" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raster mit Vorschauen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuadrícula con vistas previas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Griglia con anteprime"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raster met voorbeeld"
           }
         }
       }
@@ -5168,6 +5197,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lijst"
+          }
+        }
+      }
+    },
+    "List with previews" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liste mit Vorschauen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lista con vistas previas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elenco con anteprime"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lijst met voorbeeld"
           }
         }
       }
