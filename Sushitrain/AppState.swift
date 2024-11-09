@@ -5,6 +5,7 @@
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 import SwiftUI
 import SushitrainCore
+import Combine
 
 struct StreamingProgress: Hashable, Equatable {
     var folder: String
@@ -13,7 +14,15 @@ struct StreamingProgress: Hashable, Equatable {
     var bytesTotal: Int64
 }
 
-import Combine
+enum FolderMetric: String {
+    case none = ""
+    case localFileCount = "localFileCount"
+    case localSize = "localSize"
+    case globalFileCount = "globalFileCount"
+    case globalSize = "globalSize"
+    case localPercentage = "localPercentage"
+    case localCompletion = "localCompletion"
+}
 
 @MainActor class AppState: ObservableObject {
     var client: SushitrainClient
@@ -46,6 +55,7 @@ import Combine
     @AppStorage("loggingEnabled") var loggingEnabled: Bool = false
     @AppStorage("dotFilesHidden") var dotFilesHidden: Bool = true
     @AppStorage("lingeringEnabled") var lingeringEnabled: Bool = true
+    @AppStorage("foldersViewMetric") var viewMetric: FolderMetric = .localFileCount
     
     var photoSync = PhotoSynchronisation()
     

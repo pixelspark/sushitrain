@@ -38,15 +38,18 @@ struct FolderStatisticsView: View {
                     Text("File size").badge(formatter.string(fromByteCount: stats.global!.bytes))
                 }
                 
-                let totalWant = Double(stats.localNeed!.bytes)
-                let myCompletion = Int(totalWant > 0 ? (100.0 * Double(stats.local!.bytes) / totalWant) : 100)
+                let totalLocal = Double(stats.local!.bytes)
+                let myPercentage = Int(totalLocal > 0 ? (100.0 * Double(stats.local!.bytes) / totalLocal) : 100)
+                
+                let totalNeed = Double(stats.localNeed!.bytes)
+                let myCompletion = Int(totalNeed > 0 ? (100.0 * Double(stats.local!.bytes) / totalNeed) : 100)
                 
                 Section {
                     Text("Number of files").badge(stats.local!.files.formatted())
                     Text("Number of directories").badge(stats.local!.directories.formatted())
                     Text("File size").badge(formatter.string(fromByteCount: stats.local!.bytes))
                 } header: {
-                    Text("On this device: \(myCompletion)% of the full folder")
+                    Text("On this device: \(myPercentage)% of the full folder, \(myCompletion)% completed")
                 }
                 
                 let devices = self.folder.sharedWithDeviceIDs()?.asArray() ?? []

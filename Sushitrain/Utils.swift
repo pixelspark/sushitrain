@@ -222,7 +222,12 @@ extension SushitrainEntry {
             return "trash"
         }
         else if self.isSelected() {
-            return "\(base).badge.ellipsis"
+            if self.isDirectory() {
+                return "questionmark.folder"
+            }
+            else {
+                return "document.badge.ellipsis"
+            }
         }
         else {
             return "\(base)"
@@ -446,6 +451,7 @@ func openURLInSystemFilesApp(url: URL) {
 
 extension SushitrainChange: @unchecked @retroactive Sendable {}
 extension SushitrainFolder: @unchecked @retroactive Sendable {}
+extension SushitrainFolderStats: @unchecked @retroactive Sendable {}
 extension SushitrainEntry: @unchecked @retroactive Sendable {}
 
 #if os(macOS)
