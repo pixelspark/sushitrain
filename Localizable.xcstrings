@@ -4556,6 +4556,34 @@
         }
       }
     },
+    "Ignore certain system files" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestimmte Systemdateien ignorieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ignorar ciertos archivos del sistema"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ignora alcuni file di sistema"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bepaalde systeem bestanden negeren"
+          }
+        }
+      }
+    },
     "Immediately" : {
       "localizations" : {
         "de" : {
@@ -6014,34 +6042,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wachtwoord"
-          }
-        }
-      }
-    },
-    "Percentage completed" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Prozentsatz abgeschlossen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Porcentaje completado"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Percentuale completata"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Percentage voltooid"
           }
         }
       }
@@ -10690,6 +10690,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wanneer achtergrondsynchronisatie voltooid is"
+          }
+        }
+      }
+    },
+    "When enabled, certain files that are created by the system (such as .DS_Store) will not be noticed as 'new files' in folders that are selectively synced. These files will still be synced in folders that are fully synchronized and when they are created by other devices." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn diese Option aktiviert ist, werden bestimmte vom System erstellte Dateien (wie .DS_Store) in Ordnern, die selektiv synchronisiert werden, nicht als 'neue Dateien' erkannt. Diese Dateien werden weiterhin in Ordnern synchronisiert, die vollständig synchronisiert sind, und wenn sie von anderen Geräten erstellt werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando está habilitado, ciertos archivos creados por el sistema (como .DS_Store) no serán reconocidos como 'archivos nuevos' en las carpetas que se sincronizan selectivamente. Estos archivos seguirán sincronizándose en las carpetas que están completamente sincronizadas y cuando sean creados por otros dispositivos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando abilitato, alcuni file creati dal sistema (come .DS_Store) non verranno riconosciuti come 'nuovi file' nelle cartelle sincronizzate selettivamente. Questi file continueranno a essere sincronizzati nelle cartelle completamente sincronizzate e quando vengono creati da altri dispositivi."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer ingeschakeld, zullen bepaalde bestanden die door het systeem zijn aangemaakt (zoals .DS_Store) niet als 'nieuwe bestanden' worden opgemerkt in mappen die selectief worden gesynchroniseerd. Deze bestanden worden nog steeds gesynchroniseerd in mappen die volledig worden gesynchroniseerd en wanneer ze worden aangemaakt door andere apparaten."
           }
         }
       }

@@ -270,6 +270,12 @@ struct AdvancedSettingsView: View {
             }
             
             Section {
+                Toggle("Ignore certain system files", isOn: appState.$ignoreExtraneousDefaultFiles)
+            } footer: {
+                Text("When enabled, certain files that are created by the system (such as .DS_Store) will not be noticed as 'new files' in folders that are selectively synced. These files will still be synced in folders that are fully synchronized and when they are created by other devices.")
+            }
+            
+            Section {
                 Toggle("Enable debug logging", isOn: appState.$loggingEnabled)
             }
             header: {
@@ -311,13 +317,16 @@ struct AdvancedSettingsView: View {
                 }
             #endif
         }
+        .onDisappear {
+            appState.applySettings()
+        }
         .navigationTitle("Advanced settings")
-#if os(macOS)
-        .formStyle(.grouped)
-#endif
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-#endif
+        #if os(macOS)
+            .formStyle(.grouped)
+        #endif
+        #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
 }
 

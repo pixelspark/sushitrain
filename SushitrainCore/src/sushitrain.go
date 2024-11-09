@@ -9,6 +9,7 @@ import (
 	"bufio"
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -52,6 +53,7 @@ type Client struct {
 	foldersDownloading       map[string]bool
 	ResolvedListenAddresses  map[string][]string
 	mutex                    sync.Mutex
+	extraneousIgnored        []string
 }
 
 type Change struct {
@@ -234,7 +236,26 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 		IgnoreEvents:               false,
 		uploadProgress:             make(map[string]map[string]map[string]int),
 		ResolvedListenAddresses:    make(map[string][]string),
+		extraneousIgnored:          make([]string, 0),
 	}, nil
+}
+
+func (clt *Client) SetExtraneousIgnored(names []string) {
+	clt.extraneousIgnored = names
+}
+
+func (clt *Client) SetExtraneousIgnoredJSON(js []byte) error {
+	var names []string
+	if err := json.Unmarshal(js, &names); err != nil {
+		return err
+	}
+	clt.SetExtraneousIgnored(names)
+	return nil
+}
+
+func (clt *Client) isExtraneousIgnored(name string) bool {
+	// Must be an equal match for now
+	return slices.Contains(clt.extraneousIgnored, name)
 }
 
 func (clt *Client) CurrentConfigDirectory() string {

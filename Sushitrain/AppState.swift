@@ -55,7 +55,10 @@ enum FolderMetric: String {
     @AppStorage("loggingEnabled") var loggingEnabled: Bool = false
     @AppStorage("dotFilesHidden") var dotFilesHidden: Bool = true
     @AppStorage("lingeringEnabled") var lingeringEnabled: Bool = true
-    @AppStorage("foldersViewMetric") var viewMetric: FolderMetric = .localFileCount
+    @AppStorage("foldersViewMetric") var viewMetric: FolderMetric = .none
+    @AppStorage("ignoreExtraneousDefaultFiles") var ignoreExtraneousDefaultFiles: Bool = true // Whether to ignore certain files by default when scanning for extraneous files (i.e. .DS_Store)
+    
+    static private var defaultIgnoredExtraneousFiles = [".DS_Store", "Thumbs.db", "desktop.ini", ".Trashes", ".Spotlight-V100"]
     
     var photoSync = PhotoSynchronisation()
     
@@ -103,6 +106,22 @@ enum FolderMetric: String {
     func applySettings() {
         self.client.server?.maxMbitsPerSecondsStreaming = Int64(self.streamingLimitMbitsPerSec)
         Log.info("Apply settings; streaming limit=\(self.streamingLimitMbitsPerSec) mbits/s")
+        
+        do {
+            if self.ignoreExtraneousDefaultFiles {
+                let json = try JSONEncoder().encode(Self.defaultIgnoredExtraneousFiles)
+                try self.client.setExtraneousIgnoredJSON(json)
+                Log.info("Applied setting: default ignore extraneous files \(json)")
+            }
+            else {
+                let json = try JSONEncoder().encode([] as [String])
+                try self.client.setExtraneousIgnoredJSON(json)
+                Log.info("Applied setting: default ignore extraneous files \(json)")
+            }
+        }
+        catch {
+            Log.warn("Could not set default ignored extraneous files: \(error.localizedDescription)")
+        }
     }
     
     var isFinished: Bool {

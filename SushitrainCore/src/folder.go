@@ -579,6 +579,11 @@ func (fld *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 			return nil
 		}
 
+		// Ignore whatever is on the 'extraneous ignore' list (used to ignore .DS_Store and similar)
+		if fld.client.isExtraneousIgnored(filepath.Base(path)) {
+			return nil
+		}
+
 		// Check ignore status
 		result := ignores.Match(path)
 		if result.IsIgnored() {
