@@ -365,17 +365,7 @@ struct FileView: View {
                         else {
                             // Waiting for sync
                             Section {
-                                let progress = self.appState.client.getDownloadProgress(forFile: self.file.path(), folder: self.folder.folderID)
-                                if let progress = progress {
-                                    ProgressView(value: progress.percentage, total: 1.0) {
-                                        Label("Downloading file...", systemImage: "arrow.clockwise")
-                                            .foregroundStyle(.green)
-                                            .symbolEffect(.pulse, value: true)
-                                    }.tint(.green)
-                                }
-                                else {
-                                    Label("Waiting to synchronize...", systemImage: "hourglass")
-                                }
+                                DownloadProgressView(appState: appState, file: file, folder: folder)
                             }
                         }
                     }
@@ -604,6 +594,61 @@ struct FileView: View {
                     selfIndex = self.siblings?.firstIndex(of: file)
                 }
             }
+        }
+    }
+}
+
+fileprivate struct DownloadProgressView: View {
+    @ObservedObject var appState: AppState
+    let file: SushitrainEntry
+    let folder: SushitrainFolder
+    
+    @State private var lastProgress: (Date, SushitrainProgress)? = nil
+    @State private var progress: (Date, SushitrainProgress)? = nil
+    
+    var body: some View {
+        Group {
+            if let (date, progress) = self.progress {
+                ProgressView(value: progress.percentage, total: 1.0) {
+                    HStack {
+                        Label("Downloading file...", systemImage: "arrow.clockwise")
+                            .foregroundStyle(.green)
+                            .symbolEffect(.pulse, value: true)
+                        if let (lastDate, lastProgress) = self.lastProgress {
+                            let diffBytes = progress.bytesDone - lastProgress.bytesDone
+                            let diffTime = date.timeIntervalSince(lastDate)
+                            let speed = Int64(Double(diffBytes) / Double(diffTime))
+                            let formatter = ByteCountFormatter()
+                            Spacer()
+                            Text("\(formatter.string(fromByteCount: speed))/s").foregroundStyle(.green)
+                            
+                            if speed > 0 {
+                                let secondsToGo = (progress.bytesTotal - progress.bytesDone) / speed
+                                Text("\(secondsToGo) seconds")
+                            }
+                        }
+                    }
+                }.tint(.green)
+            }
+            else {
+                Label("Waiting to synchronize...", systemImage: "hourglass")
+            }
+        }
+        .task {
+            self.updateProgress()
+        }
+        .onChange(of: self.appState.eventCounter) {
+            self.updateProgress()
+        }
+    }
+    
+    private func updateProgress() {
+        self.lastProgress = self.progress
+        if let p = self.appState.client.getDownloadProgress(forFile: self.file.path(), folder: self.folder.folderID) {
+            self.progress = (Date.now, p)
+        }
+        else {
+            self.progress = nil
         }
     }
 }
