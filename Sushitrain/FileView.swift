@@ -273,43 +273,48 @@ struct FileView: View {
                     if !file.isSymlink() && self.folder.isSelective() && (file.isSelected() && !file.isExplicitlySelected()) {
                         Text("This item is synchronized with this device because a parent folder is synchronized with this device.")
                     }
-                    if file.isExplicitlySelected() {
-                        if localIsOnlyCopy {
-                            if self.folder.connectedPeerCount() > 0 {
-                                Text("There are currently no other devices connected that have a full copy of this file.")
-                            }
-                            else {
-                                Text("There are currently no other devices connected, so it can't be established that this file is fully available on at least one other device.")
+                    
+                    if !file.isSymlink() {
+                        if file.isExplicitlySelected() {
+                            if localIsOnlyCopy {
+                                if self.folder.connectedPeerCount() > 0 {
+                                    Text("There are currently no other devices connected that have a full copy of this file.")
+                                }
+                                else {
+                                    Text("There are currently no other devices connected, so it can't be established that this file is fully available on at least one other device.")
+                                }
                             }
                         }
-                    }
-                    else {
-                        if self.folder.connectedPeerCount() == 0 {
-                            Text("When you select this file, it will not become immediately available on this device, because there are no other devices connected to download the file from.")
-                        }
-                        else if (self.fullyAvailableOnDevices == nil || self.fullyAvailableOnDevices!.isEmpty) {
-                            Text("When you select this file, it will not become immediately available on this device, because none of the currently connected devices have a full copy of the file that can be downloaded.")
+                        else {
+                            if self.folder.connectedPeerCount() == 0 {
+                                Text("When you select this file, it will not become immediately available on this device, because there are no other devices connected to download the file from.")
+                            }
+                            else if (self.fullyAvailableOnDevices == nil || self.fullyAvailableOnDevices!.isEmpty) {
+                                Text("When you select this file, it will not become immediately available on this device, because none of the currently connected devices have a full copy of the file that can be downloaded.")
+                            }
                         }
                     }
                 }
                 
                 // Devices that have this file
-                if let availability = self.fullyAvailableOnDevices {
-                    if availability.isEmpty && self.folder.connectedPeerCount() > 0 {
-                        Label("This file it not fully available on any connected device", systemImage: "externaldrive.trianglebadge.exclamationmark")
-                        .foregroundStyle(.orange)
-                    }
-                }
-                else {
-                    if let err = self.availabilityError {
-                        Label(
-                            "Could not determine file availability: \(err)", systemImage: "externaldrive.trianglebadge.exclamationmark"
-                        ).foregroundStyle(.orange)
+                if !self.file.isSymlink() {
+                    if let availability = self.fullyAvailableOnDevices {
+                        if availability.isEmpty && self.folder.connectedPeerCount() > 0 {
+                            Label("This file it not fully available on any connected device", systemImage: "externaldrive.trianglebadge.exclamationmark")
+                                .foregroundStyle(.orange)
+                        }
                     }
                     else {
-                        Label(
-                            "Checking availability on other devices...", systemImage: "externaldrive.badge.questionmark"
-                        ).foregroundStyle(.gray)
+                        if let err = self.availabilityError {
+                            Label(
+                                "Could not determine file availability: \(err)", systemImage: "externaldrive.trianglebadge.exclamationmark"
+                            ).foregroundStyle(.orange)
+                        }
+                        else {
+                            Label(
+                                "Checking availability on other devices...", systemImage: "externaldrive.badge.questionmark"
+                            ).foregroundStyle(.gray)
+                        }
                     }
                 }
                 
