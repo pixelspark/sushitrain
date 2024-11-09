@@ -13,6 +13,7 @@ enum Route: Hashable, Equatable {
 }
 
 fileprivate struct FolderMetricView: View {
+    @ObservedObject var appState: AppState
     let metric: FolderMetric
     let folder: SushitrainFolder
     @State private var stats: SushitrainFolderStats? = nil
@@ -23,6 +24,11 @@ fileprivate struct FolderMetricView: View {
                 .foregroundStyle(.secondary)
                 .task {
                     await self.updateMetric()
+                }
+                .onChange(of: appState.eventCounter) {
+                    Task {
+                        await self.updateMetric()
+                    }
                 }
         }
     }
@@ -89,15 +95,20 @@ fileprivate struct FolderMetricView: View {
     
     private func updateMetric() async {
         let folder = self.folder
-        self.stats = await Task.detached {
-            do {
-                return try folder.statistics()
-            }
-            catch {
-                Log.warn("failed to obtain folder metrics: \(error.localizedDescription)")
-            }
-            return nil
-        }.value
+        if !folder.isPaused() {
+            self.stats = await Task.detached {
+                do {
+                    return try folder.statistics()
+                }
+                catch {
+                    Log.warn("failed to obtain folder metrics: \(error.localizedDescription)")
+                }
+                return nil
+            }.value
+        }
+        else {
+            self.stats = nil
+        }
     }
 }
 
@@ -122,7 +133,7 @@ struct FoldersSections: View {
                         HStack {
                             Label(folder.displayName, systemImage: "folder.fill")
                             Spacer()
-                            FolderMetricView(metric: self.appState.viewMetric, folder: folder).id(folder.folderID)
+                            FolderMetricView(appState: appState, metric: self.appState.viewMetric, folder: folder)
                         }
                     }
                 }

@@ -795,6 +795,10 @@ func (fld *Folder) SetLocalFileExplicitlySelected(path string, toggle bool) erro
 }
 
 func (fld *Folder) Statistics() (*FolderStats, error) {
+	if fld.client.app == nil || fld.client.app.Internals == nil {
+		return nil, ErrStillLoading
+	}
+
 	snap, err := fld.client.app.Internals.DBSnapshot(fld.FolderID)
 	if err != nil {
 		return nil, err
