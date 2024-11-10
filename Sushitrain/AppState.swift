@@ -64,7 +64,7 @@ enum FolderMetric: String {
         // app enters the foreground state.
         var suspendedPeerIds: [String] {
             get {
-                return UserDefaults.standard.value(forKey: "suspendedPeerIds") as? [String] ?? []
+                return UserDefaults.standard.array(forKey: "suspendedPeerIds") as? [String] ?? []
             }
             set(newValue) {
                 UserDefaults.standard.set(newValue, forKey: "suspendedPeerIds")
