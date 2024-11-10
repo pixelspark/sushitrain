@@ -51,6 +51,7 @@ enum FolderMetric: String {
     @AppStorage("browserGridColumns") var browserGridColumns: Int = 3
     @AppStorage("loggingEnabled") var loggingEnabled: Bool = false
     @AppStorage("dotFilesHidden") var dotFilesHidden: Bool = true
+    @AppStorage("hideHiddenFolders") var hideHiddenFolders: Bool = false
     @AppStorage("lingeringEnabled") var lingeringEnabled: Bool = true
     @AppStorage("foldersViewMetric") var viewMetric: FolderMetric = .none
     @AppStorage("ignoreExtraneousDefaultFiles") var ignoreExtraneousDefaultFiles: Bool = true // Whether to ignore certain files by default when scanning for extraneous files (i.e. .DS_Store)

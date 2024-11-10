@@ -124,20 +124,22 @@ struct FoldersSections: View {
     var body: some View {
         Section("Folders") {
             ForEach(folders, id: \.self.folderID) { (folder: SushitrainFolder) in
-                NavigationLink(value: Route.folder(folderID: folder.folderID)) {
-                    if folder.isPaused() {
-                        Label(folder.displayName, systemImage: "folder.fill")
-                            .foregroundStyle(.gray)
-                    }
-                    else {
-                        HStack {
+                if !appState.hideHiddenFolders || folder.isHidden == false {
+                    NavigationLink(value: Route.folder(folderID: folder.folderID)) {
+                        if folder.isPaused() {
                             Label(folder.displayName, systemImage: "folder.fill")
-                            Spacer()
-                            FolderMetricView(appState: appState, metric: self.appState.viewMetric, folder: folder)
+                                .foregroundStyle(.gray)
+                        }
+                        else {
+                            HStack {
+                                Label(folder.displayName, systemImage: "folder.fill")
+                                Spacer()
+                                FolderMetricView(appState: appState, metric: self.appState.viewMetric, folder: folder)
+                            }
                         }
                     }
+                    .id(folder.folderID)
                 }
-                .id(folder.folderID)
             }.onChange(of: appState.eventCounter) {
                 self.updateFolders()
             }
@@ -261,5 +263,9 @@ struct FolderMetricPickerView: View {
             }.tag(FolderMetric.localPercentage)
         }
         .pickerStyle(.inline)
+        
+        Toggle(isOn: appState.$hideHiddenFolders) {
+            Label("Hide hidden folders", systemImage: "eye.slash")
+        }
     }
 }
