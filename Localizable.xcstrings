@@ -4416,6 +4416,34 @@
         }
       }
     },
+    "Hide hidden folders" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versteckte Ordner ausblenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar carpetas ocultas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi cartelle nascoste"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verberg verborgen mappen"
+          }
+        }
+      }
+    },
     "Hide in dock" : {
       "localizations" : {
         "de" : {
