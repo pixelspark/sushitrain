@@ -10,9 +10,9 @@ import WebKit
 import AVKit
 
 fileprivate struct FileMediaPlayer<Content: View>: View {
-#if os(iOS)
-    @State private var session = AVAudioSession.sharedInstance()
-#endif
+    #if os(iOS)
+        @State private var session = AVAudioSession.sharedInstance()
+    #endif
     
     @State private var player: AVPlayer?
     @ObservedObject var appState: AppState
@@ -471,6 +471,19 @@ struct FileView: View {
                             if let selfIndex = selfIndex, let siblings = siblings {
                                 Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1).labelStyle(.iconOnly)
                                 Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1).labelStyle(.iconOnly)
+                            }
+                        })
+                        // Swipe up and down for next/previous
+                        .gesture(DragGesture(minimumDistance: 20, coordinateSpace: .global).onEnded { value in
+                            if let selfIndex = selfIndex, let siblings = siblings {
+                                let verticalAmount = value.translation.height
+                                
+                                if verticalAmount < 0 && selfIndex <= siblings.count {
+                                    next(1)
+                                }
+                                else if verticalAmount > 0 && selfIndex > 0 {
+                                    next(-1)
+                                }
                             }
                         })
                     })
