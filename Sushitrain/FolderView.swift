@@ -407,23 +407,23 @@ struct FolderView: View {
                     }
                 }
                 
-                #if os(iOS)
-                    Section("System settings") {
+                Section("System settings") {
+                    #if os(iOS)
                         Toggle("Include in device back-up", isOn: Binding(get: {
                             if let f = folder.isExcludedFromBackup { return !f }
                             return false
                         }, set: { nv in
                             folder.isExcludedFromBackup = !nv
                         })).disabled(isExternal != false)
+                    #endif
                         
-                        Toggle("Hide in Files app", isOn: Binding(get: {
-                            if let f = folder.isHidden { return f }
-                            return false
-                        }, set: { nv in
-                            folder.isHidden = nv
-                        })).disabled(isExternal != false)
-                    }
-                #endif
+                    Toggle("Hide in Files app", isOn: Binding(get: {
+                        if let f = folder.isHidden { return f }
+                        return false
+                    }, set: { nv in
+                        folder.isHidden = nv
+                    })).disabled(isExternal != false)
+                }
                 
                 Section {
                     Button("Re-scan folder", systemImage: "sparkle.magnifyingglass") {
