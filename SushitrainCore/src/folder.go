@@ -45,8 +45,17 @@ func (fld *Folder) folderConfiguration() *config.FolderConfiguration {
 	return &folderInfo
 }
 
+func (fld *Folder) RescanSubdirectory(path string) error {
+	go func() {
+		Logger.Infoln("Rescan folder", fld.FolderID, "subdirectory", path)
+		fld.client.app.Internals.ScanFolderSubdirs(fld.FolderID, []string{path})
+	}()
+	return nil
+}
+
 func (fld *Folder) Rescan() error {
 	go func() {
+		Logger.Infoln("Rescan folder", fld.FolderID)
 		fld.client.app.Internals.ScanFolderSubdirs(fld.FolderID, nil)
 	}()
 	return nil

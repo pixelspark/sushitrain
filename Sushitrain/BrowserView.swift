@@ -241,11 +241,17 @@ fileprivate struct BrowserListView: View {
             }
         }
         .refreshable {
-            await self.reload()
+            await self.refresh()
         }
         .task(id: self.folder.folderStateForUpdating) {
             await self.reload()
         }
+    }
+    
+    private func refresh() async {
+        Log.info("Rescan subdir \(self.prefix)")
+        try? self.folder.rescanSubdirectory(self.prefix)
+        await self.reload()
     }
     
     private func reload() async {
