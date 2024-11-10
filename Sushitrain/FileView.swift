@@ -6,7 +6,6 @@
 import SwiftUI
 @preconcurrency import SushitrainCore
 import QuickLook
-import WebKit
 import AVKit
 
 fileprivate struct FileMediaPlayer<Content: View>: View {
@@ -15,9 +14,10 @@ fileprivate struct FileMediaPlayer<Content: View>: View {
     #endif
     
     @State private var player: AVPlayer?
+    
     @ObservedObject var appState: AppState
     var file: SushitrainEntry
-    @State var visible: Binding<Bool>
+    @Binding var visible: Bool
     
     @ViewBuilder var videoOverlay: () -> Content
     
@@ -52,37 +52,53 @@ fileprivate struct FileMediaPlayer<Content: View>: View {
     }
     
     var body: some View {
-        VideoPlayer(player: player) {
-            VStack {
-                HStack {
-                    if file.isVideo {
-                        Image(systemName: "xmark")
-                            .padding(16)
-                            .foregroundStyle(.white)
-                            .tint(.white)
-                            .onTapGesture {
-                                visible.wrappedValue = false
+        ZStack {
+            if let player = self.player {
+                VideoPlayer(player: player) {
+                    VStack {
+                        HStack {
+                            if file.isVideo {
+                                Image(systemName: "xmark")
+                                    .padding(16)
+                                    .foregroundStyle(.white)
+                                    .tint(.white)
+                                    .onTapGesture {
+                                        visible = false
+                                    }
+                                self.videoOverlay()
+                                
+                                if let sp = appState.streamingProgress, sp.bytesTotal > 0 && sp.bytesSent < sp.bytesTotal {
+                                    ProgressView(value: Float(sp.bytesSent), total: Float(sp.bytesTotal)).foregroundColor(.gray).progressViewStyle(.linear).frame(maxWidth: 64)
+                                }
                             }
-                        self.videoOverlay()
-                        
-                        if let sp = appState.streamingProgress, sp.bytesTotal > 0 && sp.bytesSent < sp.bytesTotal {
-                            ProgressView(value: Float(sp.bytesSent), total: Float(sp.bytesTotal)).foregroundColor(.gray).progressViewStyle(.linear).frame(maxWidth: 64)
+                            
+                            Spacer()
                         }
+                        Spacer()
                     }
-                    
-                    Spacer()
                 }
-                Spacer()
+            }
+            else {
+                Rectangle()
+                    .scaledToFill()
+                    .foregroundStyle(.clear)
+                    .onTapGesture {
+                        visible = false
+                    }
             }
         }
         .onAppear {
-            startPlayer()
+            Task {
+                await startPlayer()
+            }
         }
         .onDisappear {
             stopPlayer()
         }
         .onChange(of: file) {
-            startPlayer()
+            Task {
+                await startPlayer()
+            }
         }
         .ignoresSafeArea(file.isVideo ? .all : [])
     }
@@ -95,18 +111,28 @@ fileprivate struct FileMediaPlayer<Content: View>: View {
         }
     }
     
-    private func startPlayer() {
+    private func startPlayer() async {
         self.stopPlayer()
-        let player = AVPlayer(url: URL(string: self.file.onDemandURL())!)
-        // TODO: External playback requires us to use http://devicename.local:xxx/file/.. URLs rather than http://localhost.
-        // Resolve using Bonjour perhaps?
-        player.preventsDisplaySleepDuringVideoPlayback = true
-        player.allowsExternalPlayback = false
-        player.audiovisualBackgroundPlaybackPolicy = .automatic
-        player.preventsDisplaySleepDuringVideoPlayback = file.isAudio
-        activateSession()
-        player.playImmediately(atRate: 1.0)
-        self.player = player
+        do {
+            let avAsset = AVURLAsset(url: URL(string: self.file.onDemandURL())!)
+            if try await avAsset.load(.isPlayable) {
+                let player = AVPlayer(playerItem: AVPlayerItem(asset: avAsset))
+                // TODO: External playback requires us to use http://devicename.local:xxx/file/.. URLs rather than http://localhost.
+                // Resolve using Bonjour perhaps?
+                player.allowsExternalPlayback = false
+                player.audiovisualBackgroundPlaybackPolicy = .automatic
+                player.preventsDisplaySleepDuringVideoPlayback = !file.isAudio
+                activateSession()
+                player.playImmediately(atRate: 1.0)
+                self.player = player
+            }
+            else {
+                self.visible = false
+            }
+        }
+        catch {
+            Log.warn("Error starting player: \(error.localizedDescription)")
+        }
     }
 }
 
@@ -148,42 +174,6 @@ struct OnDemandFileView<Content: View>: View {
                     })
                 })
         }
-    }
-}
-
-fileprivate struct OnDemandWebFileView: View {
-    var file: SushitrainEntry
-    @State var isLoading: Bool = false
-    @State var error: Error? = nil
-    
-    var body: some View {
-        var pathError: NSError? = nil
-        let url = file.isLocallyPresent() ? URL(fileURLWithPath: file.localNativePath(&pathError)) : URL(string: file.onDemandURL())
-        Group {
-            if let error = error {
-                ContentUnavailableView("Cannot display file", systemImage: "xmark.circle", description: Text(error.localizedDescription))
-            }
-            else if let error = pathError {
-                ContentUnavailableView("Cannot display file", systemImage: "xmark.circle", description: Text(error.localizedDescription))
-            }
-            else if let url = url {
-                WebView(url: url, isLoading: $isLoading, error: $error)
-            }
-            else {
-                ContentUnavailableView("Cannot display file", systemImage: "xmark.circle")
-            }
-        }
-        .navigationTitle(file.fileName())
-        #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-        #endif
-        .toolbar(content: {
-            ToolbarItem(placement: .cancellationAction, content: {
-                if isLoading {
-                    ProgressView()
-                }
-            })
-        })
     }
 }
 

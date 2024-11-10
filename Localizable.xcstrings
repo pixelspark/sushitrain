@@ -1952,34 +1952,6 @@
         }
       }
     },
-    "Cannot display file" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Datei kann nicht angezeigt werden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No se puede mostrar el archivo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossibile visualizzare il file"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kan bestand niet weergeven"
-          }
-        }
-      }
-    },
     "Checking availability on other devices..." : {
       "localizations" : {
         "de" : {
