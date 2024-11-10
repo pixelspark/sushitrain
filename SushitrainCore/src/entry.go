@@ -125,7 +125,16 @@ func (entry *Entry) MaterializeSubdirectory() error {
 	if fc.IgnorePerms || entry.info.NoPermissions {
 		mode = 0o777
 	}
-	ffs.MkdirAll(nativeFilename, mode)
+	err := ffs.MkdirAll(nativeFilename, mode)
+	if err != nil {
+		return err
+	}
+
+	// Set modified time from entry
+	err = ffs.Chtimes(nativeFilename, entry.info.ModTime(), entry.info.ModTime())
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
