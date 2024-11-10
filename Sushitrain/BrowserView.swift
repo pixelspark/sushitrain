@@ -20,6 +20,23 @@ fileprivate struct EntryView: View {
     let siblings: [SushitrainEntry]
     let showThumbnail: Bool
     
+    private func entryView(entry: SushitrainEntry) -> some View {
+        Group {
+            if self.showThumbnail {
+                HStack(alignment: .center, spacing: 9.0) {
+                    ThumbnailView(file: entry, appState: appState, minimal: true)
+                        .frame(width: 60, height: 40)
+                        .cornerRadius(6.0)
+                    Text(entry.fileName())
+                }
+                .padding(0)
+            }
+            else {
+                Label(entry.fileName(), systemImage: entry.systemImage)
+            }
+        }
+    }
+    
     var body: some View {
         if entry.isSymlink() {
             // Find the destination
@@ -31,7 +48,7 @@ fileprivate struct EntryView: View {
                         folder: folder,
                         prefix: targetEntry.path() + "/"
                     )) {
-                        Label(entry.fileName(), systemImage: entry.systemImage)
+                        self.entryView(entry: entry)
                     }
                     .contextMenu {
                         NavigationLink(destination: FileView(file: targetEntry, appState: self.appState, siblings: [])) {
@@ -44,7 +61,7 @@ fileprivate struct EntryView: View {
                 }
                 else {
                     NavigationLink(destination: FileView(file: targetEntry, appState: self.appState, siblings: [])) {
-                        Label(entry.fileName(), systemImage: entry.systemImage)
+                        self.entryView(entry: targetEntry)
                     }.contextMenu {
                         NavigationLink(destination: FileView(file: targetEntry, appState: self.appState, siblings: [])) {
                             Label(targetEntry.fileName(), systemImage: targetEntry.systemImage)
@@ -65,7 +82,7 @@ fileprivate struct EntryView: View {
             }
             else if let targetURL = URL(string: entry.symlinkTarget()), targetURL.scheme == "https" || targetURL.scheme == "http" {
                 Link(destination: targetURL) {
-                    Label(entry.fileName(), systemImage: entry.systemImage)
+                    self.entryView(entry: entry)
                 }
                 .contextMenu {
                     Link(destination: targetURL) {
@@ -82,18 +99,7 @@ fileprivate struct EntryView: View {
         }
         else {
             NavigationLink(destination: FileView(file: entry, appState: self.appState, siblings: siblings)) {
-                if self.showThumbnail {
-                    HStack(alignment: .center, spacing: 9.0) {
-                        ThumbnailView(file: entry, appState: appState, minimal: true)
-                            .frame(width: 60, height: 40)
-                            .cornerRadius(6.0)
-                        Text(entry.fileName())
-                    }
-                    .padding(0)
-                }
-                else {
-                    Label(entry.fileName(), systemImage: entry.systemImage)
-                }
+                self.entryView(entry: entry)
             }.contextMenu {
                 NavigationLink(destination: FileView(file: entry, appState: self.appState, siblings: siblings)) {
                     Label(entry.fileName(), systemImage: entry.systemImage)
