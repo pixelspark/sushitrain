@@ -93,7 +93,7 @@ struct PhotoSettingsView: View {
                 if authorizationStatus == .authorized {
                     Picker("To folder", selection: $photoSync.selectedFolderID) {
                         Text("(No folder selected)").tag("")
-                        ForEach(appState.folders().sorted(), id: \.self) { option in
+                        ForEach(appState.folders().sorted(), id: \.self.folderID) { option in
                             Text(option.displayName).tag(option.folderID)
                         }
                     }

@@ -67,6 +67,12 @@ extension SushitrainEntry: @retroactive Comparable {
     }
 }
 
+extension SushitrainEntry: @retroactive Identifiable {
+    public var id: String {
+        return (self.folder?.folderID ?? "") + ":" + self.path()
+    }
+}
+
 extension SushitrainPeer: @retroactive Identifiable {
     public var id: String {
         return self.deviceID()

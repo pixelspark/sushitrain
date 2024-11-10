@@ -46,7 +46,7 @@ struct GridFilesView: View {
         
         LazyVGrid(columns: gridColumns) {
             // List subdirectories
-            ForEach(subdirectories, id: \.self) { (subDirEntry: SushitrainEntry) in
+            ForEach(subdirectories, id: \.self.id) { (subDirEntry: SushitrainEntry) in
                 GeometryReader { geo in
                     let fileName = subDirEntry.fileName()
                     NavigationLink(destination: BrowserView(
