@@ -23,7 +23,7 @@ struct SelectiveFolderView: View {
                 ProgressView()
             }
             else if !selectedPaths.isEmpty {
-                Form {
+                List {
                     let st = searchString.lowercased()
                     Section("Files kept on device") {
                         ForEach(selectedPaths.indices, id: \.self) { itemIndex in
@@ -37,29 +37,6 @@ struct SelectiveFolderView: View {
                             deselectIndexes(pathIndexes)
                         }.disabled(!folder.isIdleOrSyncing)
                     }
-                    
-                    Section {
-                        Button("Free up space", systemImage: "pin.slash", action: {
-                            showConfirmClearSelection = true
-                        })
-                        .alert(isPresented: $showConfirmClearSelection) {
-                            Alert(
-                                title: Text("Free up space"),
-                                message: Text("This will remove all locally stored copies of files in this folder. Any files that are not also present on another device will be permanently lost and cannot be recovered. Are you sure yu want to continue?"),
-                                primaryButton: .destructive(Text("Remove files")) {
-                                    showConfirmClearSelection = false
-                                    self.clearSelection()
-                                },
-                                secondaryButton: .cancel() {
-                                    showConfirmClearSelection = false
-                                }
-                            )
-                        }
-                        .help("Remove the files shown in the list from this device, but do not remove them from other devices.")
-                        #if os(macOS)
-                            .buttonStyle(.link)
-                        #endif
-                    }
                 }
                 #if os(macOS)
                     .formStyle(.grouped)
@@ -67,6 +44,28 @@ struct SelectiveFolderView: View {
             }
             else {
                 ContentUnavailableView("No files selected", systemImage: "pin.slash.fill", description: Text("To keep files on this device, navigate to a file and select 'keep on this device'. Selected files will appear here."))
+            }
+        }
+        
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("Free up space", systemImage: "pin.slash", action: {
+                    showConfirmClearSelection = true
+                })
+                .alert(isPresented: $showConfirmClearSelection) {
+                    Alert(
+                        title: Text("Free up space"),
+                        message: Text("This will remove all locally stored copies of files in this folder. Any files that are not also present on another device will be permanently lost and cannot be recovered. Are you sure yu want to continue?"),
+                        primaryButton: .destructive(Text("Remove files")) {
+                            showConfirmClearSelection = false
+                            self.clearSelection()
+                        },
+                        secondaryButton: .cancel() {
+                            showConfirmClearSelection = false
+                        }
+                    )
+                }
+                .help("Remove the files shown in the list from this device, but do not remove them from other devices.")
             }
         }
         
