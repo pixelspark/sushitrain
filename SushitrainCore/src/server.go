@@ -119,7 +119,7 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 		return nil, errors.New("no peer available")
 	}
 
-	Logger.Infoln("Download block", availables, mp.experiences)
+	Logger.Infoln("Download block:", len(availables), "available peers, experiences:", mp.experiences)
 
 	// Attempt to download the block from an available and 'known good' peers first
 	for _, available := range availables {
@@ -130,12 +130,12 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 			if err == nil {
 				return buf, nil
 			} else {
-				Logger.Infoln("- good peer error:", available.ID, err, len(buf))
+				Logger.Infoln("good peer", available.ID, "error:", err, "buffer size=", len(buf))
 			}
 		}
 	}
 
-	// Failed to download from a good peer, let's try the others
+	// Failed to download from a good peer, let's try the peers we don't have any experience with
 	for _, available := range availables {
 		if _, ok := mp.experiences[available.ID]; !ok {
 			buf, err := m.DownloadBlock(mp.context, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
@@ -144,12 +144,12 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 			if err == nil {
 				return buf, nil
 			} else {
-				Logger.Infoln("- unknown peer error:", available.ID, err, len(buf))
+				Logger.Infoln("unknown peer", available.ID, "error:", err, "buffer size=", len(buf))
 			}
 		}
 	}
 
-	// Failed to download from a good or unknown peer, let's try the 'bad' ones again
+	// Failed to download from a good or unknown peer, let's try the 'bad' peers once again
 	for _, available := range availables {
 		if exp, ok := mp.experiences[available.ID]; ok && !exp {
 			buf, err := m.DownloadBlock(mp.context, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
@@ -158,7 +158,7 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 			if err == nil {
 				return buf, nil
 			} else {
-				Logger.Infoln("- bad peer error:", available.ID, err, len(buf))
+				Logger.Infoln("bad peer", available.ID, "error:", err, "buffer size=", len(buf))
 			}
 		}
 	}
