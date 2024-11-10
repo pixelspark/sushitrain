@@ -394,7 +394,7 @@ struct BackgroundSettingsView: View {
             }
             
             Section("Last background synchronization") {
-                if let lastSyncRun = appState.lastBackgroundSyncRun.wrappedValue {
+                if let lastSyncRun = self.appState.backgroundManager.lastBackgroundSyncRun {
                     Text("Started").badge(lastSyncRun.started.formatted(date: .abbreviated, time: .shortened))
                     
                     if let lastSyncEnded = lastSyncRun.ended {
@@ -407,7 +407,7 @@ struct BackgroundSettingsView: View {
                 }
             }
             
-            let backgroundSyncs = appState.backgroundSyncRuns
+            let backgroundSyncs = appState.backgroundManager.backgroundSyncRuns
             if !backgroundSyncs.isEmpty {
                 Section("During the last 24 hours") {
                     ForEach(backgroundSyncs, id: \.started) { (log: BackgroundSyncRun) in

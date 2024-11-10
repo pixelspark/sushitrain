@@ -40,8 +40,6 @@ enum FolderMetric: String {
     @Published var lastChanges: [SushitrainChange] = []
     @Published var isLogging: Bool = false
     
-    @AppStorage("backgroundSyncRuns") var backgroundSyncRuns: [BackgroundSyncRun] = []
-    @AppStorage("lastBackgroundSyncRun") var lastBackgroundSyncRun = OptionalObject<BackgroundSyncRun>()
     @AppStorage("backgroundSyncEnabled") var longBackgroundSyncEnabled: Bool = true
     @AppStorage("shortBackgroundSyncEnabled") var shortBackgroundSyncEnabled: Bool = false
     @AppStorage("notifyWhenBackgroundSyncCompletes") var notifyWhenBackgroundSyncCompletes: Bool = false
@@ -64,7 +62,14 @@ enum FolderMetric: String {
     #if os(iOS)
         // The IDs of the peers that were suspended when the app last entered background, and should be re-enabled when the
         // app enters the foreground state.
-        @AppStorage("suspendedPeerIds") private var suspendedPeerIds: [String] = []
+        var suspendedPeerIds: [String] {
+            get {
+                return UserDefaults.standard.value(forKey: "suspendedPeerIds") as? [String] ?? []
+            }
+            set(newValue) {
+                UserDefaults.standard.set(newValue, forKey: "suspendedPeerIds")
+            }
+        }
         
         var backgroundManager: BackgroundManager!
         private var lingerManager: LingerManager!

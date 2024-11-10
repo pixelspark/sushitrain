@@ -343,34 +343,6 @@ extension Bundle {
 
 }
 
-struct OptionalObject<T: Codable>: RawRepresentable {
-    let wrappedValue: T?
-    
-    init(_ wrappedObject: T? = nil) {
-        self.wrappedValue = wrappedObject
-    }
-    
-    init?(rawValue: String) {
-        if let data = rawValue.data(using: .utf8),
-              let result = try? JSONDecoder().decode(T.self, from: data)
-        {
-            self.wrappedValue = result
-        }
-        else {
-            self.wrappedValue = nil
-        }
-    }
-    
-    var rawValue: String {
-        guard let data = try? JSONEncoder().encode(wrappedValue),
-              let result = String(data: data, encoding: .utf8)
-        else {
-            return "null"
-        }
-        return result
-    }
-}
-
 protocol Defaultable {
     init()
 }

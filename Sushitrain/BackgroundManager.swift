@@ -22,6 +22,26 @@ import BackgroundTasks
     private var currentRun: BackgroundSyncRun? = nil
     fileprivate unowned var appState: AppState
     
+    // Using this to store background information instead of AppStorage because it comes with observers that seem to
+    // trigger SwiftUI hangs when the app comes back to the foreground.
+    var backgroundSyncRuns: [BackgroundSyncRun] {
+        set(newValue) {
+            UserDefaults.standard.setValue(newValue, forKey: "backgroundSyncRuns")
+        }
+        get {
+            return UserDefaults.standard.value(forKey: "backgroundSyncRuns") as? [BackgroundSyncRun] ?? []
+        }
+    }
+    
+    var lastBackgroundSyncRun: BackgroundSyncRun? {
+        set(newValue) {
+            UserDefaults.standard.setValue(newValue, forKey: "lastBackgroundSyncRun")
+        }
+        get {
+            return UserDefaults.standard.value(forKey: "lastBackgroundSyncRun") as? BackgroundSyncRun
+        }
+    }
+    
     required init(appState: AppState) {
         self.appState = appState
         
@@ -64,7 +84,7 @@ import BackgroundTasks
             Log.info("Start background sync, time remaining = \(UIApplication.shared.backgroundTimeRemaining)")
             self.appState.suspend(false)
             currentRun = BackgroundSyncRun(started: start, ended: nil)
-            appState.lastBackgroundSyncRun = OptionalObject(currentRun)
+            self.lastBackgroundSyncRun = currentRun
             
             expireTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { t in
                 DispatchQueue.main.async {
@@ -140,7 +160,7 @@ import BackgroundTasks
             task.setTaskCompleted(success: true)
             
             Log.info("Doing background task bookkeeping")
-            self.appState.lastBackgroundSyncRun = OptionalObject(run)
+            self.lastBackgroundSyncRun = run
             self.updateBackgroundRunHistory(appending: run)
             
             Log.info("Notify user of background sync completion")
@@ -243,7 +263,7 @@ import BackgroundTasks
     }
     
     private func updateBackgroundRunHistory(appending run: BackgroundSyncRun?) {
-        var runs = appState.backgroundSyncRuns
+        var runs = self.backgroundSyncRuns
         
         // Remove old runs (older than 24h)
         let now = Date.now
@@ -255,7 +275,7 @@ import BackgroundTasks
         if let run = run {
             runs.append(run)
         }
-        appState.backgroundSyncRuns = runs
+        self.backgroundSyncRuns = runs
     }
 }
 #endif
