@@ -218,6 +218,11 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 		mime := MIMETypeForExtension(ext)
 		w.Header().Add("Content-type", mime)
 
+		// Disable caching
+		w.Header().Add("Cache-Control", "no-cache, no-store, must-revalidate")
+		w.Header().Add("Pragma", "no-cache")
+		w.Header().Add("Expires", "0")
+
 		// Is this a ranged request?
 		requestedRange := r.Header.Get("Range")
 		if len(requestedRange) > 0 {
