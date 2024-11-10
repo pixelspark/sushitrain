@@ -114,7 +114,8 @@ fileprivate struct FileMediaPlayer<Content: View>: View {
     private func startPlayer() async {
         self.stopPlayer()
         do {
-            let avAsset = AVURLAsset(url: URL(string: self.file.onDemandURL())!)
+            let url = file.localNativeFileURL ?? URL(string: self.file.onDemandURL())!
+            let avAsset = AVURLAsset(url: url)
             if try await avAsset.load(.isPlayable) {
                 let player = AVPlayer(playerItem: AVPlayerItem(asset: avAsset))
                 // TODO: External playback requires us to use http://devicename.local:xxx/file/.. URLs rather than http://localhost.
