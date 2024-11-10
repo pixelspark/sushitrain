@@ -36,6 +36,8 @@ extension SushitrainPeer {
         return self.deviceID()
     }
     
+    
+    
     var systemImage: String {
         return self.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill"
     }
@@ -66,6 +68,9 @@ extension SushitrainEntry: @retroactive Comparable {
 }
 
 extension SushitrainPeer: @retroactive Identifiable {
+    public var id: String {
+        return self.deviceID()
+    }
 }
 
 extension SushitrainChange: @retroactive Identifiable {

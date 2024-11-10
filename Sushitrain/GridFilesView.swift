@@ -69,6 +69,7 @@ struct GridFilesView: View {
                 .clipShape(.rect(cornerSize: CGSize(width: 8.0, height: 8.0)))
             }
             
+            // List files
             ForEach(files, id: \.self) { file in
                 GeometryReader { geo in
                     NavigationLink(destination: FileView(file: file, appState: self.appState, siblings: files)) {

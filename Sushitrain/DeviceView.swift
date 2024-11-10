@@ -97,7 +97,7 @@ struct DeviceView: View {
                 
                 let folders = appState.folders()
                 Section("Shared folders") {
-                    ForEach(folders, id: \.self) { (folder: SushitrainFolder) in
+                    ForEach(folders, id: \.self.folderID) { (folder: SushitrainFolder) in
                         ShareWithDeviceToggleView(appState: self.appState, peer: self.device, folder: folder, showFolderName: true)
                     }
                 }

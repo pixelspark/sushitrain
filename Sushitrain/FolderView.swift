@@ -401,7 +401,7 @@ struct FolderView: View {
                 
                 if !possiblePeers.isEmpty {
                     Section(header: Text("Shared with")) {
-                        ForEach(self.possiblePeers, id: \.self) { (addr: SushitrainPeer) in
+                        ForEach(self.possiblePeers, id: \.self.id) { (addr: SushitrainPeer) in
                             ShareWithDeviceToggleView(appState: appState, peer: addr, folder: folder, showFolderName: false)
                         }
                     }

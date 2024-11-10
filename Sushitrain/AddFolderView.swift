@@ -71,7 +71,7 @@ struct AddFolderView: View {
                     let pendingPeers = (try? appState.client.devicesPendingFolder(self.folderID))?.asArray() ?? []
                     
                     Section(header: Text("Shared with")) {
-                        ForEach(self.possiblePeers, id: \.self) { (peer: SushitrainPeer) in
+                        ForEach(self.possiblePeers, id: \.self.id) { (peer: SushitrainPeer) in
                             let isShared = sharedWith.contains(peer.deviceID());
                             let shared = Binding(get: { return isShared }, set: {share in
                                 if share {
