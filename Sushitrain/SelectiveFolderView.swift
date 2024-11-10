@@ -14,12 +14,13 @@ struct SelectiveFolderView: View {
     @State private var errorText = ""
     @State private var searchString = ""
     @State private var isLoading = true
+    @State private var isClearing = false
     @State private var selectedPaths: [String] = []
     @State private var showConfirmClearSelection = false
     
     var body: some View {
         Group {
-            if isLoading {
+            if isLoading || isClearing {
                 ProgressView()
             }
             else if !selectedPaths.isEmpty {
@@ -51,23 +52,24 @@ struct SelectiveFolderView: View {
             ToolbarItem(placement: .primaryAction) {
                 Button("Free up space", systemImage: "pin.slash", action: {
                     showConfirmClearSelection = true
-                })
-                .alert(isPresented: $showConfirmClearSelection) {
-                    Alert(
-                        title: Text("Free up space"),
-                        message: Text("This will remove all locally stored copies of files in this folder. Any files that are not also present on another device will be permanently lost and cannot be recovered. Are you sure yu want to continue?"),
-                        primaryButton: .destructive(Text("Remove files")) {
-                            showConfirmClearSelection = false
-                            self.clearSelection()
-                        },
-                        secondaryButton: .cancel() {
-                            showConfirmClearSelection = false
-                        }
-                    )
-                }
+                }).disabled(isClearing || isLoading)
                 .help("Remove the files shown in the list from this device, but do not remove them from other devices.")
             }
         }
+        .alert(isPresented: $showConfirmClearSelection) {
+            Alert(
+                title: Text("Free up space"),
+                message: Text("This will remove all locally stored copies of files in this folder. Any files that are not also present on another device will be permanently lost and cannot be recovered. Are you sure yu want to continue?"),
+                primaryButton: .destructive(Text("Remove files")) {
+                    showConfirmClearSelection = false
+                    self.clearSelection()
+                },
+                secondaryButton: .cancel() {
+                    showConfirmClearSelection = false
+                }
+            )
+        }
+        .navigationBarBackButtonHidden(isClearing)
         
         #if os(iOS)
             .navigationTitle("Selected files")
@@ -85,7 +87,8 @@ struct SelectiveFolderView: View {
     }
     
     private func clearSelection() {
-        if searchString.isEmpty {
+        if searchString.isEmpty && !isClearing {
+            isClearing = true
             Task.detached {
                 do {
                     try folder.clearSelection()
@@ -95,6 +98,9 @@ struct SelectiveFolderView: View {
                         showError = true
                         errorText = error.localizedDescription
                     }
+                }
+                DispatchQueue.main.async {
+                    isClearing = false
                 }
             }
             self.selectedPaths.removeAll()
@@ -107,7 +113,7 @@ struct SelectiveFolderView: View {
     private func update() {
         do {
             self.isLoading = true
-            self.selectedPaths = try self.folder.selectedPaths().asArray().sorted()
+            self.selectedPaths = try self.folder.selectedPaths(true).asArray().sorted()
         }
         catch {
             self.errorText = error.localizedDescription
@@ -163,37 +169,42 @@ fileprivate struct SelectiveFileView: View {
     
     var body: some View {
         ZStack {
-            if let file = self.entry, !file.isDeleted() {
-                #if os(macOS)
-                    HStack {
-                        if let fa = self.fullyAvailableOnDevices {
-                            Label(path, systemImage: file.systemImage).badge(fa.count)
-                            
-                            Spacer()
-                            
-                            if !fa.isEmpty {
-                                Button("Remove from this device, keep on \(fa.count) others", systemImage: "pin.slash") {
-                                    self.deselect()
+            if let file = self.entry {
+                if !file.isDeleted() {
+                    #if os(macOS)
+                        HStack {
+                            if let fa = self.fullyAvailableOnDevices {
+                                Label(path, systemImage: file.systemImage).badge(fa.count)
+                                
+                                Spacer()
+                                
+                                if !fa.isEmpty {
+                                    Button("Remove from this device, keep on \(fa.count) others", systemImage: "pin.slash") {
+                                        self.deselect()
+                                    }
+                                    .labelStyle(.iconOnly)
+                                    .foregroundStyle(.red)
+                                    .buttonStyle(.borderless)
                                 }
-                                .labelStyle(.iconOnly)
-                                .foregroundStyle(.red)
-                                .buttonStyle(.borderless)
+                            }
+                            else {
+                                Label(path, systemImage: file.systemImage)
                             }
                         }
-                        else {
+                        .contextMenu {
+                            NavigationLink(destination: FileView(file: file, appState: self.appState)) {
+                                Label("Properties...", systemImage: file.systemImage)
+                            }
+                        }
+                    #else
+                        NavigationLink(destination: FileView(file: file, appState: self.appState)) {
                             Label(path, systemImage: file.systemImage)
                         }
-                    }
-                    .contextMenu {
-                        NavigationLink(destination: FileView(file: file, appState: self.appState)) {
-                            Label("Properties...", systemImage: file.systemImage)
-                        }
-                    }
-                #else
-                    NavigationLink(destination: FileView(file: file, appState: self.appState)) {
-                        Label(path, systemImage: file.systemImage)
-                    }
-                #endif
+                    #endif
+                }
+                else {
+                    Label(path, systemImage: file.systemImage).strikethrough()
+                }
             }
         }
         .task {

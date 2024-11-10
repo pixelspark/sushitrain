@@ -83,13 +83,21 @@ func (fld *Folder) Unlink() error {
 	return nil
 }
 
-func (fld *Folder) Remove() error {
+func (fld *Folder) filesystem() (fs.Filesystem, error) {
 	fc := fld.folderConfiguration()
 	if fc == nil {
-		return errors.New("folder does not exist")
+		return nil, errors.New("folder does not exist")
 	}
-	ffs := fc.Filesystem(nil)
-	err := fld.Unlink()
+	return fc.Filesystem(nil), nil
+}
+
+func (fld *Folder) Remove() error {
+	ffs, err := fld.filesystem()
+	if err != nil {
+		return err
+	}
+
+	err = fld.Unlink()
 	if err != nil {
 		return err
 	}
@@ -357,7 +365,7 @@ func (fld *Folder) ClearSelection() error {
 	return fld.CleanSelection()
 }
 
-func (fld *Folder) SelectedPaths() (*ListOfStrings, error) {
+func (fld *Folder) SelectedPaths(onlyExisting bool) (*ListOfStrings, error) {
 	fc := fld.folderConfiguration()
 	if fc == nil {
 		return nil, errors.New("folder does not exist")
@@ -373,8 +381,19 @@ func (fld *Folder) SelectedPaths() (*ListOfStrings, error) {
 	}
 
 	selection := NewSelection(lines)
-	paths := ListOfStrings{data: selection.SelectedPaths()}
-	return &paths, nil
+	paths := selection.SelectedPaths()
+
+	if onlyExisting {
+		ffs, err := fld.filesystem()
+		if err != nil {
+			return nil, err
+		}
+		paths = Filter(paths, func(path string) bool {
+			_, statErr := ffs.Lstat(path)
+			return statErr == nil
+		})
+	}
+	return &ListOfStrings{data: paths}, nil
 }
 
 func (fld *Folder) HasSelectedPaths() bool {
@@ -616,7 +635,7 @@ func (fld *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 func (fld *Folder) CleanSelection() error {
 	return fld.whilePaused(func() error {
 		// Make sure the initial scan has finished (ScanFolders is blocking)
-		fld.client.app.Internals.ScanFolders()
+		fld.client.app.Internals.ScanFolderSubdirs(fld.FolderID, []string{""})
 
 		cfg := fld.folderConfiguration()
 		if cfg == nil {
