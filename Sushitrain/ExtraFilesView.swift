@@ -55,7 +55,7 @@ struct ExtraFilesView: View {
                                     Image(systemName: "trash.slash").tag(true).accessibilityLabel("Keep file")
                                 }
                                 else {
-                                    Image(systemName: "square.and.arrow.down").tag(true).accessibilityLabel("Keep file")
+                                    Image(systemName: "plus.square.fill").tag(true).accessibilityLabel("Keep file")
                                 }
                             }
                             .pickerStyle(.segmented)
@@ -91,7 +91,7 @@ struct ExtraFilesView: View {
                                         Image(systemName: "trash.slash").tag(true).accessibilityLabel("Keep file")
                                     }
                                     else {
-                                        Image(systemName: "square.and.arrow.down").tag(true).accessibilityLabel("Keep file")
+                                        Image(systemName: "plus.square.fill").tag(true).accessibilityLabel("Keep file")
                                     }
                                 }
                                 .pickerStyle(.segmented)
