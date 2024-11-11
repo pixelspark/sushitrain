@@ -26,25 +26,34 @@ import BackgroundTasks
     // trigger SwiftUI hangs when the app comes back to the foreground.
     var backgroundSyncRuns: [BackgroundSyncRun] {
         set(newValue) {
-            UserDefaults.standard.setValue(newValue, forKey: "backgroundSyncRuns")
+            let encoded = try! JSONEncoder().encode(newValue)
+            UserDefaults.standard.setValue(encoded, forKey: "backgroundSyncRuns")
         }
         get {
-            return UserDefaults.standard.value(forKey: "backgroundSyncRuns") as? [BackgroundSyncRun] ?? []
+            if let encoded = UserDefaults.standard.data(forKey: "backgroundSyncRuns") {
+                if let runs = try? JSONDecoder().decode([BackgroundSyncRun].self, from: encoded) {
+                    return runs
+                }
+            }
+            return []
         }
     }
     
     var lastBackgroundSyncRun: BackgroundSyncRun? {
         set(newValue) {
-            UserDefaults.standard.setValue(newValue, forKey: "lastBackgroundSyncRun")
+            let encoded = try! JSONEncoder().encode(newValue)
+            UserDefaults.standard.setValue(encoded, forKey: "lastBackgroundSyncRun")
         }
         get {
-            return UserDefaults.standard.value(forKey: "lastBackgroundSyncRun") as? BackgroundSyncRun
+            if let encoded = UserDefaults.standard.data(forKey: "lastBackgroundSyncRun") {
+                return try! JSONDecoder().decode(BackgroundSyncRun.self, from: encoded)
+            }
+            return nil
         }
     }
     
     required init(appState: AppState) {
         self.appState = appState
-        
 
         // Schedule background synchronization task
         BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.LongBackgroundSyncID, using: nil) { task in
