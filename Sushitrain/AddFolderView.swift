@@ -20,6 +20,7 @@ struct AddFolderView: View {
     
     @State private var showPathSelector: Bool = false
     @State private var showAddingExternalWarning: Bool = false
+    @State private var isSelective = true
     
     var folderExists: Bool {
         get {
@@ -65,6 +66,22 @@ struct AddFolderView: View {
                     #if os(macOS)
                         .buttonStyle(.link)
                     #endif
+                }
+                
+                if self.folderPath == nil {
+                    Section {
+                        Picker("Synchronize", selection: $isSelective) {
+                            Text("All files").tag(false)
+                            Text("Selected files").tag(true)
+                        }
+                    } footer: {
+                        if isSelective {
+                            Text("Only files that you select will be copied to this device. You can still access all files in the folder on demand when connected to other devices that have a copy of the file.")
+                        }
+                        else {
+                            Text("All files in the folder will be copied to this device.")
+                        }
+                    }
                 }
                 
                 if !possiblePeers.isEmpty {
@@ -162,7 +179,7 @@ struct AddFolderView: View {
                 try appState.client.addFolder(self.folderID, folderPath: fp.path(percentEncoded: false), createAsOnDemand: false)
             }
             else {
-                try appState.client.addFolder(self.folderID, folderPath: "", createAsOnDemand: true)
+                try appState.client.addFolder(self.folderID, folderPath: "", createAsOnDemand: self.isSelective)
             }
             
             if let folder = appState.client.folder(withID: self.folderID) {

@@ -83,7 +83,7 @@ struct FolderStatisticsView: View {
     }
 }
 
-struct ShareFolderWithDeviceDetailsView: View {
+fileprivate struct ShareFolderWithDeviceDetailsView: View {
     @ObservedObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
     var folder: SushitrainFolder

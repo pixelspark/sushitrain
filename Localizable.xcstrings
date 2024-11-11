@@ -1224,6 +1224,34 @@
         }
       }
     },
+    "All files in the folder will be copied to this device." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Dateien im Ordner werden auf dieses Gerät kopiert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos los archivos en la carpeta se copiarán a este dispositivo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutti i file nella cartella verranno copiati su questo dispositivo."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle bestanden in de map worden naar dit apparaat gekopieerd."
+          }
+        }
+      }
+    },
     "Allow Synctrain to access photos" : {
       "localizations" : {
         "de" : {
@@ -5952,6 +5980,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Één verbinding is genoeg"
+          }
+        }
+      }
+    },
+    "Only files that you select will be copied to this device. You can still access all files in the folder on demand when connected to other devices that have a copy of the file." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur Dateien, die Sie auswählen, werden auf dieses Gerät kopiert. Sie können jedoch weiterhin alle Dateien im Ordner auf Abruf zugreifen, wenn Sie mit anderen Geräten verbunden sind, die eine Kopie der Datei haben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo se copiarán a este dispositivo los archivos que selecciones. Aún puedes acceder a todos los archivos en la carpeta bajo demanda cuando estés conectado a otros dispositivos que tengan una copia del archivo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo i file che selezioni verranno copiati su questo dispositivo. Puoi comunque accedere a tutti i file nella cartella su richiesta quando sei connesso ad altri dispositivi che hanno una copia del file."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alleen bestanden die je selecteert, worden naar dit apparaat gekopieerd. Je kunt alle andere bestanden in de map op aanvraag ophalen wanneer je verbonden bent met andere apparaten die een kopie van het bestand hebben."
           }
         }
       }
