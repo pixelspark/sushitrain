@@ -5,7 +5,7 @@
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 import { readFile, writeFile } from "node:fs/promises";
 
-const LOCALES = ["nl", "de", "it", "es"];
+const LOCALES = ["nl", "de", "it", "es", "uk"];
 const OPENAI_KEY = process.env.OPENAI_KEY;
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 const OPENAI_MODEL = "gpt-4o-2024-08-06";
