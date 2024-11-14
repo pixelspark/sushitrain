@@ -552,6 +552,7 @@ struct FileView: View {
                             FileViewerView(appState: appState, file: file, isShown: $showFullScreenViewer, videoOverlay: {
                                // Empty on macOS, we already have a toolbar
                             })
+                            .presentationSizing(.fitted)
                             .frame(minWidth: 640, minHeight: 480)
                             .navigationTitle(file.fileName())
                             .toolbar {
@@ -571,6 +572,7 @@ struct FileView: View {
                         FileViewerSheetView(appState: appState, file: file, isShown: $showSheetViewer, videoOverlay: {
                             // Empty on macOS, we already have a toolbar
                         })
+                        .presentationSizing(.fitted)
                         .frame(minWidth: 640, minHeight: 480)
                         .navigationTitle(file.fileName())
                         .toolbar {
