@@ -24,7 +24,6 @@
 		65AE12012C39EE0F00E721D4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 65AE12002C39EE0F00E721D4 /* Assets.xcassets */; };
 		65AE12042C39EE0F00E721D4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 65AE12032C39EE0F00E721D4 /* Preview Assets.xcassets */; };
 		65AE123C2C39F34B00E721D4 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 65AE123B2C39F34B00E721D4 /* PrivacyInfo.xcprivacy */; };
-		65AE125B2C3AB03E00E721D4 /* SushitrainCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65AE125A2C3AB03E00E721D4 /* SushitrainCore.xcframework */; };
 		65AE125F2C3AC6E100E721D4 /* FolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE125E2C3AC6E100E721D4 /* FolderView.swift */; };
 		65AE12632C3AF50900E721D4 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE12622C3AF50900E721D4 /* Utils.swift */; };
 		65AE12672C3B04A100E721D4 /* AddDeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE12662C3B04A100E721D4 /* AddDeviceView.swift */; };
@@ -120,7 +119,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				65F15BFD2CA03DCE00E13DDD /* SushitrainCore.xcframework in Frameworks */,
-				65AE125B2C3AB03E00E721D4 /* SushitrainCore.xcframework in Frameworks */,
 				658A29F02CA821950061D1D5 /* AVKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -254,7 +252,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1540;
-				LastUpgradeCheck = 1600;
+				LastUpgradeCheck = 1610;
 				TargetAttributes = {
 					65AE11F82C39EE0E00E721D4 = {
 						CreatedOnToolsVersion = 15.4;
@@ -355,6 +353,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -419,6 +418,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
