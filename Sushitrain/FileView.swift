@@ -172,12 +172,6 @@ fileprivate struct FileViewerView<Content: View>: View {
                                 }
                             Spacer()
                         
-                        
-                        if let sp = appState.streamingProgress, sp.bytesTotal > 0 && sp.bytesSent < sp.bytesTotal {
-                            ProgressView(value: Float(sp.bytesSent), total: Float(sp.bytesTotal)).foregroundColor(.gray).progressViewStyle(.linear).frame(maxWidth: 64)
-                            Spacer()
-                        }
-                        
                         self.videoOverlay()
                             .foregroundStyle(.white)
                             .tint(.white)
