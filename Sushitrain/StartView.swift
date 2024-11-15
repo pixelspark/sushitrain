@@ -280,7 +280,11 @@ struct StartView: View {
             }
             
             // Getting started
-            if self.appState.peers().count == 1 {
+            let peers = self.appState.peers()
+            let peerCount = peers.count
+            let enabledPeerCount = peers.count { !$0.isPaused() && !$0.isSelf() }
+            
+            if peerCount == 1 {
                 Section("Getting started") {
                     VStack(alignment: .leading, spacing: 5) {
                         Label("Add your first device", systemImage: "externaldrive.badge.plus").bold()
@@ -290,13 +294,30 @@ struct StartView: View {
                     }
                 }
             }
+            else if peerCount > 1 && enabledPeerCount == 0 {
+                Section("Devices that need your attention") {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Label("All devices are paused", systemImage: "exclamationmark.triangle.fill")
+                            .bold()
+                            .foregroundStyle(.orange)
+                        Text("Synchronization is disabled for all associated devices. This may occur after updating or restarting the app. To restart synchronization, re-enable synchronization on the 'devices' page, or tap here to enable all devices.")
+                            .foregroundStyle(.orange)
+                    }
+                    .onTapGesture {
+                        peers.forEach { peer in
+                            try? peer.setPaused(false)
+                        }
+                    }
+                }
+            }
             
             if self.appState.folders().count == 0 {
                 Section("Getting started") {
                     VStack(alignment: .leading, spacing: 5) {
                         Label("Add your first folder", systemImage: "folder.badge.plus").bold()
                         Text("To synchronize files, add a folder. Folders that have the same folder ID on multiple devices will be synchronized with eachother.")
-                    }.onTapGesture {
+                    }
+                    .onTapGesture {
                         showAddFolderSheet = true
                     }
                     .sheet(isPresented: $showAddFolderSheet, content: {
@@ -312,7 +333,8 @@ struct StartView: View {
                             NavigationLink(destination: {
                                 ExtraFilesView(folder: folder, appState: appState)
                             }) {
-                                Label("Folder '\(folder.displayName)' has extra files", systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                                Label("Folder '\(folder.displayName)' has extra files", systemImage: "exclamationmark.triangle.fill")
+                                    .foregroundStyle(.orange)
                             }
                         }
                         // Folder may have been recently deleted; in that case it cannot be accessed anymore

@@ -1196,6 +1196,34 @@
         }
       }
     },
+    "All devices are paused" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Geräte sind angehalten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos los dispositivos están en pausa"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutti i dispositivi sono in pausa"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle apparaten zijn gepauzeerd"
+          }
+        }
+      }
+    },
     "All files" : {
       "localizations" : {
         "de" : {
@@ -2900,6 +2928,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apparaten"
+          }
+        }
+      }
+    },
+    "Devices that need your attention" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geräte, die Ihre Aufmerksamkeit benötigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dispositivos que necesitan tu atención"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dispositivi che richiedono la tua attenzione"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apparaten die uw aandacht nodig hebben"
           }
         }
       }
@@ -8949,6 +9005,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Synchronisatie is uitgeschakeld voor deze map. Schakel in via het scherm 'mapinstellingen' om bestanden te benaderen."
+          }
+        }
+      }
+    },
+    "Synchronization is disabled for all associated devices. This may occur after updating or restarting the app. To restart synchronization, re-enable synchronization on the 'devices' page, or tap here to enable all devices." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Synchronisierung ist für alle verbundenen Geräte deaktiviert. Dies kann nach dem Aktualisieren oder Neustarten der App auftreten. Um die Synchronisierung neu zu starten, aktivieren Sie die Synchronisierung auf der 'Geräte'-Seite erneut oder tippen Sie hier, um alle Geräte zu aktivieren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronización está desactivada para todos los dispositivos asociados. Esto puede ocurrir después de actualizar o reiniciar la aplicación. Para reiniciar la sincronización, vuelva a habilitar la sincronización en la página de 'dispositivos', o pulse aquí para habilitar todos los dispositivos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronizzazione è disattivata per tutti i dispositivi associati. Questo può accadere dopo l'aggiornamento o il riavvio dell'app. Per riavviare la sincronizzazione, riattivare la sincronizzazione nella pagina 'dispositivi' o tocca qui per abilitare tutti i dispositivi."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisatie is uitgeschakeld voor alle gekoppelde apparaten. Dit kan optreden na het updaten of opnieuw opstarten van de app. Om synchronisatie opnieuw te starten, schakelt u synchronisatie in op de 'apparaten'-pagina, of tik hier om alle apparaten in te schakelen."
           }
         }
       }
