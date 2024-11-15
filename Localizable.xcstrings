@@ -1980,8 +1980,33 @@
         }
       }
     },
-    "Cannot find selected folder with id '%@'" : {
-
+    "Cannot find selected folder with ID '%@'" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgewählter Ordner mit ID \"%@\" nicht gefunden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede encontrar la carpeta seleccionada con ID \"%@\""
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile trovare la cartella selezionata con ID \"%@\""
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kan de geselecteerde map met ID '%@' niet vinden"
+          }
+        }
+      }
     },
     "Checking availability on other devices..." : {
       "localizations" : {
@@ -2488,7 +2513,32 @@
       }
     },
     "Could not find selected album" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgewähltes Album nicht gefunden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo encontrar el álbum seleccionado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile trovare l'album selezionato"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kan geselecteerd album niet vinden"
+          }
+        }
+      }
     },
     "Could not set encryption key" : {
       "localizations" : {
@@ -6299,6 +6349,7 @@
       }
     },
     "Photos cannot be removed while the app is in the background - a permission screen will be shown." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -6378,6 +6429,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fotosynchronisatie"
+          }
+        }
+      }
+    },
+    "Photos will only be removed when photo synchronization is started manually from inside the app, because a permission screen will be shown before the app is able to remove photos." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotos werden nur entfernt, wenn die Fotosynchronisation manuell aus der App gestartet wird, da ein Berechtigungsbildschirm angezeigt wird, bevor die App Fotos entfernen kann."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las fotos solo se eliminarán cuando la sincronización de fotos se inicie manualmente desde dentro de la aplicación, porque se mostrará una pantalla de permisos antes de que la aplicación pueda eliminar fotos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le foto verranno rimosse solo quando la sincronizzazione delle foto verrà avviata manualmente dall'interno dell'app, poiché verrà mostrata una schermata di autorizzazione prima che l'app possa rimuovere le foto."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto's worden alleen verwijderd wanneer de fotosynchronisatie handmatig vanuit de app wordt gestart, omdat er een toestemmingsscherm wordt getoond voordat de app foto's kan verwijderen."
           }
         }
       }
@@ -7951,7 +8030,32 @@
       }
     },
     "Selected folder does not exist" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgewählter Ordner existiert nicht"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La carpeta seleccionada no existe"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cartella selezionata non esiste"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geselecteerde map bestaat niet"
+          }
+        }
+      }
     },
     "Selecting files to be synchronized" : {
       "localizations" : {

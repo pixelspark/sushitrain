@@ -133,7 +133,7 @@ class PhotoSynchronisation: ObservableObject {
     }
     
     @MainActor
-    func synchronize(_ appState: AppState, fullExport: Bool) {
+    func synchronize(_ appState: AppState, fullExport: Bool, isInBackground: Bool) {
         if !self.isReady {
             return
         }
@@ -171,7 +171,7 @@ class PhotoSynchronisation: ObservableObject {
             
             guard let folder = await appState.client.folder(withID: selectedFolderID) else {
                 DispatchQueue.main.async {
-                    self.progress = .finished(error: String(localized: "Cannot find selected folder with id '\(selectedFolderID)'"))
+                    self.progress = .finished(error: String(localized: "Cannot find selected folder with ID '\(selectedFolderID)'"))
                 }
                 return
             }
@@ -480,7 +480,7 @@ class PhotoSynchronisation: ObservableObject {
             }
             
             // Purge
-            if purgeEnabled && !originalsToPurge.isEmpty {
+            if !isInBackground && purgeEnabled && !originalsToPurge.isEmpty {
                 Log.info("Purge \(originalsToPurge.count) originals")
                 DispatchQueue.main.async {
                     self.progress = .purging

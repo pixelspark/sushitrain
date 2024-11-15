@@ -42,7 +42,7 @@ struct PhotoSyncButton: View {
         }
         else {
             Button("Copy new photos", systemImage: "photo.badge.arrow.down.fill") {
-                photoSync.synchronize(self.appState, fullExport: false)
+                photoSync.synchronize(self.appState, fullExport: false, isInBackground: false)
             }
             #if os(macOS)
                 .buttonStyle(.link)
@@ -73,11 +73,11 @@ struct PhotoSettingsView: View {
                     .pickerStyle(.menu).disabled(photoSync.isSynchronizing)
                 } else if authorizationStatus == .denied || authorizationStatus == .restricted {
                     Text("Synctrain cannot access your photo library right now")
-#if os(iOS)
-                    Button("Review permissions in the Settings app") {
-                        openAppSettings()
-                    }
-#endif
+                    #if os(iOS)
+                        Button("Review permissions in the Settings app") {
+                            openAppSettings()
+                        }
+                    #endif
                 } else {
                     Text("Synctrain cannot access your photo library right now")
                     Button("Allow Synctrain to access photos") {
@@ -107,11 +107,11 @@ struct PhotoSettingsView: View {
                 }
             }
             
-#if os(iOS)
-            Section {
-                Toggle("Copy photos periodically in the background", isOn: photoSync.$enableBackgroundCopy).disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
-            }
-#endif
+            #if os(iOS)
+                Section {
+                    Toggle("Copy photos periodically in the background", isOn: photoSync.$enableBackgroundCopy).disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
+                }
+            #endif
             
             Section("Save the following media types") {
                 Toggle("Photos", isOn: Binding(get: { photoSync.categories.contains(.photo) }, set: { s in
@@ -150,9 +150,11 @@ struct PhotoSettingsView: View {
                     Stepper(photoSync.purgeAfterDays <= 0 ? "Immediately" : "After \(photoSync.purgeAfterDays) days", value: photoSync.$purgeAfterDays, in: 0...30)
                 }
             } footer: {
-                if photoSync.purgeEnabled && photoSync.enableBackgroundCopy {
-                    Text("Photos cannot be removed while the app is in the background - a permission screen will be shown.")
-                }
+                #if os(iOS)
+                    if photoSync.purgeEnabled && photoSync.enableBackgroundCopy {
+                        Text("Photos will only be removed when photo synchronization is started manually from inside the app, because a permission screen will be shown before the app is able to remove photos.")
+                    }
+                #endif
             }.disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
             
             Section {
@@ -163,7 +165,7 @@ struct PhotoSettingsView: View {
             
             Section {
                 Button("Re-copy all photos", systemImage: "photo.badge.arrow.down.fill") {
-                    photoSync.synchronize(self.appState, fullExport: true)
+                    photoSync.synchronize(self.appState, fullExport: true, isInBackground: false)
                 }
                 .disabled(photoSync.isSynchronizing || !photoSync.isReady)
                 #if os(macOS)
