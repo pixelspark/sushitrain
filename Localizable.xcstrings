@@ -6404,35 +6404,6 @@
         }
       }
     },
-    "Photos cannot be removed while the app is in the background - a permission screen will be shown." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fotos können nicht gelöscht werden, während die App im Hintergrund läuft - ein Berechtigungsbildschirm wird angezeigt."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Las fotos no se pueden eliminar mientras la app está en segundo plano; se mostrará una pantalla de permisos."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le foto non possono essere rimosse mentre l'app è in background - verrà visualizzata una schermata di autorizzazione."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Foto's kunnen niet worden verwijderd terwijl de app op de achtergrond is - een toestemmingsscherm wordt weergegeven."
-          }
-        }
-      }
-    },
     "Photos from the selected album will be saved in the selected folder, in sub folders by creation date. If a photo with the same file name already exists in the folder, or has been deleted from the folder before, it will not be saved again." : {
       "localizations" : {
         "de" : {
