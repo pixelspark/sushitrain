@@ -225,7 +225,6 @@ struct StartView: View {
     @ObservedObject var appState: AppState
     @Binding var route: Route?
     @State private var qrCodeShown = false
-    @State private var foldersWithExtraFiles: [String] = []
     @State private var showWaitScreen: Bool = false
     @State private var showAddresses = false
     @State private var showAddFolderSheet = false
@@ -326,9 +325,9 @@ struct StartView: View {
                 }
             }
             
-            if !foldersWithExtraFiles.isEmpty {
+            if !appState.foldersWithExtraFiles.isEmpty {
                 Section("Folders that need your attention") {
-                    ForEach(foldersWithExtraFiles, id: \.self) { folderID in
+                    ForEach(appState.foldersWithExtraFiles, id: \.self) { folderID in
                         if let folder = appState.client.folder(withID: folderID) {
                             NavigationLink(destination: {
                                 ExtraFilesView(folder: folder, appState: appState)
@@ -399,22 +398,7 @@ struct StartView: View {
         }
         #endif
         .task {
-            // List folders that have extra files
-            self.foldersWithExtraFiles = []
-            self.foldersWithExtraFiles = await (Task.detached {
-                var myFoldersWithExtraFiles: [String] = []
-                let folders = await appState.folders()
-                for folder in folders {
-                    if folder.isIdle {
-                        var hasExtra: ObjCBool = false
-                        let _ = try? folder.hasExtraneousFiles(&hasExtra)
-                        if hasExtra.boolValue {
-                            myFoldersWithExtraFiles.append(folder.folderID)
-                        }
-                    }
-                }
-                return myFoldersWithExtraFiles
-            }).value
+            await self.appState.updateBadge() // Updates extraneous files list
         }
     }
 }

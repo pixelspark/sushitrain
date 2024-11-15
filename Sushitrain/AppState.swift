@@ -6,6 +6,7 @@
 import SwiftUI
 import SushitrainCore
 import Combine
+import UserNotifications
 
 struct StreamingProgress: Hashable, Equatable {
     var folder: String
@@ -39,6 +40,7 @@ enum FolderMetric: String {
     @Published var streamingProgress: StreamingProgress? = nil
     @Published var lastChanges: [SushitrainChange] = []
     @Published var isLogging: Bool = false
+    @Published var foldersWithExtraFiles: [String] = []
     
     @AppStorage("backgroundSyncEnabled") var longBackgroundSyncEnabled: Bool = true
     @AppStorage("shortBackgroundSyncEnabled") var shortBackgroundSyncEnabled: Bool = false
@@ -129,6 +131,27 @@ enum FolderMetric: String {
         }
     }
     
+    private func updateExtraneousFiles() async {
+        // List folders that have extra files
+        let folders = self.folders()
+        self.foldersWithExtraFiles = await (Task.detached {
+            var myFoldersWithExtraFiles: [String] = []
+            for folder in folders {
+                if Task.isCancelled {
+                    break
+                }
+                if folder.isIdle {
+                    var hasExtra: ObjCBool = false
+                    let _ = try? folder.hasExtraneousFiles(&hasExtra)
+                    if hasExtra.boolValue {
+                        myFoldersWithExtraFiles.append(folder.folderID)
+                    }
+                }
+            }
+            return myFoldersWithExtraFiles
+        }).value
+    }
+    
     var isFinished: Bool {
         return !self.client.isDownloading() && !self.client.isUploading() && !self.photoSync.isSynchronizing
     }
@@ -174,25 +197,19 @@ enum FolderMetric: String {
         return peers
     }
     
-    func updateBadge() {
+    func updateBadge() async {
+        await self.updateExtraneousFiles()
+        let numExtra = self.foldersWithExtraFiles.count
         #if os(iOS)
-            var numExtra = 0
-            for folder in self.folders() {
-                if folder.isIdle {
-                    var hasExtra: ObjCBool = false
-                    let _ = try? folder.hasExtraneousFiles(&hasExtra)
-                    if hasExtra.boolValue {
-                        numExtra += 1
-                    }
-                }
-            }
-            let numExtraFinal = numExtra
-            
             DispatchQueue.main.async {
-                UNUserNotificationCenter.current().setBadgeCount(numExtraFinal)
+                UNUserNotificationCenter.current().setBadgeCount(numExtra)
             }
+        #elseif os(macOS)
+            Log.info("Set dock tile badgeLabel \(numExtra)")
+            NSApplication.shared.dockTile.showsApplicationBadge = numExtra > 0
+            NSApplication.shared.dockTile.badgeLabel = numExtra > 0 ? String(numExtra) : ""
+            NSApplication.shared.dockTile.display()
         #endif
-        //! TODO: set Dock badge count on macOS
     }
     
     private func rebindServer() {
@@ -250,11 +267,15 @@ enum FolderMetric: String {
                 try? self.client.setReconnectIntervalS(60)
                 self.client.ignoreEvents = true
             #endif
-            self.updateBadge()
+            Task {
+                await self.updateBadge()
+            }
             break
 
         case .inactive:
-            self.updateBadge()
+            Task {
+                await self.updateBadge()
+            }
             #if os(iOS)
                 self.client.ignoreEvents = true
             #endif
@@ -302,17 +323,16 @@ enum FolderMetric: String {
     }
     
     static func requestNotificationPermissionIfNecessary() {
-        #if os(iOS)
-            UNUserNotificationCenter.current().getNotificationSettings { settings in
-                if settings.authorizationStatus == .notDetermined {
-                    let options: UNAuthorizationOptions = [.alert, .badge, .provisional]
-                    UNUserNotificationCenter.current().requestAuthorization(options: options) {
-                        (status, error) in
-                        Log.info("Notifications requested: \(status) \(error?.localizedDescription ?? "")")
-                    }
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            Log.info("Notification auth status: \(settings.authorizationStatus)")
+            if settings.authorizationStatus == .notDetermined {
+                let options: UNAuthorizationOptions = [.alert, .badge, .provisional]
+                UNUserNotificationCenter.current().requestAuthorization(options: options) {
+                    (status, error) in
+                    Log.info("Notifications requested: \(status) \(error?.localizedDescription ?? "")")
                 }
             }
-        #endif
+        }
     }
 }
 

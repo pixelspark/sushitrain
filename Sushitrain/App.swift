@@ -80,7 +80,9 @@ struct SushitrainApp: App {
                 DispatchQueue.main.async {
                     appState.applySettings()
                     appState.update()
-                    appState.updateBadge()
+                    Task {
+                        await appState.updateBadge()
+                    }
                     appState.protectFiles()
                 }
             }
@@ -225,7 +227,9 @@ extension SushitrainAppDelegate: SushitrainClientDelegateProtocol {
         if event == "LocalIndexUpdated" || event == "LocalChangeDetected" {
             // Check for extraneous files and update app badge accordingly
             DispatchQueue.main.async {
-                appState.updateBadge()
+                Task {
+                    await appState.updateBadge()
+                }
             }
         }
     }
