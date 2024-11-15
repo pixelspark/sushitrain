@@ -156,6 +156,8 @@ class PhotoSynchronisation: ObservableObject {
 
         // Start the actual synchronization task
         self.syncTask = Task.detached(priority: .background) {
+            var cancellingError: Error? = nil
+            
             DispatchQueue.main.async {
                 self.progress = .starting
             }
@@ -168,10 +170,16 @@ class PhotoSynchronisation: ObservableObject {
             }
             
             guard let folder = await appState.client.folder(withID: selectedFolderID) else {
+                DispatchQueue.main.async {
+                    self.progress = .finished(error: String(localized: "Cannot find selected folder with id '\(selectedFolderID)'"))
+                }
                 return
             }
             
             if !folder.exists() {
+                DispatchQueue.main.async {
+                    self.progress = .finished(error: String(localized: "Selected folder does not exist"))
+                }
                 return
             }
             
@@ -190,6 +198,7 @@ class PhotoSynchronisation: ObservableObject {
                 Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining))")
             #endif
             
+            // Get local path for destination folder
             var err: NSError? = nil
             let folderPath = folder.localNativePath(&err)
             if let err = err {
@@ -198,11 +207,12 @@ class PhotoSynchronisation: ObservableObject {
                 }
                 return
             }
+            
             let folderURL = URL(fileURLWithPath: folderPath)
             let fetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [selectedAlbumID], options: nil)
             guard let album = fetchResult.firstObject else {
                 DispatchQueue.main.async {
-                    self.progress = .finished(error: "Could not find selected album")
+                    self.progress = .finished(error: String(localized: "Could not find selected album"))
                 }
                 return
             }
@@ -227,91 +237,112 @@ class PhotoSynchronisation: ObservableObject {
                     stop.pointee = true
                     return
                 }
-                Log.info("Asset: \(asset.originalFilename) \(asset.localIdentifier)")
                 
-                DispatchQueue.main.async {
-                    self.progress = .exportingPhotos(index: index, total: count, current: asset.originalFilename)
-                }
-                
-                // Create containing directory
-                let dirInFolder = folderURL.appending(path: asset.directoryPathInFolder, directoryHint: .isDirectory)
-                try! FileManager.default.createDirectory(at: dirInFolder, withIntermediateDirectories: true)
-                
-                let inFolderPath = asset.pathInFolder;
-                
-                // Check if this photo was saved or deleted before
-                if purgeEnabled || !fullExport {
-                    if let entry = try? folder.getFileInformation(inFolderPath) {
-                        // If purging is enabled, check if we should remove the photo from the source
-                        if purgeEnabled {
-                            if let mTime = entry.modifiedAt(), mTime.date() < purgeCutoffDate {
-                                let lastModifiedByShortDeviceID = entry.modifiedByShortDeviceID()
-                                if lastModifiedByShortDeviceID == myShortDeviceID {
-                                    // The photo is already saved and was last modified by this device; we can delete from source
-                                    Log.info("Purge entry: \(inFolderPath) \(mTime.date()) \(lastModifiedByShortDeviceID)")
-                                    originalsToPurge.append(asset)
+                do {
+                    Log.info("Asset: \(asset.originalFilename) \(asset.localIdentifier)")
+                    
+                    DispatchQueue.main.async {
+                        self.progress = .exportingPhotos(index: index, total: count, current: asset.originalFilename)
+                    }
+                    
+                    // Create containing directory
+                    let dirInFolder = folderURL.appending(path: asset.directoryPathInFolder, directoryHint: .isDirectory)
+                    try FileManager.default.createDirectory(at: dirInFolder, withIntermediateDirectories: true)
+                    
+                    
+                    let inFolderPath = asset.pathInFolder;
+                    
+                    // Check if this photo was saved or deleted before
+                    if purgeEnabled || !fullExport {
+                        if let entry = try? folder.getFileInformation(inFolderPath) {
+                            // If purging is enabled, check if we should remove the photo from the source
+                            if purgeEnabled {
+                                if let mTime = entry.modifiedAt(), mTime.date() < purgeCutoffDate {
+                                    let lastModifiedByShortDeviceID = entry.modifiedByShortDeviceID()
+                                    if lastModifiedByShortDeviceID == myShortDeviceID {
+                                        // The photo is already saved and was last modified by this device; we can delete from source
+                                        Log.info("Purge entry: \(inFolderPath) \(mTime.date()) \(lastModifiedByShortDeviceID)")
+                                        originalsToPurge.append(asset)
+                                    }
+                                    else {
+                                        // The photo already exists but it was not last modified by us; do not delete from source
+                                        
+                                    }
                                 }
                                 else {
-                                    // The photo already exists but it was not last modified by us; do not delete from source
-                                    
+                                    // Could not fetch modified date or modified too recently; do not delete from source
                                 }
                             }
-                            else {
-                                // Could not fetch modified date or modified too recently; do not delete from source
-                            }
-                        }
-                        
-                        // If the photo was saved then deleted, do not try to save again (unless we are in full export)
-                        if !fullExport {
-                            if entry.isDeleted() {
-                                Log.info("Entry at \(inFolderPath) was deleted, not saving again")
-                            }
-                            else {
-                                Log.info("Entry at \(inFolderPath) exists, not saving again")
-                            }
-                            return
-                        }
-                    }
-                }
-                
-                // Save asset if it doesn't exist already locally
-                let fileURL = folderURL.appending(path: inFolderPath, directoryHint: .notDirectory)
-                if !FileManager.default.fileExists(atPath: fileURL.path) || fullExport {
-                    // If a video: queue video export session
-                    if asset.mediaType == .video {
-                        if categories.contains(.video) {
-                            Log.info("Requesting video export session for \(asset.originalFilename)")
-                            videosToExport.append((asset, fileURL, inFolderPath))
-                        }
-                    }
-                    else {
-                        if categories.contains(.photo) {
-                            // Save image
-                            let options = PHImageRequestOptions()
-                            options.isSynchronous = true
-                            PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
-                                if let data = data {
-                                    try! data.write(to: fileURL)
-                                    assetsSavedSuccessfully.append(asset)
-                                    selectPaths.append(inFolderPath)
+                            
+                            // If the photo was saved then deleted, do not try to save again (unless we are in full export)
+                            if !fullExport {
+                                if entry.isDeleted() {
+                                    Log.info("Entry at \(inFolderPath) was deleted, not saving again")
                                 }
+                                else {
+                                    Log.info("Entry at \(inFolderPath) exists, not saving again")
+                                }
+                                return
                             }
                         }
                     }
-                }
-                
-                // If the image is a live photo, queue the live photo for saving as well
-                if asset.mediaType == .image && asset.mediaSubtypes.contains(.photoLive) && categories.contains(.livePhoto) {
-                    let liveInFolderPath = asset.livePhotoPathInFolder
-                    let liveDirectoryURL = folderURL.appending(path: asset.livePhotoDirectoryPathInFolder, directoryHint: .isDirectory)
-                    try! FileManager.default.createDirectory(at: liveDirectoryURL, withIntermediateDirectories: true)
-                    let liveFileURL = folderURL.appending(path: liveInFolderPath, directoryHint: .notDirectory)
-                    Log.info("Found live photo \(asset.originalFilename) \(liveInFolderPath)")
                     
-                    if !FileManager.default.fileExists(atPath: liveFileURL.path) {
-                        livePhotosToExport.append((asset, liveFileURL, liveInFolderPath))
+                    // Save asset if it doesn't exist already locally
+                    let fileURL = folderURL.appending(path: inFolderPath, directoryHint: .notDirectory)
+                    if !FileManager.default.fileExists(atPath: fileURL.path) || fullExport {
+                        // If a video: queue video export session
+                        if asset.mediaType == .video {
+                            if categories.contains(.video) {
+                                Log.info("Requesting video export session for \(asset.originalFilename)")
+                                videosToExport.append((asset, fileURL, inFolderPath))
+                            }
+                        }
+                        else {
+                            if categories.contains(.photo) {
+                                // Save image
+                                let options = PHImageRequestOptions()
+                                options.isSynchronous = true
+                                PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
+                                    if let data = data {
+                                        do {
+                                            try data.write(to: fileURL)
+                                            assetsSavedSuccessfully.append(asset)
+                                            selectPaths.append(inFolderPath)
+                                        }
+                                        catch {
+                                            cancellingError = error
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // If the image is a live photo, queue the live photo for saving as well
+                    if asset.mediaType == .image && asset.mediaSubtypes.contains(.photoLive) && categories.contains(.livePhoto) {
+                        let liveInFolderPath = asset.livePhotoPathInFolder
+                        let liveDirectoryURL = folderURL.appending(path: asset.livePhotoDirectoryPathInFolder, directoryHint: .isDirectory)
+                        try FileManager.default.createDirectory(at: liveDirectoryURL, withIntermediateDirectories: true)
+                        let liveFileURL = folderURL.appending(path: liveInFolderPath, directoryHint: .notDirectory)
+                        Log.info("Found live photo \(asset.originalFilename) \(liveInFolderPath)")
+                        
+                        if !FileManager.default.fileExists(atPath: liveFileURL.path) {
+                            livePhotosToExport.append((asset, liveFileURL, liveInFolderPath))
+                        }
                     }
                 }
+                catch {
+                    cancellingError = error
+                    stop.pointee = true
+                }
+            }
+            
+            // Report error
+            if let ce = cancellingError {
+                DispatchQueue.main.async {
+                    self.progress = .finished(error: ce.localizedDescription)
+                }
+                return
             }
             
             // Export videos
