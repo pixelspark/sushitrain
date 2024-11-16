@@ -57,6 +57,7 @@ enum FolderMetric: String {
     @AppStorage("lingeringEnabled") var lingeringEnabled: Bool = true
     @AppStorage("foldersViewMetric") var viewMetric: FolderMetric = .none
     @AppStorage("ignoreExtraneousDefaultFiles") var ignoreExtraneousDefaultFiles: Bool = true // Whether to ignore certain files by default when scanning for extraneous files (i.e. .DS_Store)
+    @AppStorage("previewVideos") var previewVideos: Bool = false
     
     static private var defaultIgnoredExtraneousFiles = [".DS_Store", "Thumbs.db", "desktop.ini", ".Trashes", ".Spotlight-V100"]
     

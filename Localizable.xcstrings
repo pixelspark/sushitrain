@@ -5986,16 +5986,16 @@
     },
     "No ignore patterns defined": {
       "localizations": {
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Geen negeerpatronen gedefinieerd"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Keine Ausschlussmuster definiert"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay patrones de exclusión definidos"
           }
         },
         "it": {
@@ -6004,10 +6004,10 @@
             "value": "Nessun modello di esclusione definito"
           }
         },
-        "es": {
+        "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "No hay patrones de exclusión definidos"
+            "value": "Geen negeerpatronen gedefinieerd"
           }
         }
       }
@@ -9032,6 +9032,34 @@
           "stringUnit": {
             "state": "translated",
             "value": "Toon QR-code"
+          }
+        }
+      }
+    },
+    "Show video previews": {
+      "localizations": {
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toon videovoorbeelden"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Videovorschauen anzeigen"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra anteprime video"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar vistas previas de video"
           }
         }
       }

@@ -7,6 +7,7 @@ import Foundation
 import SwiftUI
 import SushitrainCore
 import QuickLookThumbnailing
+import AVKit
 
 #if os(macOS)
     extension NSImage {
@@ -44,8 +45,35 @@ fileprivate func fetchQuicklookThumbnail(_ url: URL, size: CGSize) async -> Asyn
     }
 }
 
-fileprivate func fetchThumbnail(_ url: URL, maxDimensionsInPixels: Int) async -> AsyncImagePhase {
-    
+fileprivate func fetchVideoThumbnail(url: URL, maxDimensionsInPixels: Int) async -> AsyncImagePhase {
+    return await (Task {
+        let asset = AVURLAsset(url: url)
+        let avAssetImageGenerator = AVAssetImageGenerator(asset: asset)
+        avAssetImageGenerator.appliesPreferredTrackTransform = true
+        let thumbnailTime = CMTimeMake(value: 2, timescale: 1)
+        do {
+            let (cgThumbImage, _) = try await avAssetImageGenerator.image(at: thumbnailTime)
+            let thumbnailSize = CGSizeMake(CGFloat(cgThumbImage.width), CGFloat(cgThumbImage.height))
+                .fitScale(maxDimension: CGFloat(maxDimensionsInPixels))
+            Log.info("TS \(thumbnailSize)")
+            
+            if let downsampledImage = cgThumbImage.resize(size: thumbnailSize) {
+                #if os(iOS)
+                    return AsyncImagePhase.success(Image(uiImage: UIImage(cgImage: downsampledImage)))
+                #else
+                    return AsyncImagePhase.success(Image(nsImage: NSImage(cgImage: downsampledImage, size: .zero)))
+                #endif
+            }
+            else {
+                return AsyncImagePhase.empty
+            }
+        } catch {
+            return AsyncImagePhase.failure(error)
+        }
+    }.value)
+}
+
+fileprivate func fetchImageThumbnail(_ url: URL, maxDimensionsInPixels: Int) async -> AsyncImagePhase {
     // For other files, fetch from URL
     let imageSourceOption = [kCGImageSourceShouldCache: false] as CFDictionary
     guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, imageSourceOption) else {
@@ -75,20 +103,28 @@ fileprivate func fetchThumbnail(_ url: URL, maxDimensionsInPixels: Int) async ->
 
 }
 
+enum ThumbnailStrategy {
+    case image
+    case video
+}
+
 struct ThumbnailImage<Content>: View where Content: View {
     private let cacheKey: String
     private let url: URL
     private let content: (AsyncImagePhase) -> Content
+    private let thumbnailStrategy: ThumbnailStrategy
     private let maxDimensionsInPixels = 255
     @State private var phase: AsyncImagePhase = .empty
     
     init(
         cacheKey: String,
         url: URL,
+        strategy: ThumbnailStrategy,
         @ViewBuilder content: @escaping (AsyncImagePhase) -> Content
     ) {
         self.cacheKey = cacheKey
         self.url = url
+        self.thumbnailStrategy = strategy
         self.content = content
     }
     
@@ -120,7 +156,12 @@ struct ThumbnailImage<Content>: View where Content: View {
         
         let ph = await Task.detached {
             // For local files, ask QuickLook (and bypass our cache)
-            return await fetchThumbnail(url, maxDimensionsInPixels: maxDimensionsInPixels)
+            switch self.thumbnailStrategy {
+            case .image:
+                return await fetchImageThumbnail(url, maxDimensionsInPixels: maxDimensionsInPixels)
+            case .video:
+                return await fetchVideoThumbnail(url: url, maxDimensionsInPixels: maxDimensionsInPixels)
+            }
         }.value
         if case .success(let image) = ph {
             ImageCache[cacheKey] = image

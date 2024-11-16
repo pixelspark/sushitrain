@@ -269,7 +269,7 @@ extension SushitrainEntry {
     }
     
     var canThumbnail: Bool {
-        return (self.isImage && self.mimeType() != "image/svg+xml") || (!self.isDirectory() && self.isLocallyPresent())
+        return self.isVideo || (self.isImage && self.mimeType() != "image/svg+xml") || (!self.isDirectory() && self.isLocallyPresent())
     }
     
     var localNativeFileURL: URL? {
@@ -293,6 +293,10 @@ extension SushitrainEntry {
         }.value
         
         return availability.isEmpty
+    }
+    
+    var thumbnailStrategy: ThumbnailStrategy {
+        return self.isVideo ? .video : .image
     }
 }
 
@@ -650,5 +654,36 @@ extension String {
             return String(self.dropLast())
         }
         return self
+    }
+}
+
+extension CGImage {
+    func resize(size: CGSize) -> CGImage? {
+        let width = Int(size.width)
+        let height = Int(size.height)
+
+        let bytesPerPixel = self.bitsPerPixel / self.bitsPerComponent
+
+        guard let colorSpace = self.colorSpace else {
+            return nil
+        }
+        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: self.bitsPerComponent, bytesPerRow: 0, space: colorSpace, bitmapInfo: self.alphaInfo.rawValue) else {
+            return nil
+        }
+
+        context.interpolationQuality = .high
+        context.draw(self, in: CGRect(x: 0, y: 0, width: width, height: height))
+        return context.makeImage()
+    }
+}
+
+extension CGSize {
+    func fitScale(maxDimension: CGFloat) -> CGSize {
+        if self.width > self.height {
+            return CGSizeMake(maxDimension, floor(self.height / self.width * maxDimension))
+        }
+        else {
+            return CGSizeMake(floor(self.width / self.height * maxDimension), maxDimension)
+        }
     }
 }

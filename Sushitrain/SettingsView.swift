@@ -516,6 +516,10 @@ fileprivate struct BandwidthSettingsView: View {
                     Stepper("\(appState.streamingLimitMbitsPerSec) Mbit/s", value: appState.$streamingLimitMbitsPerSec, in: 1...100)
                 }
             }
+            
+            Section {
+                Toggle("Show video previews", isOn: appState.$previewVideos)
+            }
         }
         .navigationTitle("Bandwidth limitations")
         #if os(macOS)
