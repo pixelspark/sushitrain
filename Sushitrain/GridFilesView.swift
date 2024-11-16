@@ -20,17 +20,17 @@ fileprivate struct GridItemView: View {
             
             ThumbnailView(file: file, appState: appState)
                 .frame(width: size, height: size)
-                .contextMenu(menuItems: {
-                    Text(file.fileName())
-                }, preview: {
-                    NavigationStack { // to force the image to take up all available space
-                        VStack {
-                            ThumbnailView(file: file, appState: appState)
-                                .frame(minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
-                        }
-                    }
-                })
-        }
+        }.contextMenu(menuItems: {
+            Text(file.fileName())
+            ItemSelectToggleView(file: file)
+        }, preview: {
+            NavigationStack { // to force the image to take up all available space
+                VStack {
+                    ThumbnailView(file: file, appState: appState)
+                        .frame(minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
+                }
+            }
+        })
     }
 }
 

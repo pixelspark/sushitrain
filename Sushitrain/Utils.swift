@@ -282,6 +282,18 @@ extension SushitrainEntry {
         }
         return nil
     }
+    
+    func isLocalOnlyCopy() async throws -> Bool {
+        if !self.isLocallyPresent() {
+            return false
+        }
+        
+        let availability = try await Task.detached { [self] in
+            return (try self.peersWithFullCopy()).asArray()
+        }.value
+        
+        return availability.isEmpty
+    }
 }
 
 #if os(iOS)

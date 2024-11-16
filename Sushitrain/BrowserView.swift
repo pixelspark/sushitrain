@@ -104,6 +104,7 @@ fileprivate struct EntryView: View {
                 NavigationLink(destination: FileView(file: entry, appState: self.appState, siblings: siblings)) {
                     Label(entry.fileName(), systemImage: entry.systemImage)
                 }
+                ItemSelectToggleView(file: entry)
             } preview: {
                 NavigationStack { // to force the image to take up all available space
                     VStack {
@@ -573,5 +574,46 @@ extension SushitrainFolder {
         hasher.combine(state)
         hasher.combine(self.isPaused())
         return hasher.finalize()
+    }
+}
+
+struct ItemSelectToggleView: View {
+    let file: SushitrainEntry
+    @State private var disabled = true
+    
+    init(file: SushitrainEntry) {
+        self.file = file
+    }
+    
+    var body: some View {
+        Toggle("Synchronize with this device", systemImage: "pin", isOn: Binding(get: {
+            file.isExplicitlySelected() || file.isSelected()
+        }, set: { s in
+            if !self.disabled {
+                try? file.setExplicitlySelected(s)
+            }
+        }))
+        .disabled(disabled)
+        .onAppear {
+            Task(priority: .userInitiated) {
+                if let folder = file.folder {
+                    var d = !folder.isSelective() || file.isSymlink() || !folder.isIdleOrSyncing;
+                    
+                    if !d {
+                        let isExplicitlySelected = file.isExplicitlySelected()
+                        d = d || (file.isSelected() && !isExplicitlySelected)
+                        
+                        if !d && isExplicitlySelected {
+                            let isLocalOnlyCopy = try await file.isLocalOnlyCopy()
+                            d = d || isLocalOnlyCopy
+                        }
+                    }
+                    disabled = d
+                }
+                else {
+                    disabled = true
+                }
+            }
+        }
     }
 }
