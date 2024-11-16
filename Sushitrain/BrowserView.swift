@@ -204,7 +204,7 @@ fileprivate struct BrowserListView: View {
                             }
                         }
                         #if os(macOS)
-                        .listStyle(.inset(alternatesRowBackgrounds: true))
+                            .listStyle(.inset(alternatesRowBackgrounds: true))
                         #endif
                     }
                 }
@@ -446,6 +446,17 @@ struct BrowserView: View {
                     } label: {
                         Label("Folder settings...", systemImage: "folder.badge.gearshape")
                     }
+                    
+                    #if os(macOS)
+                        // On iOS this is in the folder settings screen
+                        if !folder.isSelective() {
+                            NavigationLink(destination: IgnoresView(appState: self.appState, folder: self.folder)
+                                .navigationTitle("Files to ignore")
+                            ) {
+                                Label("Files to ignore...", systemImage: "rectangle.dashed")
+                            }
+                        }
+                    #endif
                     
                 } label: {
                     Label("Folder settings", systemImage:  "folder.badge.gearshape")

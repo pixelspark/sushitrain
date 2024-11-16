@@ -17,6 +17,7 @@
 		652EA4152CBA60AA009EC5FE /* notices.html in Resources */ = {isa = PBXBuildFile; fileRef = 652EA4142CBA60AA009EC5FE /* notices.html */; };
 		654272982C7BC77000F2CEF8 /* FileQuickLookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654272972C7BC77000F2CEF8 /* FileQuickLookView.swift */; };
 		6575B3DF2C6012480057686E /* ChangesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6575B3DE2C6012480057686E /* ChangesView.swift */; };
+		6586863D2CE892130023B1DA /* IgnoresView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6586863C2CE892100023B1DA /* IgnoresView.swift */; };
 		658A29F02CA821950061D1D5 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 658A29EF2CA821950061D1D5 /* AVKit.framework */; };
 		65A3D2222CCEEEA600117501 /* ThumbnailImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A3D2212CCEEEA200117501 /* ThumbnailImage.swift */; };
 		65AE11FD2C39EE0E00E721D4 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE11FC2C39EE0E00E721D4 /* App.swift */; };
@@ -80,6 +81,7 @@
 		652EA4142CBA60AA009EC5FE /* notices.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = notices.html; path = SushitrainCore/notices.html; sourceTree = SOURCE_ROOT; };
 		654272972C7BC77000F2CEF8 /* FileQuickLookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileQuickLookView.swift; sourceTree = "<group>"; };
 		6575B3DE2C6012480057686E /* ChangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangesView.swift; sourceTree = "<group>"; };
+		6586863C2CE892100023B1DA /* IgnoresView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IgnoresView.swift; sourceTree = "<group>"; };
 		658A29EF2CA821950061D1D5 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		65A3D2212CCEEEA200117501 /* ThumbnailImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailImage.swift; sourceTree = "<group>"; };
 		65AE11F92C39EE0E00E721D4 /* Synctrain.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Synctrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -147,6 +149,7 @@
 		65AE11FB2C39EE0E00E721D4 /* Sushitrain */ = {
 			isa = PBXGroup;
 			children = (
+				6586863C2CE892100023B1DA /* IgnoresView.swift */,
 				65BBF8442C4BFB9300EC59C4 /* AboutView.swift */,
 				65AE12662C3B04A100E721D4 /* AddDeviceView.swift */,
 				65AE126E2C3B14CC00E721D4 /* AddFolderView.swift */,
@@ -309,6 +312,7 @@
 				65F825EC2CAF1E0900564F57 /* AddressesView.swift in Sources */,
 				65C9E14C2C3F341F00EDCE6C /* StartView.swift in Sources */,
 				65F15C012CA06B2300E13DDD /* UploadView.swift in Sources */,
+				6586863D2CE892130023B1DA /* IgnoresView.swift in Sources */,
 				65BBF8452C4BFB9300EC59C4 /* AboutView.swift in Sources */,
 				65C9E1502C419FCA00EDCE6C /* FileView.swift in Sources */,
 				65C9E1482C3F2FEF00EDCE6C /* DevicesView.swift in Sources */,

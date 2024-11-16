@@ -426,6 +426,19 @@ struct FolderView: View {
                 }
                 
                 Section {
+                    #if os(iOS)
+                        if !folder.isSelective() {
+                            NavigationLink(destination: IgnoresView(appState: self.appState, folder: self.folder)
+                                .navigationTitle("Files to ignore")
+                               #if os(iOS)
+                                    .navigationBarTitleDisplayMode(.inline)
+                               #endif
+                            ) {
+                                Label("Files to ignore", systemImage: "rectangle.dashed")
+                            }
+                        }
+                    #endif
+                    
                     Button("Re-scan folder", systemImage: "sparkle.magnifyingglass") {
                         do {
                             try folder.rescan()

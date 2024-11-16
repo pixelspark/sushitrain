@@ -647,12 +647,6 @@ func (fld *Folder) CleanSelection() error {
 			return err
 		}
 
-		selection := NewSelection(ignores.Lines())
-
-		if !selection.isSelectiveIgnore() {
-			return errors.New("folder is not a selective folder")
-		}
-
 		fc := fld.folderConfiguration()
 		if fc == nil {
 			return errors.New("folder does not exist")
@@ -736,6 +730,36 @@ func (fld *Folder) SetExplicitlySelectedJSON(js []byte) error {
 		return err
 	}
 	return fld.setExplicitlySelected(paths)
+}
+
+func (fld *Folder) IgnoreLines() (*ListOfStrings, error) {
+	// Load ignores from file
+	ignores, err := fld.loadIgnores()
+	if err != nil {
+		return nil, err
+	}
+	return List(ignores.Lines()), nil
+}
+
+func (fld *Folder) SetIgnoreLines(lines *ListOfStrings) error {
+	Logger.Infoln("Set ignore lines: ", len(lines.data))
+	fld.cachedIgnore.matcher = nil // Purge our cache
+
+	state, err := fld.State()
+	if err != nil {
+		return err
+	}
+	if state != "idle" && state != "syncing" {
+		return errors.New("cannot change ignore lines when not idle or syncing")
+	}
+
+	// Save new ignores (this triggers a reload of ignores and eventually a scan)
+	err = fld.client.app.Internals.SetIgnores(fld.FolderID, lines.data)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
