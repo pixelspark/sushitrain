@@ -18,7 +18,7 @@ fileprivate struct GridItemView: View {
                 .backgroundStyle(Color.primary)
                 .opacity(0.05)
             
-            ThumbnailView(file: file, appState: appState)
+            ThumbnailView(file: file, appState: appState, showFileName: true, showErrorMessages: false)
                 .frame(width: size, height: size)
         }.contextMenu(menuItems: {
             Text(file.fileName())
@@ -26,7 +26,7 @@ fileprivate struct GridItemView: View {
         }, preview: {
             NavigationStack { // to force the image to take up all available space
                 VStack {
-                    ThumbnailView(file: file, appState: appState)
+                    ThumbnailView(file: file, appState: appState, showFileName: false, showErrorMessages: false)
                         .frame(minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
                 }
             }

@@ -367,7 +367,7 @@ struct FileView: View {
                     // Image preview
                     if file.canThumbnail {
                         Section {
-                            ThumbnailView(file: file, appState: appState)
+                            ThumbnailView(file: file, appState: appState, showFileName: false, showErrorMessages: true)
                                 .padding(.all, 10)
                                 .cornerRadius(8.0)
                                 .onTapGesture {

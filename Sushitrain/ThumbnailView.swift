@@ -10,7 +10,8 @@ struct ThumbnailView: View {
     var file: SushitrainEntry
     @ObservedObject var appState: AppState
     @State var showPreview = false
-    var minimal: Bool = false
+    var showFileName: Bool
+    var showErrorMessages: Bool
     
     var body: some View {
         if file.canThumbnail {
@@ -27,11 +28,11 @@ struct ThumbnailView: View {
                     case .success(let image):
                         image.resizable().scaledToFill()
                     case .failure(_):
-                        if self.minimal {
-                            self.iconBody
+                        if self.showErrorMessages {
+                            Text("The file is currently not available for preview.")
                         }
                         else {
-                            Text("The file is currently not available for preview.")
+                            self.iconAndTextBody
                         }
                     @unknown default:
                         EmptyView()
@@ -40,10 +41,7 @@ struct ThumbnailView: View {
                 .frame(maxWidth: .infinity, maxHeight: 200)
             }
             else {
-                if self.minimal {
-                    self.iconBody
-                }
-                else {
+                if self.showErrorMessages {
                     Button("Show preview for large files") {
                         showPreview = true
                     }
@@ -51,19 +49,26 @@ struct ThumbnailView: View {
                         .buttonStyle(.link)
                     #endif
                 }
+                else {
+                    self.iconAndTextBody
+                }
             }
         }
         else {
-            VStack(alignment: .center, spacing: 6.0, content: {
-                self.iconBody
-                if !self.minimal {
-                    Text(file.fileName())
-                        .lineLimit(1)
-                        .padding(.horizontal, 4)
-                        .foregroundStyle(Color.primary)
-                        .multilineTextAlignment(.center)
-                }
-            })
+            self.iconAndTextBody
+        }
+    }
+    
+    private var iconAndTextBody: some View {
+        VStack(alignment: .center, spacing: 6.0) {
+            self.iconBody
+            if self.showFileName {
+                Text(file.fileName())
+                    .lineLimit(1)
+                    .padding(.horizontal, 4)
+                    .foregroundStyle(Color.primary)
+                    .multilineTextAlignment(.center)
+            }
         }
     }
     

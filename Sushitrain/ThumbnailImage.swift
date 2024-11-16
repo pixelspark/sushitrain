@@ -55,7 +55,6 @@ fileprivate func fetchVideoThumbnail(url: URL, maxDimensionsInPixels: Int) async
             let (cgThumbImage, _) = try await avAssetImageGenerator.image(at: thumbnailTime)
             let thumbnailSize = CGSizeMake(CGFloat(cgThumbImage.width), CGFloat(cgThumbImage.height))
                 .fitScale(maxDimension: CGFloat(maxDimensionsInPixels))
-            Log.info("TS \(thumbnailSize)")
             
             if let downsampledImage = cgThumbImage.resize(size: thumbnailSize) {
                 #if os(iOS)
