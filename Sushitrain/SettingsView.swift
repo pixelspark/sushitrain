@@ -259,6 +259,11 @@ struct AdvancedSettingsView: View {
                 Button("Clear thumbnail cache") {
                     ImageCache.clear()
                 }
+            } footer: {
+                let formatter = ByteCountFormatter()
+                if let bytes = try? ImageCache.diskCacheSizeBytes() {
+                    Text("When the cache is enabled, thumbnails will load quicker and use less data when viewed more than once. Currently the thumbnail cache is using \(formatter.string(fromByteCount: Int64(bytes))) of disk space.")
+                }
             }
             
             Section {

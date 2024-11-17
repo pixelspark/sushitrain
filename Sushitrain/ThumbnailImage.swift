@@ -209,6 +209,19 @@ class ImageCache {
         }
     }
     
+    static func diskCacheSizeBytes() throws -> UInt {
+        let files = try FileManager.default.subpathsOfDirectory(atPath: Self.cacheDirectory.path())
+        var totalSize: UInt = 0
+        for file in files {
+            let filePath = Self.cacheDirectory.appendingPathComponent(file)
+            let fileDictionary = try FileManager.default.attributesOfItem(atPath: filePath.path())
+            if let size = fileDictionary[FileAttributeKey.size] as? UInt {
+                totalSize += size
+            }
+        }
+        return totalSize
+    }
+    
     static subscript(cacheKey: String) -> Image? {
         get {
             // Attempt to retrieve from memory cache first

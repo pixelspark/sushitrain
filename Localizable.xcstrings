@@ -11696,6 +11696,34 @@
         }
       }
     },
+    "When the cache is enabled, thumbnails will load quicker and use less data when viewed more than once. Currently the thumbnail cache is using %@ of disk space." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn der Cache aktiviert ist, werden Miniaturansichten schneller geladen und verbrauchen weniger Daten, wenn sie mehrmals angesehen werden. Derzeit nutzt der Miniaturbild-Cache %@ des Speicherplatzes."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando la caché está habilitada, las miniaturas se cargarán más rápido y usarán menos datos cuando se visualicen más de una vez. Actualmente, la caché de miniaturas está utilizando %@ del espacio en disco."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando la cache è abilitata, le miniature si caricano più rapidamente e utilizzano meno dati quando vengono visualizzate più di una volta. Attualmente la cache delle miniature utilizza %@ dello spazio su disco."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer de cache is ingeschakeld, zullen miniaturen sneller laden en minder data gebruiken wanneer ze meer dan eens worden bekeken. Momenteel gebruikt de miniatuurcache %@ van de schijfruimte."
+          }
+        }
+      }
+    },
     "When this setting is enabled, the app will not attempt to connect to more devices after one connection has been established." : {
       "localizations" : {
         "de" : {
