@@ -4775,7 +4775,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Raster met voorbeeld"
+            "value" : "Raster met miniatuur"
           }
         }
       }
@@ -5671,7 +5671,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lijst met voorbeeld"
+            "value" : "Lijst met miniatuur"
           }
         }
       }
@@ -7043,7 +7043,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Voorbeelden"
+            "value" : "Miniaturen"
           }
         }
       }
@@ -9003,7 +9003,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Toon voorbeelden van afbeeldingen"
+            "value" : "Toon miniaturen van afbeeldingen"
           }
         }
       }
@@ -9115,7 +9115,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Toon voorbeeld voor grote bestanden"
+            "value" : "Toon miniaturen voor grote bestanden"
           }
         }
       }
@@ -9171,7 +9171,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Toon videovoorbeelden"
+            "value" : "Toon videominiaturen"
           }
         }
       }
@@ -10123,7 +10123,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Het bestand is momenteel niet beschikbaar voor voorbeeldweergave."
+            "value" : "Het bestand is momenteel niet beschikbaar voor miniatuurweergave."
           }
         }
       }
