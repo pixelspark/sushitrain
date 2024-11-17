@@ -189,7 +189,7 @@ fileprivate struct EntryView: View {
             }
         }
         else {
-            FileEntryLink(appState: appState, entry: entry, siblings: []) {
+            FileEntryLink(appState: appState, entry: entry, siblings: siblings) {
                 self.entryView(entry: entry)
             }
         }
