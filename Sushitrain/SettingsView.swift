@@ -169,6 +169,7 @@ struct ConfigurationSettingsView: View {
 
 struct AdvancedSettingsView: View {
     @ObservedObject var appState: AppState
+    @State private var diskCacheSizeBytes: UInt? = nil
     
     var body: some View {
         Form {
@@ -258,11 +259,15 @@ struct AdvancedSettingsView: View {
                 Toggle("Cache thumbnails on disk", isOn: appState.$cacheThumbnailsToDisk)
                 Button("Clear thumbnail cache") {
                     ImageCache.clear()
+                    self.diskCacheSizeBytes = nil
                 }
             } footer: {
                 let formatter = ByteCountFormatter()
-                if let bytes = try? ImageCache.diskCacheSizeBytes() {
-                    Text("When the cache is enabled, thumbnails will load quicker and use less data when viewed more than once. Currently the thumbnail cache is using \(formatter.string(fromByteCount: Int64(bytes))) of disk space.")
+                if let bytes = self.diskCacheSizeBytes {
+                    Text("When the cache is enabled, thumbnails will load quicker and use less data when viewed more than once.") + Text("Currently the thumbnail cache is using \(formatter.string(fromByteCount: Int64(bytes))) of disk space.")
+                }
+                else {
+                    Text("When the cache is enabled, thumbnails will load quicker and use less data when viewed more than once.")
                 }
             }
             
@@ -307,6 +312,14 @@ struct AdvancedSettingsView: View {
                     }
                 }
             #endif
+        }
+        .task {
+            do {
+                self.diskCacheSizeBytes = try ImageCache.diskCacheSizeBytes()
+            }
+            catch {
+                Log.warn("Could not determine thumbnail cache size: \(error.localizedDescription)")
+            }
         }
         .onDisappear {
             appState.applySettings()

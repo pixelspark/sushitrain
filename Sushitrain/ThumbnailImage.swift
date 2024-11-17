@@ -188,15 +188,8 @@ class ImageCache {
     }
     
     private static func pathFor(cacheKey: String) -> URL {
-        #if os(iOS)
-            // iOS uses HEIC
-            return Self.cacheDirectory
-                .appendingPathComponent("\(cacheKey).heic", isDirectory: false)
-        #else
-            // macOS uses JPEG
-            return Self.cacheDirectory
-                .appendingPathComponent("\(cacheKey).jpg", isDirectory: false)
-        #endif
+        return Self.cacheDirectory
+            .appendingPathComponent("\(cacheKey).jpg", isDirectory: false)
     }
     
     static func clear() {
@@ -217,6 +210,9 @@ class ImageCache {
             let fileDictionary = try FileManager.default.attributesOfItem(atPath: filePath.path())
             if let size = fileDictionary[FileAttributeKey.size] as? UInt {
                 totalSize += size
+            }
+            else {
+                Log.warn("No file size for path \(filePath.path) \(file) \(fileDictionary)")
             }
         }
         return totalSize
@@ -257,8 +253,12 @@ class ImageCache {
             
             if diskCacheEnabled {
                 if let image = newValue {
+                    let renderer = ImageRenderer(content: image)
+                    renderer.isOpaque = true
+
                     #if os(iOS)
-                        if let data = ImageRenderer(content: image).uiImage?.heicData() {
+                        // We're using JPEG for now, because HEIC leads to distorted thumbnails for HDR videos
+                        if let data = renderer.uiImage?.jpegData(compressionQuality: 0.9) {
                             let url = Self.pathFor(cacheKey: cacheKey)
 
                             do {
@@ -272,49 +272,50 @@ class ImageCache {
                         }
                     #else
                         // Let's do things the more old-fashioned way on macOS
-                    if let nsImage = ImageRenderer(content: image).nsImage {
-                        if let tiff = nsImage.tiffRepresentation,
-                            let rep = NSBitmapImageRep(data: tiff),
-                            let jpegData = rep.representation(using: .jpeg, properties: [.compressionFactor: 0.9]) {
+                        if let nsImage = renderer.nsImage {
+                            if let tiff = nsImage.tiffRepresentation,
+                                let rep = NSBitmapImageRep(data: tiff),
+                                let jpegData = rep.representation(using: .jpeg, properties: [.compressionFactor: 0.9]) {
+                                let url = Self.pathFor(cacheKey: cacheKey)
+                                do {
+                                    try FileManager.default.createDirectory(at: Self.cacheDirectory, withIntermediateDirectories: true)
+                                    try jpegData.write(to: url)
+                                    try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
+                                }
+                                catch {
+                                    Log.warn("Could not write to cache file \(url.path()): \(error.localizedDescription)")
+                                }
+                            }
+                            else {
+                                Log.warn("Could not generate JPEG")
+                            }
+                        }
+                        
+                        // Below is the code to do this using CoreGraphics and HEIF on macOS. This however leads to 'noise'
+                        // for thumbnails that are generated from videos for some reason...
+                        /*
+                        if let cgImage = ImageRenderer(content: image).cgImage {
                             let url = Self.pathFor(cacheKey: cacheKey)
                             do {
                                 try FileManager.default.createDirectory(at: Self.cacheDirectory, withIntermediateDirectories: true)
-                                try jpegData.write(to: url)
-                                try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
+                                if let heifDest = CGImageDestinationCreateWithURL(url as CFURL, AVFileType.heic as CFString, 1, nil) {
+                                    CGImageDestinationAddImage(heifDest, cgImage, nil)
+                                    if CGImageDestinationFinalize(heifDest) {
+                                        try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
+                                    }
+                                    else {
+                                        Log.warn("Failed writing HEIF image")
+                                    }
+                                }
+                                else {
+                                    Log.warn("Could not generate HEIF file")
+                                }
                             }
                             catch {
                                 Log.warn("Could not write to cache file \(url.path()): \(error.localizedDescription)")
                             }
                         }
-                        else {
-                            Log.warn("Could not generate JPEG")
-                        }
-                    }
-                    
-                    // Below is the code to do this using CoreGraphics and HEIF. This however leads to 'noise' for thumbnails that are generated from videos for some reason...
-                    /*
-                    if let cgImage = ImageRenderer(content: image).cgImage {
-                        let url = Self.pathFor(cacheKey: cacheKey)
-                        do {
-                            try FileManager.default.createDirectory(at: Self.cacheDirectory, withIntermediateDirectories: true)
-                            if let heifDest = CGImageDestinationCreateWithURL(url as CFURL, AVFileType.heic as CFString, 1, nil) {
-                                CGImageDestinationAddImage(heifDest, cgImage, nil)
-                                if CGImageDestinationFinalize(heifDest) {
-                                    try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
-                                }
-                                else {
-                                    Log.warn("Failed writing HEIF image")
-                                }
-                            }
-                            else {
-                                Log.warn("Could not generate HEIF file")
-                            }
-                        }
-                        catch {
-                            Log.warn("Could not write to cache file \(url.path()): \(error.localizedDescription)")
-                        }
-                    }
-                    */
+                        */
                     #endif
                 }
             }
