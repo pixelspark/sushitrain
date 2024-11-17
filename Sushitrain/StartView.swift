@@ -229,6 +229,8 @@ struct StartView: View {
     @State private var showAddresses = false
     @State private var showAddFolderSheet = false
     @State private var addFolderID = ""
+    @State private var showNoPeersEnabledWarning = false
+    @State private var peers: [SushitrainPeer]? = nil
     
     var body: some View {
         Form {
@@ -279,11 +281,7 @@ struct StartView: View {
             }
             
             // Getting started
-            let peers = self.appState.peers()
-            let peerCount = peers.count
-            let enabledPeerCount = peers.count { !$0.isPaused() && !$0.isSelf() }
-            
-            if peerCount == 1 {
+            if let p = peers, p.isEmpty {
                 Section("Getting started") {
                     VStack(alignment: .leading, spacing: 5) {
                         Label("Add your first device", systemImage: "externaldrive.badge.plus").bold()
@@ -293,7 +291,7 @@ struct StartView: View {
                     }
                 }
             }
-            else if peerCount > 1 && enabledPeerCount == 0 {
+            else if showNoPeersEnabledWarning {
                 Section("Devices that need your attention") {
                     VStack(alignment: .leading, spacing: 5) {
                         Label("All devices are paused", systemImage: "exclamationmark.triangle.fill")
@@ -303,9 +301,10 @@ struct StartView: View {
                             .foregroundStyle(.orange)
                     }
                     .onTapGesture {
-                        peers.forEach { peer in
+                        peers?.forEach { peer in
                             try? peer.setPaused(false)
                         }
+                        showNoPeersEnabledWarning = false
                     }
                 }
             }
@@ -398,7 +397,18 @@ struct StartView: View {
         }
         #endif
         .task {
+            showNoPeersEnabledWarning = false
+            let p = self.appState.peers()
+            self.peers = p
             await self.appState.updateBadge() // Updates extraneous files list
+            do {
+                try await Task.sleep(nanoseconds: 3 * 1_000_000_000) // 3 seconds
+                let enabledPeerCount = p.count { !$0.isPaused() && !$0.isSelf() }
+                showNoPeersEnabledWarning = p.count > 1 && enabledPeerCount == 0
+            }
+            catch {
+                // Ignored
+            }
         }
     }
 }
