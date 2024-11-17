@@ -242,27 +242,6 @@ struct AdvancedSettingsView: View {
                 }))
             }
             
-            Section("Previews") {
-                Toggle("Show image previews", isOn: Binding(get: {
-                    return appState.maxBytesForPreview > 0
-                }, set: { nv in
-                    if nv {
-                        appState.maxBytesForPreview = 3 * 1024 * 1024 // 3 MiB
-                    }
-                    else {
-                        appState.maxBytesForPreview = 0
-                    }
-                }))
-                
-                if appState.maxBytesForPreview > 0 {
-                    Stepper("\(appState.maxBytesForPreview / 1024 / 1024) MB", value: Binding(get: {
-                        appState.maxBytesForPreview / 1024 / 1024
-                    }, set: { nv in
-                        appState.maxBytesForPreview = nv * 1024 * 1024
-                    }), in: 1...100)
-                }
-            }
-            
             Section {
                 Toggle("Hide dotfiles", isOn: appState.$dotFilesHidden)
             } footer: {
@@ -517,6 +496,28 @@ fileprivate struct BandwidthSettingsView: View {
                 }
             }
             
+            // Thumbnail settings
+            Section("Previews") {
+                Toggle("Show image previews", isOn: Binding(get: {
+                    return appState.maxBytesForPreview > 0
+                }, set: { nv in
+                    if nv {
+                        appState.maxBytesForPreview = 3 * 1024 * 1024 // 3 MiB
+                    }
+                    else {
+                        appState.maxBytesForPreview = 0
+                    }
+                }))
+                
+                if appState.maxBytesForPreview > 0 {
+                    Stepper("\(appState.maxBytesForPreview / 1024 / 1024) MB", value: Binding(get: {
+                        appState.maxBytesForPreview / 1024 / 1024
+                    }, set: { nv in
+                        appState.maxBytesForPreview = nv * 1024 * 1024
+                    }), in: 1...100)
+                }
+            }
+            
             Section {
                 Toggle("Show video previews", isOn: appState.$previewVideos)
             }
@@ -576,7 +577,7 @@ struct GeneralSettingsView: View {
     var body: some View {
         Form {
             Section {
-                TextField("Host name", text: Binding(get: {
+                TextField("Device name", text: Binding(get: {
                     var err: NSError? = nil
                     return appState.client.getName(&err)
                 }, set: { nn in
@@ -588,6 +589,10 @@ struct GeneralSettingsView: View {
                 Toggle(isOn: $hideInDock) {
                     Label("Hide dock menu icon", systemImage: "eye.slash")
                 }
+            }
+            
+            Section {
+                Toggle("Preview files on tap", isOn: appState.$tapFileToPreview)
             }
         }
     }
@@ -616,6 +621,10 @@ struct SettingsView: View {
             }
             
             Section {
+                NavigationLink("View settings") {
+                    ViewSettingsView(appState: appState)
+                }
+                
                 NavigationLink(destination: BandwidthSettingsView(appState: appState)) {
                     Text("Bandwidth limitations").badge(limitsEnabled  ? "On": "Off")
                 }
@@ -651,6 +660,22 @@ struct SettingsView: View {
         #if os(macOS)
         .formStyle(.grouped)
         #endif
+    }
+}
+#endif
+
+#if os(iOS)
+struct ViewSettingsView: View {
+    @ObservedObject var appState: AppState
+    
+    var body: some View {
+        Form {
+            Section {
+                Toggle("Preview files on tap", isOn: appState.$tapFileToPreview)
+            }
+        }
+        .navigationTitle("View settings")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 #endif

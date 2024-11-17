@@ -13,6 +13,90 @@ enum BrowserViewStyle: String {
     case thumbnailList = "thumbnailList"
 }
 
+struct FileEntryLink<Content: View>: View {
+    @ObservedObject var appState: AppState
+    let entry: SushitrainEntry
+    let siblings: [SushitrainEntry]
+    @ViewBuilder var content: () -> Content
+    
+    @State private var quickLookURL: URL? = nil
+    @State private var showPreviewSheet: Bool = false
+    
+    private var inner: some View {
+        Group {
+            if appState.tapFileToPreview && entry.isLocallyPresent(), let url = entry.localNativeFileURL {
+                // Tap to preview local file in QuicLook
+                Button(action: {
+                    self.quickLookURL = url
+                }) {
+                    self.content()
+                }
+                #if os(macOS)
+                    .buttonStyle(.link)
+                #endif
+                .foregroundStyle(.primary)
+                .frame(maxWidth: .infinity)
+                .quickLookPreview(self.$quickLookURL)
+            }
+            else if appState.tapFileToPreview && entry.isStreamable {
+                // Tap to preview in full-screen viewer
+                Button(action: {
+                    self.showPreviewSheet = true
+                }) {
+                    self.content()
+                }
+                #if os(macOS)
+                    .buttonStyle(.link)
+                #endif
+                .foregroundStyle(.primary)
+                .frame(maxWidth: .infinity)
+                #if os(macOS)
+                    .sheet(isPresented: $showPreviewSheet) {
+                        FileViewerSheetView(appState: appState, file: entry, isShown: $showPreviewSheet) {
+                            // Empty on macOS, we have a navigation bar
+                        }
+                        .presentationSizing(.fitted)
+                        .frame(minWidth: 640, minHeight: 480)
+                        .navigationTitle(entry.fileName())
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("Done") { showPreviewSheet = false }
+                            }
+                        }
+                    }
+                #else
+                    .fullScreenCover(isPresented: $showPreviewSheet) {
+                        FileViewerView(appState: appState, file: entry, isShown: $showPreviewSheet) {}
+                    }
+                #endif
+            }
+            else {
+                // Tap to go to file view
+                NavigationLink(destination: FileView(file: entry, appState: self.appState, siblings: siblings)) {
+                    self.content()
+                }
+            }
+        }
+    }
+    
+    var body: some View {
+        self.inner
+            .contextMenu {
+                NavigationLink(destination: FileView(file: entry, appState: self.appState, siblings: siblings)) {
+                    Label(entry.fileName(), systemImage: entry.systemImage)
+                }
+                ItemSelectToggleView(file: entry)
+            } preview: {
+                NavigationStack { // to force the image to take up all available space
+                    VStack {
+                        ThumbnailView(file: entry, appState: appState, showFileName: false, showErrorMessages: false)
+                            .frame(minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
+                    }
+                }
+            }
+    }
+}
+
 fileprivate struct EntryView: View {
     @ObservedObject var appState: AppState
     let entry: SushitrainEntry
@@ -28,11 +112,17 @@ fileprivate struct EntryView: View {
                         .frame(width: 60, height: 40)
                         .cornerRadius(6.0)
                     Text(entry.fileName())
+                    Spacer()
                 }
+                .frame(maxWidth: .infinity)
                 .padding(0)
             }
             else {
-                Label(entry.fileName(), systemImage: entry.systemImage)
+                HStack {
+                    Label(entry.fileName(), systemImage: entry.systemImage)
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity)
             }
         }
     }
@@ -60,9 +150,10 @@ fileprivate struct EntryView: View {
                     }
                 }
                 else {
-                    NavigationLink(destination: FileView(file: targetEntry, appState: self.appState, siblings: [])) {
+                    FileEntryLink(appState: appState, entry: targetEntry, siblings: []) {
                         self.entryView(entry: targetEntry)
-                    }.contextMenu {
+                    }
+                    .contextMenu {
                         NavigationLink(destination: FileView(file: targetEntry, appState: self.appState, siblings: [])) {
                             Label(targetEntry.fileName(), systemImage: targetEntry.systemImage)
                         }
@@ -98,20 +189,8 @@ fileprivate struct EntryView: View {
             }
         }
         else {
-            NavigationLink(destination: FileView(file: entry, appState: self.appState, siblings: siblings)) {
+            FileEntryLink(appState: appState, entry: entry, siblings: []) {
                 self.entryView(entry: entry)
-            }.contextMenu {
-                NavigationLink(destination: FileView(file: entry, appState: self.appState, siblings: siblings)) {
-                    Label(entry.fileName(), systemImage: entry.systemImage)
-                }
-                ItemSelectToggleView(file: entry)
-            } preview: {
-                NavigationStack { // to force the image to take up all available space
-                    VStack {
-                        ThumbnailView(file: entry, appState: appState, showFileName: false, showErrorMessages: false)
-                            .frame(minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
-                    }
-                }
             }
         }
     }

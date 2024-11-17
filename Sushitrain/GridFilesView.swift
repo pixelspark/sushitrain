@@ -20,17 +20,7 @@ fileprivate struct GridItemView: View {
             
             ThumbnailView(file: file, appState: appState, showFileName: true, showErrorMessages: false)
                 .frame(width: size, height: size)
-        }.contextMenu(menuItems: {
-            Text(file.fileName())
-            ItemSelectToggleView(file: file)
-        }, preview: {
-            NavigationStack { // to force the image to take up all available space
-                VStack {
-                    ThumbnailView(file: file, appState: appState, showFileName: false, showErrorMessages: false)
-                        .frame(minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
-                }
-            }
-        })
+        }
     }
 }
 
@@ -72,7 +62,7 @@ struct GridFilesView: View {
             // List files
             ForEach(files, id: \.self) { file in
                 GeometryReader { geo in
-                    NavigationLink(destination: FileView(file: file, appState: self.appState, siblings: files)) {
+                    FileEntryLink(appState: appState, entry: file, siblings: files) {
                         GridItemView(appState: appState, size: geo.size.width, file: file)
                     }
                     .buttonStyle(PlainButtonStyle())

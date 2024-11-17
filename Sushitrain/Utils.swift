@@ -268,6 +268,10 @@ extension SushitrainEntry {
         }
     }
     
+    var isStreamable: Bool {
+        return self.isVideo || self.isAudio || self.isImage
+    }
+    
     var canThumbnail: Bool {
         return self.isVideo || (self.isImage && self.mimeType() != "image/svg+xml") || (!self.isDirectory() && self.isLocallyPresent())
     }
@@ -661,8 +665,6 @@ extension CGImage {
     func resize(size: CGSize) -> CGImage? {
         let width = Int(size.width)
         let height = Int(size.height)
-
-        let bytesPerPixel = self.bitsPerPixel / self.bitsPerComponent
 
         guard let colorSpace = self.colorSpace else {
             return nil

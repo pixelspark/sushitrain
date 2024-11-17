@@ -57,7 +57,7 @@ fileprivate struct FileMediaPlayer<Content: View>: View {
                 VideoPlayer(player: player) {
                     VStack {
                         HStack {
-                            if file.isVideo {
+                            if file.isVideo || file.isAudio {
                                 HStack {
                                     Image(systemName: "xmark")
                                         .foregroundStyle(.white)
@@ -149,7 +149,7 @@ fileprivate struct FileMediaPlayer<Content: View>: View {
     }
 }
 
-fileprivate struct FileViewerView<Content: View>: View {
+struct FileViewerView<Content: View>: View {
     @ObservedObject var appState: AppState
     var file: SushitrainEntry
     @Binding var isShown: Bool
@@ -190,7 +190,7 @@ fileprivate struct FileViewerView<Content: View>: View {
     }
 }
 
-fileprivate struct FileViewerSheetView<Content: View>: View {
+struct FileViewerSheetView<Content: View>: View {
     @ObservedObject var appState: AppState
     var file: SushitrainEntry
     @Binding var isShown: Bool
