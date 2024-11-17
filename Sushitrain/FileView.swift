@@ -676,21 +676,28 @@ fileprivate struct DownloadProgressView: View {
         Group {
             if let (date, progress) = self.progress {
                 ProgressView(value: progress.percentage, total: 1.0) {
-                    HStack {
-                        Label("Downloading file...", systemImage: "arrow.clockwise")
-                            .foregroundStyle(.green)
-                            .symbolEffect(.pulse, value: true)
-                        if let (lastDate, lastProgress) = self.lastProgress {
-                            let diffBytes = progress.bytesDone - lastProgress.bytesDone
-                            let diffTime = date.timeIntervalSince(lastDate)
-                            let speed = Int64(Double(diffBytes) / Double(diffTime))
-                            let formatter = ByteCountFormatter()
+                    VStack {
+                        HStack {
+                            Label("Downloading file...", systemImage: "arrow.clockwise")
+                                .foregroundStyle(.green)
+                                .symbolEffect(.pulse, value: true)
                             Spacer()
-                            Text("\(formatter.string(fromByteCount: speed))/s").foregroundStyle(.green)
-                            
-                            if speed > 0 {
-                                let secondsToGo = (progress.bytesTotal - progress.bytesDone) / speed
-                                Text("\(secondsToGo) seconds")
+                        }
+                        
+                        if let (lastDate, lastProgress) = self.lastProgress {
+                            HStack {
+                                let diffBytes = progress.bytesDone - lastProgress.bytesDone
+                                let diffTime = date.timeIntervalSince(lastDate)
+                                let speed = Int64(Double(diffBytes) / Double(diffTime))
+                                let formatter = ByteCountFormatter()
+                                
+                                Spacer()
+                                Text("\(formatter.string(fromByteCount: speed))/s").foregroundStyle(.green)
+
+                                if speed > 0 {
+                                    let secondsToGo = (progress.bytesTotal - progress.bytesDone) / speed
+                                    Text("\(secondsToGo) seconds").foregroundStyle(.green)
+                                }
                             }
                         }
                     }
