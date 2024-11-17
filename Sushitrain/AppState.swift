@@ -59,6 +59,7 @@ enum FolderMetric: String {
     @AppStorage("ignoreExtraneousDefaultFiles") var ignoreExtraneousDefaultFiles: Bool = true // Whether to ignore certain files by default when scanning for extraneous files (i.e. .DS_Store)
     @AppStorage("previewVideos") var previewVideos: Bool = false
     @AppStorage("tapFileToPreview") var tapFileToPreview: Bool = false
+    @AppStorage("cacheThumbnailsToDisk") var cacheThumbnailsToDisk: Bool = true
     
     static private var defaultIgnoredExtraneousFiles = [".DS_Store", "Thumbs.db", "desktop.ini", ".Trashes", ".Spotlight-V100"]
     
@@ -113,6 +114,7 @@ enum FolderMetric: String {
     }
     
     func applySettings() {
+        ImageCache.diskCacheEnabled = self.cacheThumbnailsToDisk
         self.client.server?.maxMbitsPerSecondsStreaming = Int64(self.streamingLimitMbitsPerSec)
         Log.info("Apply settings; streaming limit=\(self.streamingLimitMbitsPerSec) mbits/s")
         

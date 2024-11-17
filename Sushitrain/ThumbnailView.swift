@@ -19,7 +19,8 @@ struct ThumbnailView: View {
             if isLocallyPresent || showPreview || file.size() <= appState.maxBytesForPreview || (appState.previewVideos && file.isVideo) {
                 let url = isLocallyPresent ? file.localNativeFileURL! : URL(string: file.onDemandURL())!
                     
-                ThumbnailImage(cacheKey: file.blocksHash(), url: url, strategy: file.thumbnailStrategy, content: { phase in
+                let cacheKey = file.blocksHash().lowercased().replacingOccurrences( of:"[^a-z0-9]", with: "", options: .regularExpression)
+                ThumbnailImage(cacheKey: cacheKey, url: url, strategy: file.thumbnailStrategy, content: { phase in
                     switch phase {
                     case .empty:
                         HStack(alignment: .center, content: {

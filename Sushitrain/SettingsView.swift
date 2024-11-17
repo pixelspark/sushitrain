@@ -255,6 +255,13 @@ struct AdvancedSettingsView: View {
             }
             
             Section {
+                Toggle("Cache thumbnails on disk", isOn: appState.$cacheThumbnailsToDisk)
+                Button("Clear thumbnail cache") {
+                    ImageCache.clear()
+                }
+            }
+            
+            Section {
                 Toggle("Enable debug logging", isOn: appState.$loggingEnabled)
             }
             header: {
