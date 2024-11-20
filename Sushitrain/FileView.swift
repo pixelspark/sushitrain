@@ -214,6 +214,60 @@ struct FileViewerSheetView<Content: View>: View {
     }
 }
 
+struct FileViewerSheetNextPreviousView: View {
+    @ObservedObject var appState: AppState
+    @State var file: SushitrainEntry
+    let siblings: [SushitrainEntry]
+    @Binding var isShown: Bool
+    @State private var selfIndex: Int? = nil
+    
+    var body: some View {
+        Group {
+            #if os(iOS)
+                FileViewerSheetView(appState: appState, file: file, isShown: $isShown, videoOverlay: {
+                    if let selfIndex = selfIndex {
+                        Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1).labelStyle(.iconOnly)
+                        Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1).labelStyle(.iconOnly)
+                    }
+                })
+            #elseif os(macOS)
+                NavigationStack {
+                    FileViewerView(appState: appState, file: file, isShown: $isShown, videoOverlay: {
+                        // Empty on macOS, we already have a toolbar
+                    })
+                    .presentationSizing(.fitted)
+                    .frame(minWidth: 640, minHeight: 480)
+                    .navigationTitle(file.fileName())
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Done") { isShown = false }
+                        }
+                        if let selfIndex = selfIndex {
+                            ToolbarItemGroup(placement: .automatic) {
+                                Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1)
+                                Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1)
+                            }
+                        }
+                    }
+                }
+            #endif
+        }
+        .onAppear {
+            selfIndex = self.siblings.firstIndex(of: file)
+        }
+    }
+    
+    private func next(_ offset: Int) {
+        if let idx = siblings.firstIndex(of: self.file) {
+            let newIndex = idx + offset
+            if  newIndex >= 0 && newIndex < siblings.count {
+                file = siblings[newIndex]
+                selfIndex = self.siblings.firstIndex(of: file)
+            }
+        }
+    }
+}
+
 struct FileView: View {
     @State private var file: SushitrainEntry
     @ObservedObject private var appState: AppState

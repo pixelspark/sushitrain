@@ -52,9 +52,7 @@ struct FileEntryLink<Content: View>: View {
                 .frame(maxWidth: .infinity)
                 #if os(macOS)
                     .sheet(isPresented: $showPreviewSheet) {
-                        FileViewerSheetView(appState: appState, file: entry, isShown: $showPreviewSheet) {
-                            // Empty on macOS, we have a navigation bar
-                        }
+                        FileViewerSheetNextPreviousView(appState: appState, file: entry, siblings: siblings, isShown: $showPreviewSheet)
                         .presentationSizing(.fitted)
                         .frame(minWidth: 640, minHeight: 480)
                         .navigationTitle(entry.fileName())
@@ -66,7 +64,7 @@ struct FileEntryLink<Content: View>: View {
                     }
                 #else
                     .fullScreenCover(isPresented: $showPreviewSheet) {
-                        FileViewerView(appState: appState, file: entry, isShown: $showPreviewSheet) {}
+                        FileViewerSheetNextPreviousView(appState: appState, file: entry, siblings: siblings, isShown: $showPreviewSheet)
                     }
                 #endif
             }
