@@ -126,6 +126,19 @@ struct PhotoSettingsView: View {
             }
             
             Section {
+                Picker("Folder structure", selection: $photoSync.folderStructure) {
+                    Text("By date").tag(PhotoSyncFolderStructure.byDate)
+                    Text("By type").tag(PhotoSyncFolderStructure.byType)
+                    Text("By date and type").tag(PhotoSyncFolderStructure.byDateAndType)
+                    Text("Single folder").tag(PhotoSyncFolderStructure.singleFolder)
+                }
+                .pickerStyle(.menu).disabled(photoSync.isSynchronizing)
+                Text("Example file location in folder: ") + Text(photoSync.folderStructure.examplePath).monospaced()
+            } footer: {
+                Text("When the folder structure is changed, photos that were already saved will be saved again in their new location.")
+            }
+            
+            Section {
                 Picker("Add to album", selection: $photoSync.savedAlbumID) {
                     Text("None").tag("")
                     ForEach(albums, id: \.localIdentifier) { album in

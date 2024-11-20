@@ -440,6 +440,62 @@
         }
       }
     },
+    "2024-08-11/IMG_2020.HEIC" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08-11/IMG_2020.HEIC"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08-11/IMG_2020.HEIC"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08-11/IMG_2020.HEIC"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08-11/IMG_2020.HEIC"
+          }
+        }
+      }
+    },
+    "2024-08-11/Video/IMG_2020.MOV" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08-11/Video/IMG_2020.MOV"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08-11/Video/IMG_2020.MOV"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08-11/Video/IMG_2020.MOV"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08-11/Video/IMG_2020.MOV"
+          }
+        }
+      }
+    },
     "22000" : {
       "localizations" : {
         "de" : {
@@ -2064,6 +2120,62 @@
         }
       }
     },
+    "By date" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach Datum"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por fecha"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per data"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op datum"
+          }
+        }
+      }
+    },
+    "By date and type" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach Datum und Typ"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por fecha y tipo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per data e tipo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op datum en type"
+          }
+        }
+      }
+    },
     "By this device" : {
       "localizations" : {
         "de" : {
@@ -2088,6 +2200,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Door dit apparaat"
+          }
+        }
+      }
+    },
+    "By type" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach Typ"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por tipo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per tipo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op type"
           }
         }
       }
@@ -3688,6 +3828,34 @@
         }
       }
     },
+    "Example file location in folder: " : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beispieldateiort im Ordner:"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ubicación del archivo de ejemplo en la carpeta:"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esempio di posizione del file nella cartella:"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voorbeeld van bestandslocatie in map: "
+          }
+        }
+      }
+    },
     "Existing folder: '%@'" : {
       "localizations" : {
         "de" : {
@@ -4444,6 +4612,34 @@
         }
       }
     },
+    "Folder structure" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordnerstruktur"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estructura de carpetas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Struttura delle cartelle"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mappenstructuur"
+          }
+        }
+      }
+    },
     "Folder was deleted" : {
       "localizations" : {
         "de" : {
@@ -5140,6 +5336,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Negeerpatronen"
+          }
+        }
+      }
+    },
+    "IMG_2020.MOV" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IMG_2020.MOV"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IMG_2020.MOV"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IMG_2020.MOV"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IMG_2020.MOV"
           }
         }
       }
@@ -9176,6 +9400,34 @@
         }
       }
     },
+    "Single folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einzelner Ordner"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carpeta única"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartella singola"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enkele map"
+          }
+        }
+      }
+    },
     "Size on this device" : {
       "localizations" : {
         "de" : {
@@ -11304,6 +11556,34 @@
         }
       }
     },
+    "Video/IMG_2020.MOV" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video/IMG_2020.MOV"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video/IMG_2020.MOV"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video/IMG_2020.MOV"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video/IMG_2020.MOV"
+          }
+        }
+      }
+    },
     "Videos" : {
       "localizations" : {
         "de" : {
@@ -11748,6 +12028,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wanneer de cache is ingeschakeld, laden miniaturen sneller en wordt er minder data gebruikt wanneer ze meer dan één keer worden bekeken."
+          }
+        }
+      }
+    },
+    "When the folder structure is changed, photos that were already saved will be saved again in their new location." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn die Ordnerstruktur geändert wird, werden Fotos, die bereits gespeichert waren, erneut an ihrem neuen Standort gespeichert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando se cambie la estructura de carpetas, las fotos que ya estaban guardadas se volverán a guardar en su nueva ubicación."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando la struttura delle cartelle viene modificata, le foto già salvate verranno nuovamente salvate nella loro nuova posizione."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer de mappenstructuur wordt gewijzigd, zullen foto's die al waren opgeslagen opnieuw worden opgeslagen op hun nieuwe locatie."
           }
         }
       }
