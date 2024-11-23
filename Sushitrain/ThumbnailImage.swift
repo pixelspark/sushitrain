@@ -182,8 +182,12 @@ class ImageCache {
     static private var maxCacheSize = 255
     
     static var diskCacheEnabled: Bool = true
+    static var customCacheDirectory: URL? = nil
     
     private static var cacheDirectory: URL {
+        if let cc = Self.customCacheDirectory {
+            return cc
+        }
         return URL.cachesDirectory.appendingPathComponent("thumbnails", isDirectory: true)
     }
     

@@ -60,6 +60,7 @@ enum FolderMetric: String {
     @AppStorage("previewVideos") var previewVideos: Bool = false
     @AppStorage("tapFileToPreview") var tapFileToPreview: Bool = false
     @AppStorage("cacheThumbnailsToDisk") var cacheThumbnailsToDisk: Bool = true
+    @AppStorage("cacheThumbnailsToFolderID") var cacheThumbnailsToFolderID: String = ""
     
     static private var defaultIgnoredExtraneousFiles = [".DS_Store", "Thumbs.db", "desktop.ini", ".Trashes", ".Spotlight-V100"]
     
@@ -115,8 +116,17 @@ enum FolderMetric: String {
     
     func applySettings() {
         ImageCache.diskCacheEnabled = self.cacheThumbnailsToDisk
+        if !self.cacheThumbnailsToFolderID.isEmpty, let folder = self.client.folder(withID: self.cacheThumbnailsToFolderID) {
+            // Check if we have this folder
+            ImageCache.customCacheDirectory = folder.localNativeURL
+        }
+        else {
+            ImageCache.customCacheDirectory = nil
+        }
+        Log.info("Apply settings: image cache enabled \(ImageCache.diskCacheEnabled) dir: \(ImageCache.customCacheDirectory.debugDescription)")
+        
         self.client.server?.maxMbitsPerSecondsStreaming = Int64(self.streamingLimitMbitsPerSec)
-        Log.info("Apply settings; streaming limit=\(self.streamingLimitMbitsPerSec) mbits/s")
+        Log.info("Apply settings: streaming limit=\(self.streamingLimitMbitsPerSec) mbits/s")
         
         do {
             if self.ignoreExtraneousDefaultFiles {

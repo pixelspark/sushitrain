@@ -257,6 +257,13 @@ struct AdvancedSettingsView: View {
             
             Section {
                 Toggle("Cache thumbnails on disk", isOn: appState.$cacheThumbnailsToDisk)
+                Picker("Cache location", selection: appState.$cacheThumbnailsToFolderID) {
+                    Text("On this device").tag("")
+                    ForEach(appState.folders(), id: \.folderID) { folder in
+                        Text(folder.displayName).tag(folder.folderID)
+                    }
+                }
+                .pickerStyle(.menu).disabled(!appState.cacheThumbnailsToDisk)
                 Button("Clear thumbnail cache") {
                     ImageCache.clear()
                     self.diskCacheSizeBytes = nil
