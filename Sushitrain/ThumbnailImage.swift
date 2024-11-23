@@ -188,8 +188,14 @@ class ImageCache {
     }
     
     private static func pathFor(cacheKey: String) -> URL {
+        let prefixA = String(cacheKey.prefix(2))
+        let prefixB = String(cacheKey.prefix(4).suffix(2))
+        let fileName = cacheKey.suffix(cacheKey.count - 4)
+        
         return Self.cacheDirectory
-            .appendingPathComponent("\(cacheKey).jpg", isDirectory: false)
+            .appendingPathComponent(prefixA, isDirectory: true)
+            .appendingPathComponent(prefixB, isDirectory: true)
+            .appendingPathComponent("\(fileName).jpg", isDirectory: false)
     }
     
     static func clear() {
@@ -260,9 +266,10 @@ class ImageCache {
                         // We're using JPEG for now, because HEIC leads to distorted thumbnails for HDR videos
                         if let data = renderer.uiImage?.jpegData(compressionQuality: 0.9) {
                             let url = Self.pathFor(cacheKey: cacheKey)
+                            let dirURL = url.deletingLastPathComponent()
 
                             do {
-                                try FileManager.default.createDirectory(at: Self.cacheDirectory, withIntermediateDirectories: true)
+                                try FileManager.default.createDirectory(at: dirURL, withIntermediateDirectories: true)
                                 try data.write(to: url)
                                 try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
                             }
