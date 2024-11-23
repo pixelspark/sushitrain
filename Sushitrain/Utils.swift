@@ -501,7 +501,6 @@ struct WebView: UIViewRepresentable {
         let view = WKWebView()
         view.navigationDelegate = context.coordinator
         view.isOpaque = false
-        view.isInspectable = false
         let request = URLRequest(url: url)
         view.load(request)
         return view

@@ -192,7 +192,6 @@ struct OverallStatusView: View {
                     else {
                         Label("Receiving files...", systemImage: "arrow.down")
                             .foregroundStyle(.green)
-                            .symbolEffect(.pulse, value: true)
                             .badge(self.peerStatusText)
                             .frame(maxWidth: .infinity)
                     }
@@ -204,7 +203,6 @@ struct OverallStatusView: View {
                     NavigationLink(destination: UploadView(appState: self.appState)) {
                         Label("Sending files...", systemImage: "arrow.up")
                             .foregroundStyle(.green)
-                            .symbolEffect(.pulse, value: true)
                             .badge("\(upPeers.count())/\(self.appState.peers().count - 1)")
                             .multilineTextAlignment(.leading)
                             .frame(maxWidth: .infinity)
