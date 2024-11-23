@@ -192,6 +192,7 @@ fileprivate struct StartOrSearchView: View {
     @ObservedObject var appState: AppState
     @Binding var route: Route?
     @State private var searchText: String = ""
+    @FocusState private var isSearchFieldFocused
     
     // This is needed because isSearching is not available from the parent view
     struct InnerView: View {
@@ -215,7 +216,7 @@ fileprivate struct StartOrSearchView: View {
         }
     }
     
-    var body: some View {
+    private var view: some View {
         ZStack {
             InnerView(appState: appState, route: $route, searchText: $searchText)
         }
@@ -224,7 +225,14 @@ fileprivate struct StartOrSearchView: View {
             .textInputAutocapitalization(.never)
         #endif
         .autocorrectionDisabled()
-        // The below works from iOS18
-        //.searchFocused($isSearchFieldFocused)
+    }
+    
+    var body: some View {
+        if #available(iOS 18, *) {
+            self.view.searchFocused($isSearchFieldFocused)
+        }
+        else {
+            self.view
+        }
     }
 }

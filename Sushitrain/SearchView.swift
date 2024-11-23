@@ -53,9 +53,10 @@ class SearchOperation: NSObject, ObservableObject, SushitrainSearchResultDelegat
 struct SearchView: View {
     @ObservedObject var appState: AppState
     @State private var searchText = ""
+    @FocusState private var isSearchFieldFocused
     var prefix: String = ""
     
-    var body: some View {
+    private var view: some View {
         SearchResultsView(
             appState: self.appState,
             searchText: $searchText,
@@ -68,11 +69,22 @@ struct SearchView: View {
             .textInputAutocapitalization(.never)
         #endif
         .autocorrectionDisabled()
-        // The below works from iOS18
-        //.searchFocused($isSearchFieldFocused)
     }
     
-    var prompt: String {
+    var body: some View {
+        if #available(iOS 18, *) {
+            self.view
+                .searchFocused($isSearchFieldFocused)
+                .onAppear {
+                    isSearchFieldFocused = true
+                }
+        }
+        else {
+            self.view
+        }
+    }
+    
+    private var prompt: String {
         if self.prefix == "" {
             return String(localized: "Search files in all folders...")
         }
