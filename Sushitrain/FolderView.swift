@@ -359,11 +359,12 @@ struct FolderView: View {
     var folder: SushitrainFolder
     @ObservedObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
-    @State var showError = false
-    @State var errorText = ""
-    @State var showRemoveConfirmation = false
-    @State var showUnlinkConfirmation = false
-    @State var showGenerateThumbnails = false
+    @State private var showError = false
+    @State private var errorText = ""
+    @State private var showRemoveConfirmation = false
+    @State private var showUnlinkConfirmation = false
+    @State private var showGenerateThumbnails = false
+    @State private var showGenerateThumbnailsConfirm = false
     
     var possiblePeers: [SushitrainPeer] {
         get {
@@ -454,11 +455,16 @@ struct FolderView: View {
                     #endif
                     
                     Button("Generate thumbnails", systemImage: "photo.stack") {
-                        self.showGenerateThumbnails = true
+                        self.showGenerateThumbnailsConfirm = true
                     }
                     #if os(macOS)
                         .buttonStyle(.link)
                     #endif
+                    .confirmationDialog("Generating thumbnails may take a while and could use a lot of data. It is advisable to connect to a Wi-Fi network before proceeding. Are you sure you want to continue?", isPresented: $showGenerateThumbnailsConfirm, titleVisibility: .visible) {
+                        Button("Generate thumbnails") {
+                            self.showGenerateThumbnails = true
+                        }
+                    }
                     
                     Button("Unlink folder", systemImage: "folder.badge.minus", role:.destructive) {
                         showUnlinkConfirmation = true
@@ -600,47 +606,57 @@ struct ShareWithDeviceToggleView: View {
     }
 }
 
-struct FolderGenerateThumbnailsView: View {
+fileprivate struct FolderGenerateThumbnailsView: View {
     @ObservedObject var appState: AppState
     @Binding var isShown: Bool
     let folder: SushitrainFolder
-    @State private var error: Error? = nil
+    @State private var error: String? = nil
     @State private var totalFiles: Int = 0
     @State private var processedFiles: Int = 0
     @State private var lastThumbnail: AsyncImagePhase? = nil
+    @State private var lastThumbnailTime: Date = Date.distantPast
     
     var body: some View {
         VStack {
             if let e = error {
-                Text(e.localizedDescription)
+                Text(e).foregroundStyle(.red)
             }
             else {
                 if let img = self.lastThumbnail {
                     switch img {
                     case .success(let img):
-                        img.frame(maxWidth: 200, maxHeight: 200).clipShape(.rect(cornerRadius: 10))
+                        img.frame(maxWidth: 200, maxHeight: 200)
+                            .scaledToFit()
+                            .clipShape(.rect(cornerRadius: 10))
                     default:
-                        Rectangle().frame(width: 200, height: 200).foregroundStyle(.gray).opacity(0.2).clipShape(.rect(cornerRadius: 10))
+                        Rectangle().frame(width: 200, height: 200)
+                            .foregroundStyle(.gray)
+                            .opacity(0.2)
+                            .clipShape(.rect(cornerRadius: 10))
                     }
                 }
                 else {
                     Rectangle().frame(width: 200, height: 200).foregroundStyle(.gray).opacity(0.2).clipShape(.rect(cornerRadius: 10))
                 }
                 
-                Text("Generating thumbnails...")
+                Text("Generating thumbnails... (\(self.processedFiles) / \(self.totalFiles))")
                 if self.totalFiles > 0 {
                     ProgressView(value: Float(self.processedFiles), total: Float(self.totalFiles))
                 }
-                
             }
         }
         .padding(30)
         .alert(isPresented: Binding.constant(error != nil)) {
-            Alert(title: Text("An error occurred"), message: Text(error!.localizedDescription), dismissButton: .default(Text("OK")) {
+            Alert(title: Text("An error occurred"), message: Text(error!), dismissButton: .default(Text("OK")) {
                 isShown = false
             })
         }
         .task {
+            if !ImageCache.diskCacheEnabled || !ImageCache.diskHasSpace {
+                self.error = String(localized: "There is very little disk space available. Free up some space and try again.")
+                return
+            }
+            
             #if os(iOS)
                 UIApplication.shared.isIdleTimerDisabled = true
             #endif
@@ -652,7 +668,7 @@ struct FolderGenerateThumbnailsView: View {
                 self.isShown = false
             }
             catch {
-                self.error = error
+                self.error = error.localizedDescription
             }
             #if os(iOS)
                 UIApplication.shared.isIdleTimerDisabled = false
@@ -661,6 +677,8 @@ struct FolderGenerateThumbnailsView: View {
     }
     
     private func generateFor(prefix: String?) async throws {
+        let thumbnailInterval: TimeInterval = 1.0
+        
         let files = try self.folder.list(prefix, directories: false, recurse: false)
         self.totalFiles += files.count()
         
@@ -680,7 +698,11 @@ struct FolderGenerateThumbnailsView: View {
                     let cacheKey = file.cacheKey
                     if cacheKey.count > 5 {
                         let thumb = await getThumbnail(cacheKey: cacheKey, url: url, strategy: file.thumbnailStrategy)
-                        self.lastThumbnail = thumb
+                        
+                        if (-lastThumbnailTime.timeIntervalSinceNow) > thumbnailInterval {
+                            lastThumbnailTime = Date.now
+                            self.lastThumbnail = thumb
+                        }
                     }
                 }
                 self.processedFiles += 1

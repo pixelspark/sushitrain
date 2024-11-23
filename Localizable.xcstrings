@@ -24,6 +24,34 @@
       },
       "shouldTranslate" : false
     },
+    " " : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ""
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ""
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ""
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ""
+          }
+        }
+      }
+    },
     "-" : {
       "localizations" : {
         "de" : {
@@ -4920,7 +4948,36 @@
         }
       }
     },
+    "Generating thumbnails may take a while and could use a lot of data. It is advisable to connect to a Wi-Fi network before proceeding. Are you sure you want to continue?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Erstellen von Thumbnails kann einige Zeit in Anspruch nehmen und eine Menge Daten verbrauchen. Es wird empfohlen, sich mit einem WLAN-Netzwerk zu verbinden, bevor Sie fortfahren. Möchten Sie wirklich fortfahren?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La generación de miniaturas puede tardar un tiempo y consumir muchos datos. Se recomienda conectarse a una red Wi-Fi antes de continuar. ¿Seguro que deseas continuar?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La generazione delle miniature potrebbe richiedere del tempo e consumare molti dati. È consigliabile connettersi a una rete Wi-Fi prima di procedere. Sei sicuro di voler continuare?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Miniatuurweergaven genereren kan even duren en kan veel dataverkeer gebruiken. Het is raadzaam om verbinding te maken met een Wi-Fi-netwerk voordat u verdergaat. Weet u zeker dat u wilt doorgaan?"
+          }
+        }
+      }
+    },
     "Generating thumbnails..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4944,6 +5001,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Miniaturen genereren..."
+          }
+        }
+      }
+    },
+    "Generating thumbnails... (%lld / %lld)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorschaubilder werden generiert... (%lld / %lld)"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Generating thumbnails... (%1$lld / %2$lld)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generando miniaturas... (%lld / %lld)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generazione miniature... (%lld / %lld)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Miniaturen genereren... (%lld / %lld)"
           }
         }
       }
@@ -10744,6 +10835,34 @@
         }
       }
     },
+    "There is very little disk space available. Free up some space and try again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es steht nur sehr wenig Speicherplatz zur Verfügung. Schaffen Sie etwas Platz und versuchen Sie es erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hay muy poco espacio en disco disponible. Libera algo de espacio e inténtalo de nuevo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "C'è molto poco spazio su disco disponibile. Libera un po' di spazio e riprova."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er is zeer weinig schijfruimte beschikbaar. Maak wat ruimte vrij en probeer het opnieuw."
+          }
+        }
+      }
+    },
     "This app is powered by Syncthing. This app is however not associated with or endorsed by Syncthing nor its developers. Please do not expect support from the Syncthing developers. Instead, contact the maker of this app if you have questions." : {
       "localizations" : {
         "de" : {
@@ -11972,6 +12091,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wanneer achtergrondsynchronisatie voltooid is"
+          }
+        }
+      }
+    },
+    "When disk space is scarce, the system may decide to remove some thumbnails in order to free up space." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn der Speicherplatz knapp ist, kann das System entscheiden, einige Vorschaubilder zu entfernen, um Platz zu schaffen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando el espacio en disco escasea, el sistema puede decidir eliminar algunas miniaturas para liberar espacio."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando lo spazio su disco è scarso, il sistema potrebbe decidere di rimuovere alcune miniature per liberare spazio."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer er weinig schijfruimte beschikbaar is, kan het systeem besluiten om enkele miniaturen te verwijderen om ruimte vrij te maken."
           }
         }
       }

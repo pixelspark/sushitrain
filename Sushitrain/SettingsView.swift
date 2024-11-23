@@ -269,13 +269,7 @@ struct AdvancedSettingsView: View {
                     self.diskCacheSizeBytes = nil
                 }
             } footer: {
-                let formatter = ByteCountFormatter()
-                if let bytes = self.diskCacheSizeBytes {
-                    Text("When the cache is enabled, thumbnails will load quicker and use less data when viewed more than once.") + Text("Currently the thumbnail cache is using \(formatter.string(fromByteCount: Int64(bytes))) of disk space.")
-                }
-                else {
-                    Text("When the cache is enabled, thumbnails will load quicker and use less data when viewed more than once.")
-                }
+                self.cacheText
             }
             
             Section {
@@ -338,6 +332,21 @@ struct AdvancedSettingsView: View {
         #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
         #endif
+    }
+    
+    private var cacheText: Text {
+        let formatter = ByteCountFormatter()
+        var text = Text("When the cache is enabled, thumbnails will load quicker and use less data when viewed more than once.")
+        
+        if let bytes = self.diskCacheSizeBytes {
+            text = text + Text("Currently the thumbnail cache is using \(formatter.string(fromByteCount: Int64(bytes))) of disk space.")
+        }
+        
+        if appState.cacheThumbnailsToFolderID == "" {
+            text = text + Text(" ") + Text("When disk space is scarce, the system may decide to remove some thumbnails in order to free up space.")
+        }
+        
+        return text
     }
 }
 

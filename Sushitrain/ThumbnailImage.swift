@@ -194,6 +194,7 @@ func getThumbnail(cacheKey: String, url: URL, strategy: ThumbnailStrategy) async
 class ImageCache {
     static private var cache: [String: Image] = [:]
     static private var maxCacheSize = 255
+    static private var minDiskFreeBytes = 1024 * 1024 * 1024 * 1 // 1 GiB
     
     static var diskCacheEnabled: Bool = true
     static var customCacheDirectory: URL? = nil
@@ -203,6 +204,21 @@ class ImageCache {
             return cc
         }
         return URL.cachesDirectory.appendingPathComponent("thumbnails", isDirectory: true)
+    }
+    
+    static var diskHasSpace: Bool {
+        if let vals = try? self.cacheDirectory.resourceValues(forKeys: [.volumeAvailableCapacityKey]) {
+            if let f = vals.volumeAvailableCapacity {
+                return f > Self.minDiskFreeBytes
+            }
+            else {
+                Log.warn("Did not get volume capacity")
+            }
+        }
+        else {
+            Log.warn("Could not get free disk space - resourceValues call failed")
+        }
+        return true
     }
     
     private static func pathFor(cacheKey: String) -> URL {
@@ -276,7 +292,7 @@ class ImageCache {
             }
             ImageCache.cache[cacheKey] = newValue
             
-            if diskCacheEnabled {
+            if diskCacheEnabled && diskHasSpace {
                 if let image = newValue {
                     let renderer = ImageRenderer(content: image)
                     renderer.isOpaque = true
@@ -303,7 +319,9 @@ class ImageCache {
                                 let rep = NSBitmapImageRep(data: tiff),
                                 let jpegData = rep.representation(using: .jpeg, properties: [.compressionFactor: 0.9]) {
                                 let url = Self.pathFor(cacheKey: cacheKey)
+                                let dirURL = url.deletingLastPathComponent()
                                 do {
+                                    try FileManager.default.createDirectory(at: dirURL, withIntermediateDirectories: true)
                                     try FileManager.default.createDirectory(at: Self.cacheDirectory, withIntermediateDirectories: true)
                                     try jpegData.write(to: url)
                                     try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
