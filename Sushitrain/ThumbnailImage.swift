@@ -107,12 +107,18 @@ enum ThumbnailStrategy {
     case video
 }
 
+private let MaxThumbnailDimensionsInPixels = 255
+
+private enum ThumbnailImageError: Error {
+    case invalidCacheKey
+}
+
 struct ThumbnailImage<Content>: View where Content: View {
     private let cacheKey: String
     private let url: URL
     private let content: (AsyncImagePhase) -> Content
     private let thumbnailStrategy: ThumbnailStrategy
-    private let maxDimensionsInPixels = 255
+    
     @State private var phase: AsyncImagePhase = .empty
     
     init(
@@ -140,32 +146,12 @@ struct ThumbnailImage<Content>: View where Content: View {
     }
     
     private func fetchOrCached() async -> AsyncImagePhase {
-        if let cached = ImageCache[cacheKey] {
-            return .success(cached)
+        if cacheKey.count > 5 {
+            return await getThumbnail(cacheKey: self.cacheKey, url: self.url, strategy: self.thumbnailStrategy)
         }
-        
-        let url = self.url
-        let maxDimensionsInPixels = self.maxDimensionsInPixels
-        
-        if url.isFileURL {
-            return await Task.detached {
-                return await fetchQuicklookThumbnail(url, size: CGSize(width: maxDimensionsInPixels, height: maxDimensionsInPixels))
-            }.value
+        else {
+            return AsyncImagePhase.failure(ThumbnailImageError.invalidCacheKey)
         }
-        
-        let ph = await Task.detached {
-            // For local files, ask QuickLook (and bypass our cache)
-            switch self.thumbnailStrategy {
-            case .image:
-                return await fetchImageThumbnail(url, maxDimensionsInPixels: maxDimensionsInPixels)
-            case .video:
-                return await fetchVideoThumbnail(url: url, maxDimensionsInPixels: maxDimensionsInPixels)
-            }
-        }.value
-        if case .success(let image) = ph {
-            ImageCache[cacheKey] = image
-        }
-        return ph
     }
     
     func cacheAndRender(phase: AsyncImagePhase) -> some View {
@@ -174,6 +160,34 @@ struct ThumbnailImage<Content>: View where Content: View {
         }
         return content(phase)
     }
+}
+
+func getThumbnail(cacheKey: String, url: URL, strategy: ThumbnailStrategy) async -> AsyncImagePhase {
+    if let cached = await ImageCache[cacheKey] {
+        return .success(cached)
+    }
+    
+    if url.isFileURL {
+        return await Task.detached {
+            return await fetchQuicklookThumbnail(url, size: CGSize(width: MaxThumbnailDimensionsInPixels, height: MaxThumbnailDimensionsInPixels))
+        }.value
+    }
+    
+    let ph = await Task.detached {
+        // For local files, ask QuickLook (and bypass our cache)
+        switch strategy {
+        case .image:
+            return await fetchImageThumbnail(url, maxDimensionsInPixels: MaxThumbnailDimensionsInPixels)
+        case .video:
+            return await fetchVideoThumbnail(url: url, maxDimensionsInPixels: MaxThumbnailDimensionsInPixels)
+        }
+    }.value
+    if case .success(let image) = ph {
+        DispatchQueue.main.async {
+            ImageCache[cacheKey] = image
+        }
+    }
+    return ph
 }
 
 @MainActor
@@ -192,6 +206,7 @@ class ImageCache {
     }
     
     private static func pathFor(cacheKey: String) -> URL {
+        assert(cacheKey.count > 5, "cache key too short")
         let prefixA = String(cacheKey.prefix(2))
         let prefixB = String(cacheKey.prefix(4).suffix(2))
         let fileName = cacheKey.suffix(cacheKey.count - 4)
@@ -331,5 +346,11 @@ class ImageCache {
                 }
             }
         }
+    }
+}
+
+extension SushitrainEntry {
+    var cacheKey: String {
+        return self.blocksHash().lowercased().replacingOccurrences( of:"[^a-z0-9]", with: "", options: .regularExpression)
     }
 }

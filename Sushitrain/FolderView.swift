@@ -363,6 +363,7 @@ struct FolderView: View {
     @State var errorText = ""
     @State var showRemoveConfirmation = false
     @State var showUnlinkConfirmation = false
+    @State var showGenerateThumbnails = false
     
     var possiblePeers: [SushitrainPeer] {
         get {
@@ -452,6 +453,13 @@ struct FolderView: View {
                         .buttonStyle(.link)
                     #endif
                     
+                    Button("Generate thumbnails", systemImage: "photo.stack") {
+                        self.showGenerateThumbnails = true
+                    }
+                    #if os(macOS)
+                        .buttonStyle(.link)
+                    #endif
+                    
                     Button("Unlink folder", systemImage: "folder.badge.minus", role:.destructive) {
                         showUnlinkConfirmation = true
                     }
@@ -502,6 +510,22 @@ struct FolderView: View {
         .alert(isPresented: $showError, content: {
             Alert(title: Text("An error occured"), message: Text(errorText), dismissButton: .default(Text("OK")))
         })
+        .sheet(isPresented: $showGenerateThumbnails) {
+            NavigationStack {
+                FolderGenerateThumbnailsView(appState: self.appState, isShown: $showGenerateThumbnails, folder: self.folder)
+                    .navigationTitle("Generate thumbnails")
+                    #if os(iOS)
+                        .navigationBarTitleDisplayMode(.inline)
+                    #endif
+                    .toolbar(content: {
+                        ToolbarItem(placement: .cancellationAction, content: {
+                            Button("Cancel") {
+                                showGenerateThumbnails = false
+                            }
+                        })
+                    })
+            }
+        }
     }
 }
 
@@ -569,7 +593,101 @@ struct ShareWithDeviceToggleView: View {
             }).labelStyle(.iconOnly)
         }
         .sheet(isPresented: $showEditEncryptionPassword) {
-            ShareFolderWithDeviceDetailsView(appState: self.appState, folder: self.folder, deviceID: $editEncryptionPasswordDeviceID)
+            NavigationStack {
+                ShareFolderWithDeviceDetailsView(appState: self.appState, folder: self.folder, deviceID: $editEncryptionPasswordDeviceID)
+            }
+        }
+    }
+}
+
+struct FolderGenerateThumbnailsView: View {
+    @ObservedObject var appState: AppState
+    @Binding var isShown: Bool
+    let folder: SushitrainFolder
+    @State private var error: Error? = nil
+    @State private var totalFiles: Int = 0
+    @State private var processedFiles: Int = 0
+    @State private var lastThumbnail: AsyncImagePhase? = nil
+    
+    var body: some View {
+        VStack {
+            if let e = error {
+                Text(e.localizedDescription)
+            }
+            else {
+                if let img = self.lastThumbnail {
+                    switch img {
+                    case .success(let img):
+                        img.frame(maxWidth: 200, maxHeight: 200).clipShape(.rect(cornerRadius: 10))
+                    default:
+                        Rectangle().frame(width: 200, height: 200).foregroundStyle(.gray).opacity(0.2).clipShape(.rect(cornerRadius: 10))
+                    }
+                }
+                else {
+                    Rectangle().frame(width: 200, height: 200).foregroundStyle(.gray).opacity(0.2).clipShape(.rect(cornerRadius: 10))
+                }
+                
+                Text("Generating thumbnails...")
+                if self.totalFiles > 0 {
+                    ProgressView(value: Float(self.processedFiles), total: Float(self.totalFiles))
+                }
+                
+            }
+        }
+        .padding(30)
+        .alert(isPresented: Binding.constant(error != nil)) {
+            Alert(title: Text("An error occurred"), message: Text(error!.localizedDescription), dismissButton: .default(Text("OK")) {
+                isShown = false
+            })
+        }
+        .task {
+            #if os(iOS)
+                UIApplication.shared.isIdleTimerDisabled = true
+            #endif
+            do {
+                let stats = try self.folder.statistics()
+                self.totalFiles = stats.global?.files ?? 0
+                self.processedFiles = 0
+                try await self.generateFor(prefix: nil)
+                self.isShown = false
+            }
+            catch {
+                self.error = error
+            }
+            #if os(iOS)
+                UIApplication.shared.isIdleTimerDisabled = false
+            #endif
+        }
+    }
+    
+    private func generateFor(prefix: String?) async throws {
+        let files = try self.folder.list(prefix, directories: false, recurse: false)
+        self.totalFiles += files.count()
+        
+        for idx in 0..<files.count() {
+            let filePath = files.item(at: idx)
+            if Task.isCancelled {
+                Log.info("Thumbnail generate task cancelled")
+                return
+            }
+            
+            if let file = try? self.folder.getFileInformation((prefix ?? "") + "/" + filePath) {
+                if file.isDirectory() {
+                    try await self.generateFor(prefix: file.path())
+                }
+                if file.canThumbnail {
+                    let url = file.isLocallyPresent() ? file.localNativeFileURL! : URL(string: file.onDemandURL())!
+                    let cacheKey = file.cacheKey
+                    if cacheKey.count > 5 {
+                        let thumb = await getThumbnail(cacheKey: cacheKey, url: url, strategy: file.thumbnailStrategy)
+                        self.lastThumbnail = thumb
+                    }
+                }
+                self.processedFiles += 1
+            }
+            else {
+                Log.warn("Could not get file entry for path \(filePath)")
+            }
         }
     }
 }
