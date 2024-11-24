@@ -16,7 +16,7 @@ struct ThumbnailView: View {
     var body: some View {
         if file.canThumbnail {
             let isLocallyPresent = file.isLocallyPresent()
-            if isLocallyPresent || showPreview || file.size() <= appState.maxBytesForPreview || (appState.previewVideos && file.isVideo) {
+            if isLocallyPresent || showPreview || ImageCache[file.cacheKey] != nil || file.size() <= appState.maxBytesForPreview || (appState.previewVideos && file.isVideo) {
                 ThumbnailImage(entry: file, content: { phase in
                     switch phase {
                     case .empty:
