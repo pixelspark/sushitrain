@@ -111,25 +111,20 @@ private let MaxThumbnailDimensionsInPixels = 255
 
 private enum ThumbnailImageError: Error {
     case invalidCacheKey
+    case invalidLocalURL
 }
 
 struct ThumbnailImage<Content>: View where Content: View {
-    private let cacheKey: String
-    private let url: URL
+    private let entry: SushitrainEntry
     private let content: (AsyncImagePhase) -> Content
-    private let thumbnailStrategy: ThumbnailStrategy
     
     @State private var phase: AsyncImagePhase = .empty
     
     init(
-        cacheKey: String,
-        url: URL,
-        strategy: ThumbnailStrategy,
+        entry: SushitrainEntry,
         @ViewBuilder content: @escaping (AsyncImagePhase) -> Content
     ) {
-        self.cacheKey = cacheKey
-        self.url = url
-        self.thumbnailStrategy = strategy
+        self.entry = entry
         self.content = content
     }
     
@@ -138,7 +133,7 @@ struct ThumbnailImage<Content>: View where Content: View {
             .task {
                 self.phase = await fetchOrCached()
             }
-            .onChange(of: url) { (ov,nv) in
+            .onChange(of: self.entry) { (ov, nv) in
                 Task {
                     self.phase = await fetchOrCached()
                 }
@@ -146,48 +141,8 @@ struct ThumbnailImage<Content>: View where Content: View {
     }
     
     private func fetchOrCached() async -> AsyncImagePhase {
-        if cacheKey.count > 5 {
-            return await getThumbnail(cacheKey: self.cacheKey, url: self.url, strategy: self.thumbnailStrategy)
-        }
-        else {
-            return AsyncImagePhase.failure(ThumbnailImageError.invalidCacheKey)
-        }
+        return await ImageCache.getThumbnail(file: self.entry, forceCache: false)
     }
-    
-    func cacheAndRender(phase: AsyncImagePhase) -> some View {
-        if case .success(let image) = phase {
-            ImageCache[cacheKey] = image
-        }
-        return content(phase)
-    }
-}
-
-func getThumbnail(cacheKey: String, url: URL, strategy: ThumbnailStrategy) async -> AsyncImagePhase {
-    if let cached = await ImageCache[cacheKey] {
-        return .success(cached)
-    }
-    
-    if url.isFileURL {
-        return await Task.detached {
-            return await fetchQuicklookThumbnail(url, size: CGSize(width: MaxThumbnailDimensionsInPixels, height: MaxThumbnailDimensionsInPixels))
-        }.value
-    }
-    
-    let ph = await Task.detached {
-        // For local files, ask QuickLook (and bypass our cache)
-        switch strategy {
-        case .image:
-            return await fetchImageThumbnail(url, maxDimensionsInPixels: MaxThumbnailDimensionsInPixels)
-        case .video:
-            return await fetchVideoThumbnail(url: url, maxDimensionsInPixels: MaxThumbnailDimensionsInPixels)
-        }
-    }.value
-    if case .success(let image) = ph {
-        DispatchQueue.main.async {
-            ImageCache[cacheKey] = image
-        }
-    }
-    return ph
 }
 
 @MainActor
@@ -292,78 +247,136 @@ class ImageCache {
             }
             ImageCache.cache[cacheKey] = newValue
             
-            if diskCacheEnabled && diskHasSpace {
-                if let image = newValue {
-                    let renderer = ImageRenderer(content: image)
-                    renderer.isOpaque = true
-
-                    #if os(iOS)
-                        // We're using JPEG for now, because HEIC leads to distorted thumbnails for HDR videos
-                        if let data = renderer.uiImage?.jpegData(compressionQuality: 0.9) {
-                            let url = Self.pathFor(cacheKey: cacheKey)
-                            let dirURL = url.deletingLastPathComponent()
-
-                            do {
-                                try FileManager.default.createDirectory(at: dirURL, withIntermediateDirectories: true)
-                                try data.write(to: url)
-                                try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
-                            }
-                            catch {
-                                Log.warn("Could not write to cache file \(url.path()): \(error.localizedDescription)")
-                            }
-                        }
-                    #else
-                        // Let's do things the more old-fashioned way on macOS
-                        if let nsImage = renderer.nsImage {
-                            if let tiff = nsImage.tiffRepresentation,
-                                let rep = NSBitmapImageRep(data: tiff),
-                                let jpegData = rep.representation(using: .jpeg, properties: [.compressionFactor: 0.9]) {
-                                let url = Self.pathFor(cacheKey: cacheKey)
-                                let dirURL = url.deletingLastPathComponent()
-                                do {
-                                    try FileManager.default.createDirectory(at: dirURL, withIntermediateDirectories: true)
-                                    try FileManager.default.createDirectory(at: Self.cacheDirectory, withIntermediateDirectories: true)
-                                    try jpegData.write(to: url)
-                                    try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
-                                }
-                                catch {
-                                    Log.warn("Could not write to cache file \(url.path()): \(error.localizedDescription)")
-                                }
-                            }
-                            else {
-                                Log.warn("Could not generate JPEG")
-                            }
-                        }
-                        
-                        // Below is the code to do this using CoreGraphics and HEIF on macOS. This however leads to 'noise'
-                        // for thumbnails that are generated from videos for some reason...
-                        /*
-                        if let cgImage = ImageRenderer(content: image).cgImage {
-                            let url = Self.pathFor(cacheKey: cacheKey)
-                            do {
-                                try FileManager.default.createDirectory(at: Self.cacheDirectory, withIntermediateDirectories: true)
-                                if let heifDest = CGImageDestinationCreateWithURL(url as CFURL, AVFileType.heic as CFString, 1, nil) {
-                                    CGImageDestinationAddImage(heifDest, cgImage, nil)
-                                    if CGImageDestinationFinalize(heifDest) {
-                                        try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
-                                    }
-                                    else {
-                                        Log.warn("Failed writing HEIF image")
-                                    }
-                                }
-                                else {
-                                    Log.warn("Could not generate HEIF file")
-                                }
-                            }
-                            catch {
-                                Log.warn("Could not write to cache file \(url.path()): \(error.localizedDescription)")
-                            }
-                        }
-                        */
-                    #endif
-                }
+            if let image = newValue {
+                Self.writeToDiskCache(image: image, cacheKey: cacheKey)
             }
         }
+    }
+    
+    fileprivate static func writeToDiskCache(image: Image, cacheKey: String) {
+        if diskCacheEnabled && diskHasSpace {
+            let renderer = ImageRenderer(content: image)
+            renderer.isOpaque = true
+
+            #if os(iOS)
+                // We're using JPEG for now, because HEIC leads to distorted thumbnails for HDR videos
+                if let data = renderer.uiImage?.jpegData(compressionQuality: 0.9) {
+                    let url = Self.pathFor(cacheKey: cacheKey)
+                    let dirURL = url.deletingLastPathComponent()
+
+                    do {
+                        try FileManager.default.createDirectory(at: dirURL, withIntermediateDirectories: true)
+                        try data.write(to: url)
+                        try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
+                    }
+                    catch {
+                        Log.warn("Could not write to cache file \(url.path()): \(error.localizedDescription)")
+                    }
+                }
+            #else
+                // Let's do things the more old-fashioned way on macOS
+                if let nsImage = renderer.nsImage {
+                    if let tiff = nsImage.tiffRepresentation,
+                        let rep = NSBitmapImageRep(data: tiff),
+                        let jpegData = rep.representation(using: .jpeg, properties: [.compressionFactor: 0.9]) {
+                        let url = Self.pathFor(cacheKey: cacheKey)
+                        let dirURL = url.deletingLastPathComponent()
+                        do {
+                            try FileManager.default.createDirectory(at: dirURL, withIntermediateDirectories: true)
+                            try FileManager.default.createDirectory(at: Self.cacheDirectory, withIntermediateDirectories: true)
+                            try jpegData.write(to: url)
+                            try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
+                        }
+                        catch {
+                            Log.warn("Could not write to cache file \(url.path()): \(error.localizedDescription)")
+                        }
+                    }
+                    else {
+                        Log.warn("Could not generate JPEG")
+                    }
+                }
+                
+                // Below is the code to do this using CoreGraphics and HEIF on macOS. This however leads to 'noise'
+                // for thumbnails that are generated from videos for some reason...
+                /*
+                if let cgImage = ImageRenderer(content: image).cgImage {
+                    let url = Self.pathFor(cacheKey: cacheKey)
+                    do {
+                        try FileManager.default.createDirectory(at: Self.cacheDirectory, withIntermediateDirectories: true)
+                        if let heifDest = CGImageDestinationCreateWithURL(url as CFURL, AVFileType.heic as CFString, 1, nil) {
+                            CGImageDestinationAddImage(heifDest, cgImage, nil)
+                            if CGImageDestinationFinalize(heifDest) {
+                                try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
+                            }
+                            else {
+                                Log.warn("Failed writing HEIF image")
+                            }
+                        }
+                        else {
+                            Log.warn("Could not generate HEIF file")
+                        }
+                    }
+                    catch {
+                        Log.warn("Could not write to cache file \(url.path()): \(error.localizedDescription)")
+                    }
+                }
+                */
+            #endif
+        }
+    }
+    
+    nonisolated static func getThumbnail(file: SushitrainEntry, forceCache: Bool) async -> AsyncImagePhase {
+        let cacheKey = file.cacheKey
+        if cacheKey.count < 6 {
+            return AsyncImagePhase.failure(ThumbnailImageError.invalidCacheKey)
+        }
+        
+        // If we have a cached thumbnail, use that
+        if let cached = await ImageCache[cacheKey] {
+            if forceCache {
+                await ImageCache.writeToDiskCache(image: cached, cacheKey: cacheKey)
+            }
+            return .success(cached)
+        }
+        
+        // For local files, ask QuickLook (and bypass our cache)
+        if file.isLocallyPresent() {
+            if let url = file.localNativeFileURL {
+                let result = await Task.detached {
+                    return await fetchQuicklookThumbnail(url, size: CGSize(width: MaxThumbnailDimensionsInPixels, height: MaxThumbnailDimensionsInPixels))
+                }.value
+                
+                // If caching is forced, save successful result to disk cache
+                if case let .success(image) = result, forceCache {
+                    await ImageCache.writeToDiskCache(image: image, cacheKey: cacheKey)
+                }
+                
+                return result
+            }
+            else {
+                return AsyncImagePhase.failure(ThumbnailImageError.invalidLocalURL)
+            }
+        }
+        
+        // Remote files
+        let strategy = file.thumbnailStrategy
+        let url = URL(string: file.onDemandURL())!
+        let ph = await Task.detached {
+            switch strategy {
+            case .image:
+                return await fetchImageThumbnail(url, maxDimensionsInPixels: MaxThumbnailDimensionsInPixels)
+            case .video:
+                return await fetchVideoThumbnail(url: url, maxDimensionsInPixels: MaxThumbnailDimensionsInPixels)
+            }
+        }.value
+        
+        // Save remote thumbnail to in-memory cache
+        if case .success(let image) = ph {
+            DispatchQueue.main.async {
+                ImageCache[cacheKey] = image
+            }
+        }
+        return ph
     }
 }
 

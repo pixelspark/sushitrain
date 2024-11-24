@@ -676,9 +676,13 @@ fileprivate struct FolderGenerateThumbnailsView: View {
         }
     }
     
+    private static let thumbnailInterval: TimeInterval = 1.0
+    
     private func generateFor(prefix: String?) async throws {
-        let thumbnailInterval: TimeInterval = 1.0
+        // If thumbnails are written to a custom folder, also write thumbnails for local images
+        let forceCache = !appState.cacheThumbnailsToFolderID.isEmpty
         
+        // Iterate over this folder's entries
         let files = try self.folder.list(prefix, directories: false, recurse: false)
         
         for idx in 0..<files.count() {
@@ -689,19 +693,20 @@ fileprivate struct FolderGenerateThumbnailsView: View {
             }
             
             if let file = try? self.folder.getFileInformation((prefix ?? "") + "/" + filePath) {
+                // Recurse into subdirectories (depth-first)
                 if file.isDirectory() {
                     try await self.generateFor(prefix: file.path())
                 }
-                if file.canThumbnail {
-                    let url = file.isLocallyPresent() ? file.localNativeFileURL! : URL(string: file.onDemandURL())!
-                    let cacheKey = file.cacheKey
-                    if cacheKey.count > 5 {
-                        let thumb = await getThumbnail(cacheKey: cacheKey, url: url, strategy: file.thumbnailStrategy)
-                        
-                        if (-lastThumbnailTime.timeIntervalSinceNow) > thumbnailInterval {
-                            lastThumbnailTime = Date.now
-                            self.lastThumbnail = thumb
-                        }
+                
+                // Generate thumbnail for files that are not locally present (otherwise QuickLook will manage it for us)
+                // except when we are writing to a custom thumbnail folder (this device can then generate thumbnails for
+                // another from local files)
+                if file.canThumbnail && (forceCache || !file.isLocallyPresent()) {
+                    let thumb = await ImageCache.getThumbnail(file: file, forceCache: forceCache)
+                    
+                    if (-lastThumbnailTime.timeIntervalSinceNow) > Self.thumbnailInterval {
+                        lastThumbnailTime = Date.now
+                        self.lastThumbnail = thumb
                     }
                 }
                 self.processedFiles += 1

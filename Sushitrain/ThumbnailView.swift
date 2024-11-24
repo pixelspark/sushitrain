@@ -17,16 +17,16 @@ struct ThumbnailView: View {
         if file.canThumbnail {
             let isLocallyPresent = file.isLocallyPresent()
             if isLocallyPresent || showPreview || file.size() <= appState.maxBytesForPreview || (appState.previewVideos && file.isVideo) {
-                let url = isLocallyPresent ? file.localNativeFileURL! : URL(string: file.onDemandURL())!
-                    
-                ThumbnailImage(cacheKey: file.cacheKey, url: url, strategy: file.thumbnailStrategy, content: { phase in
+                ThumbnailImage(entry: file, content: { phase in
                     switch phase {
                     case .empty:
                         HStack(alignment: .center, content: {
                             ProgressView()
                         })
+                        
                     case .success(let image):
                         image.resizable().scaledToFill()
+                        
                     case .failure(_):
                         if self.showErrorMessages {
                             Text("The file is currently not available for preview.")
@@ -34,6 +34,7 @@ struct ThumbnailView: View {
                         else {
                             self.iconAndTextBody
                         }
+                        
                     @unknown default:
                         EmptyView()
                     }

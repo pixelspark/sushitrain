@@ -4976,35 +4976,6 @@
         }
       }
     },
-    "Generating thumbnails..." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vorschaubilder werden erstellt..."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Generando miniaturas..."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Generazione miniature..."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Miniaturen genereren..."
-          }
-        }
-      }
-    },
     "Generating thumbnails... (%lld / %lld)" : {
       "localizations" : {
         "de" : {
