@@ -680,7 +680,6 @@ fileprivate struct FolderGenerateThumbnailsView: View {
         let thumbnailInterval: TimeInterval = 1.0
         
         let files = try self.folder.list(prefix, directories: false, recurse: false)
-        self.totalFiles += files.count()
         
         for idx in 0..<files.count() {
             let filePath = files.item(at: idx)
