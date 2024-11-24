@@ -235,6 +235,15 @@ fileprivate struct BrowserListView: View {
                                     .padding(.vertical, 15)
                                 }
                                 
+                                if hasExtraneousFiles {
+                                    NavigationLink(destination: {
+                                        ExtraFilesView(folder: self.folder, appState: self.appState)
+                                    }) {
+                                        Label("This folder has new files", systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                }
+                                
                                 GridFilesView(appState: appState, prefix: self.prefix, files: files, subdirectories: subdirectories, folder: folder)
                                     .padding(.horizontal, 15)
                             }
