@@ -177,10 +177,10 @@ class ImageCache {
     }
     
     private static func pathFor(cacheKey: String) -> URL {
-        assert(cacheKey.count > 5, "cache key too short")
-        let prefixA = String(cacheKey.prefix(2))
-        let prefixB = String(cacheKey.prefix(4).suffix(2))
-        let fileName = cacheKey.suffix(cacheKey.count - 4)
+        assert(cacheKey.count > 3, "cache key too short")
+        let prefixA = String(cacheKey.prefix(1))
+        let prefixB = String(cacheKey.prefix(2).suffix(1))
+        let fileName = cacheKey.suffix(cacheKey.count - 2)
         
         return Self.cacheDirectory
             .appendingPathComponent(prefixA, isDirectory: true)
