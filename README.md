@@ -4,6 +4,13 @@ Securely synchronize files on-demand using Syncthing on iOS.
 
 [Download on the App Store](https://apps.apple.com/nl/app/synctrain/id6553985316) | [Test beta versions through TestFlight](https://testflight.apple.com/join/2f54I4CM)
 
+In addition to the very powerful file synchronization features offered by Syncthing, this app has some extra tricks up it
+sleeve:
+
+- **Selective file synchronization**: only keep specific files or subdirectories from a larger folder on your device.
+- **On-demand access to files**: download or stream files that are not available locally from another peer through the Syncthing protocol. This allows access to your files, from your own devices, without setting up a VPN.
+- [**Remote thumbnails**](./Docs/thumbnails.md): the app can generate thumbnails for files on other devices (images or videos). You can even synchronize thumbnails between devices, so previews can be generated on a device that has all the files for use on other devices.
+
 ## Building
 
 The app consists of a framework in Go and front-end code in Swift.
@@ -67,12 +74,12 @@ Technically the app runs a full-blown Syncthing node in-process. This means it s
 of Syncthing, as well as features around e.g. discovery, ignore files, et cetera. Not all features are exposed, however, for
 ease of use and/or because they do not make sense on iOS.
 
-### Features
+## Features
 
 As Sushitrain is intended to be used on a mobile device, it provides several affordances that regular Syncthing clients
 typically do not. The most important features are (1) on-demand download and (2) selective synchronisation.
 
-#### Selective synchronisation
+### Selective synchronisation
 
 Typically, mobile devices are constrained in the amount of storage they have. While modern devices are capable enough for
 synchronising larger folders using Syncthing, it is often undesirable. Current clients do not offer any other way to access
@@ -118,7 +125,7 @@ and future) file in the folder:
 
 Current and future files in the folder will be synced and considered 'implicitly selected'.
 
-#### On-demand downloads
+### On-demand downloads
 
 In Sushitrain, files can be accessed on demand. The user can select a file to view, and it will be downloaded from one of
 the peers that has the necessary blocks available. The file is selected from the 'global index' (i.e. the set of files that
@@ -130,7 +137,7 @@ a video file for streaming, it will point the media player to a special URL (`/f
 HTTP range requests. Range requests will cause only the blocks necessary to fulfill the request to be fetched from the Syncthing
 remote peer.
 
-#### Custom configurations
+### Custom configurations
 
 By default, the app will create a device identity and default configuration on first launch, and store it in the
 'Library/Application Support'-directory. Synced folders will end up in the `Documents` directory, where they will be visible from
@@ -139,6 +146,10 @@ the iOS 'Files' app.
 A custom configuration can be loaded by placing `config.xml` in the `Documents` folder and restarting the app. This will
 show a warning on startup. By placing `cert.pem` and `key.pem` (both) in the `Documents` folder, a custom device identity
 can be loaded as well. This feature is useful for testing the app.
+
+### Thumbnails
+
+See the [documentation on thumbnails](./Docs/thumbnails.md).
 
 ## The name
 
