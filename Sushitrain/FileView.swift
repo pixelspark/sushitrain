@@ -15,7 +15,7 @@ fileprivate struct FileMediaPlayer<Content: View>: View {
     
     @State private var player: AVPlayer?
     
-    @ObservedObject var appState: AppState
+    let appState: AppState
     var file: SushitrainEntry
     @Binding var visible: Bool
     
@@ -150,7 +150,7 @@ fileprivate struct FileMediaPlayer<Content: View>: View {
 }
 
 struct FileViewerView<Content: View>: View {
-    @ObservedObject var appState: AppState
+    let appState: AppState
     var file: SushitrainEntry
     @Binding var isShown: Bool
     @ViewBuilder var videoOverlay: () -> Content
@@ -191,7 +191,7 @@ struct FileViewerView<Content: View>: View {
 }
 
 struct FileViewerSheetView<Content: View>: View {
-    @ObservedObject var appState: AppState
+    let appState: AppState
     var file: SushitrainEntry
     @Binding var isShown: Bool
     @ViewBuilder var videoOverlay: () -> Content
@@ -215,7 +215,7 @@ struct FileViewerSheetView<Content: View>: View {
 }
 
 struct FileViewerSheetNextPreviousView: View {
-    @ObservedObject var appState: AppState
+    let appState: AppState
     @State var file: SushitrainEntry
     let siblings: [SushitrainEntry]
     @Binding var isShown: Bool
@@ -270,7 +270,7 @@ struct FileViewerSheetNextPreviousView: View {
 
 struct FileView: View {
     @State private var file: SushitrainEntry
-    @ObservedObject private var appState: AppState
+    private let appState: AppState
     private var showPath = false
     private var siblings: [SushitrainEntry]? = nil
     private var folder: SushitrainFolder
@@ -422,6 +422,7 @@ struct FileView: View {
                     if file.canThumbnail {
                         Section {
                             ThumbnailView(file: file, appState: appState, showFileName: false, showErrorMessages: true)
+                                .id(file.id)
                                 .padding(.all, 10)
                                 .cornerRadius(8.0)
                                 .onTapGesture {
@@ -645,7 +646,7 @@ struct FileView: View {
                 
                 .sheet(isPresented: $showDownloader, content: {
                     NavigationStack {
-                        FileQuickLookView(file: file, appState: self.appState)
+                        FileQuickLookView(appState: self.appState, file: file)
                             #if os(iOS)
                                 .navigationBarTitleDisplayMode(.inline)
                             #endif
@@ -719,7 +720,7 @@ struct FileView: View {
 }
 
 fileprivate struct DownloadProgressView: View {
-    @ObservedObject var appState: AppState
+    let appState: AppState
     let file: SushitrainEntry
     let folder: SushitrainFolder
     

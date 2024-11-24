@@ -49,8 +49,8 @@ fileprivate class DownloadOperation: NSObject, ObservableObject, SushitrainDownl
 }
 
 struct FileQuickLookView: View {
+    let appState: AppState
     @State var file: SushitrainEntry
-    @ObservedObject var appState: AppState
     @StateObject private var downloadOperation: DownloadOperation = DownloadOperation()
     @State private var quicklookHidden = false
     @State private var filePath: URL? = nil

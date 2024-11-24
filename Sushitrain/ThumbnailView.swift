@@ -8,7 +8,7 @@ import SwiftUI
 
 struct ThumbnailView: View {
     var file: SushitrainEntry
-    @ObservedObject var appState: AppState
+    var appState: AppState
     @State var showPreview = false
     var showFileName: Bool
     var showErrorMessages: Bool

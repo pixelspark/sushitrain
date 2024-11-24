@@ -7,7 +7,7 @@ import SwiftUI
 @preconcurrency import SushitrainCore
 
 fileprivate struct GridItemView: View {
-    @ObservedObject var appState: AppState
+    let appState: AppState
     let size: Double
     let file: SushitrainEntry
 
@@ -20,6 +20,7 @@ fileprivate struct GridItemView: View {
             
             ThumbnailView(file: file, appState: appState, showFileName: true, showErrorMessages: false)
                 .frame(width: size, height: size)
+                .id(file.id)
         }
     }
 }

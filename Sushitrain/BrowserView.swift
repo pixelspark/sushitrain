@@ -14,7 +14,7 @@ enum BrowserViewStyle: String {
 }
 
 struct FileEntryLink<Content: View>: View {
-    @ObservedObject var appState: AppState
+    let appState: AppState
     let entry: SushitrainEntry
     let siblings: [SushitrainEntry]
     @ViewBuilder var content: () -> Content
@@ -89,6 +89,7 @@ struct FileEntryLink<Content: View>: View {
                     VStack {
                         ThumbnailView(file: entry, appState: appState, showFileName: false, showErrorMessages: false)
                             .frame(minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
+                            .id(entry.id)
                     }
                 }
             }
@@ -96,7 +97,7 @@ struct FileEntryLink<Content: View>: View {
 }
 
 fileprivate struct EntryView: View {
-    @ObservedObject var appState: AppState
+    let appState: AppState
     let entry: SushitrainEntry
     let folder: SushitrainFolder
     let siblings: [SushitrainEntry]
@@ -109,6 +110,7 @@ fileprivate struct EntryView: View {
                     ThumbnailView(file: entry, appState: appState, showFileName: false, showErrorMessages: false)
                         .frame(width: 60, height: 40)
                         .cornerRadius(6.0)
+                        .id(entry.id)
                     Text(entry.fileName())
                     Spacer()
                 }
@@ -164,6 +166,7 @@ fileprivate struct EntryView: View {
                             VStack {
                                 ThumbnailView(file: targetEntry, appState: appState, showFileName: false, showErrorMessages: false)
                                     .frame(minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
+                                    .id(targetEntry.id)
                             }
                         }
                     }
@@ -287,6 +290,7 @@ fileprivate struct BrowserListView: View {
                             Section {
                                 ForEach(files, id: \.self) { file in
                                     EntryView(appState: appState, entry: file, folder: folder, siblings: files, showThumbnail: self.viewStyle == .thumbnailList)
+                                        .id(file.id)
                                 }
                             }
                         }
