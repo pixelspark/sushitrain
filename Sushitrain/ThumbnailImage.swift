@@ -267,7 +267,11 @@ class ImageCache {
                     do {
                         try FileManager.default.createDirectory(at: dirURL, withIntermediateDirectories: true)
                         try data.write(to: url)
-                        try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
+                        
+                        // If we're using the default thumbnails directory, do not set complete protection for thumbnails
+                        if Self.customCacheDirectory == nil {
+                            try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
+                        }
                     }
                     catch {
                         Log.warn("Could not write to cache file \(url.path()): \(error.localizedDescription)")
@@ -285,7 +289,11 @@ class ImageCache {
                             try FileManager.default.createDirectory(at: dirURL, withIntermediateDirectories: true)
                             try FileManager.default.createDirectory(at: Self.cacheDirectory, withIntermediateDirectories: true)
                             try jpegData.write(to: url)
-                            try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
+                            
+                            // If we're using the default thumbnails directory, do not set complete protection for thumbnails
+                            if Self.customCacheDirectory == nil {
+                                try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
+                            }
                         }
                         catch {
                             Log.warn("Could not write to cache file \(url.path()): \(error.localizedDescription)")
