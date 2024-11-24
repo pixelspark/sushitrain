@@ -273,7 +273,7 @@ extension SushitrainEntry {
     }
     
     var canThumbnail: Bool {
-        return self.isVideo || (self.isImage && self.mimeType() != "image/svg+xml") || (!self.isDirectory() && self.isLocallyPresent())
+        return self.isVideo || (self.isImage && self.mimeType() != "image/svg+xml") || !self.isDirectory()
     }
     
     var localNativeFileURL: URL? {

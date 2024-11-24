@@ -6,6 +6,7 @@
 import SwiftUI
 @preconcurrency import SushitrainCore
 import BackgroundTasks
+import Combine
 
 class SushitrainAppDelegate: NSObject {
     fileprivate var appState: AppState
@@ -19,6 +20,7 @@ class SushitrainAppDelegate: NSObject {
 struct SushitrainApp: App {
     fileprivate var appState: AppState
     fileprivate var delegate: SushitrainAppDelegate
+    
     #if os(macOS)
         @Environment(\.openWindow) private var openWindow
         @AppStorage("hideInDock") var hideInDock: Bool = false
@@ -39,14 +41,13 @@ struct SushitrainApp: App {
             exit(-1)
         }
         
-        self.appState = AppState(client: client, documentsDirectory: documentsDirectory, configDirectory: configDirectory)
+        let appState = AppState(client: client, documentsDirectory: documentsDirectory, configDirectory: configDirectory)
+        self.appState = appState
         self.appState.isLogging = enableLogging
         self.delegate = SushitrainAppDelegate(appState: self.appState)
         client.delegate = self.delegate;
         client.server?.delegate = self.delegate;
         self.appState.update()
-        
-        let appState = self.appState
         
         // Resolve bookmarks
         let folderIDs = client.folders()?.asArray() ?? []
@@ -219,18 +220,7 @@ extension SushitrainAppDelegate: SushitrainClientDelegateProtocol {
     func onEvent(_ event: String?) {
         let appState = self.appState
         DispatchQueue.main.async {
-            appState.lastEvent = event ?? "unknown event"
-            appState.eventCounter += 1
-            appState.update()
-        }
-        
-        if event == "LocalIndexUpdated" || event == "LocalChangeDetected" {
-            // Check for extraneous files and update app badge accordingly
-            DispatchQueue.main.async {
-                Task {
-                    await appState.updateBadge()
-                }
-            }
+            appState.changePublisher.send()
         }
     }
     

@@ -32,7 +32,6 @@ enum FolderMetric: String {
     @Published var alertMessage: String = ""
     @Published var alertShown: Bool = false
     @Published var localDeviceID: String = ""
-    @Published var lastEvent: String = ""
     @Published var eventCounter: Int = 0
     @Published var discoveredDevices: [String: [String]] = [:]
     @Published var resolvedListenAddresses = Set<String>()
@@ -66,6 +65,9 @@ enum FolderMetric: String {
     
     var photoSync = PhotoSynchronisation()
     
+    var changePublisher = PassthroughSubject<Void, Never>()
+    private var changeCancellable: AnyCancellable? = nil
+    
     #if os(iOS)
         // The IDs of the peers that were suspended when the app last entered background, and should be re-enabled when the
         // app enters the foreground state.
@@ -92,10 +94,18 @@ enum FolderMetric: String {
         self.client = client;
         self.documentsDirectory = documentsDirectory;
         self.configDirectory = configDirectory;
+        
         #if os(iOS)
             self.backgroundManager = BackgroundManager(appState: self)
             self.lingerManager = LingerManager(appState: self)
         #endif
+        
+        self.changeCancellable = self.changePublisher.throttle(for: .seconds(0.5), scheduler: RunLoop.main, latest: true).sink { [weak self] _  in
+            if let s = self {
+                s.eventCounter += 1
+                s.update()
+            }
+        }
     }
     
     func protectFiles() {
@@ -181,6 +191,10 @@ enum FolderMetric: String {
         let devID = self.client.deviceID()
         DispatchQueue.main.async {
             self.localDeviceID = devID
+            
+            Task {
+                await self.updateBadge()
+            }
         }
     }
     
@@ -219,9 +233,12 @@ enum FolderMetric: String {
                 UNUserNotificationCenter.current().setBadgeCount(numExtra)
             }
         #elseif os(macOS)
-            Log.info("Set dock tile badgeLabel \(numExtra)")
+            let newBadge = numExtra > 0 ? String(numExtra) : ""
+            if NSApplication.shared.dockTile.badgeLabel != newBadge {
+                Log.info("Set dock tile badgeLabel \(numExtra)")
+            }
             NSApplication.shared.dockTile.showsApplicationBadge = numExtra > 0
-            NSApplication.shared.dockTile.badgeLabel = numExtra > 0 ? String(numExtra) : ""
+            NSApplication.shared.dockTile.badgeLabel = newBadge
             NSApplication.shared.dockTile.display()
         #endif
     }
