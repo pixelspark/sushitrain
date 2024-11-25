@@ -310,16 +310,16 @@ fileprivate struct BrowserListView: View {
                 }
             }
         }
+        .background {
+            if isLoading && showSpinner {
+                ProgressView()
+            }
+        }
         .overlay {
             if !folder.exists() {
                 ContentUnavailableView("Folder removed", systemImage: "trash", description: Text("This folder was removed."))
             }
-            else if isLoading {
-                if showSpinner {
-                    ProgressView()
-                }
-            }
-            else if isEmpty && self.prefix == "" {
+            else if !isLoading && isEmpty && self.prefix == "" {
                 if self.folder.isPaused() {
                     ContentUnavailableView("Synchronization disabled", systemImage: "pause.fill", description: Text("Synchronization has been disabled for this folder. Enable it in folder settings to access files.")).onTapGesture {
                         showSettings = true
