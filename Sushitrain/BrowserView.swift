@@ -315,9 +315,10 @@ fileprivate struct BrowserListView: View {
                 ContentUnavailableView("Folder removed", systemImage: "trash", description: Text("This folder was removed."))
             }
             else if isLoading {
-                if showSpinner {
+                if isEmpty && showSpinner {
                     ProgressView()
                 }
+                // Load the rest while already showing a part of the results
             }
             else if isEmpty && self.prefix == "" {
                 if self.folder.isPaused() {
