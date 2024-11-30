@@ -112,6 +112,7 @@ fileprivate struct EntryView: View {
                         .cornerRadius(6.0)
                         .id(entry.id)
                     Text(entry.fileName())
+                        .multilineTextAlignment(.leading)
                     Spacer()
                 }
                 .frame(maxWidth: .infinity)
