@@ -574,9 +574,10 @@ struct FileView: View {
                             if let selfIndex = selfIndex, let siblings = siblings {
                                 Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1)
                                     .labelStyle(.iconOnly)
-                                    .padding(.trailing, 8)
+                                    .padding([.trailing, .bottom, .top], 12)
                                 Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1)
                                     .labelStyle(.iconOnly)
+                                    .padding([.trailing, .bottom, .top],  12)
                             }
                         })
                         // Swipe up and down for next/previous
