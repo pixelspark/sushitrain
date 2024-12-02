@@ -128,7 +128,7 @@ struct IgnoresView: View {
         if self.error == nil {
             Task {
                 do {
-                    try await Task.detached {
+                    try await Task.detached(priority: .userInitiated) {
                         try self.folder.cleanSelection()
                     }.value
                 }
