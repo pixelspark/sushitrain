@@ -32,9 +32,14 @@ struct IgnoresView: View {
                 ForEach(Array(ignoreLines.enumerated()), id: \.offset) { idx in
                     HStack {
                         TextField("", text: Binding(get: {
-                            return self.ignoreLines[idx.offset]
+                            if idx.offset < self.ignoreLines.count {
+                                return self.ignoreLines[idx.offset]
+                            }
+                            return ""
                         }, set: { nv in
-                            self.ignoreLines[idx.offset] = nv
+                            if idx.offset < self.ignoreLines.count {
+                                self.ignoreLines[idx.offset] = nv
+                            }
                         }), prompt: Text("Pattern..."))
                         .autocorrectionDisabled()
                         #if os(iOS)
