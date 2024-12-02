@@ -8,6 +8,7 @@ import SwiftUI
 import SushitrainCore
 import VisionKit
 import WebKit
+import CoreTransferable
 
 extension SushitrainListOfStrings {
     public func asArray() -> [String] {
@@ -314,9 +315,25 @@ extension SushitrainEntry: @retroactive Transferable {
             if let url = entry.localNativeFileURL {
                 return url
             }
+            
             throw SushitrainEntryTransferableError.notAvailable
         }
+        .exportingCondition { entry in
+            entry.isLocallyPresent()
+        }
+        
+        // This works somewhat, but must be repeated for each file type... so it cannot be made consistent
+        // FileRepresentation(exportedContentType: .png, exporting: { try await $0.downloadFileToSent() }).exportingCondition({ !$0.isLocallyPresent() && $0.mimeType() == "image/png" })
+        // FileRepresentation(exportedContentType: .data, exporting: { try await $0.downloadFileToSent() }).exportingCondition({ !$0.isLocallyPresent() })
     }
+    
+    /* private func downloadFileToSent() async throws -> SentTransferredFile {
+        if let url = URL(string: self.onDemandURL()) {
+            let (localURL, _) = try await URLSession.shared.download(from: url)
+            return SentTransferredFile(localURL, allowAccessingOriginalFile: false)
+        }
+        throw SushitrainEntryTransferableError.notAvailable
+    } */
 }
 
 #if os(iOS)
@@ -324,6 +341,7 @@ struct QRScannerViewRepresentable: UIViewControllerRepresentable {
     @Binding var scannedText: String
     @Binding var shouldStartScanning: Bool
     var dataToScanFor: Set<DataScannerViewController.RecognizedDataType>
+
     
     class Coordinator: NSObject, DataScannerViewControllerDelegate {
         var parent: QRScannerViewRepresentable
