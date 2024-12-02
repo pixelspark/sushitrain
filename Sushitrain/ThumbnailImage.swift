@@ -222,6 +222,9 @@ class ImageCache {
     
     static subscript(cacheKey: String) -> Image? {
         get {
+            if cacheKey.count < 3 {
+                return nil
+            }
             // Attempt to retrieve from memory cache first
             if let img = ImageCache.cache[cacheKey] {
                 return img
@@ -246,6 +249,10 @@ class ImageCache {
             return nil
         }
         set {
+            if cacheKey.count < 3 {
+                return
+            }
+            
             // Memory cache (always enabled)
             while cache.count >= maxCacheSize {
                 // This is a rather random way to remove items from the cache, investigate using an ordered map
