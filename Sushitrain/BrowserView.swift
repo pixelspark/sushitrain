@@ -86,11 +86,14 @@ struct FileEntryLink<Content: View>: View {
                         Label(entry.fileName(), systemImage: entry.systemImage)
                     }
                 #endif
+                
                 ItemSelectToggleView(file: entry)
                 
-                Button("Copy", systemImage: "document.on.document") {
-                    self.copy()
-                }.disabled(!entry.isLocallyPresent())
+                #if os(macOS)
+                    Button("Copy", systemImage: "document.on.document") {
+                        self.copy()
+                    }.disabled(!entry.isLocallyPresent())
+                #endif
             } preview: {
                 NavigationStack { // to force the image to take up all available space
                     VStack {
@@ -102,17 +105,23 @@ struct FileEntryLink<Content: View>: View {
             }
     }
     
+    private static func writeURLToPasteboard(url: URL) {
+        #if os(macOS)
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            pasteboard.prepareForNewContents()
+            pasteboard.writeObjects([url as NSURL])
+        #else
+            UIPasteboard.general.urls = [url]
+        #endif
+    }
+    
     private func copy() {
-        let pasteboard = NSPasteboard.general
-        if let url = entry.localNativeFileURL as? NSURL, let refURL = url.fileReferenceURL() as? NSURL {
-            pasteboard.clearContents()
-            pasteboard.prepareForNewContents()
-            pasteboard.writeObjects([refURL])
+        if let url = entry.localNativeFileURL as? NSURL, let refURL = url.fileReferenceURL() {
+            Self.writeURLToPasteboard(url: refURL)
         }
-        else if let url = URL(string: entry.onDemandURL()) as? NSURL {
-            pasteboard.clearContents()
-            pasteboard.prepareForNewContents()
-            pasteboard.writeObjects([url])
+        else if let url = URL(string: entry.onDemandURL()) {
+            Self.writeURLToPasteboard(url: url)
         }
     }
 }
