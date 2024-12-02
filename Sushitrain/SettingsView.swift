@@ -316,9 +316,7 @@ struct AdvancedSettingsView: View {
         }
         .task {
             do {
-                await self.diskCacheSizeBytes = try Task.detached {
-                    return try await ImageCache.diskCacheSizeBytes()
-                }.value
+                self.diskCacheSizeBytes = try await ImageCache.diskCacheSizeBytes()
             }
             catch {
                 Log.warn("Could not determine thumbnail cache size: \(error.localizedDescription)")

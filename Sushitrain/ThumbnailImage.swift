@@ -198,11 +198,17 @@ class ImageCache {
         }
     }
     
-    static func diskCacheSizeBytes() throws -> UInt {
-        let files = try FileManager.default.subpathsOfDirectory(atPath: Self.cacheDirectory.path())
+    static func diskCacheSizeBytes() async throws -> UInt {
+        return try await Task.detached(priority: .utility) {
+            return try await Self.sizeOfFolder(path: Self.cacheDirectory)
+        }.value
+    }
+    
+    private nonisolated static func sizeOfFolder(path: URL) async throws -> UInt {
+        let files = try FileManager.default.subpathsOfDirectory(atPath: path.path())
         var totalSize: UInt = 0
         for file in files {
-            let filePath = Self.cacheDirectory.appendingPathComponent(file)
+            let filePath = path.appendingPathComponent(file)
             let fileDictionary = try FileManager.default.attributesOfItem(atPath: filePath.path())
             if let size = fileDictionary[FileAttributeKey.size] as? UInt {
                 totalSize += size
@@ -260,7 +266,7 @@ class ImageCache {
 
             #if os(iOS)
                 // We're using JPEG for now, because HEIC leads to distorted thumbnails for HDR videos
-                if let data = renderer.uiImage?.jpegData(compressionQuality: 0.9) {
+                if let data = renderer.uiImage?.jpegData(compressionQuality: 0.8) {
                     let url = Self.pathFor(cacheKey: cacheKey)
                     let dirURL = url.deletingLastPathComponent()
 
@@ -282,7 +288,7 @@ class ImageCache {
                 if let nsImage = renderer.nsImage {
                     if let tiff = nsImage.tiffRepresentation,
                         let rep = NSBitmapImageRep(data: tiff),
-                        let jpegData = rep.representation(using: .jpeg, properties: [.compressionFactor: 0.9]) {
+                        let jpegData = rep.representation(using: .jpeg, properties: [.compressionFactor: 0.8]) {
                         let url = Self.pathFor(cacheKey: cacheKey)
                         let dirURL = url.deletingLastPathComponent()
                         do {
