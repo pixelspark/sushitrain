@@ -139,6 +139,13 @@ struct FoldersSections: View {
                         }
                     }
                     .id(folder.folderID)
+                    #if os(macOS)
+                        .highPriorityGesture(TapGesture(count: 2).onEnded { _ in
+                            if let url = folder.localNativeURL {
+                                openURLInSystemFilesApp(url: url)
+                            }
+                        })
+                    #endif
                 }
             }.onChange(of: appState.eventCounter) {
                 self.updateFolders()
