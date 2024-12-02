@@ -79,11 +79,18 @@ struct FileEntryLink<Content: View>: View {
     
     var body: some View {
         self.inner
+            .draggable(entry)
             .contextMenu {
-                NavigationLink(destination: FileView(file: entry, appState: self.appState, siblings: siblings)) {
-                    Label(entry.fileName(), systemImage: entry.systemImage)
-                }
+                #if os(iOS)
+                    NavigationLink(destination: FileView(file: entry, appState: self.appState, siblings: siblings)) {
+                        Label(entry.fileName(), systemImage: entry.systemImage)
+                    }
+                #endif
                 ItemSelectToggleView(file: entry)
+                
+                Button("Copy", systemImage: "document.on.document") {
+                    self.copy()
+                }.disabled(!entry.isLocallyPresent())
             } preview: {
                 NavigationStack { // to force the image to take up all available space
                     VStack {
@@ -93,6 +100,20 @@ struct FileEntryLink<Content: View>: View {
                     }
                 }
             }
+    }
+    
+    private func copy() {
+        let pasteboard = NSPasteboard.general
+        if let url = entry.localNativeFileURL as? NSURL, let refURL = url.fileReferenceURL() as? NSURL {
+            pasteboard.clearContents()
+            pasteboard.prepareForNewContents()
+            pasteboard.writeObjects([refURL])
+        }
+        else if let url = URL(string: entry.onDemandURL()) as? NSURL {
+            pasteboard.clearContents()
+            pasteboard.prepareForNewContents()
+            pasteboard.writeObjects([url])
+        }
     }
 }
 
@@ -111,6 +132,7 @@ fileprivate struct EntryView: View {
                         .frame(width: 60, height: 40)
                         .cornerRadius(6.0)
                         .id(entry.id)
+                        .help(entry.fileName())
                     Text(entry.fileName())
                         .multilineTextAlignment(.leading)
                     Spacer()

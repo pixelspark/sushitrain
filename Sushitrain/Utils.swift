@@ -304,6 +304,21 @@ extension SushitrainEntry {
     }
 }
 
+enum SushitrainEntryTransferableError: Error {
+    case notAvailable
+}
+
+extension SushitrainEntry: @retroactive Transferable {
+    static public var transferRepresentation: some TransferRepresentation {
+        ProxyRepresentation { entry in
+            if let url = entry.localNativeFileURL {
+                return url
+            }
+            throw SushitrainEntryTransferableError.notAvailable
+        }
+    }
+}
+
 #if os(iOS)
 struct QRScannerViewRepresentable: UIViewControllerRepresentable {
     @Binding var scannedText: String
