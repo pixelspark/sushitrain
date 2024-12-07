@@ -61,6 +61,26 @@ func (fld *Folder) Rescan() error {
 	return nil
 }
 
+func (fld *Folder) RescanIntervalSeconds() int {
+	fc := fld.folderConfiguration()
+	if fc == nil {
+		return 0
+	}
+
+	return fc.RescanIntervalS
+}
+
+func (fld *Folder) SetRescanInterval(seconds int) error {
+	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
+		config := fld.folderConfiguration()
+		if config == nil {
+			return
+		}
+		config.RescanIntervalS = seconds
+		cfg.SetFolder(*config)
+	})
+}
+
 func (fld *Folder) Unlink() error {
 	fc := fld.folderConfiguration()
 	if fc == nil {

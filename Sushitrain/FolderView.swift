@@ -365,6 +365,7 @@ struct FolderView: View {
     @State private var showUnlinkConfirmation = false
     @State private var showGenerateThumbnails = false
     @State private var showGenerateThumbnailsConfirm = false
+    @State private var advancedExpanded = false
     
     var possiblePeers: [SushitrainPeer] {
         get {
@@ -428,19 +429,6 @@ struct FolderView: View {
                 }
                 
                 Section {
-                    #if os(iOS)
-                        if !folder.isSelective() {
-                            NavigationLink(destination: IgnoresView(appState: self.appState, folder: self.folder)
-                                .navigationTitle("Files to ignore")
-                               #if os(iOS)
-                                    .navigationBarTitleDisplayMode(.inline)
-                               #endif
-                            ) {
-                                Label("Files to ignore", systemImage: "rectangle.dashed")
-                            }
-                        }
-                    #endif
-                    
                     Button("Re-scan folder", systemImage: "sparkle.magnifyingglass") {
                         do {
                             try folder.rescan()
@@ -505,6 +493,36 @@ struct FolderView: View {
                                 errorText = error.localizedDescription
                             }
                         }
+                    }
+                }
+                
+                DisclosureGroup("Advanced folder settings", isExpanded: $advancedExpanded) {
+                    #if os(iOS)
+                        if !folder.isSelective() {
+                            NavigationLink(destination: IgnoresView(appState: self.appState, folder: self.folder)
+                                .navigationTitle("Files to ignore")
+                               #if os(iOS)
+                                    .navigationBarTitleDisplayMode(.inline)
+                               #endif
+                            ) {
+                                Label("Files to ignore", systemImage: "rectangle.dashed")
+                            }
+                        }
+                    #endif
+                    
+                    LabeledContent {
+                        TextField("", text: Binding(get: {
+                            let interval: Int = folder.rescanIntervalSeconds() / 60
+                            return "\(interval)"
+                        }, set: { (lbl: String) in
+                            if !lbl.isEmpty {
+                                let interval = Int(lbl) ?? 0
+                                try? folder.setRescanInterval(interval * 60)
+                            }
+                        }), prompt: Text(""))
+                            .multilineTextAlignment(.trailing)
+                    } label: {
+                        Text("Rescan interval (minutes)")
                     }
                 }
             }
