@@ -40,7 +40,10 @@ enum FolderMetric: String {
     @Published var lastChanges: [SushitrainChange] = []
     @Published var isLogging: Bool = false
     @Published var foldersWithExtraFiles: [String] = []
-    @Published var currentAction: QuickAction? = nil
+    
+    #if os(iOS)
+        @Published var currentAction: QuickAction? = nil
+    #endif
     
     @AppStorage("backgroundSyncEnabled") var longBackgroundSyncEnabled: Bool = true
     @AppStorage("shortBackgroundSyncEnabled") var shortBackgroundSyncEnabled: Bool = false
@@ -326,6 +329,7 @@ enum FolderMetric: String {
                 self.rebindServer()
                 self.client.ignoreEvents = false
             
+                // Process quick actions
                 if let action = QuickActionService.shared.action {
                     Log.info("Perform quick action: \(action)")
                     self.currentAction = action

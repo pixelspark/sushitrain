@@ -136,6 +136,34 @@
         }
       }
     },
+    "%@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        }
+      }
+    },
     "%@ (%@)" : {
       "localizations" : {
         "de" : {
@@ -2372,6 +2400,34 @@
         }
       }
     },
+    "Change visibility" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sichtbarkeit ändern"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambiar visibilidad"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambia visibilità"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zichtbaarheid wijzigen"
+          }
+        }
+      }
+    },
     "Checking availability on other devices..." : {
       "localizations" : {
         "de" : {
@@ -2592,6 +2648,118 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Configuratie-instellingen"
+          }
+        }
+      }
+    },
+    "Configure device" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerät konfigurieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurar dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configura dispositivo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apparaat configureren"
+          }
+        }
+      }
+    },
+    "Configure device(s)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerät(e) konfigurieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurar dispositivo(s)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configura dispositivo/i"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configureer apparaat(en)"
+          }
+        }
+      }
+    },
+    "Configure folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner konfigurieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurar carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configura cartella"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map configureren"
+          }
+        }
+      }
+    },
+    "Configure folder(s)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner konfigurieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurar carpeta(s)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configura cartella/e"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mappen configureren"
           }
         }
       }
@@ -3240,6 +3408,34 @@
         }
       }
     },
+    "Device" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerät"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dispositivo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apparaat"
+          }
+        }
+      }
+    },
     "Device addresses" : {
       "localizations" : {
         "de" : {
@@ -3264,6 +3460,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apparaatadressen"
+          }
+        }
+      }
+    },
+    "Device configuration changed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerätekonfiguration geändert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configuración del dispositivo cambiada"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurazione del dispositivo modificata"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apparaatconfiguratie gewijzigd"
           }
         }
       }
@@ -3436,6 +3660,34 @@
         }
       }
     },
+    "Disable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deaktivieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactivar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disabilita"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uitschakelen"
+          }
+        }
+      }
+    },
     "Discovered devices" : {
       "localizations" : {
         "de" : {
@@ -3516,6 +3768,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Weergavenaam"
+          }
+        }
+      }
+    },
+    "Do not change" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht ändern"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No cambiar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non cambiare"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niet wijzigen"
           }
         }
       }
@@ -3660,6 +3940,34 @@
         }
       }
     },
+    "Enable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktivieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habilitar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abilita"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inschakelen"
+          }
+        }
+      }
+    },
     "Enable debug logging" : {
       "localizations" : {
         "de" : {
@@ -3768,6 +4076,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gebruik relays"
+          }
+        }
+      }
+    },
+    "Enable synchronization" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisierung aktivieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habilitar sincronización"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abilita sincronizzazione"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisatie inschakelen"
           }
         }
       }
@@ -4444,6 +4780,34 @@
         }
       }
     },
+    "Folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartella"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map"
+          }
+        }
+      }
+    },
     "Folder '%@' has extra files" : {
       "localizations" : {
         "de" : {
@@ -4468,6 +4832,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Map '%@' heeft extra bestanden"
+          }
+        }
+      }
+    },
+    "Folder configuration changed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordnerkonfiguration geändert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configuración de carpeta cambiada"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurazione cartella modificata"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mapconfiguratie gewijzigd"
           }
         }
       }
@@ -4580,6 +4972,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Map is verwijderd"
+          }
+        }
+      }
+    },
+    "Folder rescan requested for folder '%@'" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erneuter Ordnerscan für Ordner '%@' angefordert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solicitud de reescaneo de carpeta para la carpeta '%@'"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richiesta nuova scansione per la cartella '%@'"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hermap van map '%@' aangevraagd"
           }
         }
       }
@@ -5066,6 +5486,34 @@
         }
       }
     },
+    "Get folder directory" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordnerverzeichnis abrufen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obtener directorio de carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recupera directory cartella"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folderdirectory ophalen"
+          }
+        }
+      }
+    },
     "Getting started" : {
       "localizations" : {
         "de" : {
@@ -5174,6 +5622,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Raster met miniatuur"
+          }
+        }
+      }
+    },
+    "Hide" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausblenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbergen"
           }
         }
       }
@@ -5342,6 +5818,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hostnaam"
+          }
+        }
+      }
+    },
+    "How much time to allow for synchronization." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie viel Zeit für die Synchronisierung einplanen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuánto tiempo permitir para la sincronización."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanto tempo dedicare alla sincronizzazione."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoeveel tijd nodig voor synchronisatie."
           }
         }
       }
@@ -6322,6 +6826,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Menu"
+          }
+        }
+      }
+    },
+    "Name" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nome"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Naam"
           }
         }
       }
@@ -8202,6 +8734,62 @@
         }
       }
     },
+    "Rescan" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erneut scannen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volver a escanear"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riscan"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opnieuw scannen"
+          }
+        }
+      }
+    },
+    "Rescan folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner erneut scannen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volver a escanear carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riscansiona cartella"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map opnieuw scannen"
+          }
+        }
+      }
+    },
     "Restart the app to stop logging." : {
       "localizations" : {
         "de" : {
@@ -9406,6 +9994,34 @@
         }
       }
     },
+    "Show" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anzeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toon"
+          }
+        }
+      }
+    },
     "Show addresses" : {
       "localizations" : {
         "de" : {
@@ -9798,6 +10414,34 @@
         }
       }
     },
+    "Status" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stato"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status"
+          }
+        }
+      }
+    },
     "Stream" : {
       "localizations" : {
         "de" : {
@@ -9822,6 +10466,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stream bestand"
+          }
+        }
+      }
+    },
+    "Subdirectory" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unterverzeichnis"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subdirectorio"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sottodirectory"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subdirectory"
           }
         }
       }
@@ -10022,6 +10694,34 @@
         }
       }
     },
+    "Synchronization time elapsed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisationszeit abgelaufen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiempo de sincronización transcurrido"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo di sincronizzazione trascorso"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisatietijd verstreken"
+          }
+        }
+      }
+    },
     "Synchronize" : {
       "localizations" : {
         "de" : {
@@ -10046,6 +10746,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Synchroniseer"
+          }
+        }
+      }
+    },
+    "Synchronize for a while" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Weile synchronisieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizar por un momento"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizza per un po'"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchroniseren voor een tijdje"
           }
         }
       }
@@ -10582,6 +11310,34 @@
         }
       }
     },
+    "The device to reconfigure" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Gerät neu konfigurieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El dispositivo para reconfigurar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il dispositivo da riconfigurare"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het apparaat om opnieuw te configureren"
+          }
+        }
+      }
+    },
     "The file is currently not available for preview." : {
       "localizations" : {
         "de" : {
@@ -10606,6 +11362,90 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Het bestand is momenteel niet beschikbaar voor miniatuurweergave."
+          }
+        }
+      }
+    },
+    "The folder for which to retrieve the directory" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Ordner, für den das Verzeichnis abgerufen werden soll"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La carpeta para la cual recuperar el directorio"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cartella per cui recuperare la directory"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De map waarvoor de directory moet worden opgehaald"
+          }
+        }
+      }
+    },
+    "The folder to reconfigure" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Ordner zur Neukonfiguration"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La carpeta para reconfigurar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cartella da riconfigurare"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De map om opnieuw te configureren"
+          }
+        }
+      }
+    },
+    "The folder to rescan" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Ordner zum erneuten Scannen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La carpeta para volver a escanear"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cartella da risincronizzare"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De map om opnieuw te scannen"
           }
         }
       }
@@ -10774,6 +11614,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "De broncode van deze app is beschikbaar onder de Mozilla Public License 2.0."
+          }
+        }
+      }
+    },
+    "The subdirectory to rescan (empty to rescan the whole folder)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Unterverzeichnis zum erneuten Scannen (leer lassen, um den gesamten Ordner erneut zu scannen)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El subdirectorio para volver a escanear (dejar vacío para volver a escanear toda la carpeta)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sottodirectory da ri-scansionare (lascia vuoto per ri-scansionare l'intera cartella)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De submap om opnieuw te scannen (leeg laten om de hele map opnieuw te scannen)"
           }
         }
       }
@@ -11334,6 +12202,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hiermee worden alle lokaal opgeslagen kopieën van bestanden in deze map verwijderd. Alle bestanden die niet op een ander apparaat aanwezig zijn, gaan permanent verloren en kunnen niet worden hersteld. Weet u zeker dat u wilt doorgaan?"
+          }
+        }
+      }
+    },
+    "Time (seconds)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeit (Sekunden)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiempo (segundos)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo (secondi)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tijd (seconden)"
           }
         }
       }
@@ -11950,6 +12846,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Weergave-instellingen"
+          }
+        }
+      }
+    },
+    "Visibility" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sichtbarkeit"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visibilidad"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visibilità"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zichtbaarheid"
           }
         }
       }

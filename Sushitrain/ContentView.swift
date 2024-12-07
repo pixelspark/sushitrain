@@ -18,8 +18,11 @@ struct ContentView: View {
     @State private var showCustomConfigWarning = false
     @State private var showOnboarding = false
     @State private var route: Route? = .start
-    @State private var showSearchSheet = false
     @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
+    
+    #if os(iOS)
+        @State private var showSearchSheet = false
+    #endif
     
     var tabbedBody: some View {
         TabView(selection: $route) {
@@ -147,13 +150,15 @@ struct ContentView: View {
                     dismissButton: .default(Text("OK")))
             }
         )
-        .onChange(of: self.appState.currentAction) { _, newAction in
-            if case .search = newAction {
-                self.route = .start
-                showSearchSheet = true
-                self.appState.currentAction = nil
+        #if os(iOS)
+            .onChange(of: self.appState.currentAction) { _, newAction in
+                if case .search = newAction {
+                    self.route = .start
+                    showSearchSheet = true
+                    self.appState.currentAction = nil
+                }
             }
-        }
+        #endif
         .onChange(of: scenePhase) { oldPhase, newPhase in
             self.appState.onScenePhaseChange(from: oldPhase, to: newPhase)
         }
@@ -180,20 +185,23 @@ struct ContentView: View {
                 AppState.requestNotificationPermissionIfNecessary()
             }
         }
-        .sheet(isPresented: $showSearchSheet) {
-            NavigationStack {
-                SearchView(appState: self.appState, prefix: "")
-                    .navigationTitle("Search")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar(content: {
-                        ToolbarItem(placement: .cancellationAction, content: {
-                            Button("Cancel") {
-                                showSearchSheet = false
-                            }
+        #if os(iOS)
+            // Search sheet for quick action
+            .sheet(isPresented: $showSearchSheet) {
+                NavigationStack {
+                    SearchView(appState: self.appState, prefix: "")
+                        .navigationTitle("Search")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar(content: {
+                            ToolbarItem(placement: .cancellationAction, content: {
+                                Button("Cancel") {
+                                    showSearchSheet = false
+                                }
+                            })
                         })
-                    })
+                }
             }
-        }
+        #endif
     }
     
     private func showOnboardingIfNecessary() {
