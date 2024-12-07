@@ -7,8 +7,9 @@ import SwiftUI
 @preconcurrency import SushitrainCore
 import BackgroundTasks
 import Combine
+import AppIntents
 
-class SushitrainAppDelegate: NSObject {
+class SushitrainDelegate: NSObject {
     fileprivate var appState: AppState
     
     required init(appState: AppState) {
@@ -19,7 +20,9 @@ class SushitrainAppDelegate: NSObject {
 @main
 struct SushitrainApp: App {
     fileprivate var appState: AppState
-    fileprivate var delegate: SushitrainAppDelegate
+    fileprivate var delegate: SushitrainDelegate
+    private let qaService = QuickActionService.shared
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     #if os(macOS)
         @Environment(\.openWindow) private var openWindow
@@ -43,8 +46,9 @@ struct SushitrainApp: App {
         
         let appState = AppState(client: client, documentsDirectory: documentsDirectory, configDirectory: configDirectory)
         self.appState = appState
+        AppDependencyManager.shared.add(dependency: appState)
         self.appState.isLogging = enableLogging
-        self.delegate = SushitrainAppDelegate(appState: self.appState)
+        self.delegate = SushitrainDelegate(appState: self.appState)
         client.delegate = self.delegate;
         client.server?.delegate = self.delegate;
         self.appState.update()
@@ -201,7 +205,7 @@ struct SushitrainApp: App {
     }
 }
 
-extension SushitrainAppDelegate: SushitrainClientDelegateProtocol {
+extension SushitrainDelegate: SushitrainClientDelegateProtocol {
     func onChange(_ change: SushitrainChange?) {
         if let change = change {
             let appState = self.appState
@@ -242,7 +246,7 @@ extension SushitrainAppDelegate: SushitrainClientDelegateProtocol {
     }
 }
 
-extension SushitrainAppDelegate: SushitrainStreamingServerDelegateProtocol {
+extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
     func onStreamChunk(_ folder: String?, path: String?, bytesSent: Int64, bytesTotal: Int64) {
         if let folder = folder, let path = path {
             let appState = self.appState;

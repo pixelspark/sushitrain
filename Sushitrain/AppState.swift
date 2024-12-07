@@ -40,6 +40,7 @@ enum FolderMetric: String {
     @Published var lastChanges: [SushitrainChange] = []
     @Published var isLogging: Bool = false
     @Published var foldersWithExtraFiles: [String] = []
+    @Published var currentAction: QuickAction? = nil
     
     @AppStorage("backgroundSyncEnabled") var longBackgroundSyncEnabled: Bool = true
     @AppStorage("shortBackgroundSyncEnabled") var shortBackgroundSyncEnabled: Bool = false
@@ -287,6 +288,8 @@ enum FolderMetric: String {
         switch newPhase {
         case .background:
             #if os(iOS)
+                QuickActionService.provideActions()
+            
                 if self.lingeringEnabled {
                     Log.info("Background time remaining: \(UIApplication.shared.backgroundTimeRemaining)")
                     self.lingerManager.lingerThenSuspend()
@@ -322,6 +325,12 @@ enum FolderMetric: String {
                 }
                 self.rebindServer()
                 self.client.ignoreEvents = false
+            
+                if let action = QuickActionService.shared.action {
+                    Log.info("Perform quick action: \(action)")
+                    self.currentAction = action
+                    QuickActionService.shared.action = nil
+                }
             #endif
             break
 

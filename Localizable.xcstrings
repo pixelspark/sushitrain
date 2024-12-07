@@ -2708,6 +2708,34 @@
         }
       }
     },
+    "Copied new photos" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neue Fotos kopiert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevas fotos copiadas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuove foto copiate"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieuwe foto's gekopieerd"
+          }
+        }
+      }
+    },
     "Copy" : {
       "localizations" : {
         "de" : {
