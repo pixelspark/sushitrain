@@ -1121,6 +1121,26 @@ func (clt *Client) SetListenAddresses(addrs *ListOfStrings) error {
 	})
 }
 
+func (clt *Client) DiscoveryAddresses() *ListOfStrings {
+	return List(clt.config.Options().RawGlobalAnnServers)
+}
+
+func (clt *Client) SetDiscoveryAddresses(addrs *ListOfStrings) error {
+	return clt.changeConfiguration(func(cfg *config.Configuration) {
+		cfg.Options.RawGlobalAnnServers = addrs.data
+	})
+}
+
+func (clt *Client) StunAddresses() *ListOfStrings {
+	return List(clt.config.Options().RawStunServers)
+}
+
+func (clt *Client) SetStunAddresses(addrs *ListOfStrings) error {
+	return clt.changeConfiguration(func(cfg *config.Configuration) {
+		cfg.Options.RawStunServers = addrs.data
+	})
+}
+
 func IsValidDeviceID(devID string) bool {
 	_, err := protocol.DeviceIDFromString(devID)
 	return err == nil

@@ -5570,6 +5570,34 @@
         }
       }
     },
+    "Global announce servers" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Globale Ankündigungsserver"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Servidores de anuncio globales"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server di annuncio globali"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Globale aankondigingsservers"
+          }
+        }
+      }
+    },
     "Go to the Settings app to alllow notifications." : {
       "localizations" : {
         "de" : {
@@ -5874,6 +5902,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hoeveel tijd nodig voor synchronisatie."
+          }
+        }
+      }
+    },
+    "HTTP" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTTP"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTTP"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTTP"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTTP"
+          }
+        }
+      }
+    },
+    "HTTPS" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTTPS"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTTPS"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTTPS"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTTPS"
           }
         }
       }
@@ -10526,6 +10610,62 @@
         }
       }
     },
+    "STUN" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STUN"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STUN"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STUN"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STUN"
+          }
+        }
+      }
+    },
+    "STUN servers" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STUN-Server"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Servidores STUN"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server STUN"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STUN-servers"
+          }
+        }
+      }
+    },
     "Subdirectory" : {
       "localizations" : {
         "de" : {
@@ -13238,6 +13378,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wanneer ingeschakeld, zal de app automatisch adressen voor dit apparaat opzoeken met behulp van verschillende ontdekkingsmechanismen."
+          }
+        }
+      }
+    },
+    "When enabled, the app will use the default discovery service to announce itself." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn aktiviert, verwendet die App den Standard-Erkennungsdienst, um sich selbst anzukündigen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando está habilitado, la aplicación utilizará el servicio de descubrimiento predeterminado para anunciarse."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando abilitata, l'app utilizzerà il servizio di scoperta predefinito per annunciarsi."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer ingeschakeld, zal de app de standaard ontdekkingsservice gebruiken om zichzelf aan te kondigen."
+          }
+        }
+      }
+    },
+    "When enabled, the app will use the default STUN servers." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn aktiviert, verwendet die App die standardmäßigen STUN-Server."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando esté habilitada, la aplicación usará los servidores STUN predeterminados."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando abilitata, l'app utilizzerà i server STUN predefiniti."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer ingeschakeld, zal de app de standaard STUN-servers gebruiken."
           }
         }
       }

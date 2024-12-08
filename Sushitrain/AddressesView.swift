@@ -10,13 +10,26 @@ import SushitrainCore
 enum AddressType {
     case listening
     case device
+    case stun
+    case discovery
     
     var defaultOption: String {
         switch self {
-        case .listening:
+        case .listening, .discovery, .stun:
             return "default"
         case .device:
             return "dynamic"
+        }
+    }
+    
+    var templateAddress: String {
+        switch self {
+        case .listening, .device:
+            return "tcp://0.0.0.0:22000"
+        case .stun:
+            return "stun.example:4378"
+        case .discovery:
+            return "https://discovery.example"
         }
     }
 }
@@ -25,53 +38,97 @@ fileprivate struct AddressView: View {
     @Binding var address: String
     var addressType: AddressType
     
+    private  var url: URL? {
+        get {
+            switch self.addressType {
+            case .stun:
+                return URL(string: "stun://" + self.address)
+                
+            case .device, .discovery, .listening:
+                return URL(string: self.address)
+            }
+        }
+        nonmutating set  {
+            switch self.addressType {
+            case .stun:
+                if let h = newValue?.host() {
+                    if let p = newValue?.port {
+                        self.address = "\(h):\(p)"
+                    }
+                    else {
+                        self.address = h
+                    }
+                }
+                else {
+                    self.address = ""
+                }
+                
+            case .device, .discovery, .listening:
+                self.address = newValue?.absoluteString ?? ""
+            }
+        }
+    }
+    
     var body: some View {
         Form {
             Section {
                 // Type picker
-                Picker("Address type", selection: Binding(get: {
-                    let url = URL(string: self.address)
-                    return url?.scheme ?? ""
-                }, set: { (nv: String) in
-                    var url = URLComponents(url: URL(string: self.address) ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false) ?? URLComponents()
-                    url.scheme = nv
-                    if nv == "dynamic+https" {
-                        url.path = "/relays"
-                    }
-                    else {
-                        url.path = ""
-                    }
-                    
-                    if nv != "relay" {
-                        url.queryItems = nil
-                    }
-                    
-                    self.address = url.string ?? ""
-                }), content: {
-                    switch self.addressType {
-                    case .listening:
-                        Text("TCP").tag("tcp")
-                        Text("QUIC").tag("quic")
-                        Text("Relay").tag("relay")
-                        Text("Relay pool").tag("dynamic+https")
-                    case .device:
-                        Text("TCP").tag("tcp")
-                        Text("QUIC").tag("quic")
-                    }
-                    
-                })
-                .pickerStyle(.segmented)
+                if self.addressType != .stun {
+                    Picker("Address type", selection: Binding(get: {
+                        let url = self.url
+                        return url?.scheme ?? ""
+                    }, set: { (nv: String) in
+                        var url = URLComponents(url: URL(string: self.address) ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false) ?? URLComponents()
+                        url.scheme = nv
+                        if nv == "dynamic+https" {
+                            url.path = "/relays"
+                        }
+                        else {
+                            url.path = ""
+                        }
+                        
+                        if nv != "relay" {
+                            url.queryItems = nil
+                        }
+                        
+                        if self.addressType == .discovery {
+                            url.queryItems = nv == "http" ? [URLQueryItem(name: "insecure", value: nil)] : []
+                        }
+                        
+                        self.address = url.string ?? ""
+                    }), content: {
+                        switch self.addressType {
+                        case .stun:
+                            // Unreachable
+                            Text("STUN").tag("stun")
+                        case .discovery:
+                            Text("HTTPS").tag("https")
+                            Text("HTTP").tag("http")
+                        case .listening:
+                            Text("TCP").tag("tcp")
+                            Text("QUIC").tag("quic")
+                            Text("Relay").tag("relay")
+                            Text("Relay pool").tag("dynamic+https")
+                        case .device:
+                            Text("TCP").tag("tcp")
+                            Text("QUIC").tag("quic")
+                        }
+                        
+                    })
+                    .pickerStyle(.segmented)
+                }
             }
             
             Section {
+                // Host
                 LabeledContent {
                     TextField("", text: Binding(get: {
-                        let url = URL(string: self.address)
+                        let url = self.url
                         return url?.host() ?? ""
                     }, set: { nv in
-                        var url = URLComponents(url: URL(string: self.address) ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false) ?? URLComponents()
+                        var url = URLComponents(url: self.url ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false) ?? URLComponents()
                         url.host = nv
-                        self.address = url.string ?? ""
+                        self.url = url.url
                     }), prompt: Text("0.0.0.0"))
                     .multilineTextAlignment(.trailing)
                     #if os(iOS)
@@ -86,7 +143,7 @@ fileprivate struct AddressView: View {
                 
                 LabeledContent {
                     TextField("", text: Binding(get: {
-                        let url = URL(string: self.address)
+                        let url = self.url
                         if let p = url?.port {
                             return String(p)
                         }
@@ -106,7 +163,7 @@ fileprivate struct AddressView: View {
                     Text("Port")
                 }
                 
-                let urlComponents = URLComponents(url: URL(string: self.address) ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false) ?? URLComponents()
+                let urlComponents = URLComponents(url: self.url ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false) ?? URLComponents()
                 
                 if urlComponents.scheme == "relay" {
                     LabeledContent {
@@ -135,10 +192,10 @@ fileprivate struct AddressView: View {
                     
                     LabeledContent {
                         TextField("", text: Binding(get: {
-                            let url = URLComponents(url: URL(string: self.address) ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false) ?? URLComponents()
+                            let url = URLComponents(url: self.url ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false) ?? URLComponents()
                             return url.queryItems?.first(where: { $0.name == "token" })?.value ?? ""
                         }, set: { nv in
-                            var url = URLComponents(url: URL(string: self.address) ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false) ?? URLComponents()
+                            var url = URLComponents(url: self.url ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false) ?? URLComponents()
                             var qi = url.queryItems ?? []
                             qi.removeAll(where: { $0.name == "token" })
                             qi.append(URLQueryItem(name: "token", value: nv))
@@ -158,15 +215,18 @@ fileprivate struct AddressView: View {
                     }
                 }
             }
-            Section("URL") {
-                TextField("", text: $address)
-                    .frame(maxWidth: .infinity)
-                    .monospaced()
-                    .multilineTextAlignment(.leading)
-                    #if os(iOS)
-                        .autocorrectionDisabled()
-                        .autocapitalization(.none)
-                    #endif
+            
+            if self.addressType != .stun {
+                Section("URL") {
+                    TextField("", text: $address)
+                        .frame(maxWidth: .infinity)
+                        .monospaced()
+                        .multilineTextAlignment(.leading)
+                        #if os(iOS)
+                            .autocorrectionDisabled()
+                            .autocapitalization(.none)
+                        #endif
+                }
             }
         }
         .navigationTitle(self.address)
@@ -197,12 +257,15 @@ struct AddressesView: View {
                 }))
             } footer: {
                 switch self.addressType {
+                case .stun:
+                    Text("When enabled, the app will use the default STUN servers.")
+                case .discovery:
+                    Text("When enabled, the app will use the default discovery service to announce itself.")
                 case .listening:
                     Text("When enabled, the app will listen on default addresses, and will use the default relay pool.")
                 case .device:
                     Text("When enabled, the app will look up addresses for this device automatically using various discovery mechanisms.")
-                }
-                
+                }   
             }
             
             Section("Additional addresses") {
@@ -232,7 +295,7 @@ struct AddressesView: View {
                 })
                 
                 Button("Add address") {
-                    self.editingAddresses.append("tcp://0.0.0.0:22000")
+                    self.editingAddresses.append(self.addressType.templateAddress)
                 }.deleteDisabled(true)
                 #if os(macOS)
                     .buttonStyle(.link)

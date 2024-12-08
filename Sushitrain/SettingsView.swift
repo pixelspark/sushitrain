@@ -190,6 +190,29 @@ struct AdvancedSettingsView: View {
                 ) {
                     Label("Listening addresses", systemImage: "envelope.front")
                 }.disabled(!appState.client.isListening())
+                
+                NavigationLink(destination:
+                    AddressesView(appState: appState, addresses: Binding(get: {
+                        return self.appState.client.stunAddresses()?.asArray() ?? []
+                    }, set: { nv in
+                        try! self.appState.client.setStunAddresses(SushitrainListOfStrings.from(nv))
+                    }), editingAddresses: self.appState.client.stunAddresses()?.asArray() ?? [], addressType: .stun)
+                    .navigationTitle("STUN servers")
+                ) {
+                    Label("STUN servers", systemImage: "arrow.trianglehead.swap")
+                }
+                
+                NavigationLink(destination:
+                    AddressesView(appState: appState, addresses: Binding(get: {
+                        return self.appState.client.discoveryAddresses()?.asArray() ?? []
+                    }, set: { nv in
+                        try! self.appState.client.setDiscoveryAddresses(SushitrainListOfStrings.from(nv))
+                    }), editingAddresses: self.appState.client.discoveryAddresses()?.asArray() ?? [], addressType: .discovery)
+                    .navigationTitle("Global announce servers")
+                ) {
+                    Label("Global announce servers", systemImage: "megaphone.fill")
+                }.disabled(!appState.client.isGlobalAnnounceEnabled())
+                
             } header: {
                 Text("Connectivity")
             } footer: {
