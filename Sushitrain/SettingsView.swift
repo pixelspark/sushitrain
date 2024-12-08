@@ -244,12 +244,6 @@ struct AdvancedSettingsView: View {
             }
             
             Section {
-                Toggle("Hide dotfiles", isOn: appState.$dotFilesHidden)
-            } footer: {
-                Text("When enabled, files and directories whose name start with a dot will not be shown when browsing a folder. These files and directories will remain visible in search results.")
-            }
-            
-            Section {
                 Toggle("Ignore certain system files", isOn: appState.$ignoreExtraneousDefaultFiles)
             } footer: {
                 Text("When enabled, certain files that are created by the system (such as .DS_Store) will not be noticed as 'new files' in folders that are selectively synced. These files will still be synced in folders that are fully synchronized and when they are created by other devices.")
@@ -632,8 +626,8 @@ struct GeneralSettingsView: View {
                 }
             }
             
-            Section {
-                Toggle("Preview files on tap", isOn: appState.$tapFileToPreview)
+            Section("View settings") {
+                ViewSettingsView(appState: appState)
             }
         }
     }
@@ -705,7 +699,6 @@ struct SettingsView: View {
 }
 #endif
 
-#if os(iOS)
 struct ViewSettingsView: View {
     @ObservedObject var appState: AppState
     
@@ -714,9 +707,16 @@ struct ViewSettingsView: View {
             Section {
                 Toggle("Preview files on tap", isOn: appState.$tapFileToPreview)
             }
+            
+            Section {
+                Toggle("Hide dotfiles", isOn: appState.$dotFilesHidden)
+            } footer: {
+                Text("When enabled, files and directories whose name start with a dot will not be shown when browsing a folder. These files and directories will remain visible in search results.")
+            }
         }
         .navigationTitle("View settings")
-        .navigationBarTitleDisplayMode(.inline)
+        #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
 }
-#endif
