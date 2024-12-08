@@ -200,7 +200,7 @@ struct AdvancedSettingsView: View {
                     .navigationTitle("STUN servers")
                 ) {
                     Label("STUN servers", systemImage: "arrow.trianglehead.swap")
-                }
+                }.disabled(!appState.client.isNATEnabled())
                 
                 NavigationLink(destination:
                     AddressesView(appState: appState, addresses: Binding(get: {
