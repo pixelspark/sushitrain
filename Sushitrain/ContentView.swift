@@ -22,6 +22,7 @@ struct ContentView: View {
     
     #if os(iOS)
         @State private var showSearchSheet = false
+        @State private var searchSheetSearchTerm: String = ""
     #endif
     
     var tabbedBody: some View {
@@ -151,11 +152,12 @@ struct ContentView: View {
             }
         )
         #if os(iOS)
-            .onChange(of: self.appState.currentAction) { _, newAction in
-                if case .search = newAction {
+            .onChange(of: QuickActionService.shared.action) { _, newAction in
+                if case .search(for: let searchFor) = newAction {
                     self.route = .start
+                    self.searchSheetSearchTerm = searchFor
                     showSearchSheet = true
-                    self.appState.currentAction = nil
+                    QuickActionService.shared.action = nil
                 }
             }
         #endif
@@ -189,7 +191,7 @@ struct ContentView: View {
             // Search sheet for quick action
             .sheet(isPresented: $showSearchSheet) {
                 NavigationStack {
-                    SearchView(appState: self.appState, prefix: "")
+                    SearchView(appState: self.appState, prefix: "", initialSearchText: self.searchSheetSearchTerm)
                         .navigationTitle("Search")
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar(content: {

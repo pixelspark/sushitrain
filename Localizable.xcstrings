@@ -5027,7 +5027,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hermap van map '%@' aangevraagd"
+            "value" : "Scan van map '%@' aangevraagd"
           }
         }
       }
@@ -9378,6 +9378,34 @@
         }
       }
     },
+    "Search files in app" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien in der App suchen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar archivos en la app"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca file nell'app"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoek bestanden in app"
+          }
+        }
+      }
+    },
     "Search files in this folder..." : {
       "localizations" : {
         "de" : {
@@ -9402,6 +9430,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zoek naar bestanden in deze map..."
+          }
+        }
+      }
+    },
+    "Search for" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suchen nach"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoeken naar"
           }
         }
       }
@@ -9570,6 +9626,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zoekresultaten (%lld+)"
+          }
+        }
+      }
+    },
+    "Search term" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suchbegriff"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Término de búsqueda"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Termine di ricerca"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoekterm"
           }
         }
       }

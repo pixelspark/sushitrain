@@ -304,6 +304,7 @@ enum FolderMetric: String {
                 try? self.client.setReconnectIntervalS(60)
                 self.client.ignoreEvents = true
             #endif
+            
             Task {
                 await self.updateBadge()
             }
@@ -328,13 +329,6 @@ enum FolderMetric: String {
                 }
                 self.rebindServer()
                 self.client.ignoreEvents = false
-            
-                // Process quick actions
-                if let action = QuickActionService.shared.action {
-                    Log.info("Perform quick action: \(action)")
-                    self.currentAction = action
-                    QuickActionService.shared.action = nil
-                }
             #endif
             break
 

@@ -21,9 +21,9 @@ class SushitrainDelegate: NSObject {
 struct SushitrainApp: App {
     fileprivate var appState: AppState
     fileprivate var delegate: SushitrainDelegate
+    private let qaService = QuickActionService.shared
     
     #if os(iOS)
-        private let qaService = QuickActionService.shared
         @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     #endif
     

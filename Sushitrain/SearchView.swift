@@ -55,6 +55,7 @@ struct SearchView: View {
     @State private var searchText = ""
     @FocusState private var isSearchFieldFocused
     var prefix: String = ""
+    var initialSearchText = ""
     
     private var view: some View {
         SearchResultsView(
@@ -77,6 +78,7 @@ struct SearchView: View {
                 .searchFocused($isSearchFieldFocused)
                 .onAppear {
                     isSearchFieldFocused = true
+                    searchText = initialSearchText
                 }
         }
         else {

@@ -282,6 +282,26 @@ struct GetFolderIntent: AppIntent {
     }
 }
 
+struct SearchInAppIntent: AppIntent {
+    static let title: LocalizedStringResource = "Search files in app"
+    static let openAppWhenRun: Bool = true
+    
+    @Dependency private var appState: AppState
+    
+    @Parameter(
+        title: "Search for",
+        description: "Search term",
+       inputOptions: String.IntentInputOptions(keyboardType: .asciiCapable, capitalizationType: .none)
+    )
+    var searchFor: String
+    
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        QuickActionService.shared.action = .search(for: searchFor)
+        return .result()
+    }
+}
+
 struct ConfigureDeviceIntent: AppIntent {
     static let title: LocalizedStringResource = "Configure device(s)"
     
@@ -349,6 +369,12 @@ struct AppShortcuts: AppShortcutsProvider {
                 phrases: ["Get folder directory"],
                 shortTitle: "Get folder directory",
                 systemImageName: "externaldrive.fill"
+            ),
+            AppShortcut(
+                intent: SearchInAppIntent(),
+                phrases: ["Search files"],
+                shortTitle: "Search for files",
+                systemImageName: "magnifyingglass"
             ),
         ]
     }
