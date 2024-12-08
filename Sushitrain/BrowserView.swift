@@ -376,6 +376,11 @@ fileprivate struct BrowserListView: View {
         .task(id: self.folder.folderStateForUpdating) {
             await self.reload()
         }
+        .onChange(of: self.folder.folderStateForUpdating) {
+            Task {
+                await self.reload()
+            }
+        }
     }
     
     private func refresh() async {
@@ -477,6 +482,7 @@ struct BrowserView: View {
     @State private var folderExists = false
     @State private var folderIsSelective = false
     @State private var showSearch = false
+    @State private var error: Error? = nil
     
     var folderName: String {
         if prefix.isEmpty {
@@ -670,6 +676,80 @@ struct BrowserView: View {
                     Label("Subdirectory properties...", systemImage: entry.systemImage)
                 }
             }
+        }
+        .onDrop(of: ["public.file-url"], isTargeted: nil, perform: { providers, _ in
+            #if os(iOS)
+                // TODO does this work?
+                providers.first!.loadFileRepresentation(forTypeIdentifier: UTType.item.identifier) { url, _ in
+                    if let u = url {
+                        DispatchQueue.main.async {
+                            self.dropFile(u)
+                        }
+                    }
+                }
+            #else
+                providers.first?.loadDataRepresentation(forTypeIdentifier: "public.file-url", completionHandler: { (data, error) in
+                    if let data = data, let path = NSString(data: data, encoding: 4), let url = URL(string: path as String) {
+                        DispatchQueue.main.async {
+                            self.dropFile(url)
+                        }
+                    }
+                })
+            #endif
+
+            return true
+        })
+        .alert(isPresented: Binding(get: { return self.error != nil }, set: { nv in
+            if !nv {
+                self.error = nil
+            }
+        })) {
+            Alert(title: Text("An error occurred"), message: Text(self.error!.localizedDescription), dismissButton: .default(Text("OK")))
+        }
+    }
+    
+    private func dropFile(_ url: URL) {
+        do {
+            // Find out the native location of our folder
+            self.error = nil
+            var error: NSError? = nil
+            let localNativePath = self.folder.localNativePath(&error)
+            if error == nil {
+                // If we are in a subdirectory, and the folder is selective, ensure the folder is materialized
+                if !self.prefix.isEmpty && self.folder.isSelective() {
+                    let entry = try self.folder.getFileInformation(self.prefix.withoutEndingSlash)
+                    if entry.isDirectory() && !entry.isDeleted() {
+                        try entry.materializeSubdirectory()
+                    }
+                    else {
+                        // Somehow not a directory...
+                        return
+                    }
+                }
+            }
+            else {
+                self.error = error
+                return
+            }
+            
+            let localNativeURL = URL(fileURLWithPath: localNativePath).appendingPathComponent(self.prefix)
+            if FileManager.default.fileExists(atPath: localNativeURL.path) {
+                // Copy source to folder
+                let targetURL = localNativeURL.appendingPathComponent(url.lastPathComponent, isDirectory: false)
+                try FileManager.default.copyItem(at: url, to: targetURL)
+                
+                // Select the dropped file
+                if folder.isSelective() {
+                    let localURL = URL(fileURLWithPath: self.prefix).appendingPathComponent(url.lastPathComponent, isDirectory: false)
+                    try folder.setLocalFileExplicitlySelected(localURL.path(percentEncoded: false), toggle: true)
+                }
+                
+                try self.folder.rescanSubdirectory(self.prefix)
+            }
+        }
+        catch {
+            Log.warn("Failed to drop: \(error.localizedDescription)")
+            self.error = error
         }
     }
     
