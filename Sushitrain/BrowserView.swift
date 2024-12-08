@@ -741,7 +741,8 @@ struct BrowserView: View {
                 // Select the dropped file
                 if folder.isSelective() {
                     let localURL = URL(fileURLWithPath: self.prefix).appendingPathComponent(url.lastPathComponent, isDirectory: false)
-                    try folder.setLocalFileExplicitlySelected(localURL.path(percentEncoded: false), toggle: true)
+                    // Soft fail because we may be scanning or syncing
+                    try? folder.setLocalFileExplicitlySelected(localURL.path(percentEncoded: false), toggle: true)
                 }
                 
                 try self.folder.rescanSubdirectory(self.prefix)
