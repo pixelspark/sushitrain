@@ -147,8 +147,6 @@ struct FoldersSections: View {
                         })
                     #endif
                 }
-            }.onChange(of: appState.eventCounter) {
-                self.updateFolders()
             }
         }
         
@@ -179,18 +177,21 @@ struct FoldersSections: View {
         .sheet(isPresented: $showingAddFolderPopup, content: {
             AddFolderView(folderID: $addFolderID, appState: appState)
         })
-        .onAppear {
-            self.updateFolders()
-            
-            let addedFolders = Set(appState.folders().map({f in f.folderID}))
-            self.pendingFolderIds = ((try? self.appState.client.pendingFolderIDs())?.asArray() ?? []).filter({ folderID in
-                !addedFolders.contains(folderID)
-            })
+        .task {
+            self.update()
+        }
+        .onChange(of: appState.eventCounter) {
+            self.update()
         }
     }
     
-    private func updateFolders() {
+    private func update() {
         folders = appState.folders().sorted()
+        
+        let addedFolders = Set(folders.map({f in f.folderID}))
+        self.pendingFolderIds = ((try? self.appState.client.pendingFolderIDs())?.asArray() ?? []).filter({ folderID in
+            !addedFolders.contains(folderID)
+        }).sorted()
     }
 }
 

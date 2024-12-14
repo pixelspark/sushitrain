@@ -10,6 +10,7 @@ struct DevicesView: View {
     @ObservedObject var appState: AppState
     @State private var showingAddDevicePopup = false
     @State private var addingDeviceID: String = ""
+    @State private var discoveredNewDevices: [String] = []
     
     fileprivate struct SelectedPeer: Hashable, Equatable {
         var peer: SushitrainPeer
@@ -54,15 +55,9 @@ struct DevicesView: View {
                     }
                 }
                 
-                // Discovered peers
-                let peers = self.appState.peerIDs()
-                let relevantDevices = Array(appState.discoveredDevices.keys).filter({ d in
-                    !peers.contains(d)
-                })
-                
-                if !relevantDevices.isEmpty {
+                if !discoveredNewDevices.isEmpty {
                     Section("Discovered devices") {
-                        ForEach(relevantDevices, id: \.self) { devID in
+                        ForEach(discoveredNewDevices, id: \.self) { devID in
                             Label(devID, systemImage: "plus").onTapGesture {
                                 addingDeviceID = devID
                                 showingAddDevicePopup = true
@@ -94,5 +89,19 @@ struct DevicesView: View {
         .sheet(isPresented: $showingAddDevicePopup) {
             AddDeviceView(appState: appState, suggestedDeviceID: $addingDeviceID)
         }
+        .task {
+            self.update()
+        }
+        .onChange(of: appState.discoveredDevices) {
+            self.update()
+        }
+    }
+    
+    private func update() {
+        // Discovered peers
+        let peers = self.appState.peerIDs()
+        self.discoveredNewDevices = Array(appState.discoveredDevices.keys).filter({ d in
+            !peers.contains(d)
+        })
     }
 }
