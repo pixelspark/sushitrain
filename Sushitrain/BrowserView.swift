@@ -724,52 +724,53 @@ struct BrowserView: View {
             
             try self.dropFiles(urls)
         }
-    #endif
     
-    private func dropFiles(_ urls: [URL]) throws {
-        // Find out the native location of our folder
-        var error: NSError? = nil
-        let localNativePath = self.folder.localNativePath(&error)
-        if let error = error {
-            throw error
-        }
         
-        // If we are in a subdirectory, and the folder is selective, ensure the folder is materialized
-        if !self.prefix.isEmpty && self.folder.isSelective() {
-            let entry = try self.folder.getFileInformation(self.prefix.withoutEndingSlash)
-            if entry.isDirectory() && !entry.isDeleted() {
-                try entry.materializeSubdirectory()
+        private func dropFiles(_ urls: [URL]) throws {
+            // Find out the native location of our folder
+            var error: NSError? = nil
+            let localNativePath = self.folder.localNativePath(&error)
+            if let error = error {
+                throw error
             }
-            else {
-                // Somehow not a directory...
-                return
-            }
-        }
-
-        let localNativeURL = URL(fileURLWithPath: localNativePath).appendingPathComponent(self.prefix)
-        var pathsToSelect: [String] = []
-        
-        if FileManager.default.fileExists(atPath: localNativeURL.path) {
-            for url in urls {
-                // Copy source to folder
-                let targetURL = localNativeURL.appendingPathComponent(url.lastPathComponent, isDirectory: false)
-                try FileManager.default.copyItem(at: url, to: targetURL)
-                
-                // Select the dropped file
-                if folder.isSelective() {
-                    let localURL = URL(fileURLWithPath: self.prefix).appendingPathComponent(url.lastPathComponent, isDirectory: false)
-                    // Soft fail because we may be scanning or syncing
-                    pathsToSelect.append(localURL.path(percentEncoded: false))
+            
+            // If we are in a subdirectory, and the folder is selective, ensure the folder is materialized
+            if !self.prefix.isEmpty && self.folder.isSelective() {
+                let entry = try self.folder.getFileInformation(self.prefix.withoutEndingSlash)
+                if entry.isDirectory() && !entry.isDeleted() {
+                    try entry.materializeSubdirectory()
+                }
+                else {
+                    // Somehow not a directory...
+                    return
                 }
             }
+
+            let localNativeURL = URL(fileURLWithPath: localNativePath).appendingPathComponent(self.prefix)
+            var pathsToSelect: [String] = []
             
-            if folder.isSelective() {
-                try self.folder.setLocalPathsExplicitlySelected(SushitrainListOfStrings.from(pathsToSelect))
+            if FileManager.default.fileExists(atPath: localNativeURL.path) {
+                for url in urls {
+                    // Copy source to folder
+                    let targetURL = localNativeURL.appendingPathComponent(url.lastPathComponent, isDirectory: false)
+                    try FileManager.default.copyItem(at: url, to: targetURL)
+                    
+                    // Select the dropped file
+                    if folder.isSelective() {
+                        let localURL = URL(fileURLWithPath: self.prefix).appendingPathComponent(url.lastPathComponent, isDirectory: false)
+                        // Soft fail because we may be scanning or syncing
+                        pathsToSelect.append(localURL.path(percentEncoded: false))
+                    }
+                }
+                
+                if folder.isSelective() {
+                    try self.folder.setLocalPathsExplicitlySelected(SushitrainListOfStrings.from(pathsToSelect))
+                }
+                
+                try self.folder.rescanSubdirectory(self.prefix)
             }
-            
-            try self.folder.rescanSubdirectory(self.prefix)
         }
-    }
+    #endif
     
     private func updateLocalURL() {
         // Get local native URL
