@@ -16,7 +16,6 @@ import (
 	"strings"
 
 	"github.com/syncthing/syncthing/lib/fs"
-	"github.com/syncthing/syncthing/lib/ignore/ignoreresult"
 	"github.com/syncthing/syncthing/lib/model"
 	"github.com/syncthing/syncthing/lib/osutil"
 	"github.com/syncthing/syncthing/lib/protocol"
@@ -151,8 +150,8 @@ func (entry *Entry) IsLocallyPresent() bool {
 	return err == nil
 }
 
+// For non-selective folders, this will return true when not ignored
 func (entry *Entry) IsSelected() bool {
-	// FIXME: cache matcher
 	matcher, err := entry.Folder.loadIgnores()
 	if err != nil {
 		Logger.Warnln("error loading ignore matcher", err)
@@ -160,10 +159,7 @@ func (entry *Entry) IsSelected() bool {
 	}
 
 	res := matcher.Match(entry.info.Name)
-	if res == ignoreresult.Ignored || res == ignoreresult.IgnoreAndSkip {
-		return false
-	}
-	return true
+	return !res.IsIgnored()
 }
 
 func (entry *Entry) IsExplicitlySelected() bool {
