@@ -173,7 +173,7 @@ struct FoldersSections: View {
                 showingAddFolderPopup = true
             })
             #if os(macOS)
-                .buttonStyle(.borderless)
+                .buttonStyle(.link)
             #endif
         }
         .sheet(isPresented: $showingAddFolderPopup, content: {
