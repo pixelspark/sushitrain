@@ -677,28 +677,21 @@ struct BrowserView: View {
                 }
             }
         }
-        .onDrop(of: ["public.file-url"], isTargeted: nil, perform: { providers, _ in
-            #if os(iOS)
-                // TODO does this work?
-                providers.first!.loadFileRepresentation(forTypeIdentifier: UTType.item.identifier) { url, _ in
-                    if let u = url {
-                        DispatchQueue.main.async {
-                            self.dropFile(u)
-                        }
+        #if os(macOS)
+            .onDrop(of: ["public.file-url"], isTargeted: nil, perform: { providers, _ in
+                Task {
+                    self.error = nil
+                    do {
+                        try await self.onDrop(providers)
+                    }
+                    catch {
+                        Log.warn("Failed to drop: \(error.localizedDescription)")
+                        self.error = error
                     }
                 }
-            #else
-                providers.first?.loadDataRepresentation(forTypeIdentifier: "public.file-url", completionHandler: { (data, error) in
-                    if let data = data, let path = NSString(data: data, encoding: 4), let url = URL(string: path as String) {
-                        DispatchQueue.main.async {
-                            self.dropFile(url)
-                        }
-                    }
-                })
-            #endif
-
-            return true
-        })
+                return true
+            })
+        #endif
         .alert(isPresented: Binding(get: { return self.error != nil }, set: { nv in
             if !nv {
                 self.error = nil
@@ -708,32 +701,56 @@ struct BrowserView: View {
         }
     }
     
-    private func dropFile(_ url: URL) {
-        do {
-            // Find out the native location of our folder
-            self.error = nil
-            var error: NSError? = nil
-            let localNativePath = self.folder.localNativePath(&error)
-            if error == nil {
-                // If we are in a subdirectory, and the folder is selective, ensure the folder is materialized
-                if !self.prefix.isEmpty && self.folder.isSelective() {
-                    let entry = try self.folder.getFileInformation(self.prefix.withoutEndingSlash)
-                    if entry.isDirectory() && !entry.isDeleted() {
-                        try entry.materializeSubdirectory()
-                    }
-                    else {
-                        // Somehow not a directory...
-                        return
+    #if os(macOS)
+        private func onDrop(_ providers: [NSItemProvider]) async throws {
+            var urls: [URL] = []
+            
+            for provider in providers {
+                let data: Data? = try await withCheckedThrowingContinuation { cb in
+                    provider.loadDataRepresentation(forTypeIdentifier: "public.file-url") { (data, error) in
+                        if let e = error {
+                            cb.resume(throwing: e)
+                        }
+                        else {
+                            cb.resume(returning: data)
+                        }
                     }
                 }
-            }
-            else {
-                self.error = error
-                return
+                                        
+                if let data = data, let path = NSString(data: data, encoding: 4), let url = URL(string: path as String) {
+                    urls.append(url)
+                }
             }
             
-            let localNativeURL = URL(fileURLWithPath: localNativePath).appendingPathComponent(self.prefix)
-            if FileManager.default.fileExists(atPath: localNativeURL.path) {
+            try self.dropFiles(urls)
+        }
+    #endif
+    
+    private func dropFiles(_ urls: [URL]) throws {
+        // Find out the native location of our folder
+        var error: NSError? = nil
+        let localNativePath = self.folder.localNativePath(&error)
+        if let error = error {
+            throw error
+        }
+        
+        // If we are in a subdirectory, and the folder is selective, ensure the folder is materialized
+        if !self.prefix.isEmpty && self.folder.isSelective() {
+            let entry = try self.folder.getFileInformation(self.prefix.withoutEndingSlash)
+            if entry.isDirectory() && !entry.isDeleted() {
+                try entry.materializeSubdirectory()
+            }
+            else {
+                // Somehow not a directory...
+                return
+            }
+        }
+
+        let localNativeURL = URL(fileURLWithPath: localNativePath).appendingPathComponent(self.prefix)
+        var pathsToSelect: [String] = []
+        
+        if FileManager.default.fileExists(atPath: localNativeURL.path) {
+            for url in urls {
                 // Copy source to folder
                 let targetURL = localNativeURL.appendingPathComponent(url.lastPathComponent, isDirectory: false)
                 try FileManager.default.copyItem(at: url, to: targetURL)
@@ -742,15 +759,15 @@ struct BrowserView: View {
                 if folder.isSelective() {
                     let localURL = URL(fileURLWithPath: self.prefix).appendingPathComponent(url.lastPathComponent, isDirectory: false)
                     // Soft fail because we may be scanning or syncing
-                    try? folder.setLocalFileExplicitlySelected(localURL.path(percentEncoded: false), toggle: true)
+                    pathsToSelect.append(localURL.path(percentEncoded: false))
                 }
-                
-                try self.folder.rescanSubdirectory(self.prefix)
             }
-        }
-        catch {
-            Log.warn("Failed to drop: \(error.localizedDescription)")
-            self.error = error
+            
+            if folder.isSelective() {
+                try self.folder.setLocalPathsExplicitlySelected(SushitrainListOfStrings.from(pathsToSelect))
+            }
+            
+            try self.folder.rescanSubdirectory(self.prefix)
         }
     }
     
