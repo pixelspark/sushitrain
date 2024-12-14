@@ -59,7 +59,13 @@ func (peer *Peer) deviceConfiguration() *config.DeviceConfiguration {
 }
 
 func (peer *Peer) Name() string {
-	return peer.deviceConfiguration().Name
+	config := peer.deviceConfiguration()
+
+	if config == nil {
+		return ""
+	}
+
+	return config.Name
 }
 
 func (peer *Peer) SetName(name string) error {
