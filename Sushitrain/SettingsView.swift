@@ -281,9 +281,12 @@ struct AdvancedSettingsView: View {
                     }
                 }
                 .pickerStyle(.menu).disabled(!appState.cacheThumbnailsToDisk)
-                Button("Clear thumbnail cache") {
-                    ImageCache.clear()
-                    self.diskCacheSizeBytes = nil
+                
+                if appState.cacheThumbnailsToFolderID == "" {
+                    Button("Clear thumbnail cache") {
+                        ImageCache.clear()
+                        self.diskCacheSizeBytes = nil
+                    }
                 }
             } footer: {
                 self.cacheText
