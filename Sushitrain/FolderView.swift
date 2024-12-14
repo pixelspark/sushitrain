@@ -496,8 +496,8 @@ struct FolderView: View {
                     }
                 }
                 
-                DisclosureGroup("Advanced folder settings", isExpanded: $advancedExpanded) {
-                    #if os(iOS)
+                #if os(iOS)
+                    DisclosureGroup("Advanced folder settings", isExpanded: $advancedExpanded) {
                         if !folder.isSelective() {
                             NavigationLink(destination: IgnoresView(appState: self.appState, folder: self.folder)
                                 .navigationTitle("Files to ignore")
@@ -508,23 +508,41 @@ struct FolderView: View {
                                 Label("Files to ignore", systemImage: "rectangle.dashed")
                             }
                         }
-                    #endif
-                    
-                    LabeledContent {
-                        TextField("", text: Binding(get: {
-                            let interval: Int = folder.rescanIntervalSeconds() / 60
-                            return "\(interval)"
-                        }, set: { (lbl: String) in
-                            if !lbl.isEmpty {
-                                let interval = Int(lbl) ?? 0
-                                try? folder.setRescanInterval(interval * 60)
-                            }
-                        }), prompt: Text(""))
-                            .multilineTextAlignment(.trailing)
-                    } label: {
-                        Text("Rescan interval (minutes)")
+                        
+                        LabeledContent {
+                            TextField("", text: Binding(get: {
+                                let interval: Int = folder.rescanIntervalSeconds() / 60
+                                return "\(interval)"
+                            }, set: { (lbl: String) in
+                                if !lbl.isEmpty {
+                                    let interval = Int(lbl) ?? 0
+                                    try? folder.setRescanInterval(interval * 60)
+                                }
+                            }), prompt: Text(""))
+                                .multilineTextAlignment(.trailing)
+                        } label: {
+                            Text("Rescan interval (minutes)")
+                        }
                     }
-                }
+                #else
+                    // DisclosureGroup is not so nice on macOS
+                    Section("Advanced folder settings") {
+                        LabeledContent {
+                            TextField("", text: Binding(get: {
+                                let interval: Int = folder.rescanIntervalSeconds() / 60
+                                return "\(interval)"
+                            }, set: { (lbl: String) in
+                                if !lbl.isEmpty {
+                                    let interval = Int(lbl) ?? 0
+                                    try? folder.setRescanInterval(interval * 60)
+                                }
+                            }), prompt: Text(""))
+                            .multilineTextAlignment(.trailing)
+                        } label: {
+                            Text("Rescan interval (minutes)")
+                        }
+                    }
+                #endif
             }
         }
         #if os(macOS)
