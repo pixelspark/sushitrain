@@ -331,6 +331,17 @@ struct ConfigureDeviceIntent: AppIntent {
     }
 }
 
+struct GetDeviceIDIntent: AppIntent {
+    static let title: LocalizedStringResource = "Get device ID"
+    
+    @Dependency private var appState: AppState
+    
+    @MainActor
+    func perform() async throws -> some ReturnsValue<String> {
+        return .result(value: self.appState.localDeviceID)
+    }
+}
+
 struct AppShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         return [
@@ -375,6 +386,12 @@ struct AppShortcuts: AppShortcutsProvider {
                 phrases: ["Search files"],
                 shortTitle: "Search for files",
                 systemImageName: "magnifyingglass"
+            ),
+            AppShortcut(
+                intent: GetDeviceIDIntent(),
+                phrases: ["Get device ID"],
+                shortTitle: "Get device ID",
+                systemImageName: "qrcode"
             ),
         ]
     }
