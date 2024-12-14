@@ -9910,6 +9910,34 @@
         }
       }
     },
+    "Sending %lld files..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sende %lld Dateien..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviando %lld archivos..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invio di %lld file..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld bestanden verzenden..."
+          }
+        }
+      }
+    },
     "Sending files" : {
       "localizations" : {
         "de" : {

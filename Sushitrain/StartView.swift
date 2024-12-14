@@ -185,7 +185,7 @@ struct OverallStatusView: View {
                             Label("Receiving \(progress.filesTotal) files...", systemImage: "arrow.down")
                                 .foregroundStyle(.green)
                                 .symbolEffect(.pulse, value: true)
-                                .badge(self.peerStatusText)
+                                .badge("\(Int(progress.percentage * 100))%")
                                 .frame(maxWidth: .infinity)
                         }.tint(.green)
                     }
@@ -199,13 +199,24 @@ struct OverallStatusView: View {
                 
                 // Uploads
                 if isUploading {
-                    let upPeers = self.appState.client.uploadingToPeers()!
+                    let progress = self.appState.client.getTotalUploadProgress()
+                    
                     NavigationLink(destination: UploadView(appState: self.appState)) {
-                        Label("Sending files...", systemImage: "arrow.up")
-                            .foregroundStyle(.green)
-                            .badge("\(upPeers.count())/\(self.appState.peers().count - 1)")
-                            .multilineTextAlignment(.leading)
-                            .frame(maxWidth: .infinity)
+                        if let progress = progress {
+                            ProgressView(value: progress.percentage, total: 1.0) {
+                                Label("Sending \(progress.filesTotal) files...", systemImage: "arrow.up")
+                                    .foregroundStyle(.green)
+                                    .symbolEffect(.pulse, value: true)
+                                    .badge("\(Int(progress.percentage * 100))%")
+                                    .frame(maxWidth: .infinity)
+                            }.tint(.green)
+                        }
+                        else {
+                            Label("Sending files...", systemImage: "arrow.up")
+                                .foregroundStyle(.green)
+                                .badge(self.peerStatusText)
+                                .frame(maxWidth: .infinity)
+                        }
                     }
                 }
             }

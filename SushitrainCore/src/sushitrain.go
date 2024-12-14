@@ -854,6 +854,75 @@ type Progress struct {
 	Percentage float32
 }
 
+func (clt *Client) UploadProgressForPeerFolderPath(deviceID string, folderID string, path string) *Progress {
+	clt.mutex.Lock()
+	defer clt.mutex.Unlock()
+
+	if uploads, ok := clt.uploadProgress[deviceID]; ok {
+		if files, ok := uploads[folderID]; ok {
+			if blocksTransferred, ok := files[path]; ok {
+				info, ok, err := clt.app.Internals.GlobalFileInfo(folderID, path)
+				if !ok || err != nil {
+					return nil
+				}
+
+				bytesTotal := info.FileSize()
+				if bytesTotal == 0 {
+					return nil
+				}
+				bytesDone := min(bytesTotal, int64(blocksTransferred)*int64(info.BlockSize()))
+
+				return &Progress{
+					BytesTotal: bytesTotal,
+					BytesDone:  bytesDone,
+					FilesTotal: 1,
+					Percentage: float32(float64(bytesDone) / float64(bytesTotal)),
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (clt *Client) GetTotalUploadProgress() *Progress {
+	clt.mutex.Lock()
+	defer clt.mutex.Unlock()
+
+	if clt.uploadProgress == nil {
+		return nil
+	}
+
+	var totalBytes int64 = 0
+	var transferredBytes int64 = 0
+	var totalFiles int64 = 0
+
+	for _, info := range clt.uploadProgress {
+		for folderID, finfo := range info {
+			for path, blocksTransferred := range finfo {
+				info, ok, err := clt.app.Internals.GlobalFileInfo(folderID, path)
+				if !ok || err != nil {
+					continue
+				}
+				totalBytes += info.Size
+				bytesDone := min(info.Size, int64(blocksTransferred)*int64(info.BlockSize()))
+				transferredBytes += bytesDone
+				totalFiles += 1
+			}
+		}
+	}
+
+	if totalBytes == 0 {
+		return nil
+	}
+
+	return &Progress{
+		BytesTotal: totalBytes,
+		BytesDone:  transferredBytes,
+		FilesTotal: totalFiles,
+		Percentage: float32(float64(transferredBytes) / float64(totalBytes)),
+	}
+}
+
 func (clt *Client) GetTotalDownloadProgress() *Progress {
 	clt.mutex.Lock()
 	defer clt.mutex.Unlock()
