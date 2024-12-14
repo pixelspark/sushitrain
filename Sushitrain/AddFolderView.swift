@@ -35,9 +35,9 @@ struct AddFolderView: View {
                     TextField("", text: $folderID, prompt: Text("XXXX-XXXX"))
                         .focused($idFieldFocus)
                         #if os(iOS)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .keyboardType(.asciiCapable)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .keyboardType(.asciiCapable)
                         #endif
                 }
                 
@@ -106,7 +106,11 @@ struct AddFolderView: View {
                     
                     Button("Share with all devices offering this folder") {
                         sharedWith = Set(pendingPeers)
-                    }.disabled(pendingPeers.isEmpty)
+                    }
+                    .disabled(pendingPeers.isEmpty)
+                    #if os(macOS)
+                        .buttonStyle(.link)
+                    #endif
                 }
             }
             #if os(macOS)
