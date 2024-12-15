@@ -50,7 +50,7 @@ func (sel *Selection) Lines() []string {
 func (sel *Selection) SetExplicitlySelected(paths map[string]bool) error {
 	for path, selected := range paths {
 		line := ignoreLineForSelectingPath(path)
-		Logger.Infof("Edit ignore line (%b): %s\n", selected, line)
+		Logger.Infof("Edit ignore line (%t): %s\n", selected, line)
 
 		// Is this entry currently selected explicitly?
 		currentlySelected := slices.Contains(sel.lines, line)
