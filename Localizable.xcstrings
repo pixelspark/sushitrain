@@ -1448,6 +1448,62 @@
         }
       }
     },
+    "All files including those not available elsewhere" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Dateien, einschließlich derjenigen, die anderswo nicht verfügbar sind"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos los archivos, incluidos aquellos que no están disponibles en otros lugares"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutti i file, inclusi quelli non disponibili altrove"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle bestanden, inclusief diegenen die nergens anders beschikbaar zijn"
+          }
+        }
+      }
+    },
+    "All files that are available on other devices" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Dateien, die auf anderen Geräten verfügbar sind"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos los archivos disponibles en otros dispositivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutti i file disponibili su altri dispositivi"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle bestanden die beschikbaar zijn op andere apparaten"
+          }
+        }
+      }
+    },
     "Allow Synctrain to access photos" : {
       "localizations" : {
         "de" : {
@@ -7586,6 +7642,34 @@
         }
       }
     },
+    "Only copy" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das einzige Exemplar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La única copia"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’unica copia"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enige kopie"
+          }
+        }
+      }
+    },
     "Only files that you select will be copied to this device. You can still access all files in the folder on demand when connected to other devices that have a copy of the file." : {
       "localizations" : {
         "de" : {
@@ -8678,6 +8762,34 @@
         }
       }
     },
+    "Remove files from this device" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien von diesem Gerät entfernen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar archivos de este dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi file da questo dispositivo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder bestanden van dit apparaat"
+          }
+        }
+      }
+    },
     "Remove folder" : {
       "localizations" : {
         "de" : {
@@ -8790,30 +8902,58 @@
         }
       }
     },
-    "Remove the files shown in the list from this device, but do not remove them from other devices." : {
+    "Remove the files shown in the list from this device, but do not remove them from other devices. If a file is not available on at least one other device, it will not be removed." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Entferne die in der Liste angezeigten Dateien von diesem Gerät, aber entferne sie nicht von anderen Geräten."
+            "value" : "Entfernen Sie die in der Liste angezeigten Dateien von diesem Gerät, jedoch nicht von anderen Geräten. Wenn eine Datei auf mindestens einem anderen Gerät nicht verfügbar ist, wird sie nicht entfernt."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Elimina los archivos que se muestran en la lista de este dispositivo, pero no los elimines de otros dispositivos."
+            "value" : "Elimina los archivos que se muestran en la lista de este dispositivo, pero no los elimines de otros dispositivos. Si un archivo no está disponible en al menos otro dispositivo, no se eliminará."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rimuovi i file mostrati nell'elenco da questo dispositivo, ma non rimuoverli dagli altri dispositivi."
+            "value" : "Rimuovi i file mostrati nell'elenco da questo dispositivo, ma non dagli altri dispositivi. Se un file non è disponibile su almeno un altro dispositivo, non verrà rimosso."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verwijder de bestanden in de lijst van dit apparaat, maar verwijder ze niet van andere apparaten."
+            "value" : "Verwijder de bestanden in de lijst van dit apparaat, maar niet van andere apparaten. Als een bestand niet beschikbaar is op ten minste één ander apparaat, wordt het niet verwijderd."
+          }
+        }
+      }
+    },
+    "Remove the files shown in the list from this device, but do not remove them from other devices. If the file is not available on another device it will be permanently removed." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entfernen Sie die in der Liste angezeigten Dateien von diesem Gerät, aber entfernen Sie sie nicht von anderen Geräten. Wenn die Datei auf keinem anderen Gerät verfügbar ist, wird sie dauerhaft gelöscht."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina los archivos mostrados en la lista de este dispositivo, pero no los elimines de otros dispositivos. Si el archivo no está disponible en otro dispositivo, se eliminará permanentemente."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi i file mostrati nell'elenco da questo dispositivo, ma non rimuoverli dagli altri dispositivi. Se il file non è disponibile su un altro dispositivo, verrà eliminato definitivamente."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder de bestanden die in de lijst worden weergegeven van dit apparaat, maar verwijder ze niet van andere apparaten. Als het bestand niet beschikbaar is op een ander apparaat, wordt het permanent verwijderd."
           }
         }
       }
@@ -10214,35 +10354,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Deel met"
-          }
-        }
-      }
-    },
-    "Share with all devices offering this folder" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mit allen Geräten teilen, die diesen Ordner anbieten"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compartir con todos los dispositivos que ofrezcan esta carpeta"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Condividi con tutti i dispositivi che offrono questa cartella"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deel met alle apparaten die de map aanbieden"
           }
         }
       }
@@ -12291,6 +12402,34 @@
         }
       }
     },
+    "This file is only available on this device." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Datei ist nur auf diesem Gerät verfügbar."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este archivo solo está disponible en este dispositivo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo file è disponibile solo su questo dispositivo."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dit bestand is alleen beschikbaar op dit apparaat."
+          }
+        }
+      }
+    },
     "This file it not fully available on any connected device" : {
       "localizations" : {
         "de" : {
@@ -12595,6 +12734,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hiermee worden alle lokaal opgeslagen kopieën van bestanden in deze map verwijderd. Alle bestanden die niet op een ander apparaat aanwezig zijn, gaan permanent verloren en kunnen niet worden hersteld. Weet u zeker dat u wilt doorgaan?"
+          }
+        }
+      }
+    },
+    "This will remove all locally stored copies of files in this folder. Any files that are not also present on another device will not be removed. Are you sure yu want to continue?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dadurch werden alle lokal gespeicherten Kopien von Dateien in diesem Ordner entfernt. Dateien, die nicht auch auf einem anderen Gerät vorhanden sind, werden nicht entfernt. Sind Sie sicher, dass Sie fortfahren möchten?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esto eliminará todas las copias de archivos almacenadas localmente en esta carpeta. Los archivos que no estén presentes en otro dispositivo no se eliminarán. ¿Está seguro de que desea continuar?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo rimuoverà tutte le copie di file memorizzate localmente in questa cartella. Gli eventuali file che non sono presenti anche su un altro dispositivo non verranno rimossi. Sei sicuro di voler continuare?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiermee worden alle lokaal opgeslagen kopieën van bestanden in deze map verwijderd. Bestanden die niet ook op een ander apparaat aanwezig zijn, worden niet verwijderd. Weet u zeker dat u wilt doorgaan?"
           }
         }
       }
