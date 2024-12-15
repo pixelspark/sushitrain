@@ -8,15 +8,19 @@ import SushitrainCore
 
 struct AddFolderView: View {
     @Binding var folderID: String
-    @State var sharedWith = Set<String>()
+    var shareWithPendingPeersByDefault: Bool = false
+    
+    @ObservedObject var appState: AppState
     
     @Environment(\.dismiss) private var dismiss
     @FocusState private var idFieldFocus: Bool
-    @ObservedObject var appState: AppState
+    
+    @State var sharedWith = Set<String>()
     @State var showError = false
     @State var errorText = ""
     @State var folderPath: URL? = nil
     @State private var possiblePeers: [SushitrainPeer] = []
+    @State private var pendingPeers: [String] = []
     
     @State private var showPathSelector: Bool = false
     @State private var showAddingExternalWarning: Bool = false
@@ -85,9 +89,7 @@ struct AddFolderView: View {
                 }
                 
                 if !possiblePeers.isEmpty {
-                    let pendingPeers = (try? appState.client.devicesPendingFolder(self.folderID))?.asArray() ?? []
-                    
-                    Section(header: Text("Shared with")) {
+                    Section(header: Text("Share with")) {
                         ForEach(self.possiblePeers, id: \.self.id) { (peer: SushitrainPeer) in
                             let isShared = sharedWith.contains(peer.deviceID());
                             let shared = Binding(get: { return isShared }, set: {share in
@@ -98,19 +100,22 @@ struct AddFolderView: View {
                                     sharedWith.remove(peer.deviceID())
                                 }
                             });
+                            
+                            let isOffered = pendingPeers.contains(peer.deviceID())
                             Toggle(peer.displayName, systemImage: peer.systemImage, isOn: shared)
-                                .bold(pendingPeers.contains(peer.deviceID()))
+                                .bold(isOffered)
+                                .foregroundStyle(isOffered ? .blue : .primary)
                                 .disabled(peer.isUntrusted())
                         }
+                        
+                        Button("Select all devices offering this folder") {
+                            sharedWith = Set(pendingPeers)
+                        }
+                        .disabled(pendingPeers.isEmpty)
+                        #if os(macOS)
+                            .buttonStyle(.link)
+                        #endif
                     }
-                    
-                    Button("Share with all devices offering this folder") {
-                        sharedWith = Set(pendingPeers)
-                    }
-                    .disabled(pendingPeers.isEmpty)
-                    #if os(macOS)
-                        .buttonStyle(.link)
-                    #endif
                 }
             }
             #if os(macOS)
@@ -118,6 +123,12 @@ struct AddFolderView: View {
             #endif
             .onAppear {
                 idFieldFocus = true
+            }
+            .task {
+                self.update()
+            }
+            .onChange(of: folderID, initial: false) { _, _ in
+                self.update()
             }
             .toolbar(content: {
                 ToolbarItem(placement: .confirmationAction, content: {
@@ -152,9 +163,6 @@ struct AddFolderView: View {
             .alert(isPresented: $showError, content: {
                 Alert(title: Text("Could not add folder"), message: Text(errorText), dismissButton: .default(Text("OK")))
             })
-            .onAppear {
-                self.possiblePeers = appState.peers().sorted().filter({d in !d.isSelf()})
-            }
             .fileImporter(isPresented: $showPathSelector, allowedContentTypes: [.folder], onCompletion: { result in
                 switch result {
                 case .success(let url):
@@ -172,6 +180,14 @@ struct AddFolderView: View {
                     self.folderPath = nil
                 }
             })
+        }
+    }
+    
+    private func update() {
+        self.possiblePeers = appState.peers().sorted().filter({d in !d.isSelf()})
+        self.pendingPeers = (try? appState.client.devicesPendingFolder(self.folderID))?.asArray() ?? []
+        if self.shareWithPendingPeersByDefault && sharedWith.isEmpty {
+            sharedWith = Set(pendingPeers)
         }
     }
     
