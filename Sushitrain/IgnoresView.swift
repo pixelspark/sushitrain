@@ -15,7 +15,7 @@ struct IgnoresView: View {
     @State var showUpdateCleanConfirmation = false
     
     private static let prependedLine = "# Synctrain user-defined ignore file"
-    private static let defaultIgnoreLines = ["(?d).DS_Store", "(?d)Thumbs.db", "(?d)desktop.ini", ".Trashes", ".Spotlight-V100"]
+    private static let defaultIgnoreLines = ["(?d).DS_Store", "(?d)Thumbs.db", "(?d)desktop.ini", ".AppleDB", ".AppleDesktop", ".Trashes", ".Spotlight-V100"]
     
     var body: some View {
         List {
