@@ -419,7 +419,7 @@ struct FileView: View {
                     #endif
                     
                     // Image preview
-                    if file.canThumbnail {
+                    if file.canThumbnail && !showFullScreenViewer {
                         Section {
                             ThumbnailView(file: file, appState: appState, showFileName: false, showErrorMessages: true)
                                 .id(file.id)
