@@ -57,8 +57,14 @@ extension SushitrainFolder: @retroactive Comparable {
 }
 
 extension SushitrainPeer: @retroactive Comparable {
+    // Sort peers by display name, when there is a tie sort by the device ID (always unique)
     public static func < (lhs: SushitrainPeer, rhs: SushitrainPeer) -> Bool {
-        return lhs.deviceID() < rhs.deviceID()
+        let a = lhs.displayName
+        let b = rhs.displayName
+        if a == b {
+            return lhs.deviceID() < rhs.deviceID()
+        }
+        return a < b
     }
 }
 
