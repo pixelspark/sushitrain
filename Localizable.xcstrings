@@ -1560,6 +1560,34 @@
         }
       }
     },
+    "An encrypted version of the folder is shared with this device." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine verschlüsselte Version des Ordners wird mit diesem Gerät geteilt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una versión cifrada de la carpeta se ha compartido con este dispositivo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una versione crittografata della cartella è condivisa con questo dispositivo."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een versleutelde versie van de map is gedeeld met dit apparaat."
+          }
+        }
+      }
+    },
     "An error occured" : {
       "localizations" : {
         "de" : {
@@ -2648,6 +2676,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sluit de app"
+          }
+        }
+      }
+    },
+    "Completion" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fertigstellen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finalización"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completamento"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voortgang"
           }
         }
       }
@@ -10442,6 +10498,34 @@
         }
       }
     },
+    "Sharing" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teilen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartir"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condivisione"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delen"
+          }
+        }
+      }
+    },
     "Show" : {
       "localizations" : {
         "de" : {
@@ -11054,6 +11138,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Eigenschappen submap..."
+          }
+        }
+      }
+    },
+    "Switch rows/columns" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeilen/Spalten tauschen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambiar filas/columnas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scambia righe/colonne"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rijen/kolommen omwisselen"
           }
         }
       }
@@ -12342,6 +12454,68 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dit apparaat"
+          }
+        }
+      }
+    },
+    "This device has a copy of all items" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Gerät hat eine Kopie aller Elemente."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este dispositivo tiene una copia de todos los elementos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo dispositivo ha una copia di tutti gli elementi."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dit apparaat heeft een kopie van alle items."
+          }
+        }
+      }
+    },
+    "This device still needs %lld items out of %lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Gerät benötigt noch %lld Elemente von %lld."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This device still needs %1$lld items out of %2$lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este dispositivo aún necesita %lld elementos de %lld."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo dispositivo deve ancora sincronizzare %lld elementi su %lld."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dit apparaat moet nog %lld items van de %lld synchroniseren."
           }
         }
       }

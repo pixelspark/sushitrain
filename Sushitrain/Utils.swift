@@ -86,6 +86,12 @@ extension SushitrainPeer: @retroactive Identifiable {
     }
 }
 
+extension SushitrainFolder: @retroactive Identifiable {
+    public var id: String {
+        return self.folderID
+    }
+}
+
 extension SushitrainChange: @retroactive Identifiable {
 }
 
@@ -495,6 +501,7 @@ extension SushitrainChange: @unchecked @retroactive Sendable {}
 extension SushitrainFolder: @unchecked @retroactive Sendable {}
 extension SushitrainFolderStats: @unchecked @retroactive Sendable {}
 extension SushitrainEntry: @unchecked @retroactive Sendable {}
+extension SushitrainCompletion: @unchecked @retroactive Sendable {}
 
 #if os(macOS)
 typealias UIViewRepresentable = NSViewRepresentable
