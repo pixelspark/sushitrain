@@ -324,6 +324,12 @@ class PhotoSynchronisation: ObservableObject {
                                     if let data = data {
                                         do {
                                             try data.write(to: fileURL)
+                                            
+                                            // Set file creation date to photo creation date
+                                            if let cd = asset.creationDate {
+                                                try FileManager.default.setAttributes([FileAttributeKey.creationDate: cd], ofItemAtPath: fileURL.path(percentEncoded: false))
+                                            }
+                                            
                                             assetsSavedSuccessfully.append(asset)
                                             selectPaths.append(inFolderPath)
                                         }
@@ -403,6 +409,10 @@ class PhotoSynchronisation: ObservableObject {
                         }
                     }
                     
+                    if let cd = asset.creationDate {
+                        try FileManager.default.setAttributes([FileAttributeKey.creationDate: cd], ofItemAtPath: fileURL.path(percentEncoded: false))
+                    }
+                    
                     selectPaths.append(selectPath)
                     assetsSavedSuccessfully.append(asset)
                 }
@@ -460,6 +470,10 @@ class PhotoSynchronisation: ObservableObject {
                                 resolve.resume()
                             }
                         }
+                    }
+                    
+                    if let cd = asset.creationDate {
+                        try FileManager.default.setAttributes([FileAttributeKey.creationDate: cd], ofItemAtPath: destURL.path(percentEncoded: false))
                     }
                     
                     DispatchQueue.main.async {
