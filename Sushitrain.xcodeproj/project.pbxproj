@@ -283,6 +283,7 @@
 				Base,
 				nl,
 				de,
+				uk,
 			);
 			mainGroup = 65AE11F02C39EE0E00E721D4;
 			productRefGroup = 65AE11FA2C39EE0E00E721D4 /* Products */;
