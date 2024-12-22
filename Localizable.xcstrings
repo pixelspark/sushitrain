@@ -49,6 +49,12 @@
             "state" : "translated",
             "value" : ""
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Синхронізація файлів"
+          }
         }
       }
     },
@@ -175,6 +181,12 @@
           }
         },
         "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        },
+        "uk" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@"
@@ -605,6 +617,12 @@
             "state" : "translated",
             "value" : "2024-08-11/IMG_2020.HEIC"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08-11/IMG_2020.HEIC"
+          }
         }
       }
     },
@@ -629,6 +647,12 @@
           }
         },
         "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08-11/Video/IMG_2020.MOV"
+          }
+        },
+        "uk" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "2024-08-11/Video/IMG_2020.MOV"
@@ -1069,6 +1093,12 @@
             "state" : "translated",
             "value" : "Regel toevoegen"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Додати рядок"
+          }
         }
       }
     },
@@ -1403,6 +1433,12 @@
             "state" : "translated",
             "value" : "Geavanceerde mapinstellingen"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Розширені налаштування папки"
+          }
         }
       }
     },
@@ -1635,6 +1671,12 @@
             "state" : "translated",
             "value" : "Alle apparaten zijn gepauzeerd"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Усі пристрої призупинено"
+          }
         }
       }
     },
@@ -1731,6 +1773,12 @@
             "state" : "translated",
             "value" : "Alle bestanden, inclusief diegenen die nergens anders beschikbaar zijn"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Всі файли, включаючи ті, які недоступні в інших місцях"
+          }
         }
       }
     },
@@ -1758,6 +1806,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Alle bestanden die beschikbaar zijn op andere apparaten"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Усі файли, доступні на інших пристроях"
           }
         }
       }
@@ -1854,6 +1908,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Een versleutelde versie van de map is gedeeld met dit apparaat."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зашифрована версія папки ділиться з цим пристроєм."
           }
         }
       }
@@ -2121,6 +2181,12 @@
             "state" : "translated",
             "value" : "Toepassen en map schoonmaken"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Застосувати та очистити папку"
+          }
         }
       }
     },
@@ -2149,6 +2215,12 @@
             "state" : "translated",
             "value" : "Patronen toepassen en map opschonen"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Застосувати шаблони та очистити папку"
+          }
         }
       }
     },
@@ -2176,6 +2248,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Weet je zeker dat je de patronen wilt toepassen en de map wilt opschonen? Bestanden en submappen die overeenkomen met de patronen worden permanent van dit apparaat verwijderd. Bestanden kunnen verloren gaan als ze niet op andere apparaten beschikbaar zijn."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ви впевнені, що хочете застосувати шаблони та очистити папку? Файли та підкаталоги, що відповідають шаблонам, будуть назавжди видалені з цього пристрою. Файли можуть бути втрачені, якщо вони недоступні на інших пристроях."
           }
         }
       }
@@ -2715,6 +2793,12 @@
             "state" : "translated",
             "value" : "Op datum"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За датою"
+          }
         }
       }
     },
@@ -2742,6 +2826,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Op datum en type"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За датою та типом"
           }
         }
       }
@@ -2805,6 +2895,12 @@
             "state" : "translated",
             "value" : "Op type"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За типом"
+          }
         }
       }
     },
@@ -2833,6 +2929,12 @@
             "state" : "translated",
             "value" : "Cachelocatie"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Розташування кешу"
+          }
         }
       }
     },
@@ -2860,6 +2962,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sla miniaturen op schijf op"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кешувати мініатюри на диску"
           }
         }
       }
@@ -2923,6 +3031,12 @@
             "state" : "translated",
             "value" : "Kan de geselecteerde map met ID '%@' niet vinden"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося знайти вибрану папку з ID '%@'"
+          }
         }
       }
     },
@@ -2950,6 +3064,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kan dit bestand niet bekijken"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неможливо переглянути цей файл"
           }
         }
       }
@@ -2979,6 +3099,12 @@
             "state" : "translated",
             "value" : "Kan geen voorbeeld tonen voor dit bestandstype."
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося відобразити попередній перегляд для цього типу файлу."
+          }
         }
       }
     },
@@ -3006,6 +3132,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zichtbaarheid wijzigen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Змінити видимість"
           }
         }
       }
@@ -3103,6 +3235,12 @@
             "state" : "translated",
             "value" : "Miniatuurcache wissen"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистити кеш мініатюр"
+          }
         }
       }
     },
@@ -3198,6 +3336,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Voortgang"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Завершення"
           }
         }
       }
@@ -3329,6 +3473,12 @@
             "state" : "translated",
             "value" : "Apparaat configureren"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Налаштувати пристрій"
+          }
         }
       }
     },
@@ -3356,6 +3506,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Configureer apparaat(en)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Налаштувати пристрій(ї)"
           }
         }
       }
@@ -3385,6 +3541,12 @@
             "state" : "translated",
             "value" : "Map configureren"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Налаштувати папку"
+          }
         }
       }
     },
@@ -3412,6 +3574,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mappen configureren"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Налаштувати папку(и)"
           }
         }
       }
@@ -3577,6 +3745,12 @@
             "state" : "translated",
             "value" : "Nieuwe foto's gekopieerd"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нові фотографії скопійовано"
+          }
         }
       }
     },
@@ -3604,6 +3778,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kopieer"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Копіювати"
           }
         }
       }
@@ -3871,6 +4051,12 @@
             "state" : "translated",
             "value" : "Kan geselecteerd album niet vinden"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося знайти вибраний альбом"
+          }
         }
       }
     },
@@ -4034,6 +4220,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Momenteel gebruikt de miniaturenbuffer %@ van de schijfruimte."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зараз кеш ескізів використовує %@ дискового простору."
           }
         }
       }
@@ -4199,6 +4391,12 @@
             "state" : "translated",
             "value" : "Apparaat"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пристрій"
+          }
         }
       }
     },
@@ -4260,6 +4458,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apparaatconfiguratie gewijzigd"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Змінено конфігурацію пристрою"
           }
         }
       }
@@ -4425,6 +4629,12 @@
             "state" : "translated",
             "value" : "Apparaten die uw aandacht nodig hebben"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пристрої, що потребують вашої уваги"
+          }
         }
       }
     },
@@ -4486,6 +4696,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Uitschakelen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вимкнути"
           }
         }
       }
@@ -4616,6 +4832,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Niet wijzigen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не змінювати"
           }
         }
       }
@@ -4815,6 +5037,12 @@
             "state" : "translated",
             "value" : "Inschakelen"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Увімкнути"
+          }
         }
       }
     },
@@ -4978,6 +5206,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Synchronisatie inschakelen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Увімкнути синхронізацію"
           }
         }
       }
@@ -5177,6 +5411,12 @@
             "state" : "translated",
             "value" : "Fout bij laden van negeerinstellingen"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Помилка завантаження налаштувань ігнорування"
+          }
         }
       }
     },
@@ -5204,6 +5444,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Voorbeeld van bestandslocatie in map: "
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приклад розташування файлу в папці:"
           }
         }
       }
@@ -5539,6 +5785,12 @@
             "state" : "translated",
             "value" : "Bestanden en submappen waarvan de paden overeenkomen met een van de bovenstaande patronen zullen niet worden gesynchroniseerd met andere apparaten. Bestaande items die overeenkomen met de patronen zullen niet worden bijgewerkt."
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файли та підкаталоги, шляхи яких збігаються з будь-яким із наведених вище шаблонів, не будуть синхронізовані з іншими пристроями. Існуючі елементи, що відповідають шаблонам, не будуть оновлюватися."
+          }
         }
       }
     },
@@ -5703,6 +5955,12 @@
             "state" : "translated",
             "value" : "Te negeren bestanden"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файли для ігнорування"
+          }
         }
       }
     },
@@ -5730,6 +5988,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Te negeren bestanden..."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файли для ігнорування..."
           }
         }
       }
@@ -5793,6 +6057,12 @@
             "state" : "translated",
             "value" : "Map"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Папка"
+          }
         }
       }
     },
@@ -5854,6 +6124,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mapconfiguratie gewijzigd"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Конфігурацію папки змінено"
           }
         }
       }
@@ -6018,6 +6294,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Scan van map '%@' aangevraagd"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запит на повторне сканування папки '%@'"
           }
         }
       }
@@ -6216,6 +6498,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mappenstructuur"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Структура папок"
           }
         }
       }
@@ -6517,6 +6805,12 @@
             "state" : "translated",
             "value" : "Miniatuurafbeeldingen genereren"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Створити мініатюри"
+          }
         }
       }
     },
@@ -6544,6 +6838,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Miniatuurweergaven genereren kan even duren en kan veel dataverkeer gebruiken. Het is raadzaam om verbinding te maken met een Wi-Fi-netwerk voordat u verdergaat. Weet u zeker dat u wilt doorgaan?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Генерація ескізів може зайняти деякий час і використовувати багато даних. Рекомендується підключитися до мережі Wi-Fi перед продовженням. Ви впевнені, що хочете продовжити?"
           }
         }
       }
@@ -6579,6 +6879,12 @@
             "state" : "translated",
             "value" : "Miniaturen genereren... (%lld / %lld)"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Створення ескізів... (%lld / %lld)"
+          }
         }
       }
     },
@@ -6607,6 +6913,12 @@
             "state" : "translated",
             "value" : "Apparaat-ID ophalen"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отримати ідентифікатор пристрою"
+          }
         }
       }
     },
@@ -6634,6 +6946,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Folderdirectory ophalen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отримати каталог папки"
           }
         }
       }
@@ -6696,6 +7014,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Globale aankondigingsservers"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Глобальні сервери оголошень"
           }
         }
       }
@@ -6792,6 +7116,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Raster met miniatuur"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сітка з попередніми переглядами"
           }
         }
       }
@@ -7059,6 +7389,12 @@
             "state" : "translated",
             "value" : "Hoeveel tijd nodig voor synchronisatie."
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скільки часу виділити на синхронізацію."
+          }
         }
       }
     },
@@ -7087,6 +7423,12 @@
             "state" : "translated",
             "value" : "HTTP"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTTP"
+          }
         }
       }
     },
@@ -7111,6 +7453,12 @@
           }
         },
         "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTTPS"
+          }
+        },
+        "uk" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "HTTPS"
@@ -7347,6 +7695,12 @@
             "state" : "translated",
             "value" : "Negeerpatronen"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ігнорувати шаблони"
+          }
         }
       }
     },
@@ -7371,6 +7725,12 @@
           }
         },
         "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IMG_2020.MOV"
+          }
+        },
+        "uk" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "IMG_2020.MOV"
@@ -8321,6 +8681,12 @@
             "state" : "translated",
             "value" : "Naam"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Назва"
+          }
         }
       }
     },
@@ -8552,6 +8918,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Geen negeerpatronen gedefinieerd"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не визначено шаблони ігнорування"
           }
         }
       }
@@ -8955,6 +9327,12 @@
             "state" : "translated",
             "value" : "Op dit apparaat"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На цьому пристрої"
+          }
         }
       }
     },
@@ -9050,6 +9428,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Enige kopie"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тільки копіювати"
           }
         }
       }
@@ -9351,6 +9735,12 @@
             "state" : "translated",
             "value" : "Patroon..."
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шаблон..."
+          }
         }
       }
     },
@@ -9549,6 +9939,12 @@
             "state" : "translated",
             "value" : "Foto's worden alleen verwijderd wanneer de fotosynchronisatie handmatig vanuit de app wordt gestart, omdat er een toestemmingsscherm wordt getoond voordat de app foto's kan verwijderen."
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Фотографії будуть видалені лише тоді, коли синхронізацію фотографій буде запущено вручну в програмі, оскільки перед видаленням фотографій програма покаже екран дозволів."
+          }
         }
       }
     },
@@ -9712,6 +10108,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bestanden bekijken bij tikken"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перегляд файлів при натисканні"
           }
         }
       }
@@ -10285,6 +10687,12 @@
             "state" : "translated",
             "value" : "Verwijder alle patronen"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видалити всі шаблони"
+          }
         }
       }
     },
@@ -10380,6 +10788,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Verwijder bestanden van dit apparaat"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видалити файли з цього пристрою"
           }
         }
       }
@@ -10545,6 +10959,12 @@
             "state" : "translated",
             "value" : "Verwijder de bestanden in de lijst van dit apparaat, maar niet van andere apparaten. Als een bestand niet beschikbaar is op ten minste één ander apparaat, wordt het niet verwijderd."
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видалити файли, що показані у списку, з цього пристрою, але не видаляти їх з інших пристроїв. Якщо файл недоступний на принаймні одному іншому пристрої, він не буде видалений."
+          }
         }
       }
     },
@@ -10675,6 +11095,12 @@
             "state" : "translated",
             "value" : "Opnieuw scannen"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повторне сканування"
+          }
         }
       }
     },
@@ -10703,6 +11129,12 @@
             "state" : "translated",
             "value" : "Map opnieuw scannen"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пересканувати папку"
+          }
         }
       }
     },
@@ -10730,6 +11162,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Herscan-interval (minuten)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Інтервал повторного сканування (хвилини)"
           }
         }
       }
@@ -11303,6 +11741,12 @@
             "state" : "translated",
             "value" : "Zoek bestanden in app"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шукати файли в додатку"
+          }
         }
       }
     },
@@ -11364,6 +11808,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zoeken naar"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пошук"
           }
         }
       }
@@ -11597,6 +12047,12 @@
             "state" : "translated",
             "value" : "Zoekterm"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пошуковий термін"
+          }
         }
       }
     },
@@ -11658,6 +12114,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Selecteer alle apparaten die deze map aanbieden"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Виберіть усі пристрої, що пропонують цю папку"
           }
         }
       }
@@ -11789,6 +12251,12 @@
             "state" : "translated",
             "value" : "Geselecteerde map bestaat niet"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вибрана папка не існує"
+          }
         }
       }
     },
@@ -11919,6 +12387,12 @@
             "state" : "translated",
             "value" : "%lld bestanden verzenden..."
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відправка %lld файлів..."
+          }
         }
       }
     },
@@ -12014,6 +12488,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stel standaardpatronen in"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Встановити стандартні шаблони"
           }
         }
       }
@@ -12349,6 +12829,12 @@
             "state" : "translated",
             "value" : "Delen"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Спільний доступ"
+          }
         }
       }
     },
@@ -12376,6 +12862,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Toon"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показати"
           }
         }
       }
@@ -12643,6 +13135,12 @@
             "state" : "translated",
             "value" : "Toon videominiaturen"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показувати попередній перегляд відео"
+          }
         }
       }
     },
@@ -12670,6 +13168,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Enkele map"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Одна папка"
           }
         }
       }
@@ -12869,6 +13373,12 @@
             "state" : "translated",
             "value" : "Status"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Статус"
+          }
         }
       }
     },
@@ -12931,6 +13441,12 @@
             "state" : "translated",
             "value" : "STUN"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STUN"
+          }
         }
       }
     },
@@ -12959,6 +13475,12 @@
             "state" : "translated",
             "value" : "STUN-servers"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STUN-сервери"
+          }
         }
       }
     },
@@ -12986,6 +13508,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Subdirectory"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Підкаталог"
           }
         }
       }
@@ -13082,6 +13610,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rijen/kolommen omwisselen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перемикання рядків/стовпців"
           }
         }
       }
@@ -13213,6 +13747,12 @@
             "state" : "translated",
             "value" : "Synchronisatie is uitgeschakeld voor alle gekoppelde apparaten. Dit kan optreden na het updaten of opnieuw opstarten van de app. Om synchronisatie opnieuw te starten, schakelt u synchronisatie in op de 'apparaten'-pagina, of tik hier om alle apparaten in te schakelen."
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Синхронізацію вимкнено для всіх пов'язаних пристроїв. Це може статися після оновлення або перезапуску додатка. Щоб відновити синхронізацію, увімкніть її знову на сторінці 'пристрої', або натисніть тут, щоб увімкнути всі пристрої."
+          }
         }
       }
     },
@@ -13275,6 +13815,12 @@
             "state" : "translated",
             "value" : "Synchronisatietijd verstreken"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Час синхронізації вичерпано"
+          }
         }
       }
     },
@@ -13336,6 +13882,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Synchroniseren voor een tijdje"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Синхронізувати на деякий час"
           }
         }
       }
@@ -14011,6 +14563,12 @@
             "state" : "translated",
             "value" : "Het apparaat om opnieuw te configureren"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пристрій для переналаштування"
+          }
         }
       }
     },
@@ -14038,6 +14596,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Het bestand is momenteel niet beschikbaar voor miniatuurweergave."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файл наразі недоступний для перегляду."
           }
         }
       }
@@ -14067,6 +14631,12 @@
             "state" : "translated",
             "value" : "De map waarvoor de directory moet worden opgehaald"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Папка, для якої потрібно отримати каталог"
+          }
         }
       }
     },
@@ -14094,6 +14664,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "De map om opnieuw te configureren"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тека для повторної конфігурації"
           }
         }
       }
@@ -14361,6 +14937,12 @@
             "state" : "translated",
             "value" : "De submap om opnieuw te scannen (leeg laten om de hele map opnieuw te scannen)"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Підкаталог для повторного сканування (залиште порожнім, щоб повторно сканувати всю папку)"
+          }
         }
       }
     },
@@ -14490,6 +15072,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Er is zeer weinig schijfruimte beschikbaar. Maak wat ruimte vrij en probeer het opnieuw."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступно дуже мало місця на диску. Звільніть трохи місця та спробуйте знову."
           }
         }
       }
@@ -14621,6 +15209,12 @@
             "state" : "translated",
             "value" : "Dit apparaat heeft een kopie van alle items."
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цей пристрій має копію всіх елементів"
+          }
         }
       }
     },
@@ -14654,6 +15248,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dit apparaat moet nog %lld items van de %lld synchroniseren."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цьому пристрою ще потрібно %lld елементів із %lld"
           }
         }
       }
@@ -14750,6 +15350,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dit bestand is alleen beschikbaar op dit apparaat."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цей файл доступний лише на цьому пристрої."
           }
         }
       }
@@ -15017,6 +15623,12 @@
             "state" : "translated",
             "value" : "Dit is een geavanceerde functie en moet alleen worden gebruikt als u weet wat u doet."
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Це розширена функція і її слід використовувати лише якщо ви знаєте, що робите."
+          }
         }
       }
     },
@@ -15147,6 +15759,12 @@
             "state" : "translated",
             "value" : "Hiermee worden alle lokaal opgeslagen kopieën van bestanden in deze map verwijderd. Bestanden die niet ook op een ander apparaat aanwezig zijn, worden niet verwijderd. Weet u zeker dat u wilt doorgaan?"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Це видалить усі локально збережені копії файлів у цій теці. Файли, які не присутні на іншому пристрої, не будуть видалені. Ви впевнені, що хочете продовжити?"
+          }
         }
       }
     },
@@ -15174,6 +15792,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tijd (seconden)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Час (секунди)"
           }
         }
       }
@@ -15781,6 +16405,12 @@
             "state" : "translated",
             "value" : "Video/IMG_2020.MOV"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відео/IMG_2020.MOV"
+          }
         }
       }
     },
@@ -15911,6 +16541,12 @@
             "state" : "translated",
             "value" : "Weergave-instellingen"
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переглянути налаштування"
+          }
         }
       }
     },
@@ -15938,6 +16574,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zichtbaarheid"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видимість"
           }
         }
       }
@@ -16171,6 +16813,12 @@
             "state" : "translated",
             "value" : "Wanneer er weinig schijfruimte beschikbaar is, kan het systeem besluiten om enkele miniaturen te verwijderen om ruimte vrij te maken."
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли дисковий простір обмежений, система може вирішити видалити деякі ескізи, щоб звільнити місце."
+          }
         }
       }
     },
@@ -16335,6 +16983,12 @@
             "state" : "translated",
             "value" : "Wanneer ingeschakeld, zal de app de standaard ontdekkingsservice gebruiken om zichzelf aan te kondigen."
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли ввімкнено, додаток використовуватиме стандартну службу виявлення для оголошення про себе."
+          }
         }
       }
     },
@@ -16362,6 +17016,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wanneer ingeschakeld, zal de app de standaard STUN-servers gebruiken."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли ввімкнено, додаток буде використовувати стандартні STUN-сервери."
           }
         }
       }
@@ -16425,6 +17085,12 @@
             "state" : "translated",
             "value" : "Wanneer de cache is ingeschakeld, laden miniaturen sneller en wordt er minder data gebruikt wanneer ze meer dan één keer worden bekeken."
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли кеш увімкнено, ескізи завантажуються швидше і використовують менше даних при повторному перегляді."
+          }
         }
       }
     },
@@ -16452,6 +17118,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wanneer de mappenstructuur wordt gewijzigd, zullen foto's die al waren opgeslagen opnieuw worden opgeslagen op hun nieuwe locatie."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли структура папок змінюється, фотографії, які вже були збережені, будуть збережені знову в новому місці."
           }
         }
       }
