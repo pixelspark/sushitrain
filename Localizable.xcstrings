@@ -4876,6 +4876,40 @@
         }
       }
     },
+    "Download files" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien herunterladen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descargar archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scarica file"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestanden downloaden"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Завантажити файли"
+          }
+        }
+      }
+    },
     "Downloaded" : {
       "localizations" : {
         "de" : {
@@ -5692,6 +5726,40 @@
         }
       }
     },
+    "File on this device" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei auf diesem Gerät"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivo en este dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File su questo dispositivo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestand op dit apparaat"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файл на цьому пристрої"
+          }
+        }
+      }
+    },
     "File size" : {
       "localizations" : {
         "de" : {
@@ -5790,6 +5858,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Файл/папка"
+          }
+        }
+      }
+    },
+    "Files" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestanden"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файли"
           }
         }
       }
@@ -6991,6 +7093,7 @@
       }
     },
     "Get new files" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -7462,6 +7565,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ім'я хоста"
+          }
+        }
+      }
+    },
+    "How much seconds in total to wait for devices to download from to become available before giving up (seconds)." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie viele Sekunden insgesamt warten, bis Geräte zum Herunterladen verfügbar werden, bevor aufgegeben wird (Sekunden)."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cuántos segundos en total esperar a que los dispositivos estén disponibles para descargar antes de abandonar (segundos)?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanti secondi in totale attendere che i dispositivi siano disponibili per il download prima di interrompere (secondi)."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoeveel seconden in totaal wachten tot apparaten beschikbaar worden voor downloaden voordat het wordt opgegeven (seconden)."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скільки секунд загалом чекати, щоб пристрої стали доступними для завантаження, перш ніж здатися (секунди)."
           }
         }
       }
@@ -8554,6 +8691,40 @@
         }
       }
     },
+    "List new files" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neue Dateien anzeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listar nuevos archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elenca nuovi file"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieuwe bestanden weergeven"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переглянути нові файли"
+          }
+        }
+      }
+    },
     "List with previews" : {
       "localizations" : {
         "de" : {
@@ -8822,6 +8993,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Керування файлами та папками"
+          }
+        }
+      }
+    },
+    "Maximum waiting time (seconds)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximale Wartezeit (Sekunden)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiempo máximo de espera (segundos)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo massimo di attesa (secondi)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximale wachttijd (seconden)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Максимальний час очікування (секунди)"
           }
         }
       }
@@ -14840,6 +15045,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Файл наразі недоступний для перегляду."
+          }
+        }
+      }
+    },
+    "The files to download" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Dateien zum Herunterladen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los archivos para descargar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I file da scaricare"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De bestanden om te downloaden"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файли для завантаження"
           }
         }
       }

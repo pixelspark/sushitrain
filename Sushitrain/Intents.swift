@@ -39,8 +39,71 @@ struct SynchronizeIntent: AppIntent {
     }
 }
 
-struct FileEntityQuery: EntityQuery {
+enum FileEntityQueryPredicate {
+    case fileNameContains(String)
+}
+
+struct FileEntityQuery: EntityQuery, EntityPropertyQuery {
+    static let sortingOptions = SortingOptions {
+        SortableBy(\FileEntity.$name)
+    }
+    
+    static let properties = QueryProperties {
+        Property(\.$name) {
+            ContainsComparator { FileEntityQueryPredicate.fileNameContains($0) }
+        }
+    }
+    
     @Dependency private var appState: AppState
+    
+    private class ResultsCollector: NSObject, SushitrainSearchResultDelegateProtocol {
+        var results: [SushitrainEntry] = []
+        
+        func result(_ entry: SushitrainEntry?) {
+            if let r = entry {
+                results.append(r)
+            }
+        }
+        
+        func isCancelled() -> Bool {
+            return false
+        }
+    }
+    
+    func entities(
+        matching comparators: [FileEntityQueryPredicate],
+        mode: ComparatorMode,
+        sortedBy: [Sort<FileEntity>],
+        limit: Int?
+    ) async throws -> [FileEntity] {
+        if comparators.count != 1 {
+            return []
+        }
+        
+        switch comparators[0] {
+        case .fileNameContains(let term):
+            let client = await appState.client
+            let results = ResultsCollector()
+            try client.search(term, delegate: results, maxResults: limit ?? -1, folderID: nil, prefix: nil)
+            
+            results.results.sort(by: { (a, b) in
+                for s in sortedBy {
+                    switch s.by {
+                    case \FileEntity.name:
+                        switch s.order {
+                        case .ascending: return a.name() < b.name()
+                        case .descending: return a.name() > b.name()
+                        }
+                    default:
+                        break
+                    }
+                }
+                return true
+            })
+            
+            return results.results.map { FileEntity(file: $0) }
+        }
+    }
 
     func entities(for identifiers: [DeviceEntity.ID]) async throws -> [FileEntity] {
         let client = await appState.client
@@ -73,6 +136,10 @@ struct FileEntity: AppEntity {
         self.pathInFolder = file.path()
         self.isSymlink = file.isSymlink()
         self.folder = FolderEntity(folder: file.folder!)
+        
+        if let fu = self.file.localNativeFileURL {
+            self.localFile = IntentFile(fileURL: fu)
+        }
     }
     
     @Property(title: "Name")
@@ -90,6 +157,9 @@ struct FileEntity: AppEntity {
     @Property(title: "Is symlink")
     var isSymlink: Bool
     
+    @Property(title: "File on this device")
+    var localFile: IntentFile?
+    
     static var typeDisplayRepresentation: TypeDisplayRepresentation {
         TypeDisplayRepresentation(
             name: LocalizedStringResource("File/folder")
@@ -105,7 +175,7 @@ struct FileEntity: AppEntity {
         var uc = URLComponents()
         uc.scheme = "stfile"
         uc.host = self.folder.id
-        uc.path = self.file.path()
+        uc.path = "/" + self.file.path()
         return uc.url!.absoluteString
     }
 }
@@ -453,6 +523,65 @@ struct GetDeviceIDIntent: AppIntent {
     }
 }
 
+struct DownloadFilesIntent: AppIntent {
+    static let title: LocalizedStringResource = "Download files"
+    
+    @Parameter(title: "Files", description: "The files to download")
+    var files: [FileEntity]
+    
+    @Parameter(title: "Maximum waiting time (seconds)", description: "How much seconds in total to wait for devices to download from to become available before giving up (seconds).", default: 5)
+    var maxWaitingTime: Int
+    
+    @Dependency private var appState: AppState
+    
+    @MainActor
+    func perform() async throws -> some ReturnsValue<[IntentFile]> {
+        // Reconnect to peers
+        appState.awake()
+        defer {
+            appState.sleep()
+        }
+        
+        // Time until which we can wait for peers to connect
+        let deadline = Date.now.addingTimeInterval(Double(maxWaitingTime))
+        
+        // Collect all the files
+        var files: [IntentFile] = []
+        for file in self.files {
+            if file.file.isDirectory() || file.file.isDeleted() || file.file.isSymlink() {
+                continue
+            }
+            
+            if let fu = file.file.localNativeFileURL {
+                files.append(IntentFile(fileURL: fu))
+            }
+            else {
+                // Wait for at least one peer to connect
+                var firstTimeWaiting = false
+                while maxWaitingTime <= 0 || deadline > Date.now {
+                    let peersNeeded = try file.file.peersWithFullCopy().asArray()
+                    if peersNeeded.isEmpty {
+                        if !firstTimeWaiting {
+                            Log.info("Waiting for a peer to connect...")
+                            firstTimeWaiting = true
+                        }
+                        try await Task.sleep(for: .milliseconds(200))
+                    }
+                    else {
+                        break
+                    }
+                }
+                
+                let odu = URL(string: file.file.onDemandURL())!
+                let (localURL, _) = try await URLSession.shared.download(from: odu)
+                files.append(IntentFile(fileURL: localURL, filename: file.file.fileName(), type: UTType(mimeType: file.file.mimeType())))
+            }
+        }
+        
+        return .result(value: files)
+    }
+}
+
 struct AppShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         return [
@@ -506,9 +635,15 @@ struct AppShortcuts: AppShortcutsProvider {
             ),
             AppShortcut(
                 intent: GetExtraneousFilesIntent(),
-                phrases: ["Get new files"],
-                shortTitle: "Get new files",
+                phrases: ["List new files"],
+                shortTitle: "List new files",
                 systemImageName: "document.badge.plus.fill"
+            ),
+            AppShortcut(
+                intent: DownloadFilesIntent(),
+                phrases: ["Download files"],
+                shortTitle: "Download files",
+                systemImageName: "arrow.down.circle.fill"
             ),
         ]
     }
