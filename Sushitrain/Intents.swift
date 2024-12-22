@@ -35,12 +35,32 @@ struct SynchronizeIntent: AppIntent {
 
 struct DeviceEntity: AppEntity {
     static let defaultQuery = DeviceEntityQuery()
-    
     typealias DefaultQuery = DeviceEntityQuery
+    
+    var peer: SushitrainPeer
+    
+    @Property(title: "Name")
+    var name: String
+    
+    @Property(title: "Device ID")
+    var deviceID: String
+    
+    @Property(title: "Last seen")
+    var lastSeen: Date?
+    
+    @Property(title: "Enabled")
+    var enabled: Bool
+    
+    @Property(title: "Is untrusted")
+    var isUntrusted: Bool
     
     init(peer: SushitrainPeer) {
         self.peer = peer
         self.name = peer.displayName
+        self.deviceID = peer.deviceID()
+        self.lastSeen = peer.lastSeen()?.date() ?? nil
+        self.enabled = !peer.isPaused()
+        self.isUntrusted = peer.isUntrusted()
     }
     
     static var typeDisplayRepresentation: TypeDisplayRepresentation {
@@ -53,14 +73,9 @@ struct DeviceEntity: AppEntity {
         DisplayRepresentation(title: "\(self.name)", image: DisplayRepresentation.Image(systemName: "externaldrive.fill"))
     }
     
-    var peer: SushitrainPeer
-    
     var id: String {
         return self.peer.id
     }
-    
-    @Property(title: "Name")
-    var name: String
 }
 
 struct FolderEntity: AppEntity {
