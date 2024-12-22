@@ -142,8 +142,11 @@ fileprivate struct EntryView: View {
                         .cornerRadius(6.0)
                         .id(entry.id)
                         .help(entry.fileName())
+                    
+                    // The entry name (grey when not locally present)
                     Text(entry.fileName())
                         .multilineTextAlignment(.leading)
+                        .foregroundStyle(entry.color ?? Color.primary)
                     Spacer()
                 }
                 .frame(maxWidth: .infinity)
@@ -151,7 +154,11 @@ fileprivate struct EntryView: View {
             }
             else {
                 HStack {
-                    Label(entry.fileName(), systemImage: entry.systemImage)
+                    Image(systemName: entry.systemImage)
+                        .foregroundStyle(entry.color ?? Color.accentColor)
+                    Text(entry.fileName())
+                        .multilineTextAlignment(.leading)
+                        .foregroundStyle(entry.color ?? Color.primary)
                     Spacer()
                 }
                 .frame(maxWidth: .infinity)
@@ -306,7 +313,17 @@ fileprivate struct BrowserListView: View {
                                         folder: folder,
                                         prefix: "\(prefix)\(fileName)/"
                                     )) {
-                                        Label(fileName, systemImage: subDirEntry.systemImage)
+                                        // Subdirectory name
+                                        HStack(spacing: 9.0) {
+                                            Image(systemName: subDirEntry.systemImage)
+                                                .foregroundStyle(subDirEntry.color ?? Color.accentColor)
+                                            Text(subDirEntry.fileName())
+                                                .multilineTextAlignment(.leading)
+                                                .foregroundStyle(subDirEntry.color ?? Color.primary)
+                                            Spacer()
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                        .padding(0)
                                     }
                                     .contextMenu(ContextMenu(menuItems: {
                                         if let file = try? folder.getFileInformation(self.prefix + fileName) {

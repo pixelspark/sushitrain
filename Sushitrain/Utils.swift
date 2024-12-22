@@ -233,6 +233,18 @@ extension SushitrainFolder {
 }
 
 extension SushitrainEntry {
+    var color: Color? {
+        if self.isSymlink() {
+            return Color.blue
+        }
+        else if self.isLocallyPresent() {
+            return nil
+        }
+        else {
+            return Color.secondary
+        }
+    }
+    
     var systemImage: String {
         if self.isSymlink() {
             return "link"

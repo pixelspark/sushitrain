@@ -67,7 +67,7 @@ struct ThumbnailView: View {
                 Text(file.fileName())
                     .lineLimit(1)
                     .padding(.horizontal, 4)
-                    .foregroundStyle(Color.primary)
+                    .foregroundStyle(file.color ?? Color.accentColor)
                     .multilineTextAlignment(.center)
             }
         }
@@ -76,6 +76,6 @@ struct ThumbnailView: View {
     private var iconBody: some View {
         Image(systemName: file.systemImage)
             .dynamicTypeSize(.large)
-            .foregroundStyle(Color.accentColor)
+            .foregroundStyle(file.color ?? Color.accentColor)
     }
 }
