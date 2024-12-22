@@ -249,9 +249,7 @@ fileprivate struct DevicesListView: View {
                     }
                     .disabled(self.isLoading)
                     
-                    if isSharedEncrypted {
-                        Image(systemName: "lock").help("An encrypted version of the folder is shared with this device.")
-                    }
+                    Image(systemName: "lock").help("An encrypted version of the folder is shared with this device.").opacity(isSharedEncrypted ? 1 : 0)
                 case .percentageOfGlobal:
                     if isShared {
                         if let c = self.completion {
