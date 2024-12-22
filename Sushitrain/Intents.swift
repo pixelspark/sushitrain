@@ -41,6 +41,8 @@ struct SynchronizeIntent: AppIntent {
 
 enum FileEntityQueryPredicate {
     case fileNameContains(String)
+    case folderEquals(FolderEntity)
+    case pathPrefix(String)
 }
 
 struct FileEntityQuery: EntityQuery, EntityPropertyQuery {
@@ -51,6 +53,12 @@ struct FileEntityQuery: EntityQuery, EntityPropertyQuery {
     static let properties = QueryProperties {
         Property(\.$name) {
             ContainsComparator { FileEntityQueryPredicate.fileNameContains($0) }
+        }
+        Property(\.$folder) {
+            EqualToComparator { FileEntityQueryPredicate.folderEquals($0) }
+        }
+        Property(\.$pathInFolder) {
+            HasPrefixComparator { FileEntityQueryPredicate.pathPrefix($0) }
         }
     }
     
@@ -70,39 +78,77 @@ struct FileEntityQuery: EntityQuery, EntityPropertyQuery {
         }
     }
     
+    private enum FileEntityQueryError: Error {
+        case modeNotSupported
+        case queryNotSupported
+        
+        var localizedDescription: String {
+            switch self {
+            case .modeNotSupported:
+                return String(localized: "Currently searching using multiple criteria is not supported, unless all criteria are required.")
+            case .queryNotSupported:
+                return String(localized: "Searching using multiple criteria for the same property of a file is currently not supported.")
+            }
+        }
+    }
+    
     func entities(
         matching comparators: [FileEntityQueryPredicate],
         mode: ComparatorMode,
         sortedBy: [Sort<FileEntity>],
         limit: Int?
     ) async throws -> [FileEntity] {
-        if comparators.count != 1 {
-            return []
+        var searchTerm: String? = nil
+        var folder: SushitrainFolder? = nil
+        var prefix: String? = nil
+        
+        if mode != .and {
+            throw FileEntityQueryError.modeNotSupported
         }
         
-        switch comparators[0] {
-        case .fileNameContains(let term):
-            let client = await appState.client
-            let results = ResultsCollector()
-            try client.search(term, delegate: results, maxResults: limit ?? -1, folderID: nil, prefix: nil)
-            
-            results.results.sort(by: { (a, b) in
-                for s in sortedBy {
-                    switch s.by {
-                    case \FileEntity.name:
-                        switch s.order {
-                        case .ascending: return a.name() < b.name()
-                        case .descending: return a.name() > b.name()
-                        }
-                    default:
-                        break
-                    }
+        // Map query to search parameters
+        for c in comparators {
+            switch c {
+            case .fileNameContains(let s):
+                if searchTerm != nil {
+                    throw FileEntityQueryError.queryNotSupported
                 }
-                return true
-            })
-            
-            return results.results.map { FileEntity(file: $0) }
+                searchTerm = s
+            case .folderEquals(let f):
+                if folder != nil {
+                    throw FileEntityQueryError.queryNotSupported
+                }
+                folder = f.folder
+            case .pathPrefix(let p):
+                if prefix != nil {
+                    throw FileEntityQueryError.queryNotSupported
+                }
+                prefix = p
+            }
         }
+        
+        // Perform search
+        let client = await appState.client
+        let results = ResultsCollector()
+        try client.search(searchTerm, delegate: results, maxResults: limit ?? -1, folderID: folder?.folderID, prefix: prefix)
+        
+        // Sort results
+        results.results.sort(by: { (a, b) in
+            for s in sortedBy {
+                switch s.by {
+                case \FileEntity.name:
+                    switch s.order {
+                    case .ascending: return a.name() < b.name()
+                    case .descending: return a.name() > b.name()
+                    }
+                default:
+                    break
+                }
+            }
+            return true
+        })
+            
+        return results.results.map { FileEntity(file: $0) }
     }
 
     func entities(for identifiers: [DeviceEntity.ID]) async throws -> [FileEntity] {
@@ -225,7 +271,7 @@ struct DeviceEntity: AppEntity {
     }
 }
 
-struct FolderEntity: AppEntity {
+struct FolderEntity: AppEntity, Equatable {
     static let defaultQuery = FolderEntityQuery()
     
     typealias DefaultQuery = FolderEntityQuery
@@ -250,6 +296,10 @@ struct FolderEntity: AppEntity {
     
     var id: String {
         return self.folder.folderID
+    }
+    
+    static func == (lhs: FolderEntity, rhs: FolderEntity) -> Bool {
+        return lhs.id == rhs.id
     }
     
     @Property(title: "Name")

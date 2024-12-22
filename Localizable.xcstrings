@@ -4196,6 +4196,40 @@
         }
       }
     },
+    "Currently searching using multiple criteria is not supported, unless all criteria are required." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Suchen mit mehreren Kriterien wird derzeit nicht unterstützt, es sei denn, alle Kriterien sind erforderlich."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualmente, la búsqueda usando múltiples criterios no es compatible, a menos que se requieran todos los criterios."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attualmente la ricerca utilizzando più criteri non è supportata, a meno che tutti i criteri siano richiesti."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoeken met meerdere criteria wordt momenteel niet ondersteund, tenzij alle criteria vereist zijn."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пошук за кількома критеріями наразі не підтримується, якщо не потрібно виконувати всі критерії."
+          }
+        }
+      }
+    },
     "Currently the thumbnail cache is using %@ of disk space." : {
       "localizations" : {
         "de" : {
@@ -12495,6 +12529,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Пошуковий термін"
+          }
+        }
+      }
+    },
+    "Searching using multiple criteria for the same property of a file is currently not supported." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Suchen mit mehreren Kriterien für dieselbe Eigenschaft einer Datei wird derzeit nicht unterstützt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La búsqueda utilizando múltiples criterios para la misma propiedad de un archivo no está actualmente soportada."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La ricerca utilizzando più criteri per la stessa proprietà di un file attualmente non è supportata."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoeken met meerdere criteria voor dezelfde eigenschap van een bestand wordt momenteel niet ondersteund."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пошук за декількома критеріями для тієї ж властивості файлу наразі не підтримується."
           }
         }
       }
