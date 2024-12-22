@@ -8,266 +8,6 @@ import SwiftUI
 import QuickLook
 import AVKit
 
-fileprivate struct FileMediaPlayer<Content: View>: View {
-    #if os(iOS)
-        @State private var session = AVAudioSession.sharedInstance()
-    #endif
-    
-    @State private var player: AVPlayer?
-    
-    let appState: AppState
-    var file: SushitrainEntry
-    @Binding var visible: Bool
-    
-    @ViewBuilder var videoOverlay: () -> Content
-    
-    private func activateSession() {
-        #if os(iOS)
-            do {
-                try session.setCategory(
-                    .playback,
-                    mode: .default,
-                    options: []
-                )
-            } catch _ {}
-            
-            do {
-                try session.setActive(true, options: .notifyOthersOnDeactivation)
-            } catch _ {}
-            
-            do {
-                try session.overrideOutputAudioPort(.speaker)
-            } catch _ {}
-        #endif
-    }
-    
-    private func deactivateSession() {
-        #if os(iOS)
-            do {
-                try session.setActive(false, options: .notifyOthersOnDeactivation)
-            } catch let error as NSError {
-                Log.warn("Failed to deactivate audio session: \(error.localizedDescription)")
-            }
-        #endif
-    }
-    
-    var body: some View {
-        ZStack {
-            if let player = self.player {
-                VideoPlayer(player: player) {
-                    VStack {
-                        HStack {
-                            if file.isVideo || file.isAudio {
-                                HStack {
-                                    Image(systemName: "xmark")
-                                        .foregroundStyle(.white)
-                                        .tint(.white)
-                                        .onTapGesture {
-                                            visible = false
-                                        }
-                                }
-                                
-                                if let sp = appState.streamingProgress, sp.bytesTotal > 0 && sp.bytesSent < sp.bytesTotal {
-                                    Spacer()
-                                    ProgressView(value: Float(sp.bytesSent), total: Float(sp.bytesTotal))
-                                        .foregroundColor(.gray)
-                                        .progressViewStyle(.linear)
-                                        .frame(maxWidth: 64)
-                                }
-                                
-                                Spacer()
-                                
-                                self.videoOverlay()
-                                    .foregroundStyle(.white)
-                                    .tint(.white)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        
-                        Spacer()
-                    }
-                }
-            }
-            else {
-                Rectangle()
-                    .scaledToFill()
-                    .foregroundStyle(.black)
-                    .onTapGesture {
-                        visible = false
-                    }
-            }
-        }
-        .background(.black)
-        .onAppear {
-            Task {
-                await startPlayer()
-            }
-        }
-        .onDisappear {
-            stopPlayer()
-        }
-        .onChange(of: file) {
-            Task {
-                await startPlayer()
-            }
-        }
-        .ignoresSafeArea(file.isVideo ? .all : [])
-    }
-    
-    private func stopPlayer() {
-        if let player = self.player {
-            player.pause()
-            self.player = nil
-            self.deactivateSession()
-        }
-    }
-    
-    private func startPlayer() async {
-        self.stopPlayer()
-        do {
-            let url = file.localNativeFileURL ?? URL(string: self.file.onDemandURL())!
-            let avAsset = AVURLAsset(url: url)
-            if try await avAsset.load(.isPlayable) {
-                let player = AVPlayer(playerItem: AVPlayerItem(asset: avAsset))
-                // TODO: External playback requires us to use http://devicename.local:xxx/file/.. URLs rather than http://localhost.
-                // Resolve using Bonjour perhaps?
-                player.allowsExternalPlayback = false
-                player.audiovisualBackgroundPlaybackPolicy = .automatic
-                player.preventsDisplaySleepDuringVideoPlayback = !file.isAudio
-                activateSession()
-                player.playImmediately(atRate: 1.0)
-                self.player = player
-            }
-            else {
-                self.visible = false
-            }
-        }
-        catch {
-            Log.warn("Error starting player: \(error.localizedDescription)")
-        }
-    }
-}
-
-struct FileViewerView<Content: View>: View {
-    let appState: AppState
-    var file: SushitrainEntry
-    @Binding var isShown: Bool
-    @ViewBuilder var videoOverlay: () -> Content
-    
-    var body: some View {
-        if file.isVideo || file.isAudio {
-            FileMediaPlayer(appState: appState, file: file, visible: $isShown, videoOverlay: videoOverlay)
-        }
-        else if file.isImage {
-            let url = file.localNativeFileURL ?? URL(string: self.file.onDemandURL())!
-            VStack {
-                #if os(iOS)
-                    HStack {
-                            Image(systemName: "xmark")
-                                .foregroundStyle(.white)
-                                .tint(.white)
-                                .onTapGesture {
-                                    isShown = false
-                                }
-                            Spacer()
-                        
-                        self.videoOverlay()
-                            .foregroundStyle(.white)
-                            .tint(.white)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                #endif
-                
-                WebView(url: url, isLoading: Binding.constant(false), error: Binding.constant(nil))
-                    .backgroundStyle(.black)
-                    .background(.black)
-                    .ignoresSafeArea()
-                    
-            }.background(.black)
-        }
-    }
-}
-
-struct FileViewerSheetView<Content: View>: View {
-    let appState: AppState
-    var file: SushitrainEntry
-    @Binding var isShown: Bool
-    @ViewBuilder var videoOverlay: () -> Content
-    
-    var body: some View {
-        NavigationStack {
-            FileViewerView(appState: appState, file: file, isShown: $isShown, videoOverlay: videoOverlay)
-                .navigationTitle(file.fileName())
-                #if os(iOS)
-                .navigationBarTitleDisplayMode(.inline)
-                #endif
-                .toolbar(content: {
-                    ToolbarItem(placement: .confirmationAction, content: {
-                        Button("Done", action: {
-                            isShown = false
-                        })
-                    })
-                })
-        }
-    }
-}
-
-struct FileViewerSheetNextPreviousView: View {
-    let appState: AppState
-    @State var file: SushitrainEntry
-    let siblings: [SushitrainEntry]
-    @Binding var isShown: Bool
-    @State private var selfIndex: Int? = nil
-    
-    var body: some View {
-        Group {
-            #if os(iOS)
-                FileViewerSheetView(appState: appState, file: file, isShown: $isShown, videoOverlay: {
-                    if let selfIndex = selfIndex {
-                        Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1).labelStyle(.iconOnly)
-                        Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1).labelStyle(.iconOnly)
-                    }
-                })
-            #elseif os(macOS)
-                NavigationStack {
-                    FileViewerView(appState: appState, file: file, isShown: $isShown, videoOverlay: {
-                        // Empty on macOS, we already have a toolbar
-                    })
-                    .presentationSizing(.fitted)
-                    .frame(minWidth: 640, minHeight: 480)
-                    .navigationTitle(file.fileName())
-                    .toolbar {
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("Done") { isShown = false }
-                        }
-                        if let selfIndex = selfIndex {
-                            ToolbarItemGroup(placement: .automatic) {
-                                Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1)
-                                Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1)
-                            }
-                        }
-                    }
-                }
-            #endif
-        }
-        .onAppear {
-            selfIndex = self.siblings.firstIndex(of: file)
-        }
-    }
-    
-    private func next(_ offset: Int) {
-        if let idx = siblings.firstIndex(of: self.file) {
-            let newIndex = idx + offset
-            if  newIndex >= 0 && newIndex < siblings.count {
-                file = siblings[newIndex]
-                selfIndex = self.siblings.firstIndex(of: file)
-            }
-        }
-    }
-}
-
 struct FileView: View {
     @State private var file: SushitrainEntry
     private let appState: AppState
@@ -563,85 +303,31 @@ struct FileView: View {
                     }
                 }
             }
-            #if os(macOS)
-                .formStyle(.grouped)
-            #endif
-            .navigationTitle(file.fileName())
+                #if os(macOS)
+                    .formStyle(.grouped)
+                #endif
+                .navigationTitle(file.fileName())
                 .quickLookPreview(self.$localItemURL)
-                #if os(iOS)
-                    .fullScreenCover(isPresented: $showFullScreenViewer, content: {
-                        FileViewerView(appState: appState, file: file, isShown: $showFullScreenViewer, videoOverlay: {
-                            if let selfIndex = selfIndex, let siblings = siblings {
-                                Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1)
-                                    .labelStyle(.iconOnly)
-                                    .padding([.trailing, .bottom, .top], 12)
-                                Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1)
-                                    .labelStyle(.iconOnly)
-                                    .padding([.trailing, .bottom, .top],  12)
-                            }
-                        })
-                        // Swipe up and down for next/previous
-                        .gesture(DragGesture(minimumDistance: 20, coordinateSpace: .global).onEnded { value in
-                            if let selfIndex = selfIndex, let siblings = siblings {
-                                let verticalAmount = value.translation.height
-                                
-                                if verticalAmount < 0 && selfIndex <= siblings.count {
-                                    next(1)
-                                }
-                                else if verticalAmount > 0 && selfIndex > 0 {
-                                    next(-1)
-                                }
-                            }
-                        })
-                    })
-                    .sheet(isPresented: $showSheetViewer) {
-                        FileViewerSheetView(appState: appState, file: file, isShown: $showSheetViewer, videoOverlay: {
-                            if let selfIndex = selfIndex, let siblings = siblings {
-                                Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1).labelStyle(.iconOnly)
-                                Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1).labelStyle(.iconOnly)
-                            }
-                        })
-                    }
-                #elseif os(macOS)
-                    .sheet(isPresented: $showFullScreenViewer) {
-                        NavigationStack {
-                            FileViewerView(appState: appState, file: file, isShown: $showFullScreenViewer, videoOverlay: {
-                               // Empty on macOS, we already have a toolbar
-                            })
-                            .presentationSizing(.fitted)
-                            .frame(minWidth: 640, minHeight: 480)
-                            .navigationTitle(file.fileName())
-                            .toolbar {
-                                ToolbarItem(placement: .confirmationAction) {
-                                    Button("Done") { showFullScreenViewer = false }
-                                }
-                                if let selfIndex = selfIndex, let siblings = siblings {
-                                    ToolbarItemGroup(placement: .automatic) {
-                                        Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1)
-                                        Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .sheet(isPresented: $showSheetViewer) {
-                        FileViewerSheetView(appState: appState, file: file, isShown: $showSheetViewer, videoOverlay: {
-                            // Empty on macOS, we already have a toolbar
-                        })
+            
+                // Sheet viewer
+                .sheet(isPresented: $showSheetViewer) {
+                    FileViewerView(appState: appState, file: file, siblings: siblings, isShown: $showSheetViewer)
+                    #if os(macOS)
                         .presentationSizing(.fitted)
                         .frame(minWidth: 640, minHeight: 480)
-                        .navigationTitle(file.fileName())
-                        .toolbar {
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button("Done") { showSheetViewer = false }
-                            }
-                            if let selfIndex = selfIndex, let siblings = siblings {
-                                ToolbarItemGroup(placement: .automatic) {
-                                    Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(selfIndex < 1)
-                                    Button("Next", systemImage: "chevron.down") { next(1) }.disabled(selfIndex >= siblings.count - 1)
-                                }
-                            }
-                        }
+                    #endif
+                }
+            
+                // Full screen viewer
+                #if os(iOS)
+                    .fullScreenCover(isPresented: $showFullScreenViewer, content: {
+                        FileViewerView(appState: appState, file: file, siblings: siblings, isShown: $showFullScreenViewer)
+                    })
+                #elseif os(macOS)
+                    .sheet(isPresented: $showFullScreenViewer) {
+                        FileViewerView(appState: appState, file: file, siblings: siblings, isShown: $showFullScreenViewer)
+                            .presentationSizing(.fitted)
+                            .frame(minWidth: 640, minHeight: 480)
                     }
                 #endif
                 

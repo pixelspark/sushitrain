@@ -2512,6 +2512,62 @@
         }
       }
     },
+    "Cannot preview this file" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Datei kann nicht angezeigt werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede previsualizar este archivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile visualizzare questo file"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kan dit bestand niet bekijken"
+          }
+        }
+      }
+    },
+    "Cannot show a preview for this type of file." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Für diesen Dateityp kann keine Vorschau angezeigt werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede mostrar una vista previa de este tipo de archivo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile mostrare un'anteprima per questo tipo di file."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kan geen voorbeeld tonen voor dit bestandstype."
+          }
+        }
+      }
+    },
     "Change visibility" : {
       "localizations" : {
         "de" : {
