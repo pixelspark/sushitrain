@@ -142,7 +142,7 @@ struct FolderEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntityQuery 
 
 struct DeviceEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntityQuery {
     func allEntities() async throws -> [DeviceEntity] {
-        return await appState.peers().map {
+        return await appState.peers().filter { !$0.isSelf() }.map {
             DeviceEntity(peer: $0)
         }
     }
@@ -150,19 +150,19 @@ struct DeviceEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntityQuery 
     @Dependency private var appState: AppState
 
     func entities(for identifiers: [DeviceEntity.ID]) async throws -> [DeviceEntity] {
-        return await appState.peers().filter { identifiers.contains($0.id) }.map {
+        return await appState.peers().filter { !$0.isSelf() && identifiers.contains($0.id) }.map {
             DeviceEntity(peer: $0)
         }
     }
     
     func suggestedEntities() async throws -> [DeviceEntity] {
-        return await appState.peers().map {
+        return await appState.peers().filter { !$0.isSelf() }.map {
             DeviceEntity(peer: $0)
         }
     }
     
     func entities(matching string: String) async throws -> [DeviceEntity] {
-        return await appState.peers().filter { $0.displayName.contains(string) }.map {
+        return await appState.peers().filter { !$0.isSelf() && $0.displayName.contains(string) }.map {
             DeviceEntity(peer: $0)
         }
     }
