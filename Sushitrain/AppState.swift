@@ -285,29 +285,46 @@ enum FolderMetric: String {
         }
     #endif
     
+    func awake() {
+        #if os(iOS)
+            self.lingerManager.cancelLingering()
+            try? self.client.setReconnectIntervalS(1)
+            self.suspend(false)
+            Task {
+                await self.backgroundManager.rescheduleWatchdogNotification()
+            }
+            self.rebindServer()
+            self.client.ignoreEvents = false
+        #endif
+    }
+    
+    func sleep() {
+        #if os(iOS)
+            QuickActionService.provideActions()
+
+            if self.lingeringEnabled {
+                Log.info("Background time remaining: \(UIApplication.shared.backgroundTimeRemaining)")
+                self.lingerManager.lingerThenSuspend()
+                Log.info("Background time remaining (2): \(UIApplication.shared.backgroundTimeRemaining)")
+            }
+            else {
+                 self.suspend(true)
+            }
+            try? self.client.setReconnectIntervalS(60)
+            self.client.ignoreEvents = true
+        #endif
+
+        Task {
+            await self.updateBadge()
+        }
+    }
+    
     func onScenePhaseChange(from oldPhase: ScenePhase, to newPhase: ScenePhase) {
         Log.info("Phase change from \(oldPhase) to \(newPhase) lingeringEnabled=\(self.lingeringEnabled)")
         
         switch newPhase {
         case .background:
-            #if os(iOS)
-                QuickActionService.provideActions()
-            
-                if self.lingeringEnabled {
-                    Log.info("Background time remaining: \(UIApplication.shared.backgroundTimeRemaining)")
-                    self.lingerManager.lingerThenSuspend()
-                    Log.info("Background time remaining (2): \(UIApplication.shared.backgroundTimeRemaining)")
-                }
-                else {
-                     self.suspend(true)
-                }
-                try? self.client.setReconnectIntervalS(60)
-                self.client.ignoreEvents = true
-            #endif
-            
-            Task {
-                await self.updateBadge()
-            }
+            self.sleep()
             break
 
         case .inactive:
@@ -320,16 +337,7 @@ enum FolderMetric: String {
             break
 
         case .active:
-            #if os(iOS)
-                self.lingerManager.cancelLingering()
-                try? self.client.setReconnectIntervalS(1)
-                self.suspend(false)
-                Task {
-                    await self.backgroundManager.rescheduleWatchdogNotification()
-                }
-                self.rebindServer()
-                self.client.ignoreEvents = false
-            #endif
+            self.awake()
             break
 
         @unknown default:

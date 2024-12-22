@@ -3,8 +3,9 @@
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // You can obtain one at https://mozilla.org/MPL/2.0/.
-import AppIntents
+@preconcurrency import AppIntents
 @preconcurrency import SushitrainCore
+import UniformTypeIdentifiers
 
 struct SynchronizePhotosIntent: AppIntent {
     static let title: LocalizedStringResource = "Copy new photos"
@@ -25,8 +26,13 @@ struct SynchronizeIntent: AppIntent {
     @Parameter(title: "Time (seconds)", description: "How much time to allow for synchronization.", default: 10)
     var time: Int
     
+    @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
         if self.time > 0 {
+            appState.awake()
+            defer {
+                appState.sleep()
+            }
             try await Task.sleep(for: .seconds(self.time))
         }
         return .result(dialog: "Synchronization time elapsed")
