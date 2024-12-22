@@ -33,6 +33,77 @@ struct SynchronizeIntent: AppIntent {
     }
 }
 
+struct FileEntityQuery: EntityQuery {
+    @Dependency private var appState: AppState
+
+    func entities(for identifiers: [DeviceEntity.ID]) async throws -> [FileEntity] {
+        let client = await appState.client
+        return identifiers.compactMap { urlString in
+            if let url = URLComponents(string: urlString) {
+                if let folder = client.folder(withID: url.host), folder.exists() {
+                    if let file = try? folder.getFileInformation(url.path), !file.isDeleted() {
+                        return FileEntity(file: file)
+                    }
+                }
+            }
+            return nil
+        }
+    }
+    
+    func suggestedEntities() async throws -> [FileEntityQuery] {
+        return []
+    }
+}
+
+struct FileEntity: AppEntity {
+    typealias DefaultQuery = FileEntityQuery
+    static let defaultQuery = FileEntityQuery()
+    
+    var file: SushitrainEntry
+    
+    init(file: SushitrainEntry) {
+        self.file = file
+        self.name = file.fileName()
+        self.pathInFolder = file.path()
+        self.isSymlink = file.isSymlink()
+        self.folder = FolderEntity(folder: file.folder!)
+    }
+    
+    @Property(title: "Name")
+    var name: String
+    
+    @Property(title: "Folder")
+    var folder: FolderEntity
+    
+    @Property(title: "Path in folder")
+    var pathInFolder: String
+    
+    @Property(title: "Is directory")
+    var isDirectory: Bool
+    
+    @Property(title: "Is symlink")
+    var isSymlink: Bool
+    
+    static var typeDisplayRepresentation: TypeDisplayRepresentation {
+        TypeDisplayRepresentation(
+            name: LocalizedStringResource("File/folder")
+        )
+    }
+    
+    var displayRepresentation: DisplayRepresentation {
+        DisplayRepresentation(title: "\(self.name)", image: DisplayRepresentation.Image(systemName: self.file.systemImage))
+    }
+    
+    // stfile://folderID/foo/bar/file.txt
+    var id: String {
+        var uc = URLComponents()
+        uc.scheme = "stfile"
+        uc.host = self.folder.id
+        uc.path = self.file.path()
+        return uc.url!.absoluteString
+    }
+}
+
 struct DeviceEntity: AppEntity {
     static let defaultQuery = DeviceEntityQuery()
     typealias DefaultQuery = DeviceEntityQuery
@@ -165,6 +236,25 @@ struct DeviceEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntityQuery 
         return await appState.peers().filter { !$0.isSelf() && $0.displayName.contains(string) }.map {
             DeviceEntity(peer: $0)
         }
+    }
+}
+
+struct GetExtraneousFilesIntent: AppIntent {
+    static let title: LocalizedStringResource = "Get new, unsynchronized files in folder"
+    
+    @Dependency private var appState: AppState
+    
+    @Parameter(title: "Folder", description: "The folder to list files in")
+    var folderEntity: FolderEntity
+    
+    @MainActor
+    func perform() async throws -> some ReturnsValue<[IntentFile]> {
+        let files = try folderEntity.folder.extraneousFiles().asArray()
+        let folderPath = folderEntity.folder.localNativeURL!
+        return .result(value: files.compactMap { path in
+            let fileURL = folderPath.appending(path: path)
+            return IntentFile(fileURL: fileURL)
+        })
     }
 }
 
@@ -407,6 +497,12 @@ struct AppShortcuts: AppShortcutsProvider {
                 phrases: ["Get device ID"],
                 shortTitle: "Get device ID",
                 systemImageName: "qrcode"
+            ),
+            AppShortcut(
+                intent: GetExtraneousFilesIntent(),
+                phrases: ["Get new files"],
+                shortTitle: "Get new files",
+                systemImageName: "document.badge.plus.fill"
             ),
         ]
     }
