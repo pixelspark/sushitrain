@@ -119,14 +119,14 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 		return nil, errors.New("no peer available")
 	}
 
-	Logger.Infoln("Download block:", len(availables), "available peers, experiences:", mp.experiences)
+	Logger.Infoln("Download block #", blockIndex, ":", len(availables), "available peers, experiences:", mp.experiences)
 
 	// Attempt to download the block from an available and 'known good' peers first
 	for _, available := range availables {
 		if exp, ok := mp.experiences[available.ID]; ok && exp {
 			buf, err := m.DownloadBlock(mp.context, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
 			// Remember our experience with this peer for next time
-			mp.experiences[available.ID] = err == nil
+			mp.experiences[available.ID] = err == nil || err == context.Canceled
 			if err == nil {
 				return buf, nil
 			} else {
@@ -140,7 +140,7 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 		if _, ok := mp.experiences[available.ID]; !ok {
 			buf, err := m.DownloadBlock(mp.context, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
 			// Remember our experience with this peer for next time
-			mp.experiences[available.ID] = err == nil
+			mp.experiences[available.ID] = err == nil || err == context.Canceled
 			if err == nil {
 				return buf, nil
 			} else {
@@ -154,7 +154,7 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 		if exp, ok := mp.experiences[available.ID]; ok && !exp {
 			buf, err := m.DownloadBlock(mp.context, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
 			// Remember our experience with this peer for next time
-			mp.experiences[available.ID] = err == nil
+			mp.experiences[available.ID] = err == nil || err == context.Canceled
 			if err == nil {
 				return buf, nil
 			} else {
@@ -244,23 +244,39 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 
 			blockSize := int64(info.BlockSize())
 			for _, rng := range parsedRanges {
+				// Range cannot be longer than actual file
+				if rng.Start+rng.Length > info.Size {
+					Logger.Warnln("Requested range ", rng, " is larger than file; shrinking range to length=", max(0, info.Size-rng.Start))
+					rng.Length = max(0, info.Size-rng.Start)
+				}
 				startBlock := rng.Start / int64(blockSize)
 				blockCount := ceilDiv(rng.Length, blockSize)
-				Logger.Infoln("Range: ", rng, startBlock, blockCount, blockSize)
-				w.Header().Add("Content-Range", fmt.Sprintf("bytes %d-%d/%d", rng.Start, rng.Length+rng.Start-1, info.Size))
-				w.Header().Add("Content-length", fmt.Sprintf("%d", rng.Length))
+
+				// If we start halfway the first block, we need to fetch another one at the end to make up for it
+				offsetInStartBlock := rng.Start % int64(blockSize)
+				if offsetInStartBlock > 0 {
+					blockCount += 1
+				}
+				rangeHeader := fmt.Sprintf("bytes %d-%d/%d", rng.Start, rng.Length+rng.Start-1, info.Size)
+				lengthHeader := fmt.Sprintf("%d", rng.Length)
+				Logger.Infoln("Range: ", rng, "start block=", startBlock, "block count=", blockCount, "block size=", blockSize, "range header=", rangeHeader, "length header=", lengthHeader)
+				w.Header().Add("Content-Range", rangeHeader)
+				w.Header().Add("Content-length", lengthHeader)
 				w.WriteHeader(206) // partial content
 
 				bytesSent := int64(0)
 
 				for blockIndex := startBlock; blockIndex < startBlock+blockCount; blockIndex++ {
 					blockStartTime := time.Now()
+					if int(blockIndex) > len(info.Blocks)-1 {
+						break
+					}
 
 					// Fetch block
 					block := info.Blocks[blockIndex]
 					buf, err := mp.downloadBock(m, folder, int(blockIndex), info, block)
 					if err != nil {
-						Logger.Warnln("error downloading block: ", err)
+						Logger.Warnln("error downloading block #", blockIndex, " of ", len(info.Blocks), ": ", err)
 						return
 					}
 
@@ -276,9 +292,12 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 					if blockEnd > rangeEnd {
 						bufEnd = rangeEnd - block.Offset
 					}
+					if bufEnd < 0 {
+						break
+					}
 
 					// Write buffer
-					Logger.Debugln("Sending chunk", blockIndex, bufStart, bufEnd, len(buf), bufEnd-bufStart)
+					Logger.Infoln("Sending block #", blockIndex, bufStart, bufEnd, len(buf), "bytes=", bufEnd-bufStart, "range=", rng)
 					w.Write(buf[bufStart:bufEnd])
 					bytesSent += (bufEnd - bufStart)
 					if server.Delegate != nil {
@@ -295,6 +314,10 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 							time.Sleep(time.Duration(blockFetchShouldHaveTakenMs-blockFetchDurationMs) * time.Millisecond)
 						}
 					}
+				}
+
+				if rng.Length != bytesSent {
+					Logger.Warnln("Sent a different number of bytes than promised! range=", rng, "; promised ", lengthHeader, "sent", bytesSent)
 				}
 			}
 		} else {
