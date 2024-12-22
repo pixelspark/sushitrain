@@ -586,8 +586,6 @@ struct BrowserView: View {
                         }
                     }
                     
-                    Divider()
-                    
                     Button {
                         showSettings = true
                     } label: {
@@ -630,6 +628,16 @@ struct BrowserView: View {
                         
                         Toggle("Search here...", systemImage: "magnifyingglass", isOn: $showSearch).disabled(!folderExists)
                         
+                        if folderExists && !self.prefix.isEmpty {
+                            if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
+                                NavigationLink(destination: FileView(file: entry, appState: self.appState)) {
+                                    Label("Subdirectory properties...", systemImage: "folder.badge.gearshape")
+                                }
+                            }
+                        }
+                        
+                        Divider()
+                        
                         if folderExists {
                             // Open in Finder/Files (and possibly materialize empty folder)
                             if let localNativeURL = self.localNativeURL {
@@ -661,8 +669,6 @@ struct BrowserView: View {
                             }.disabled(!folderIsSelective)
                         }
                         
-                        Divider()
-                        
                         Button("Folder settings...", systemImage: "folder.badge.gearshape", action: {
                             showSettings = true
                         }).disabled(!folderExists)
@@ -687,14 +693,14 @@ struct BrowserView: View {
             self.updateLocalURL()
             self.folderIsSelective = folder.isSelective()
         }
-        .contextMenu {
-            if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
-                NavigationLink(destination: FileView(file: entry, appState: self.appState)) {
-                    Label("Subdirectory properties...", systemImage: entry.systemImage)
+        #if os(macOS)
+            .contextMenu {
+                if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
+                    NavigationLink(destination: FileView(file: entry, appState: self.appState)) {
+                        Label("Subdirectory properties...", systemImage: entry.systemImage)
+                    }
                 }
             }
-        }
-        #if os(macOS)
             .onDrop(of: ["public.file-url"], isTargeted: nil, perform: { providers, _ in
                 Task {
                     self.error = nil
