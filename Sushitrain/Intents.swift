@@ -213,7 +213,7 @@ struct FileEntity: AppEntity {
     }
     
     var displayRepresentation: DisplayRepresentation {
-        DisplayRepresentation(title: "\(self.name)", image: DisplayRepresentation.Image(systemName: self.file.systemImage))
+        DisplayRepresentation(title: "\(self.name)", subtitle: "\(self.pathInFolder)", image: DisplayRepresentation.Image(systemName: self.file.systemImage))
     }
     
     // stfile://folderID/foo/bar/file.txt
@@ -263,7 +263,7 @@ struct DeviceEntity: AppEntity {
     }
     
     var displayRepresentation: DisplayRepresentation {
-        DisplayRepresentation(title: "\(self.name)", image: DisplayRepresentation.Image(systemName: "externaldrive.fill"))
+        DisplayRepresentation(title: "\(self.name)", subtitle: "\(self.deviceID)", image: DisplayRepresentation.Image(systemName: "externaldrive.fill"))
     }
     
     var id: String {
@@ -289,7 +289,7 @@ struct FolderEntity: AppEntity, Equatable {
     }
     
     var displayRepresentation: DisplayRepresentation {
-        DisplayRepresentation(title: "\(self.name)", image: DisplayRepresentation.Image(systemName: "folder.fill"))
+        DisplayRepresentation(title: "\(self.name)", subtitle: "\(self.folder.folderID)", image: DisplayRepresentation.Image(systemName: "folder.fill"))
     }
     
     var folder: SushitrainFolder
