@@ -23,7 +23,7 @@ struct SynchronizeIntent: AppIntent {
     
     @Dependency private var appState: AppState
     
-    @Parameter(title: "Time (seconds)", description: "How much time to allow for synchronization.", default: 10)
+    @Parameter(title: "Time (seconds)", description: "How much time to allow for synchronization.", default: 10, controlStyle: .field, inclusiveRange: (0,15))
     var time: Int
     
     @MainActor
@@ -579,7 +579,7 @@ struct DownloadFilesIntent: AppIntent {
     @Parameter(title: "Files", description: "The files to download")
     var files: [FileEntity]
     
-    @Parameter(title: "Maximum waiting time (seconds)", description: "How much seconds in total to wait for devices to download from to become available before giving up (seconds).", default: 5)
+    @Parameter(title: "Maximum waiting time (seconds)", description: "How much seconds in total to wait for devices to download from to become available before giving up (seconds).", default: 5, controlStyle: .field, inclusiveRange: (0,15))
     var maxWaitingTime: Int
     
     @Dependency private var appState: AppState
