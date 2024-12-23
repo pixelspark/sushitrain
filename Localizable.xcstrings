@@ -3720,40 +3720,6 @@
         }
       }
     },
-    "Copied new photos" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Neue Fotos kopiert"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nuevas fotos copiadas"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nuove foto copiate"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nieuwe foto's gekopieerd"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нові фотографії скопійовано"
-          }
-        }
-      }
-    },
     "Copy" : {
       "localizations" : {
         "de" : {
@@ -4464,40 +4430,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Адреси пристроїв"
-          }
-        }
-      }
-    },
-    "Device configuration changed" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gerätekonfiguration geändert"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Configuración del dispositivo cambiada"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Configurazione del dispositivo modificata"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apparaatconfiguratie gewijzigd"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Змінено конфігурацію пристрою"
           }
         }
       }
@@ -6270,40 +6202,6 @@
         }
       }
     },
-    "Folder configuration changed" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ordnerkonfiguration geändert"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Configuración de carpeta cambiada"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Configurazione cartella modificata"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mapconfiguratie gewijzigd"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Конфігурацію папки змінено"
-          }
-        }
-      }
-    },
     "Folder does not exist" : {
       "localizations" : {
         "de" : {
@@ -6436,40 +6334,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Папку видалено"
-          }
-        }
-      }
-    },
-    "Folder rescan requested for folder '%@'" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erneuter Ordnerscan für Ordner '%@' angefordert"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Solicitud de reescaneo de carpeta para la carpeta '%@'"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Richiesta nuova scansione per la cartella '%@'"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scan van map '%@' aangevraagd"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Запит на повторне сканування папки '%@'"
           }
         }
       }
@@ -14262,40 +14126,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Синхронізація - це не резервне копіювання"
-          }
-        }
-      }
-    },
-    "Synchronization time elapsed" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchronisationszeit abgelaufen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tiempo de sincronización transcurrido"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tempo di sincronizzazione trascorso"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchronisatietijd verstreken"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Час синхронізації вичерпано"
           }
         }
       }

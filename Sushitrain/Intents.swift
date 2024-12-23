@@ -12,9 +12,9 @@ struct SynchronizePhotosIntent: AppIntent {
     
     @Dependency private var appState: AppState
     
-    func perform() async throws -> some IntentResult & ProvidesDialog {
+    func perform() async throws -> some IntentResult {
         await appState.photoSync.synchronize(appState, fullExport: false, isInBackground: true)
-        return .result(dialog: "Copied new photos")
+        return .result()
     }
 }
 
@@ -27,7 +27,7 @@ struct SynchronizeIntent: AppIntent {
     var time: Int
     
     @MainActor
-    func perform() async throws -> some IntentResult & ProvidesDialog {
+    func perform() async throws -> some IntentResult {
         if self.time > 0 {
             appState.awake()
             defer {
@@ -35,7 +35,7 @@ struct SynchronizeIntent: AppIntent {
             }
             try await Task.sleep(for: .seconds(self.time))
         }
-        return .result(dialog: "Synchronization time elapsed")
+        return .result()
     }
 }
 
@@ -396,14 +396,14 @@ struct RescanIntent: AppIntent {
     var subdirectory: String?
     
     @MainActor
-    func perform() async throws -> some IntentResult & ProvidesDialog {
+    func perform() async throws -> some IntentResult {
         if let sub = self.subdirectory {
             try folderEntity.folder.rescanSubdirectory(sub)
         }
         else {
             try folderEntity.folder.rescan()
         }
-        return .result(dialog: "Folder rescan requested for folder '\(folderEntity.folder.displayName)'")
+        return .result()
     }
 }
 
@@ -466,7 +466,7 @@ struct ConfigureFolderIntent: AppIntent {
     var visibility: ConfigureHidden
     
     @MainActor
-    func perform() async throws -> some IntentResult & ProvidesDialog {
+    func perform() async throws -> some IntentResult {
         for f in self.folderEntities {
             switch self.enable {
             case .enabled:
@@ -487,7 +487,7 @@ struct ConfigureFolderIntent: AppIntent {
             }
         }
         
-        return .result(dialog: "Folder configuration changed")
+        return .result()
     }
 }
 
@@ -545,7 +545,7 @@ struct ConfigureDeviceIntent: AppIntent {
     var enable: ConfigureEnabled
     
     @MainActor
-    func perform() async throws -> some IntentResult & ProvidesDialog {
+    func perform() async throws -> some IntentResult {
         for f in self.deviceEntities {
             // TODO: check if this works correctly with device suspension
             switch self.enable {
@@ -558,7 +558,7 @@ struct ConfigureDeviceIntent: AppIntent {
             }
         }
         
-        return .result(dialog: "Device configuration changed")
+        return .result()
     }
 }
 
