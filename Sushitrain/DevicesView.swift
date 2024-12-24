@@ -142,6 +142,7 @@ fileprivate struct DevicesListView: View {
     fileprivate enum GridViewStyle: String {
         case sharing = "sharing"
         case percentageOfGlobal = "percentageOfGlobal"
+        case needBytes = "needBytes"
     }
 
     fileprivate struct DevicesGridView: View {
@@ -207,6 +208,7 @@ fileprivate struct DevicesListView: View {
                     Picker("View as", selection: $viewStyle) {
                         Text("Sharing").tag(GridViewStyle.sharing)
                         Text("Completion").tag(GridViewStyle.percentageOfGlobal)
+                        Text("Remaining").tag(GridViewStyle.needBytes)
                     }
                     .pickerStyle(.segmented)
                 }
@@ -259,6 +261,15 @@ fileprivate struct DevicesListView: View {
                                 .help(c.completionPct < 100 ? "This device still needs \(c.needItems) items out of \(c.globalItems)" : "This device has a copy of all items")
                         }
                     }
+                case .needBytes:
+                    if isShared {
+                        if let c = self.completion {
+                            Text(c.needBytes.formatted(.byteCount(style: .file)))
+                                .foregroundStyle(c.completionPct < 100 ? .red : .primary)
+                                .bold(c.completionPct < 100)
+                                .help(c.completionPct < 100 ? "This device still needs \(c.needBytes.formatted(.byteCount(style: .file))) of \(c.globalBytes.formatted(.byteCount(style: .file)))" : "This device has a copy of all items")
+                        }
+                    }
                 }
             }
             .contextMenu {
@@ -285,7 +296,7 @@ fileprivate struct DevicesListView: View {
             Task.detached {
                 let sharedWithDeviceIDs = folder.sharedWithDeviceIDs()?.asArray() ?? []
                 let sharedEncrypted = folder.sharedEncryptedWithDeviceIDs()?.asArray() ?? [];
-                let completion = self.viewStyle == .percentageOfGlobal ? try? self.folder.completion(forDevice: devID) : nil
+                let completion = self.viewStyle == .sharing ? nil : try? self.folder.completion(forDevice: devID)
                 
                 DispatchQueue.main.async {
                     self.isShared = sharedWithDeviceIDs.contains(self.device.deviceID())
