@@ -325,9 +325,9 @@ class PhotoSynchronisation: ObservableObject {
                                         do {
                                             try data.write(to: fileURL)
                                             
-                                            // Set file creation date to photo creation date
+                                            // Set file creation and modified date to photo creation date. The modified date is what is synced
                                             if let cd = asset.creationDate {
-                                                try FileManager.default.setAttributes([FileAttributeKey.creationDate: cd], ofItemAtPath: fileURL.path(percentEncoded: false))
+                                                try FileManager.default.setAttributes([FileAttributeKey.creationDate: cd, FileAttributeKey.modificationDate: cd], ofItemAtPath: fileURL.path(percentEncoded: false))
                                             }
                                             
                                             assetsSavedSuccessfully.append(asset)
@@ -410,7 +410,7 @@ class PhotoSynchronisation: ObservableObject {
                     }
                     
                     if let cd = asset.creationDate {
-                        try FileManager.default.setAttributes([FileAttributeKey.creationDate: cd], ofItemAtPath: fileURL.path(percentEncoded: false))
+                        try FileManager.default.setAttributes([FileAttributeKey.creationDate: cd, FileAttributeKey.modificationDate: cd], ofItemAtPath: fileURL.path(percentEncoded: false))
                     }
                     
                     selectPaths.append(selectPath)
@@ -473,7 +473,7 @@ class PhotoSynchronisation: ObservableObject {
                     }
                     
                     if let cd = asset.creationDate {
-                        try FileManager.default.setAttributes([FileAttributeKey.creationDate: cd], ofItemAtPath: destURL.path(percentEncoded: false))
+                        try FileManager.default.setAttributes([FileAttributeKey.creationDate: cd, FileAttributeKey.modificationDate: cd], ofItemAtPath: destURL.path(percentEncoded: false))
                     }
                     
                     DispatchQueue.main.async {
