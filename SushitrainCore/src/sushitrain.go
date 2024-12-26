@@ -560,6 +560,7 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 		conf.Options.ReleasesURL = ""                    // Disable auto update, we can't do so on iOS anyway
 		conf.Options.InsecureAllowOldTLSVersions = false // Never allow insecure TLS
 		conf.Defaults.Folder.IgnorePerms = true          // iOS doesn't expose permissions to users
+		conf.Defaults.Folder.RescanIntervalS = 3600      // Force default rescan interval
 		conf.Options.RelayReconnectIntervalM = 1         // Set this to one minute (from the default 10) because on mobile networks this is more often necessary
 
 		// On iOS and probably macOS, the absolute path to the apps container that has the synchronized folders changes on each
