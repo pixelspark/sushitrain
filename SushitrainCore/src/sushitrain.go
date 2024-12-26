@@ -427,7 +427,13 @@ func (clt *Client) IsUploading() bool {
 	clt.mutex.Lock()
 	defer clt.mutex.Unlock()
 
-	for _, uploadsPerFolder := range clt.uploadProgress {
+	for devID, uploadsPerFolder := range clt.uploadProgress {
+		// Skip peers that are not connected
+		peer := clt.PeerWithID(devID)
+		if peer == nil || !peer.IsConnected() {
+			continue
+		}
+
 		for _, uploads := range uploadsPerFolder {
 			if len(uploads) > 0 {
 				return true
@@ -443,6 +449,12 @@ func (clt *Client) UploadingToPeers() *ListOfStrings {
 
 	peers := make([]string, 0)
 	for peerID, uploadsPerFolder := range clt.uploadProgress {
+		// Skip peers that are not connected
+		peer := clt.PeerWithID(peerID)
+		if peer == nil || !peer.IsConnected() {
+			continue
+		}
+
 		peerHasUploads := false
 		for _, uploads := range uploadsPerFolder {
 			if len(uploads) > 0 {
@@ -462,6 +474,12 @@ func (clt *Client) UploadingFilesForPeerAndFolder(deviceID string, folderID stri
 	clt.mutex.Lock()
 	defer clt.mutex.Unlock()
 
+	// Skip peers that are not connected
+	peer := clt.PeerWithID(deviceID)
+	if peer == nil || !peer.IsConnected() {
+		return &ListOfStrings{}
+	}
+
 	if uploads, ok := clt.uploadProgress[deviceID]; ok {
 		if files, ok := uploads[folderID]; ok {
 			return List(KeysOf(files))
@@ -473,6 +491,12 @@ func (clt *Client) UploadingFilesForPeerAndFolder(deviceID string, folderID stri
 func (clt *Client) UploadingFoldersForPeer(deviceID string) *ListOfStrings {
 	clt.mutex.Lock()
 	defer clt.mutex.Unlock()
+
+	// Skip peers that are not connected
+	peer := clt.PeerWithID(deviceID)
+	if peer == nil || !peer.IsConnected() {
+		return &ListOfStrings{}
+	}
 
 	if uploads, ok := clt.uploadProgress[deviceID]; ok {
 		return List(KeysOf(uploads))
