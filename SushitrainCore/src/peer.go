@@ -106,6 +106,10 @@ func (peer *Peer) SetPaused(paused bool) error {
 }
 
 func (peer *Peer) IsPaused() bool {
+	dc := peer.deviceConfiguration()
+	if dc == nil {
+		return true
+	}
 	return peer.deviceConfiguration().Paused
 }
 
@@ -127,6 +131,11 @@ func (peer *Peer) changeDeviceConfiguration(block func(*config.DeviceConfigurati
 }
 
 func (peer *Peer) IsUntrusted() bool {
+	dc := peer.deviceConfiguration()
+	if dc == nil {
+		return true
+	}
+
 	return peer.deviceConfiguration().Untrusted
 }
 
