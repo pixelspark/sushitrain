@@ -49,7 +49,7 @@ struct SelectiveFolderView: View {
             }
         }
         .toolbar {
-            ToolbarItem(placement: .secondaryAction) {
+            ToolbarItem(placement: .primaryAction) {
                 Menu {
                     Section("Remove files from this device") {
                         Button("All files that are available on other devices", systemImage: "pin.slash", action: {
