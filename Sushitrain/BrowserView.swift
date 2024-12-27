@@ -133,9 +133,12 @@ fileprivate struct EntryView: View {
     let siblings: [SushitrainEntry]
     let showThumbnail: Bool
     
+    static let remoteFileOpacity = 0.7
+    
     private func entryView(entry: SushitrainEntry) -> some View {
         Group {
             if self.showThumbnail {
+                // Thubmnail view shows thumbnail image next to the file name
                 HStack(alignment: .center, spacing: 9.0) {
                     ThumbnailView(file: entry, appState: appState, showFileName: false, showErrorMessages: false)
                         .frame(width: 60, height: 40)
@@ -146,7 +149,8 @@ fileprivate struct EntryView: View {
                     // The entry name (grey when not locally present)
                     Text(entry.fileName())
                         .multilineTextAlignment(.leading)
-                        .foregroundStyle(entry.color ?? Color.primary)
+                        .foregroundStyle(Color.primary)
+                        .opacity(entry.isLocallyPresent() ? 1.0 : Self.remoteFileOpacity)
                     Spacer()
                 }
                 .frame(maxWidth: .infinity)
@@ -158,7 +162,8 @@ fileprivate struct EntryView: View {
                         .foregroundStyle(entry.color ?? Color.accentColor)
                     Text(entry.fileName())
                         .multilineTextAlignment(.leading)
-                        .foregroundStyle(entry.color ?? Color.primary)
+                        .foregroundStyle(Color.primary)
+                        .opacity(entry.isLocallyPresent() ? 1.0 : Self.remoteFileOpacity)
                     Spacer()
                 }
                 .frame(maxWidth: .infinity)
@@ -319,7 +324,8 @@ fileprivate struct BrowserListView: View {
                                                 .foregroundStyle(subDirEntry.color ?? Color.accentColor)
                                             Text(subDirEntry.fileName())
                                                 .multilineTextAlignment(.leading)
-                                                .foregroundStyle(subDirEntry.color ?? Color.primary)
+                                                .foregroundStyle(Color.primary)
+                                                .opacity(subDirEntry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
                                             Spacer()
                                         }
                                         .frame(maxWidth: .infinity)
