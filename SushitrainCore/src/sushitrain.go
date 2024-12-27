@@ -800,6 +800,20 @@ func (clt *Client) IsNATEnabled() bool {
 	return clt.config.Options().NATEnabled
 }
 
+func (clt *Client) SetSTUNEnabled(enabled bool) error {
+	return clt.changeConfiguration(func(cfg *config.Configuration) {
+		if enabled {
+			cfg.Options.StunKeepaliveMinS = 20
+		} else {
+			cfg.Options.StunKeepaliveMinS = 0
+		}
+	})
+}
+
+func (clt *Client) IsSTUNEnabled() bool {
+	return clt.config.Options().StunKeepaliveMinS > 0
+}
+
 func (clt *Client) SetRelaysEnabled(enabled bool) error {
 	return clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.Options.RelaysEnabled = enabled
@@ -1222,16 +1236,35 @@ func (clt *Client) DiscoveryAddresses() *ListOfStrings {
 func (clt *Client) SetDiscoveryAddresses(addrs *ListOfStrings) error {
 	return clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.Options.RawGlobalAnnServers = addrs.data
+
+		// When setting an empty list of servers the expectation is that discovery stops. However on restart and reading
+		// the config file, the default value of this field will be filled in (as there are no `globalAnnounceServer`
+		// elements in the XML). Thus we also disable it here. As there is a separate toggle to enable it, we don't do
+		// that here when a nonempty list is set.
+		if len(addrs.data) == 0 {
+			cfg.Options.GlobalAnnEnabled = false
+		}
 	})
 }
 
 func (clt *Client) StunAddresses() *ListOfStrings {
+	if clt.config.Options().StunKeepaliveMinS < 1 {
+		return List(make([]string, 0))
+	}
 	return List(clt.config.Options().RawStunServers)
 }
 
 func (clt *Client) SetStunAddresses(addrs *ListOfStrings) error {
 	return clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.Options.RawStunServers = addrs.data
+
+		// When setting an empty list of servers the expectation is that STUN stops. However on restart and reading
+		// the config file, the default value of this field will be filled in (as there are no `stunServer` elements in
+		// the XML). Thus we also disable it here. As there is a separate toggle to enable it, we don't do that here when
+		// a nonempty list is set.
+		if len(addrs.data) == 0 {
+			cfg.Options.StunKeepaliveMinS = 0 // Disable
+		}
 	})
 }
 

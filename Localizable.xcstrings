@@ -5182,6 +5182,40 @@
         }
       }
     },
+    "Enable STUN" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STUN aktivieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habilitar STUN"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abilita STUN"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STUN inschakelen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Увімкнути STUN"
+          }
+        }
+      }
+    },
     "Enable synchronization" : {
       "localizations" : {
         "de" : {
@@ -7081,7 +7115,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Globale aankondigingsservers"
+            "value" : "Wereldwijde aankondigingsservers"
           }
         },
         "uk" : {

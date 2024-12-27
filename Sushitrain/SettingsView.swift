@@ -241,6 +241,12 @@ struct AdvancedSettingsView: View {
                     try? appState.client.setNATEnabled(nv)
                 }))
                 
+                Toggle("Enable STUN", isOn: Binding(get: {
+                    return appState.client.isSTUNEnabled()
+                }, set: {nv in
+                    try? appState.client.setSTUNEnabled(nv)
+                }))
+                
                 Toggle("Enable relaying", isOn: Binding(get: {
                     return appState.client.isRelaysEnabled()
                 }, set: {nv in
