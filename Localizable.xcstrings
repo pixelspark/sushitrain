@@ -592,6 +592,40 @@
         }
       }
     },
+    "2024-08-11_IMG_2020.MOV" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08-11_IMG_2020.MOV"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08-11_IMG_2020.MOV"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08-11_IMG_2020.MOV"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08-11_IMG_2020.MOV"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08-11_IMG_2020.MOV"
+          }
+        }
+      }
+    },
     "2024-08-11/IMG_2020.HEIC" : {
       "localizations" : {
         "de" : {
@@ -13582,6 +13616,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Одна папка"
+          }
+        }
+      }
+    },
+    "Single folder with dates" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einzelner Ordner mit Daten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carpeta única con fechas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartella singola con date"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enkele map met datums"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Одна папка з датами"
           }
         }
       }

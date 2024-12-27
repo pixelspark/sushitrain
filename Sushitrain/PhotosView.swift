@@ -131,6 +131,7 @@ struct PhotoSettingsView: View {
                     Text("By type").tag(PhotoSyncFolderStructure.byType)
                     Text("By date and type").tag(PhotoSyncFolderStructure.byDateAndType)
                     Text("Single folder").tag(PhotoSyncFolderStructure.singleFolder)
+                    Text("Single folder with dates").tag(PhotoSyncFolderStructure.singleFolderDatePrefixed)
                 }
                 .pickerStyle(.menu).disabled(photoSync.isSynchronizing)
                 Text("Example file location in folder: ") + Text(photoSync.folderStructure.examplePath).monospaced()

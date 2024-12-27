@@ -19,6 +19,7 @@ enum PhotoSyncFolderStructure: String, Codable {
     case byDate = "byDate"
     case byDateAndType = "byDateAndType"
     case singleFolder = "singleFolder"
+    case singleFolderDatePrefixed = "singleFolderDatePrefixed"
     
     var examplePath: String {
         switch self {
@@ -26,6 +27,7 @@ enum PhotoSyncFolderStructure: String, Codable {
         case .byDateAndType: return String(localized: "2024-08-11/Video/IMG_2020.MOV")
         case .byType: return String(localized: "Video/IMG_2020.MOV")
         case .singleFolder: return String(localized: "IMG_2020.MOV")
+        case .singleFolderDatePrefixed: return String(localized: "2024-08-11_IMG_2020.MOV")
         }
     }
 }
@@ -586,7 +588,7 @@ fileprivate extension PHAsset {
                 let dateString = dateFormatter.string(from: creationDate)
                 inFolderURL = URL(filePath: dateString)
             }
-        case .singleFolder, .byType:
+        case .singleFolder, .byType, .singleFolderDatePrefixed:
             break
         }
         
@@ -596,7 +598,7 @@ fileprivate extension PHAsset {
             if self.mediaType == .video {
                 inFolderURL = inFolderURL.appending(path: "Video", directoryHint: .isDirectory)
             }
-        case .byDate, .singleFolder:
+        case .byDate, .singleFolder, .singleFolderDatePrefixed:
             break
         }
         return inFolderURL.path(percentEncoded: false)
@@ -607,20 +609,36 @@ fileprivate extension PHAsset {
         switch structure {
         case .byDateAndType, .byType:
             url = url.appending(path: "Live", directoryHint: .isDirectory)
-        case .byDate, .singleFolder:
+        case .byDate, .singleFolder, .singleFolderDatePrefixed:
             break
         }
         return url.path(percentEncoded: false)
     }
     
     func livePhotoPathInFolder(structure: PhotoSyncFolderStructure) -> String {
-        let fileName = self.originalFilename + ".MOV"
+        let fileName = self.fileNameInFolder(structure: structure) + ".MOV"
         let url = URL(fileURLWithPath: self.livePhotoDirectoryPathInFolder(structure: structure)).appendingPathComponent(fileName)
         return url.path(percentEncoded: false)
     }
     
+    func fileNameInFolder(structure: PhotoSyncFolderStructure) -> String {
+        switch structure {
+        case .byDate, .byDateAndType, .singleFolder, .byType:
+            return self.originalFilename
+            
+        case .singleFolderDatePrefixed:
+            if let creationDate = self.creationDate {
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd"
+                let dateString = dateFormatter.string(from: creationDate)
+                return "\(dateString)_\(self.originalFilename)"
+            }
+            return self.originalFilename
+        }
+    }
+    
     func pathInFolder(structure: PhotoSyncFolderStructure) -> String {
-        let url = URL(fileURLWithPath: self.directoryPathInFolder(structure: structure)).appendingPathComponent(self.originalFilename)
+        let url = URL(fileURLWithPath: self.directoryPathInFolder(structure: structure)).appendingPathComponent(self.fileNameInFolder(structure: structure))
         return url.path(percentEncoded: false)
     }
 }
