@@ -240,7 +240,7 @@ struct FoldersView: View {
 }
 
 struct FolderMetricPickerView: View {
-    let appState: AppState
+    @ObservedObject var appState: AppState
     
     var body: some View {
         Picker("Show metric", selection: self.appState.$viewMetric) {
