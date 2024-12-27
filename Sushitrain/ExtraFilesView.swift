@@ -103,9 +103,9 @@ struct ExtraFilesView: View {
             await reload()
         }
         .navigationTitle("Extra files in folder \(folder.label())")
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-#endif
+        #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+        #endif
         .toolbar {
             ToolbarItem(placement: .confirmationAction, content: {
                 Button("Apply", action: {

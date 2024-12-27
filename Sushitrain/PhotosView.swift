@@ -126,6 +126,18 @@ struct PhotoSettingsView: View {
             }
             
             Section {
+                LabeledContent {
+                    TextField("", text: photoSync.$subDirectoryPath, prompt: Text("(Top level)"))
+                    .multilineTextAlignment(.trailing)
+                    #if os(iOS)
+                        .keyboardType(.asciiCapable)
+                        .autocorrectionDisabled()
+                        .autocapitalization(.none)
+                    #endif
+                }
+                label: {
+                    Text("Path in folder")
+                }
                 Picker("Folder structure", selection: $photoSync.folderStructure) {
                     Text("By date").tag(PhotoSyncFolderStructure.byDate)
                     Text("By type").tag(PhotoSyncFolderStructure.byType)
@@ -134,7 +146,7 @@ struct PhotoSettingsView: View {
                     Text("Single folder with dates").tag(PhotoSyncFolderStructure.singleFolderDatePrefixed)
                 }
                 .pickerStyle(.menu).disabled(photoSync.isSynchronizing)
-                Text("Example file location in folder: ") + Text(photoSync.folderStructure.examplePath).monospaced()
+                Text("Example file location in folder: ") + Text("\(photoSync.subDirectoryPath)/\(photoSync.folderStructure.examplePath)").monospaced()
             } footer: {
                 Text("When the folder structure is changed, photos that were already saved will be saved again in their new location.")
             }

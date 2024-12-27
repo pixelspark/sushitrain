@@ -125,6 +125,7 @@ class PhotoSynchronisation: ObservableObject {
     @AppStorage("photoSyncPurgeEnabled") var purgeEnabled = false
     @AppStorage("photoSyncPurgeAfterDays") var purgeAfterDays = 7
     @AppStorage("photoSyncFolderStructure") var folderStructure = PhotoSyncFolderStructure.byDateAndType
+    @AppStorage("photoSyncSubdirectoryPath") var subDirectoryPath = ""
     
     @Published var isSynchronizing = false
     @Published var progress: PhotoSyncProgress = .finished(error: nil)
@@ -227,6 +228,13 @@ class PhotoSynchronisation: ObservableObject {
                 return
             }
             
+            // Ensure the subdirectory exists
+            let subDirectoryPath = await self.subDirectoryPath
+            if subDirectoryPath != "" {
+                let subDirectoryPathURL = URL(fileURLWithPath: folderPath).appendingPathComponent(subDirectoryPath)
+                try FileManager.default.createDirectory(at: subDirectoryPathURL, withIntermediateDirectories: true)
+            }
+            
             let folderURL = URL(fileURLWithPath: folderPath)
             let fetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [selectedAlbumID], options: nil)
             guard let album = fetchResult.firstObject else {
@@ -261,16 +269,18 @@ class PhotoSynchronisation: ObservableObject {
                 do {
                     Log.info("Asset: \(asset.originalFilename) \(asset.localIdentifier)")
                     
+                    
                     DispatchQueue.main.async {
                         self.progress = .exportingPhotos(index: index, total: count, current: asset.originalFilename)
                     }
                     
                     // Create containing directory
-                    let dirInFolder = folderURL.appending(path: asset.directoryPathInFolder(structure: structure), directoryHint: .isDirectory)
+                    let assetDirectoryPath = asset.directoryPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
+                    let dirInFolder = folderURL.appending(path: assetDirectoryPath, directoryHint: .isDirectory)
                     try FileManager.default.createDirectory(at: dirInFolder, withIntermediateDirectories: true)
                     
-                    
-                    let inFolderPath = asset.pathInFolder(structure: structure)
+                    let inFolderPath = asset.pathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
+                    Log.info("- \(inFolderPath) \(dirInFolder) \(subDirectoryPath)")
                     
                     // Check if this photo was saved or deleted before
                     if purgeEnabled || !fullExport {
@@ -346,8 +356,8 @@ class PhotoSynchronisation: ObservableObject {
                     
                     // If the image is a live photo, queue the live photo for saving as well
                     if asset.mediaType == .image && asset.mediaSubtypes.contains(.photoLive) && categories.contains(.livePhoto) {
-                        let liveInFolderPath = asset.livePhotoPathInFolder(structure: structure)
-                        let liveDirectoryURL = folderURL.appending(path: asset.livePhotoDirectoryPathInFolder(structure: structure), directoryHint: .isDirectory)
+                        let liveInFolderPath = asset.livePhotoPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
+                        let liveDirectoryURL = folderURL.appending(path: asset.livePhotoDirectoryPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath), directoryHint: .isDirectory)
                         try FileManager.default.createDirectory(at: liveDirectoryURL, withIntermediateDirectories: true)
                         let liveFileURL = folderURL.appending(path: liveInFolderPath, directoryHint: .notDirectory)
                         Log.info("Found live photo \(asset.originalFilename) \(liveInFolderPath)")
@@ -578,15 +588,16 @@ fileprivate extension PHAsset {
         return result.originalFilename.replacingOccurrences(of: "/", with: "_")
     }
     
-    func directoryPathInFolder(structure: PhotoSyncFolderStructure) -> String {
-        var inFolderURL = URL(fileURLWithPath: "")
+    func directoryPathInFolder(structure: PhotoSyncFolderStructure, subdirectoryPath: String) -> String {
+        var inFolderURL = URL(fileURLWithPath: subdirectoryPath)
+        
         switch structure {
         case .byDate, .byDateAndType:
             if let creationDate = self.creationDate {
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateFormat = "yyyy-MM-dd"
                 let dateString = dateFormatter.string(from: creationDate)
-                inFolderURL = URL(filePath: dateString)
+                inFolderURL = inFolderURL.appendingPathComponent(dateString, isDirectory: true)
             }
         case .singleFolder, .byType, .singleFolderDatePrefixed:
             break
@@ -604,8 +615,8 @@ fileprivate extension PHAsset {
         return inFolderURL.path(percentEncoded: false)
     }
     
-    func livePhotoDirectoryPathInFolder(structure: PhotoSyncFolderStructure) -> String {
-        var url = URL(fileURLWithPath: self.directoryPathInFolder(structure: structure))
+    func livePhotoDirectoryPathInFolder(structure: PhotoSyncFolderStructure, subdirectoryPath: String) -> String {
+        var url = URL(fileURLWithPath: self.directoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath))
         switch structure {
         case .byDateAndType, .byType:
             url = url.appending(path: "Live", directoryHint: .isDirectory)
@@ -615,9 +626,9 @@ fileprivate extension PHAsset {
         return url.path(percentEncoded: false)
     }
     
-    func livePhotoPathInFolder(structure: PhotoSyncFolderStructure) -> String {
+    func livePhotoPathInFolder(structure: PhotoSyncFolderStructure, subdirectoryPath: String) -> String {
         let fileName = self.fileNameInFolder(structure: structure) + ".MOV"
-        let url = URL(fileURLWithPath: self.livePhotoDirectoryPathInFolder(structure: structure)).appendingPathComponent(fileName)
+        let url = URL(fileURLWithPath: self.livePhotoDirectoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath)).appendingPathComponent(fileName)
         return url.path(percentEncoded: false)
     }
     
@@ -637,8 +648,9 @@ fileprivate extension PHAsset {
         }
     }
     
-    func pathInFolder(structure: PhotoSyncFolderStructure) -> String {
-        let url = URL(fileURLWithPath: self.directoryPathInFolder(structure: structure)).appendingPathComponent(self.fileNameInFolder(structure: structure))
+    func pathInFolder(structure: PhotoSyncFolderStructure, subdirectoryPath: String) -> String {
+        let url = URL(fileURLWithPath: self.directoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath))
+            .appendingPathComponent(self.fileNameInFolder(structure: structure))
         return url.path(percentEncoded: false)
     }
 }
