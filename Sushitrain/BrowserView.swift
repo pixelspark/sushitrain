@@ -375,21 +375,27 @@ fileprivate struct BrowserListView: View {
                 }
                 // Load the rest while already showing a part of the results
             }
-            else if isEmpty && self.prefix == "" {
-                if self.folder.isPaused() {
-                    ContentUnavailableView("Synchronization disabled", systemImage: "pause.fill", description: Text("Synchronization has been disabled for this folder. Enable it in folder settings to access files.")).onTapGesture {
-                        showSettings = true
+            else if isEmpty {
+                if self.prefix == "" {
+                    if self.folder.isPaused() {
+                        ContentUnavailableView("Synchronization disabled", systemImage: "pause.fill", description: Text("Synchronization has been disabled for this folder. Enable it in folder settings to access files.")).onTapGesture {
+                            showSettings = true
+                        }
                     }
-                }
-                else if self.folder.connectedPeerCount() == 0 {
-                    ContentUnavailableView("Not connected", systemImage: "network.slash", description: Text("Share this folder with other devices to start synchronizing files.")).onTapGesture {
-                        showSettings = true
+                    else if self.folder.connectedPeerCount() == 0 {
+                        ContentUnavailableView("Not connected", systemImage: "network.slash", description: Text("Share this folder with other devices to start synchronizing files.")).onTapGesture {
+                            showSettings = true
+                        }
                     }
+                    else {
+                        ContentUnavailableView("There are currently no files in this folder.", systemImage: "questionmark.folder", description: Text("If this is unexpected, ensure that the other devices have accepted syncing this folder with your device.")).onTapGesture {
+                            showSettings = true
+                        }
+                    }
+                    
                 }
                 else {
-                    ContentUnavailableView("There are currently no files in this folder.", systemImage: "questionmark.folder", description: Text("If this is unexpected, ensure that the other devices have accepted syncing this folder with your device.")).onTapGesture {
-                        showSettings = true
-                    }
+                    ContentUnavailableView("There are currently no files in this folder.", systemImage: "questionmark.folder")
                 }
             }
         }
