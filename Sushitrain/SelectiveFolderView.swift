@@ -20,7 +20,7 @@ struct SelectiveFolderView: View {
     @State private var showConfirmClearSelectionSoft = false
     
     var body: some View {
-        Group {
+        ZStack {
             if isLoading || isClearing {
                 ProgressView()
             }
@@ -49,7 +49,7 @@ struct SelectiveFolderView: View {
             }
         }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
+            ToolbarItem(placement: .secondaryAction) {
                 Menu {
                     Section("Remove files from this device") {
                         Button("All files that are available on other devices", systemImage: "pin.slash", action: {
