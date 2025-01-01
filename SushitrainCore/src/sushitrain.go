@@ -553,7 +553,6 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 		newCfg := config.New(devID)
 		newCfg.GUI.Enabled = false
 		cfg = config.Wrap(cfgFile, newCfg, devID, logger)
-
 	}
 
 	go cfg.Serve(ctx)
