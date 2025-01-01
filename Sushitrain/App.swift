@@ -54,6 +54,7 @@ struct SushitrainApp: App {
         self.delegate = SushitrainDelegate(appState: self.appState)
         client.delegate = self.delegate;
         client.server?.delegate = self.delegate;
+        self.performMigrations()
         self.appState.update()
         
         // Resolve bookmarks
@@ -106,6 +107,23 @@ struct SushitrainApp: App {
                 }
             #endif
         }
+    }
+    
+    private func performMigrations() {
+        let lastRunBuild = UserDefaults.standard.integer(forKey: "lastRunBuild")
+        let currentBuild = Int(Bundle.main.buildVersionNumber ?? "0") ?? 0
+        Log.info("Migrations: current build is \(currentBuild), last run build \(lastRunBuild)")
+        
+        if lastRunBuild < currentBuild {
+            #if os(macOS)
+                // From build 19 onwards, enable fs watching for all folders by default. It can later be disabled
+                if lastRunBuild <= 18 {
+                    Log.info("Enabling FS watching for all folders")
+                    self.appState.client.setFSWatchingEnabledForAllFolders(true)
+                }
+            #endif
+        }
+        UserDefaults.standard.set(currentBuild, forKey: "lastRunBuild")
     }
     
     private static func configDirectoryURL() -> URL {

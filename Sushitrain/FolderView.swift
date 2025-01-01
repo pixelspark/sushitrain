@@ -541,6 +541,12 @@ struct FolderView: View {
                         } label: {
                             Text("Rescan interval (minutes)")
                         }
+                
+                        Toggle("Watch for changes", isOn: Binding(get: {
+                            return folder.isWatcherEnabled()
+                        }, set: { nv in
+                            try? folder.setWatcherEnabled(nv)
+                        }))
                     }
                 #endif
             }

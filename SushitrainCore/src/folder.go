@@ -150,6 +150,26 @@ func (fld *Folder) SetPaused(paused bool) error {
 	})
 }
 
+func (fld *Folder) IsWatcherEnabled() bool {
+	fc := fld.folderConfiguration()
+	if fc == nil {
+		return false
+	}
+
+	return fld.folderConfiguration().FSWatcherEnabled
+}
+
+func (fld *Folder) SetWatcherEnabled(enabled bool) error {
+	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
+		config := fld.folderConfiguration()
+		if config == nil {
+			return
+		}
+		config.FSWatcherEnabled = enabled
+		cfg.SetFolder(*config)
+	})
+}
+
 func (fld *Folder) State() (string, error) {
 	if fld.client.app == nil {
 		return "", nil

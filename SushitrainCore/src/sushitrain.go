@@ -537,6 +537,15 @@ func (clt *Client) Start() error {
 	return nil
 }
 
+func (clt *Client) SetFSWatchingEnabledForAllFolders(enabled bool) {
+	clt.changeConfiguration(func(cfg *config.Configuration) {
+		for _, fc := range clt.config.FolderList() {
+			fc.FSWatcherEnabled = enabled
+			cfg.SetFolder(fc)
+		}
+	})
+}
+
 func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger events.Logger, filesPath string) (config.Wrapper, error) {
 	cfgFile := locations.Get(locations.ConfigFile)
 	cfg, _, err := config.Load(cfgFile, devID, logger)
@@ -551,17 +560,18 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 
 	// Always override the following options in config
 	waiter, err := cfg.Modify(func(conf *config.Configuration) {
-		conf.GUI.Enabled = false                         // Don't need the web UI, we have our own :-)
-		conf.Options.CREnabled = false                   // No crash reporting for now
-		conf.Options.URAccepted = -1                     // No usage reporting for now
-		conf.Options.ProgressUpdateIntervalS = 1         // We want to update the user often, it improves the experience and is worth the compute cost
-		conf.Options.CRURL = ""                          // No crash reporting for now
-		conf.Options.URURL = ""                          // No usage reporting for now
-		conf.Options.ReleasesURL = ""                    // Disable auto update, we can't do so on iOS anyway
-		conf.Options.InsecureAllowOldTLSVersions = false // Never allow insecure TLS
-		conf.Defaults.Folder.IgnorePerms = true          // iOS doesn't expose permissions to users
-		conf.Defaults.Folder.RescanIntervalS = 3600      // Force default rescan interval
-		conf.Options.RelayReconnectIntervalM = 1         // Set this to one minute (from the default 10) because on mobile networks this is more often necessary
+		conf.GUI.Enabled = false                             // Don't need the web UI, we have our own :-)
+		conf.Options.CREnabled = false                       // No crash reporting for now
+		conf.Options.URAccepted = -1                         // No usage reporting for now
+		conf.Options.ProgressUpdateIntervalS = 1             // We want to update the user often, it improves the experience and is worth the compute cost
+		conf.Options.CRURL = ""                              // No crash reporting for now
+		conf.Options.URURL = ""                              // No usage reporting for now
+		conf.Options.ReleasesURL = ""                        // Disable auto update, we can't do so on iOS anyway
+		conf.Options.InsecureAllowOldTLSVersions = false     // Never allow insecure TLS
+		conf.Defaults.Folder.IgnorePerms = true              // iOS doesn't expose permissions to users
+		conf.Defaults.Folder.RescanIntervalS = 3600          // Force default rescan interval
+		conf.Options.RelayReconnectIntervalM = 1             // Set this to one minute (from the default 10) because on mobile networks this is more often necessary
+		conf.Defaults.Folder.FSWatcherEnabled = !build.IsIOS // Enable watching by default but not on iOS
 
 		// On iOS and probably macOS, the absolute path to the apps container that has the synchronized folders changes on each
 		// run. Therefore we re-set the absolute folder path here to [app documents directory]/[folder ID] if we don't have
@@ -770,7 +780,6 @@ func (clt *Client) AddFolder(folderID string, folderPath string, createAsOnDeman
 	} else {
 		folderConfig.Path = folderPath
 	}
-	folderConfig.FSWatcherEnabled = false
 	folderConfig.Paused = false
 
 	// Add to configuration
