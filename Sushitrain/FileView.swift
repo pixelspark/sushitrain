@@ -202,6 +202,16 @@ struct FileView: View {
                                     #if os(macOS)
                                         .buttonStyle(.link)
                                     #endif
+                                    
+                                    #if os(iOS)
+                                        // On macOS, this button is in the toolbar; on iOS there is not enough horizontal space
+                                        Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
+                                            if let localPathActual = localPath {
+                                                openURLInSystemFilesApp(url: URL(fileURLWithPath: localPathActual))
+                                            }
+                                        })
+                                        .disabled(localPath == nil)
+                                    #endif
                                 }
                             }
                         }
