@@ -212,14 +212,19 @@ struct SushitrainApp: App {
             .windowResizability(.contentSize)
             
             // About window
-            WindowGroup("About Synctrain", id: "about") {
+            Window("About Synctrain", id: "about") {
                 AboutView()
             }
             .windowResizability(.contentSize)
         
-            WindowGroup("Statistics", id: "stats") {
+            Window("Statistics", id: "stats") {
                 TotalStatisticsView(appState: appState)
                     .frame(maxWidth: 320)
+            }
+            .windowResizability(.contentSize)
+        
+            Window("Synctrain", id: "singleMain") {
+                ContentView(appState: appState)
             }
             .windowResizability(.contentSize)
         #endif
@@ -300,7 +305,7 @@ struct MenuBarExtraView: Scene {
             OverallStatusView(appState: appState)
             
             Button("Open file browser...") {
-                openWindow(id: "main")
+                openWindow(id: "singleMain")
                 NSApplication.shared.activate()
             }
             
