@@ -82,7 +82,10 @@ struct DeviceView: View {
                             #endif
                             
                             #if os(macOS)
-                                NSPasteboard.general.setString(device.deviceID(), forType: .string)
+                                let pasteboard = NSPasteboard.general
+                                pasteboard.clearContents()
+                                pasteboard.prepareForNewContents()
+                                pasteboard.setString(device.deviceID(), forType: .string)
                             #endif
                         }) {
                             Text("Copy to clipboard")
@@ -112,7 +115,10 @@ struct DeviceView: View {
                                 #endif
                                 
                                 #if os(macOS)
-                                    NSPasteboard.general.setString(lastAddress, forType: .string)
+                                    let pasteboard = NSPasteboard.general
+                                    pasteboard.clearContents()
+                                    pasteboard.prepareForNewContents()
+                                    pasteboard.setString(lastAddress, forType: .string)
                                 #endif
                             }) {
                                 Text("Copy to clipboard")

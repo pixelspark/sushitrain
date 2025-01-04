@@ -143,11 +143,14 @@ fileprivate struct ResolvedAddressesView: View {
                 Text(addr).contextMenu {
                     Button(action: {
                         #if os(iOS)
-                        UIPasteboard.general.string = addr
+                            UIPasteboard.general.string = addr
                         #endif
                         
                         #if os(macOS)
-                        NSPasteboard.general.setString(addr, forType: .string)
+                            let pasteboard = NSPasteboard.general
+                            pasteboard.clearContents()
+                            pasteboard.prepareForNewContents()
+                            pasteboard.setString(addr, forType: .string)
                         #endif
                     }) {
                         Text("Copy to clipboard")
@@ -272,7 +275,10 @@ struct StartView: View {
                             #endif
                             
                             #if os(macOS)
-                                NSPasteboard.general.setString(self.appState.localDeviceID, forType: .string)
+                                let pasteboard = NSPasteboard.general
+                                pasteboard.clearContents()
+                                pasteboard.prepareForNewContents()
+                                pasteboard.setString(self.appState.localDeviceID, forType: .string)
                             #endif
                         }) {
                             Text("Copy to clipboard")
