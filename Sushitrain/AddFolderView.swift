@@ -72,19 +72,17 @@ struct AddFolderView: View {
                     #endif
                 }
                 
-                if self.folderPath == nil {
-                    Section {
-                        Picker("Synchronize", selection: $isSelective) {
-                            Text("All files").tag(false)
-                            Text("Selected files").tag(true)
-                        }
-                    } footer: {
-                        if isSelective {
-                            Text("Only files that you select will be copied to this device. You can still access all files in the folder on demand when connected to other devices that have a copy of the file.")
-                        }
-                        else {
-                            Text("All files in the folder will be copied to this device.")
-                        }
+                Section {
+                    Picker("Synchronize", selection: $isSelective) {
+                        Text("All files").tag(false)
+                        Text("Selected files").tag(true)
+                    }
+                } footer: {
+                    if isSelective {
+                        Text("Only files that you select will be copied to this device. You can still access all files in the folder on demand when connected to other devices that have a copy of the file.")
+                    }
+                    else {
+                        Text("All files in the folder will be copied to this device.")
                     }
                 }
                 
@@ -196,7 +194,7 @@ struct AddFolderView: View {
             // Add the folder
             if let fp = self.folderPath {
                 try BookmarkManager.shared.saveBookmark(folderID: self.folderID, url: fp)
-                try appState.client.addFolder(self.folderID, folderPath: fp.path(percentEncoded: false), createAsOnDemand: false)
+                try appState.client.addFolder(self.folderID, folderPath: fp.path(percentEncoded: false), createAsOnDemand: self.isSelective)
             }
             else {
                 try appState.client.addFolder(self.folderID, folderPath: "", createAsOnDemand: self.isSelective)

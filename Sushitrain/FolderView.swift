@@ -473,24 +473,26 @@ struct FolderView: View {
                             }
                         }
                     }
- 
-                    Button("Remove folder", systemImage: "trash", role:.destructive) {
-                        showRemoveConfirmation = true
-                    }
-                    #if os(macOS)
-                        .buttonStyle(.link)
-                    #endif
-                    .disabled(isExternal != false)
-                    .foregroundColor(.red)
-                    .confirmationDialog("Are you sure you want to remove this folder? Please consider carefully. All files in this folder will be removed from this device. Files that have not been synchronized to other devices yet cannot be recoered.", isPresented: $showRemoveConfirmation, titleVisibility: .visible) {
-                        Button("Remove the folder and all files", role: .destructive) {
-                            do {
-                                dismiss()
-                                try folder.removeAndRemoveBookmark()
-                            }
-                            catch let error {
-                                showError = true
-                                errorText = error.localizedDescription
+                    
+                    // Only allow removing a full folder when we are sure it is in the area managed by us
+                    if isExternal == false {
+                        Button("Remove folder", systemImage: "trash", role:.destructive) {
+                            showRemoveConfirmation = true
+                        }
+                        #if os(macOS)
+                            .buttonStyle(.link)
+                        #endif
+                        .foregroundColor(.red)
+                        .confirmationDialog("Are you sure you want to remove this folder? Please consider carefully. All files in this folder will be removed from this device. Files that have not been synchronized to other devices yet cannot be recoered.", isPresented: $showRemoveConfirmation, titleVisibility: .visible) {
+                            Button("Remove the folder and all files", role: .destructive) {
+                                do {
+                                    dismiss()
+                                    try folder.removeAndRemoveBookmark()
+                                }
+                                catch let error {
+                                    showError = true
+                                    errorText = error.localizedDescription
+                                }
                             }
                         }
                     }
