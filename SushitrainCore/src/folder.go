@@ -10,6 +10,8 @@ import (
 	"errors"
 	"path"
 	"path/filepath"
+	"slices"
+	"sort"
 	"strings"
 	"time"
 
@@ -710,13 +712,7 @@ func (fld *Folder) CleanSelection() error {
 	})
 }
 
-func (fld *Folder) deleteLocalFile(path string) error {
-	ffs := fld.folderConfiguration().Filesystem(nil)
-	err := ffs.Remove(path)
-	if err != nil {
-		return err
-	}
-
+func deleteEmptyParentDirectories(ffs fs.Filesystem, path string) {
 	// Try to delete parent directories that are empty
 	pathParts := fs.PathComponents(path)
 	if len(pathParts) > 1 {
@@ -725,11 +721,99 @@ func (fld *Folder) deleteLocalFile(path string) error {
 			ffs.Remove(dirPath) // Will only remove directories when empty
 		}
 	}
+}
+
+func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string) error {
+	ignores, err := fld.loadIgnores()
+	if err != nil {
+		return err
+	}
+
+	Logger.Infoln("RRC subdirectory at path", path)
+	toDelete := make([]string, 0)
+
+	err = ffs.Walk(path, func(childPath string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		ignoreStatus := ignores.Match(childPath)
+		Logger.Infoln("- ", childPath, err, info.IsDir(), ignoreStatus)
+		if ignoreStatus.IsIgnored() {
+			// Check remote availability
+			entry, err := fld.GetFileInformation(childPath)
+			if err != nil {
+				return err
+			}
+
+			lst, err := entry.PeersWithFullCopy()
+			if err != nil {
+				return err
+			}
+
+			if lst.Count() > 0 {
+				toDelete = append(toDelete, childPath)
+			} else {
+				Logger.Infoln("File is not available elsewhere, skip it")
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	// Scan complete, sort the list of paths to be deleted from long to short so we can delete them in child-first orer
+	sort.Strings(toDelete)
+	slices.Reverse(toDelete)
+
+	delErrs := make([]error, 0)
+	for _, delPath := range toDelete {
+		lerr := ffs.Remove(delPath)
+		if lerr != nil {
+			Logger.Warnln("Error deleting", delPath, lerr)
+			delErrs = append(delErrs, lerr)
+		}
+
+		deleteEmptyParentDirectories(ffs, delPath)
+	}
+
+	if len(delErrs) > 0 {
+		return errors.Join(delErrs...)
+	}
+
 	return nil
 }
 
-func (fld *Folder) DeselectAndDeleteLocalFile(path string) error {
-	err := fld.deleteLocalFile(path)
+// If `path` points to a file, remove it. If `path` points to a subdirectory, delete children that we are reasonably sure
+// are also on other devices, then try to remove the subdirectory if empty. Finally, remove any empty parent directories.
+func (fld *Folder) deleteLocalFileAndRedundantChildren(path string) error {
+	ffs := fld.folderConfiguration().Filesystem(nil)
+
+	stat, err := ffs.Lstat(path)
+	if err != nil {
+		return err
+	}
+
+	// Try to recursively remove children that are ignored and available on other peers
+	if stat.IsDir() {
+		err = fld.removeRedundantChildren(ffs, path)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = ffs.Remove(path)
+	if err != nil {
+		return err
+	}
+
+	deleteEmptyParentDirectories(ffs, path)
+	return nil
+}
+
+func (fld *Folder) deleteAndDeselectLocalFile(path string) error {
+	err := fld.deleteLocalFileAndRedundantChildren(path)
 	if err != nil {
 		return err
 	}
@@ -738,6 +822,7 @@ func (fld *Folder) DeselectAndDeleteLocalFile(path string) error {
 	if err != nil {
 		return err
 	}
+
 	err = fld.SetLocalFileExplicitlySelected(path, false)
 	if err != nil {
 		return err
@@ -863,7 +948,7 @@ func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
 			res := ignores.Match(path)
 			if res == ignoreresult.Ignored || res == ignoreresult.IgnoreAndSkip {
 				Logger.Infoln("Deleting local deselected file: " + path)
-				fld.deleteLocalFile(path)
+				fld.deleteLocalFileAndRedundantChildren(path)
 			} else {
 				Logger.Infoln("Not deleting local deselected file, it apparently was reselected: "+path, res)
 			}

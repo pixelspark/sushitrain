@@ -404,5 +404,5 @@ func (entry *Entry) MIMEType() string {
 }
 
 func (entry *Entry) Remove() error {
-	return entry.Folder.DeselectAndDeleteLocalFile(entry.Path())
+	return entry.Folder.deleteAndDeselectLocalFile(entry.Path())
 }
