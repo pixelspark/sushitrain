@@ -400,6 +400,8 @@ private struct BrowserListView: View {
                                                         "Subdirectory properties",
                                                         systemImage: "folder.badge.gearshape")
                                                 }
+                                                
+                                                ItemSelectToggleView(file: file)
                                             }
                                         }))
                                 }
@@ -876,6 +878,8 @@ struct BrowserView: View {
                     NavigationLink(destination: FileView(file: entry, appState: self.appState)) {
                         Label("Subdirectory properties...", systemImage: entry.systemImage)
                     }
+                    
+                    ItemSelectToggleView(file: entry)
                 }
             }
             .onDrop(
@@ -1014,43 +1018,90 @@ extension SushitrainFolder {
 struct ItemSelectToggleView: View {
     let file: SushitrainEntry
     @State private var disabled = true
+    @State private var errorMessage: String? = nil
 
     init(file: SushitrainEntry) {
         self.file = file
     }
+    
+    private var isAvailable: Bool {
+        if let folder = file.folder {
+            return folder.isSelective()
+        }
+        return false
+    }
+    
+    // First check to see if this action should be disabled
+    private var isShallowDisabled: Bool {
+        if let folder = file.folder {
+            return !folder.isSelective() || file.isSymlink() || !folder.isIdleOrSyncing
+        }
+        return true
+    }
+    
+    private func setExplicitlySelected(s: Bool) async {
+        do {
+            errorMessage = nil
+            if !self.isShallowDisabled {
+                // Check some additional things
+                let isExplicitlySelected = file.isExplicitlySelected()
+                if file.isSelected() && !isExplicitlySelected {
+                    // File is implicitly selected, do not allow changes
+                    errorMessage = String(localized: "The synchronization setting for this item cannot be changed, because it is inside a subdirectory that is configured to be kept on this device.")
+                    return
+                }
+                
+                if !s {
+                    let isLocalOnlyCopy = try await file.isLocalOnlyCopy()
+                    if isLocalOnlyCopy {
+                        // We are the only remaining copy, can't deselect
+                        errorMessage = String(localized: "The synchronization setting for this item cannot be changed, as the local copy is the only copy currently available.")
+                        return
+                    }
+                }
+                
+                // We can change the selection status
+                try file.setExplicitlySelected(s)
+            }
+            else {
+                if file.isSymlink() {
+                    errorMessage = String(localized: "The synchronization setting for symlinks cannot be changed.")
+                }
+                else if let f = file.folder, !f.isSelective() {
+                    errorMessage = String(localized: "The folder is not configured for selective synchronization.")
+                }
+                else {
+                    errorMessage = String(localized: "Wait until the folder is done synchronizing and try again.")
+                }
+                
+            }
+        }
+        catch {
+            errorMessage = String(localized: "The synchronization setting for this item could not be changed: \(error.localizedDescription).")
+        }
+    }
 
     var body: some View {
-        Toggle(
-            "Synchronize with this device", systemImage: "pin",
-            isOn: Binding(
-                get: {
-                    file.isExplicitlySelected() || file.isSelected()
-                },
-                set: { s in
-                    if !self.disabled {
-                        try? file.setExplicitlySelected(s)
-                    }
-                })
-        )
-        .disabled(disabled)
-        .onAppear {
-            Task(priority: .userInitiated) {
-                if let folder = file.folder {
-                    var d = !folder.isSelective() || file.isSymlink() || !folder.isIdleOrSyncing
-
-                    if !d {
-                        let isExplicitlySelected = file.isExplicitlySelected()
-                        d = d || (file.isSelected() && !isExplicitlySelected)
-
-                        if !d && isExplicitlySelected {
-                            let isLocalOnlyCopy = try await file.isLocalOnlyCopy()
-                            d = d || isLocalOnlyCopy
+        if isAvailable {
+            Toggle(
+                "Synchronize with this device", systemImage: "pin",
+                isOn: Binding(
+                    get: {
+                        file.isExplicitlySelected() || file.isSelected()
+                    },
+                    set: { s in
+                        Task {
+                            await self.setExplicitlySelected(s: s)
                         }
-                    }
-                    disabled = d
-                } else {
-                    disabled = true
-                }
+                    })
+            )
+            .disabled(isShallowDisabled)
+            .alert(isPresented: Binding(get: {
+                errorMessage != nil
+            }, set: { s in
+                errorMessage = s ? errorMessage : nil
+            })) {
+                Alert(title: Text("Could not change synchronization setting"), message: Text(errorMessage ?? ""), dismissButton: .default(Text("OK")))
             }
         }
     }

@@ -155,7 +155,6 @@
 		65AE11FB2C39EE0E00E721D4 /* Sushitrain */ = {
 			isa = PBXGroup;
 			children = (
-				65361E692D18360800BCC52C /* FileViewerView.swift */,
 				65BBF8442C4BFB9300EC59C4 /* AboutView.swift */,
 				65AE12662C3B04A100E721D4 /* AddDeviceView.swift */,
 				65AE126E2C3B14CC00E721D4 /* AddFolderView.swift */,
@@ -172,6 +171,7 @@
 				65C9E1532C42B9AE00EDCE6C /* ExtraFilesView.swift */,
 				654272972C7BC77000F2CEF8 /* FileQuickLookView.swift */,
 				65C9E14F2C419FCA00EDCE6C /* FileView.swift */,
+				65361E692D18360800BCC52C /* FileViewerView.swift */,
 				65C9E1412C3C96E400EDCE6C /* FoldersView.swift */,
 				65AE125E2C3AC6E100E721D4 /* FolderView.swift */,
 				6505643C2CA9892D009FFFB9 /* GridFilesView.swift */,

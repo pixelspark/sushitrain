@@ -53,6 +53,8 @@ struct GridFilesView: View {
                             NavigationLink(destination: FileView(file: file, appState: self.appState)) {
                                 Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
                             }
+                            
+                            ItemSelectToggleView(file: file)
                         }
                     }))
                 }

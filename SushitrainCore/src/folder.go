@@ -729,7 +729,7 @@ func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string) error
 		return err
 	}
 
-	Logger.Infoln("RRC subdirectory at path", path)
+	Logger.Infoln("RemoveRedundantChildren subdirectory at path", path)
 	toDelete := make([]string, 0)
 
 	err = ffs.Walk(path, func(childPath string, info fs.FileInfo, err error) error {
@@ -737,7 +737,6 @@ func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string) error
 			return err
 		}
 		ignoreStatus := ignores.Match(childPath)
-		Logger.Infoln("- ", childPath, err, info.IsDir(), ignoreStatus)
 		if ignoreStatus.IsIgnored() {
 			// Check remote availability
 			entry, err := fld.GetFileInformation(childPath)
@@ -753,7 +752,7 @@ func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string) error
 			if lst.Count() > 0 {
 				toDelete = append(toDelete, childPath)
 			} else {
-				Logger.Infoln("File is not available elsewhere, skip it")
+				// File is not available elsewhere, skip it
 			}
 		}
 		return nil

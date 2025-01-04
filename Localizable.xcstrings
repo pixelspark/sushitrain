@@ -4066,6 +4066,40 @@
         }
       }
     },
+    "Could not change synchronization setting" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisierungseinstellung konnte nicht geändert werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo cambiar la configuración de sincronización"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile modificare l'impostazione di sincronizzazione"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisatie-instelling kon niet worden gewijzigd"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося змінити налаштування синхронізації"
+          }
+        }
+      }
+    },
     "Could not download file" : {
       "localizations" : {
         "de" : {
@@ -15360,6 +15394,40 @@
         }
       }
     },
+    "The folder is not configured for selective synchronization." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Ordner ist nicht für die selektive Synchronisierung konfiguriert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La carpeta no está configurada para la sincronización selectiva."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cartella non è configurata per la sincronizzazione selettiva."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De map is niet geconfigureerd voor selectieve synchronisatie."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Папка не налаштована для вибіркової синхронізації."
+          }
+        }
+      }
+    },
     "The folder to list files in" : {
       "localizations" : {
         "de" : {
@@ -15696,6 +15764,142 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Підкаталог для повторного сканування (залиште порожнім, щоб повторно сканувати всю папку)"
+          }
+        }
+      }
+    },
+    "The synchronization setting for symlinks cannot be changed." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Synchronisationseinstellung für Symlinks kann nicht geändert werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La configuración de sincronización para los enlaces simbólicos no se puede cambiar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'impostazione di sincronizzazione per i symlink non può essere modificata."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De synchronisatie-instelling voor symlinks kan niet worden gewijzigd."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Налаштування синхронізації для символічних посилань неможливо змінити."
+          }
+        }
+      }
+    },
+    "The synchronization setting for this item cannot be changed, as the local copy is the only copy currently available." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Synchronisierungseinstellung für diesen Artikel kann nicht geändert werden, da die lokale Kopie derzeit die einzige verfügbare Kopie ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La configuración de sincronización para este elemento no se puede cambiar, ya que la copia local es la única copia disponible actualmente."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'impostazione di sincronizzazione per questo elemento non può essere modificata, in quanto la copia locale è l'unica copia attualmente disponibile."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De synchronisatie-instelling voor dit item kan niet worden gewijzigd, omdat de lokale kopie de enige beschikbare kopie is."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Налаштування синхронізації для цього елемента не можна змінити, оскільки локальна копія є єдиною доступною копією."
+          }
+        }
+      }
+    },
+    "The synchronization setting for this item cannot be changed, because it is inside a subdirectory that is configured to be kept on this device." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Synchronisierungseinstellung für dieses Element kann nicht geändert werden, da es sich in einem Unterverzeichnis befindet, das so konfiguriert ist, dass es auf diesem Gerät gespeichert bleibt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La configuración de sincronización para este elemento no se puede cambiar, porque está dentro de un subdirectorio que está configurado para permanecer en este dispositivo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'impostazione di sincronizzazione per questo elemento non può essere modificata, perché si trova in una sottodirectory configurata per rimanere su questo dispositivo."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De synchronisatie-instelling voor dit item kan niet worden gewijzigd, omdat het zich in een submap bevindt die is geconfigureerd om op dit apparaat te worden bewaard."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Налаштування синхронізації для цього елемента не можна змінити, оскільки він знаходиться в підкаталозі, який налаштований на збереження на цьому пристрої."
+          }
+        }
+      }
+    },
+    "The synchronization setting for this item could not be changed: %@." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Synchronisierungseinstellung für dieses Element konnte nicht geändert werden: %@."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo cambiar la configuración de sincronización para este elemento: %@."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non è stato possibile modificare l'impostazione di sincronizzazione per questo elemento: %@."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De synchronisatie-instelling voor dit item kon niet worden gewijzigd: %@."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Налаштування синхронізації для цього елемента не вдалося змінити: %@."
           }
         }
       }
@@ -17408,6 +17612,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Очікування завершення"
+          }
+        }
+      }
+    },
+    "Wait until the folder is done synchronizing and try again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Warten Sie, bis der Ordner mit der Synchronisierung fertig ist, und versuchen Sie es erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espera a que la carpeta termine de sincronizarse e intenta de nuevo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attendere che la cartella abbia terminato la sincronizzazione e riprovare."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wacht tot de map klaar is met synchroniseren en probeer het opnieuw."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дочекайтеся, поки папка завершить синхронізацію, і спробуйте ще раз."
           }
         }
       }
