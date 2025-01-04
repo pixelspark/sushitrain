@@ -658,6 +658,15 @@ struct GeneralSettingsView: View {
                 }
             }
             
+            Section {
+                Picker("Folder access from menu", selection: appState.$menuFolderAction) {
+                    Text("Do not show folders").tag(MenuFolderAction.hide)
+                    Text("Open in Finder").tag(MenuFolderAction.finder)
+                    Text("Open in the app").tag(MenuFolderAction.browser)
+                    Text("Open in Finder, except selectively synced folders").tag(MenuFolderAction.finderExceptSelective)
+                }.disabled(!hideInDock)
+            }
+            
             Section("View settings") {
                 ViewSettingsView(appState: appState)
             }

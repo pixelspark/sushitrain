@@ -24,6 +24,15 @@ enum FolderMetric: String {
     case localPercentage = "localPercentage"
 }
 
+#if os(macOS)
+    enum MenuFolderAction: String, Hashable, Equatable {
+        case hide = "hide" // Do not show folder shortcuts in menu
+        case finder = "finder" // Always open the folder in the Finder
+        case browser = "browser" // Always open the folder in the app
+        case finderExceptSelective = "finderExceptSelective" // Open the folder in the Finder except when it is selectively synced
+    }
+#endif
+
 @MainActor class AppState: ObservableObject {
     var client: SushitrainClient
     private let documentsDirectory: URL
@@ -64,6 +73,10 @@ enum FolderMetric: String {
     @AppStorage("tapFileToPreview") var tapFileToPreview: Bool = false
     @AppStorage("cacheThumbnailsToDisk") var cacheThumbnailsToDisk: Bool = true
     @AppStorage("cacheThumbnailsToFolderID") var cacheThumbnailsToFolderID: String = ""
+    
+    #if os(macOS)
+        @AppStorage("menuFolderAction") var menuFolderAction: MenuFolderAction = .finderExceptSelective
+    #endif
     
     static private var defaultIgnoredExtraneousFiles = [".DS_Store", "Thumbs.db", "desktop.ini", ".Trashes", ".Spotlight-V100"]
     

@@ -17,7 +17,7 @@ struct ContentView: View {
     
     @State private var showCustomConfigWarning = false
     @State private var showOnboarding = false
-    @State private var route: Route? = .start
+    @State var route: Route? = .start
     @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
     
     #if os(iOS)

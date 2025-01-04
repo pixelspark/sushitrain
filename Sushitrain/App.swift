@@ -169,6 +169,12 @@ struct SushitrainApp: App {
     }
     
     var body: some Scene {
+        #if os(macOS)
+            WindowGroup(id: "folder", for: String.self) { [appState] folderID in
+                ContentView(appState: appState, route: .folder(folderID: folderID.wrappedValue))
+            }
+        #endif
+        
         WindowGroup(id: "main") { [appState] in
             ContentView(appState: appState)
             #if os(iOS)
@@ -307,6 +313,48 @@ struct MenuBarExtraView: Scene {
             Button("Open file browser...") {
                 openWindow(id: "singleMain")
                 NSApplication.shared.activate()
+            }
+            
+            // List of folders
+            if appState.menuFolderAction != .hide {
+                let folders = appState.folders().filter { $0.isHidden == false }.sorted()
+                if !folders.isEmpty {
+                    Divider()
+                    ForEach(folders, id: \.folderID) { fld in
+                        Button("\(fld.displayName)") {
+                            switch appState.menuFolderAction {
+                            case .hide:
+                                break; // Should not be reached
+                                
+                            case .finder:
+                                if let lnu = fld.localNativeURL {
+                                    openURLInSystemFilesApp(url: lnu)
+                                }
+                                else {
+                                    openWindow(id: "folder", value: fld.folderID)
+                                    NSApplication.shared.activate()
+                                }
+                                
+                            case .browser:
+                                openWindow(id: "folder", value: fld.folderID)
+                                NSApplication.shared.activate()
+                                
+                            case .finderExceptSelective:
+                                if fld.isSelective() {
+                                    openWindow(id: "folder", value: fld.folderID)
+                                    NSApplication.shared.activate()
+                                }
+                                else if let lnu = fld.localNativeURL {
+                                    openURLInSystemFilesApp(url: lnu)
+                                }
+                                else {
+                                    openWindow(id: "folder", value: fld.folderID)
+                                    NSApplication.shared.activate()
+                                }
+                            }
+                        }
+                    }
+                }
             }
             
             Divider()
