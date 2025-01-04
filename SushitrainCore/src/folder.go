@@ -723,7 +723,17 @@ func deleteEmptyParentDirectories(ffs fs.Filesystem, path string) {
 	}
 }
 
-func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string) error {
+// Remove empty, ignored directories that exist locally in selective folders
+func (fld *Folder) RemoveSuperfluousSubdirectories() error {
+	if !fld.IsSelective() {
+		return errors.New("Folder is not selective")
+	}
+
+	ffs := fld.folderConfiguration().Filesystem(nil)
+	return fld.removeRedundantChildren(ffs, "", true)
+}
+
+func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string, directoriesOnly bool) error {
 	ignores, err := fld.loadIgnores()
 	if err != nil {
 		return err
@@ -736,23 +746,42 @@ func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string) error
 		if err != nil {
 			return err
 		}
-		ignoreStatus := ignores.Match(childPath)
-		if ignoreStatus.IsIgnored() {
-			// Check remote availability
-			entry, err := fld.GetFileInformation(childPath)
-			if err != nil {
-				return err
-			}
 
-			lst, err := entry.PeersWithFullCopy()
-			if err != nil {
-				return err
-			}
+		Logger.Infoln("-", childPath)
 
-			if lst.Count() > 0 {
-				toDelete = append(toDelete, childPath)
-			} else {
-				// File is not available elsewhere, skip it
+		// Leave internal files alone
+		if fs.IsInternal(childPath) || childPath == ignoreFileName {
+			Logger.Infoln("- Skip, is internal:", childPath)
+			return nil
+		}
+
+		if !directoriesOnly || info.IsDir() {
+			ignoreStatus := ignores.Match(childPath)
+			if ignoreStatus.IsIgnored() {
+				// Check remote availability
+				entry, err := fld.GetFileInformation(childPath)
+				if err != nil {
+					return err
+				}
+
+				if entry == nil || entry.IsDeleted() {
+					// File is not known in the global index at all. Leave it in place except when it is an empty directory
+					if info.IsDir() {
+						toDelete = append(toDelete, childPath)
+					}
+					return nil
+				}
+
+				lst, err := entry.PeersWithFullCopy()
+				if err != nil {
+					return err
+				}
+
+				if lst.Count() > 0 {
+					toDelete = append(toDelete, childPath)
+				} else {
+					// File is not available elsewhere, skip it
+				}
 			}
 		}
 		return nil
@@ -766,21 +795,13 @@ func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string) error
 	sort.Strings(toDelete)
 	slices.Reverse(toDelete)
 
-	delErrs := make([]error, 0)
-	for _, delPath := range toDelete {
-		lerr := ffs.Remove(delPath)
-		if lerr != nil {
-			Logger.Warnln("Error deleting", delPath, lerr)
-			delErrs = append(delErrs, lerr)
-		}
+	Logger.Infoln("- Delete:", toDelete)
 
+	for _, delPath := range toDelete {
+		// Swallow delete errors. Parent directories may have been removed before we get to them
+		_ = ffs.Remove(delPath)
 		deleteEmptyParentDirectories(ffs, delPath)
 	}
-
-	if len(delErrs) > 0 {
-		return errors.Join(delErrs...)
-	}
-
 	return nil
 }
 
@@ -796,7 +817,7 @@ func (fld *Folder) deleteLocalFileAndRedundantChildren(path string) error {
 
 	// Try to recursively remove children that are ignored and available on other peers
 	if stat.IsDir() {
-		err = fld.removeRedundantChildren(ffs, path)
+		err = fld.removeRedundantChildren(ffs, path, false)
 		if err != nil {
 			return err
 		}

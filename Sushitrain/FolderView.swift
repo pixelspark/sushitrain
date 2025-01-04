@@ -359,6 +359,7 @@ struct FolderView: View {
     var folder: SushitrainFolder
     @ObservedObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
+    @State private var isWorking = false
     @State private var showError = false
     @State private var errorText = ""
     @State private var showRemoveConfirmation = false
@@ -496,6 +497,26 @@ struct FolderView: View {
                             }
                         }
                     }
+                    
+                    if folder.isSelective() {
+                        Button("Remove unsynchronized empty subdirectories", systemImage: "eraser", role: .destructive) {
+                            Task {
+                                do {
+                                    self.isWorking = true
+                                    try folder.removeSuperfluousSubdirectories()
+                                }
+                                catch {
+                                    showError = true
+                                    errorText = error.localizedDescription
+                                }
+                                self.isWorking = false
+                            }
+                        }
+                        #if os(macOS)
+                            .buttonStyle(.link)
+                        #endif
+                        .foregroundColor(.red)
+                    }
                 }
                 
                 #if os(iOS)
@@ -556,6 +577,7 @@ struct FolderView: View {
         #if os(macOS)
             .formStyle(.grouped)
         #endif
+        .disabled(isWorking)
         .navigationTitle(folder.displayName)
         .alert(isPresented: $showError, content: {
             Alert(title: Text("An error occured"), message: Text(errorText), dismissButton: .default(Text("OK")))
