@@ -218,11 +218,12 @@ func (fld *Folder) listEntries(prefix string, directories bool, recurse bool) ([
 	if fld.client.app == nil {
 		return nil, nil
 	}
+
 	if fld.client.app.Internals == nil {
 		return nil, nil
 	}
 
-	levels := 1
+	levels := 0
 	if recurse {
 		levels = -1
 	}
