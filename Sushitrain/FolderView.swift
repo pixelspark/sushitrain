@@ -590,7 +590,7 @@ struct FolderView: View {
         .alert(item: $showAlert) { alert in
             switch alert {
             case .error(let err):
-                Alert(title: Text("An error occured"), message: Text(err), dismissButton: .default(Text("OK")))
+                Alert(title: Text("An error occurred"), message: Text(err), dismissButton: .default(Text("OK")))
             case .removeSuperfluousCompleted:
                 Alert(title: Text("Unsynchronized empty subdirectories removed"), message: Text("Subdirectories that were empty and had no files in them were removed from this device."), dismissButton: .default(Text("OK")))
                 

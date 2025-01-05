@@ -171,7 +171,7 @@ struct SushitrainApp: App {
     var body: some Scene {
         #if os(macOS)
             WindowGroup(id: "folder", for: String.self) { [appState] folderID in
-                ContentView(appState: appState, route: .folder(folderID: folderID.wrappedValue))
+                ContentView(appState: appState, route: folderID.wrappedValue == nil ? .start : .folder(folderID: folderID.wrappedValue))
             }
         #endif
         

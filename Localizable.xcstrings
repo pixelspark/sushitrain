@@ -2026,7 +2026,7 @@
         }
       }
     },
-    "An error occured" : {
+    "An error has occurred" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2037,7 +2037,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Se produjo un error"
+            "value" : "Se ha producido un error"
           }
         },
         "it" : {
@@ -2083,7 +2083,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Er is een fout opgetreden"
+            "value" : "Er is iets misgegaan"
           }
         },
         "uk" : {
@@ -4882,6 +4882,40 @@
         }
       }
     },
+    "Dismiss" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwerfen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descartar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annulla"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afwijzen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відхилити"
+          }
+        }
+      }
+    },
     "Display name" : {
       "localizations" : {
         "de" : {
@@ -4980,6 +5014,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Не показувати папки"
+          }
+        }
+      }
+    },
+    "Do not synchronize with this device" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht mit diesem Gerät synchronisieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No sincronizar con este dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non sincronizzare con questo dispositivo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niet synchroniseren met dit apparaat"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не синхронізувати з цим пристроєм"
           }
         }
       }

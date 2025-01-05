@@ -143,14 +143,6 @@ struct ContentView: View {
                 OnboardingView().interactiveDismissDisabled()
             }
         )
-        .alert(
-            isPresented: $appState.alertShown,
-            content: {
-                Alert(
-                    title: Text("Error"), message: Text(appState.alertMessage),
-                    dismissButton: .default(Text("OK")))
-            }
-        )
         #if os(iOS)
             .onChange(of: QuickActionService.shared.action) { _, newAction in
                 if case .search(for: let searchFor) = newAction {

@@ -54,7 +54,7 @@ struct GridFilesView: View {
                                 Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
                             }
                             
-                            ItemSelectToggleView(file: file)
+                            ItemSelectToggleView(appState: appState, file: file)
                         }
                     }))
                 }

@@ -97,7 +97,7 @@ struct FileEntryLink<Content: View>: View {
                     }
                 #endif
 
-                ItemSelectToggleView(file: entry)
+                ItemSelectToggleView(appState: appState, file: entry)
 
                 #if os(macOS)
                     Button("Copy", systemImage: "document.on.document") {
@@ -150,7 +150,7 @@ private struct EntryView: View {
     static let remoteFileOpacity = 0.7
 
     private func entryView(entry: SushitrainEntry) -> some View {
-        Group {
+        ItemSelectSwipeView(file: entry) {
             if self.showThumbnail {
                 // Thubmnail view shows thumbnail image next to the file name
                 HStack(alignment: .center, spacing: 9.0) {
@@ -371,21 +371,23 @@ private struct BrowserListView: View {
                                             prefix: "\(prefix)\(fileName)/"
                                         )
                                     ) {
-                                        // Subdirectory name
-                                        HStack(spacing: 9.0) {
-                                            Image(systemName: subDirEntry.systemImage)
-                                                .foregroundStyle(
-                                                    subDirEntry.color ?? Color.accentColor)
-                                            Text(subDirEntry.fileName())
-                                                .multilineTextAlignment(.leading)
-                                                .foregroundStyle(Color.primary)
-                                                .opacity(
-                                                    subDirEntry.isLocallyPresent()
+                                        ItemSelectSwipeView(file: subDirEntry) {
+                                            // Subdirectory name
+                                            HStack(spacing: 9.0) {
+                                                Image(systemName: subDirEntry.systemImage)
+                                                    .foregroundStyle(
+                                                        subDirEntry.color ?? Color.accentColor)
+                                                Text(subDirEntry.fileName())
+                                                    .multilineTextAlignment(.leading)
+                                                    .foregroundStyle(Color.primary)
+                                                    .opacity(
+                                                        subDirEntry.isLocallyPresent()
                                                         ? 1.0 : EntryView.remoteFileOpacity)
-                                            Spacer()
+                                                Spacer()
+                                            }
+                                            .frame(maxWidth: .infinity)
+                                            .padding(0)
                                         }
-                                        .frame(maxWidth: .infinity)
-                                        .padding(0)
                                     }
                                     .contextMenu(
                                         ContextMenu(menuItems: {
@@ -401,7 +403,7 @@ private struct BrowserListView: View {
                                                         systemImage: "folder.badge.gearshape")
                                                 }
                                                 
-                                                ItemSelectToggleView(file: file)
+                                                ItemSelectToggleView(appState: appState, file: file)
                                             }
                                         }))
                                 }
@@ -879,7 +881,7 @@ struct BrowserView: View {
                         Label("Subdirectory properties...", systemImage: entry.systemImage)
                     }
                     
-                    ItemSelectToggleView(file: entry)
+                    ItemSelectToggleView(appState: appState, file: entry)
                 }
             }
             .onDrop(
@@ -1015,74 +1017,121 @@ extension SushitrainFolder {
     }
 }
 
-struct ItemSelectToggleView: View {
-    let file: SushitrainEntry
-    @State private var disabled = true
-    @State private var errorMessage: String? = nil
-
-    init(file: SushitrainEntry) {
-        self.file = file
-    }
-    
-    private var isAvailable: Bool {
-        if let folder = file.folder {
+// Shared functionality for swipe and toggle selection views
+fileprivate extension SushitrainEntry {
+    var isSelectionToggleAvailable: Bool {
+        if let folder = self.folder {
             return folder.isSelective()
         }
         return false
     }
     
     // First check to see if this action should be disabled
-    private var isShallowDisabled: Bool {
-        if let folder = file.folder {
-            return !folder.isSelective() || file.isSymlink() || !folder.isIdleOrSyncing
+    var isSelectionToggleShallowDisabled: Bool {
+        if self.isSymlink() {
+            return true
+        }
+        if let folder = self.folder {
+            return !folder.isSelective() ||  !folder.isIdleOrSyncing
         }
         return true
     }
     
-    private func setExplicitlySelected(s: Bool) async {
+    // Returns error message on fail
+    func setSelectedFromToggle(s: Bool) async -> String? {
         do {
-            errorMessage = nil
-            if !self.isShallowDisabled {
+            if !self.isSelectionToggleShallowDisabled {
                 // Check some additional things
-                let isExplicitlySelected = file.isExplicitlySelected()
-                if file.isSelected() && !isExplicitlySelected {
+                let isExplicitlySelected = self.isExplicitlySelected()
+                if self.isSelected() && !isExplicitlySelected {
                     // File is implicitly selected, do not allow changes
-                    errorMessage = String(localized: "The synchronization setting for this item cannot be changed, because it is inside a subdirectory that is configured to be kept on this device.")
-                    return
+                    return String(localized: "The synchronization setting for this item cannot be changed, because it is inside a subdirectory that is configured to be kept on this device.")
                 }
                 
                 if !s {
-                    let isLocalOnlyCopy = try await file.isLocalOnlyCopy()
+                    let isLocalOnlyCopy = try await self.isLocalOnlyCopy()
                     if isLocalOnlyCopy {
                         // We are the only remaining copy, can't deselect
-                        errorMessage = String(localized: "The synchronization setting for this item cannot be changed, as the local copy is the only copy currently available.")
-                        return
+                        return String(localized: "The synchronization setting for this item cannot be changed, as the local copy is the only copy currently available.")
                     }
                 }
                 
                 // We can change the selection status
-                try file.setExplicitlySelected(s)
+                try self.setExplicitlySelected(s)
             }
             else {
-                if file.isSymlink() {
-                    errorMessage = String(localized: "The synchronization setting for symlinks cannot be changed.")
+                if self.isSymlink() {
+                    return String(localized: "The synchronization setting for symlinks cannot be changed.")
                 }
-                else if let f = file.folder, !f.isSelective() {
-                    errorMessage = String(localized: "The folder is not configured for selective synchronization.")
+                else if let f = self.folder, !f.isSelective() {
+                    return String(localized: "The folder is not configured for selective synchronization.")
                 }
                 else {
-                    errorMessage = String(localized: "Wait until the folder is done synchronizing and try again.")
+                    return String(localized: "Wait until the folder is done synchronizing and try again.")
                 }
                 
             }
         }
         catch {
-            errorMessage = String(localized: "The synchronization setting for this item could not be changed: \(error.localizedDescription).")
+            return String(localized: "The synchronization setting for this item could not be changed: \(error.localizedDescription).")
+        }
+        
+        return nil
+    }
+}
+
+fileprivate struct ItemSelectSwipeView<Content: View>: View {
+    let file: SushitrainEntry
+    @ViewBuilder var content: Content
+    
+    @State private var errorMessage: String? = nil
+    
+    var body: some View {
+        if self.file.isSelectionToggleAvailable {
+            self.content
+                .alert(isPresented: Binding(get: {
+                    errorMessage != nil
+                }, set: { s in
+                    errorMessage = s ? errorMessage : nil
+                })) {
+                    Alert(title: Text("Could not change synchronization setting"), message: Text(errorMessage ?? ""), dismissButton: .default(Text("OK")))
+                }
+                .swipeActions(allowsFullSwipe: false) {
+                    if file.isExplicitlySelected() || file.isSelected() {
+                        // Unselect button
+                        Button {
+                            Task {
+                                self.errorMessage = await self.file.setSelectedFromToggle(s: false)
+                            }
+                        } label: {
+                            Label("Do not synchronize with this device", systemImage: "pin.slash")
+                        }
+                        .tint(.red)
+                    }
+                    else {
+                        // Select button
+                        Button {
+                            Task {
+                                self.errorMessage = await self.file.setSelectedFromToggle(s: true)
+                            }
+                        } label: {
+                            Label("Synchronize with this device", systemImage: "pin")
+                        }
+                    }
+                }
+        }
+        else {
+            self.content
         }
     }
+}
+
+struct ItemSelectToggleView: View {
+    let appState: AppState
+    let file: SushitrainEntry
 
     var body: some View {
-        if isAvailable {
+        if self.file.isSelectionToggleAvailable {
             Toggle(
                 "Synchronize with this device", systemImage: "pin",
                 isOn: Binding(
@@ -1091,18 +1140,14 @@ struct ItemSelectToggleView: View {
                     },
                     set: { s in
                         Task {
-                            await self.setExplicitlySelected(s: s)
+                            if let em = await self.file.setSelectedFromToggle(s: s) {
+                                // We can't use our own alert since by the time we get here, the context menu is gone
+                                appState.alert(message: em)
+                            }
                         }
                     })
             )
-            .disabled(isShallowDisabled)
-            .alert(isPresented: Binding(get: {
-                errorMessage != nil
-            }, set: { s in
-                errorMessage = s ? errorMessage : nil
-            })) {
-                Alert(title: Text("Could not change synchronization setting"), message: Text(errorMessage ?? ""), dismissButton: .default(Text("OK")))
-            }
+            .disabled(self.file.isSelectionToggleShallowDisabled)
         }
     }
 }

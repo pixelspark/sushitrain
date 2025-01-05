@@ -38,8 +38,6 @@ enum FolderMetric: String {
     private let documentsDirectory: URL
     private let configDirectory: URL
     
-    @Published var alertMessage: String = ""
-    @Published var alertShown: Bool = false
     @Published var localDeviceID: String = ""
     @Published var eventCounter: Int = 0
     @Published var discoveredDevices: [String: [String]] = [:]
@@ -199,8 +197,24 @@ enum FolderMetric: String {
     
     @MainActor
     func alert(message: String) {
-        self.alertShown = true;
-        self.alertMessage = message;
+        #if os(macOS)
+            let nsa = NSAlert()
+            nsa.messageText = message
+            nsa.runModal()
+        #else
+            // Error message may end up on the wrong window on the iPad
+            if let twnd = UIApplication
+                .shared
+                .connectedScenes
+                .flatMap({ ($0 as? UIWindowScene)?.windows ?? [] })
+                .last(where: { $0.isKeyWindow }) {
+                if let trc = twnd.rootViewController {
+                    let uac = UIAlertController(title: String(localized: "An error has occurred"), message: message, preferredStyle: .alert)
+                    uac.addAction(UIAlertAction(title: String(localized: "Dismiss"), style: .default))
+                    trc.present(uac, animated: true)
+                }
+            }
+        #endif
     }
     
     @MainActor
