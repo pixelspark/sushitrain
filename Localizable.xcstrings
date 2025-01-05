@@ -14272,6 +14272,40 @@
         }
       }
     },
+    "Subdirectories that were empty and had no files in them were removed from this device." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unterverzeichnisse, die leer waren und keine Dateien enthielten, wurden von diesem Gerät entfernt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los subdirectorios que estaban vacíos y no contenían archivos fueron eliminados de este dispositivo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le sottodirectory che erano vuote e non contenevano file sono state rimosse da questo dispositivo."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subdirectories die leeg waren en geen bestanden bevatte, zijn van dit apparaat verwijderd."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Порожні підкаталоги без файлів були видалені з цього пристрою."
+          }
+        }
+      }
+    },
     "Subdirectory" : {
       "localizations" : {
         "de" : {
@@ -17238,6 +17272,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Від'єднати папку"
+          }
+        }
+      }
+    },
+    "Unsynchronized empty subdirectories removed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unsynchronisierte leere Unterverzeichnisse entfernt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subdirectorios vacíos no sincronizados eliminados"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sottodirectory vuote non sincronizzate rimosse"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niet-gesynchroniseerde lege submappen verwijderd"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видалено несинхронізовані порожні підкаталоги"
           }
         }
       }

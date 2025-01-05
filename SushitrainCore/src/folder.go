@@ -733,7 +733,7 @@ func (fld *Folder) RemoveSuperfluousSubdirectories() error {
 	return fld.removeRedundantChildren(ffs, "", true)
 }
 
-func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string, directoriesOnly bool) error {
+func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string, directoriesAndAlwaysIgnoredOnly bool) error {
 	ignores, err := fld.loadIgnores()
 	if err != nil {
 		return err
@@ -755,7 +755,16 @@ func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string, direc
 			return nil
 		}
 
-		if !directoriesOnly || info.IsDir() {
+		// Delete items that match the 'extraneous ignore' list (used to ignore .DS_Store and similar)
+		// *also* when directoriesAndAlwaysIgnoredOnly is set!
+		if fld.client.isExtraneousIgnored(filepath.Base(childPath)) {
+			Logger.Infoln("Ignoring always ignored extraneous file:", childPath, filepath.Base(childPath))
+			toDelete = append(toDelete, childPath)
+			return nil
+		}
+
+		if !directoriesAndAlwaysIgnoredOnly || info.IsDir() {
+			// Check file ignore status
 			ignoreStatus := ignores.Match(childPath)
 			if ignoreStatus.IsIgnored() {
 				// Check remote availability

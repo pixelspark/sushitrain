@@ -360,13 +360,24 @@ struct FolderView: View {
     @ObservedObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
     @State private var isWorking = false
-    @State private var showError = false
-    @State private var errorText = ""
+    @State private var showAlert: ShowAlert? = nil
     @State private var showRemoveConfirmation = false
     @State private var showUnlinkConfirmation = false
     @State private var showGenerateThumbnails = false
     @State private var showGenerateThumbnailsConfirm = false
     @State private var advancedExpanded = false
+    
+    private enum ShowAlert: Identifiable {
+        case error(String)
+        case removeSuperfluousCompleted
+        
+        var id: String {
+            switch self {
+            case .error(let e): return e
+            case .removeSuperfluousCompleted: return "removeSuperfluousCompleted"
+            }
+        }
+    }
     
     var possiblePeers: [SushitrainPeer] {
         get {
@@ -435,8 +446,7 @@ struct FolderView: View {
                             try folder.rescan()
                         }
                         catch let error {
-                            showError = true
-                            errorText = error.localizedDescription
+                            self.showAlert = .error(error.localizedDescription)
                         }
                     }
                     #if os(macOS)
@@ -469,8 +479,7 @@ struct FolderView: View {
                                 try folder.unlinkAndRemoveBookmark()
                             }
                             catch let error {
-                                showError = true
-                                errorText = error.localizedDescription
+                                self.showAlert = .error(error.localizedDescription)
                             }
                         }
                     }
@@ -491,8 +500,7 @@ struct FolderView: View {
                                     try folder.removeAndRemoveBookmark()
                                 }
                                 catch let error {
-                                    showError = true
-                                    errorText = error.localizedDescription
+                                    self.showAlert = .error(error.localizedDescription)
                                 }
                             }
                         }
@@ -506,16 +514,17 @@ struct FolderView: View {
                                     try folder.removeSuperfluousSubdirectories()
                                 }
                                 catch {
-                                    showError = true
-                                    errorText = error.localizedDescription
+                                    self.showAlert = .error(error.localizedDescription)
                                 }
                                 self.isWorking = false
+                                self.showAlert = .removeSuperfluousCompleted
                             }
                         }
                         #if os(macOS)
                             .buttonStyle(.link)
                         #endif
                         .foregroundColor(.red)
+                        .disabled(isWorking)
                     }
                 }
                 
@@ -577,11 +586,16 @@ struct FolderView: View {
         #if os(macOS)
             .formStyle(.grouped)
         #endif
-        .disabled(isWorking)
         .navigationTitle(folder.displayName)
-        .alert(isPresented: $showError, content: {
-            Alert(title: Text("An error occured"), message: Text(errorText), dismissButton: .default(Text("OK")))
-        })
+        .alert(item: $showAlert) { alert in
+            switch alert {
+            case .error(let err):
+                Alert(title: Text("An error occured"), message: Text(err), dismissButton: .default(Text("OK")))
+            case .removeSuperfluousCompleted:
+                Alert(title: Text("Unsynchronized empty subdirectories removed"), message: Text("Subdirectories that were empty and had no files in them were removed from this device."), dismissButton: .default(Text("OK")))
+                
+            }
+        }
         .sheet(isPresented: $showGenerateThumbnails) {
             NavigationStack {
                 FolderGenerateThumbnailsView(appState: self.appState, isShown: $showGenerateThumbnails, folder: self.folder)
