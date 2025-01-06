@@ -909,7 +909,7 @@ struct BrowserView: View {
                 })
         ) {
             Alert(
-                title: Text("An error occurred"), message: Text(self.error!.localizedDescription),
+                title: Text("An error occurred"), message: self.error == nil ? nil : Text(self.error!.localizedDescription),
                 dismissButton: .default(Text("OK")))
         }
     }

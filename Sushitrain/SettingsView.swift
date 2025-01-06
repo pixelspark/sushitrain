@@ -20,16 +20,20 @@ struct TotalStatisticsView: View {
         
         Form {
             if let stats = stats {
-                Section("All devices") {
-                    Text("Number of files").badge(stats.global!.files)
-                    Text("Number of directories").badge(stats.global!.directories)
-                    Text("File size").badge(formatter.string(fromByteCount: stats.global!.bytes))
+                if let global = stats.global {
+                    Section("All devices") {
+                        Text("Number of files").badge(global.files)
+                        Text("Number of directories").badge(global.directories)
+                        Text("File size").badge(formatter.string(fromByteCount: global.bytes))
+                    }
                 }
                 
-                Section("This device") {
-                    Text("Number of files").badge(stats.local!.files)
-                    Text("Number of directories").badge(stats.local!.directories)
-                    Text("File size").badge(formatter.string(fromByteCount: stats.local!.bytes))
+                if let local = stats.local {
+                    Section("This device") {
+                        Text("Number of files").badge(local.files)
+                        Text("Number of directories").badge(local.directories)
+                        Text("File size").badge(formatter.string(fromByteCount: local.bytes))
+                    }
                 }
             }
         }

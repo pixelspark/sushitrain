@@ -82,11 +82,17 @@ struct FileQuickLookView: View {
         }))
         .navigationTitle(file.fileName())
         .task {
-            let tempDir = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory:true)
-            let downloadsDir = tempDir.appending(component: "Downloads-\(ProcessInfo().globallyUniqueString)")
-            try! FileManager.default.createDirectory(at: downloadsDir, withIntermediateDirectories: true)
-            self.filePath = downloadsDir.appending(component: file.fileName())
-            self.file.download(filePath!.path(percentEncoded: false), delegate: self.downloadOperation)
+            do {
+                let tempDir = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory:true)
+                let downloadsDir = tempDir.appending(component: "Downloads-\(ProcessInfo().globallyUniqueString)")
+                try FileManager.default.createDirectory(at: downloadsDir, withIntermediateDirectories: true)
+                let filePath = downloadsDir.appending(component: file.fileName())
+                self.filePath = filePath
+                self.file.download(filePath.path(percentEncoded: false), delegate: self.downloadOperation)
+            }
+            catch {
+                downloadOperation.error = error.localizedDescription
+            }
         }
         .onDisappear {
             self.downloadOperation.cancel()

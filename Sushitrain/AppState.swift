@@ -230,7 +230,7 @@ enum FolderMetric: String {
     }
     
     func folders() -> [SushitrainFolder] {
-        let folderIDs = self.client.folders()!.asArray()
+        let folderIDs = self.client.folders()?.asArray() ?? []
         var folderInfos: [SushitrainFolder] = []
         for fid in folderIDs {
             let folderInfo = self.client.folder(withID: fid)!
@@ -241,7 +241,7 @@ enum FolderMetric: String {
     
     @MainActor
     func peerIDs() -> [String] {
-        return self.client.peers()!.asArray()
+        return self.client.peers()?.asArray() ?? []
     }
     
     @MainActor

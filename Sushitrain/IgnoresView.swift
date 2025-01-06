@@ -111,7 +111,7 @@ struct IgnoresView: View {
             self.write()
         }
         .alert(isPresented: Binding.constant(error != nil)) {
-            Alert(title: Text("Error loading ignore settings"), message: Text(error!.localizedDescription), dismissButton: .default(Text("OK")) {
+            Alert(title: Text("Error loading ignore settings"), message: error != nil ? Text(error!.localizedDescription) : nil, dismissButton: .default(Text("OK")) {
                 self.error = nil
             })
         }

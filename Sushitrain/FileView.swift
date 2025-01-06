@@ -41,7 +41,7 @@ struct FileView: View {
     }
     
     var localIsOnlyCopy: Bool {
-        return file.isLocallyPresent() && (self.fullyAvailableOnDevices == nil || self.fullyAvailableOnDevices!.isEmpty)
+        return file.isLocallyPresent() && (self.fullyAvailableOnDevices == nil || (self.fullyAvailableOnDevices ?? []).isEmpty)
     }
     
     var body: some View {
@@ -110,7 +110,7 @@ struct FileView: View {
                             if self.folder.connectedPeerCount() == 0 {
                                 Text("When you select this file, it will not become immediately available on this device, because there are no other devices connected to download the file from.")
                             }
-                            else if (self.fullyAvailableOnDevices == nil || self.fullyAvailableOnDevices!.isEmpty) {
+                            else if (self.fullyAvailableOnDevices == nil || (self.fullyAvailableOnDevices ?? []).isEmpty) {
                                 Text("When you select this file, it will not become immediately available on this device, because none of the currently connected devices have a full copy of the file that can be downloaded.")
                             }
                         }

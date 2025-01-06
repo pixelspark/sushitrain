@@ -31,22 +31,26 @@ struct FolderStatisticsView: View {
         Form {
             let formatter = ByteCountFormatter()
             if let stats = try? self.folder.statistics() {
-                Section("Full folder") {
-                    // Use .formatted() here because zero is hidden in badges and that looks weird
-                    Text("Number of files").badge(stats.global!.files.formatted())
-                    Text("Number of directories").badge(stats.global!.directories.formatted())
-                    Text("File size").badge(formatter.string(fromByteCount: stats.global!.bytes))
+                if let g = stats.global {
+                    Section("Full folder") {
+                        // Use .formatted() here because zero is hidden in badges and that looks weird
+                        Text("Number of files").badge(g.files.formatted())
+                        Text("Number of directories").badge(g.directories.formatted())
+                        Text("File size").badge(formatter.string(fromByteCount: g.bytes))
+                    }
                 }
                 
                 let totalLocal = Double(stats.global!.bytes)
                 let myPercentage = Int(totalLocal > 0 ? (100.0 * Double(stats.local!.bytes) / totalLocal) : 100)
                 
-                Section {
-                    Text("Number of files").badge(stats.local!.files.formatted())
-                    Text("Number of directories").badge(stats.local!.directories.formatted())
-                    Text("File size").badge(formatter.string(fromByteCount: stats.local!.bytes))
-                } header: {
-                    Text("On this device: \(myPercentage)% of the full folder")
+                if let local = stats.local {
+                    Section {
+                        Text("Number of files").badge(local.files.formatted())
+                        Text("Number of directories").badge(local.directories.formatted())
+                        Text("File size").badge(formatter.string(fromByteCount: local.bytes))
+                    } header: {
+                        Text("On this device: \(myPercentage)% of the full folder")
+                    }
                 }
                 
                 let devices = self.folder.sharedWithDeviceIDs()?.asArray() ?? []
@@ -158,7 +162,8 @@ struct FolderStatusView: View {
     var peerStatusText: String {
         get {
             if self.folder.exists() {
-                return "\(folder.connectedPeerCount())/\(folder.sharedWithDeviceIDs()!.count()-1)"
+                let peerCount = (folder.sharedWithDeviceIDs()?.count() ?? 1) - 1
+                return "\(folder.connectedPeerCount())/\(peerCount)"
             }
             return ""
         }
@@ -198,14 +203,15 @@ struct FolderStatusView: View {
                     if !isSelective {
                         if let statistics = try? folder.statistics(), statistics.global!.bytes > 0 {
                             let formatter = ByteCountFormatter()
-                            let globalBytes = statistics.global!.bytes;
-                            let localBytes = statistics.local!.bytes;
-                            let remainingText = formatter.string(fromByteCount: (globalBytes - localBytes));
-                            ProgressView(value: Double(localBytes) / Double(globalBytes), total: 1.0) {
-                                Label("Synchronizing...", systemImage: "bolt.horizontal.circle")
-                                    .foregroundStyle(.orange)
-                                    .badge(Text(remainingText))
-                            }.tint(.orange)
+                            if let globalBytes = statistics.global?.bytes,
+                               let localBytes = statistics.local?.bytes {
+                                let remainingText = formatter.string(fromByteCount: (globalBytes - localBytes));
+                                ProgressView(value: Double(localBytes) / Double(globalBytes), total: 1.0) {
+                                    Label("Synchronizing...", systemImage: "bolt.horizontal.circle")
+                                        .foregroundStyle(.orange)
+                                        .badge(Text(remainingText))
+                                }.tint(.orange)
+                            }
                         }
                         else {
                             Label("Synchronizing...", systemImage: "bolt.horizontal.circle").foregroundStyle(.orange)

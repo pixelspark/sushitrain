@@ -520,7 +520,12 @@ class PhotoSynchronisation: ObservableObject {
                 if let savedAlbum = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [savedAlbumID], options: nil).firstObject {
                     let assets = PHAsset.fetchAssets(withLocalIdentifiers: assetsSavedSuccessfully.map {$0.localIdentifier}, options: nil)
                     try? await PHPhotoLibrary.shared().performChanges {
-                        PHAssetCollectionChangeRequest(for: savedAlbum)!.addAssets(assets)
+                        if let phac = PHAssetCollectionChangeRequest(for: savedAlbum) {
+                            phac.addAssets(assets)
+                        }
+                        else {
+                            Log.warn("Cannot add asset, PHAssetCollectionChangeRequest is nil!")
+                        }
                     }
                 }
             }
