@@ -33,7 +33,16 @@ This should not show any errors and lead to a built framework in the `build` dir
 Note that the Makefile assumes you installed Go through Homebrew in `/opt/homebrew`. Change accordingly if your environment
 is different.
 
-When the framework is succesfully built, open XCode. First, set up signing (change the 'team ID' in the project settings you a team or developer ID you have access to, then let XCode autoamtically provision certificates for you). Finally, pressing Cmd-B should be all that is needed to build the app.
+When the framework is succesfully built, open XCode and follow the following steps:
+
+1. Remove the `com.apple.developer.device-information.user-assigned-device-name` entitlement from the project configuration
+   for iOS. This entitlement allows the app to set the Syncthing device name to match the device's actual hostname. The
+   entitlement can only be obtained from Apple and for distributed apps only. Without the entitlement, the app will receive
+   `localhost` from iOS as host name and will set that as peer name upon first startup. You can of course change the device
+   name from the settings screen or in the configuration.
+2. Set up signing (change the 'team ID' in the project settings you a team or developer ID you have access to, then let
+   XCode autoamtically provision certificates for you). You may have to change the bundle ID to something else.
+3. Finally, pressing Cmd-B should be all that is needed to build the app.
 
 Note that XCode will, by default, invoke the aforementioned Makefile for the Go framework as part of the build process. In
 development it may be easier to build the framework by hand to be able to easily see any compiler output (a subsequent make
