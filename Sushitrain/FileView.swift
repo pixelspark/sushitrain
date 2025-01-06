@@ -190,15 +190,15 @@ struct FileView: View {
                     if file.isSelected() {
                         // Selective sync uses copy in working dir
                         if file.isLocallyPresent() {
-                            if error == nil {
+                            if error == nil, let localPathActual = localPath {
                                 Section {
                                     Button("View file", systemImage: "eye", action: {
-                                        localItemURL = URL(fileURLWithPath: localPath!)
+                                        localItemURL = URL(fileURLWithPath: localPathActual)
                                     })
                                     #if os(macOS)
                                         .buttonStyle(.link)
                                     #endif
-                                    ShareLink("Share file", item: URL(fileURLWithPath: localPath!))
+                                    ShareLink("Share file", item: URL(fileURLWithPath: localPathActual))
                                     #if os(macOS)
                                         .buttonStyle(.link)
                                     #endif
@@ -206,9 +206,7 @@ struct FileView: View {
                                     #if os(iOS)
                                         // On macOS, this button is in the toolbar; on iOS there is not enough horizontal space
                                         Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
-                                            if let localPathActual = localPath {
-                                                openURLInSystemFilesApp(url: URL(fileURLWithPath: localPathActual))
-                                            }
+                                            openURLInSystemFilesApp(url: URL(fileURLWithPath: localPathActual))
                                         })
                                         .disabled(localPath == nil)
                                     #endif
