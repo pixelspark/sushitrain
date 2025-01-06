@@ -85,7 +85,7 @@ const (
 
 func NewClient(configPath string, filesPath string, saveLog bool) (*Client, error) {
 	// Set version info
-	build.Version = "v1.28.1"
+	build.Version = "v1.29.0"
 	build.Host = "t-shaped.nl"
 	build.User = "sushitrain"
 
@@ -1105,7 +1105,7 @@ func (clt *Client) Search(text string, delegate SearchResultDelegate, maxResults
 		}
 		defer snap.Release()
 
-		snap.WithGlobal(func(f protocol.FileIntf) bool {
+		snap.WithGlobal(func(f protocol.FileInfo) bool {
 			if delegate.IsCancelled() {
 				// This shouild cancel the scan
 				return false
@@ -1124,7 +1124,7 @@ func (clt *Client) Search(text string, delegate SearchResultDelegate, maxResults
 			if gimmeMore && !f.IsDeleted() && strings.Contains(lowerFileName, text) {
 				entry := &Entry{
 					Folder: &folderObject,
-					info:   f.(protocol.FileInfo),
+					info:   f,
 				}
 
 				if err == nil {
