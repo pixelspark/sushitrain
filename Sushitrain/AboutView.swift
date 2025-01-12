@@ -15,6 +15,7 @@ struct AboutView: View {
         Form {
             Section {
                 Text("Synctrain is © 2024, Tommy van der Vorst")
+                Link("End User License Agreement", destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
             }
             
             Section("Open source") {
