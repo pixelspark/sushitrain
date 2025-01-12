@@ -14714,6 +14714,9 @@
         }
       }
     },
+    "Synchronize extended attributes" : {
+
+    },
     "Synchronize for a while" : {
       "localizations" : {
         "de" : {

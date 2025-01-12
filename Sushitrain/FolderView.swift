@@ -551,6 +551,12 @@ struct FolderView: View {
                         } label: {
                             Text("Rescan interval (minutes)")
                         }
+                        
+                        Toggle("Synchronize extended attributes", isOn: Binding(get: {
+                            return folder.syncExtendedAttributes()
+                        }, set: { nv in
+                            try? folder.setSyncExtendedAttributes(nv)
+                        }))
                     }
                 #else
                     // DisclosureGroup is not so nice on macOS
@@ -574,6 +580,12 @@ struct FolderView: View {
                             return folder.isWatcherEnabled()
                         }, set: { nv in
                             try? folder.setWatcherEnabled(nv)
+                        }))
+                        
+                        Toggle("Synchronize extended attributes", isOn: Binding(get: {
+                            return folder.syncExtendedAttributes()
+                        }, set: { nv in
+                            try? folder.setSyncExtendedAttributes(nv)
                         }))
                     }
                 #endif

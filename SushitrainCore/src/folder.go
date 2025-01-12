@@ -84,6 +84,30 @@ func (fld *Folder) SetRescanInterval(seconds int) error {
 	})
 }
 
+// Whether we are syncing extended attributes
+func (fld *Folder) SyncExtendedAttributes() bool {
+	fc := fld.folderConfiguration()
+	if fc == nil {
+		return false
+	}
+
+	return fc.SyncXattrs && fc.SendXattrs
+}
+
+// Set if we should be syncing extended attributes using a good-for-most configuration (which we set on startup for all
+// folders for now)
+func (fld *Folder) SetSyncExtendedAttributes(sync bool) error {
+	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
+		config := fld.folderConfiguration()
+		if config == nil {
+			return
+		}
+		config.SyncXattrs = sync
+		config.SendXattrs = sync
+		cfg.SetFolder(*config)
+	})
+}
+
 func (fld *Folder) Unlink() error {
 	fc := fld.folderConfiguration()
 	if fc == nil {

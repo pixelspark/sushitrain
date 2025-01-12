@@ -184,7 +184,7 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 	// Load or create the config
 	devID := protocol.NewDeviceID(cert.Certificate[0])
 	Logger.Infof("Loading config file from %s\n", locations.Get(locations.ConfigFile))
-	config, err := loadOrDefaultConfig(devID, ctx, evLogger, filesPath)
+	config, err := loadOrDefaultConfig(devID, ctx, evLogger, filesPath, isUsingCustomConfiguration)
 	if err != nil {
 		cancel()
 		return nil, err
@@ -546,7 +546,7 @@ func (clt *Client) SetFSWatchingEnabledForAllFolders(enabled bool) {
 	})
 }
 
-func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger events.Logger, filesPath string) (config.Wrapper, error) {
+func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger events.Logger, filesPath string, isCustom bool) (config.Wrapper, error) {
 	cfgFile := locations.Get(locations.ConfigFile)
 	cfg, _, err := config.Load(cfgFile, devID, logger)
 	if err != nil {
@@ -572,10 +572,34 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 		conf.Options.RelayReconnectIntervalM = 1             // Set this to one minute (from the default 10) because on mobile networks this is more often necessary
 		conf.Defaults.Folder.FSWatcherEnabled = !build.IsIOS // Enable watching by default but not on iOS
 
-		// On iOS and probably macOS, the absolute path to the apps container that has the synchronized folders changes on each
-		// run. Therefore we re-set the absolute folder path here to [app documents directory]/[folder ID] if we don't have
-		// a folder marker in the old location but do have one in the new.
+		var defaultXattrEntries = []config.XattrFilterEntry{
+			config.XattrFilterEntry{
+				Match:  "com.apple.provenance",
+				Permit: false,
+			},
+			config.XattrFilterEntry{
+				Match:  "com.apple.quarantine",
+				Permit: false,
+			},
+			config.XattrFilterEntry{
+				Match:  "com.apple.macl",
+				Permit: false,
+			},
+			config.XattrFilterEntry{
+				Match:  "com.apple.lastuseddate#PS",
+				Permit: false,
+			},
+			config.XattrFilterEntry{
+				Match:  "*",
+				Permit: true,
+			},
+		}
+
+		// Fix up certain aspects of folder configuration
 		for _, folderConfig := range conf.Folders {
+			// On iOS and probably macOS, the absolute path to the apps container that has the synchronized folders changes on each
+			// run. Therefore we re-set the absolute folder path here to [app documents directory]/[folder ID] if we don't have
+			// a folder marker in the old location but do have one in the new.
 			standardPath := path.Join(filesPath, folderConfig.ID)
 			if folderConfig.Path != standardPath {
 				Logger.Warnln("Configured folder path differs from expected path:", folderConfig.Path, standardPath)
@@ -591,6 +615,14 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 						conf.SetFolder(folderConfig)
 					}
 				}
+			}
+
+			// If we are not in a custom configuration, overwrite xattr filter onfiguration
+			if !isCustom {
+				folderConfig.XattrFilter.MaxSingleEntrySize = 1024
+				folderConfig.XattrFilter.MaxTotalSize = 4096
+				folderConfig.XattrFilter.Entries = defaultXattrEntries
+				conf.SetFolder(folderConfig)
 			}
 		}
 	})
