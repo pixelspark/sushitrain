@@ -60,6 +60,14 @@ The script will invoke ChatGPT for strings for which one or more translations ar
 locales. After running the script, open the `Localizable.xcstrings` file in XCode and save once to maintain the XCode-specific
 JSON formatting and not pollute the commit diff with whitespace changes.
 
+## Updating Syncthing core
+
+1. Update the version number in [go.mod](./go.mod)
+2. Run `go get -u ./...` in the `SushitrainCore` directory
+3. Run `go mod tidy`
+4. Run `go get golang.org/x/mobile/cmd/gomobile`
+5. Update version number in [sushitrain.go](./SushitrainCore/src/sushitrain.go)
+
 ## Architecture
 
 The Sushitrain app is written in Swift and uses SwiftUI. It embeds a framework called SushitrainCore, which is written
