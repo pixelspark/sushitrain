@@ -514,17 +514,7 @@ struct FolderView: View {
                     
                     if folder.isSelective() {
                         Button("Remove unsynchronized empty subdirectories", systemImage: "eraser", role: .destructive) {
-                            Task {
-                                do {
-                                    self.isWorking = true
-                                    try folder.removeSuperfluousSubdirectories()
-                                }
-                                catch {
-                                    self.showAlert = .error(error.localizedDescription)
-                                }
-                                self.isWorking = false
-                                self.showAlert = .removeSuperfluousCompleted
-                            }
+                            self.removeUnsynchronizedEmpty()
                         }
                         #if os(macOS)
                             .buttonStyle(.link)
@@ -616,6 +606,22 @@ struct FolderView: View {
                             }
                         })
                     })
+            }
+        }
+    }
+    
+    private func removeUnsynchronizedEmpty() {
+        Task {
+            do {
+                self.isWorking = true
+                try await Task.detached {
+                    try folder.removeSuperfluousSubdirectories()
+                }.value
+                self.isWorking = false
+                self.showAlert = .removeSuperfluousCompleted
+            }
+            catch {
+                self.showAlert = .error(error.localizedDescription)
             }
         }
     }
