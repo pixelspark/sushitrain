@@ -31,7 +31,7 @@ struct FileViewerView: View {
                         barHidden = !barHidden
                     })
                     // Swipe up and down for next/previous
-                    .simultaneousGesture(DragGesture(minimumDistance: 20, coordinateSpace: .global).onEnded { value in
+                    .simultaneousGesture(DragGesture(minimumDistance: 70, coordinateSpace: .global).onEnded { value in
                         if let selfIndex = selfIndex, let siblings = siblings {
                             let verticalAmount = value.translation.height
                             
@@ -99,7 +99,6 @@ fileprivate struct FileViewerContentView: View {
             WebView(url: url, isLoading: Binding.constant(false), error: Binding.constant(nil))
                 .backgroundStyle(.black)
                 .background(.black)
-                .ignoresSafeArea(.all)
         }
         else {
             ContentUnavailableView("Cannot preview this file", systemImage: "document", description: Text("Cannot show a preview for this type of file."))
