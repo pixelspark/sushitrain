@@ -194,29 +194,6 @@ struct AdvancedSettingsView: View {
                 ) {
                     Label("Listening addresses", systemImage: "envelope.front")
                 }.disabled(!appState.client.isListening())
-                
-                NavigationLink(destination:
-                    AddressesView(appState: appState, addresses: Binding(get: {
-                        return self.appState.client.stunAddresses()?.asArray() ?? []
-                    }, set: { nv in
-                        try! self.appState.client.setStunAddresses(SushitrainListOfStrings.from(nv))
-                    }), editingAddresses: self.appState.client.stunAddresses()?.asArray() ?? [], addressType: .stun)
-                    .navigationTitle("STUN servers")
-                ) {
-                    Label("STUN servers", systemImage: "arrow.trianglehead.swap")
-                }.disabled(!appState.client.isNATEnabled())
-                
-                NavigationLink(destination:
-                    AddressesView(appState: appState, addresses: Binding(get: {
-                        return self.appState.client.discoveryAddresses()?.asArray() ?? []
-                    }, set: { nv in
-                        try! self.appState.client.setDiscoveryAddresses(SushitrainListOfStrings.from(nv))
-                    }), editingAddresses: self.appState.client.discoveryAddresses()?.asArray() ?? [], addressType: .discovery)
-                    .navigationTitle("Global announce servers")
-                ) {
-                    Label("Global announce servers", systemImage: "megaphone.fill")
-                }.disabled(!appState.client.isGlobalAnnounceEnabled())
-                
             } header: {
                 Text("Connectivity")
             } footer: {
@@ -238,7 +215,44 @@ struct AdvancedSettingsView: View {
                 Text("When this setting is enabled, the app will not attempt to connect to more devices after one connection has been established.")
             }
             
-            Section {
+            Section("Discovery") {
+                Toggle("Announce on local networks", isOn: Binding(get: {
+                    return appState.client.isLocalAnnounceEnabled()
+                }, set: {nv in
+                    try? appState.client.setLocalAnnounceEnabled(nv)
+                }))
+                
+                Toggle("Announce LAN addresses", isOn: Binding(get: {
+                    return appState.client.isAnnounceLANAddressesEnabled()
+                }, set: {nv in
+                    try? appState.client.setAnnounceLANAddresses(nv)
+                }))
+                
+                Toggle("Announce globally", isOn: Binding(get: {
+                    return appState.client.isGlobalAnnounceEnabled()
+                }, set: {nv in
+                    try? appState.client.setGlobalAnnounceEnabled(nv)
+                }))
+                
+                NavigationLink(destination:
+                    AddressesView(appState: appState, addresses: Binding(get: {
+                        return self.appState.client.discoveryAddresses()?.asArray() ?? []
+                    }, set: { nv in
+                        try! self.appState.client.setDiscoveryAddresses(SushitrainListOfStrings.from(nv))
+                    }), editingAddresses: self.appState.client.discoveryAddresses()?.asArray() ?? [], addressType: .discovery)
+                    .navigationTitle("Global announce servers")
+                ) {
+                    Label("Global announce servers", systemImage: "megaphone.fill")
+                }.disabled(!appState.client.isGlobalAnnounceEnabled())
+            }
+            
+            Section("Network traversal") {
+                Toggle("Enable relaying", isOn: Binding(get: {
+                    return appState.client.isRelaysEnabled()
+                }, set: {nv in
+                    try? appState.client.setRelaysEnabled(nv)
+                }))
+                
                 Toggle("Enable NAT-PMP / UPnP", isOn: Binding(get: {
                     return appState.client.isNATEnabled()
                 }, set: {nv in
@@ -251,34 +265,24 @@ struct AdvancedSettingsView: View {
                     try? appState.client.setSTUNEnabled(nv)
                 }))
                 
-                Toggle("Enable relaying", isOn: Binding(get: {
-                    return appState.client.isRelaysEnabled()
-                }, set: {nv in
-                    try? appState.client.setRelaysEnabled(nv)
-                }))
-                
-                Toggle("Announce on local networks", isOn: Binding(get: {
-                    return appState.client.isLocalAnnounceEnabled()
-                }, set: {nv in
-                    try? appState.client.setLocalAnnounceEnabled(nv)
-                }))
-                
-                Toggle("Announce globally", isOn: Binding(get: {
-                    return appState.client.isGlobalAnnounceEnabled()
-                }, set: {nv in
-                    try? appState.client.setGlobalAnnounceEnabled(nv)
-                }))
-                
-                Toggle("Announce LAN addresses", isOn: Binding(get: {
-                    return appState.client.isAnnounceLANAddressesEnabled()
-                }, set: {nv in
-                    try? appState.client.setAnnounceLANAddresses(nv)
-                }))
+                NavigationLink(destination:
+                    AddressesView(appState: appState, addresses: Binding(get: {
+                        return self.appState.client.stunAddresses()?.asArray() ?? []
+                    }, set: { nv in
+                        try! self.appState.client.setStunAddresses(SushitrainListOfStrings.from(nv))
+                    }), editingAddresses: self.appState.client.stunAddresses()?.asArray() ?? [], addressType: .stun)
+                    .navigationTitle("STUN servers")
+                ) {
+                    Label("STUN servers", systemImage: "arrow.trianglehead.swap")
+                }.disabled(!appState.client.isNATEnabled())
             }
             
             Section {
                 Toggle("Ignore certain system files", isOn: appState.$ignoreExtraneousDefaultFiles)
-            } footer: {
+            } header: {
+                Text("System files")
+            }
+            footer: {
                 Text("When enabled, certain files that are created by the system (such as .DS_Store) will not be noticed as 'new files' in folders that are selectively synced. These files will still be synced in folders that are fully synchronized and when they are created by other devices.")
             }
             
@@ -298,7 +302,10 @@ struct AdvancedSettingsView: View {
                         self.diskCacheSizeBytes = nil
                     }
                 }
-            } footer: {
+            } header: {
+                Text("File previews")
+            }
+            footer: {
                 self.cacheText
             }
             
