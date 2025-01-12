@@ -39,7 +39,6 @@ struct OnboardingView: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }.frame(
                     minWidth: 0,
-                    maxWidth: .infinity,
                     minHeight: 0,
                     maxHeight: .infinity,
                     alignment: .topLeading
@@ -74,13 +73,11 @@ struct OnboardingView: View {
         )
         .font(.largeTitle.bold())
         .multilineTextAlignment(.center)
-        .fixedSize(horizontal: true, vertical: true)
     }
     
     var footer: some View {
         Color.blue
             .frame(
-                maxWidth: .infinity,
                 minHeight: 48, maxHeight: .infinity
             )
             .cornerRadius(9.0)
