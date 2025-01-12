@@ -616,6 +616,7 @@ struct FolderView: View {
                 self.isWorking = true
                 try await Task.detached {
                     try folder.removeSuperfluousSubdirectories()
+                    try folder.removeSuperfluousSelectionEntries()
                 }.value
                 self.isWorking = false
                 self.showAlert = .removeSuperfluousCompleted

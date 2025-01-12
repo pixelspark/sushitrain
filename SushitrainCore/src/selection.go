@@ -105,6 +105,21 @@ func (sel *Selection) SelectedPaths() []string {
 	return paths
 }
 
+func (sel *Selection) FilterSelectedPaths(retain func(string) bool) {
+	newLines := make([]string, 0)
+
+	for _, pattern := range sel.lines {
+		if len(pattern) > 0 && pattern[0] == '!' {
+			if retain(pathForIgnoreLine(pattern)) {
+				newLines = append(newLines, pattern)
+			}
+		} else {
+			newLines = append(newLines, pattern)
+		}
+	}
+	sel.lines = newLines
+}
+
 // Escape special characters: https://docs.syncthing.net/users/ignoring.html
 var specialChars = []string{"\\", "!", "*", "?", "[", "]", "{", "}"}
 

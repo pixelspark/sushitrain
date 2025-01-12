@@ -20,6 +20,7 @@ import (
 	"github.com/syncthing/syncthing/lib/ignore"
 	"github.com/syncthing/syncthing/lib/ignore/ignoreresult"
 	"github.com/syncthing/syncthing/lib/model"
+	"github.com/syncthing/syncthing/lib/osutil"
 	"github.com/syncthing/syncthing/lib/protocol"
 )
 
@@ -722,6 +723,62 @@ func deleteEmptyParentDirectories(ffs fs.Filesystem, path string) {
 			ffs.Remove(dirPath) // Will only remove directories when empty
 		}
 	}
+}
+
+func (fld *Folder) RemoveSuperfluousSelectionEntries() error {
+	fld.cachedIgnore.matcher = nil // Purge our cache
+	state, err := fld.State()
+	if err != nil {
+		return err
+	}
+	if state != "idle" && state != "syncing" {
+		return errors.New("cannot remove superfluous selection entries when not idle or syncing")
+	}
+
+	// Load ignores from file
+	ignores, err := fld.loadIgnores()
+	if err != nil {
+		return err
+	}
+
+	selection := NewSelection(ignores.Lines())
+	if !selection.isSelectiveIgnore() {
+		return errors.New("folder is not a selective folder")
+	}
+
+	fc := fld.folderConfiguration()
+	if fc == nil {
+		return errors.New("invalid folder state")
+	}
+
+	ffs := fc.Filesystem(nil)
+
+	// Enumerate selection entries, find out if we need them
+	selection.FilterSelectedPaths(func(path string) bool {
+		// Find entry
+		entry, err := fld.GetFileInformation(path)
+
+		// If this entry exists on disk, don't change anything
+		nativeFilename := osutil.NativeFilename(path)
+		_, err = ffs.Stat(nativeFilename)
+		if err == nil {
+			Logger.Infoln("Entry exists, keeping:", nativeFilename)
+			return true
+		}
+
+		// Only keep files that we can find a global entry for, and never delete if we still have a local entry
+		keep := (err == nil && entry != nil && !entry.IsDeleted()) || (entry != nil && entry.IsLocallyPresent())
+		Logger.Infoln("Keep selected path", path, keep, err, entry.IsDeleted(), entry.IsLocallyPresent())
+		return keep
+	})
+
+	// Save new ignores (this triggers a reload of ignores and eventually a scan)
+	err = fld.client.app.Internals.SetIgnores(fld.FolderID, selection.Lines())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Remove empty, ignored directories that exist locally in selective folders
