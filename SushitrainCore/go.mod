@@ -4,7 +4,7 @@ go 1.22.4
 
 require (
 	github.com/gotd/contrib v0.21.0
-	github.com/syncthing/syncthing v1.29.1
+	github.com/syncthing/syncthing v1.29.2
 )
 
 require (

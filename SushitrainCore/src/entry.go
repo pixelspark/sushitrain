@@ -56,16 +56,16 @@ func (entry *Entry) IsSymlink() bool {
 }
 
 func (entry *Entry) SymlinkTarget() string {
-	return entry.info.SymlinkTarget
+	return string(entry.info.SymlinkTarget)
 }
 
 func (entry *Entry) SymlinkTargetEntry() (*Entry, error) {
 	if !entry.info.IsSymlink() {
 		return nil, errors.New("entry is not a symlink")
 	}
-	target := entry.info.SymlinkTarget
-	if !filepath.IsAbs(entry.info.SymlinkTarget) {
-		target = filepath.Join(entry.info.Name, "..", entry.info.SymlinkTarget)
+	target := string(entry.info.SymlinkTarget)
+	if !filepath.IsAbs(target) {
+		target = filepath.Join(entry.info.Name, "..", target)
 	}
 	return entry.Folder.GetFileInformation(target)
 }
