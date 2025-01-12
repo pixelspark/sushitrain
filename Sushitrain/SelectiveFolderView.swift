@@ -28,7 +28,7 @@ struct SelectiveFolderView: View {
                 List {
                     let st = searchString.lowercased()
                     Section("Files kept on device") {
-                        ForEach(selectedPaths.indices, id: \.self) { itemIndex in
+                        ForEach(Array(selectedPaths.enumerated()), id: \.element) { itemIndex, item in
                             let item = selectedPaths[itemIndex]
                             if st.isEmpty || item.lowercased().contains(st) {
                                 SelectiveFileView(appState: appState, path: item, folder: folder, deselect: {
