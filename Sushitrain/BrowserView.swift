@@ -436,7 +436,9 @@ private struct BrowserListView: View {
                             .font(.footnote)
                             .foregroundColor(.secondary)
                             .frame(maxWidth: .infinity)
-                            .listRowBackground(Color(.systemGroupedBackground))
+                            #if os(iOS)
+                                .listRowBackground(Color(.systemGroupedBackground))
+                            #endif
                         }
                         #if os(macOS)
                             .listStyle(.inset(alternatesRowBackgrounds: true))
