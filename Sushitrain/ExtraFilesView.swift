@@ -24,8 +24,6 @@ struct ExtraFilesView: View {
                 ContentUnavailableView("No extra files found", systemImage: "checkmark.circle")
             }
             else {
-                let folderNativePath = folder.localNativeURL!
-                
                 List {
                     Section {
                         if folder.folderType() == SushitrainFolderTypeSendReceive {
@@ -74,8 +72,11 @@ struct ExtraFilesView: View {
                                     .dynamicTypeSize(.small)
                                     .foregroundStyle(verdict == false ? .red : verdict == true ? .green : .primary)
                                     .onTapGesture {
-                                        self.localItemURL = folderNativePath.appending(path: path)
+                                        if let folderNativePath = folder.localNativeURL {
+                                            self.localItemURL = folderNativePath.appending(path: path)
+                                        }
                                     }
+                                    .disabled(folder.localNativeURL == nil)
                                 }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                                 
                                 Picker("Action", selection: Binding(get: {
