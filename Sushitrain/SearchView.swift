@@ -15,7 +15,7 @@ class SearchOperation: NSObject, ObservableObject, SushitrainSearchResultDelegat
 	private var cancelled = false
 	private var lock = NSLock()
 	var view: SearchViewDelegate
-	static let MaxResultCount = 100
+	static let maxResultCount = 100
 
 	init(delegate: SearchViewDelegate) {
 		self.view = delegate
@@ -151,9 +151,9 @@ struct SearchResultsView: View, SearchViewDelegate {
 						}
 					} header: {
 						HStack {
-							if results.count == SearchOperation.MaxResultCount {
+							if results.count == SearchOperation.maxResultCount {
 								Text(
-									"Search results (\(SearchOperation.MaxResultCount)+)"
+									"Search results (\(SearchOperation.maxResultCount)+)"
 								)
 							}
 							else {
@@ -229,7 +229,7 @@ struct SearchResultsView: View, SearchViewDelegate {
 						sr.view.setStatus(searching: true)
 					}
 					try client.search(
-						text, delegate: sr, maxResults: SearchOperation.MaxResultCount,
+						text, delegate: sr, maxResults: SearchOperation.maxResultCount,
 						folderID: folder, prefix: prefix)
 					DispatchQueue.main.async {
 						sr.view.setStatus(searching: false)

@@ -90,9 +90,10 @@ private struct DevicesListView: View {
 						}
 					}
 					.onDelete(perform: { indexSet in
-						indexSet.map { idx in
-							return peers[idx]
-						}.forEach { peer in try? peer.remove() }
+						let p = peers
+						for idx in indexSet {
+							try? p[idx].remove()
+						}
 					})
 				}
 			}

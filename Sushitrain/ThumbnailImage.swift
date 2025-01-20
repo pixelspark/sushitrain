@@ -116,7 +116,7 @@ enum ThumbnailStrategy {
 	case video
 }
 
-private let MaxThumbnailDimensionsInPixels = 255
+private let maxThumbnailDimensionsInPixels = 255
 
 private enum ThumbnailImageError: Error {
 	case invalidCacheKey
@@ -338,32 +338,6 @@ class ImageCache {
 						Log.warn("Could not generate JPEG")
 					}
 				}
-
-			// Below is the code to do this using CoreGraphics and HEIF on macOS. This however leads to 'noise'
-			// for thumbnails that are generated from videos for some reason...
-			/*
-                if let cgImage = ImageRenderer(content: image).cgImage {
-                    let url = Self.pathFor(cacheKey: cacheKey)
-                    do {
-                        try FileManager.default.createDirectory(at: Self.cacheDirectory, withIntermediateDirectories: true)
-                        if let heifDest = CGImageDestinationCreateWithURL(url as CFURL, AVFileType.heic as CFString, 1, nil) {
-                            CGImageDestinationAddImage(heifDest, cgImage, nil)
-                            if CGImageDestinationFinalize(heifDest) {
-                                try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
-                            }
-                            else {
-                                Log.warn("Failed writing HEIF image")
-                            }
-                        }
-                        else {
-                            Log.warn("Could not generate HEIF file")
-                        }
-                    }
-                    catch {
-                        Log.warn("Could not write to cache file \(url.path()): \(error.localizedDescription)")
-                    }
-                }
-                */
 			#endif
 		}
 	}
@@ -389,12 +363,12 @@ class ImageCache {
 					return await fetchQuicklookThumbnail(
 						url,
 						size: CGSize(
-							width: MaxThumbnailDimensionsInPixels,
-							height: MaxThumbnailDimensionsInPixels))
+							width: maxThumbnailDimensionsInPixels,
+							height: maxThumbnailDimensionsInPixels))
 				}.value
 
 				// If caching is forced, save successful result to disk cache
-				if case let .success(image) = result, forceCache {
+				if case .success(let image) = result, forceCache {
 					await ImageCache.writeToDiskCache(image: image, cacheKey: cacheKey)
 				}
 
@@ -412,10 +386,10 @@ class ImageCache {
 			switch strategy {
 			case .image:
 				return await fetchImageThumbnail(
-					url, maxDimensionsInPixels: MaxThumbnailDimensionsInPixels)
+					url, maxDimensionsInPixels: maxThumbnailDimensionsInPixels)
 			case .video:
 				return await fetchVideoThumbnail(
-					url: url, maxDimensionsInPixels: MaxThumbnailDimensionsInPixels)
+					url: url, maxDimensionsInPixels: maxThumbnailDimensionsInPixels)
 			}
 		}.value
 

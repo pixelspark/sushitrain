@@ -347,7 +347,7 @@ struct StartView: View {
 						.foregroundStyle(.orange)
 					}
 					.onTapGesture {
-						peers?.forEach { peer in
+						for peer in peers ?? [] {
 							try? peer.setPaused(false)
 						}
 						showNoPeersEnabledWarning = false

@@ -26,10 +26,17 @@ enum FolderMetric: String {
 
 #if os(macOS)
 	enum MenuFolderAction: String, Hashable, Equatable {
-		case hide = "hide"  // Do not show folder shortcuts in menu
-		case finder = "finder"  // Always open the folder in the Finder
-		case browser = "browser"  // Always open the folder in the app
-		case finderExceptSelective = "finderExceptSelective"  // Open the folder in the Finder except when it is selectively synced
+		// Do not show folder shortcuts in menu
+		case hide = "hide"
+
+		// Always open the folder in the Finder
+		case finder = "finder"
+
+		// Always open the folder in the app
+		case browser = "browser"
+
+		// Open the folder in the Finder except when it is selectively synced
+		case finderExceptSelective = "finderExceptSelective"
 	}
 #endif
 
@@ -66,11 +73,13 @@ enum FolderMetric: String {
 	@AppStorage("hideHiddenFolders") var hideHiddenFolders: Bool = false
 	@AppStorage("lingeringEnabled") var lingeringEnabled: Bool = true
 	@AppStorage("foldersViewMetric") var viewMetric: FolderMetric = .none
-	@AppStorage("ignoreExtraneousDefaultFiles") var ignoreExtraneousDefaultFiles: Bool = true  // Whether to ignore certain files by default when scanning for extraneous files (i.e. .DS_Store)
 	@AppStorage("previewVideos") var previewVideos: Bool = false
 	@AppStorage("tapFileToPreview") var tapFileToPreview: Bool = false
 	@AppStorage("cacheThumbnailsToDisk") var cacheThumbnailsToDisk: Bool = true
 	@AppStorage("cacheThumbnailsToFolderID") var cacheThumbnailsToFolderID: String = ""
+
+	// Whether to ignore certain files by default when scanning for extraneous files (i.e. .DS_Store)
+	@AppStorage("ignoreExtraneousDefaultFiles") var ignoreExtraneousDefaultFiles: Bool = true
 
 	#if os(macOS)
 		@AppStorage("menuFolderAction") var menuFolderAction: MenuFolderAction = .finderExceptSelective

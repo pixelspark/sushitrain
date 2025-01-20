@@ -9,12 +9,12 @@ import BackgroundTasks
 
 #if os(iOS)
 	@MainActor class BackgroundManager: ObservableObject {
-		private static let LongBackgroundSyncID = "nl.t-shaped.sushitrain.background-sync"
-		private static let ShortBackgroundSyncID = "nl.t-shaped.sushitrain.short-background-sync"
-		private static let WatchdogNotificationID = "nl.t-shaped.sushitrain.watchdog-notification"
+		private static let longBackgroundSyncID = "nl.t-shaped.sushitrain.background-sync"
+		private static let shortBackgroundSyncID = "nl.t-shaped.sushitrain.short-background-sync"
+		private static let watchdogNotificationID = "nl.t-shaped.sushitrain.watchdog-notification"
 
 		// Time before the end of allotted background time to start ending the task to prevent forceful expiration by the OS
-		private static let BackgroundTimeReserve: TimeInterval = 5.6
+		private static let backgroundTimeReserve: TimeInterval = 5.6
 
 		private var currentBackgroundTask: BGTask? = nil
 		private var expireTimer: Timer? = nil
@@ -57,11 +57,11 @@ import BackgroundTasks
 			self.appState = appState
 
 			// Schedule background synchronization task
-			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.LongBackgroundSyncID, using: nil) {
+			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.longBackgroundSyncID, using: nil) {
 				task in
 				Task { await self.handleBackgroundSync(task: task) }
 			}
-			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.ShortBackgroundSyncID, using: nil) {
+			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.shortBackgroundSyncID, using: nil) {
 				task in
 				Task { await self.handleBackgroundSync(task: task) }
 			}
@@ -105,7 +105,8 @@ import BackgroundTasks
 					DispatchQueue.main.async {
 						let remaining = UIApplication.shared.backgroundTimeRemaining
 						Log.info("Check background time remaining: \(remaining)")
-						if remaining <= Self.BackgroundTimeReserve {  // iOS seems to start expiring us at 5 seconds before the end
+						// iOS seems to start expiring us at 5 seconds before the end
+						if remaining <= Self.backgroundTimeReserve {
 							Log.info("End of our background stint is nearing")
 							self.endBackgroundTask()
 						}
@@ -122,7 +123,7 @@ import BackgroundTasks
 			}
 			else {
 				// We're just doing some photo syncing this time
-				if task.identifier == Self.LongBackgroundSyncID {
+				if task.identifier == Self.longBackgroundSyncID {
 					// When background task expires, end photo sync
 					task.expirationHandler = {
 						Log.warn(
@@ -137,7 +138,9 @@ import BackgroundTasks
 							Log.info(
 								"Check background time remaining (photo sync): \(remaining)"
 							)
-							if remaining <= Self.BackgroundTimeReserve {  // iOS seems to start expiring us at 5 seconds before the end
+
+							// iOS seems to start expiring us at 5 seconds before the end
+							if remaining <= Self.backgroundTimeReserve {
 								Log.info(
 									"End of our background stint is nearing (photo sync)"
 								)
@@ -220,8 +223,10 @@ import BackgroundTasks
 			var success = true
 
 			if appState.longBackgroundSyncEnabled {
-				let longRequest = BGProcessingTaskRequest(identifier: Self.LongBackgroundSyncID)
-				longRequest.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60)  // no earlier than within 15 minutes
+				let longRequest = BGProcessingTaskRequest(identifier: Self.longBackgroundSyncID)
+
+				// No earlier than within 15 minutes
+				longRequest.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60)
 				longRequest.requiresExternalPower = true
 				longRequest.requiresNetworkConnectivity = true
 				Log.info(
@@ -238,8 +243,9 @@ import BackgroundTasks
 			}
 
 			if appState.shortBackgroundSyncEnabled {
-				let shortRequest = BGAppRefreshTaskRequest(identifier: Self.ShortBackgroundSyncID)
-				shortRequest.earliestBeginDate = Date(timeIntervalSinceNow: 30 * 60)  // no earlier than within 15 minutes
+				let shortRequest = BGAppRefreshTaskRequest(identifier: Self.shortBackgroundSyncID)
+				// No earlier than within 15 minutes
+				shortRequest.earliestBeginDate = Date(timeIntervalSinceNow: 30 * 60)
 				Log.info(
 					"Scheduling next short background sync for (no later than) \(shortRequest.earliestBeginDate!))"
 				)
@@ -260,7 +266,7 @@ import BackgroundTasks
 			Log.info("Re-schedule watchdog notification")
 			let notificationCenter = UNUserNotificationCenter.current()
 			UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [
-				Self.WatchdogNotificationID
+				Self.watchdogNotificationID
 			])
 
 			let appState = self.appState
@@ -285,7 +291,7 @@ import BackgroundTasks
 						let trigger = UNTimeIntervalNotificationTrigger(
 							timeInterval: interval, repeats: true)
 						let request = UNNotificationRequest(
-							identifier: Self.WatchdogNotificationID, content: content,
+							identifier: Self.watchdogNotificationID, content: content,
 							trigger: trigger)
 						notificationCenter.add(request) { err in
 							if let err = err {

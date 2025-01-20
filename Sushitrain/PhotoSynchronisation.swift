@@ -118,7 +118,10 @@ enum PhotoSyncProgress {
 class PhotoSynchronisation: ObservableObject {
 	@AppStorage("photoSyncSelectedAlbumID") var selectedAlbumID: String = ""
 	@AppStorage("photoSyncFolderID") var selectedFolderID: String = ""
-	@AppStorage("photoSyncSavedAlbumID") var savedAlbumID: String = ""  // Album to put photos that have been saved in
+
+	// Album to put photos that have been saved in
+	@AppStorage("photoSyncSavedAlbumID") var savedAlbumID: String = ""
+
 	@AppStorage("photoSyncLastCompletedDate") var lastCompletedDate: Double = -1.0
 	@AppStorage("photoSyncEnableBackgroundCopy") var enableBackgroundCopy: Bool = false
 	@AppStorage("photoSyncCategories") var categories: Set<PhotoSyncCategories> = Set([.photo, .video, .livePhoto])

@@ -341,13 +341,13 @@ extension SushitrainEntry: @retroactive Transferable {
 		// FileRepresentation(exportedContentType: .data, exporting: { try await $0.downloadFileToSent() }).exportingCondition({ !$0.isLocallyPresent() })
 	}
 
-	/* private func downloadFileToSent() async throws -> SentTransferredFile {
-        if let url = URL(string: self.onDemandURL()) {
-            let (localURL, _) = try await URLSession.shared.download(from: url)
-            return SentTransferredFile(localURL, allowAccessingOriginalFile: false)
-        }
-        throw SushitrainEntryTransferableError.notAvailable
-    } */
+	//	private func downloadFileToSent() async throws -> SentTransferredFile {
+	//        if let url = URL(string: self.onDemandURL()) {
+	//            let (localURL, _) = try await URLSession.shared.download(from: url)
+	//            return SentTransferredFile(localURL, allowAccessingOriginalFile: false)
+	//        }
+	//        throw SushitrainEntryTransferableError.notAvailable
+	//    }
 }
 
 #if os(iOS)
@@ -589,7 +589,7 @@ struct WebView: UIViewRepresentable {
 @MainActor
 struct BookmarkManager {
 	static var shared = BookmarkManager()
-	private static let DefaultsKey = "bookmarksByFolderID"
+	private static let defaultsKey = "bookmarksByFolderID"
 	private var bookmarks: [String: Data] = [:]
 	private var accessing: [String: Accessor] = [:]
 
@@ -679,13 +679,13 @@ struct BookmarkManager {
 	}
 
 	private mutating func load() {
-		self.bookmarks = UserDefaults.standard.object(forKey: Self.DefaultsKey) as? [String: Data] ?? [:]
+		self.bookmarks = UserDefaults.standard.object(forKey: Self.defaultsKey) as? [String: Data] ?? [:]
 		Log.info("Load bookmarks: \(self.bookmarks)")
 	}
 
 	private func save() {
 		Log.info("Saving bookmarks: \(self.bookmarks)")
-		UserDefaults.standard.set(self.bookmarks, forKey: Self.DefaultsKey)
+		UserDefaults.standard.set(self.bookmarks, forKey: Self.defaultsKey)
 	}
 
 	mutating func removeBookmarksForFoldersNotIn(_ folderIDs: Set<String>) {
