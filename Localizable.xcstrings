@@ -437,21 +437,9 @@
           }
         },
         "nl" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Één bestand"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld bestanden"
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld bestanden"
           }
         },
         "uk" : {
@@ -653,21 +641,9 @@
           }
         },
         "nl" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Één seconde"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld seconden"
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld seconden"
           }
         },
         "uk" : {
@@ -699,21 +675,9 @@
           }
         },
         "nl" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Één submap"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld submappen"
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld submappen"
           }
         },
         "uk" : {
@@ -1771,21 +1735,9 @@
           }
         },
         "nl" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Na één dag"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Na %lld dagen"
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na %lld dagen"
           }
         },
         "uk" : {
@@ -1817,21 +1769,9 @@
           }
         },
         "nl" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Na één uur"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Na %lld uur"
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na %lld uur"
           }
         },
         "uk" : {
@@ -8678,6 +8618,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Не є надійним"
+          }
+        }
+      }
+    },
+    "Keep conflicting versions" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konfliktversionen behalten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantener versiones en conflicto"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantieni versioni in conflitto"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conflicterende versies behouden"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Залишити конфліктні версії"
           }
         }
       }

@@ -649,6 +649,16 @@ struct FolderView: View {
 						} label: {
 							Text("Rescan interval (minutes)")
 						}
+
+						Toggle(
+							"Keep conflicting versions",
+							isOn: Binding(
+								get: {
+									return folder.maxConflicts() != 0
+								},
+								set: { nv in
+									try? folder.setMaxConflicts(nv ? -1 : 0)
+								}))
 					}
 				#else
 					// DisclosureGroup is not so nice on macOS
@@ -675,6 +685,16 @@ struct FolderView: View {
 						} label: {
 							Text("Rescan interval (minutes)")
 						}
+
+						Toggle(
+							"Keep conflicting versions",
+							isOn: Binding(
+								get: {
+									return folder.maxConflicts() != 0
+								},
+								set: { nv in
+									try? folder.setMaxConflicts(nv ? -1 : 0)
+								}))
 
 						Toggle(
 							"Watch for changes",

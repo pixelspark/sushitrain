@@ -173,6 +173,27 @@ func (fld *Folder) SetWatcherEnabled(enabled bool) error {
 	})
 }
 
+// See documentation; -1 means 'automatically determined number', 0 means disabled.
+func (fld *Folder) MaxConflicts() int {
+	fc := fld.folderConfiguration()
+	if fc == nil {
+		return -1
+	}
+
+	return fld.folderConfiguration().MaxConflicts
+}
+
+func (fld *Folder) SetMaxConflicts(mx int) error {
+	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
+		config := fld.folderConfiguration()
+		if config == nil {
+			return
+		}
+		config.MaxConflicts = mx
+		cfg.SetFolder(*config)
+	})
+}
+
 func (fld *Folder) State() (string, error) {
 	if fld.client.app == nil {
 		return "", nil
