@@ -254,6 +254,12 @@ func (clt *Client) SetExtraneousIgnoredJSON(js []byte) error {
 }
 
 func (clt *Client) isExtraneousIgnored(name string) bool {
+	// Always ignore files that are prefixed with .syncthing. or ~syncthing~, these are considered 'Syncthing private'
+	// See https://docs.syncthing.net/users/syncing.html#temporary-files
+	if strings.HasPrefix(name, ".syncthing.") || strings.HasPrefix(name, "~syncthing~") {
+		return true
+	}
+
 	// Must be an equal match for now
 	return slices.Contains(clt.extraneousIgnored, name)
 }
