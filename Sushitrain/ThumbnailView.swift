@@ -7,75 +7,83 @@ import SwiftUI
 @preconcurrency import SushitrainCore
 
 struct ThumbnailView: View {
-    var file: SushitrainEntry
-    var appState: AppState
-    @State var showPreview = false
-    var showFileName: Bool
-    var showErrorMessages: Bool
-    
-    var body: some View {
-        if file.canThumbnail {
-            let isLocallyPresent = file.isLocallyPresent()
-            if isLocallyPresent || showPreview || ImageCache[file.cacheKey] != nil || file.size() <= appState.maxBytesForPreview || (appState.previewVideos && file.isVideo) {
-                ThumbnailImage(entry: file, content: { phase in
-                    switch phase {
-                    case .empty:
-                        HStack(alignment: .center, content: {
-                            ProgressView()
-                        })
-                        
-                    case .success(let image):
-                        image.resizable().scaledToFill()
-                        
-                    case .failure(_):
-                        if self.showErrorMessages {
-                            Text("The file is currently not available for preview.")
-                        }
-                        else {
-                            self.iconAndTextBody
-                        }
-                        
-                    @unknown default:
-                        EmptyView()
-                    }
-                })
-                .frame(maxWidth: .infinity, maxHeight: 200)
-            }
-            else {
-                if self.showErrorMessages {
-                    Button("Show preview for large files") {
-                        showPreview = true
-                    }
-                    #if os(macOS)
-                        .buttonStyle(.link)
-                    #endif
-                }
-                else {
-                    self.iconAndTextBody
-                }
-            }
-        }
-        else {
-            self.iconAndTextBody
-        }
-    }
-    
-    private var iconAndTextBody: some View {
-        VStack(alignment: .center, spacing: 6.0) {
-            self.iconBody
-            if self.showFileName {
-                Text(file.fileName())
-                    .lineLimit(1)
-                    .padding(.horizontal, 4)
-                    .foregroundStyle(file.color ?? Color.accentColor)
-                    .multilineTextAlignment(.center)
-            }
-        }
-    }
-    
-    private var iconBody: some View {
-        Image(systemName: file.systemImage)
-            .dynamicTypeSize(.large)
-            .foregroundStyle(file.color ?? Color.accentColor)
-    }
+	var file: SushitrainEntry
+	var appState: AppState
+	@State var showPreview = false
+	var showFileName: Bool
+	var showErrorMessages: Bool
+
+	var body: some View {
+		if file.canThumbnail {
+			let isLocallyPresent = file.isLocallyPresent()
+			if isLocallyPresent || showPreview || ImageCache[file.cacheKey] != nil
+				|| file.size() <= appState.maxBytesForPreview
+				|| (appState.previewVideos && file.isVideo)
+			{
+				ThumbnailImage(
+					entry: file,
+					content: { phase in
+						switch phase {
+						case .empty:
+							HStack(
+								alignment: .center,
+								content: {
+									ProgressView()
+								})
+
+						case .success(let image):
+							image.resizable().scaledToFill()
+
+						case .failure(_):
+							if self.showErrorMessages {
+								Text("The file is currently not available for preview.")
+							}
+							else {
+								self.iconAndTextBody
+							}
+
+						@unknown default:
+							EmptyView()
+						}
+					}
+				)
+				.frame(maxWidth: .infinity, maxHeight: 200)
+			}
+			else {
+				if self.showErrorMessages {
+					Button("Show preview for large files") {
+						showPreview = true
+					}
+					#if os(macOS)
+						.buttonStyle(.link)
+					#endif
+				}
+				else {
+					self.iconAndTextBody
+				}
+			}
+		}
+		else {
+			self.iconAndTextBody
+		}
+	}
+
+	private var iconAndTextBody: some View {
+		VStack(alignment: .center, spacing: 6.0) {
+			self.iconBody
+			if self.showFileName {
+				Text(file.fileName())
+					.lineLimit(1)
+					.padding(.horizontal, 4)
+					.foregroundStyle(file.color ?? Color.accentColor)
+					.multilineTextAlignment(.center)
+			}
+		}
+	}
+
+	private var iconBody: some View {
+		Image(systemName: file.systemImage)
+			.dynamicTypeSize(.large)
+			.foregroundStyle(file.color ?? Color.accentColor)
+	}
 }

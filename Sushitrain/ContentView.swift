@@ -8,255 +8,284 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ContentView: View {
-    private static let currentOnboardingVersion = 1
-    @AppStorage("onboardingVersionShown") var onboardingVersionShown = 0
-    
-    @ObservedObject var appState: AppState
-    @Environment(\.scenePhase) var scenePhase
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    
-    @State private var showCustomConfigWarning = false
-    @State private var showOnboarding = false
-    @State var route: Route? = .start
-    @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
-    
-    #if os(iOS)
-        @State private var showSearchSheet = false
-        @State private var searchSheetSearchTerm: String = ""
-    #endif
-    
-    var tabbedBody: some View {
-        TabView(selection: $route) {
-            // Me
-            NavigationStack {
-                StartOrSearchView(appState: appState, route: $route)
-            }
-            .tabItem {
-                Label("Start", systemImage: self.appState.systemImage)
-            }.tag(Route.start)
+	private static let currentOnboardingVersion = 1
+	@AppStorage("onboardingVersionShown") var onboardingVersionShown = 0
 
-            // Folders
-            NavigationStack {
-                FoldersView(appState: appState)
-                .toolbar {
-                    Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
-                        let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                        openURLInSystemFilesApp(url: documentsUrl)
-                    }).labelStyle(.iconOnly)
-                }
-            }
-            .tabItem {
-                Label("Folders", systemImage: "folder.fill")
-            }.tag(Route.folder(folderID: nil))
+	@ObservedObject var appState: AppState
+	@Environment(\.scenePhase) var scenePhase
+	@Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
-            // Peers
-            NavigationStack {
-                DevicesView(appState: appState)
-            }
-            .tabItem {
-                Label("Devices", systemImage: "externaldrive.fill")
-            }.tag(Route.devices)
-        }
-    }
-    
-    var splitBody: some View {
-        NavigationSplitView(
-            columnVisibility: $columnVisibility,
-            sidebar: {
-                List(selection: $route) {
-                    if horizontalSizeClass != .compact {
-                        Section {
-                            NavigationLink(value: Route.start) {
-                                Label("Start", systemImage: self.appState.systemImage)
-                            }
+	@State private var showCustomConfigWarning = false
+	@State private var showOnboarding = false
+	@State var route: Route? = .start
+	@State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
 
-                            NavigationLink(value: Route.devices) {
-                                Label("Devices", systemImage: "externaldrive.fill")
-                            }
-                        }
-                    }
-                    
-                    FoldersSections(appState: self.appState)
-                    #if os(macOS)
-                        .contextMenu {
-                            FolderMetricPickerView(appState: self.appState)
-                        }
-                    #endif
-                }
-                #if os(iOS)
-                    .toolbar {
-                        Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app", action: {
-                            let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                            openURLInSystemFilesApp(url: documentsUrl)
-                        }).labelStyle(.iconOnly)
-                    }
-                #endif
-            }, detail: {
-                NavigationStack {
-                    switch self.route {
-                    case .start:
-                        StartOrSearchView(appState: self.appState, route: $route)
-                        
-                    case .devices:
-                        DevicesView(appState: self.appState)
-                        
-                    case .folder(folderID: let folderID):
-                        if let folderID = folderID, let folder = self.appState.client.folder(withID: folderID) {
-                            if folder.exists() {
-                                BrowserView(
-                                    appState: self.appState,
-                                    folder: folder,
-                                    prefix: ""
-                                ).id(folder.folderID)
-                            }
-                            else {
-                                ContentUnavailableView("Folder was deleted", systemImage: "trash", description: Text("This folder was deleted."))
-                            }
-                        }
-                        else {
-                            ContentUnavailableView("Select a folder", systemImage: "folder").onTapGesture {
-                                columnVisibility = .doubleColumn
-                            }
-                        }
-                        
-                    case nil:
-                        ContentUnavailableView("Select a folder", systemImage: "folder").onTapGesture {
-                            columnVisibility = .doubleColumn
-                        }
-                    }
-                }
-            })
-        .navigationSplitViewStyle(.balanced)
-    }
+	#if os(iOS)
+		@State private var showSearchSheet = false
+		@State private var searchSheetSearchTerm: String = ""
+	#endif
 
-    var body: some View {
-        Group {
-            if horizontalSizeClass == .compact {
-                self.tabbedBody
-            } else {
-                self.splitBody
-            }
-        }
-        .sheet(
-            isPresented: $showOnboarding,
-            content: {
-                OnboardingView().interactiveDismissDisabled()
-            }
-        )
-        #if os(iOS)
-            .onChange(of: QuickActionService.shared.action) { _, newAction in
-                if case .search(for: let searchFor) = newAction {
-                    self.route = .start
-                    self.searchSheetSearchTerm = searchFor
-                    showSearchSheet = true
-                    QuickActionService.shared.action = nil
-                }
-            }
-        #endif
-        .onChange(of: scenePhase) { oldPhase, newPhase in
-            self.appState.onScenePhaseChange(from: oldPhase, to: newPhase)
-        }
-        .alert(isPresented: $showCustomConfigWarning) {
-            Alert(
-                title: Text("Custom configuration detected"),
-                message: Text(
-                    "You are using a custom configuration. This may be used for testing only, and at your own risk. Not all configuration options may be supported. To disable the custom configuration, remove the configuration files from the app's folder and restart the app. The makers of the app cannot be held liable for any data loss that may occur!"
-                ),
-                dismissButton: .default(Text("I understand and agree")) {
-                    self.showOnboardingIfNecessary()
-                })
-        }
-        .onAppear {
-            if self.appState.client.isUsingCustomConfiguration {
-                self.showCustomConfigWarning = true
-            } else {
-                self.showOnboardingIfNecessary()
-            }
-        }
-        .onChange(of: showOnboarding) { _, shown in
-            if !shown {
-                // End of onboarding, request notification authorization
-                AppState.requestNotificationPermissionIfNecessary()
-            }
-        }
-        #if os(iOS)
-            // Search sheet for quick action
-            .sheet(isPresented: $showSearchSheet) {
-                NavigationStack {
-                    SearchView(appState: self.appState, prefix: "", initialSearchText: self.searchSheetSearchTerm)
-                        .navigationTitle("Search")
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar(content: {
-                            ToolbarItem(placement: .cancellationAction, content: {
-                                Button("Cancel") {
-                                    showSearchSheet = false
-                                }
-                            })
-                        })
-                }
-            }
-        #endif
-    }
-    
-    private func showOnboardingIfNecessary() {
-        Log.info(
-            "Current onboarding version is \(Self.currentOnboardingVersion), user last saw \(self.onboardingVersionShown)"
-        )
-        if onboardingVersionShown < Self.currentOnboardingVersion {
-            self.showOnboarding = true
-            onboardingVersionShown = Self.currentOnboardingVersion
-        } else {
-            // Go straight on to request notification permissions
-            AppState.requestNotificationPermissionIfNecessary()
-        }
-    }
+	var tabbedBody: some View {
+		TabView(selection: $route) {
+			// Me
+			NavigationStack {
+				StartOrSearchView(appState: appState, route: $route)
+			}
+			.tabItem {
+				Label("Start", systemImage: self.appState.systemImage)
+			}.tag(Route.start)
+
+			// Folders
+			NavigationStack {
+				FoldersView(appState: appState)
+					.toolbar {
+						Button(
+							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
+							action: {
+								let documentsUrl = FileManager.default.urls(
+									for: .documentDirectory, in: .userDomainMask
+								).first!
+								openURLInSystemFilesApp(url: documentsUrl)
+							}
+						).labelStyle(.iconOnly)
+					}
+			}
+			.tabItem {
+				Label("Folders", systemImage: "folder.fill")
+			}.tag(Route.folder(folderID: nil))
+
+			// Peers
+			NavigationStack {
+				DevicesView(appState: appState)
+			}
+			.tabItem {
+				Label("Devices", systemImage: "externaldrive.fill")
+			}.tag(Route.devices)
+		}
+	}
+
+	var splitBody: some View {
+		NavigationSplitView(
+			columnVisibility: $columnVisibility,
+			sidebar: {
+				List(selection: $route) {
+					if horizontalSizeClass != .compact {
+						Section {
+							NavigationLink(value: Route.start) {
+								Label("Start", systemImage: self.appState.systemImage)
+							}
+
+							NavigationLink(value: Route.devices) {
+								Label("Devices", systemImage: "externaldrive.fill")
+							}
+						}
+					}
+
+					FoldersSections(appState: self.appState)
+						#if os(macOS)
+							.contextMenu {
+								FolderMetricPickerView(appState: self.appState)
+							}
+						#endif
+				}
+				#if os(iOS)
+					.toolbar {
+						Button(
+							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
+							action: {
+								let documentsUrl = FileManager.default.urls(
+									for: .documentDirectory, in: .userDomainMask
+								).first!
+								openURLInSystemFilesApp(url: documentsUrl)
+							}
+						).labelStyle(.iconOnly)
+					}
+				#endif
+			},
+			detail: {
+				NavigationStack {
+					switch self.route {
+					case .start:
+						StartOrSearchView(appState: self.appState, route: $route)
+
+					case .devices:
+						DevicesView(appState: self.appState)
+
+					case .folder(let folderID):
+						if let folderID = folderID,
+							let folder = self.appState.client.folder(withID: folderID)
+						{
+							if folder.exists() {
+								BrowserView(
+									appState: self.appState,
+									folder: folder,
+									prefix: ""
+								).id(folder.folderID)
+							}
+							else {
+								ContentUnavailableView(
+									"Folder was deleted", systemImage: "trash",
+									description: Text("This folder was deleted."))
+							}
+						}
+						else {
+							ContentUnavailableView("Select a folder", systemImage: "folder")
+								.onTapGesture {
+									columnVisibility = .doubleColumn
+								}
+						}
+
+					case nil:
+						ContentUnavailableView("Select a folder", systemImage: "folder")
+							.onTapGesture {
+								columnVisibility = .doubleColumn
+							}
+					}
+				}
+			}
+		)
+		.navigationSplitViewStyle(.balanced)
+	}
+
+	var body: some View {
+		Group {
+			if horizontalSizeClass == .compact {
+				self.tabbedBody
+			}
+			else {
+				self.splitBody
+			}
+		}
+		.sheet(
+			isPresented: $showOnboarding,
+			content: {
+				OnboardingView().interactiveDismissDisabled()
+			}
+		)
+		#if os(iOS)
+			.onChange(of: QuickActionService.shared.action) { _, newAction in
+				if case .search(for: let searchFor) = newAction {
+					self.route = .start
+					self.searchSheetSearchTerm = searchFor
+					showSearchSheet = true
+					QuickActionService.shared.action = nil
+				}
+			}
+		#endif
+		.onChange(of: scenePhase) { oldPhase, newPhase in
+			self.appState.onScenePhaseChange(from: oldPhase, to: newPhase)
+		}
+		.alert(isPresented: $showCustomConfigWarning) {
+			Alert(
+				title: Text("Custom configuration detected"),
+				message: Text(
+					"You are using a custom configuration. This may be used for testing only, and at your own risk. Not all configuration options may be supported. To disable the custom configuration, remove the configuration files from the app's folder and restart the app. The makers of the app cannot be held liable for any data loss that may occur!"
+				),
+				dismissButton: .default(Text("I understand and agree")) {
+					self.showOnboardingIfNecessary()
+				})
+		}
+		.onAppear {
+			if self.appState.client.isUsingCustomConfiguration {
+				self.showCustomConfigWarning = true
+			}
+			else {
+				self.showOnboardingIfNecessary()
+			}
+		}
+		.onChange(of: showOnboarding) { _, shown in
+			if !shown {
+				// End of onboarding, request notification authorization
+				AppState.requestNotificationPermissionIfNecessary()
+			}
+		}
+		#if os(iOS)
+			// Search sheet for quick action
+			.sheet(isPresented: $showSearchSheet) {
+				NavigationStack {
+					SearchView(
+						appState: self.appState, prefix: "",
+						initialSearchText: self.searchSheetSearchTerm
+					)
+					.navigationTitle("Search")
+					.navigationBarTitleDisplayMode(.inline)
+					.toolbar(content: {
+						ToolbarItem(
+							placement: .cancellationAction,
+							content: {
+								Button("Cancel") {
+									showSearchSheet = false
+								}
+							})
+					})
+				}
+			}
+		#endif
+	}
+
+	private func showOnboardingIfNecessary() {
+		Log.info(
+			"Current onboarding version is \(Self.currentOnboardingVersion), user last saw \(self.onboardingVersionShown)"
+		)
+		if onboardingVersionShown < Self.currentOnboardingVersion {
+			self.showOnboarding = true
+			onboardingVersionShown = Self.currentOnboardingVersion
+		}
+		else {
+			// Go straight on to request notification permissions
+			AppState.requestNotificationPermissionIfNecessary()
+		}
+	}
 }
 
-fileprivate struct StartOrSearchView: View {
-    @ObservedObject var appState: AppState
-    @Binding var route: Route?
-    @State private var searchText: String = ""
-    @FocusState private var isSearchFieldFocused
-    
-    // This is needed because isSearching is not available from the parent view
-    struct InnerView: View {
-        @ObservedObject var appState: AppState
-        @Binding var route: Route?
-        @Binding var searchText: String
-        @Environment(\.isSearching) private var isSearching
-        
-        var body: some View {
-            if isSearching {
-                SearchResultsView(
-                    appState: self.appState,
-                    searchText: $searchText,
-                    folder: .constant(""),
-                    prefix: .constant("")
-                )
-            }
-            else {
-                StartView(appState: appState, route: $route)
-            }
-        }
-    }
-    
-    private var view: some View {
-        ZStack {
-            InnerView(appState: appState, route: $route, searchText: $searchText)
-        }
-        .searchable(text: $searchText, placement: SearchFieldPlacement.toolbar, prompt: "Search all files and folders...")
-        #if os(iOS)
-            .textInputAutocapitalization(.never)
-        #endif
-        .autocorrectionDisabled()
-    }
-    
-    var body: some View {
-        if #available(iOS 18, *) {
-            self.view.searchFocused($isSearchFieldFocused)
-        }
-        else {
-            self.view
-        }
-    }
+private struct StartOrSearchView: View {
+	@ObservedObject var appState: AppState
+	@Binding var route: Route?
+	@State private var searchText: String = ""
+	@FocusState private var isSearchFieldFocused
+
+	// This is needed because isSearching is not available from the parent view
+	struct InnerView: View {
+		@ObservedObject var appState: AppState
+		@Binding var route: Route?
+		@Binding var searchText: String
+		@Environment(\.isSearching) private var isSearching
+
+		var body: some View {
+			if isSearching {
+				SearchResultsView(
+					appState: self.appState,
+					searchText: $searchText,
+					folder: .constant(""),
+					prefix: .constant("")
+				)
+			}
+			else {
+				StartView(appState: appState, route: $route)
+			}
+		}
+	}
+
+	private var view: some View {
+		ZStack {
+			InnerView(appState: appState, route: $route, searchText: $searchText)
+		}
+		.searchable(
+			text: $searchText, placement: SearchFieldPlacement.toolbar,
+			prompt: "Search all files and folders..."
+		)
+		#if os(iOS)
+			.textInputAutocapitalization(.never)
+		#endif
+		.autocorrectionDisabled()
+	}
+
+	var body: some View {
+		if #available(iOS 18, *) {
+			self.view.searchFocused($isSearchFieldFocused)
+		}
+		else {
+			self.view
+		}
+	}
 }

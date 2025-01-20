@@ -7,45 +7,56 @@ import SwiftUI
 import SafariServices
 
 #if os(iOS)
-struct SafariView: UIViewControllerRepresentable {
-    let url: URL
+	struct SafariView: UIViewControllerRepresentable {
+		let url: URL
 
-    func makeUIViewController(context: UIViewControllerRepresentableContext<Self>) -> SFSafariViewController {
-        return SFSafariViewController(url: url)
-    }
+		func makeUIViewController(context: UIViewControllerRepresentableContext<Self>) -> SFSafariViewController
+		{
+			return SFSafariViewController(url: url)
+		}
 
-    func updateUIViewController(_ uiViewController: SFSafariViewController, context: UIViewControllerRepresentableContext<SafariView>) {
-    }
-}
+		func updateUIViewController(
+			_ uiViewController: SFSafariViewController,
+			context: UIViewControllerRepresentableContext<SafariView>
+		) {
+		}
+	}
 
-/// Monitors the `openURL` environment variable and handles them in-app instead of via
-/// the external web browser.
-/// Inspired by https://www.avanderlee.com/swiftui/sfsafariviewcontroller-open-webpages-in-app/
-private struct SafariViewControllerViewModifier: ViewModifier {
-    @State private var urlToOpen: URL?
+	/// Monitors the `openURL` environment variable and handles them in-app instead of via
+	/// the external web browser.
+	/// Inspired by https://www.avanderlee.com/swiftui/sfsafariviewcontroller-open-webpages-in-app/
+	private struct SafariViewControllerViewModifier: ViewModifier {
+		@State private var urlToOpen: URL?
 
-    func body(content: Content) -> some View {
-        content
-            .environment(\.openURL, OpenURLAction { url in
-                urlToOpen = url
-                return .handled
-            })
-            .sheet(isPresented: Binding(get: { urlToOpen != nil }, set: { nv in
-                if !nv {
-                    urlToOpen = nil
-                }
-            })) {
-                SafariView(url: urlToOpen!)
-            }
-    }
-}
+		func body(content: Content) -> some View {
+			content
+				.environment(
+					\.openURL,
+					OpenURLAction { url in
+						urlToOpen = url
+						return .handled
+					}
+				)
+				.sheet(
+					isPresented: Binding(
+						get: { urlToOpen != nil },
+						set: { nv in
+							if !nv {
+								urlToOpen = nil
+							}
+						})
+				) {
+					SafariView(url: urlToOpen!)
+				}
+		}
+	}
 
-extension View {
-    /// Monitor the `openURL` environment variable and handle them in-app instead of via
-    /// the external web browser.
-    /// Uses the `SafariViewWrapper` which will present the URL in a `SFSafariViewController`.
-    func handleOpenURLInApp() -> some View {
-        modifier(SafariViewControllerViewModifier())
-    }
-}
+	extension View {
+		/// Monitor the `openURL` environment variable and handle them in-app instead of via
+		/// the external web browser.
+		/// Uses the `SafariViewWrapper` which will present the URL in a `SFSafariViewController`.
+		func handleOpenURLInApp() -> some View {
+			modifier(SafariViewControllerViewModifier())
+		}
+	}
 #endif

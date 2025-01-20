@@ -48,6 +48,14 @@ Note that XCode will, by default, invoke the aforementioned Makefile for the Go 
 development it may be easier to build the framework by hand to be able to easily see any compiler output (a subsequent make
 invocation from XCode should be rather quick if nothing changed since the manual invocation).
 
+## Formatting
+
+```bash
+brew install swift-format
+swift format lint -r .
+swift format -r -i .
+```
+
 ## Translations
 
 To translate using ChatGPT, use the [localize.mjs](./localize.mjs) script as follows:

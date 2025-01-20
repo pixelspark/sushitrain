@@ -11,347 +11,337 @@ import WebKit
 import CoreTransferable
 
 extension SushitrainListOfStrings {
-    public func asArray() -> [String] {
-        var data: [String] = []
-        for idx in 0..<self.count() {
-            data.append(self.item(at: idx))
-        }
-        return data
-    }
-    
-    static func from(_ array: [String]) -> SushitrainListOfStrings {
-        let list = SushitrainNewListOfStrings()!
-        for item in array {
-            list.append(item)
-        }
-        return list
-    }
+	public func asArray() -> [String] {
+		var data: [String] = []
+		for idx in 0..<self.count() {
+			data.append(self.item(at: idx))
+		}
+		return data
+	}
+
+	static func from(_ array: [String]) -> SushitrainListOfStrings {
+		let list = SushitrainNewListOfStrings()!
+		for item in array {
+			list.append(item)
+		}
+		return list
+	}
 }
 
 extension SushitrainPeer {
-    var displayName: String {
-        let name = self.name()
-        if !name.isEmpty {
-            return name
-        }
-        return self.deviceID()
-    }
-    
-    
-    
-    var systemImage: String {
-        return self.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill"
-    }
+	var displayName: String {
+		let name = self.name()
+		if !name.isEmpty {
+			return name
+		}
+		return self.deviceID()
+	}
+
+	var systemImage: String {
+		return self.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill"
+	}
 }
 
 extension SushitrainDate {
-    public func date() -> Date {
-        return Date(timeIntervalSince1970: Double(self.unixMilliseconds()) / 1000.0)
-    }
+	public func date() -> Date {
+		return Date(timeIntervalSince1970: Double(self.unixMilliseconds()) / 1000.0)
+	}
 }
 
 extension SushitrainFolder: @retroactive Comparable {
-    public static func < (lhs: SushitrainFolder, rhs: SushitrainFolder) -> Bool {
-        return lhs.displayName < rhs.displayName
-    }
+	public static func < (lhs: SushitrainFolder, rhs: SushitrainFolder) -> Bool {
+		return lhs.displayName < rhs.displayName
+	}
 }
 
 extension SushitrainPeer: @retroactive Comparable {
-    // Sort peers by display name, when there is a tie sort by the device ID (always unique)
-    public static func < (lhs: SushitrainPeer, rhs: SushitrainPeer) -> Bool {
-        let a = lhs.displayName
-        let b = rhs.displayName
-        if a == b {
-            return lhs.deviceID() < rhs.deviceID()
-        }
-        return a < b
-    }
+	// Sort peers by display name, when there is a tie sort by the device ID (always unique)
+	public static func < (lhs: SushitrainPeer, rhs: SushitrainPeer) -> Bool {
+		let a = lhs.displayName
+		let b = rhs.displayName
+		if a == b {
+			return lhs.deviceID() < rhs.deviceID()
+		}
+		return a < b
+	}
 }
 
 extension SushitrainEntry: @retroactive Comparable {
-    public static func < (lhs: SushitrainEntry, rhs: SushitrainEntry) -> Bool {
-        return lhs.path() < rhs.path()
-    }
+	public static func < (lhs: SushitrainEntry, rhs: SushitrainEntry) -> Bool {
+		return lhs.path() < rhs.path()
+	}
 }
 
 extension SushitrainEntry: @retroactive Identifiable {
-    public var id: String {
-        return (self.folder?.folderID ?? "") + ":" + self.path()
-    }
+	public var id: String {
+		return (self.folder?.folderID ?? "") + ":" + self.path()
+	}
 }
 
 extension SushitrainPeer: @retroactive Identifiable {
-    public var id: String {
-        return self.deviceID()
-    }
+	public var id: String {
+		return self.deviceID()
+	}
 }
 
 extension SushitrainFolder: @retroactive Identifiable {
-    public var id: String {
-        return self.folderID
-    }
+	public var id: String {
+		return self.folderID
+	}
 }
 
 extension SushitrainChange: @retroactive Identifiable {
 }
 
 extension SushitrainChange {
-    var systemImage: String {
-        switch self.action {
-        case "deleted":
-            return "trash"
-            
-        case "modified":
-            fallthrough
-            
-        default:
-            return "pencil.circle"
-        }
-    }
+	var systemImage: String {
+		switch self.action {
+		case "deleted":
+			return "trash"
+
+		case "modified":
+			fallthrough
+
+		default:
+			return "pencil.circle"
+		}
+	}
 }
 
 import SwiftUI
 import Combine
 struct BackgroundSyncRun: Codable, Equatable {
-    var started: Date
-    var ended: Date?
-    
-    var asString: String {
-        if let ended = self.ended {
-            return "\(self.started.formatted()) - \(ended.formatted())"
-        }
-        return self.started.formatted()
-    }
+	var started: Date
+	var ended: Date?
+
+	var asString: String {
+		if let ended = self.ended {
+			return "\(self.started.formatted()) - \(ended.formatted())"
+		}
+		return self.started.formatted()
+	}
 }
 
 final class PublisherObservableObject: ObservableObject {
-    
-    var subscriber: AnyCancellable?
-    
-    init(publisher: AnyPublisher<Void, Never>) {
-        subscriber = publisher.sink(receiveValue: { [weak self] _ in
-            self?.objectWillChange.send()
-        })
-    }
+
+	var subscriber: AnyCancellable?
+
+	init(publisher: AnyPublisher<Void, Never>) {
+		subscriber = publisher.sink(receiveValue: { [weak self] _ in
+			self?.objectWillChange.send()
+		})
+	}
 }
 
 extension SushitrainFolder {
-    var isIdle: Bool {
-        var error: NSError? = nil
-        let s = self.state(&error)
-        return s == "idle"
-    }
-    
-    var isExternal: Bool? {
-        var isExternal: ObjCBool = false
-        do {
-            try self.isExternal(&isExternal)
-            return isExternal.boolValue
-        } catch {
-            return nil
-        }
-    }
-    
-    // When true, the folder's selection can be changed (files may be transferring, but otherwise the folder is idle)
-    var isIdleOrSyncing: Bool {
-        var error: NSError? = nil
-        let s = self.state(&error)
-        return s == "idle" || s == "syncing"
-    }
-    
-    var displayName: String {
-        let label = self.label()
-        return label.isEmpty ? self.folderID : label
-    }
-    
-    var localNativeURL: URL? {
-        get {
-            var error: NSError? = nil
-            let localNativePath = self.localNativePath(&error)
-            
-            if let error = error {
-                Log.warn("Could not get local native URL for folder: \(error.localizedDescription)")
-            }
-            else {
-                return URL(fileURLWithPath: localNativePath)
-            }
-            return nil
-        }
-    }
-    
-    var isExcludedFromBackup: Bool? {
-        get {
-            guard let lu = self.localNativeURL else { return nil }
-            let values = try? lu.resourceValues(forKeys: [.isExcludedFromBackupKey])
-            return values?.isExcludedFromBackup
-        }
-        set {
-            guard var lu = self.localNativeURL else { return }
-            
-            do {
-                var values = try lu.resourceValues(forKeys: [.isExcludedFromBackupKey])
-                values.isExcludedFromBackup = newValue
-                try lu.setResourceValues(values)
-            }
-            catch {
-                Log.warn("Unable to set back-up excluded setting: \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    var isHidden: Bool? {
-        get {
-            guard let lu = self.localNativeURL else { return nil }
-            let values = try? lu.resourceValues(forKeys: [.isHiddenKey])
-            return values?.isHidden
-        }
-        set {
-            guard var lu = self.localNativeURL else { return }
-            if var values = try? lu.resourceValues(forKeys: [.isHiddenKey]) {
-                values.isHidden = newValue
-                do {
-                    try lu.setResourceValues(values)
-                }
-                catch {
-                    Log.info("Unable to set hide setting: \(error.localizedDescription)")
-                }
-            }
-        }
-    }
-    
-    @MainActor
-    func removeAndRemoveBookmark() throws {
-        BookmarkManager.shared.removeBookmarkFor(folderID: self.folderID)
-        try self.remove()
-    }
-    
-    @MainActor
-    func unlinkAndRemoveBookmark() throws {
-        BookmarkManager.shared.removeBookmarkFor(folderID: self.folderID)
-        try self.unlink()
-    }
+	var isIdle: Bool {
+		var error: NSError? = nil
+		let s = self.state(&error)
+		return s == "idle"
+	}
+
+	var isExternal: Bool? {
+		var isExternal: ObjCBool = false
+		do {
+			try self.isExternal(&isExternal)
+			return isExternal.boolValue
+		}
+		catch {
+			return nil
+		}
+	}
+
+	// When true, the folder's selection can be changed (files may be transferring, but otherwise the folder is idle)
+	var isIdleOrSyncing: Bool {
+		var error: NSError? = nil
+		let s = self.state(&error)
+		return s == "idle" || s == "syncing"
+	}
+
+	var displayName: String {
+		let label = self.label()
+		return label.isEmpty ? self.folderID : label
+	}
+
+	var localNativeURL: URL? {
+		var error: NSError? = nil
+		let localNativePath = self.localNativePath(&error)
+
+		if let error = error {
+			Log.warn("Could not get local native URL for folder: \(error.localizedDescription)")
+		}
+		else {
+			return URL(fileURLWithPath: localNativePath)
+		}
+		return nil
+	}
+
+	var isExcludedFromBackup: Bool? {
+		get {
+			guard let lu = self.localNativeURL else { return nil }
+			let values = try? lu.resourceValues(forKeys: [.isExcludedFromBackupKey])
+			return values?.isExcludedFromBackup
+		}
+		set {
+			guard var lu = self.localNativeURL else { return }
+
+			do {
+				var values = try lu.resourceValues(forKeys: [.isExcludedFromBackupKey])
+				values.isExcludedFromBackup = newValue
+				try lu.setResourceValues(values)
+			}
+			catch {
+				Log.warn("Unable to set back-up excluded setting: \(error.localizedDescription)")
+			}
+		}
+	}
+
+	var isHidden: Bool? {
+		get {
+			guard let lu = self.localNativeURL else { return nil }
+			let values = try? lu.resourceValues(forKeys: [.isHiddenKey])
+			return values?.isHidden
+		}
+		set {
+			guard var lu = self.localNativeURL else { return }
+			if var values = try? lu.resourceValues(forKeys: [.isHiddenKey]) {
+				values.isHidden = newValue
+				do {
+					try lu.setResourceValues(values)
+				}
+				catch {
+					Log.info("Unable to set hide setting: \(error.localizedDescription)")
+				}
+			}
+		}
+	}
+
+	@MainActor
+	func removeAndRemoveBookmark() throws {
+		BookmarkManager.shared.removeBookmarkFor(folderID: self.folderID)
+		try self.remove()
+	}
+
+	@MainActor
+	func unlinkAndRemoveBookmark() throws {
+		BookmarkManager.shared.removeBookmarkFor(folderID: self.folderID)
+		try self.unlink()
+	}
 }
 
 extension SushitrainEntry {
-    var color: Color? {
-        if self.isSymlink() {
-            return Color.blue
-        }
-        else if self.isLocallyPresent() {
-            return nil
-        }
-        else {
-            return Color.secondary
-        }
-    }
-    
-    var systemImage: String {
-        if self.isSymlink() {
-            return "link"
-        }
-        
-        let base = self.isDirectory() ? "folder" : "document"
-        if self.isLocallyPresent() {
-            return "\(base).fill"
-        }
-        else if self.isDeleted() {
-            return "trash"
-        }
-        else if self.isSelected() {
-            if self.isDirectory() {
-                return "questionmark.folder"
-            }
-            else {
-                return "document.badge.ellipsis"
-            }
-        }
-        else {
-            return "\(base)"
-        }
-    }
-    
-    var isMedia: Bool {
-        get {
-            return self.isVideo || self.isAudio
-        }
-    }
-    
-    var isImage: Bool {
-        get {
-            return self.mimeType().starts(with: "image/")
-        }
-    }
-    
-    var isVideo: Bool {
-        get {
-            return self.mimeType().starts(with: "video/")
-        }
-    }
-    var isAudio: Bool {
-        get {
-            return self.mimeType().starts(with: "audio/")
-        }
-    }
-    
-    var isStreamable: Bool {
-        return self.isVideo || self.isAudio || self.isImage
-    }
-    
-    var canThumbnail: Bool {
-        return !self.isSymlink() && (self.isVideo || (self.isImage && self.mimeType() != "image/svg+xml") || !self.isDirectory())
-    }
-    
-    var localNativeFileURL: URL? {
-        var error: NSError? = nil
-        if self.isLocallyPresent() {
-            let path = self.localNativePath(&error)
-            if error == nil {
-                return URL(fileURLWithPath: path)
-            }
-        }
-        return nil
-    }
-    
-    func isLocalOnlyCopy() async throws -> Bool {
-        if !self.isLocallyPresent() {
-            return false
-        }
-        
-        let availability = try await Task.detached { [self] in
-            return (try self.peersWithFullCopy()).asArray()
-        }.value
-        
-        return availability.isEmpty
-    }
-    
-    var thumbnailStrategy: ThumbnailStrategy {
-        return self.isVideo ? .video : .image
-    }
+	var color: Color? {
+		if self.isSymlink() {
+			return Color.blue
+		}
+		else if self.isLocallyPresent() {
+			return nil
+		}
+		else {
+			return Color.secondary
+		}
+	}
+
+	var systemImage: String {
+		if self.isSymlink() {
+			return "link"
+		}
+
+		let base = self.isDirectory() ? "folder" : "document"
+		if self.isLocallyPresent() {
+			return "\(base).fill"
+		}
+		else if self.isDeleted() {
+			return "trash"
+		}
+		else if self.isSelected() {
+			if self.isDirectory() {
+				return "questionmark.folder"
+			}
+			else {
+				return "document.badge.ellipsis"
+			}
+		}
+		else {
+			return "\(base)"
+		}
+	}
+
+	var isMedia: Bool {
+		return self.isVideo || self.isAudio
+	}
+
+	var isImage: Bool {
+		return self.mimeType().starts(with: "image/")
+	}
+
+	var isVideo: Bool {
+		return self.mimeType().starts(with: "video/")
+	}
+	var isAudio: Bool {
+		return self.mimeType().starts(with: "audio/")
+	}
+
+	var isStreamable: Bool {
+		return self.isVideo || self.isAudio || self.isImage
+	}
+
+	var canThumbnail: Bool {
+		return !self.isSymlink()
+			&& (self.isVideo || (self.isImage && self.mimeType() != "image/svg+xml") || !self.isDirectory())
+	}
+
+	var localNativeFileURL: URL? {
+		var error: NSError? = nil
+		if self.isLocallyPresent() {
+			let path = self.localNativePath(&error)
+			if error == nil {
+				return URL(fileURLWithPath: path)
+			}
+		}
+		return nil
+	}
+
+	func isLocalOnlyCopy() async throws -> Bool {
+		if !self.isLocallyPresent() {
+			return false
+		}
+
+		let availability = try await Task.detached { [self] in
+			return (try self.peersWithFullCopy()).asArray()
+		}.value
+
+		return availability.isEmpty
+	}
+
+	var thumbnailStrategy: ThumbnailStrategy {
+		return self.isVideo ? .video : .image
+	}
 }
 
 enum SushitrainEntryTransferableError: Error {
-    case notAvailable
+	case notAvailable
 }
 
 extension SushitrainEntry: @retroactive Transferable {
-    static public var transferRepresentation: some TransferRepresentation {
-        ProxyRepresentation { entry in
-            if let url = entry.localNativeFileURL {
-                return url
-            }
-            
-            throw SushitrainEntryTransferableError.notAvailable
-        }
-        .exportingCondition { entry in
-            entry.isLocallyPresent()
-        }
-        
-        // This works somewhat, but must be repeated for each file type... so it cannot be made consistent
-        // FileRepresentation(exportedContentType: .png, exporting: { try await $0.downloadFileToSent() }).exportingCondition({ !$0.isLocallyPresent() && $0.mimeType() == "image/png" })
-        // FileRepresentation(exportedContentType: .data, exporting: { try await $0.downloadFileToSent() }).exportingCondition({ !$0.isLocallyPresent() })
-    }
-    
-    /* private func downloadFileToSent() async throws -> SentTransferredFile {
+	static public var transferRepresentation: some TransferRepresentation {
+		ProxyRepresentation { entry in
+			if let url = entry.localNativeFileURL {
+				return url
+			}
+
+			throw SushitrainEntryTransferableError.notAvailable
+		}
+		.exportingCondition { entry in
+			entry.isLocallyPresent()
+		}
+
+		// This works somewhat, but must be repeated for each file type... so it cannot be made consistent
+		// FileRepresentation(exportedContentType: .png, exporting: { try await $0.downloadFileToSent() }).exportingCondition({ !$0.isLocallyPresent() && $0.mimeType() == "image/png" })
+		// FileRepresentation(exportedContentType: .data, exporting: { try await $0.downloadFileToSent() }).exportingCondition({ !$0.isLocallyPresent() })
+	}
+
+	/* private func downloadFileToSent() async throws -> SentTransferredFile {
         if let url = URL(string: self.onDemandURL()) {
             let (localURL, _) = try await URLSession.shared.download(from: url)
             return SentTransferredFile(localURL, allowAccessingOriginalFile: false)
@@ -361,152 +351,155 @@ extension SushitrainEntry: @retroactive Transferable {
 }
 
 #if os(iOS)
-struct QRScannerViewRepresentable: UIViewControllerRepresentable {
-    @Binding var scannedText: String
-    @Binding var shouldStartScanning: Bool
-    var dataToScanFor: Set<DataScannerViewController.RecognizedDataType>
+	struct QRScannerViewRepresentable: UIViewControllerRepresentable {
+		@Binding var scannedText: String
+		@Binding var shouldStartScanning: Bool
+		var dataToScanFor: Set<DataScannerViewController.RecognizedDataType>
 
-    
-    class Coordinator: NSObject, DataScannerViewControllerDelegate {
-        var parent: QRScannerViewRepresentable
-        
-        init(_ parent: QRScannerViewRepresentable) {
-            self.parent = parent
-        }
-        
-        func dataScanner(_ dataScanner: DataScannerViewController, didAdd addedItems: [RecognizedItem], allItems: [RecognizedItem]) {
-            for item in allItems {
-                switch item {
-                case .barcode(let barcode):
-                    if let text = barcode.payloadStringValue, !text.isEmpty {
-                        parent.scannedText = text
-                        parent.shouldStartScanning = false
-                        return
-                    }
-                    
-                default:
-                    break
-                }
-            }
-        }
-    }
-    
-    func makeUIViewController(context: Context) -> DataScannerViewController {
-        let dataScannerVC = DataScannerViewController(
-            recognizedDataTypes: dataToScanFor,
-            qualityLevel: .accurate,
-            recognizesMultipleItems: false,
-            isHighFrameRateTrackingEnabled: true,
-            isPinchToZoomEnabled: true,
-            isGuidanceEnabled: true,
-            isHighlightingEnabled: true
-        )
-        
-        dataScannerVC.delegate = context.coordinator
-        return dataScannerVC
-    }
-    
-    func updateUIViewController(_ uiViewController: DataScannerViewController, context: Context) {
-        if shouldStartScanning {
-            try? uiViewController.startScanning()
-        } else {
-            uiViewController.stopScanning()
-        }
-    }
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-}
+		class Coordinator: NSObject, DataScannerViewControllerDelegate {
+			var parent: QRScannerViewRepresentable
+
+			init(_ parent: QRScannerViewRepresentable) {
+				self.parent = parent
+			}
+
+			func dataScanner(
+				_ dataScanner: DataScannerViewController, didAdd addedItems: [RecognizedItem],
+				allItems: [RecognizedItem]
+			) {
+				for item in allItems {
+					switch item {
+					case .barcode(let barcode):
+						if let text = barcode.payloadStringValue, !text.isEmpty {
+							parent.scannedText = text
+							parent.shouldStartScanning = false
+							return
+						}
+
+					default:
+						break
+					}
+				}
+			}
+		}
+
+		func makeUIViewController(context: Context) -> DataScannerViewController {
+			let dataScannerVC = DataScannerViewController(
+				recognizedDataTypes: dataToScanFor,
+				qualityLevel: .accurate,
+				recognizesMultipleItems: false,
+				isHighFrameRateTrackingEnabled: true,
+				isPinchToZoomEnabled: true,
+				isGuidanceEnabled: true,
+				isHighlightingEnabled: true
+			)
+
+			dataScannerVC.delegate = context.coordinator
+			return dataScannerVC
+		}
+
+		func updateUIViewController(_ uiViewController: DataScannerViewController, context: Context) {
+			if shouldStartScanning {
+				try? uiViewController.startScanning()
+			}
+			else {
+				uiViewController.stopScanning()
+			}
+		}
+
+		func makeCoordinator() -> Coordinator {
+			Coordinator(self)
+		}
+	}
 #endif
 
 extension Bundle {
-    var releaseVersionNumber: String? {
-        return self.infoDictionary?["CFBundleShortVersionString"] as? String
-    }
+	var releaseVersionNumber: String? {
+		return self.infoDictionary?["CFBundleShortVersionString"] as? String
+	}
 
-    var buildVersionNumber: String? {
-        return self.infoDictionary?["CFBundleVersion"] as? String
-    }
+	var buildVersionNumber: String? {
+		return self.infoDictionary?["CFBundleVersion"] as? String
+	}
 
 }
 
 protocol Defaultable {
-    init()
+	init()
 }
 
 // Allows all Codable Arrays to be saved using AppStorage
 extension Array: @retroactive RawRepresentable where Element: Codable {
-    public init?(rawValue: String) {
-        guard let data = rawValue.data(using: .utf8),
-              let result = try? JSONDecoder().decode([Element].self, from: data)
-        else {
-            return nil
-        }
-        self = result
-    }
+	public init?(rawValue: String) {
+		guard let data = rawValue.data(using: .utf8),
+			let result = try? JSONDecoder().decode([Element].self, from: data)
+		else {
+			return nil
+		}
+		self = result
+	}
 
-    public var rawValue: String {
-        guard let data = try? JSONEncoder().encode(self),
-              let result = String(data: data, encoding: .utf8)
-        else {
-            return "[]"
-        }
-        return result
-    }
+	public var rawValue: String {
+		guard let data = try? JSONEncoder().encode(self),
+			let result = String(data: data, encoding: .utf8)
+		else {
+			return "[]"
+		}
+		return result
+	}
 }
 
 // Allows all Codable Sets to be saved using AppStorage
 extension Set: @retroactive RawRepresentable where Element: Codable {
-    public init?(rawValue: String) {
-        guard let data = rawValue.data(using: .utf8),
-              let result = try? JSONDecoder().decode([Element].self, from: data)
-        else {
-            return nil
-        }
-        self = Set(result)
-    }
+	public init?(rawValue: String) {
+		guard let data = rawValue.data(using: .utf8),
+			let result = try? JSONDecoder().decode([Element].self, from: data)
+		else {
+			return nil
+		}
+		self = Set(result)
+	}
 
-    public var rawValue: String {
-        guard let data = try? JSONEncoder().encode(self),
-              let result = String(data: data, encoding: .utf8)
-        else {
-            return "[]"
-        }
-        return result
-    }
+	public var rawValue: String {
+		guard let data = try? JSONEncoder().encode(self),
+			let result = String(data: data, encoding: .utf8)
+		else {
+			return "[]"
+		}
+		return result
+	}
 }
 
 extension Set {
-    mutating func toggle(_ element: Element, _ t: Bool) {
-        if t {
-            self.insert(element)
-        }
-        else {
-            self.remove(element)
-        }
-    }
+	mutating func toggle(_ element: Element, _ t: Bool) {
+		if t {
+			self.insert(element)
+		}
+		else {
+			self.remove(element)
+		}
+	}
 }
 
 @MainActor
 func openURLInSystemFilesApp(url: URL) {
-    #if os(iOS)
-        let sharedURL = url.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
-        let furl: URL = URL(string: sharedURL)!
-        UIApplication.shared.open(furl, options: [:], completionHandler: nil)
-    #endif
-        
-    #if os(macOS)
-        NSWorkspace.shared.activateFileViewerSelecting([url])
-    #endif
+	#if os(iOS)
+		let sharedURL = url.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
+		let furl: URL = URL(string: sharedURL)!
+		UIApplication.shared.open(furl, options: [:], completionHandler: nil)
+	#endif
+
+	#if os(macOS)
+		NSWorkspace.shared.activateFileViewerSelecting([url])
+	#endif
 }
 
 #if os(iOS)
-    let openInFilesAppLabel = String(localized: "Open in Files app")
+	let openInFilesAppLabel = String(localized: "Open in Files app")
 #endif
 
 #if os(macOS)
-    let openInFilesAppLabel = String(localized: "Show in Finder")
+	let openInFilesAppLabel = String(localized: "Show in Finder")
 #endif
 
 extension SushitrainChange: @unchecked @retroactive Sendable {}
@@ -516,233 +509,242 @@ extension SushitrainEntry: @unchecked @retroactive Sendable {}
 extension SushitrainCompletion: @unchecked @retroactive Sendable {}
 
 #if os(macOS)
-typealias UIViewRepresentable = NSViewRepresentable
+	typealias UIViewRepresentable = NSViewRepresentable
 #endif
 
 struct WebView: UIViewRepresentable {
-    let url: URL
-    @Binding var isLoading: Bool
-    @Binding var error: Error?
-    
-    // With thanks to https://www.swiftyplace.com/blog/loading-a-web-view-in-swiftui-with-wkwebview
-    class WebViewCoordinator: NSObject, WKNavigationDelegate {
-        var parent: WebView
-        
-        init(_ parent: WebView) {
-            self.parent = parent
-        }
-        
-        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-            parent.isLoading = true
-        }
-        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            parent.isLoading = false
-        }
-        
-        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: any Error) {
-            parent.isLoading = false
-            parent.error = error
-        }
-        
-        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: any Error) {
-            parent.isLoading = false
-            parent.error = error
-        }
-    }
-    
-    func makeCoordinator() -> WebViewCoordinator {
-        return WebViewCoordinator(self)
-    }
-    
-    #if os(iOS)
-    func makeUIView(context: Context) -> WKWebView {
-        let view = WKWebView()
-        view.navigationDelegate = context.coordinator
-        view.isOpaque = false
-        let request = URLRequest(url: url)
-        view.load(request)
-        return view
-    }
-    
-    func updateUIView(_ webView: WKWebView, context: Context) {
-        if webView.url != url {
-            let request = URLRequest(url: url)
-            webView.load(request)
-        }
-    }
-    #endif
-    
-    #if os(macOS)
-    func makeNSView(context: Context) -> WKWebView {
-        let view = WKWebView()
-        view.navigationDelegate = context.coordinator
-        let request = URLRequest(url: url)
-        view.load(request)
-        return view
-    }
-    
-    func updateNSView(_ webView: WKWebView, context: Context) {
-        if webView.url != url {
-            let request = URLRequest(url: url)
-            webView.load(request)
-        }
-    }
-    #endif
+	let url: URL
+	@Binding var isLoading: Bool
+	@Binding var error: Error?
+
+	// With thanks to https://www.swiftyplace.com/blog/loading-a-web-view-in-swiftui-with-wkwebview
+	class WebViewCoordinator: NSObject, WKNavigationDelegate {
+		var parent: WebView
+
+		init(_ parent: WebView) {
+			self.parent = parent
+		}
+
+		func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+			parent.isLoading = true
+		}
+		func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+			parent.isLoading = false
+		}
+
+		func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: any Error) {
+			parent.isLoading = false
+			parent.error = error
+		}
+
+		func webView(
+			_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!,
+			withError error: any Error
+		) {
+			parent.isLoading = false
+			parent.error = error
+		}
+	}
+
+	func makeCoordinator() -> WebViewCoordinator {
+		return WebViewCoordinator(self)
+	}
+
+	#if os(iOS)
+		func makeUIView(context: Context) -> WKWebView {
+			let view = WKWebView()
+			view.navigationDelegate = context.coordinator
+			view.isOpaque = false
+			let request = URLRequest(url: url)
+			view.load(request)
+			return view
+		}
+
+		func updateUIView(_ webView: WKWebView, context: Context) {
+			if webView.url != url {
+				let request = URLRequest(url: url)
+				webView.load(request)
+			}
+		}
+	#endif
+
+	#if os(macOS)
+		func makeNSView(context: Context) -> WKWebView {
+			let view = WKWebView()
+			view.navigationDelegate = context.coordinator
+			let request = URLRequest(url: url)
+			view.load(request)
+			return view
+		}
+
+		func updateNSView(_ webView: WKWebView, context: Context) {
+			if webView.url != url {
+				let request = URLRequest(url: url)
+				webView.load(request)
+			}
+		}
+	#endif
 }
 
 @MainActor
 struct BookmarkManager {
-    static var shared = BookmarkManager()
-    private static let DefaultsKey = "bookmarksByFolderID"
-    private var bookmarks: [String: Data] = [:]
-    private var accessing: [String: Accessor] = [:]
-    
-    enum BookmarkManagerError: Error {
-        case cannotAccess
-    }
-    
-    class Accessor {
-        var url: URL
-        
-        init(url: URL) throws {
-            self.url = url
-            if !url.startAccessingSecurityScopedResource() {
-                throw BookmarkManagerError.cannotAccess
-            }
-            Log.info("Start accessing \(url)")
-        }
-        
-        deinit {
-            Log.info("Stop accessing \(url)")
-            url.stopAccessingSecurityScopedResource()
-        }
-    }
-    
-    init() {
-        self.load()
-    }
-    
-    mutating func saveBookmark(folderID: String, url: URL) throws {
-        self.accessing[folderID] = try Accessor(url: url)
-        #if os(macOS)
-            bookmarks[folderID] = try url.bookmarkData(options: .withSecurityScope)
-        #else
-            bookmarks[folderID] = try url.bookmarkData(options: .minimalBookmark)
-        #endif
-        self.save()
-    }
-    
-    mutating func removeBookmarkFor(folderID: String) {
-        self.bookmarks.removeValue(forKey: folderID)
-        self.accessing.removeValue(forKey: folderID)
-        self.save()
-    }
-    
-    func hasBookmarkFor(folderID: String) -> Bool {
-        return self.bookmarks[folderID] != nil
-    }
-    
-    mutating func resolveBookmark(folderID: String) throws -> URL? {
-        guard let bookmarkData = bookmarks[folderID] else { return nil }
-        var isStale = false
-        
-        #if os(macOS)
-            let url = try URL(resolvingBookmarkData: bookmarkData, options: [.withSecurityScope], bookmarkDataIsStale: &isStale)
-        #else
-            let url = try URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &isStale)
-        #endif
-        
-        if isStale {
-            // Refresh bookmark
-            Log.info("Bookmark for \(folderID) is stale")
-            do {
-                #if os(macOS)
-                    bookmarks[folderID] = try url.bookmarkData(options: .withSecurityScope)
-                #else
-                    bookmarks[folderID] = try url.bookmarkData(options: .minimalBookmark)
-                #endif
-                self.save()
-            }
-            catch {
-                Log.warn("Could not refresh stale bookmark: \(error.localizedDescription)")
-            }
-        }
-        
-        // Start accessing
-        if let currentAccessor = self.accessing[folderID] {
-            if currentAccessor.url != url {
-                self.accessing[folderID] = try Accessor(url: url)
-            }
-        }
-        else {
-            self.accessing[folderID] = try Accessor(url: url)
-        }
-        return url
-    }
-    
-    private mutating func load() {
-        self.bookmarks = UserDefaults.standard.object(forKey: Self.DefaultsKey) as? [String: Data] ?? [:]
-        Log.info("Load bookmarks: \(self.bookmarks)")
-    }
-    
-    private func save() {
-        Log.info("Saving bookmarks: \(self.bookmarks)")
-        UserDefaults.standard.set(self.bookmarks, forKey: Self.DefaultsKey)
-    }
-    
-    mutating func removeBookmarksForFoldersNotIn(_ folderIDs: Set<String>) {
-        let toRemove = self.bookmarks.keys.filter({ !folderIDs.contains($0) })
-        for toRemoveKey in toRemove {
-            Log.warn("Removing stale bookmark \(toRemoveKey)")
-            self.bookmarks.removeValue(forKey: toRemoveKey)
-        }
-    }
+	static var shared = BookmarkManager()
+	private static let DefaultsKey = "bookmarksByFolderID"
+	private var bookmarks: [String: Data] = [:]
+	private var accessing: [String: Accessor] = [:]
+
+	enum BookmarkManagerError: Error {
+		case cannotAccess
+	}
+
+	class Accessor {
+		var url: URL
+
+		init(url: URL) throws {
+			self.url = url
+			if !url.startAccessingSecurityScopedResource() {
+				throw BookmarkManagerError.cannotAccess
+			}
+			Log.info("Start accessing \(url)")
+		}
+
+		deinit {
+			Log.info("Stop accessing \(url)")
+			url.stopAccessingSecurityScopedResource()
+		}
+	}
+
+	init() {
+		self.load()
+	}
+
+	mutating func saveBookmark(folderID: String, url: URL) throws {
+		self.accessing[folderID] = try Accessor(url: url)
+		#if os(macOS)
+			bookmarks[folderID] = try url.bookmarkData(options: .withSecurityScope)
+		#else
+			bookmarks[folderID] = try url.bookmarkData(options: .minimalBookmark)
+		#endif
+		self.save()
+	}
+
+	mutating func removeBookmarkFor(folderID: String) {
+		self.bookmarks.removeValue(forKey: folderID)
+		self.accessing.removeValue(forKey: folderID)
+		self.save()
+	}
+
+	func hasBookmarkFor(folderID: String) -> Bool {
+		return self.bookmarks[folderID] != nil
+	}
+
+	mutating func resolveBookmark(folderID: String) throws -> URL? {
+		guard let bookmarkData = bookmarks[folderID] else { return nil }
+		var isStale = false
+
+		#if os(macOS)
+			let url = try URL(
+				resolvingBookmarkData: bookmarkData, options: [.withSecurityScope],
+				bookmarkDataIsStale: &isStale)
+		#else
+			let url = try URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &isStale)
+		#endif
+
+		if isStale {
+			// Refresh bookmark
+			Log.info("Bookmark for \(folderID) is stale")
+			do {
+				#if os(macOS)
+					bookmarks[folderID] = try url.bookmarkData(options: .withSecurityScope)
+				#else
+					bookmarks[folderID] = try url.bookmarkData(options: .minimalBookmark)
+				#endif
+				self.save()
+			}
+			catch {
+				Log.warn("Could not refresh stale bookmark: \(error.localizedDescription)")
+			}
+		}
+
+		// Start accessing
+		if let currentAccessor = self.accessing[folderID] {
+			if currentAccessor.url != url {
+				self.accessing[folderID] = try Accessor(url: url)
+			}
+		}
+		else {
+			self.accessing[folderID] = try Accessor(url: url)
+		}
+		return url
+	}
+
+	private mutating func load() {
+		self.bookmarks = UserDefaults.standard.object(forKey: Self.DefaultsKey) as? [String: Data] ?? [:]
+		Log.info("Load bookmarks: \(self.bookmarks)")
+	}
+
+	private func save() {
+		Log.info("Saving bookmarks: \(self.bookmarks)")
+		UserDefaults.standard.set(self.bookmarks, forKey: Self.DefaultsKey)
+	}
+
+	mutating func removeBookmarksForFoldersNotIn(_ folderIDs: Set<String>) {
+		let toRemove = self.bookmarks.keys.filter({ !folderIDs.contains($0) })
+		for toRemoveKey in toRemove {
+			Log.warn("Removing stale bookmark \(toRemoveKey)")
+			self.bookmarks.removeValue(forKey: toRemoveKey)
+		}
+	}
 }
 
 final class Log {
-    static func info(_ message: String) {
-        SushitrainLogInfo(message)
-    }
-    
-    static func warn(_ message: String) {
-        SushitrainLogWarn(message)
-    }
+	static func info(_ message: String) {
+		SushitrainLogInfo(message)
+	}
+
+	static func warn(_ message: String) {
+		SushitrainLogWarn(message)
+	}
 }
 
 extension String {
-    var withoutEndingSlash: String {
-        if self.last == "/" {
-            return String(self.dropLast())
-        }
-        return self
-    }
+	var withoutEndingSlash: String {
+		if self.last == "/" {
+			return String(self.dropLast())
+		}
+		return self
+	}
 }
 
 extension CGImage {
-    func resize(size: CGSize) -> CGImage? {
-        let width = Int(size.width)
-        let height = Int(size.height)
+	func resize(size: CGSize) -> CGImage? {
+		let width = Int(size.width)
+		let height = Int(size.height)
 
-        guard let colorSpace = self.colorSpace else {
-            return nil
-        }
-        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: self.bitsPerComponent, bytesPerRow: 0, space: colorSpace, bitmapInfo: self.alphaInfo.rawValue) else {
-            return nil
-        }
+		guard let colorSpace = self.colorSpace else {
+			return nil
+		}
+		guard
+			let context = CGContext(
+				data: nil, width: width, height: height, bitsPerComponent: self.bitsPerComponent,
+				bytesPerRow: 0, space: colorSpace, bitmapInfo: self.alphaInfo.rawValue)
+		else {
+			return nil
+		}
 
-        context.interpolationQuality = .high
-        context.draw(self, in: CGRect(x: 0, y: 0, width: width, height: height))
-        return context.makeImage()
-    }
+		context.interpolationQuality = .high
+		context.draw(self, in: CGRect(x: 0, y: 0, width: width, height: height))
+		return context.makeImage()
+	}
 }
 
 extension CGSize {
-    func fitScale(maxDimension: CGFloat) -> CGSize {
-        if self.width > self.height {
-            return CGSizeMake(maxDimension, floor(self.height / self.width * maxDimension))
-        }
-        else {
-            return CGSizeMake(floor(self.width / self.height * maxDimension), maxDimension)
-        }
-    }
+	func fitScale(maxDimension: CGFloat) -> CGSize {
+		if self.width > self.height {
+			return CGSizeMake(maxDimension, floor(self.height / self.width * maxDimension))
+		}
+		else {
+			return CGSizeMake(floor(self.width / self.height * maxDimension), maxDimension)
+		}
+	}
 }
