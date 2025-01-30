@@ -13042,6 +13042,40 @@
         }
       }
     },
+    "Search in this subdirectory..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In diesem Unterverzeichnis suchen..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar en este subdirectorio..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca in questa sottodirectory..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoek in deze subdirectory..."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шукати в цій підкаталозі..."
+          }
+        }
+      }
+    },
     "Search results (%lld)" : {
       "localizations" : {
         "de" : {

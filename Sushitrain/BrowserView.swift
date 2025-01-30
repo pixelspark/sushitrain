@@ -527,7 +527,7 @@ private struct BrowserListView: View {
 					SearchResultsView(
 						appState: self.appState,
 						searchText: $searchText,
-						folder: Binding(get: { self.folder.folderID }, set: { _ in () }),
+						folderID: .constant(self.folder.folderID),
 						prefix: Binding(get: { prefix }, set: { _ in () })
 					)
 				}
@@ -734,7 +734,7 @@ struct BrowserView: View {
 		#elseif os(iOS)
 			.sheet(isPresented: $showSearch) {
 				NavigationStack {
-					SearchView(appState: self.appState, prefix: self.prefix)
+					SearchView(appState: self.appState, prefix: self.prefix, folder: self.folder)
 					.navigationTitle("Search in this folder")
 					.navigationBarTitleDisplayMode(.inline)
 					.toolbar(content: {

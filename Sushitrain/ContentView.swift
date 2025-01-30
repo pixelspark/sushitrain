@@ -256,7 +256,7 @@ private struct StartOrSearchView: View {
 				SearchResultsView(
 					appState: self.appState,
 					searchText: $searchText,
-					folder: .constant(""),
+					folderID: .constant(""),
 					prefix: .constant("")
 				)
 			}

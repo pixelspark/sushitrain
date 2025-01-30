@@ -55,13 +55,14 @@ struct SearchView: View {
 	@State private var searchText = ""
 	@FocusState private var isSearchFieldFocused
 	var prefix: String = ""
+	var folder: SushitrainFolder? = nil
 	var initialSearchText = ""
 
 	private var view: some View {
 		SearchResultsView(
 			appState: self.appState,
 			searchText: $searchText,
-			folder: .constant(""),
+			folderID: .constant(self.folder?.folderID ?? ""),
 			prefix: .constant(self.prefix)
 		)
 		.navigationTitle("Search")
@@ -87,11 +88,16 @@ struct SearchView: View {
 	}
 
 	private var prompt: String {
-		if self.prefix == "" {
+		if self.folder == nil {
 			return String(localized: "Search files in all folders...")
 		}
 		else {
-			return String(localized: "Search in this folder...")
+			if self.prefix == "" {
+				return String(localized: "Search in this folder...")
+			}
+			else {
+				return String(localized: "Search in this subdirectory...")
+			}
 		}
 	}
 }
@@ -99,7 +105,7 @@ struct SearchView: View {
 struct SearchResultsView: View, SearchViewDelegate {
 	@ObservedObject var appState: AppState
 	@Binding var searchText: String
-	@Binding var folder: String
+	@Binding var folderID: String
 	@Binding var prefix: String
 
 	@State private var searchOperation: SearchOperation? = nil
@@ -219,7 +225,7 @@ struct SearchResultsView: View, SearchViewDelegate {
 		let text = self.searchText
 		let appState = self.appState
 		let prefix = self.prefix
-		let folder = self.folder
+		let folderID = self.folderID
 
 		if !text.isEmpty {
 			let client = appState.client
@@ -230,7 +236,7 @@ struct SearchResultsView: View, SearchViewDelegate {
 					}
 					try client.search(
 						text, delegate: sr, maxResults: SearchOperation.maxResultCount,
-						folderID: folder, prefix: prefix)
+						folderID: folderID, prefix: prefix)
 					DispatchQueue.main.async {
 						sr.view.setStatus(searching: false)
 					}
