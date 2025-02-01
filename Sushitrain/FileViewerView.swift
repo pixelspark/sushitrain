@@ -99,21 +99,46 @@ private struct FileViewerContentView: View {
 	let appState: AppState
 	var file: SushitrainEntry
 	@Binding var isShown: Bool
+	@State private var error: (any Error)? = nil
+	@State private var loading: Bool = true
 
 	var body: some View {
-		if file.isVideo || file.isAudio {
-			FileMediaPlayer(appState: appState, file: file, visible: $isShown)
+		Group {
+			if let e = error {
+				ContentUnavailableView(
+					"Cannot preview this file", systemImage: "exclamationmark.triangle.fill",
+					description: Text(e.localizedDescription)
+				)
+				.onTapGesture {
+					self.error = nil
+				}
+			}
+			else {
+				if file.isVideo || file.isAudio {
+					FileMediaPlayer(appState: appState, file: file, visible: $isShown)
+				}
+				else if file.isImage {
+					let url = file.localNativeFileURL ?? URL(string: self.file.onDemandURL())!
+					ZStack {
+						WebView(url: url, isLoading: self.$loading, error: self.$error)
+							.backgroundStyle(.black)
+							.background(.black)
+						if loading {
+							ProgressView().progressViewStyle(.circular).controlSize(
+								.extraLarge)
+						}
+					}
+				}
+				else {
+					ContentUnavailableView(
+						"Cannot preview this file", systemImage: "document",
+						description: Text("Cannot show a preview for this type of file."))
+				}
+			}
 		}
-		else if file.isImage {
-			let url = file.localNativeFileURL ?? URL(string: self.file.onDemandURL())!
-			WebView(url: url, isLoading: Binding.constant(false), error: Binding.constant(nil))
-				.backgroundStyle(.black)
-				.background(.black)
-		}
-		else {
-			ContentUnavailableView(
-				"Cannot preview this file", systemImage: "document",
-				description: Text("Cannot show a preview for this type of file."))
+		.onChange(of: file) { (_, _) in
+			self.error = nil
+			self.loading = true
 		}
 	}
 }
