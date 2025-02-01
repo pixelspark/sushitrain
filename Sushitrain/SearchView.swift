@@ -199,6 +199,7 @@ struct SearchResultsView: View, SearchViewDelegate {
 										.controlSize(.mini)
 										.frame(maxHeight: 10)
 									#endif
+								Spacer()
 							}
 
 							// Search options
@@ -253,7 +254,12 @@ struct SearchResultsView: View, SearchViewDelegate {
 			label: {
 				Image(systemName: "ellipsis.circle").accessibilityLabel(
 					Text("Menu"))
-			})
+			}
+		)
+		#if os(macOS)
+			.menuStyle(.borderlessButton)
+			.frame(width: 36)
+		#endif
 	}
 
 	func cancelSearch() {
