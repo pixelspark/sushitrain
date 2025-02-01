@@ -549,7 +549,7 @@ private struct DownloadProgressView: View {
 						HStack {
 							Label("Downloading file...", systemImage: "arrow.clockwise")
 								.foregroundStyle(.green)
-								.symbolEffect(.pulse, value: true)
+								.symbolEffect(.pulse, value: date)
 							Spacer()
 						}
 

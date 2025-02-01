@@ -81,7 +81,8 @@ struct UploadView: View {
 															.symbolEffect(
 																.pulse,
 																value:
-																	true
+																	progress
+																	.percentage
 															)
 															.frame(
 																maxWidth:

@@ -173,14 +173,96 @@ private struct ResolvedAddressesView: View {
 	}
 }
 
-struct OverallStatusView: View {
+private struct OverallDownloadProgressView: View {
 	@ObservedObject var appState: AppState
+	@State private var lastProgress: (Date, SushitrainProgress)? = nil
+	@State private var progress: (Date, SushitrainProgress)? = nil
+	@State private var showSpeeds: Bool = false
 
-	var peerStatusText: String {
+	var body: some View {
+		Group {
+			if let (date, progress) = progress {
+				ProgressView(value: progress.percentage, total: 1.0) {
+					VStack {
+						HStack {
+							Label(
+								"Receiving \(progress.filesTotal) files...",
+								systemImage: "arrow.down"
+							)
+							.foregroundStyle(.green)
+							.symbolEffect(.pulse, value: date)
+							.badge("\(Int(progress.percentage * 100))%")
+							.frame(maxWidth: .infinity)
+							Spacer()
+						}
+
+						// Download speed
+						if let (lastDate, lastProgress) = self.lastProgress, showSpeeds {
+							HStack {
+								let diffBytes =
+									progress.bytesDone - lastProgress.bytesDone
+								let diffTime = date.timeIntervalSince(lastDate)
+								let speed = Int64(Double(diffBytes) / Double(diffTime))
+								let formatter = ByteCountFormatter()
+
+								Spacer()
+								Text("\(formatter.string(fromByteCount: speed))/s")
+									.foregroundStyle(.green)
+
+								if speed > 0 {
+									let secondsToGo =
+										(progress.bytesTotal
+											- progress.bytesDone) / speed
+									Text("\(secondsToGo) seconds").foregroundStyle(
+										.green)
+								}
+							}
+						}
+					}
+
+				}.tint(.green)
+					.onTapGesture {
+						showSpeeds = !showSpeeds
+					}
+			}
+			else {
+				Label("Receiving files...", systemImage: "arrow.down")
+					.foregroundStyle(.green)
+					.badge(self.peerStatusText)
+					.frame(maxWidth: .infinity)
+			}
+		}
+		.task {
+			self.updateProgress()
+		}
+		.onChange(of: self.appState.eventCounter) {
+			self.updateProgress()
+		}
+	}
+
+	private var peerStatusText: String {
 		return "\(self.appState.client.connectedPeerCount())/\(self.appState.peers().count - 1)"
 	}
 
-	var isConnected: Bool {
+	private func updateProgress() {
+		self.lastProgress = self.progress
+		if let p = self.appState.client.getTotalDownloadProgress() {
+			self.progress = (Date.now, p)
+		}
+		else {
+			self.progress = nil
+		}
+	}
+}
+
+struct OverallStatusView: View {
+	@ObservedObject var appState: AppState
+
+	private var peerStatusText: String {
+		return "\(self.appState.client.connectedPeerCount())/\(self.appState.peers().count - 1)"
+	}
+
+	private var isConnected: Bool {
 		return self.appState.client.connectedPeerCount() > 0
 	}
 
@@ -190,25 +272,7 @@ struct OverallStatusView: View {
 			let isUploading = self.appState.client.isUploading()
 			if isDownloading || isUploading {
 				if isDownloading {
-					let progress = self.appState.client.getTotalDownloadProgress()
-					if let progress = progress {
-						ProgressView(value: progress.percentage, total: 1.0) {
-							Label(
-								"Receiving \(progress.filesTotal) files...",
-								systemImage: "arrow.down"
-							)
-							.foregroundStyle(.green)
-							.symbolEffect(.pulse, value: true)
-							.badge("\(Int(progress.percentage * 100))%")
-							.frame(maxWidth: .infinity)
-						}.tint(.green)
-					}
-					else {
-						Label("Receiving files...", systemImage: "arrow.down")
-							.foregroundStyle(.green)
-							.badge(self.peerStatusText)
-							.frame(maxWidth: .infinity)
-					}
+					OverallDownloadProgressView(appState: appState)
 				}
 
 				// Uploads
@@ -223,7 +287,7 @@ struct OverallStatusView: View {
 									systemImage: "arrow.up"
 								)
 								.foregroundStyle(.green)
-								.symbolEffect(.pulse, value: true)
+								.symbolEffect(.pulse, value: progress.percentage)
 								.badge("\(Int(progress.percentage * 100))%")
 								.frame(maxWidth: .infinity)
 							}.tint(.green)
