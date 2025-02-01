@@ -112,6 +112,7 @@ struct SearchResultsView: View, SearchViewDelegate {
 	@State private var results: [SushitrainEntry] = []
 	@State private var searchCount = 0
 	@FocusState private var isSearchFieldFocused: Bool
+	@State private var showHiddenFolderEntries = false
 
 	func add(entry: SushitrainEntry) {
 		self.results.append(entry)
@@ -121,38 +122,64 @@ struct SearchResultsView: View, SearchViewDelegate {
 		self.searchCount += (searching ? 1 : -1)
 	}
 
+	private var shownFiles: Int {
+		var count = 0
+		for item in self.results {
+			if showHiddenFolderEntries || self.folderID != ""
+				|| !(item.folder?.isHidden ?? false)
+			{
+				count += 1
+			}
+		}
+		return count
+	}
+
 	var body: some View {
 		ZStack {
 			List {
 				if !results.isEmpty {
 					Section {
 						ForEach(results, id: \.self) { (item: SushitrainEntry) in
-							if item.isDirectory() {
-								NavigationLink(
-									destination: BrowserView(
-										appState: appState,
-										folder: item.folder!,
-										prefix: "\(item.path())/"
-									)
-								) {
-									Label(item.fileName(), systemImage: "folder")
+							if showHiddenFolderEntries || self.folderID != ""
+								|| !(item.folder?.isHidden ?? false)
+							{
+								if item.isDirectory() {
+									NavigationLink(
+										destination: BrowserView(
+											appState: appState,
+											folder: item.folder!,
+											prefix: "\(item.path())/"
+										)
+									) {
+										Label(
+											item.fileName(),
+											systemImage: "folder")
+									}
+								}
+								else {
+									NavigationLink(destination: {
+										[appState, results, item] in
+										FileView(
+											file: item, appState: appState,
+											showPath: true,
+											siblings: results)
+									}) {
+										Label(
+											item.fileName(),
+											systemImage:
+												item.isLocallyPresent()
+												? "doc.fill"
+												: (item.isSelected()
+													? "doc.badge.ellipsis"
+													: "doc"))
+									}
 								}
 							}
-							else {
-								NavigationLink(destination: {
-									[appState, results, item] in
-									FileView(
-										file: item, appState: appState,
-										showPath: true, siblings: results)
-								}) {
-									Label(
-										item.fileName(),
-										systemImage: item.isLocallyPresent()
-											? "doc.fill"
-											: (item.isSelected()
-												? "doc.badge.ellipsis"
-												: "doc"))
-								}
+						}
+
+						if shownFiles == 0 && !showHiddenFolderEntries {
+							Button("Show results from hidden folders") {
+								showHiddenFolderEntries = true
 							}
 						}
 					} header: {
@@ -172,6 +199,11 @@ struct SearchResultsView: View, SearchViewDelegate {
 										.controlSize(.mini)
 										.frame(maxHeight: 10)
 									#endif
+							}
+
+							// Search options
+							if self.folderID == "" {
+								self.searchOptionsMenu()
 							}
 						}
 					}
@@ -207,6 +239,21 @@ struct SearchResultsView: View, SearchViewDelegate {
 		.onAppear {
 			self.isSearchFieldFocused = true
 		}
+	}
+
+	private func searchOptionsMenu() -> some View {
+		Menu(
+			content: {
+				Toggle(
+					"Show results from hidden folders",
+					systemImage: "eye.slash",
+					isOn: $showHiddenFolderEntries
+				)
+			},
+			label: {
+				Image(systemName: "ellipsis.circle").accessibilityLabel(
+					Text("Menu"))
+			})
 	}
 
 	func cancelSearch() {

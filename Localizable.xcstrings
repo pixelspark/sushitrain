@@ -14266,6 +14266,40 @@
         }
       }
     },
+    "Show results from hidden folders" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ergebnisse aus versteckten Ordnern anzeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar resultados de carpetas ocultas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra i risultati dalle cartelle nascoste"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toon resultaten uit verborgen mappen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показати результати з прихованих папок"
+          }
+        }
+      }
+    },
     "Show video previews" : {
       "localizations" : {
         "de" : {
