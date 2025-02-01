@@ -705,6 +705,34 @@ struct FolderView: View {
 								set: { nv in
 									try? folder.setWatcherEnabled(nv)
 								}))
+
+						if folder.isWatcherEnabled() {
+							LabeledContent {
+								TextField(
+									"",
+									text: Binding(
+										get: {
+											let interval: Int =
+												folder
+												.watcherDelaySeconds()
+											return "\(interval)"
+										},
+										set: { (lbl: String) in
+											if !lbl.isEmpty {
+												let interval =
+													Int(lbl) ?? 0
+												try? folder
+													.setWatcherDelaySeconds(
+														interval
+													)
+											}
+										}), prompt: Text("")
+								)
+								.multilineTextAlignment(.trailing)
+							} label: {
+								Text("Delay for processing changes (seconds)")
+							}
+						}
 					}
 				#endif
 			}

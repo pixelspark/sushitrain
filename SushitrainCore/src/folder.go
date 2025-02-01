@@ -84,6 +84,26 @@ func (fld *Folder) SetRescanInterval(seconds int) error {
 	})
 }
 
+func (fld *Folder) WatcherDelaySeconds() int {
+	fc := fld.folderConfiguration()
+	if fc == nil {
+		return 0
+	}
+
+	return int(fc.FSWatcherDelayS)
+}
+
+func (fld *Folder) SetWatcherDelaySeconds(seconds int) error {
+	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
+		config := fld.folderConfiguration()
+		if config == nil {
+			return
+		}
+		config.FSWatcherDelayS = float64(seconds)
+		cfg.SetFolder(*config)
+	})
+}
+
 func (fld *Folder) Unlink() error {
 	fc := fld.folderConfiguration()
 	if fc == nil {

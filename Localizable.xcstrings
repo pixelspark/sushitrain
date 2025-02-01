@@ -4570,6 +4570,40 @@
         }
       }
     },
+    "Delay for processing changes (seconds)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verzögerung bei der Verarbeitung von Änderungen (Sekunden)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retraso para procesar cambios (segundos)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritardo per l'elaborazione delle modifiche (secondi)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vertraging voor het verwerken van wijzigingen (seconden)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Затримка під час обробки змін (секунди)"
+          }
+        }
+      }
+    },
     "Delete" : {
       "localizations" : {
         "de" : {
