@@ -72,7 +72,15 @@ struct AboutView: View {
 			.formStyle(.grouped)
 		#endif
 		.sheet(isPresented: $showOnboarding) {
-			OnboardingView().interactiveDismissDisabled()
+			if #available(iOS 18, *) {
+				OnboardingView()
+					.interactiveDismissDisabled()
+					.presentationSizing(.form.fitted(horizontal: false, vertical: true))
+			}
+			else {
+				OnboardingView()
+					.interactiveDismissDisabled()
+			}
 		}
 		.sheet(isPresented: $showNotices) {
 			let url = Bundle.main.url(forResource: "notices", withExtension: "html")!

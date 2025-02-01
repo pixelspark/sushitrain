@@ -159,7 +159,15 @@ struct ContentView: View {
 		.sheet(
 			isPresented: $showOnboarding,
 			content: {
-				OnboardingView().interactiveDismissDisabled()
+				if #available(iOS 18, *) {
+					OnboardingView()
+						.interactiveDismissDisabled()
+						.presentationSizing(.form.fitted(horizontal: false, vertical: true))
+				}
+				else {
+					OnboardingView()
+						.interactiveDismissDisabled()
+				}
 			}
 		)
 		#if os(iOS)
