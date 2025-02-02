@@ -101,7 +101,15 @@ struct FileEntryLink<Content: View>: View {
 
 				ItemSelectToggleView(appState: appState, file: entry)
 
+				#if os(macOS)
+					Button("Copy", systemImage: "document.on.document") {
+						self.copy()
+					}.disabled(!entry.isLocallyPresent())
+				#endif
+
 				if let sharingLink = entry.externalSharingURL() {
+					Divider()
+
 					ShareLink(item: sharingLink) {
 						Label("Share external link", systemImage: "link.circle.fill")
 					}
@@ -111,11 +119,6 @@ struct FileEntryLink<Content: View>: View {
 					}
 				}
 
-				#if os(macOS)
-					Button("Copy", systemImage: "document.on.document") {
-						self.copy()
-					}.disabled(!entry.isLocallyPresent())
-				#endif
 			} preview: {
 				NavigationStack {  // to force the image to take up all available space
 					VStack {
