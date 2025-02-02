@@ -618,6 +618,14 @@ private struct FileSharingLinksView: View {
 			#if os(macOS)
 				.buttonStyle(.link)
 			#endif
+			
+			#if os(macOS)
+				// On macOS, the share sheet doesn't have an obvious 'copy URL' option
+				Button("Copy external link", systemImage: "link.circle") {
+					writeURLToPasteboard(url: sharingLink)
+				}
+				.buttonStyle(.link)
+			#endif
 		}
 	}
 }
