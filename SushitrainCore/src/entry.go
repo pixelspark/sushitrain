@@ -239,6 +239,12 @@ func (entry *Entry) PeersWithFullCopy() (*ListOfStrings, error) {
 				return true, nil
 			}
 
+			// Don't bother with files that are considered useless
+			// See https://forum.syncthing.net/t/syncthing-native-app-for-macos-synctrain-ios-based/22885/8?u=pixelspark
+			if entry.Folder.client.isExtraneousIgnored(leaf.Name) {
+				return true, nil
+			}
+
 			// Check if this file is available
 			leafBlocksPerDevice, leafBlockCount, err := leafEntry.availabilityPerDevice()
 			if err != nil {
