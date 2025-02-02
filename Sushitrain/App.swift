@@ -81,6 +81,9 @@ struct SushitrainApp: App {
 		}
 		BookmarkManager.shared.removeBookmarksForFoldersNotIn(Set(folderIDs))
 
+		// Other housekeeping
+		ExternalSharingManager.shared.removeExternalSharingForFoldersNotIn(Set(folderIDs))
+
 		// Start Syncthing node in the background
 		#if os(macOS)
 			let hideInDock = self.hideInDock

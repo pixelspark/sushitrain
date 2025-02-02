@@ -219,12 +219,14 @@ extension SushitrainFolder {
 	@MainActor
 	func removeAndRemoveBookmark() throws {
 		BookmarkManager.shared.removeBookmarkFor(folderID: self.folderID)
+		ExternalSharingManager.shared.removeExternalSharingFor(folderID: self.folderID)
 		try self.remove()
 	}
 
 	@MainActor
 	func unlinkAndRemoveBookmark() throws {
 		BookmarkManager.shared.removeBookmarkFor(folderID: self.folderID)
+		ExternalSharingManager.shared.removeExternalSharingFor(folderID: self.folderID)
 		try self.unlink()
 	}
 }
