@@ -615,6 +615,9 @@ private struct FileSharingLinksView: View {
 			ShareLink(item: sharingLink) {
 				Label("Share external link", systemImage: "link.circle")
 			}
+			#if os(macOS)
+				.buttonStyle(.link)
+			#endif
 		}
 	}
 }
