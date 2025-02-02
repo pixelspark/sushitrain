@@ -63,6 +63,22 @@ class ExternalSharingManager {
 		c[folderID] = externalSharing
 		self.configuration = c
 	}
+
+	func removeExternalSharingFor(folderID: String) {
+		var c = self.configuration
+		c.removeValue(forKey: folderID)
+		self.configuration = c
+	}
+
+	func removeExternalSharingForFoldersNotIn(_ folderIDs: Set<String>) {
+		var c = self.configuration
+		let toRemove = c.keys.filter({ !folderIDs.contains($0) })
+		for toRemoveKey in toRemove {
+			Log.warn("Removing stale external sharing settings for \(toRemoveKey)")
+			c.removeValue(forKey: toRemoveKey)
+		}
+		self.configuration = c
+	}
 }
 
 extension SushitrainEntry {

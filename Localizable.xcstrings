@@ -8288,40 +8288,6 @@
         }
       }
     },
-    "https://public.url" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "https://öffentliche.url"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "https://pública.url"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "https://pubblica.url"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "https://publieke.url"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "https://публічна.url"
-          }
-        }
-      }
-    },
     "I understand and agree" : {
       "localizations" : {
         "de" : {

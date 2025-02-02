@@ -82,8 +82,7 @@ private struct UnencryptedSharingSettingsView: View {
 						get: { settings.url },
 						set: { url in
 							settings.url = url
-						}),
-					prompt: Text("https://public.url")
+						})
 				)
 				.multilineTextAlignment(.trailing)
 				.autocorrectionDisabled()
