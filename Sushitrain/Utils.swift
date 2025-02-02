@@ -748,3 +748,14 @@ extension CGSize {
 		}
 	}
 }
+
+func writeURLToPasteboard(url: URL) {
+	#if os(macOS)
+		let pasteboard = NSPasteboard.general
+		pasteboard.clearContents()
+		pasteboard.prepareForNewContents()
+		pasteboard.writeObjects([url as NSURL])
+	#else
+		UIPasteboard.general.urls = [url]
+	#endif
+}

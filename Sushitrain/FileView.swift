@@ -344,6 +344,11 @@ struct FileView: View {
 						}
 					}
 
+					// Sharing
+					Section {
+						FileSharingLinksView(entry: file)
+					}
+
 					// Devices that have this file
 					if let availability = self.fullyAvailableOnDevices {
 						if !availability.isEmpty {
@@ -598,6 +603,18 @@ private struct DownloadProgressView: View {
 		}
 		else {
 			self.progress = nil
+		}
+	}
+}
+
+private struct FileSharingLinksView: View {
+	let entry: SushitrainEntry
+
+	var body: some View {
+		if let sharingLink = entry.externalSharingURL() {
+			ShareLink(item: sharingLink) {
+				Label("Share external link", systemImage: "link.circle")
+			}
 		}
 	}
 }

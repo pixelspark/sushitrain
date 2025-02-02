@@ -43,7 +43,7 @@
       debugXPCServices = "NO"
       debugServiceExtension = "internal"
       allowLocationSimulation = "NO"
-      viewDebuggingEnabled = "No">
+      showNonLocalizedStrings = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference

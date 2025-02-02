@@ -609,6 +609,12 @@ struct FolderView: View {
 					}
 				}
 
+				NavigationLink(
+					destination: ExternalSharingSettingsView(folder: self.folder)
+				) {
+					Label("External sharing", systemImage: "link.circle.fill")
+				}
+
 				#if os(iOS)
 					DisclosureGroup("Advanced folder settings", isExpanded: $advancedExpanded) {
 						if !folder.isSelective() {

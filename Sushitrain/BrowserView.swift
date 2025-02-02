@@ -101,6 +101,16 @@ struct FileEntryLink<Content: View>: View {
 
 				ItemSelectToggleView(appState: appState, file: entry)
 
+				if let sharingLink = entry.externalSharingURL() {
+					ShareLink(item: sharingLink) {
+						Label("Share external link", systemImage: "link.circle.fill")
+					}
+
+					Button("Copy external link", systemImage: "link.circle") {
+						writeURLToPasteboard(url: sharingLink)
+					}
+				}
+
 				#if os(macOS)
 					Button("Copy", systemImage: "document.on.document") {
 						self.copy()
@@ -123,23 +133,12 @@ struct FileEntryLink<Content: View>: View {
 			}
 	}
 
-	private static func writeURLToPasteboard(url: URL) {
-		#if os(macOS)
-			let pasteboard = NSPasteboard.general
-			pasteboard.clearContents()
-			pasteboard.prepareForNewContents()
-			pasteboard.writeObjects([url as NSURL])
-		#else
-			UIPasteboard.general.urls = [url]
-		#endif
-	}
-
 	private func copy() {
 		if let url = entry.localNativeFileURL as? NSURL, let refURL = url.fileReferenceURL() {
-			Self.writeURLToPasteboard(url: refURL)
+			writeURLToPasteboard(url: refURL)
 		}
 		else if let url = URL(string: entry.onDemandURL()) {
-			Self.writeURLToPasteboard(url: url)
+			writeURLToPasteboard(url: url)
 		}
 	}
 }
@@ -471,6 +470,33 @@ private struct BrowserListView: View {
 													appState:
 														appState,
 													file: file)
+
+												if let sharingLink =
+													file
+													.externalSharingURL()
+												{
+													ShareLink(
+														item:
+															sharingLink
+													) {
+														Label(
+															"Share external link",
+															systemImage:
+																"link.circle.fill"
+														)
+													}
+
+													Button(
+														"Copy external link",
+														systemImage:
+															"link.circle"
+													) {
+														writeURLToPasteboard(
+															url:
+																sharingLink
+														)
+													}
+												}
 											}
 										}))
 								}

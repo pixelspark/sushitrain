@@ -160,6 +160,40 @@
         }
       }
     },
+    "(None)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Keine)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Ninguno)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Nessuno)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Geen)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Немає)"
+          }
+        }
+      }
+    },
     "(Top level)" : {
       "localizations" : {
         "de" : {
@@ -3992,6 +4026,40 @@
         }
       }
     },
+    "Copy external link" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Externen Link kopieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiar enlace externo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia link esterno"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopieer externe link"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скопіювати зовнішнє посилання"
+          }
+        }
+      }
+    },
     "Copy new photos" : {
       "localizations" : {
         "de" : {
@@ -6066,6 +6134,40 @@
         }
       }
     },
+    "External sharing" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Externe Freigabe"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartición externa"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condivisione esterna"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extern delen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зовнішнє спільне використання"
+          }
+        }
+      }
+    },
     "Extra files have been found. Because this is a receive-only folder, these files will not be synchronized." : {
       "localizations" : {
         "de" : {
@@ -7222,6 +7324,46 @@
         }
       }
     },
+    "For a file inside this folder at location '%@', the generated sharing link will be %@'. For the link to actually work, you need to set up a web server serving the the folder at the indicated URL." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Für eine Datei in diesem Ordner am Standort '%@', lautet der generierte Freigabelink %@'. Damit der Link tatsächlich funktioniert, müssen Sie einen Webserver einrichten, der den Ordner unter der angegebenen URL bereitstellt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "For a file inside this folder at location '%1$@', the generated sharing link will be %2$@'. For the link to actually work, you need to set up a web server serving the the folder at the indicated URL."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para un archivo dentro de esta carpeta en la ubicación '%@', el enlace de compartición generado será %@'. Para que el enlace funcione realmente, necesitas configurar un servidor web que sirva la carpeta en la URL indicada."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per un file all'interno di questa cartella nella posizione '%@', il link di condivisione generato sarà %@'. Per far funzionare effettivamente il link, è necessario configurare un server web che fornisca la cartella all'URL indicato."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voor een bestand in deze map op locatie '%@', wordt de gegenereerde deel-link %@'. Om de link daadwerkelijk te laten werken, moet u een webserver opzetten die de map op de aangegeven URL serveert."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для файлу в цій теці за розташуванням '%@', згенероване посилання для спільного доступу буде %@'. Щоб посилання дійсно працювало, потрібно налаштувати веб-сервер, який буде обслуговувати теку за вказаною URL-адресою."
+          }
+        }
+      }
+    },
     "For all files" : {
       "localizations" : {
         "de" : {
@@ -8142,6 +8284,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "HTTPS"
+          }
+        }
+      }
+    },
+    "https://public.url" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "https://öffentliche.url"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "https://pública.url"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "https://pubblica.url"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "https://publieke.url"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "https://публічна.url"
           }
         }
       }
@@ -9128,6 +9304,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Місце призначення посилання"
+          }
+        }
+      }
+    },
+    "Link type" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Linktyp"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipo de enlace"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipo di collegamento"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koppelingssoort"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тип посилання"
           }
         }
       }
@@ -11270,6 +11480,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Властивості..."
+          }
+        }
+      }
+    },
+    "Public URL" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffentliche URL"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL pública"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL pubblica"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Publieke URL"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Публічний URL"
           }
         }
       }
@@ -13756,6 +14000,40 @@
         }
       }
     },
+    "Share external link" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Externen Link teilen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartir enlace externo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condividi link esterno"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deel externe link"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поділитися зовнішнім посиланням"
+          }
+        }
+      }
+    },
     "Share file" : {
       "localizations" : {
         "de" : {
@@ -14874,6 +15152,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Властивості підкаталогу..."
+          }
+        }
+      }
+    },
+    "Subpath" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unterpfad"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subruta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sottopercorso"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subpad"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Підшлях"
           }
         }
       }
@@ -17640,6 +17952,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Недоступно"
+          }
+        }
+      }
+    },
+    "Unencrypted" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unverschlüsselt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin cifrar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non crittografato"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onversleuteld"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Незашифрований"
+          }
+        }
+      }
+    },
+    "Unencrypted sharing links" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unverschlüsselte Freigabelinks"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enlaces de compartición sin cifrar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Link di condivisione non crittografati"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onversleutelde deelkoppelingen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Некодовані посилання для спільного доступу"
           }
         }
       }
