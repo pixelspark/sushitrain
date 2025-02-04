@@ -87,7 +87,7 @@ enum FolderMetric: String {
 
 	static private var defaultIgnoredExtraneousFiles = [
 		".DS_Store", "Thumbs.db", "desktop.ini", ".Trashes", ".Spotlight-V100",
-		".DocumentRevisions-V100", ".TemporaryItems", "$RECYCLE.BIN", "@eaDir"
+		".DocumentRevisions-V100", ".TemporaryItems", "$RECYCLE.BIN", "@eaDir",
 	]
 
 	var photoSync = PhotoSynchronisation()
