@@ -617,7 +617,7 @@ private struct BrowserListView: View {
 			}
 		}
 		.refreshable {
-			await self.refresh()
+			await self.rescan()
 		}
 		.task(id: self.folder.folderStateForUpdating) {
 			await self.reload()
@@ -629,7 +629,7 @@ private struct BrowserListView: View {
 		}
 	}
 
-	private func refresh() async {
+	private func rescan() async {
 		Log.info("Rescan subdir \(self.prefix)")
 		try? self.folder.rescanSubdirectory(self.prefix)
 		await self.reload()
