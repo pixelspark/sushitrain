@@ -53,6 +53,7 @@ struct FileQuickLookView: View {
 	@StateObject private var downloadOperation: DownloadOperation = DownloadOperation()
 	@State private var quicklookHidden = false
 	@State private var filePath: URL? = nil
+	@State private var tempDirPath: URL? = nil
 	@Environment(\.dismiss) private var dismiss
 
 	var body: some View {
@@ -92,11 +93,11 @@ struct FileQuickLookView: View {
 		.task {
 			do {
 				let tempDir = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-				let downloadsDir = tempDir.appending(
+				tempDirPath = tempDir.appending(
 					component: "Downloads-\(ProcessInfo().globallyUniqueString)")
 				try FileManager.default.createDirectory(
-					at: downloadsDir, withIntermediateDirectories: true)
-				let filePath = downloadsDir.appending(component: file.fileName())
+					at: tempDirPath!, withIntermediateDirectories: true)
+				let filePath = tempDirPath!.appending(component: file.fileName())
 				self.filePath = filePath
 				self.file.download(
 					filePath.path(percentEncoded: false), delegate: self.downloadOperation)
@@ -106,10 +107,21 @@ struct FileQuickLookView: View {
 			}
 		}
 		.onDisappear {
-			self.downloadOperation.cancel()
-			if let fp = filePath {
-				try! FileManager.default.removeItem(at: fp)
-				filePath = nil
+			self.cancelAndDeleteFiles()
+		}
+	}
+
+	private func cancelAndDeleteFiles() {
+		self.downloadOperation.cancel()
+		if let fp = filePath {
+			// Remove downloaded file
+			try? FileManager.default.removeItem(at: fp)
+			filePath = nil
+
+			// Remove containing temp directory
+			if let tp = self.tempDirPath {
+				try? FileManager.default.removeItem(at: tp)
+				self.tempDirPath = nil
 			}
 		}
 	}
