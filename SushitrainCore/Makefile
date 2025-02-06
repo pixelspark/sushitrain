@@ -13,10 +13,10 @@ GO_VERSION := $(shell go version)
 build: build/SushitrainCore.xcframework
 
 deps:
-ifndef GO_VERSION
+ifeq (GO_VERSION,)
 	echo Go is not installed!
 endif
-ifndef GOMOBILE_VERSION
+ifeq (GOMOBILE_VERSION,)
 	go get golang.org/x/mobile/cmd/gomobile
 endif
 
