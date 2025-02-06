@@ -4,7 +4,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at https://mozilla.org/MPL/2.0/.
 PATH := /opt/homebrew/bin:$(HOME)/go/bin:$(PATH)
-SHELL := env PATH=$(PATH) /bin/bash
+SHELL := env PATH="$(PATH)" /bin/bash
 GOMOBILE_VERSION := $(shell gomobile version)
 GO_VERSION := $(shell go version)
 
