@@ -518,6 +518,15 @@ struct FolderView: View {
 					).disabled(isExternal != false)
 				}
 
+				#if os(iOS)
+					NavigationLink(
+						destination: AdvancedFolderSettingsView(
+							appState: appState, folder: folder)
+					) {
+						Text("Advanced folder settings")
+					}
+				#endif
+
 				Section {
 					Button("Re-scan folder", systemImage: "sparkle.magnifyingglass") {
 						do {
@@ -609,64 +618,7 @@ struct FolderView: View {
 					}
 				}
 
-				NavigationLink(
-					destination: ExternalSharingSettingsView(folder: self.folder)
-				) {
-					Label("External sharing", systemImage: "link.circle.fill")
-				}
-
-				#if os(iOS)
-					DisclosureGroup("Advanced folder settings", isExpanded: $advancedExpanded) {
-						if !folder.isSelective() {
-							NavigationLink(
-								destination: IgnoresView(
-									appState: self.appState, folder: self.folder
-								)
-								.navigationTitle("Files to ignore")
-								#if os(iOS)
-									.navigationBarTitleDisplayMode(.inline)
-								#endif
-							) {
-								Label(
-									"Files to ignore",
-									systemImage: "rectangle.dashed")
-							}
-						}
-
-						LabeledContent {
-							TextField(
-								"",
-								text: Binding(
-									get: {
-										let interval: Int =
-											folder.rescanIntervalSeconds()
-											/ 60
-										return "\(interval)"
-									},
-									set: { (lbl: String) in
-										if !lbl.isEmpty {
-											let interval = Int(lbl) ?? 0
-											try? folder.setRescanInterval(
-												interval * 60)
-										}
-									}), prompt: Text("")
-							)
-							.multilineTextAlignment(.trailing)
-						} label: {
-							Text("Rescan interval (minutes)")
-						}
-
-						Toggle(
-							"Keep conflicting versions",
-							isOn: Binding(
-								get: {
-									return folder.maxConflicts() != 0
-								},
-								set: { nv in
-									try? folder.setMaxConflicts(nv ? -1 : 0)
-								}))
-					}
-				#else
+				#if os(macOS)
 					// DisclosureGroup is not so nice on macOS
 					Section("Advanced folder settings") {
 						LabeledContent {
@@ -996,5 +948,121 @@ private struct FolderGenerateThumbnailsView: View {
 				Log.warn("Could not get file entry for path \(filePath)")
 			}
 		}
+	}
+}
+
+private struct AdvancedFolderSettingsView: View {
+	@ObservedObject var appState: AppState
+	let folder: SushitrainFolder
+
+	var body: some View {
+		Form {
+			if !folder.isSelective() {
+				Section {
+					NavigationLink(
+						destination: IgnoresView(
+							appState: self.appState, folder: self.folder
+						)
+						.navigationTitle("Files to ignore")
+						#if os(iOS)
+							.navigationBarTitleDisplayMode(.inline)
+						#endif
+					) {
+						Label(
+							"Files to ignore",
+							systemImage: "rectangle.dashed")
+					}
+				}
+			}
+
+			Section {
+				LabeledContent {
+					TextField(
+						"",
+						text: Binding(
+							get: {
+								let interval: Int =
+									folder.rescanIntervalSeconds()
+									/ 60
+								return "\(interval)"
+							},
+							set: { (lbl: String) in
+								if !lbl.isEmpty {
+									let interval = Int(lbl) ?? 0
+									try? folder.setRescanInterval(
+										interval * 60)
+								}
+							}), prompt: Text("")
+					)
+					.multilineTextAlignment(.trailing)
+				} label: {
+					Text("Rescan interval (minutes)")
+				}
+			}
+
+			Section {
+				Toggle(
+					"Watch for changes",
+					isOn: Binding(
+						get: {
+							return folder.isWatcherEnabled()
+						},
+						set: { nv in
+							try? folder.setWatcherEnabled(nv)
+						}))
+
+				if folder.isWatcherEnabled() {
+					LabeledContent {
+						TextField(
+							"",
+							text: Binding(
+								get: {
+									let interval: Int =
+										folder
+										.watcherDelaySeconds()
+									return "\(interval)"
+								},
+								set: { (lbl: String) in
+									if !lbl.isEmpty {
+										let interval =
+											Int(lbl) ?? 0
+										try? folder
+											.setWatcherDelaySeconds(
+												interval
+											)
+									}
+								}), prompt: Text("")
+						)
+						.multilineTextAlignment(.trailing)
+					} label: {
+						Text("Delay for processing changes (seconds)")
+					}
+				}
+			}
+
+			Section {
+				Toggle(
+					"Keep conflicting versions",
+					isOn: Binding(
+						get: {
+							return folder.maxConflicts() != 0
+						},
+						set: { nv in
+							try? folder.setMaxConflicts(nv ? -1 : 0)
+						}))
+			}
+
+			Section {
+				NavigationLink(
+					destination: ExternalSharingSettingsView(folder: self.folder)
+				) {
+					Label("External sharing", systemImage: "link.circle.fill")
+				}
+			}
+		}
+		.navigationTitle(Text("Advanced folder settings"))
+		#if os(iOS)
+			.navigationBarTitleDisplayMode(.inline)
+		#endif
 	}
 }

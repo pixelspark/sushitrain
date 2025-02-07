@@ -129,6 +129,14 @@ struct SushitrainApp: App {
 					self.appState.client.setFSWatchingEnabledForAllFolders(true)
 				}
 			#endif
+
+			#if os(iOS)
+				// From build 26 onwards, FS watching is supported on iOS, but it should not be enabled by default
+				if lastRunBuild <= 26 {
+					Log.info("Disabling FS watching for all folders")
+					self.appState.client.setFSWatchingEnabledForAllFolders(false)
+				}
+			#endif
 		}
 		UserDefaults.standard.set(currentBuild, forKey: "lastRunBuild")
 	}

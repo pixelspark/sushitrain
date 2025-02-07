@@ -70,11 +70,15 @@ JSON formatting and not pollute the commit diff with whitespace changes.
 
 ## Updating Syncthing core
 
+To select a specific version:
+
 1. Update the version number in [go.mod](./go.mod)
 2. Run `go get -u ./...` in the `SushitrainCore` directory
 3. Run `go mod tidy`
 4. Run `go get golang.org/x/mobile/cmd/gomobile`
 5. Update version number in [sushitrain.go](./SushitrainCore/src/sushitrain.go)
+
+To use the `main` branch, run `go get -u github.com/syncthing/syncthing@main` in the `SushitrainCore` directory.
 
 ## Architecture
 
