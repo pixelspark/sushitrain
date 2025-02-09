@@ -17,9 +17,9 @@ The app consists of a framework in Go and front-end code in Swift.
 
 To build the app, you need a macOS computer with the following:
 
-- XCode (16.0, 16A242d is known to work) with the iOS 17.5 or higher SDK installed
+- XCode with the iOS 17.5 or higher SDK installed
 - Developer certificates
-- Go (go1.22.6 is known to work)
+- Go (see [go.mod](./SushitrainCore/go.mod) for the version used)
 
 First, verify the Go framework builds correctly. Open a terminal and do the following:
 
