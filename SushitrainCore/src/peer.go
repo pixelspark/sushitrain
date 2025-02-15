@@ -119,6 +119,15 @@ func (peer *Peer) SetUntrusted(untrusted bool) error {
 	})
 }
 
+func (peer *Peer) IsUntrusted() bool {
+	dc := peer.deviceConfiguration()
+	if dc == nil {
+		return true
+	}
+
+	return peer.deviceConfiguration().Untrusted
+}
+
 func (peer *Peer) changeDeviceConfiguration(block func(*config.DeviceConfiguration)) error {
 	return peer.client.changeConfiguration(func(cfg *config.Configuration) {
 		dc, ok := cfg.DeviceMap()[peer.deviceID]
@@ -128,15 +137,6 @@ func (peer *Peer) changeDeviceConfiguration(block func(*config.DeviceConfigurati
 		block(&dc)
 		cfg.SetDevice(dc)
 	})
-}
-
-func (peer *Peer) IsUntrusted() bool {
-	dc := peer.deviceConfiguration()
-	if dc == nil {
-		return true
-	}
-
-	return peer.deviceConfiguration().Untrusted
 }
 
 func (peer *Peer) IsSelf() bool {
