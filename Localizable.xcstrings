@@ -8662,6 +8662,74 @@
         }
       }
     },
+    "Introduced by" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eingeführt von"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Introducido por"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Introdotto da"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geïntroduceerd door"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запроваджено"
+          }
+        }
+      }
+    },
+    "Introducer" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einführungsgerät"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dispositivo de introducción"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dispositivo di introduzione"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Introductie-apparaat"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пристрій для введення"
+          }
+        }
+      }
+    },
     "IP address or host name" : {
       "localizations" : {
         "de" : {
@@ -17102,6 +17170,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Цьому пристрою ще потрібно %lld елементів із %lld"
+          }
+        }
+      }
+    },
+    "This device will automatically add all devices that an introducer device is connected to." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Gerät fügt automatisch alle Geräte hinzu, mit denen ein Einführungsgerät verbunden ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este dispositivo añadirá automáticamente todos los dispositivos a los que esté conectado un dispositivo introductor."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo dispositivo aggiungerà automaticamente tutti i dispositivi a cui è collegato un dispositivo introduttore."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dit apparaat voegt automatisch alle apparaten toe waarmee een introductie-apparaat verbinding heeft."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цей пристрій автоматично додасть усі пристрої, підключені до пристрою-інтроуктора."
           }
         }
       }

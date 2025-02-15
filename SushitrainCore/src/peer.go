@@ -128,6 +128,34 @@ func (peer *Peer) IsUntrusted() bool {
 	return peer.deviceConfiguration().Untrusted
 }
 
+func (peer *Peer) SetIntroducer(introducer bool) error {
+	return peer.changeDeviceConfiguration(func(dc *config.DeviceConfiguration) {
+		dc.Introducer = introducer
+	})
+}
+
+func (peer *Peer) IsIntroducer() bool {
+	dc := peer.deviceConfiguration()
+	if dc == nil {
+		return false
+	}
+
+	return peer.deviceConfiguration().Introducer
+}
+
+func (peer *Peer) IntroducedBy() *Peer {
+	dc := peer.deviceConfiguration()
+	if dc == nil {
+		return nil
+	}
+
+	did := peer.deviceConfiguration().IntroducedBy
+	if did.Equals(protocol.EmptyDeviceID) {
+		return nil
+	}
+	return peer.client.PeerWithID(did.String())
+}
+
 func (peer *Peer) changeDeviceConfiguration(block func(*config.DeviceConfiguration)) error {
 	return peer.client.changeConfiguration(func(cfg *config.Configuration) {
 		dc, ok := cfg.DeviceMap()[peer.deviceID]

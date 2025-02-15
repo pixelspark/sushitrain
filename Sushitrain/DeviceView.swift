@@ -115,6 +115,24 @@ struct DeviceView: View {
 						}
 					}.monospaced()
 				}
+				
+				Section {
+					Toggle(
+						"Introducer",
+						isOn: Binding(
+							get: { device.isIntroducer() },
+							set: { trusted in try? device.setIntroducer(trusted) }))
+					
+					if let introducedBy = device.introducedBy() {
+						LabeledContent("Introduced by") {
+							Text(introducedBy.displayName)
+						}
+					}
+				} footer: {
+					Text(
+						"This device will automatically add all devices that an introducer device is connected to."
+					)
+				}
 
 				NavigationLink(destination: DeviceAddressesView(device: device, appState: appState)) {
 					Label("Addresses", systemImage: "envelope.front")
