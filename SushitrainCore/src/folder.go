@@ -798,6 +798,10 @@ func (fld *Folder) RemoveSuperfluousSelectionEntries() error {
 	selection.FilterSelectedPaths(func(path string) bool {
 		// Find entry
 		entry, err := fld.GetFileInformation(path)
+		if err != nil || entry == nil {
+			Logger.Infoln("Entry not found for path", path, err)
+			return false
+		}
 
 		// If this entry exists on disk, don't change anything
 		nativeFilename := osutil.NativeFilename(path)
@@ -809,7 +813,7 @@ func (fld *Folder) RemoveSuperfluousSelectionEntries() error {
 
 		// Only keep files that we can find a global entry for, and never delete if we still have a local entry
 		keep := (err == nil && entry != nil && !entry.IsDeleted()) || (entry != nil && entry.IsLocallyPresent())
-		Logger.Infoln("Keep selected path", path, keep, err, entry.IsDeleted(), entry.IsLocallyPresent())
+		Logger.Infoln("Keep selected path", path, keep, err, entry != nil && entry.IsDeleted(), entry != nil && entry.IsLocallyPresent())
 		return keep
 	})
 
