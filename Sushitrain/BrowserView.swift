@@ -121,8 +121,8 @@ struct FileEntryLink<Content: View>: View {
 						destination: FileView(
 							file: entry,
 							appState: self.appState,
-							siblings: siblings,
-							showPath: self.inFolder == nil
+							showPath: self.inFolder == nil,
+							siblings: siblings
 						)
 					) {
 						Label(entry.fileName(), systemImage: entry.systemImage)
