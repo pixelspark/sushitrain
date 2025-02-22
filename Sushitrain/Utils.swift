@@ -544,6 +544,10 @@ extension SushitrainCompletion: @unchecked @retroactive Sendable {}
 	typealias UIViewRepresentable = NSViewRepresentable
 #endif
 
+struct HTTPError: Error {
+	let statusCode: Int
+}
+
 struct WebView: UIViewRepresentable {
 	let url: URL
 	@Binding var isLoading: Bool
@@ -560,11 +564,25 @@ struct WebView: UIViewRepresentable {
 		func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
 			parent.isLoading = true
 		}
+
+		func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse) async
+			-> WKNavigationResponsePolicy
+		{
+			if let response = navigationResponse.response as? HTTPURLResponse {
+				if response.statusCode != 200 {
+					Log.warn("HTTP response received: \(response.statusCode)")
+					parent.error = HTTPError(statusCode: response.statusCode)
+				}
+			}
+			return .allow
+		}
+
 		func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
 			parent.isLoading = false
 		}
 
 		func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: any Error) {
+			Log.warn("WebView navigation failed: \(error.localizedDescription)")
 			parent.isLoading = false
 			parent.error = error
 		}
@@ -573,6 +591,7 @@ struct WebView: UIViewRepresentable {
 			_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!,
 			withError error: any Error
 		) {
+			Log.warn("WebView provisional navigation failed: \(error.localizedDescription)")
 			parent.isLoading = false
 			parent.error = error
 		}
@@ -602,8 +621,13 @@ struct WebView: UIViewRepresentable {
 
 	#if os(macOS)
 		func makeNSView(context: Context) -> WKWebView {
-			let view = WKWebView()
+			let config = WKWebViewConfiguration()
+			config.limitsNavigationsToAppBoundDomains = false
+			let view = WKWebView(frame: CGRectZero, configuration: config)
 			view.navigationDelegate = context.coordinator
+			view.setValue(false, forKey: "drawsBackground")
+			view.allowsMagnification = true
+			view.underPageBackgroundColor = NSColor.clear
 			let request = URLRequest(url: url)
 			view.load(request)
 			return view
