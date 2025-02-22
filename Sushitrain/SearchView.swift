@@ -143,37 +143,11 @@ struct SearchResultsView: View, SearchViewDelegate {
 							if showHiddenFolderEntries || self.folderID != ""
 								|| !(item.folder?.isHidden ?? false)
 							{
-								if item.isDirectory() {
-									NavigationLink(
-										destination: BrowserView(
-											appState: appState,
-											folder: item.folder!,
-											prefix: "\(item.path())/"
-										)
-									) {
-										Label(
-											item.fileName(),
-											systemImage: "folder")
-									}
-								}
-								else {
-									NavigationLink(destination: {
-										[appState, results, item] in
-										FileView(
-											file: item, appState: appState,
-											showPath: true,
-											siblings: results)
-									}) {
-										Label(
-											item.fileName(),
-											systemImage:
-												item.isLocallyPresent()
-												? "doc.fill"
-												: (item.isSelected()
-													? "doc.badge.ellipsis"
-													: "doc"))
-									}
-								}
+								EntryView(
+									appState: appState, entry: item, folder: nil,
+									siblings: results,
+									showThumbnail: appState
+										.showThumbnailsInSearchResults)
 							}
 						}
 
@@ -203,9 +177,7 @@ struct SearchResultsView: View, SearchViewDelegate {
 							}
 
 							// Search options
-							if self.folderID == "" {
-								self.searchOptionsMenu()
-							}
+							self.searchOptionsMenu()
 						}
 					}
 				}
@@ -245,11 +217,15 @@ struct SearchResultsView: View, SearchViewDelegate {
 	private func searchOptionsMenu() -> some View {
 		Menu(
 			content: {
-				Toggle(
-					"Show results from hidden folders",
-					systemImage: "eye.slash",
-					isOn: $showHiddenFolderEntries
-				)
+				if self.folderID == "" {
+					Toggle(
+						"Show results from hidden folders",
+						systemImage: "eye.slash",
+						isOn: $showHiddenFolderEntries
+					)
+				}
+
+				Toggle("Show thumbnails", isOn: appState.$showThumbnailsInSearchResults)
 			},
 			label: {
 				Image(systemName: "ellipsis.circle").accessibilityLabel(
