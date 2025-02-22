@@ -41,6 +41,11 @@ struct FileViewerView: View {
 					.simultaneousGesture(
 						DragGesture(minimumDistance: 70, coordinateSpace: .global).onEnded {
 							value in
+							// Only act on swipe gestures when enabled
+							if !appState.enableSwipeFilesInPreview {
+								return
+							}
+
 							if let selfIndex = selfIndex, let siblings = siblings {
 								let verticalAmount = value.translation.height
 

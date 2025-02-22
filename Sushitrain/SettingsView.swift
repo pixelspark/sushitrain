@@ -1004,6 +1004,14 @@ struct ViewSettingsView: View {
 					"When enabled, files and directories whose name start with a dot will not be shown when browsing a folder. These files and directories will remain visible in search results."
 				)
 			}
+
+			#if os(iOS)
+				Section {
+					Toggle(
+						"Swipe between files when viewing",
+						isOn: appState.$enableSwipeFilesInPreview)
+				}
+			#endif
 		}
 		.navigationTitle("View settings")
 		#if os(iOS)

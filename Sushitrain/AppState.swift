@@ -78,6 +78,7 @@ enum FolderMetric: String {
 	@AppStorage("cacheThumbnailsToDisk") var cacheThumbnailsToDisk: Bool = true
 	@AppStorage("cacheThumbnailsToFolderID") var cacheThumbnailsToFolderID: String = ""
 	@AppStorage("showThumbnailsInSearchResults") var showThumbnailsInSearchResults: Bool = true
+	@AppStorage("enableSwipeFilesInPreview") var enableSwipeFilesInPreview: Bool = true
 
 	// Whether to ignore certain files by default when scanning for extraneous files (i.e. .DS_Store)
 	@AppStorage("ignoreExtraneousDefaultFiles") var ignoreExtraneousDefaultFiles: Bool = true
