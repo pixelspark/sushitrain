@@ -80,7 +80,9 @@ struct FileEntryLink<Content: View>: View {
 			else {
 				// Tap to go to file view
 				NavigationLink(
-					destination: FileView(file: entry, appState: self.appState, showPath: self.inFolder == nil, siblings: siblings)
+					destination: FileView(
+						file: entry, appState: self.appState, showPath: self.inFolder == nil,
+						siblings: siblings)
 				) {
 					self.content()
 				}
@@ -142,18 +144,22 @@ struct FileEntryLink<Content: View>: View {
 						self.copy()
 					}.disabled(!entry.isLocallyPresent())
 				#endif
-				
+
 				if self.inFolder == nil {
 					if let folder = entry.folder {
 						NavigationLink(
-							destination: BrowserView(appState: appState, folder: folder, prefix:  entry.parentPath())
+							destination: BrowserView(
+								appState: appState, folder: folder,
+								prefix: entry.parentPath())
 						) {
 							let parentFolderName = entry.parentFolderName
 							if parentFolderName.isEmpty {
 								Label("Go to location", systemImage: "document.circle")
 							}
 							else {
-								Label("Go to directory '\(parentFolderName)'", systemImage: "document.circle")
+								Label(
+									"Go to directory '\(parentFolderName)'",
+									systemImage: "document.circle")
 							}
 						}
 					}
@@ -292,7 +298,10 @@ struct EntryView: View {
 					}
 				}
 				else {
-					FileEntryLink(appState: appState, entry: targetEntry, inFolder: self.folder, siblings: []) {
+					FileEntryLink(
+						appState: appState, entry: targetEntry, inFolder: self.folder,
+						siblings: []
+					) {
 						self.entryView(entry: targetEntry)
 					}
 					.contextMenu {
@@ -533,7 +542,10 @@ private struct BrowserListView: View {
 															appState:
 																self
 																.appState,
-															showPath: self.folder == nil
+															showPath:
+																self
+																.folder
+																== nil
 														)
 												) {
 													Label(

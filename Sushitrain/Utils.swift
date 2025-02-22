@@ -349,7 +349,7 @@ extension SushitrainEntry {
 	var thumbnailStrategy: ThumbnailStrategy {
 		return self.isVideo ? .video : .image
 	}
-	
+
 	var parentFolderName: String {
 		let path = self.parentPath()
 		let parts = path.split(separator: "/")
@@ -822,5 +822,18 @@ func writeURLToPasteboard(url: URL) {
 		pasteboard.writeObjects([url as NSURL])
 	#else
 		UIPasteboard.general.urls = [url]
+	#endif
+}
+
+func writeTextToPasteboard(_ text: String) {
+	#if os(iOS)
+		UIPasteboard.general.string = text
+	#endif
+
+	#if os(macOS)
+		let pasteboard = NSPasteboard.general
+		pasteboard.clearContents()
+		pasteboard.prepareForNewContents()
+		pasteboard.setString(text, forType: .string)
 	#endif
 }

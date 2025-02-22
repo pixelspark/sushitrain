@@ -23,6 +23,7 @@ struct FileView: View {
 	@State private var selfIndex: Int? = nil
 	@State private var fullyAvailableOnDevices: [SushitrainPeer]? = nil
 	@State private var availabilityError: Error? = nil
+	@State private var showEncryptionSheet: Bool = false
 
 	private static let formatter = ByteCountFormatter()
 
@@ -532,6 +533,13 @@ struct FileView: View {
 						Button(
 							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
 							action: {
+								#if os(macOS)
+									// Cmd-click to open encyption sheet
+									if NSEvent.modifierFlags.contains(.command) {
+										showEncryptionSheet = true
+										return
+									}
+								#endif
 								if let localPathActual = localPath {
 									openURLInSystemFilesApp(
 										url: URL(
@@ -542,6 +550,12 @@ struct FileView: View {
 						)
 						.labelStyle(.iconOnly)
 						.disabled(localPath == nil)
+						#if os(macOS)
+							.sheet(isPresented: $showEncryptionSheet) {
+								EncryptionView(
+									entry: self.file, appState: self.appState)
+							}
+						#endif
 					}
 				#endif
 			}
