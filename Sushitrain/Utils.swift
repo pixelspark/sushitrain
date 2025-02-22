@@ -349,6 +349,15 @@ extension SushitrainEntry {
 	var thumbnailStrategy: ThumbnailStrategy {
 		return self.isVideo ? .video : .image
 	}
+	
+	var parentFolderName: String {
+		let path = self.parentPath()
+		let parts = path.split(separator: "/")
+		if parts.count > 0 {
+			return String(parts[parts.count - 1])
+		}
+		return ""
+	}
 }
 
 enum SushitrainEntryTransferableError: Error {

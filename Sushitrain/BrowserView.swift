@@ -16,6 +16,7 @@ enum BrowserViewStyle: String {
 struct FileEntryLink<Content: View>: View {
 	let appState: AppState
 	let entry: SushitrainEntry
+	let inFolder: SushitrainFolder?
 	let siblings: [SushitrainEntry]
 	@ViewBuilder var content: () -> Content
 
@@ -79,7 +80,7 @@ struct FileEntryLink<Content: View>: View {
 			else {
 				// Tap to go to file view
 				NavigationLink(
-					destination: FileView(file: entry, appState: self.appState, siblings: siblings)
+					destination: FileView(file: entry, appState: self.appState, showPath: self.inFolder == nil, siblings: siblings)
 				) {
 					self.content()
 				}
@@ -118,7 +119,11 @@ struct FileEntryLink<Content: View>: View {
 				#if os(iOS)
 					NavigationLink(
 						destination: FileView(
-							file: entry, appState: self.appState, siblings: siblings)
+							file: entry,
+							appState: self.appState,
+							siblings: siblings,
+							showPath: self.inFolder == nil
+						)
 					) {
 						Label(entry.fileName(), systemImage: entry.systemImage)
 					}
@@ -137,6 +142,22 @@ struct FileEntryLink<Content: View>: View {
 						self.copy()
 					}.disabled(!entry.isLocallyPresent())
 				#endif
+				
+				if self.inFolder == nil {
+					if let folder = entry.folder {
+						NavigationLink(
+							destination: BrowserView(appState: appState, folder: folder, prefix:  entry.parentPath())
+						) {
+							let parentFolderName = entry.parentFolderName
+							if parentFolderName.isEmpty {
+								Label("Go to location", systemImage: "document.circle")
+							}
+							else {
+								Label("Go to directory '\(parentFolderName)'", systemImage: "document.circle")
+							}
+						}
+					}
+				}
 
 				if let sharingLink = entry.externalSharingURL() {
 					Divider()
@@ -247,7 +268,9 @@ struct EntryView: View {
 						.contextMenu {
 							NavigationLink(
 								destination: FileView(
-									file: targetEntry, appState: self.appState,
+									file: targetEntry,
+									appState: self.appState,
+									showPath: self.folder == nil,
 									siblings: []
 								)
 							) {
@@ -257,7 +280,9 @@ struct EntryView: View {
 							}
 							NavigationLink(
 								destination: FileView(
-									file: entry, appState: self.appState,
+									file: entry,
+									appState: self.appState,
+									showPath: self.folder == nil,
 									siblings: siblings
 								)
 							) {
@@ -267,13 +292,16 @@ struct EntryView: View {
 					}
 				}
 				else {
-					FileEntryLink(appState: appState, entry: targetEntry, siblings: []) {
+					FileEntryLink(appState: appState, entry: targetEntry, inFolder: self.folder, siblings: []) {
 						self.entryView(entry: targetEntry)
 					}
 					.contextMenu {
 						NavigationLink(
 							destination: FileView(
-								file: targetEntry, appState: self.appState, siblings: []
+								file: targetEntry,
+								appState: self.appState,
+								showPath: self.folder == nil,
+								siblings: []
 							)
 						) {
 							Label(
@@ -282,7 +310,10 @@ struct EntryView: View {
 						}
 						NavigationLink(
 							destination: FileView(
-								file: entry, appState: self.appState, siblings: siblings
+								file: entry,
+								appState: self.appState,
+								showPath: self.folder == nil,
+								siblings: siblings
 							)
 						) {
 							Label(entry.fileName(), systemImage: entry.systemImage)
@@ -318,7 +349,11 @@ struct EntryView: View {
 					}
 					NavigationLink(
 						destination: FileView(
-							file: entry, appState: self.appState, siblings: siblings)
+							file: entry,
+							appState: self.appState,
+							showPath: self.folder == nil,
+							siblings: siblings
+						)
 					) {
 						Label(entry.fileName(), systemImage: entry.systemImage)
 					}
@@ -329,7 +364,7 @@ struct EntryView: View {
 			}
 		}
 		else {
-			FileEntryLink(appState: appState, entry: entry, siblings: siblings) {
+			FileEntryLink(appState: appState, entry: entry, inFolder: self.folder, siblings: siblings) {
 				self.entryView(entry: entry)
 			}
 		}
@@ -497,7 +532,8 @@ private struct BrowserListView: View {
 																file,
 															appState:
 																self
-																.appState
+																.appState,
+															showPath: self.folder == nil
 														)
 												) {
 													Label(
