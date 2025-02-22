@@ -6,17 +6,13 @@
 	<true/>
 	<key>com.apple.security.app-sandbox</key>
 	<true/>
-	<key>com.apple.security.application-groups</key>
-	<array>
-		<string>group.nl.t-shaped.sushitrain.sync</string>
-	</array>
+	<key>com.apple.security.files.bookmarks.app-scope</key>
+	<true/>
 	<key>com.apple.security.files.user-selected.read-write</key>
 	<true/>
 	<key>com.apple.security.network.client</key>
 	<true/>
 	<key>com.apple.security.network.server</key>
-	<true/>
-	<key>com.apple.security.files.bookmarks.app-scope</key>
 	<true/>
 	<key>com.apple.security.personal-information.photos-library</key>
 	<true/>
