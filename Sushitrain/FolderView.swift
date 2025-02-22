@@ -617,81 +617,15 @@ struct FolderView: View {
 						.disabled(isWorking)
 					}
 				}
-
+				
 				#if os(macOS)
-					// DisclosureGroup is not so nice on macOS
-					Section("Advanced folder settings") {
-						LabeledContent {
-							TextField(
-								"",
-								text: Binding(
-									get: {
-										let interval: Int =
-											folder.rescanIntervalSeconds()
-											/ 60
-										return "\(interval)"
-									},
-									set: { (lbl: String) in
-										if !lbl.isEmpty {
-											let interval = Int(lbl) ?? 0
-											try? folder.setRescanInterval(
-												interval * 60)
-										}
-									}), prompt: Text("")
-							)
-							.multilineTextAlignment(.trailing)
-						} label: {
-							Text("Rescan interval (minutes)")
-						}
-
-						Toggle(
-							"Keep conflicting versions",
-							isOn: Binding(
-								get: {
-									return folder.maxConflicts() != 0
-								},
-								set: { nv in
-									try? folder.setMaxConflicts(nv ? -1 : 0)
-								}))
-
-						Toggle(
-							"Watch for changes",
-							isOn: Binding(
-								get: {
-									return folder.isWatcherEnabled()
-								},
-								set: { nv in
-									try? folder.setWatcherEnabled(nv)
-								}))
-
-						if folder.isWatcherEnabled() {
-							LabeledContent {
-								TextField(
-									"",
-									text: Binding(
-										get: {
-											let interval: Int =
-												folder
-												.watcherDelaySeconds()
-											return "\(interval)"
-										},
-										set: { (lbl: String) in
-											if !lbl.isEmpty {
-												let interval =
-													Int(lbl) ?? 0
-												try? folder
-													.setWatcherDelaySeconds(
-														interval
-													)
-											}
-										}), prompt: Text("")
-								)
-								.multilineTextAlignment(.trailing)
-							} label: {
-								Text("Delay for processing changes (seconds)")
-							}
-						}
+				Section {
+					NavigationLink(
+						destination: AdvancedFolderSettingsView(appState: appState, folder: self.folder)
+					) {
+						Label("Advanced folder settings", systemImage: "gear")
 					}
+				}
 				#endif
 			}
 		}
@@ -957,23 +891,25 @@ private struct AdvancedFolderSettingsView: View {
 
 	var body: some View {
 		Form {
-			if !folder.isSelective() {
-				Section {
-					NavigationLink(
-						destination: IgnoresView(
-							appState: self.appState, folder: self.folder
-						)
-						.navigationTitle("Files to ignore")
-						#if os(iOS)
-							.navigationBarTitleDisplayMode(.inline)
-						#endif
-					) {
-						Label(
-							"Files to ignore",
-							systemImage: "rectangle.dashed")
+			#if os(iOS)
+				if !folder.isSelective() {
+					Section {
+						NavigationLink(
+							destination: IgnoresView(
+								appState: self.appState, folder: self.folder
+							)
+							.navigationTitle("Files to ignore")
+							#if os(iOS)
+								.navigationBarTitleDisplayMode(.inline)
+							#endif
+						) {
+							Label(
+								"Files to ignore",
+								systemImage: "rectangle.dashed")
+						}
 					}
 				}
-			}
+			#endif
 
 			Section {
 				LabeledContent {
@@ -1063,6 +999,9 @@ private struct AdvancedFolderSettingsView: View {
 		.navigationTitle(Text("Advanced folder settings"))
 		#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)
+		#endif
+		#if os(macOS)
+			.formStyle(.grouped)
 		#endif
 	}
 }
