@@ -12,10 +12,15 @@ struct FileViewerView: View {
 	let appState: AppState
 	@State var file: SushitrainEntry
 	let siblings: [SushitrainEntry]?
+	let inSheet: Bool
 	@Binding var isShown: Bool
 
 	@State private var selfIndex: Int? = nil
 	@State private var barHidden: Bool = false
+
+	#if os(macOS)
+		@Environment(\.openWindow) private var openWindow
+	#endif
 
 	var body: some View {
 		NavigationStack {
@@ -49,8 +54,30 @@ struct FileViewerView: View {
 						})
 				#endif
 				.toolbar {
-					ToolbarItem(placement: .confirmationAction) {
-						Button("Done") { isShown = false }
+					if inSheet {
+						ToolbarItem(placement: .confirmationAction) {
+							Button("Done") { isShown = false }
+						}
+
+						#if os(macOS)
+							ToolbarItemGroup(placement: .automatic) {
+								Button(
+									"Open in new window",
+									systemImage: "macwindow.on.rectangle"
+								) {
+									if let folder = self.file.folder {
+										openWindow(
+											id: "preview",
+											value: Preview(
+												folderID: folder
+													.folderID,
+												path: self.file.path()
+											))
+										isShown = false
+									}
+								}
+							}
+						#endif
 					}
 
 					if let siblings = siblings, let selfIndex = selfIndex {
@@ -58,24 +85,38 @@ struct FileViewerView: View {
 							ToolbarItemGroup(placement: .automatic) {
 								Button("Previous", systemImage: "chevron.up") {
 									next(-1)
-								}.disabled(selfIndex < 1)
-								Button("Next", systemImage: "chevron.down") { next(1) }
-									.disabled(selfIndex >= siblings.count - 1)
+								}
+								.disabled(selfIndex < 1)
+								.keyboardShortcut(KeyEquivalent.upArrow)
+
+								Button("Next", systemImage: "chevron.down") {
+									next(1)
+								}
+								.disabled(selfIndex >= siblings.count - 1)
+								.keyboardShortcut(KeyEquivalent.downArrow)
 							}
 						#else
 							ToolbarItemGroup(placement: .navigation) {
 								Button("Previous", systemImage: "chevron.up") {
 									next(-1)
-								}.disabled(selfIndex < 1)
-								Button("Next", systemImage: "chevron.down") { next(1) }
-									.disabled(selfIndex >= siblings.count - 1)
+								}
+								.disabled(selfIndex < 1)
+								.keyboardShortcut(KeyEquivalent.upArrow)
+
+								Button("Next", systemImage: "chevron.down") {
+									next(1)
+								}
+								.disabled(selfIndex >= siblings.count - 1)
+								.keyboardShortcut(KeyEquivalent.downArrow)
 							}
 						#endif
 					}
 				}
 				.onAppear {
 					barHidden = false
-					selfIndex = self.siblings?.firstIndex(of: file) ?? 0
+					self.selfIndex = self.siblings?.firstIndex {
+						$0.id == self.file.id
+					}
 				}
 				#if os(macOS)
 					.presentationSizing(.fitted)
@@ -85,7 +126,7 @@ struct FileViewerView: View {
 	}
 
 	private func next(_ offset: Int) {
-		if let siblings = siblings, let idx = siblings.firstIndex(of: self.file) {
+		if let siblings = siblings, let idx = self.siblings?.firstIndex(where: { $0.id == self.file.id }) {
 			let newIndex = idx + offset
 			if newIndex >= 0 && newIndex < siblings.count {
 				file = siblings[newIndex]
@@ -117,12 +158,14 @@ private struct FileViewerContentView: View {
 				if file.isVideo || file.isAudio {
 					FileMediaPlayer(appState: appState, file: file, visible: $isShown)
 				}
-				else if file.isImage {
+				else if file.isWebPreviewable {
 					let url = file.localNativeFileURL ?? URL(string: self.file.onDemandURL())!
 					ZStack {
 						WebView(url: url, isLoading: self.$loading, error: self.$error)
-							.backgroundStyle(.black)
-							.background(.black)
+							#if os(iOS)
+								.backgroundStyle(.black)
+								.background(.black)
+							#endif
 						if loading {
 							ProgressView().progressViewStyle(.circular).controlSize(
 								.extraLarge)

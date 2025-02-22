@@ -22,14 +22,50 @@ struct FileEntryLink<Content: View>: View {
 	@State private var quickLookURL: URL? = nil
 	@State private var showPreviewSheet: Bool = false
 
+	#if os(macOS)
+		@Environment(\.openWindow) private var openWindow
+	#endif
+
+	private func previewFile() {
+		#if os(macOS)
+			// Cmd-click to open preview window directory
+			if NSEvent.modifierFlags.contains(.command) {
+				openWindow(
+					id: "preview",
+					value: Preview(
+						folderID: entry.folder!.folderID,
+						path: entry.path()
+					))
+				return
+			}
+		#endif
+
+		// Tap to preview local file in QuickLook
+		if entry.isLocallyPresent(),
+			let url = entry.localNativeFileURL
+		{
+			self.quickLookURL = url
+		}
+		else if entry.isStreamable {
+			self.showPreviewSheet = true
+		}
+	}
+
+	private var canPreview: Bool {
+		if entry.isLocallyPresent() && entry.localNativeFileURL != nil {
+			return true
+		}
+		else if entry.isStreamable {
+			return true
+		}
+		return false
+	}
+
 	private var inner: some View {
 		Group {
-			if appState.tapFileToPreview && entry.isLocallyPresent(),
-				let url = entry.localNativeFileURL
-			{
-				// Tap to preview local file in QuicLook
+			if appState.tapFileToPreview && self.canPreview {
 				Button(action: {
-					self.quickLookURL = url
+					self.previewFile()
 				}) {
 					self.content()
 				}
@@ -40,41 +76,6 @@ struct FileEntryLink<Content: View>: View {
 				.frame(maxWidth: .infinity)
 				.quickLookPreview(self.$quickLookURL)
 			}
-			else if appState.tapFileToPreview && entry.isStreamable {
-				// Tap to preview in full-screen viewer
-				Button(action: {
-					self.showPreviewSheet = true
-				}) {
-					self.content()
-				}
-				#if os(macOS)
-					.buttonStyle(.link)
-				#endif
-				.foregroundStyle(.primary)
-				.frame(maxWidth: .infinity)
-				#if os(macOS)
-					.sheet(isPresented: $showPreviewSheet) {
-						FileViewerView(
-							appState: appState, file: entry, siblings: siblings,
-							isShown: $showPreviewSheet
-						)
-						.presentationSizing(.fitted)
-						.frame(minWidth: 640, minHeight: 480)
-						.navigationTitle(entry.fileName())
-						.toolbar {
-							ToolbarItem(placement: .confirmationAction) {
-								Button("Done") { showPreviewSheet = false }
-							}
-						}
-					}
-				#else
-					.fullScreenCover(isPresented: $showPreviewSheet) {
-						FileViewerView(
-							appState: appState, file: entry, siblings: siblings,
-							isShown: $showPreviewSheet)
-					}
-				#endif
-			}
 			else {
 				// Tap to go to file view
 				NavigationLink(
@@ -84,6 +85,30 @@ struct FileEntryLink<Content: View>: View {
 				}
 			}
 		}
+		#if os(macOS)
+			.sheet(isPresented: $showPreviewSheet) {
+				FileViewerView(
+					appState: appState, file: entry, siblings: siblings,
+					inSheet: true,
+					isShown: $showPreviewSheet
+				)
+				.presentationSizing(.fitted)
+				.frame(minWidth: 640, minHeight: 480)
+				.navigationTitle(entry.fileName())
+				.toolbar {
+					ToolbarItem(placement: .confirmationAction) {
+						Button("Done") { showPreviewSheet = false }
+					}
+				}
+			}
+		#else
+			.fullScreenCover(isPresented: $showPreviewSheet) {
+				FileViewerView(
+					appState: appState, file: entry, siblings: siblings,
+					inSheet: true,
+					isShown: $showPreviewSheet)
+			}
+		#endif
 	}
 
 	var body: some View {
@@ -99,7 +124,13 @@ struct FileEntryLink<Content: View>: View {
 					}
 				#endif
 
-				ItemSelectToggleView(appState: appState, file: entry)
+				if !appState.tapFileToPreview {
+					Button("Preview", systemImage: "doc.text.magnifyingglass") {
+						self.previewFile()
+					}.disabled(
+						!self.canPreview || ((try? entry.peersWithFullCopy().count()) ?? 0) == 0
+					)
+				}
 
 				#if os(macOS)
 					Button("Copy", systemImage: "document.on.document") {
@@ -119,6 +150,9 @@ struct FileEntryLink<Content: View>: View {
 					}
 				}
 
+				Divider()
+
+				ItemSelectToggleView(appState: appState, file: entry)
 			} preview: {
 				NavigationStack {  // to force the image to take up all available space
 					VStack {
@@ -146,10 +180,10 @@ struct FileEntryLink<Content: View>: View {
 	}
 }
 
-private struct EntryView: View {
+struct EntryView: View {
 	let appState: AppState
 	let entry: SushitrainEntry
-	let folder: SushitrainFolder
+	let folder: SushitrainFolder?
 	let siblings: [SushitrainEntry]
 	let showThumbnail: Bool
 
@@ -200,31 +234,35 @@ private struct EntryView: View {
 			let targetEntry = try? entry.symlinkTargetEntry()
 			if let targetEntry = targetEntry {
 				if targetEntry.isDirectory() {
-					NavigationLink(
-						destination: BrowserView(
-							appState: appState,
-							folder: folder,
-							prefix: targetEntry.path() + "/"
-						)
-					) {
-						self.entryView(entry: entry)
-					}
-					.contextMenu {
+					if let targetFolder = targetEntry.folder {
 						NavigationLink(
-							destination: FileView(
-								file: targetEntry, appState: self.appState, siblings: []
+							destination: BrowserView(
+								appState: appState,
+								folder: targetFolder,
+								prefix: targetEntry.path() + "/"
 							)
 						) {
-							Label(
-								targetEntry.fileName(),
-								systemImage: targetEntry.systemImage)
+							self.entryView(entry: entry)
 						}
-						NavigationLink(
-							destination: FileView(
-								file: entry, appState: self.appState, siblings: siblings
-							)
-						) {
-							Label(entry.fileName(), systemImage: entry.systemImage)
+						.contextMenu {
+							NavigationLink(
+								destination: FileView(
+									file: targetEntry, appState: self.appState,
+									siblings: []
+								)
+							) {
+								Label(
+									targetEntry.fileName(),
+									systemImage: targetEntry.systemImage)
+							}
+							NavigationLink(
+								destination: FileView(
+									file: entry, appState: self.appState,
+									siblings: siblings
+								)
+							) {
+								Label(entry.fileName(), systemImage: entry.systemImage)
+							}
 						}
 					}
 				}
@@ -674,21 +712,8 @@ private struct BrowserListView: View {
 				return []
 			}
 			do {
-				let list = try folder.list(self.prefix, directories: false, recurse: false)
-				var entries: [SushitrainEntry] = []
-				for i in 0..<list.count() {
-					let path = list.item(at: i)
-					if dotFilesHidden && path.starts(with: ".") {
-						continue
-					}
-					if let fileInfo = try? folder.getFileInformation(self.prefix + path) {
-						if fileInfo.isDirectory() || fileInfo.isDeleted() {
-							continue
-						}
-						entries.append(fileInfo)
-					}
-				}
-				return entries.sorted()
+				return try folder.listEntries(
+					prefix: self.prefix, directories: false, hideDotFiles: dotFilesHidden)
 			}
 			catch let error {
 				Log.warn("Error listing: \(error.localizedDescription)")
@@ -879,20 +904,9 @@ struct BrowserView: View {
 				ToolbarItem {
 					Menu(
 						content: {
-							Picker("View as", selection: appState.$browserViewStyle) {
-								HStack {
-									Image(systemName: "list.bullet")
-									Text("List")
-								}.tag(BrowserViewStyle.list)
-								HStack {
-									Image(systemName: "checklist.unchecked")
-									Text("List with previews")
-								}.tag(BrowserViewStyle.thumbnailList)
-								HStack {
-									Image(systemName: "square.grid.2x2")
-									Text("Grid with previews")
-								}.tag(BrowserViewStyle.grid)
-							}
+							BrowserViewStylePickerView(
+								viewStyle: appState.$browserViewStyle
+							)
 							.pickerStyle(.inline)
 
 							Toggle(
@@ -1353,5 +1367,27 @@ struct ItemSelectToggleView: View {
 			)
 			.disabled(self.file.isSelectionToggleShallowDisabled)
 		}
+	}
+}
+
+struct BrowserViewStylePickerView: View {
+	@Binding var viewStyle: BrowserViewStyle
+
+	var body: some View {
+		Picker("View as", selection: $viewStyle) {
+			HStack {
+				Image(systemName: "list.bullet")
+				Text("List")
+			}.tag(BrowserViewStyle.list)
+			HStack {
+				Image(systemName: "checklist.unchecked")
+				Text("List with previews")
+			}.tag(BrowserViewStyle.thumbnailList)
+			HStack {
+				Image(systemName: "square.grid.2x2")
+				Text("Grid with previews")
+			}.tag(BrowserViewStyle.grid)
+		}
+		.pickerStyle(.inline)
 	}
 }

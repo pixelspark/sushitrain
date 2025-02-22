@@ -30,6 +30,7 @@ struct FileView: View {
 
 	#if os(macOS)
 		@Environment(\.openURL) private var openURL
+		@Environment(\.openWindow) private var openWindow
 	#endif
 
 	init(file: SushitrainEntry, appState: AppState, showPath: Bool = false, siblings: [SushitrainEntry]? = nil) {
@@ -222,7 +223,30 @@ struct FileView: View {
 											fileURLWithPath: localPath!)
 									}
 									else if file.isVideo || file.isImage {
-										showFullScreenViewer = true
+										#if os(macOS)
+											// Cmd-click to open preview window directory
+											if NSEvent.modifierFlags
+												.contains(.command)
+											{
+												openWindow(
+													id: "preview",
+													value: Preview(
+														folderID:
+															file
+															.folder!
+															.folderID,
+														path:
+															file
+															.path()
+													))
+											}
+											else {
+												showFullScreenViewer =
+													true
+											}
+										#else
+											showFullScreenViewer = true
+										#endif
 									}
 								#elseif os(iOS)
 									// On iOS prefer streaming view over QuickLook
@@ -310,7 +334,12 @@ struct FileView: View {
 						let quickViewButton = Button(
 							"View file", systemImage: "arrow.down.circle",
 							action: {
-								showDownloader = true
+								if file.isWebPreviewable {
+									showSheetViewer = true
+								}
+								else {
+									showDownloader = true
+								}
 							}
 						).disabled(folder.connectedPeerCount() == 0)
 							#if os(macOS)
@@ -422,7 +451,11 @@ struct FileView: View {
 			// Sheet viewer
 			.sheet(isPresented: $showSheetViewer) {
 				FileViewerView(
-					appState: appState, file: file, siblings: siblings, isShown: $showSheetViewer
+					appState: appState,
+					file: file,
+					siblings: siblings,
+					inSheet: true,
+					isShown: $showSheetViewer
 				)
 				#if os(macOS)
 					.presentationSizing(.fitted)
@@ -436,13 +469,20 @@ struct FileView: View {
 					isPresented: $showFullScreenViewer,
 					content: {
 						FileViewerView(
-							appState: appState, file: file, siblings: siblings,
-							isShown: $showFullScreenViewer)
+							appState: appState,
+							file: file,
+							siblings: siblings,
+							inSheet: true,
+							isShown: $showFullScreenViewer
+						)
 					})
 			#elseif os(macOS)
 				.sheet(isPresented: $showFullScreenViewer) {
 					FileViewerView(
-						appState: appState, file: file, siblings: siblings,
+						appState: appState,
+						file: file,
+						siblings: siblings,
+						inSheet: true,
 						isShown: $showFullScreenViewer
 					)
 					.presentationSizing(.fitted)
@@ -473,10 +513,17 @@ struct FileView: View {
 			.toolbar {
 				if let selfIndex = selfIndex, let siblings = siblings {
 					ToolbarItemGroup(placement: .navigation) {
-						Button("Previous", systemImage: "chevron.up") { next(-1) }.disabled(
-							selfIndex < 1)
-						Button("Next", systemImage: "chevron.down") { next(1) }.disabled(
-							selfIndex >= siblings.count - 1)
+						Button("Previous", systemImage: "chevron.up") {
+							next(-1)
+						}
+						.keyboardShortcut(KeyEquivalent.upArrow)
+						.disabled(selfIndex < 1)
+
+						Button("Next", systemImage: "chevron.down") {
+							next(1)
+						}
+						.keyboardShortcut(KeyEquivalent.downArrow)
+						.disabled(selfIndex >= siblings.count - 1)
 					}
 				}
 

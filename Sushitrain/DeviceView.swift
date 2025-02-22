@@ -115,14 +115,14 @@ struct DeviceView: View {
 						}
 					}.monospaced()
 				}
-				
+
 				Section {
 					Toggle(
 						"Introducer",
 						isOn: Binding(
 							get: { device.isIntroducer() },
 							set: { trusted in try? device.setIntroducer(trusted) }))
-					
+
 					if let introducedBy = device.introducedBy() {
 						LabeledContent("Introduced by") {
 							Text(introducedBy.displayName)

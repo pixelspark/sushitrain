@@ -201,6 +201,13 @@ struct SushitrainApp: App {
 					route: folderID.wrappedValue == nil
 						? .start : .folder(folderID: folderID.wrappedValue))
 			}
+
+			WindowGroup(id: "preview", for: Preview.self) { [appState] preview in
+				if let p = preview.wrappedValue {
+					PreviewWindow(preview: p, appState: appState)
+				}
+			}
+			.windowManagerRole(.associated)
 		#endif
 
 		WindowGroup(id: "main") { [appState] in

@@ -229,6 +229,24 @@ extension SushitrainFolder {
 		ExternalSharingManager.shared.removeExternalSharingFor(folderID: self.folderID)
 		try self.unlink()
 	}
+
+	func listEntries(prefix: String, directories: Bool, hideDotFiles: Bool) throws -> [SushitrainEntry] {
+		let list = try self.list(prefix, directories: directories, recurse: false)
+		var entries: [SushitrainEntry] = []
+		for i in 0..<list.count() {
+			let path = list.item(at: i)
+			if hideDotFiles && path.starts(with: ".") {
+				continue
+			}
+			if let fileInfo = try? self.getFileInformation(prefix + path) {
+				if fileInfo.isDirectory() || fileInfo.isDeleted() {
+					continue
+				}
+				entries.append(fileInfo)
+			}
+		}
+		return entries.sorted()
+	}
 }
 
 extension SushitrainEntry {
@@ -284,8 +302,20 @@ extension SushitrainEntry {
 		return self.mimeType().starts(with: "audio/")
 	}
 
+	var isPDF: Bool {
+		return self.mimeType() == "application/pdf"
+	}
+
+	var isHTML: Bool {
+		return self.mimeType() == "text/html"
+	}
+
+	var isWebPreviewable: Bool {
+		return self.isPDF || self.isHTML || self.isImage
+	}
+
 	var isStreamable: Bool {
-		return self.isVideo || self.isAudio || self.isImage
+		return self.isVideo || self.isAudio || self.isImage || self.isWebPreviewable
 	}
 
 	var canThumbnail: Bool {
