@@ -69,8 +69,14 @@ class ExternalSharingManager {
 
 	private static let defaultsKey = "externalSharingConfiguration"
 
+	private var cachedConfiguration: [String: ExternalSharingType]? = nil
+
 	private var configuration: [String: ExternalSharingType] {
 		get {
+			if let c = cachedConfiguration {
+				return c
+			}
+
 			if let json = UserDefaults.standard.data(forKey: Self.defaultsKey) {
 				return (try? JSONDecoder().decode([String: ExternalSharingType].self, from: json))
 					?? [:]
@@ -80,6 +86,7 @@ class ExternalSharingManager {
 		set {
 			let json = try! JSONEncoder().encode(newValue)
 			UserDefaults.standard.set(json, forKey: Self.defaultsKey)
+			self.cachedConfiguration = newValue
 		}
 	}
 
