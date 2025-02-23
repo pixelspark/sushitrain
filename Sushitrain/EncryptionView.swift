@@ -14,6 +14,9 @@ struct EncryptionView: View {
 
 	@State private var folderPassword: String = ""
 
+	@State private var fileKey: String = ""
+	@State private var fileEncryptedPath: String = ""
+
 	private var encryptedPeers: [(SushitrainPeer, String)] {
 		if let folder = entry.folder {
 			let sharedEncrypted = folder.sharedEncryptedWithDeviceIDs()?.asArray() ?? []
@@ -52,22 +55,29 @@ struct EncryptionView: View {
 
 				if !self.folderPassword.isEmpty {
 					Section("Encrypted file path") {
-						let path = entry.encryptedFilePath(self.folderPassword)
-						Text(path).monospaced()
+						Text(self.fileEncryptedPath).monospaced()
 
 						Button("Copy", systemImage: "document.on.document") {
-							writeTextToPasteboard(
-								entry.encryptedFilePath(self.folderPassword))
+							writeTextToPasteboard(self.fileEncryptedPath)
 						}
 						#if os(macOS)
 							.buttonStyle(.link)
 						#endif
 					}
 
-					Section("File encryption key") {
-						let key = entry.fileKeyBase32(self.folderPassword)
-						Text(key).monospaced()
+					if !self.fileKey.isEmpty {
+						Section("File encryption key") {
+							Text(self.fileKey).monospaced()
+						}
 					}
+				}
+			}
+			.task {
+				await self.update()
+			}
+			.onChange(of: self.folderPassword) {
+				Task {
+					await self.update()
 				}
 			}
 			.formStyle(.grouped)
@@ -82,6 +92,23 @@ struct EncryptionView: View {
 					})
 			})
 		}
+	}
+
+	private func update() async {
+		let folderPassword = self.folderPassword
+		self.fileKey = await Task.detached {
+			if !folderPassword.isEmpty {
+				return entry.fileKeyBase32(folderPassword)
+			}
+			return ""
+		}.value
+
+		self.fileEncryptedPath = await Task.detached {
+			if !folderPassword.isEmpty {
+				return entry.encryptedFilePath(folderPassword)
+			}
+			return ""
+		}.value
 	}
 }
 
