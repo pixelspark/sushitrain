@@ -84,3 +84,67 @@ struct EncryptionView: View {
 		}
 	}
 }
+
+// Shows a list of decrypted paths
+struct DecryptedFilePathsView: View {
+	let folder: SushitrainFolder
+	let path: String
+	@ObservedObject var appState: AppState
+	@State private var decryptedPaths: [String] = []
+
+	private var passwords: [String] {
+		let peerIDs = self.folder.sharedEncryptedWithDeviceIDs()?.asArray() ?? []
+		return peerIDs.compactMap { peerID in
+			let pw = self.folder.encryptionPassword(for: peerID)
+			if !pw.isEmpty {
+				return pw
+			}
+			return nil
+		}
+	}
+
+	private func update() async {
+		let passwords = self.passwords
+		self.decryptedPaths = await Task.detached {
+			return passwords.compactMap { pw in
+				var error: NSError? = nil
+				let decryptedPath = self.folder.decryptedFilePath(
+					path, folderPassword: pw, error: &error)
+				if error == nil && !decryptedPath.isEmpty {
+					return decryptedPath
+				}
+				return nil
+			}
+		}.value
+	}
+
+	var body: some View {
+		Group {
+			if !self.decryptedPaths.isEmpty {
+				Section("Decrypted path") {
+					ForEach(self.decryptedPaths, id: \.self) { path in
+						if let entry = try? self.folder.getFileInformation(path) {
+							EntryView(
+								appState: appState,
+								entry: entry,
+								folder: self.folder,
+								siblings: [],
+								showThumbnail: appState.showThumbnailsInSearchResults)
+						}
+					}
+				}
+			}
+			else {
+				EmptyView()
+			}
+		}
+		.task {
+			await self.update()
+		}
+		.onChange(of: self.path) {
+			Task {
+				await self.update()
+			}
+		}
+	}
+}

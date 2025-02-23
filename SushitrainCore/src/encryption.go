@@ -4,10 +4,14 @@
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // You can obtain one at https://mozilla.org/MPL/2.0/.
+//
+// This file contains helper functions to obtain encrypted file paths and file encryption keys.
+// Some code is not accessible directly inside Syncthing, so it is copied here (under the MPL 2.0 license)
 package sushitrain
 
 import (
 	"encoding/base32"
+	"fmt"
 	"strings"
 
 	"github.com/miscreant/miscreant.go"
@@ -30,6 +34,15 @@ func encryptDeterministic(data []byte, key *[keySize]byte, additionalData []byte
 		panic("cipher failure: " + err.Error())
 	}
 	return aead.Seal(nil, nil, data, additionalData)
+}
+
+// decryptDeterministic decrypts bytes using AES-SIV
+func decryptDeterministic(data []byte, key *[keySize]byte, additionalData []byte) ([]byte, error) {
+	aead, err := miscreant.NewAEAD(miscreantAlgo, key[:], 0)
+	if err != nil {
+		panic("cipher failure: " + err.Error())
+	}
+	return aead.Open(nil, nil, data, additionalData)
 }
 
 // slashify inserts slashes (and file extension) in the string to create an
@@ -57,6 +70,34 @@ func slashify(s string) string {
 	return strings.Join(comps, "/")
 }
 
+// deslashify removes slashes and encrypted file extensions from the string.
+// This is the inverse of slashify().
+func deslashify(s string) (string, error) {
+	if s == "" || !strings.HasPrefix(s[1:], encryptedDirExtension) {
+		return "", fmt.Errorf("invalid encrypted path: %q", s)
+	}
+	s = s[:1] + s[1+len(encryptedDirExtension):]
+	return strings.ReplaceAll(s, "/", ""), nil
+}
+
+// decryptName decrypts a string from encryptName
+func decryptName(name string, key *[keySize]byte) (string, error) {
+	name, err := deslashify(name)
+	if err != nil {
+		return "", err
+	}
+	bs, err := base32Hex.DecodeString(name)
+	if err != nil {
+		return "", err
+	}
+	dec, err := decryptDeterministic(bs, key, nil)
+	if err != nil {
+		return "", err
+	}
+
+	return string(dec), nil
+}
+
 func (folder *Folder) folderKey(password string) *[keySize]byte {
 	keyGen := protocol.NewKeyGenerator()
 	return keyGen.KeyFromPassword(folder.FolderID, password)
@@ -66,6 +107,10 @@ func (entry *Entry) EncryptedFilePath(folderPassword string) string {
 	key := entry.Folder.folderKey(folderPassword)
 	enc := encryptDeterministic([]byte(entry.info.Name), key, nil)
 	return slashify(base32Hex.EncodeToString(enc))
+}
+
+func (folder *Folder) DecryptedFilePath(encryptedPath string, folderPassword string) (string, error) {
+	return decryptName(encryptedPath, folder.folderKey(folderPassword))
 }
 
 func (entry *Entry) FileKeyBase32(password string) string {
