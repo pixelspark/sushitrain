@@ -165,16 +165,9 @@ struct FileEntryLink<Content: View>: View {
 					}
 				}
 
-				if let sharingLink = entry.externalSharingURL() {
+				if entry.hasExternalSharingURL {
 					Divider()
-
-					ShareLink(item: sharingLink) {
-						Label("Share external link", systemImage: "link.circle.fill")
-					}
-
-					Button("Copy external link", systemImage: "link.circle") {
-						writeURLToPasteboard(url: sharingLink)
-					}
+					FileSharingLinksView(entry: entry, sync: true)
 				}
 
 				Divider()
@@ -543,9 +536,7 @@ private struct BrowserListView: View {
 																self
 																.appState,
 															showPath:
-																self
-																.folder
-																== nil
+																false
 														)
 												) {
 													Label(
@@ -560,31 +551,15 @@ private struct BrowserListView: View {
 														appState,
 													file: file)
 
-												if let sharingLink =
-													file
-													.externalSharingURL()
+												if file
+													.hasExternalSharingURL
 												{
-													ShareLink(
-														item:
-															sharingLink
-													) {
-														Label(
-															"Share external link",
-															systemImage:
-																"link.circle.fill"
-														)
-													}
-
-													Button(
-														"Copy external link",
-														systemImage:
-															"link.circle"
-													) {
-														writeURLToPasteboard(
-															url:
-																sharingLink
-														)
-													}
+													FileSharingLinksView(
+														entry:
+															file,
+														sync:
+															true
+													)
 												}
 											}
 										}))

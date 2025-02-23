@@ -23,6 +23,16 @@ enum ExternalSharingType: Equatable, Hashable, Codable {
 			return e.urlForFile(entry)
 		}
 	}
+
+	func hasURLForFile(_ entry: SushitrainEntry) -> Bool {
+		switch self {
+		case .none: return false
+		case .unencrypted(let e):
+			return !entry.isDeleted()
+				&& e.hasURLForFile(path: entry.path(), isDirectory: entry.isDirectory())
+		case .encrypted(let e): return !entry.isDeleted() && e.hasURLForFile
+		}
+	}
 }
 
 struct ExternalSharingEncrypted: Equatable, Hashable, Codable {
@@ -38,6 +48,10 @@ struct ExternalSharingEncrypted: Equatable, Hashable, Codable {
 		return nil
 	}
 
+	var hasURLForFile: Bool {
+		return URL(string: url) != nil && !password.isEmpty
+	}
+
 	var exampleURL: URL? {
 		if let root = URL(string: url) {
 			let withPath = root.appending(
@@ -51,6 +65,10 @@ struct ExternalSharingEncrypted: Equatable, Hashable, Codable {
 struct ExternalSharingUnencrypted: Equatable, Hashable, Codable {
 	var url: String
 	var prefix: String
+
+	func hasURLForFile(path: String, isDirectory: Bool) -> Bool {
+		return URL(string: url) != nil && path.hasPrefix(self.prefix)
+	}
 
 	func urlForFile(path: String, isDirectory: Bool) -> URL? {
 		if let root = URL(string: url) {
@@ -118,7 +136,16 @@ class ExternalSharingManager {
 }
 
 extension SushitrainEntry {
-	@MainActor func externalSharingURL() -> URL? {
+	@MainActor var hasExternalSharingURL: Bool {
+		if self.isDeleted() {
+			return false
+		}
+
+		let settings = ExternalSharingManager.shared.externalSharingFor(folderID: self.folder!.folderID)
+		return settings.hasURLForFile(self)
+	}
+
+	@MainActor func externalSharingURLExpensive() -> URL? {
 		if self.isDeleted() {
 			return nil
 		}

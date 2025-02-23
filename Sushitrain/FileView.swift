@@ -279,6 +279,7 @@ struct FileView: View {
 									#if os(macOS)
 										.buttonStyle(.link)
 									#endif
+
 									ShareLink(
 										"Share file",
 										item: URL(
@@ -376,7 +377,7 @@ struct FileView: View {
 
 					// Sharing
 					Section {
-						FileSharingLinksView(entry: file)
+						FileSharingLinksView(entry: file, sync: false)
 					}
 
 					// Devices that have this file
@@ -676,25 +677,62 @@ private struct DownloadProgressView: View {
 	}
 }
 
-private struct FileSharingLinksView: View {
+struct FileSharingLinksView: View {
 	let entry: SushitrainEntry
+	let sync: Bool  // In some contexts, such as inside a context menu, async tasks don't run
+	@State private var sharingLink: URL? = nil
+
+	private func update() async {
+		self.sharingLink = nil
+		let entry = self.entry
+		self.sharingLink = await Task.detached {
+			return await entry.externalSharingURLExpensive()
+		}.value
+	}
+
+	private var linkToUse: URL? {
+		if self.sync {
+			return self.entry.externalSharingURLExpensive()
+		}
+		return self.sharingLink
+	}
 
 	var body: some View {
-		if let sharingLink = entry.externalSharingURL() {
-			ShareLink(item: sharingLink) {
-				Label("Share external link", systemImage: "link.circle")
-			}
-			#if os(macOS)
-				.buttonStyle(.link)
-			#endif
-
-			#if os(macOS)
-				// On macOS, the share sheet doesn't have an obvious 'copy URL' option
-				Button("Copy external link", systemImage: "link.circle") {
-					writeURLToPasteboard(url: sharingLink)
+		if entry.hasExternalSharingURL {
+			Group {
+				if let link = linkToUse {
+					ShareLink(item: link) {
+						Label("Share external link", systemImage: "link.circle")
+					}
+					#if os(macOS)
+						.buttonStyle(.link)
+					#endif
 				}
-				.buttonStyle(.link)
-			#endif
+				else {
+					EmptyView()
+				}
+
+				#if os(macOS)
+					// On macOS, the share sheet doesn't have an obvious 'copy URL' option
+					Button("Copy external link", systemImage: "link.circle") {
+						if let se = self.sharingLink {
+							writeURLToPasteboard(url: se)
+						}
+						else if let se = entry.externalSharingURLExpensive() {
+							writeURLToPasteboard(url: se)
+						}
+					}
+					.buttonStyle(.link)
+				#endif
+			}
+			.task {
+				await self.update()
+			}
+			.onChange(of: entry) {
+				Task {
+					await self.update()
+				}
+			}
 		}
 	}
 }
