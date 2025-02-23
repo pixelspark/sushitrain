@@ -991,7 +991,8 @@ private struct AdvancedFolderSettingsView: View {
 
 			Section {
 				NavigationLink(
-					destination: ExternalSharingSettingsView(folder: self.folder)
+					destination: ExternalSharingSettingsView(
+						folder: self.folder, appState: appState)
 				) {
 					Label("External sharing", systemImage: "link.circle.fill")
 				}

@@ -5794,6 +5794,40 @@
         }
       }
     },
+    "Encrypted" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verschlüsselt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cifrado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Criptato"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versleuteld"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зашифровано"
+          }
+        }
+      }
+    },
     "Encrypted file path" : {
       "localizations" : {
         "de" : {
@@ -5824,6 +5858,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Зашифрований шлях до файлу"
+          }
+        }
+      }
+    },
+    "Encrypted sharing links" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verschlüsselte Freigabelinks"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enlaces de compartición cifrados"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Link di condivisione crittografati"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versleutelde deelkoppelingen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зашифровані посилання для спільного доступу"
           }
         }
       }
@@ -7700,6 +7768,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Створити мініатюри"
+          }
+        }
+      }
+    },
+    "Generated URLs will look like '%@'. You will need to configure a web server and/or application to handle these URLs." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generierte URLs sehen aus wie '%@'. Sie müssen einen Webserver und/oder eine Anwendung konfigurieren, um diese URLs zu verarbeiten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las URL generadas tendrán el formato '%@'. Necesitarás configurar un servidor web y/o una aplicación para manejar estas URL."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli URL generati avranno l'aspetto di '%@'. Dovrai configurare un server web e/o un'applicazione per gestire questi URL."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gegenereerde URL's zullen eruitzien als '%@'. U moet een webserver en/of applicatie configureren om deze URL's te behandelen."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Згенеровані URL будуть виглядати як '%@'. Вам потрібно налаштувати веб-сервер та/або додаток для обробки цих URL."
           }
         }
       }

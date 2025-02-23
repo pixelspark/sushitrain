@@ -10,12 +10,41 @@ import Foundation
 enum ExternalSharingType: Equatable, Hashable, Codable {
 	case none
 	case unencrypted(ExternalSharingUnencrypted)
+	case encrypted(ExternalSharingEncrypted)
 
-	func urlForFile(path: String, isDirectory: Bool) -> URL? {
+	func urlForFile(_ entry: SushitrainEntry) -> URL? {
 		switch self {
 		case .none: return nil
-		case .unencrypted(let e): return e.urlForFile(path: path, isDirectory: isDirectory)
+		case .unencrypted(let e): return e.urlForFile(path: entry.path(), isDirectory: entry.isDirectory())
+		case .encrypted(let e):
+			if entry.isDirectory() {
+				return nil
+			}
+			return e.urlForFile(entry)
 		}
+	}
+}
+
+struct ExternalSharingEncrypted: Equatable, Hashable, Codable {
+	var url: String
+	var password: String
+
+	func urlForFile(_ entry: SushitrainEntry) -> URL? {
+		if let root = URL(string: url) {
+			let withPath = root.appending(
+				path: entry.encryptedFilePath(password), directoryHint: .notDirectory)
+			return URL(string: "#\(entry.fileKeyBase32(password))", relativeTo: withPath)
+		}
+		return nil
+	}
+
+	var exampleURL: URL? {
+		if let root = URL(string: url) {
+			let withPath = root.appending(
+				path: "E.syncthing-enc/NC/RYPTED", directoryHint: .notDirectory)
+			return URL(string: "#FILEKEY", relativeTo: withPath)
+		}
+		return nil
 	}
 }
 
@@ -87,6 +116,6 @@ extension SushitrainEntry {
 			return nil
 		}
 		let settings = ExternalSharingManager.shared.externalSharingFor(folderID: self.folder!.folderID)
-		return settings.urlForFile(path: self.path(), isDirectory: self.isDirectory())
+		return settings.urlForFile(self)
 	}
 }

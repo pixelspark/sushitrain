@@ -823,7 +823,8 @@ func writeURLToPasteboard(url: URL) {
 		let pasteboard = NSPasteboard.general
 		pasteboard.clearContents()
 		pasteboard.prepareForNewContents()
-		pasteboard.writeObjects([url as NSURL])
+		pasteboard.setString(url.absoluteString, forType: .string)
+		pasteboard.setString(url.absoluteString, forType: .URL)
 	#else
 		UIPasteboard.general.urls = [url]
 	#endif
