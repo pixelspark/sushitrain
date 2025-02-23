@@ -216,6 +216,10 @@ extension SushitrainFolder {
 		}
 	}
 
+	var hasEncryptedPeers: Bool {
+		return (self.sharedEncryptedWithDeviceIDs()?.count() ?? 0) > 0
+	}
+
 	@MainActor
 	func removeAndRemoveBookmark() throws {
 		BookmarkManager.shared.removeBookmarkFor(folderID: self.folderID)

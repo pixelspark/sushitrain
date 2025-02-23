@@ -30,8 +30,12 @@ struct EncryptionView: View {
 	var body: some View {
 		NavigationStack {
 			Form {
-				Section("Folder encryption password") {
-					TextField("", text: $folderPassword).monospaced()
+				Section("Get encrypted file details") {
+					LabeledContent {
+						TextField("", text: $folderPassword).monospaced()
+					} label: {
+						Text("Folder encryption password")
+					}
 
 					LabeledContent {
 						Picker("", selection: $folderPassword) {

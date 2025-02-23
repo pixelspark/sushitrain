@@ -5828,6 +5828,40 @@
         }
       }
     },
+    "Encryption details..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verschlüsselungsdetails..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detalles de encriptación..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dettagli di crittografia..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versleutelingsdetails..."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Деталі шифрування..."
+          }
+        }
+      }
+    },
     "Encryption password" : {
       "localizations" : {
         "de" : {
@@ -7740,6 +7774,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Отримати ідентифікатор пристрою"
+          }
+        }
+      }
+    },
+    "Get encrypted file details" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verschlüsselte Dateidetails abrufen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obtener detalles del archivo cifrado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ottieni i dettagli del file crittografato"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verkrijg versleutelde bestandsdetails"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отримати дані про зашифрований файл"
           }
         }
       }

@@ -512,34 +512,45 @@ struct FileView: View {
 				}
 			)
 			.toolbar {
+				// Next/previous buttons
 				if let selfIndex = selfIndex, let siblings = siblings {
 					ToolbarItemGroup(placement: .navigation) {
 						Button("Previous", systemImage: "chevron.up") {
 							next(-1)
 						}
-						.keyboardShortcut(KeyEquivalent.upArrow)
+						.keyboardShortcut(KeyEquivalent.upArrow)  // Cmd-up
 						.disabled(selfIndex < 1)
 
 						Button("Next", systemImage: "chevron.down") {
 							next(1)
 						}
-						.keyboardShortcut(KeyEquivalent.downArrow)
+						.keyboardShortcut(KeyEquivalent.downArrow)  // Cmd-down
 						.disabled(selfIndex >= siblings.count - 1)
 					}
 				}
 
 				#if os(macOS)
+					// Menu for advanced actions
+					if let f = file.folder, f.hasEncryptedPeers {
+						ToolbarItem {
+							Menu {
+								Button(
+									"Encryption details...",
+									systemImage: "lock.document.fill"
+								) {
+									showEncryptionSheet = true
+								}
+							}
+						} label: {
+							Label("Advanced", systemImage: "ellipsis.circle")
+						}
+					}
+
+					// Open in Finder button
 					ToolbarItem(id: "open-in-finder", placement: .primaryAction) {
 						Button(
 							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
 							action: {
-								#if os(macOS)
-									// Cmd-click to open encyption sheet
-									if NSEvent.modifierFlags.contains(.command) {
-										showEncryptionSheet = true
-										return
-									}
-								#endif
 								if let localPathActual = localPath {
 									openURLInSystemFilesApp(
 										url: URL(
@@ -550,14 +561,12 @@ struct FileView: View {
 						)
 						.labelStyle(.iconOnly)
 						.disabled(localPath == nil)
-						#if os(macOS)
-							.sheet(isPresented: $showEncryptionSheet) {
-								EncryptionView(
-									entry: self.file, appState: self.appState)
-							}
-						#endif
 					}
 				#endif
+			}
+			.sheet(isPresented: $showEncryptionSheet) {
+				EncryptionView(
+					entry: self.file, appState: self.appState)
 			}
 			.onAppear {
 				selfIndex = self.siblings?.firstIndex(of: file)

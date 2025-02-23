@@ -617,15 +617,16 @@ struct FolderView: View {
 						.disabled(isWorking)
 					}
 				}
-				
+
 				#if os(macOS)
-				Section {
-					NavigationLink(
-						destination: AdvancedFolderSettingsView(appState: appState, folder: self.folder)
-					) {
-						Label("Advanced folder settings", systemImage: "gear")
+					Section {
+						NavigationLink(
+							destination: AdvancedFolderSettingsView(
+								appState: appState, folder: self.folder)
+						) {
+							Label("Advanced folder settings", systemImage: "gear")
+						}
 					}
-				}
 				#endif
 			}
 		}
