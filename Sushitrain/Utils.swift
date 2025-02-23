@@ -216,6 +216,10 @@ extension SushitrainFolder {
 		}
 	}
 
+	var hasEncryptedPeers: Bool {
+		return (self.sharedEncryptedWithDeviceIDs()?.count() ?? 0) > 0
+	}
+
 	@MainActor
 	func removeAndRemoveBookmark() throws {
 		BookmarkManager.shared.removeBookmarkFor(folderID: self.folderID)
@@ -349,7 +353,7 @@ extension SushitrainEntry {
 	var thumbnailStrategy: ThumbnailStrategy {
 		return self.isVideo ? .video : .image
 	}
-	
+
 	var parentFolderName: String {
 		let path = self.parentPath()
 		let parts = path.split(separator: "/")
@@ -819,8 +823,22 @@ func writeURLToPasteboard(url: URL) {
 		let pasteboard = NSPasteboard.general
 		pasteboard.clearContents()
 		pasteboard.prepareForNewContents()
-		pasteboard.writeObjects([url as NSURL])
+		pasteboard.setString(url.absoluteString, forType: .string)
+		pasteboard.setString(url.absoluteString, forType: .URL)
 	#else
 		UIPasteboard.general.urls = [url]
+	#endif
+}
+
+func writeTextToPasteboard(_ text: String) {
+	#if os(iOS)
+		UIPasteboard.general.string = text
+	#endif
+
+	#if os(macOS)
+		let pasteboard = NSPasteboard.general
+		pasteboard.clearContents()
+		pasteboard.prepareForNewContents()
+		pasteboard.setString(text, forType: .string)
 	#endif
 }

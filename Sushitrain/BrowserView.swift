@@ -80,7 +80,9 @@ struct FileEntryLink<Content: View>: View {
 			else {
 				// Tap to go to file view
 				NavigationLink(
-					destination: FileView(file: entry, appState: self.appState, showPath: self.inFolder == nil, siblings: siblings)
+					destination: FileView(
+						file: entry, appState: self.appState, showPath: self.inFolder == nil,
+						siblings: siblings)
 				) {
 					self.content()
 				}
@@ -142,33 +144,30 @@ struct FileEntryLink<Content: View>: View {
 						self.copy()
 					}.disabled(!entry.isLocallyPresent())
 				#endif
-				
+
 				if self.inFolder == nil {
 					if let folder = entry.folder {
 						NavigationLink(
-							destination: BrowserView(appState: appState, folder: folder, prefix:  entry.parentPath())
+							destination: BrowserView(
+								appState: appState, folder: folder,
+								prefix: entry.parentPath())
 						) {
 							let parentFolderName = entry.parentFolderName
 							if parentFolderName.isEmpty {
 								Label("Go to location", systemImage: "document.circle")
 							}
 							else {
-								Label("Go to directory '\(parentFolderName)'", systemImage: "document.circle")
+								Label(
+									"Go to directory '\(parentFolderName)'",
+									systemImage: "document.circle")
 							}
 						}
 					}
 				}
 
-				if let sharingLink = entry.externalSharingURL() {
+				if entry.hasExternalSharingURL {
 					Divider()
-
-					ShareLink(item: sharingLink) {
-						Label("Share external link", systemImage: "link.circle.fill")
-					}
-
-					Button("Copy external link", systemImage: "link.circle") {
-						writeURLToPasteboard(url: sharingLink)
-					}
+					FileSharingLinksView(entry: entry, sync: true)
 				}
 
 				Divider()
@@ -292,7 +291,10 @@ struct EntryView: View {
 					}
 				}
 				else {
-					FileEntryLink(appState: appState, entry: targetEntry, inFolder: self.folder, siblings: []) {
+					FileEntryLink(
+						appState: appState, entry: targetEntry, inFolder: self.folder,
+						siblings: []
+					) {
 						self.entryView(entry: targetEntry)
 					}
 					.contextMenu {
@@ -533,7 +535,8 @@ private struct BrowserListView: View {
 															appState:
 																self
 																.appState,
-															showPath: self.folder == nil
+															showPath:
+																false
 														)
 												) {
 													Label(
@@ -548,31 +551,15 @@ private struct BrowserListView: View {
 														appState,
 													file: file)
 
-												if let sharingLink =
-													file
-													.externalSharingURL()
+												if file
+													.hasExternalSharingURL
 												{
-													ShareLink(
-														item:
-															sharingLink
-													) {
-														Label(
-															"Share external link",
-															systemImage:
-																"link.circle.fill"
-														)
-													}
-
-													Button(
-														"Copy external link",
-														systemImage:
-															"link.circle"
-													) {
-														writeURLToPasteboard(
-															url:
-																sharingLink
-														)
-													}
+													FileSharingLinksView(
+														entry:
+															file,
+														sync:
+															true
+													)
 												}
 											}
 										}))

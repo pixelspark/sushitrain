@@ -617,15 +617,16 @@ struct FolderView: View {
 						.disabled(isWorking)
 					}
 				}
-				
+
 				#if os(macOS)
-				Section {
-					NavigationLink(
-						destination: AdvancedFolderSettingsView(appState: appState, folder: self.folder)
-					) {
-						Label("Advanced folder settings", systemImage: "gear")
+					Section {
+						NavigationLink(
+							destination: AdvancedFolderSettingsView(
+								appState: appState, folder: self.folder)
+						) {
+							Label("Advanced folder settings", systemImage: "gear")
+						}
 					}
-				}
 				#endif
 			}
 		}
@@ -990,7 +991,8 @@ private struct AdvancedFolderSettingsView: View {
 
 			Section {
 				NavigationLink(
-					destination: ExternalSharingSettingsView(folder: self.folder)
+					destination: ExternalSharingSettingsView(
+						folder: self.folder, appState: appState)
 				) {
 					Label("External sharing", systemImage: "link.circle.fill")
 				}

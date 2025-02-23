@@ -7,6 +7,7 @@ toolchain go1.23.5
 require (
 	github.com/gotd/contrib v0.21.0
 	github.com/syncthing/syncthing v1.29.3-rc.1.0.20250207154053-28f0cffdb6ad
+	github.com/miscreant/miscreant.go v0.0.0-20200214223636-26d376326b75
 )
 
 require (
@@ -34,7 +35,6 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/lufia/plan9stats v0.0.0-20240909124753-873cd0166683 // indirect
-	github.com/miscreant/miscreant.go v0.0.0-20200214223636-26d376326b75 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/onsi/ginkgo/v2 v2.22.2 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect

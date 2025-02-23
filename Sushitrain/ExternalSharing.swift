@@ -10,18 +10,65 @@ import Foundation
 enum ExternalSharingType: Equatable, Hashable, Codable {
 	case none
 	case unencrypted(ExternalSharingUnencrypted)
+	case encrypted(ExternalSharingEncrypted)
 
-	func urlForFile(path: String, isDirectory: Bool) -> URL? {
+	func urlForFile(_ entry: SushitrainEntry) -> URL? {
 		switch self {
 		case .none: return nil
-		case .unencrypted(let e): return e.urlForFile(path: path, isDirectory: isDirectory)
+		case .unencrypted(let e): return e.urlForFile(path: entry.path(), isDirectory: entry.isDirectory())
+		case .encrypted(let e):
+			if entry.isDirectory() {
+				return nil
+			}
+			return e.urlForFile(entry)
 		}
+	}
+
+	func hasURLForFile(_ entry: SushitrainEntry) -> Bool {
+		switch self {
+		case .none: return false
+		case .unencrypted(let e):
+			return !entry.isDeleted()
+				&& e.hasURLForFile(path: entry.path(), isDirectory: entry.isDirectory())
+		case .encrypted(let e): return !entry.isDeleted() && e.hasURLForFile
+		}
+	}
+}
+
+struct ExternalSharingEncrypted: Equatable, Hashable, Codable {
+	var url: String
+	var password: String
+
+	func urlForFile(_ entry: SushitrainEntry) -> URL? {
+		if let root = URL(string: url) {
+			let withPath = root.appending(
+				path: entry.encryptedFilePath(password), directoryHint: .notDirectory)
+			return URL(string: "#\(entry.fileKeyBase32(password))", relativeTo: withPath)
+		}
+		return nil
+	}
+
+	var hasURLForFile: Bool {
+		return URL(string: url) != nil && !password.isEmpty
+	}
+
+	var exampleURL: URL? {
+		if let root = URL(string: url) {
+			let withPath = root.appending(
+				path: "E.syncthing-enc/NC/RYPTED", directoryHint: .notDirectory)
+			return URL(string: "#FILEKEY", relativeTo: withPath)
+		}
+		return nil
 	}
 }
 
 struct ExternalSharingUnencrypted: Equatable, Hashable, Codable {
 	var url: String
 	var prefix: String
+
+	func hasURLForFile(path: String, isDirectory: Bool) -> Bool {
+		return URL(string: url) != nil && path.hasPrefix(self.prefix)
+	}
 
 	func urlForFile(path: String, isDirectory: Bool) -> URL? {
 		if let root = URL(string: url) {
@@ -40,8 +87,14 @@ class ExternalSharingManager {
 
 	private static let defaultsKey = "externalSharingConfiguration"
 
+	private var cachedConfiguration: [String: ExternalSharingType]? = nil
+
 	private var configuration: [String: ExternalSharingType] {
 		get {
+			if let c = cachedConfiguration {
+				return c
+			}
+
 			if let json = UserDefaults.standard.data(forKey: Self.defaultsKey) {
 				return (try? JSONDecoder().decode([String: ExternalSharingType].self, from: json))
 					?? [:]
@@ -51,6 +104,7 @@ class ExternalSharingManager {
 		set {
 			let json = try! JSONEncoder().encode(newValue)
 			UserDefaults.standard.set(json, forKey: Self.defaultsKey)
+			self.cachedConfiguration = newValue
 		}
 	}
 
@@ -82,11 +136,20 @@ class ExternalSharingManager {
 }
 
 extension SushitrainEntry {
-	@MainActor func externalSharingURL() -> URL? {
+	@MainActor var hasExternalSharingURL: Bool {
+		if self.isDeleted() {
+			return false
+		}
+
+		let settings = ExternalSharingManager.shared.externalSharingFor(folderID: self.folder!.folderID)
+		return settings.hasURLForFile(self)
+	}
+
+	@MainActor func externalSharingURLExpensive() -> URL? {
 		if self.isDeleted() {
 			return nil
 		}
 		let settings = ExternalSharingManager.shared.externalSharingFor(folderID: self.folder!.folderID)
-		return settings.urlForFile(path: self.path(), isDirectory: self.isDirectory())
+		return settings.urlForFile(self)
 	}
 }

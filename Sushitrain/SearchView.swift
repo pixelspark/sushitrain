@@ -137,6 +137,14 @@ struct SearchResultsView: View, SearchViewDelegate {
 	var body: some View {
 		ZStack {
 			List {
+				if !folderID.isEmpty {
+					if let folder = appState.client.folder(withID: folderID) {
+						// Encrypted file path pasted? Attempt to show decrypted path
+						DecryptedFilePathsView(
+							folder: folder, path: searchText, appState: appState)
+					}
+				}
+
 				if !results.isEmpty {
 					Section {
 						ForEach(results, id: \.self) { (item: SushitrainEntry) in
