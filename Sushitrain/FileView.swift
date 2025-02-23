@@ -531,19 +531,18 @@ struct FileView: View {
 
 				#if os(macOS)
 					// Menu for advanced actions
-					if let f = file.folder, f.hasEncryptedPeers {
-						ToolbarItem {
-							Menu {
-								Button(
-									"Encryption details...",
-									systemImage: "lock.document.fill"
-								) {
-									showEncryptionSheet = true
-								}
+					ToolbarItem {
+						Menu {
+							Button(
+								"Encryption details...",
+								systemImage: "lock.document.fill"
+							) {
+								showEncryptionSheet = true
 							}
 						} label: {
 							Label("Advanced", systemImage: "ellipsis.circle")
 						}
+						.disabled(!(file.folder?.hasEncryptedPeers ?? false))
 					}
 
 					// Open in Finder button

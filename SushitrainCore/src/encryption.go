@@ -67,3 +67,10 @@ func (entry *Entry) EncryptedFilePath(folderPassword string) string {
 	enc := encryptDeterministic([]byte(entry.info.Name), key, nil)
 	return slashify(base32Hex.EncodeToString(enc))
 }
+
+func (entry *Entry) FileKeyBase32(password string) string {
+	folderKey := entry.Folder.folderKey(password)
+	keyGen := protocol.NewKeyGenerator()
+	fileKey := keyGen.FileKey(entry.info.Name, folderKey)
+	return base32Hex.EncodeToString(fileKey[:])
+}

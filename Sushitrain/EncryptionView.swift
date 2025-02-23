@@ -39,10 +39,10 @@ struct EncryptionView: View {
 
 					LabeledContent {
 						Picker("", selection: $folderPassword) {
-							Text("None").tag("")
 							ForEach(self.encryptedPeers, id: \.0.id) { (peer, password) in
 								Text(peer.displayName).tag(password)
 							}
+							Text("None").tag(folderPassword)
 						}
 						.pickerStyle(.menu)
 					} label: {
@@ -62,6 +62,11 @@ struct EncryptionView: View {
 						#if os(macOS)
 							.buttonStyle(.link)
 						#endif
+					}
+
+					Section("File encryption key") {
+						let key = entry.fileKeyBase32(self.folderPassword)
+						Text(key).monospaced()
 					}
 				}
 			}
