@@ -173,25 +173,43 @@ private struct EncryptedSharingSettingsView: View {
 
 	var body: some View {
 		Section {
+			Picker("Variant", selection: Binding(get: { settings.format }, set: { settings.format = $0 })) {
+				Text("Basic").tag(EncryptedLinkFormat.basic)
+				Text("Linkthing").tag(EncryptedLinkFormat.linkthing)
+			}
+
+			// Public URL base
 			LabeledContent {
-				TextField(
-					"",
-					text: Binding(
-						get: { settings.url },
-						set: { url in
-							settings.url = url
-						})
-				)
-				.multilineTextAlignment(.trailing)
-				.autocorrectionDisabled()
-				#if os(iOS)
-					.keyboardType(.URL)
-					.textInputAutocapitalization(.never)
-				#endif
+				TextField("", text: Binding(get: { settings.url }, set: { settings.url = $0 }))
+					.multilineTextAlignment(.trailing)
+					.autocorrectionDisabled()
+					#if os(iOS)
+						.keyboardType(.URL)
+						.textInputAutocapitalization(.never)
+					#endif
 			} label: {
 				Text("Public URL")
 			}
 
+			// Blob URL
+			if settings.format == .linkthing {
+				LabeledContent {
+					TextField(
+						"",
+						text: Binding(get: { settings.blobURL }, set: { settings.blobURL = $0 })
+					)
+					.multilineTextAlignment(.trailing)
+					.autocorrectionDisabled()
+					#if os(iOS)
+						.keyboardType(.URL)
+						.textInputAutocapitalization(.never)
+					#endif
+				} label: {
+					Text("Encrypted files URL")
+				}
+			}
+
+			// Folder password
 			LabeledContent {
 				HStack {
 					TextField(

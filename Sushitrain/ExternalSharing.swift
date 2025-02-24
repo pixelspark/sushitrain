@@ -35,15 +35,38 @@ enum ExternalSharingType: Equatable, Hashable, Codable {
 	}
 }
 
+enum EncryptedLinkFormat: String, Codable {
+	case basic = "basic"
+	case linkthing = "linkthing"
+}
+
 struct ExternalSharingEncrypted: Equatable, Hashable, Codable {
 	var url: String
 	var password: String
+	var format: EncryptedLinkFormat = .basic
+	var blobURL: String = ""
 
 	func urlForFile(_ entry: SushitrainEntry) -> URL? {
 		if let root = URL(string: url) {
-			let withPath = root.appending(
-				path: entry.encryptedFilePath(password), directoryHint: .notDirectory)
-			return URL(string: "#\(entry.fileKeyBase32(password))", relativeTo: withPath)
+			switch self.format {
+			case .basic:
+				let withPath = root.appending(
+					path: entry.encryptedFilePath(password), directoryHint: .notDirectory)
+				return URL(string: "#\(entry.fileKeyBase32(password))", relativeTo: withPath)
+			case .linkthing:
+				if let blobURLRoot = URL(string: self.blobURL) {
+					let blobURLPath = blobURLRoot.appending(
+						path: entry.encryptedFilePath(password), directoryHint: .notDirectory)
+					let queryItems = [
+						URLQueryItem(name: "url", value: blobURLPath.absoluteString),
+						URLQueryItem(name: "key", value: entry.fileKeyBase32(password)),
+					]
+					var fauxURLComponents = URLComponents()
+					fauxURLComponents.queryItems = queryItems
+					return URL(
+						string: "#\(fauxURLComponents.percentEncodedQuery!)", relativeTo: root)
+				}
+			}
 		}
 		return nil
 	}
@@ -54,9 +77,24 @@ struct ExternalSharingEncrypted: Equatable, Hashable, Codable {
 
 	var exampleURL: URL? {
 		if let root = URL(string: url) {
-			let withPath = root.appending(
-				path: "E.syncthing-enc/NC/RYPTED", directoryHint: .notDirectory)
-			return URL(string: "#FILEKEY", relativeTo: withPath)
+			switch self.format {
+			case .basic:
+				let withPath = root.appending(
+					path: "E.syncthing-enc/NC/RYPTED", directoryHint: .notDirectory)
+				return URL(string: "#FILEKEY", relativeTo: withPath)
+			case .linkthing:
+				let queryItems = [
+					URLQueryItem(
+						name: "url",
+						value: URL(string: blobURL)?.appending(
+							path: "E.syncthing-enc/NC/RYPTED"
+						).absoluteString ?? ""),
+					URLQueryItem(name: "key", value: "FILEKEY"),
+				]
+				var fauxURLComponents = URLComponents()
+				fauxURLComponents.queryItems = queryItems
+				return URL(string: "#\(fauxURLComponents.percentEncodedQuery!)", relativeTo: root)
+			}
 		}
 		return nil
 	}
