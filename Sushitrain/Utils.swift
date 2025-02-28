@@ -323,8 +323,12 @@ extension SushitrainEntry {
 	}
 
 	var canThumbnail: Bool {
-		return !self.isSymlink()
-			&& (self.isVideo || (self.isImage && self.mimeType() != "image/svg+xml") || !self.isDirectory())
+		return
+			!self.isSymlink()
+			&& !self.isDirectory()
+			// Cannot make proper thumbnails for most AVI and SVG files and retrying each time is expensive
+			&& self.mimeType() != "video/x-msvideo"
+			&& self.mimeType() != "image/svg+xml"
 	}
 
 	var localNativeFileURL: URL? {
