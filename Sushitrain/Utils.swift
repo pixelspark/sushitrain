@@ -322,13 +322,17 @@ extension SushitrainEntry {
 		return self.isVideo || self.isAudio || self.isImage || self.isWebPreviewable
 	}
 
+	// Cannot make proper thumbnails for most AVI and SVG files and retrying each time is expensive
+	private static let excludedThumbnailMIMETypes = [
+		"video/x-msvideo", "image/svg+xml", "video/x-matroska", "video/x-ms-asf", "video/x-flv", "video/webm",
+	]
+
 	var canThumbnail: Bool {
-		return
-			!self.isSymlink()
-			&& !self.isDirectory()
-			// Cannot make proper thumbnails for most AVI and SVG files and retrying each time is expensive
-			&& self.mimeType() != "video/x-msvideo"
-			&& self.mimeType() != "image/svg+xml"
+		if self.isSymlink() || self.isDirectory() {
+			return false
+		}
+
+		return !Self.excludedThumbnailMIMETypes.contains(self.mimeType())
 	}
 
 	var localNativeFileURL: URL? {
