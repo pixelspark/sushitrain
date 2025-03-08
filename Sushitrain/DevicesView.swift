@@ -205,7 +205,7 @@ private struct DevicesListView: View {
 												device: peer,
 												appState: appState)
 										) {
-											Text("Properties...")
+											Text("Show info...")
 										}
 									}
 							}
@@ -313,7 +313,7 @@ private struct DevicesListView: View {
 			}
 			.contextMenu {
 				Button(action: { self.showEditEncryptionPassword = true }) {
-					Text("Properties...")
+					Text("Show info...")
 				}
 			}
 			.task {

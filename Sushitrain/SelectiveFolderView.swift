@@ -318,7 +318,7 @@ private struct SelectiveFileView: View {
 								destination: FileView(
 									file: file, appState: self.appState)
 							) {
-								Label("Properties...", systemImage: file.systemImage)
+								Label("Show info...", systemImage: file.systemImage)
 							}
 						}
 					#else
