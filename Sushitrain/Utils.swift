@@ -370,6 +370,21 @@ extension SushitrainEntry {
 		}
 		return ""
 	}
+
+	var canPreview: Bool {
+		if self.isDirectory() || self.isSymlink() || self.isDeleted() {
+			return false
+		}
+
+		if self.isLocallyPresent() && self.localNativeFileURL != nil {
+			return true
+		}
+		else if self.isStreamable {
+			let available = (try? self.peersWithFullCopy().count()) ?? 0 > 0
+			return available
+		}
+		return false
+	}
 }
 
 enum SushitrainEntryTransferableError: Error {

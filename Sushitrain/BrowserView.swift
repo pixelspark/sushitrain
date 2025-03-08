@@ -52,19 +52,9 @@ struct FileEntryLink<Content: View>: View {
 		}
 	}
 
-	private var canPreview: Bool {
-		if entry.isLocallyPresent() && entry.localNativeFileURL != nil {
-			return true
-		}
-		else if entry.isStreamable {
-			return true
-		}
-		return false
-	}
-
 	private var inner: some View {
 		Group {
-			if appState.tapFileToPreview && self.canPreview {
+			if appState.tapFileToPreview && entry.canPreview {
 				Button(action: {
 					self.previewFile()
 				}) {
@@ -135,7 +125,8 @@ struct FileEntryLink<Content: View>: View {
 					Button("Preview", systemImage: "doc.text.magnifyingglass") {
 						self.previewFile()
 					}.disabled(
-						!self.canPreview || ((try? entry.peersWithFullCopy().count()) ?? 0) == 0
+						!entry.canPreview
+							|| ((try? entry.peersWithFullCopy().count()) ?? 0) == 0
 					)
 				}
 
@@ -377,6 +368,179 @@ private struct BrowserListView: View {
 	@ObservedObject var appState: AppState
 	var folder: SushitrainFolder
 	var prefix: String
+	var hasExtraneousFiles: Bool
+	var files: [SushitrainEntry] = []
+	var subdirectories: [SushitrainEntry] = []
+	var viewStyle: BrowserViewStyle
+
+	var body: some View {
+		List {
+			Section {
+				FolderStatusView(appState: appState, folder: folder)
+
+				if hasExtraneousFiles {
+					NavigationLink(destination: {
+						ExtraFilesView(
+							folder: self.folder,
+							appState: self.appState)
+					}) {
+						Label(
+							"This folder has new files",
+							systemImage:
+								"exclamationmark.triangle.fill"
+						).foregroundColor(.orange)
+					}
+				}
+			}
+
+			// List subdirectories
+			Section {
+				ForEach(subdirectories, id: \.self) {
+					(subDirEntry: SushitrainEntry) in
+					let fileName = subDirEntry.fileName()
+					NavigationLink(
+						destination: BrowserView(
+							appState: appState,
+							folder: folder,
+							prefix: "\(prefix)\(fileName)/"
+						)
+					) {
+						ItemSelectSwipeView(file: subDirEntry) {
+							// Subdirectory name
+							HStack(spacing: 9.0) {
+								Image(
+									systemName:
+										subDirEntry
+										.systemImage
+								)
+								.foregroundStyle(
+									subDirEntry
+										.color
+										?? Color
+										.accentColor
+								)
+								Text(
+									subDirEntry
+										.fileName()
+								)
+								.multilineTextAlignment(
+									.leading
+								)
+								.foregroundStyle(
+									Color.primary
+								)
+								.opacity(
+									subDirEntry
+										.isLocallyPresent()
+										? 1.0
+										: EntryView
+											.remoteFileOpacity
+								)
+								Spacer()
+							}
+							.frame(maxWidth: .infinity)
+							.padding(0)
+						}
+					}
+					.contextMenu(
+						ContextMenu(menuItems: {
+							if let file =
+								try? folder
+								.getFileInformation(
+									self.prefix
+										+ fileName
+								)
+							{
+								NavigationLink(
+									destination:
+										FileView(
+											file:
+												file,
+											appState:
+												self
+												.appState,
+											showPath:
+												false
+										)
+								) {
+									Label(
+										"Subdirectory properties",
+										systemImage:
+											"folder.badge.gearshape"
+									)
+								}
+
+								ItemSelectToggleView(
+									appState:
+										appState,
+									file: file)
+
+								if file
+									.hasExternalSharingURL
+								{
+									FileSharingLinksView(
+										entry:
+											file,
+										sync:
+											true
+									)
+								}
+							}
+						}))
+				}
+			}
+
+			// List files
+			Section {
+				ForEach(files, id: \.self) { file in
+					EntryView(
+						appState: appState, entry: file,
+						folder: folder,
+						siblings: files,
+						showThumbnail: self.viewStyle
+							== .thumbnailList
+					)
+					.id(file.id)
+				}
+			}
+
+			// Show number of items
+			Group {
+				if !self.subdirectories.isEmpty && self.files.isEmpty {
+					Text(
+						"\(self.subdirectories.count) subdirectories"
+					)
+				}
+				else if !self.files.isEmpty
+					&& self.subdirectories.isEmpty
+				{
+					Text("\(self.files.count) files")
+				}
+				else if !self.files.isEmpty
+					&& !self.subdirectories.isEmpty
+				{
+					Text(
+						"\(self.files.count) files and \(self.subdirectories.count) subdirectories"
+					)
+				}
+			}
+			.font(.footnote)
+			.foregroundColor(.secondary)
+			.frame(maxWidth: .infinity)
+			#if os(iOS)
+				.listRowBackground(Color(.systemGroupedBackground))
+			#endif
+		}
+		#if os(macOS)
+			.listStyle(.inset(alternatesRowBackgrounds: true))
+		#endif
+	}
+}
+
+private struct BrowserItemsView: View {
+	@ObservedObject var appState: AppState
+	var folder: SushitrainFolder
+	var prefix: String
 	@Binding var searchText: String
 	@Binding var showSettings: Bool
 	@Binding var viewStyle: BrowserViewStyle
@@ -450,165 +614,15 @@ private struct BrowserListView: View {
 							}
 						}
 					case .list, .thumbnailList:
-						List {
-							Section {
-								FolderStatusView(appState: appState, folder: folder)
-
-								if hasExtraneousFiles {
-									NavigationLink(destination: {
-										ExtraFilesView(
-											folder: self.folder,
-											appState: self.appState)
-									}) {
-										Label(
-											"This folder has new files",
-											systemImage:
-												"exclamationmark.triangle.fill"
-										).foregroundColor(.orange)
-									}
-								}
-							}
-
-							// List subdirectories
-							Section {
-								ForEach(subdirectories, id: \.self) {
-									(subDirEntry: SushitrainEntry) in
-									let fileName = subDirEntry.fileName()
-									NavigationLink(
-										destination: BrowserView(
-											appState: appState,
-											folder: folder,
-											prefix: "\(prefix)\(fileName)/"
-										)
-									) {
-										ItemSelectSwipeView(file: subDirEntry) {
-											// Subdirectory name
-											HStack(spacing: 9.0) {
-												Image(
-													systemName:
-														subDirEntry
-														.systemImage
-												)
-												.foregroundStyle(
-													subDirEntry
-														.color
-														?? Color
-														.accentColor
-												)
-												Text(
-													subDirEntry
-														.fileName()
-												)
-												.multilineTextAlignment(
-													.leading
-												)
-												.foregroundStyle(
-													Color.primary
-												)
-												.opacity(
-													subDirEntry
-														.isLocallyPresent()
-														? 1.0
-														: EntryView
-															.remoteFileOpacity
-												)
-												Spacer()
-											}
-											.frame(maxWidth: .infinity)
-											.padding(0)
-										}
-									}
-									.contextMenu(
-										ContextMenu(menuItems: {
-											if let file =
-												try? folder
-												.getFileInformation(
-													self.prefix
-														+ fileName
-												)
-											{
-												NavigationLink(
-													destination:
-														FileView(
-															file:
-																file,
-															appState:
-																self
-																.appState,
-															showPath:
-																false
-														)
-												) {
-													Label(
-														"Subdirectory properties",
-														systemImage:
-															"folder.badge.gearshape"
-													)
-												}
-
-												ItemSelectToggleView(
-													appState:
-														appState,
-													file: file)
-
-												if file
-													.hasExternalSharingURL
-												{
-													FileSharingLinksView(
-														entry:
-															file,
-														sync:
-															true
-													)
-												}
-											}
-										}))
-								}
-							}
-
-							// List files
-							Section {
-								ForEach(files, id: \.self) { file in
-									EntryView(
-										appState: appState, entry: file,
-										folder: folder,
-										siblings: files,
-										showThumbnail: self.viewStyle
-											== .thumbnailList
-									)
-									.id(file.id)
-								}
-							}
-
-							// Show number of items
-							Group {
-								if !self.subdirectories.isEmpty && self.files.isEmpty {
-									Text(
-										"\(self.subdirectories.count) subdirectories"
-									)
-								}
-								else if !self.files.isEmpty
-									&& self.subdirectories.isEmpty
-								{
-									Text("\(self.files.count) files")
-								}
-								else if !self.files.isEmpty
-									&& !self.subdirectories.isEmpty
-								{
-									Text(
-										"\(self.files.count) files and \(self.subdirectories.count) subdirectories"
-									)
-								}
-							}
-							.font(.footnote)
-							.foregroundColor(.secondary)
-							.frame(maxWidth: .infinity)
-							#if os(iOS)
-								.listRowBackground(Color(.systemGroupedBackground))
-							#endif
-						}
 						#if os(macOS)
-							.listStyle(.inset(alternatesRowBackgrounds: true))
+							BrowserTableView(
+								appState: appState, folder: folder, files: files,
+								subdirectories: subdirectories, viewStyle: viewStyle)
+						#else
+							BrowserListView(
+								appState: appState, folder: folder, prefix: prefix,
+								hasExtraneousFiles: hasExtraneousFiles, files: files,
+								subdirectories: subdirectories, viewStyle: viewStyle)
 						#endif
 					}
 				}
@@ -808,7 +822,7 @@ struct BrowserView: View {
 	}
 
 	var body: some View {
-		BrowserListView(
+		BrowserItemsView(
 			appState: appState, folder: folder, prefix: prefix, searchText: $searchText,
 			showSettings: $showSettings, viewStyle: appState.$browserViewStyle
 		)
