@@ -71,6 +71,7 @@ private struct EntryComparator: SortComparator {
 		case size
 		case name
 		case lastModifiedDate
+		case fileExtension
 	}
 
 	var order: SortOrder
@@ -101,6 +102,10 @@ private struct EntryComparator: SortComparator {
 			case .name:
 				return order == .forward
 					? lhs.name().compare(rhs.name()) : rhs.name().compare(lhs.name())
+			case .fileExtension:
+				return order == .forward
+					? lhs.extension().compare(rhs.extension())
+					: rhs.extension().compare(lhs.extension())
 			}
 
 		// Compare directory with file or vice versa
@@ -117,6 +122,11 @@ private struct EntryComparator: SortComparator {
 			case .name:
 				return order == .forward
 					? lhs.name().compare(rhs.name()) : rhs.name().compare(lhs.name())
+
+			case .fileExtension:
+				return order == .forward
+					? lhs.extension().compare(rhs.extension())
+					: rhs.extension().compare(lhs.extension())
 
 			case .size:
 				let sa = lhs.size()
@@ -145,20 +155,16 @@ struct BrowserTableView: View {
 	@State private var selection = Set<SushitrainEntry.ID>()
 	@State private var openedEntry: (SushitrainEntry, Bool)? = nil
 	@State private var sortOrder = [EntryComparator(order: .forward, sortBy: .name)]
+	@State private var entries: [SushitrainEntry] = []
 	@SceneStorage("BrowserTableViewConfig") private var columnCustomization:
 		TableColumnCustomization<SushitrainEntry>
 
 	#if os(macOS)
 		@Environment(\.openWindow) private var openWindow
+		@Environment(\.refresh) private var refresh
 	#endif
 
 	private static let formatter = ByteCountFormatter()
-
-	private var entries: [SushitrainEntry] {
-		var a = self.subdirectories + self.files
-		a.sort(using: self.sortOrder)
-		return a
-	}
 
 	private func entryById(_ id: SushitrainEntry.ID) -> SushitrainEntry? {
 		if let found = subdirectories.first(where: { $0.id == id }) {
@@ -168,6 +174,19 @@ struct BrowserTableView: View {
 			return found
 		}
 		return nil
+	}
+
+	private func entriesForIds(_ ids: Set<SushitrainEntry.ID>) -> [SushitrainEntry] {
+		return self.entries.filter { ids.contains($0.id) }
+	}
+
+	private func copy(_ entry: SushitrainEntry) {
+		if let url = entry.localNativeFileURL as? NSURL, let refURL = url.fileReferenceURL() {
+			writeURLToPasteboard(url: refURL)
+		}
+		else if let url = URL(string: entry.onDemandURL()) {
+			writeURLToPasteboard(url: url)
+		}
 	}
 
 	var body: some View {
@@ -183,6 +202,14 @@ struct BrowserTableView: View {
 			.defaultVisibility(.visible)
 			.customizationID("name")
 
+			// File extension
+			TableColumn("File type", sortUsing: EntryComparator(order: .forward, sortBy: .fileExtension)) {
+				(entry: SushitrainEntry) in
+				Text(entry.extension())
+			}
+			.defaultVisibility(.hidden)
+			.customizationID("extension")
+
 			// File size
 			TableColumn(
 				"Size",
@@ -194,7 +221,7 @@ struct BrowserTableView: View {
 						.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
 				}
 			}
-			.width(max: 100)
+			.width(min: 100, max: 120)
 			.defaultVisibility(.hidden)
 			.alignment(.trailing)
 			.customizationID("size")
@@ -209,21 +236,43 @@ struct BrowserTableView: View {
 						.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
 				}
 			}
-			.width(max: 150)
+			.width(min: 150, max: 180)
 			.defaultVisibility(.hidden)
-			.alignment(.trailing)
+			.alignment(.leading)
 			.customizationID("lastModifiedDate")
 
+		}
+		.task {
+			await self.update()
+		}
+		.onChange(of: self.folder, initial: false) { _, _ in
+			self.openedEntry = nil
+		}
+		.onChange(of: self.sortOrder, initial: false) { _, _ in
+			Task {
+				await self.update()
+			}
+		}
+		.onChange(of: self.files, initial: false) { _, _ in
+			Task {
+				await self.update()
+			}
+		}
+		.onChange(of: self.subdirectories, initial: false) { _, _ in
+			Task {
+				await self.update()
+			}
 		}
 		.contextMenu(
 			forSelectionType: SushitrainEntry.ID.self,
 			menu: { items in
 				if let item = items.first, items.count == 1 {
+					// Single item selected
 					if let oe = self.entryById(item) {
 						if !oe.isDirectory() && !oe.isSymlink() {
 							#if os(macOS)
 								Button(
-									"Preview",
+									"Show preview...",
 									systemImage: "doc.text.magnifyingglass"
 								) {
 									openWindow(
@@ -234,19 +283,40 @@ struct BrowserTableView: View {
 										))
 								}.disabled(!oe.canPreview)
 
-								Divider()
+								// Copy
+								Button("Copy", systemImage: "document.on.document") {
+									self.copy(oe)
+								}.disabled(!oe.isLocallyPresent())
 							#endif
+
+							if oe.hasExternalSharingURL {
+								FileSharingLinksView(entry: oe, sync: true)
+							}
 						}
 
+						Divider()
+						ItemSelectToggleView(appState: appState, file: oe)
+
+						Divider()
 						Button("Show info...") {
-							if let oe = self.entryById(item) {
-								self.openedEntry = (oe, false)
-							}
+							self.openedEntry = (oe, false)
 						}
 					}
 				}
 				else {
+					// Multiple items selected
 					Text("\(items.count) items selected")
+
+					MultiItemSelectToggleView(appState: appState, files: self.entriesForIds(items))
+				}
+
+				Divider()
+				Button(action: {
+					Task {
+						await self.refresh?()
+					}
+				}) {
+					Text("Refresh")
 				}
 			},
 			primaryAction: { items in
@@ -306,5 +376,13 @@ struct BrowserTableView: View {
 					EmptyView()
 				}
 			})
+	}
+
+	private func update() async {
+		self.entries = await Task.detached {
+			var a = self.subdirectories + self.files
+			await a.sort(using: self.sortOrder)
+			return a
+		}.value
 	}
 }

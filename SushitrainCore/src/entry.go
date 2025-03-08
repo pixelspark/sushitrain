@@ -404,6 +404,10 @@ func (entry *Entry) OnDemandURL() string {
 	return server.URLFor(entry.Folder.FolderID, entry.info.FileName())
 }
 
+func (entry *Entry) Extension() string {
+	return filepath.Ext(entry.info.FileName())
+}
+
 func (entry *Entry) MIMEType() string {
 	ext := filepath.Ext(entry.info.FileName())
 	return MIMETypeForExtension(ext)

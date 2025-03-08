@@ -122,7 +122,7 @@ struct FileEntryLink<Content: View>: View {
 				#endif
 
 				if !appState.tapFileToPreview {
-					Button("Preview", systemImage: "doc.text.magnifyingglass") {
+					Button("Show preview...", systemImage: "doc.text.magnifyingglass") {
 						self.previewFile()
 					}.disabled(
 						!entry.canPreview
@@ -136,6 +136,7 @@ struct FileEntryLink<Content: View>: View {
 					}.disabled(!entry.isLocallyPresent())
 				#endif
 
+				// Show 'go to location' in list if we are not in the file's folder already
 				if self.inFolder == nil {
 					if let folder = entry.folder {
 						NavigationLink(
@@ -1390,6 +1391,90 @@ private struct ItemSelectSwipeView<Content: View>: View {
 		else {
 			self.content
 		}
+	}
+}
+
+struct MultiItemSelectToggleView: View {
+	let appState: AppState
+	let files: [SushitrainEntry]
+
+	private var isAvailable: Bool {
+		return files.allSatisfy {
+			$0.isSelectionToggleAvailable && !$0.isSelectionToggleShallowDisabled
+		}
+	}
+
+	private var allSelected: Bool? {
+		var anySelected: Bool = false
+		var anyDeselected: Bool = false
+
+		for file in files {
+			if !file.isSelectionToggleAvailable || file.isSelectionToggleShallowDisabled {
+				return false
+			}
+
+			let s = (file.isExplicitlySelected() || file.isSelected())
+			anySelected = anySelected || s
+			anyDeselected = anyDeselected || !s
+		}
+
+		switch (anySelected, anyDeselected) {
+		case (true, true): return nil
+		case (true, false): return true
+		case (false, true): return false
+		case (false, false): return false
+		}
+
+	}
+
+	private func selectAll(_ s: Bool) async {
+		// [folderID: [path: selected]]
+		var filesPerFolder: [String: [String: Bool]] = [:]
+
+		// Sort files by folder
+		for file in files {
+			if file.isSelected() && !file.isExplicitlySelected() {
+				continue  // File is implicitly selected
+			}
+
+			if let fid = file.folder?.folderID {
+				if var ff = filesPerFolder[fid] {
+					ff[file.path()] = s
+					filesPerFolder[fid] = ff
+				}
+				else {
+					filesPerFolder[fid] = [file.path(): s]
+				}
+			}
+		}
+
+		// Batch select by folder
+		do {
+			for (folderID, selection) in filesPerFolder {
+				if let folder = appState.client.folder(withID: folderID) {
+					let json = try JSONEncoder().encode(selection)
+					try folder.setExplicitlySelectedJSON(json)
+				}
+			}
+		}
+		catch {
+			// We can't use our own alert since by the time we get here, the context menu is gone
+			appState.alert(message: error.localizedDescription)
+		}
+	}
+
+	var body: some View {
+		Toggle(
+			"Synchronize with this device", systemImage: "pin",
+			isOn: Binding(
+				get: { allSelected == true },
+				set: { s in
+					Task {
+						await selectAll(s)
+					}
+				})
+		)
+		.disabled(!self.isAvailable)
 	}
 }
 
