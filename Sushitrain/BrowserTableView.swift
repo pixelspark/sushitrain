@@ -206,9 +206,13 @@ struct BrowserTableView: View {
 			TableColumn("File type", sortUsing: EntryComparator(order: .forward, sortBy: .fileExtension)) {
 				(entry: SushitrainEntry) in
 				Text(entry.extension())
+					.foregroundStyle(Color.primary)
+					.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
 			}
+			.width(min: 32, max: 64)
 			.defaultVisibility(.hidden)
 			.customizationID("extension")
+			
 
 			// File size
 			TableColumn(
