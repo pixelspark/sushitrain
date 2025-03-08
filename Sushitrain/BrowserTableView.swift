@@ -249,9 +249,6 @@ struct BrowserTableView: View {
 		.task {
 			await self.update()
 		}
-		.onChange(of: self.folder, initial: false) { _, _ in
-			self.openedEntry = nil
-		}
 		.onChange(of: self.sortOrder, initial: false) { _, _ in
 			Task {
 				await self.update()
