@@ -616,9 +616,38 @@ private struct BrowserItemsView: View {
 						}
 					case .list, .thumbnailList:
 						#if os(macOS)
-							BrowserTableView(
-								appState: appState, folder: folder, files: files,
-								subdirectories: subdirectories, viewStyle: viewStyle)
+							VStack {
+								// Show extraneous files banner when necessary
+								if hasExtraneousFiles {
+									HStack(alignment: .center) {
+										Label(
+											"This folder has new files",
+											systemImage:
+												"exclamationmark.triangle.fill"
+										).foregroundColor(.orange)
+
+										Spacer()
+
+										NavigationLink(destination: {
+											ExtraFilesView(
+												folder: self.folder,
+												appState: self.appState)
+										}) {
+											Text("Review...")
+										}
+									}
+									.padding(
+										EdgeInsets(
+											top: 10.0, leading: 10.0,
+											bottom: 5.0, trailing: 10.0))
+								}
+
+								BrowserTableView(
+									appState: appState, folder: folder,
+									files: files,
+									subdirectories: subdirectories,
+									viewStyle: viewStyle)
+							}
 						#else
 							BrowserListView(
 								appState: appState, folder: folder, prefix: prefix,

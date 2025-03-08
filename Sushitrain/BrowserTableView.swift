@@ -212,7 +212,6 @@ struct BrowserTableView: View {
 			.width(min: 32, max: 64)
 			.defaultVisibility(.hidden)
 			.customizationID("extension")
-			
 
 			// File size
 			TableColumn(
