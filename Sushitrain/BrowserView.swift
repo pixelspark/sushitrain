@@ -680,6 +680,18 @@ private struct BrowserListView: View {
 		.refreshable {
 			await self.rescan()
 		}
+		.contextMenu {
+			Button("Refresh") {
+				Task {
+					await self.reload()
+				}
+			}
+			Button("Rescan subdirectory") {
+				Task {
+					await self.rescan()
+				}
+			}
+		}
 		.task(id: self.folder.folderStateForUpdating) {
 			await self.reload()
 		}
