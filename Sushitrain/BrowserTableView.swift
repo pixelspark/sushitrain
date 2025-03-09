@@ -154,6 +154,16 @@ struct BrowserTableView: View {
 							}
 						}
 
+						// Show file in Finder
+						if oe.canShowInFinder {
+							Button(
+								openInFilesAppLabel,
+								systemImage: "arrow.up.forward.app",
+								action: {
+									try? oe.showInFinder()
+								})
+						}
+
 						Divider()
 						ItemSelectToggleView(appState: appState, file: oe)
 

@@ -441,6 +441,7 @@ struct FolderView: View {
 
 	var body: some View {
 		let isExternal = folder.isExternal
+		let _ = Self._printChanges()
 
 		Form {
 			if folder.exists() {

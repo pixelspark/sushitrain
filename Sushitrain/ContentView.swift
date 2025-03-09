@@ -82,12 +82,12 @@ struct ContentView: View {
 					}
 
 					FoldersSections(appState: self.appState)
-						#if os(macOS)
-							.contextMenu {
-								FolderMetricPickerView(appState: self.appState)
-							}
-						#endif
 				}
+				#if os(macOS)
+					.contextMenu {
+						FolderMetricPickerView(appState: self.appState)
+					}
+				#endif
 				#if os(iOS)
 					.toolbar {
 						Button(

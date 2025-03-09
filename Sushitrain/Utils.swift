@@ -392,6 +392,20 @@ extension SushitrainEntry {
 
 		return nil
 	}
+
+	var canShowInFinder: Bool {
+		return self.isLocallyPresent() || self.isDirectory()  // Directories can be materialized
+	}
+
+	@MainActor func showInFinder() throws {
+		if !self.isLocallyPresent() && self.isDirectory() {
+			try? self.materializeSubdirectory()
+		}
+
+		if let localNativeURL = self.localNativeFileURL {
+			openURLInSystemFilesApp(url: localNativeURL)
+		}
+	}
 }
 
 extension SushitrainFolder: @retroactive Comparable {

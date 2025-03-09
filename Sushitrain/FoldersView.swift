@@ -144,15 +144,16 @@ struct FoldersSections: View {
 							}
 						}
 					}
-					.id(folder.folderID)
-					#if os(macOS)
-						.highPriorityGesture(
-							TapGesture(count: 2).onEnded { _ in
+					.contextMenu {
+						Button(
+							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
+							action: {
 								if let url = folder.localNativeURL {
 									openURLInSystemFilesApp(url: url)
 								}
 							})
-					#endif
+					}
+					.id(folder.folderID)
 				}
 			}
 		}

@@ -110,15 +110,7 @@ struct BrowserView: View {
 									openInFilesAppLabel,
 									systemImage: "arrow.up.forward.app",
 									action: {
-										try? entry.materializeSubdirectory()
-										self.updateLocalURL()
-
-										if let localNativeURL = self
-											.localNativeURL
-										{
-											openURLInSystemFilesApp(
-												url: localNativeURL)
-										}
+										try? entry.showInFinder()
 									})
 							}
 						}
@@ -229,20 +221,7 @@ struct BrowserView: View {
 													"arrow.up.forward.app",
 												action: {
 													try? entry
-														.materializeSubdirectory()
-													self
-														.updateLocalURL()
-
-													if let
-														localNativeURL =
-														self
-														.localNativeURL
-													{
-														openURLInSystemFilesApp(
-															url:
-																localNativeURL
-														)
-													}
+														.showInFinder()
 												})
 										}
 									}
