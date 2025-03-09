@@ -317,9 +317,7 @@ struct EntryView: View {
 					}
 				}
 			}
-			else if let targetURL = URL(string: entry.symlinkTarget()),
-				targetURL.scheme == "https" || targetURL.scheme == "http"
-			{
+			else if let targetURL = entry.symlinkTargetURL {
 				Link(destination: targetURL) {
 					self.entryView(entry: entry)
 				}

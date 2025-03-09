@@ -20,6 +20,8 @@ struct BrowserTableView: View {
 	@SceneStorage("BrowserTableViewConfig") private var columnCustomization:
 		TableColumnCustomization<SushitrainEntry>
 
+	@Environment(\.openURL) private var openURL
+
 	#if os(macOS)
 		@Environment(\.openWindow) private var openWindow
 	#endif
@@ -194,65 +196,123 @@ struct BrowserTableView: View {
 					MultiItemSelectToggleView(appState: appState, files: self.entriesForIds(items))
 				}
 			},
-			primaryAction: { items in
-				if let item = items.first, items.count == 1 {
-					#if os(macOS)
-						if appState.tapFileToPreview {
-							if let oe = self.entryById(item), oe.canPreview {
-								openWindow(
-									id: "preview",
-									value: Preview(
-										folderID: self.folder.folderID,
-										path: oe.path()
-									))
-								return
-							}
-						}
-					#endif
-					if let oe = self.entryById(item) {
-						self.openedEntry = (oe, true)
-					}
-				}
-			}
+			primaryAction: self.doubleClick
 		)
-
 		.navigationDestination(
 			isPresented: Binding(
 				get: { self.openedEntry != nil },
 				set: { self.openedEntry = $0 ? self.openedEntry : nil }),
 			destination: {
-				if let (oe, honorTapToPreview) = openedEntry {
-					if oe.isDirectory() {
-						if honorTapToPreview {
+				self.nextView()
+			})
+	}
+
+	@ViewBuilder private func nextView() -> some View {
+		if let (oe, honorTapToPreview) = openedEntry {
+			if oe.isSymlink() {
+				if !honorTapToPreview {
+					// Just show symlink properties
+					FileView(file: oe, appState: appState, siblings: self.entries)
+						.id(oe.id)
+				}
+				else if let targetEntry = try? oe.symlinkTargetEntry() {
+					// Symlink to a directory
+					if targetEntry.isDirectory() {
+						if let targetFolder = targetEntry.folder {
 							BrowserView(
-								appState: appState, folder: folder,
-								prefix: oe.path() + "/")
-						}
-						else {
-							FileView(file: oe, appState: appState, siblings: self.entries)
-								.id(oe.id)
+								appState: appState,
+								folder: targetFolder,
+								prefix: targetEntry.path() + "/"
+							)
 						}
 					}
 					else {
-						// Only on iOS
+						// Symlink to file
 						if honorTapToPreview && appState.tapFileToPreview {
 							FileViewerView(
-								appState: appState, file: oe, siblings: entries,
+								appState: appState, file: targetEntry,
+								siblings: entries,
 								inSheet: false,
 								isShown: .constant(true)
 							)
-							.navigationTitle(oe.fileName())
+							.navigationTitle(targetEntry.fileName())
 						}
 						else {
-							FileView(file: oe, appState: appState, siblings: self.entries)
-								.id(oe.id)
+							FileView(
+								file: targetEntry, appState: appState,
+								siblings: self.entries
+							)
+							.id(oe.id)
 						}
 					}
 				}
 				else {
+					// Symlink to URL, case is handled elsewhere
 					EmptyView()
 				}
-			})
+			}
+			else if oe.isDirectory() {
+				if honorTapToPreview {
+					BrowserView(
+						appState: appState, folder: folder,
+						prefix: oe.path() + "/")
+				}
+				else {
+					FileView(file: oe, appState: appState, siblings: self.entries)
+						.id(oe.id)
+				}
+			}
+			else {
+				// Only on iOS
+				if honorTapToPreview && appState.tapFileToPreview {
+					FileViewerView(
+						appState: appState, file: oe, siblings: entries,
+						inSheet: false,
+						isShown: .constant(true)
+					)
+					.navigationTitle(oe.fileName())
+				}
+				else {
+					FileView(file: oe, appState: appState, siblings: self.entries)
+						.id(oe.id)
+				}
+			}
+		}
+		else {
+			EmptyView()
+		}
+	}
+
+	private func doubleClick(_ items: Set<SushitrainEntry.ID>) {
+		if let item = items.first, items.count == 1 {
+			if let oe = self.entryById(item) {
+				// Symlink to URLs should be opened externally
+				if oe.isSymlink() {
+					if let targetURL = oe.symlinkTargetURL {
+						openURL(targetURL)
+						return
+					}
+				}
+
+				#if os(macOS)
+					// Tap to preview on macOS opens a new window
+					if appState.tapFileToPreview {
+						if oe.canPreview {
+							openWindow(
+								id: "preview",
+								value: Preview(
+									folderID: self.folder.folderID,
+									path: oe.path()
+								))
+							return
+						}
+					}
+				#endif
+
+				// Regular case: just open the entry in a next view
+				self.openedEntry = (oe, true)
+			}
+		}
 	}
 
 	private func update() async {

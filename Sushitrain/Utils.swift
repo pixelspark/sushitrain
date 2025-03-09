@@ -406,6 +406,19 @@ extension SushitrainEntry {
 			openURLInSystemFilesApp(url: localNativeURL)
 		}
 	}
+
+	var symlinkTargetURL: URL? {
+		if !self.isSymlink() {
+			return nil
+		}
+
+		if let targetURL = URL(string: self.symlinkTarget()),
+			targetURL.scheme == "https" || targetURL.scheme == "http"
+		{
+			return targetURL
+		}
+		return nil
+	}
 }
 
 extension SushitrainFolder: @retroactive Comparable {
