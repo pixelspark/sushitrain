@@ -51,60 +51,74 @@ struct BrowserTableView: View {
 
 	var body: some View {
 		Table(
-			self.entries, selection: self.$selection, sortOrder: $sortOrder,
-			columnCustomization: $columnCustomization
-		) {
-			// Name and icon
-			TableColumn("Name", sortUsing: EntryComparator(order: .forward, sortBy: .name)) {
-				(entry: SushitrainEntry) in
-				EntryNameView(appState: self.appState, entry: entry)
-			}
-			.defaultVisibility(.visible)
-			.customizationID("name")
+			of: SushitrainEntry.self,
+			selection: self.$selection, sortOrder: $sortOrder,
+			columnCustomization: $columnCustomization,
+			columns: {
+				// Name and icon
+				TableColumn("Name", sortUsing: EntryComparator(order: .forward, sortBy: .name)) {
+					(entry: SushitrainEntry) in
+					EntryNameView(appState: self.appState, entry: entry)
+				}
+				.defaultVisibility(.visible)
+				.customizationID("name")
 
-			// File extension
-			TableColumn("File type", sortUsing: EntryComparator(order: .forward, sortBy: .fileExtension)) {
-				(entry: SushitrainEntry) in
-				Text(entry.extension())
-					.foregroundStyle(Color.primary)
-					.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
-			}
-			.width(min: 32, max: 64)
-			.defaultVisibility(.hidden)
-			.customizationID("extension")
-
-			// File size
-			TableColumn(
-				"Size",
-				sortUsing: EntryComparator(order: .forward, sortBy: .size)
-			) { entry in
-				if !entry.isDirectory() {
-					Text(Self.formatter.string(fromByteCount: entry.size()))
+				// File extension
+				TableColumn(
+					"File type", sortUsing: EntryComparator(order: .forward, sortBy: .fileExtension)
+				) {
+					(entry: SushitrainEntry) in
+					Text(entry.extension())
 						.foregroundStyle(Color.primary)
 						.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
 				}
-			}
-			.width(min: 100, max: 120)
-			.defaultVisibility(.hidden)
-			.alignment(.trailing)
-			.customizationID("size")
+				.width(min: 32, max: 64)
+				.defaultVisibility(.hidden)
+				.customizationID("extension")
 
-			// Last modified date
-			TableColumn(
-				"Last modified", sortUsing: EntryComparator(order: .forward, sortBy: .lastModifiedDate)
-			) { (entry: SushitrainEntry) in
-				if let md = entry.modifiedAt()?.date(), !entry.isSymlink() {
-					Text(md.formatted(date: .numeric, time: .shortened))
-						.foregroundStyle(Color.primary)
-						.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
+				// File size
+				TableColumn(
+					"Size",
+					sortUsing: EntryComparator(order: .forward, sortBy: .size)
+				) { entry in
+					if !entry.isDirectory() {
+						Text(Self.formatter.string(fromByteCount: entry.size()))
+							.foregroundStyle(Color.primary)
+							.opacity(
+								entry.isLocallyPresent()
+									? 1.0 : EntryView.remoteFileOpacity)
+					}
+				}
+				.width(min: 100, max: 120)
+				.defaultVisibility(.hidden)
+				.alignment(.trailing)
+				.customizationID("size")
+
+				// Last modified date
+				TableColumn(
+					"Last modified",
+					sortUsing: EntryComparator(order: .forward, sortBy: .lastModifiedDate)
+				) { (entry: SushitrainEntry) in
+					if let md = entry.modifiedAt()?.date(), !entry.isSymlink() {
+						Text(md.formatted(date: .numeric, time: .shortened))
+							.foregroundStyle(Color.primary)
+							.opacity(
+								entry.isLocallyPresent()
+									? 1.0 : EntryView.remoteFileOpacity)
+					}
+				}
+				.width(min: 150, max: 180)
+				.defaultVisibility(.hidden)
+				.alignment(.leading)
+				.customizationID("lastModifiedDate")
+
+			},
+			rows: {
+				ForEach(entries) { entry in
+					TableRow(entry).draggable(entry)
 				}
 			}
-			.width(min: 150, max: 180)
-			.defaultVisibility(.hidden)
-			.alignment(.leading)
-			.customizationID("lastModifiedDate")
-
-		}
+		)
 		.task {
 			await self.update()
 		}
