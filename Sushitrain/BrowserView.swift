@@ -372,7 +372,6 @@ private struct BrowserListView: View {
 	var hasExtraneousFiles: Bool
 	var files: [SushitrainEntry] = []
 	var subdirectories: [SushitrainEntry] = []
-	var viewStyle: BrowserViewStyle
 
 	var body: some View {
 		List {
@@ -498,8 +497,7 @@ private struct BrowserListView: View {
 						appState: appState, entry: file,
 						folder: folder,
 						siblings: files,
-						showThumbnail: self.viewStyle
-							== .thumbnailList
+						showThumbnail: self.appState.browserViewStyle == .thumbnailList
 					)
 					.id(file.id)
 				}
@@ -544,7 +542,6 @@ private struct BrowserItemsView: View {
 	var prefix: String
 	@Binding var searchText: String
 	@Binding var showSettings: Bool
-	@Binding var viewStyle: BrowserViewStyle
 
 	@State private var subdirectories: [SushitrainEntry] = []
 	@State private var files: [SushitrainEntry] = []
@@ -560,7 +557,7 @@ private struct BrowserItemsView: View {
 		Group {
 			if self.folder.exists() {
 				if !isSearching {
-					switch self.viewStyle {
+					switch self.appState.browserViewStyle {
 					case .grid:
 						VStack {
 							ScrollView {
@@ -645,14 +642,13 @@ private struct BrowserItemsView: View {
 								BrowserTableView(
 									appState: appState, folder: folder,
 									files: files,
-									subdirectories: subdirectories,
-									viewStyle: viewStyle)
+									subdirectories: subdirectories)
 							}
 						#else
 							BrowserListView(
 								appState: appState, folder: folder, prefix: prefix,
 								hasExtraneousFiles: hasExtraneousFiles, files: files,
-								subdirectories: subdirectories, viewStyle: viewStyle)
+								subdirectories: subdirectories)
 						#endif
 					}
 				}
@@ -854,7 +850,7 @@ struct BrowserView: View {
 	var body: some View {
 		BrowserItemsView(
 			appState: appState, folder: folder, prefix: prefix, searchText: $searchText,
-			showSettings: $showSettings, viewStyle: appState.$browserViewStyle
+			showSettings: $showSettings
 		)
 		.navigationTitle(folderName)
 		#if os(iOS)

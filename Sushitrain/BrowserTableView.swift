@@ -8,12 +8,11 @@ import QuickLook
 @preconcurrency import SushitrainCore
 
 private struct EntryNameView: View {
-	var appState: AppState
+	@ObservedObject var appState: AppState
 	var entry: SushitrainEntry
-	var viewStyle: BrowserViewStyle
 
 	private var showThumbnail: Bool {
-		return self.viewStyle == .thumbnailList
+		return self.appState.browserViewStyle == .thumbnailList
 	}
 
 	var body: some View {
@@ -150,7 +149,6 @@ struct BrowserTableView: View {
 	var folder: SushitrainFolder
 	var files: [SushitrainEntry] = []
 	var subdirectories: [SushitrainEntry] = []
-	var viewStyle: BrowserViewStyle
 
 	@State private var selection = Set<SushitrainEntry.ID>()
 	@State private var openedEntry: (SushitrainEntry, Bool)? = nil
@@ -161,7 +159,6 @@ struct BrowserTableView: View {
 
 	#if os(macOS)
 		@Environment(\.openWindow) private var openWindow
-		@Environment(\.refresh) private var refresh
 	#endif
 
 	private static let formatter = ByteCountFormatter()
@@ -197,7 +194,7 @@ struct BrowserTableView: View {
 			// Name and icon
 			TableColumn("Name", sortUsing: EntryComparator(order: .forward, sortBy: .name)) {
 				(entry: SushitrainEntry) in
-				EntryNameView(appState: self.appState, entry: entry, viewStyle: self.viewStyle)
+				EntryNameView(appState: self.appState, entry: entry)
 			}
 			.defaultVisibility(.visible)
 			.customizationID("name")
@@ -309,15 +306,6 @@ struct BrowserTableView: View {
 
 					MultiItemSelectToggleView(appState: appState, files: self.entriesForIds(items))
 				}
-
-				Divider()
-				Button(action: {
-					Task {
-						await self.refresh?()
-					}
-				}) {
-					Text("Refresh")
-				}
 			},
 			primaryAction: { items in
 				if let item = items.first, items.count == 1 {
@@ -354,7 +342,8 @@ struct BrowserTableView: View {
 								prefix: oe.path() + "/")
 						}
 						else {
-							FileView(file: oe, appState: appState)
+							FileView(file: oe, appState: appState, siblings: self.entries)
+								.id(oe.id)
 						}
 					}
 					else {
@@ -368,7 +357,8 @@ struct BrowserTableView: View {
 							.navigationTitle(oe.fileName())
 						}
 						else {
-							FileView(file: oe, appState: appState)
+							FileView(file: oe, appState: appState, siblings: self.entries)
+								.id(oe.id)
 						}
 					}
 				}

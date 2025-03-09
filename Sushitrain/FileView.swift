@@ -9,12 +9,12 @@ import QuickLook
 import AVKit
 
 struct FileView: View {
-	@State private var file: SushitrainEntry
-	private let appState: AppState
+	@ObservedObject var appState: AppState
 	private var showPath = false
 	private var siblings: [SushitrainEntry]? = nil
 	private var folder: SushitrainFolder
 
+	@State private var file: SushitrainEntry
 	@State private var localItemURL: URL? = nil
 	@State private var showFullScreenViewer = false
 	@State private var showSheetViewer = false
