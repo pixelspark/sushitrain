@@ -7,143 +7,6 @@ import SwiftUI
 import QuickLook
 @preconcurrency import SushitrainCore
 
-private struct EntryNameView: View {
-	@ObservedObject var appState: AppState
-	var entry: SushitrainEntry
-
-	private var showThumbnail: Bool {
-		return self.appState.browserViewStyle == .thumbnailList
-	}
-
-	var body: some View {
-		if self.showThumbnail && !self.entry.isDirectory() {
-			// Thubmnail view shows thumbnail image next to the file name
-			HStack(alignment: .center, spacing: 9.0) {
-				ThumbnailView(
-					file: entry, appState: appState, showFileName: false,
-					showErrorMessages: false
-				)
-				.frame(width: 60, height: 40)
-				.cornerRadius(6.0)
-				.id(entry.id)
-				.help(entry.fileName())
-
-				// The entry name (grey when not locally present)
-				Text(entry.fileName())
-					.multilineTextAlignment(.leading)
-					.foregroundStyle(Color.primary)
-					.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
-				Spacer()
-			}
-			.frame(maxWidth: .infinity)
-			.padding(0)
-		}
-		else {
-			HStack {
-				Image(systemName: entry.systemImage)
-					.foregroundStyle(entry.color ?? Color.accentColor)
-				Text(entry.fileName())
-					.multilineTextAlignment(.leading)
-					.foregroundStyle(Color.primary)
-					.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
-				Spacer()
-			}
-			.frame(maxWidth: .infinity)
-		}
-	}
-}
-
-extension ComparisonResult {
-	var flipped: ComparisonResult {
-		switch self {
-		case .orderedSame: return .orderedSame
-		case .orderedAscending: return .orderedDescending
-		case .orderedDescending: return .orderedAscending
-		}
-	}
-}
-
-private struct EntryComparator: SortComparator {
-	typealias Compared = SushitrainEntry
-
-	enum SortBy {
-		case size
-		case name
-		case lastModifiedDate
-		case fileExtension
-	}
-
-	var order: SortOrder
-	var sortBy: SortBy
-
-	private func compareDates(_ lhs: Date?, _ rhs: Date?) -> ComparisonResult {
-		switch (lhs, rhs) {
-		case (nil, nil): return .orderedSame
-		case (nil, _): return .orderedAscending
-		case (_, nil): return .orderedDescending
-		case (let a, let b): return a!.compare(b!)
-		}
-	}
-
-	func compare(_ lhs: SushitrainEntry, _ rhs: SushitrainEntry) -> ComparisonResult {
-		let ascending: ComparisonResult = order == .forward ? .orderedAscending : .orderedDescending
-		let descending: ComparisonResult = order == .forward ? .orderedDescending : .orderedAscending
-
-		switch (lhs.isDirectory(), rhs.isDirectory()) {
-		// Compare directories among themselves
-		case (true, true):
-			switch self.sortBy {
-			case .size:
-				return .orderedSame  // Directories all have zero size
-			case .lastModifiedDate:
-				let r = compareDates(lhs.modifiedAt()?.date(), rhs.modifiedAt()?.date())
-				return order == .forward ? r : r.flipped
-			case .name:
-				return order == .forward
-					? lhs.name().compare(rhs.name()) : rhs.name().compare(lhs.name())
-			case .fileExtension:
-				return order == .forward
-					? lhs.extension().compare(rhs.extension())
-					: rhs.extension().compare(lhs.extension())
-			}
-
-		// Compare directory with file or vice versa
-		case (true, false): return .orderedAscending  // This doesn't change when order is swapped
-		case (false, true): return .orderedDescending  // This doesn't change when order is swapped
-
-		// Compare entries among themselves
-		case (false, false):
-			switch self.sortBy {
-			case .lastModifiedDate:
-				let r = compareDates(lhs.modifiedAt()?.date(), rhs.modifiedAt()?.date())
-				return order == .forward ? r : r.flipped
-
-			case .name:
-				return order == .forward
-					? lhs.name().compare(rhs.name()) : rhs.name().compare(lhs.name())
-
-			case .fileExtension:
-				return order == .forward
-					? lhs.extension().compare(rhs.extension())
-					: rhs.extension().compare(lhs.extension())
-
-			case .size:
-				let sa = lhs.size()
-				let sb = rhs.size()
-				if sa == sb {
-					return .orderedSame
-				}
-				else if sa < sb {
-					return ascending
-				}
-				else {
-					return descending
-				}
-			}
-		}
-	}
-}
-
 struct BrowserTableView: View {
 	@ObservedObject var appState: AppState
 	var folder: SushitrainFolder
@@ -374,5 +237,226 @@ struct BrowserTableView: View {
 			await a.sort(using: self.sortOrder)
 			return a
 		}.value
+	}
+}
+
+struct MultiItemSelectToggleView: View {
+	let appState: AppState
+	let files: [SushitrainEntry]
+
+	private var isAvailable: Bool {
+		return files.allSatisfy {
+			$0.isSelectionToggleAvailable && !$0.isSelectionToggleShallowDisabled
+		}
+	}
+
+	private var allSelected: Bool? {
+		var anySelected: Bool = false
+		var anyDeselected: Bool = false
+
+		for file in files {
+			if !file.isSelectionToggleAvailable || file.isSelectionToggleShallowDisabled {
+				return false
+			}
+
+			let s = (file.isExplicitlySelected() || file.isSelected())
+			anySelected = anySelected || s
+			anyDeselected = anyDeselected || !s
+		}
+
+		switch (anySelected, anyDeselected) {
+		case (true, true): return nil
+		case (true, false): return true
+		case (false, true): return false
+		case (false, false): return false
+		}
+
+	}
+
+	private func selectAll(_ s: Bool) async {
+		// [folderID: [path: selected]]
+		var filesPerFolder: [String: [String: Bool]] = [:]
+
+		// Sort files by folder
+		for file in files {
+			if file.isSelected() && !file.isExplicitlySelected() {
+				continue  // File is implicitly selected
+			}
+
+			if let fid = file.folder?.folderID {
+				if var ff = filesPerFolder[fid] {
+					ff[file.path()] = s
+					filesPerFolder[fid] = ff
+				}
+				else {
+					filesPerFolder[fid] = [file.path(): s]
+				}
+			}
+		}
+
+		// Batch select by folder
+		do {
+			for (folderID, selection) in filesPerFolder {
+				if let folder = appState.client.folder(withID: folderID) {
+					let json = try JSONEncoder().encode(selection)
+					try folder.setExplicitlySelectedJSON(json)
+				}
+			}
+		}
+		catch {
+			// We can't use our own alert since by the time we get here, the context menu is gone
+			appState.alert(message: error.localizedDescription)
+		}
+	}
+
+	var body: some View {
+		Toggle(
+			"Synchronize with this device", systemImage: "pin",
+			isOn: Binding(
+				get: { allSelected == true },
+				set: { s in
+					Task {
+						await selectAll(s)
+					}
+				})
+		)
+		.disabled(!self.isAvailable)
+	}
+}
+
+private struct EntryNameView: View {
+	@ObservedObject var appState: AppState
+	var entry: SushitrainEntry
+
+	private var showThumbnail: Bool {
+		return self.appState.browserViewStyle == .thumbnailList
+	}
+
+	var body: some View {
+		if self.showThumbnail && !self.entry.isDirectory() {
+			// Thubmnail view shows thumbnail image next to the file name
+			HStack(alignment: .center, spacing: 9.0) {
+				ThumbnailView(
+					file: entry, appState: appState, showFileName: false,
+					showErrorMessages: false
+				)
+				.frame(width: 60, height: 40)
+				.cornerRadius(6.0)
+				.id(entry.id)
+				.help(entry.fileName())
+
+				// The entry name (grey when not locally present)
+				Text(entry.fileName())
+					.multilineTextAlignment(.leading)
+					.foregroundStyle(Color.primary)
+					.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
+				Spacer()
+			}
+			.frame(maxWidth: .infinity)
+			.padding(0)
+		}
+		else {
+			HStack {
+				Image(systemName: entry.systemImage)
+					.foregroundStyle(entry.color ?? Color.accentColor)
+				Text(entry.fileName())
+					.multilineTextAlignment(.leading)
+					.foregroundStyle(Color.primary)
+					.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
+				Spacer()
+			}
+			.frame(maxWidth: .infinity)
+		}
+	}
+}
+
+extension ComparisonResult {
+	var flipped: ComparisonResult {
+		switch self {
+		case .orderedSame: return .orderedSame
+		case .orderedAscending: return .orderedDescending
+		case .orderedDescending: return .orderedAscending
+		}
+	}
+}
+
+private struct EntryComparator: SortComparator {
+	typealias Compared = SushitrainEntry
+
+	enum SortBy {
+		case size
+		case name
+		case lastModifiedDate
+		case fileExtension
+	}
+
+	var order: SortOrder
+	var sortBy: SortBy
+
+	private func compareDates(_ lhs: Date?, _ rhs: Date?) -> ComparisonResult {
+		switch (lhs, rhs) {
+		case (nil, nil): return .orderedSame
+		case (nil, _): return .orderedAscending
+		case (_, nil): return .orderedDescending
+		case (let a, let b): return a!.compare(b!)
+		}
+	}
+
+	func compare(_ lhs: SushitrainEntry, _ rhs: SushitrainEntry) -> ComparisonResult {
+		let ascending: ComparisonResult = order == .forward ? .orderedAscending : .orderedDescending
+		let descending: ComparisonResult = order == .forward ? .orderedDescending : .orderedAscending
+
+		switch (lhs.isDirectory(), rhs.isDirectory()) {
+		// Compare directories among themselves
+		case (true, true):
+			switch self.sortBy {
+			case .size:
+				return .orderedSame  // Directories all have zero size
+			case .lastModifiedDate:
+				let r = compareDates(lhs.modifiedAt()?.date(), rhs.modifiedAt()?.date())
+				return order == .forward ? r : r.flipped
+			case .name:
+				return order == .forward
+					? lhs.name().compare(rhs.name()) : rhs.name().compare(lhs.name())
+			case .fileExtension:
+				return order == .forward
+					? lhs.extension().compare(rhs.extension())
+					: rhs.extension().compare(lhs.extension())
+			}
+
+		// Compare directory with file or vice versa
+		case (true, false): return .orderedAscending  // This doesn't change when order is swapped
+		case (false, true): return .orderedDescending  // This doesn't change when order is swapped
+
+		// Compare entries among themselves
+		case (false, false):
+			switch self.sortBy {
+			case .lastModifiedDate:
+				let r = compareDates(lhs.modifiedAt()?.date(), rhs.modifiedAt()?.date())
+				return order == .forward ? r : r.flipped
+
+			case .name:
+				return order == .forward
+					? lhs.name().compare(rhs.name()) : rhs.name().compare(lhs.name())
+
+			case .fileExtension:
+				return order == .forward
+					? lhs.extension().compare(rhs.extension())
+					: rhs.extension().compare(lhs.extension())
+
+			case .size:
+				let sa = lhs.size()
+				let sb = rhs.size()
+				if sa == sb {
+					return .orderedSame
+				}
+				else if sa < sb {
+					return ascending
+				}
+				else {
+					return descending
+				}
+			}
+		}
 	}
 }

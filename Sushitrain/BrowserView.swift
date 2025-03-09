@@ -13,811 +13,6 @@ enum BrowserViewStyle: String {
 	case thumbnailList = "thumbnailList"
 }
 
-struct FileEntryLink<Content: View>: View {
-	let appState: AppState
-	let entry: SushitrainEntry
-	let inFolder: SushitrainFolder?
-	let siblings: [SushitrainEntry]
-	@ViewBuilder var content: () -> Content
-
-	@State private var quickLookURL: URL? = nil
-	@State private var showPreviewSheet: Bool = false
-
-	#if os(macOS)
-		@Environment(\.openWindow) private var openWindow
-	#endif
-
-	private func previewFile() {
-		#if os(macOS)
-			// Cmd-click to open preview window directory
-			if NSEvent.modifierFlags.contains(.command) {
-				openWindow(
-					id: "preview",
-					value: Preview(
-						folderID: entry.folder!.folderID,
-						path: entry.path()
-					))
-				return
-			}
-		#endif
-
-		// Tap to preview local file in QuickLook
-		if entry.isLocallyPresent(),
-			let url = entry.localNativeFileURL
-		{
-			self.quickLookURL = url
-		}
-		else if entry.isStreamable {
-			self.showPreviewSheet = true
-		}
-	}
-
-	private var inner: some View {
-		Group {
-			if appState.tapFileToPreview && entry.canPreview {
-				Button(action: {
-					self.previewFile()
-				}) {
-					self.content()
-				}
-				#if os(macOS)
-					.buttonStyle(.link)
-				#endif
-				.foregroundStyle(.primary)
-				.frame(maxWidth: .infinity)
-				.quickLookPreview(self.$quickLookURL)
-			}
-			else {
-				// Tap to go to file view
-				NavigationLink(
-					destination: FileView(
-						file: entry, appState: self.appState, showPath: self.inFolder == nil,
-						siblings: siblings)
-				) {
-					self.content()
-				}
-			}
-		}
-		#if os(macOS)
-			.sheet(isPresented: $showPreviewSheet) {
-				FileViewerView(
-					appState: appState, file: entry, siblings: siblings,
-					inSheet: true,
-					isShown: $showPreviewSheet
-				)
-				.presentationSizing(.fitted)
-				.frame(minWidth: 640, minHeight: 480)
-				.navigationTitle(entry.fileName())
-				.toolbar {
-					ToolbarItem(placement: .confirmationAction) {
-						Button("Done") { showPreviewSheet = false }
-					}
-				}
-			}
-		#else
-			.fullScreenCover(isPresented: $showPreviewSheet) {
-				FileViewerView(
-					appState: appState, file: entry, siblings: siblings,
-					inSheet: true,
-					isShown: $showPreviewSheet)
-			}
-		#endif
-	}
-
-	var body: some View {
-		self.inner
-			.draggable(entry)
-			.contextMenu {
-				#if os(iOS)
-					NavigationLink(
-						destination: FileView(
-							file: entry,
-							appState: self.appState,
-							showPath: self.inFolder == nil,
-							siblings: siblings
-						)
-					) {
-						Label(entry.fileName(), systemImage: entry.systemImage)
-					}
-				#endif
-
-				if !appState.tapFileToPreview {
-					Button("Show preview...", systemImage: "doc.text.magnifyingglass") {
-						self.previewFile()
-					}.disabled(
-						!entry.canPreview
-							|| ((try? entry.peersWithFullCopy().count()) ?? 0) == 0
-					)
-				}
-
-				#if os(macOS)
-					Button("Copy", systemImage: "document.on.document") {
-						self.copy()
-					}.disabled(!entry.isLocallyPresent())
-				#endif
-
-				// Show 'go to location' in list if we are not in the file's folder already
-				if self.inFolder == nil {
-					if let folder = entry.folder {
-						NavigationLink(
-							destination: BrowserView(
-								appState: appState, folder: folder,
-								prefix: entry.parentPath())
-						) {
-							let parentFolderName = entry.parentFolderName
-							if parentFolderName.isEmpty {
-								Label("Go to location", systemImage: "document.circle")
-							}
-							else {
-								Label(
-									"Go to directory '\(parentFolderName)'",
-									systemImage: "document.circle")
-							}
-						}
-					}
-				}
-
-				if entry.hasExternalSharingURL {
-					Divider()
-					FileSharingLinksView(entry: entry, sync: true)
-				}
-
-				Divider()
-
-				ItemSelectToggleView(appState: appState, file: entry)
-			} preview: {
-				NavigationStack {  // to force the image to take up all available space
-					VStack {
-						ThumbnailView(
-							file: entry, appState: appState, showFileName: false,
-							showErrorMessages: false
-						)
-						.frame(
-							minWidth: 240, maxWidth: .infinity, minHeight: 320,
-							maxHeight: .infinity
-						)
-						.id(entry.id)
-					}
-				}
-			}
-	}
-
-	private func copy() {
-		if let url = entry.localNativeFileURL as? NSURL, let refURL = url.fileReferenceURL() {
-			writeURLToPasteboard(url: refURL)
-		}
-		else if let url = URL(string: entry.onDemandURL()) {
-			writeURLToPasteboard(url: url)
-		}
-	}
-}
-
-struct EntryView: View {
-	let appState: AppState
-	let entry: SushitrainEntry
-	let folder: SushitrainFolder?
-	let siblings: [SushitrainEntry]
-	let showThumbnail: Bool
-
-	static let remoteFileOpacity = 0.7
-
-	private func entryView(entry: SushitrainEntry) -> some View {
-		ItemSelectSwipeView(file: entry) {
-			if self.showThumbnail {
-				// Thubmnail view shows thumbnail image next to the file name
-				HStack(alignment: .center, spacing: 9.0) {
-					ThumbnailView(
-						file: entry, appState: appState, showFileName: false,
-						showErrorMessages: false
-					)
-					.frame(width: 60, height: 40)
-					.cornerRadius(6.0)
-					.id(entry.id)
-					.help(entry.fileName())
-
-					// The entry name (grey when not locally present)
-					Text(entry.fileName())
-						.multilineTextAlignment(.leading)
-						.foregroundStyle(Color.primary)
-						.opacity(entry.isLocallyPresent() ? 1.0 : Self.remoteFileOpacity)
-					Spacer()
-				}
-				.frame(maxWidth: .infinity)
-				.padding(0)
-			}
-			else {
-				HStack {
-					Image(systemName: entry.systemImage)
-						.foregroundStyle(entry.color ?? Color.accentColor)
-					Text(entry.fileName())
-						.multilineTextAlignment(.leading)
-						.foregroundStyle(Color.primary)
-						.opacity(entry.isLocallyPresent() ? 1.0 : Self.remoteFileOpacity)
-					Spacer()
-				}
-				.frame(maxWidth: .infinity)
-			}
-		}
-	}
-
-	var body: some View {
-		if entry.isSymlink() {
-			// Find the destination
-			let targetEntry = try? entry.symlinkTargetEntry()
-			if let targetEntry = targetEntry {
-				if targetEntry.isDirectory() {
-					if let targetFolder = targetEntry.folder {
-						NavigationLink(
-							destination: BrowserView(
-								appState: appState,
-								folder: targetFolder,
-								prefix: targetEntry.path() + "/"
-							)
-						) {
-							self.entryView(entry: entry)
-						}
-						.contextMenu {
-							NavigationLink(
-								destination: FileView(
-									file: targetEntry,
-									appState: self.appState,
-									showPath: self.folder == nil,
-									siblings: []
-								)
-							) {
-								Label(
-									targetEntry.fileName(),
-									systemImage: targetEntry.systemImage)
-							}
-							NavigationLink(
-								destination: FileView(
-									file: entry,
-									appState: self.appState,
-									showPath: self.folder == nil,
-									siblings: siblings
-								)
-							) {
-								Label(entry.fileName(), systemImage: entry.systemImage)
-							}
-						}
-					}
-				}
-				else {
-					FileEntryLink(
-						appState: appState, entry: targetEntry, inFolder: self.folder,
-						siblings: []
-					) {
-						self.entryView(entry: targetEntry)
-					}
-					.contextMenu {
-						NavigationLink(
-							destination: FileView(
-								file: targetEntry,
-								appState: self.appState,
-								showPath: self.folder == nil,
-								siblings: []
-							)
-						) {
-							Label(
-								targetEntry.fileName(),
-								systemImage: targetEntry.systemImage)
-						}
-						NavigationLink(
-							destination: FileView(
-								file: entry,
-								appState: self.appState,
-								showPath: self.folder == nil,
-								siblings: siblings
-							)
-						) {
-							Label(entry.fileName(), systemImage: entry.systemImage)
-						}
-					} preview: {
-						NavigationStack {  // to force the image to take up all available space
-							VStack {
-								ThumbnailView(
-									file: targetEntry, appState: appState,
-									showFileName: false,
-									showErrorMessages: false
-								)
-								.frame(
-									minWidth: 240, maxWidth: .infinity,
-									minHeight: 320,
-									maxHeight: .infinity
-								)
-								.id(targetEntry.id)
-							}
-						}
-					}
-				}
-			}
-			else if let targetURL = URL(string: entry.symlinkTarget()),
-				targetURL.scheme == "https" || targetURL.scheme == "http"
-			{
-				Link(destination: targetURL) {
-					self.entryView(entry: entry)
-				}
-				.contextMenu {
-					Link(destination: targetURL) {
-						Label(targetURL.absoluteString, systemImage: "globe")
-					}
-					NavigationLink(
-						destination: FileView(
-							file: entry,
-							appState: self.appState,
-							showPath: self.folder == nil,
-							siblings: siblings
-						)
-					) {
-						Label(entry.fileName(), systemImage: entry.systemImage)
-					}
-				}
-			}
-			else {
-				Label(entry.fileName(), systemImage: "questionmark.app.dashed")
-			}
-		}
-		else {
-			FileEntryLink(appState: appState, entry: entry, inFolder: self.folder, siblings: siblings) {
-				self.entryView(entry: entry)
-			}
-		}
-	}
-}
-
-private struct BrowserListView: View {
-	@ObservedObject var appState: AppState
-	var folder: SushitrainFolder
-	var prefix: String
-	var hasExtraneousFiles: Bool
-	var files: [SushitrainEntry] = []
-	var subdirectories: [SushitrainEntry] = []
-
-	var body: some View {
-		List {
-			Section {
-				FolderStatusView(appState: appState, folder: folder)
-
-				if hasExtraneousFiles {
-					NavigationLink(destination: {
-						ExtraFilesView(
-							folder: self.folder,
-							appState: self.appState)
-					}) {
-						Label(
-							"This folder has new files",
-							systemImage:
-								"exclamationmark.triangle.fill"
-						).foregroundColor(.orange)
-					}
-				}
-			}
-
-			// List subdirectories
-			Section {
-				ForEach(subdirectories, id: \.self) {
-					(subDirEntry: SushitrainEntry) in
-					let fileName = subDirEntry.fileName()
-					NavigationLink(
-						destination: BrowserView(
-							appState: appState,
-							folder: folder,
-							prefix: "\(prefix)\(fileName)/"
-						)
-					) {
-						ItemSelectSwipeView(file: subDirEntry) {
-							// Subdirectory name
-							HStack(spacing: 9.0) {
-								Image(
-									systemName:
-										subDirEntry
-										.systemImage
-								)
-								.foregroundStyle(
-									subDirEntry
-										.color
-										?? Color
-										.accentColor
-								)
-								Text(
-									subDirEntry
-										.fileName()
-								)
-								.multilineTextAlignment(
-									.leading
-								)
-								.foregroundStyle(
-									Color.primary
-								)
-								.opacity(
-									subDirEntry
-										.isLocallyPresent()
-										? 1.0
-										: EntryView
-											.remoteFileOpacity
-								)
-								Spacer()
-							}
-							.frame(maxWidth: .infinity)
-							.padding(0)
-						}
-					}
-					.contextMenu(
-						ContextMenu(menuItems: {
-							if let file =
-								try? folder
-								.getFileInformation(
-									self.prefix
-										+ fileName
-								)
-							{
-								NavigationLink(
-									destination:
-										FileView(
-											file:
-												file,
-											appState:
-												self
-												.appState,
-											showPath:
-												false
-										)
-								) {
-									Label(
-										"Subdirectory properties",
-										systemImage:
-											"folder.badge.gearshape"
-									)
-								}
-
-								ItemSelectToggleView(
-									appState:
-										appState,
-									file: file)
-
-								if file
-									.hasExternalSharingURL
-								{
-									FileSharingLinksView(
-										entry:
-											file,
-										sync:
-											true
-									)
-								}
-							}
-						}))
-				}
-			}
-
-			// List files
-			Section {
-				ForEach(files, id: \.self) { file in
-					EntryView(
-						appState: appState, entry: file,
-						folder: folder,
-						siblings: files,
-						showThumbnail: self.appState.browserViewStyle == .thumbnailList
-					)
-					.id(file.id)
-				}
-			}
-
-			// Show number of items
-			Group {
-				if !self.subdirectories.isEmpty && self.files.isEmpty {
-					Text(
-						"\(self.subdirectories.count) subdirectories"
-					)
-				}
-				else if !self.files.isEmpty
-					&& self.subdirectories.isEmpty
-				{
-					Text("\(self.files.count) files")
-				}
-				else if !self.files.isEmpty
-					&& !self.subdirectories.isEmpty
-				{
-					Text(
-						"\(self.files.count) files and \(self.subdirectories.count) subdirectories"
-					)
-				}
-			}
-			.font(.footnote)
-			.foregroundColor(.secondary)
-			.frame(maxWidth: .infinity)
-			#if os(iOS)
-				.listRowBackground(Color(.systemGroupedBackground))
-			#endif
-		}
-		#if os(macOS)
-			.listStyle(.inset(alternatesRowBackgrounds: true))
-		#endif
-	}
-}
-
-private struct BrowserItemsView: View {
-	@ObservedObject var appState: AppState
-	var folder: SushitrainFolder
-	var prefix: String
-	@Binding var searchText: String
-	@Binding var showSettings: Bool
-
-	@State private var subdirectories: [SushitrainEntry] = []
-	@State private var files: [SushitrainEntry] = []
-	@State private var hasExtraneousFiles = false
-	@State private var isLoading = true
-	@State private var showSpinner = false
-
-	@Environment(\.isSearching) private var isSearching
-
-	var body: some View {
-		let isEmpty = subdirectories.isEmpty && files.isEmpty
-
-		Group {
-			if self.folder.exists() {
-				if !isSearching {
-					switch self.appState.browserViewStyle {
-					case .grid:
-						VStack {
-							ScrollView {
-								HStack {
-									FolderStatusView(
-										appState: appState, folder: folder
-									).padding(
-										.all, 10)
-
-									Spacer()
-
-									Slider(
-										value: Binding(
-											get: {
-												return Double(
-													appState
-														.browserGridColumns
-												)
-											},
-											set: { nv in
-												appState
-													.browserGridColumns =
-													Int(nv)
-											}), in: 1.0...10.0, step: 1.0
-									)
-									.frame(minWidth: 50, maxWidth: 150)
-									.padding(.horizontal, 20)
-									.padding(.vertical, 15)
-								}
-
-								if hasExtraneousFiles {
-									NavigationLink(destination: {
-										ExtraFilesView(
-											folder: self.folder,
-											appState: self.appState)
-									}) {
-										Label(
-											"This folder has new files",
-											systemImage:
-												"exclamationmark.triangle.fill"
-										).foregroundColor(.orange)
-									}
-									.frame(maxWidth: .infinity)
-								}
-
-								GridFilesView(
-									appState: appState, prefix: self.prefix,
-									files: files,
-									subdirectories: subdirectories, folder: folder
-								)
-								.padding(.horizontal, 15)
-							}
-						}
-					case .list, .thumbnailList:
-						#if os(macOS)
-							VStack {
-								// Show extraneous files banner when necessary
-								if hasExtraneousFiles {
-									HStack(alignment: .center) {
-										Label(
-											"This folder has new files",
-											systemImage:
-												"exclamationmark.triangle.fill"
-										).foregroundColor(.orange)
-
-										Spacer()
-
-										NavigationLink(destination: {
-											ExtraFilesView(
-												folder: self.folder,
-												appState: self.appState)
-										}) {
-											Text("Review...")
-										}
-									}
-									.padding(
-										EdgeInsets(
-											top: 10.0, leading: 10.0,
-											bottom: 5.0, trailing: 10.0))
-								}
-
-								BrowserTableView(
-									appState: appState, folder: folder,
-									files: files,
-									subdirectories: subdirectories)
-							}
-						#else
-							BrowserListView(
-								appState: appState, folder: folder, prefix: prefix,
-								hasExtraneousFiles: hasExtraneousFiles, files: files,
-								subdirectories: subdirectories)
-						#endif
-					}
-				}
-				else {
-					// Search
-					SearchResultsView(
-						appState: self.appState,
-						searchText: $searchText,
-						folderID: .constant(self.folder.folderID),
-						prefix: Binding(get: { prefix }, set: { _ in () })
-					)
-				}
-			}
-		}
-		.overlay {
-			if !folder.exists() {
-				ContentUnavailableView(
-					"Folder removed", systemImage: "trash",
-					description: Text("This folder was removed."))
-			}
-			else if isLoading {
-				if isEmpty && showSpinner {
-					ProgressView()
-				}
-				// Load the rest while already showing a part of the results
-			}
-			else if isEmpty {
-				if self.prefix == "" {
-					if self.folder.isPaused() {
-						ContentUnavailableView(
-							"Synchronization disabled", systemImage: "pause.fill",
-							description: Text(
-								"Synchronization has been disabled for this folder. Enable it in folder settings to access files."
-							)
-						).onTapGesture {
-							showSettings = true
-						}
-					}
-					else if self.folder.connectedPeerCount() == 0 {
-						ContentUnavailableView(
-							"Not connected", systemImage: "network.slash",
-							description: Text(
-								"Share this folder with other devices to start synchronizing files."
-							)
-						).onTapGesture {
-							showSettings = true
-						}
-					}
-					else {
-						ContentUnavailableView(
-							"There are currently no files in this folder.",
-							systemImage: "questionmark.folder",
-							description: Text(
-								"If this is unexpected, ensure that the other devices have accepted syncing this folder with your device."
-							)
-						).onTapGesture {
-							showSettings = true
-						}
-					}
-
-				}
-				else {
-					ContentUnavailableView(
-						"There are currently no files in this folder.",
-						systemImage: "questionmark.folder")
-				}
-			}
-		}
-		.refreshable {
-			await self.rescan()
-		}
-		.contextMenu {
-			Button("Refresh") {
-				Task {
-					await self.reload()
-				}
-			}
-			Button("Rescan subdirectory") {
-				Task {
-					await self.rescan()
-				}
-			}
-		}
-		.task(id: self.folder.folderStateForUpdating) {
-			await self.reload()
-		}
-		.onChange(of: self.folder.folderStateForUpdating) {
-			Task {
-				await self.reload()
-			}
-		}
-	}
-
-	private func rescan() async {
-		Log.info("Rescan subdir \(self.prefix)")
-		try? self.folder.rescanSubdirectory(self.prefix)
-		await self.reload()
-	}
-
-	private func reload() async {
-		self.isLoading = true
-		self.showSpinner = false
-		let loadingSpinnerTask = Task {
-			try await Task.sleep(nanoseconds: 300_000_000)
-			if !Task.isCancelled && self.isLoading {
-				self.showSpinner = true
-			}
-		}
-
-		let folder = self.folder
-		let prefix = self.prefix
-		let dotFilesHidden = self.appState.dotFilesHidden
-
-		subdirectories = await Task.detached {
-			if !folder.exists() {
-				return []
-			}
-			do {
-				var dirNames = try folder.list(prefix, directories: true, recurse: false).asArray()
-					.sorted()
-				if dotFilesHidden {
-					dirNames = dirNames.filter({ !$0.starts(with: ".") })
-				}
-				return try dirNames.map({ dirName in
-					return try folder.getFileInformation(prefix + dirName)
-				})
-			}
-			catch let error {
-				Log.warn("Error listing: \(error.localizedDescription)")
-			}
-			return []
-		}.value
-
-		files = await Task.detached {
-			if !folder.exists() {
-				return []
-			}
-			do {
-				return try folder.listEntries(
-					prefix: self.prefix, directories: false, hideDotFiles: dotFilesHidden)
-			}
-			catch let error {
-				Log.warn("Error listing: \(error.localizedDescription)")
-			}
-			return []
-		}.value
-
-		if self.folder.isIdle {
-			hasExtraneousFiles = await Task.detached {
-				var hasExtra: ObjCBool = false
-				do {
-					try folder.hasExtraneousFiles(&hasExtra)
-					return hasExtra.boolValue
-				}
-				catch let error {
-					Log.warn("error checking for extraneous files: \(error.localizedDescription)")
-				}
-				return false
-			}.value
-		}
-		else {
-			hasExtraneousFiles = false
-		}
-
-		self.isLoading = false
-		loadingSpinnerTask.cancel()
-	}
-}
-
 struct BrowserView: View {
 	@ObservedObject var appState: AppState
 	var folder: SushitrainFolder
@@ -1275,6 +470,288 @@ struct BrowserView: View {
 	}
 }
 
+private struct BrowserItemsView: View {
+	@ObservedObject var appState: AppState
+	var folder: SushitrainFolder
+	var prefix: String
+	@Binding var searchText: String
+	@Binding var showSettings: Bool
+
+	@State private var subdirectories: [SushitrainEntry] = []
+	@State private var files: [SushitrainEntry] = []
+	@State private var hasExtraneousFiles = false
+	@State private var isLoading = true
+	@State private var showSpinner = false
+
+	@Environment(\.isSearching) private var isSearching
+
+	var body: some View {
+		let isEmpty = subdirectories.isEmpty && files.isEmpty
+
+		Group {
+			if self.folder.exists() {
+				if !isSearching {
+					switch self.appState.browserViewStyle {
+					case .grid:
+						VStack {
+							ScrollView {
+								HStack {
+									FolderStatusView(
+										appState: appState, folder: folder
+									).padding(
+										.all, 10)
+
+									Spacer()
+
+									Slider(
+										value: Binding(
+											get: {
+												return Double(
+													appState
+														.browserGridColumns
+												)
+											},
+											set: { nv in
+												appState
+													.browserGridColumns =
+													Int(nv)
+											}), in: 1.0...10.0, step: 1.0
+									)
+									.frame(minWidth: 50, maxWidth: 150)
+									.padding(.horizontal, 20)
+									.padding(.vertical, 15)
+								}
+
+								if hasExtraneousFiles {
+									NavigationLink(destination: {
+										ExtraFilesView(
+											folder: self.folder,
+											appState: self.appState)
+									}) {
+										Label(
+											"This folder has new files",
+											systemImage:
+												"exclamationmark.triangle.fill"
+										).foregroundColor(.orange)
+									}
+									.frame(maxWidth: .infinity)
+								}
+
+								GridFilesView(
+									appState: appState, prefix: self.prefix,
+									files: files,
+									subdirectories: subdirectories, folder: folder
+								)
+								.padding(.horizontal, 15)
+							}
+						}
+					case .list, .thumbnailList:
+						#if os(macOS)
+							VStack {
+								// Show extraneous files banner when necessary
+								if hasExtraneousFiles {
+									HStack(alignment: .center) {
+										Label(
+											"This folder has new files",
+											systemImage:
+												"exclamationmark.triangle.fill"
+										).foregroundColor(.orange)
+
+										Spacer()
+
+										NavigationLink(destination: {
+											ExtraFilesView(
+												folder: self.folder,
+												appState: self.appState)
+										}) {
+											Text("Review...")
+										}
+									}
+									.padding(
+										EdgeInsets(
+											top: 10.0, leading: 10.0,
+											bottom: 5.0, trailing: 10.0))
+								}
+
+								BrowserTableView(
+									appState: appState, folder: folder,
+									files: files,
+									subdirectories: subdirectories)
+							}
+						#else
+							BrowserListView(
+								appState: appState, folder: folder, prefix: prefix,
+								hasExtraneousFiles: hasExtraneousFiles, files: files,
+								subdirectories: subdirectories)
+						#endif
+					}
+				}
+				else {
+					// Search
+					SearchResultsView(
+						appState: self.appState,
+						searchText: $searchText,
+						folderID: .constant(self.folder.folderID),
+						prefix: Binding(get: { prefix }, set: { _ in () })
+					)
+				}
+			}
+		}
+		.overlay {
+			if !folder.exists() {
+				ContentUnavailableView(
+					"Folder removed", systemImage: "trash",
+					description: Text("This folder was removed."))
+			}
+			else if isLoading {
+				if isEmpty && showSpinner {
+					ProgressView()
+				}
+				// Load the rest while already showing a part of the results
+			}
+			else if isEmpty {
+				if self.prefix == "" {
+					if self.folder.isPaused() {
+						ContentUnavailableView(
+							"Synchronization disabled", systemImage: "pause.fill",
+							description: Text(
+								"Synchronization has been disabled for this folder. Enable it in folder settings to access files."
+							)
+						).onTapGesture {
+							showSettings = true
+						}
+					}
+					else if self.folder.connectedPeerCount() == 0 {
+						ContentUnavailableView(
+							"Not connected", systemImage: "network.slash",
+							description: Text(
+								"Share this folder with other devices to start synchronizing files."
+							)
+						).onTapGesture {
+							showSettings = true
+						}
+					}
+					else {
+						ContentUnavailableView(
+							"There are currently no files in this folder.",
+							systemImage: "questionmark.folder",
+							description: Text(
+								"If this is unexpected, ensure that the other devices have accepted syncing this folder with your device."
+							)
+						).onTapGesture {
+							showSettings = true
+						}
+					}
+
+				}
+				else {
+					ContentUnavailableView(
+						"There are currently no files in this folder.",
+						systemImage: "questionmark.folder")
+				}
+			}
+		}
+		.refreshable {
+			await self.rescan()
+		}
+		.contextMenu {
+			Button("Refresh") {
+				Task {
+					await self.reload()
+				}
+			}
+			Button("Rescan subdirectory") {
+				Task {
+					await self.rescan()
+				}
+			}
+		}
+		.task(id: self.folder.folderStateForUpdating) {
+			await self.reload()
+		}
+		.onChange(of: self.folder.folderStateForUpdating) {
+			Task {
+				await self.reload()
+			}
+		}
+	}
+
+	private func rescan() async {
+		Log.info("Rescan subdir \(self.prefix)")
+		try? self.folder.rescanSubdirectory(self.prefix)
+		await self.reload()
+	}
+
+	private func reload() async {
+		self.isLoading = true
+		self.showSpinner = false
+		let loadingSpinnerTask = Task {
+			try await Task.sleep(nanoseconds: 300_000_000)
+			if !Task.isCancelled && self.isLoading {
+				self.showSpinner = true
+			}
+		}
+
+		let folder = self.folder
+		let prefix = self.prefix
+		let dotFilesHidden = self.appState.dotFilesHidden
+
+		subdirectories = await Task.detached {
+			if !folder.exists() {
+				return []
+			}
+			do {
+				var dirNames = try folder.list(prefix, directories: true, recurse: false).asArray()
+					.sorted()
+				if dotFilesHidden {
+					dirNames = dirNames.filter({ !$0.starts(with: ".") })
+				}
+				return try dirNames.map({ dirName in
+					return try folder.getFileInformation(prefix + dirName)
+				})
+			}
+			catch let error {
+				Log.warn("Error listing: \(error.localizedDescription)")
+			}
+			return []
+		}.value
+
+		files = await Task.detached {
+			if !folder.exists() {
+				return []
+			}
+			do {
+				return try folder.listEntries(
+					prefix: self.prefix, directories: false, hideDotFiles: dotFilesHidden)
+			}
+			catch let error {
+				Log.warn("Error listing: \(error.localizedDescription)")
+			}
+			return []
+		}.value
+
+		if self.folder.isIdle {
+			hasExtraneousFiles = await Task.detached {
+				var hasExtra: ObjCBool = false
+				do {
+					try folder.hasExtraneousFiles(&hasExtra)
+					return hasExtra.boolValue
+				}
+				catch let error {
+					Log.warn("error checking for extraneous files: \(error.localizedDescription)")
+				}
+				return false
+			}.value
+		}
+		else {
+			hasExtraneousFiles = false
+		}
+
+		self.isLoading = false
+		loadingSpinnerTask.cancel()
+	}
+}
+
 extension SushitrainFolder {
 	fileprivate var folderStateForUpdating: Int {
 		var error: NSError? = nil
@@ -1283,223 +760,6 @@ extension SushitrainFolder {
 		hasher.combine(state)
 		hasher.combine(self.isPaused())
 		return hasher.finalize()
-	}
-}
-
-// Shared functionality for swipe and toggle selection views
-extension SushitrainEntry {
-	fileprivate var isSelectionToggleAvailable: Bool {
-		if let folder = self.folder {
-			return folder.isSelective()
-		}
-		return false
-	}
-
-	// First check to see if this action should be disabled
-	fileprivate var isSelectionToggleShallowDisabled: Bool {
-		if self.isSymlink() {
-			return true
-		}
-		if let folder = self.folder {
-			return !folder.isSelective() || !folder.isIdleOrSyncing
-		}
-		return true
-	}
-
-	// Returns error message on fail
-	fileprivate func setSelectedFromToggle(s: Bool) async -> String? {
-		do {
-			if !self.isSelectionToggleShallowDisabled {
-				// Check some additional things
-				let isExplicitlySelected = self.isExplicitlySelected()
-				if self.isSelected() && !isExplicitlySelected {
-					// File is implicitly selected, do not allow changes
-					return String(
-						localized:
-							"The synchronization setting for this item cannot be changed, because it is inside a subdirectory that is configured to be kept on this device."
-					)
-				}
-
-				if !s {
-					let isLocalOnlyCopy = try await self.isLocalOnlyCopy()
-					if isLocalOnlyCopy {
-						// We are the only remaining copy, can't deselect
-						return String(
-							localized:
-								"The synchronization setting for this item cannot be changed, as the local copy is the only copy currently available."
-						)
-					}
-				}
-
-				// We can change the selection status
-				try self.setExplicitlySelected(s)
-			}
-			else {
-				if self.isSymlink() {
-					return String(
-						localized: "The synchronization setting for symlinks cannot be changed."
-					)
-				}
-				else if let f = self.folder, !f.isSelective() {
-					return String(
-						localized: "The folder is not configured for selective synchronization."
-					)
-				}
-				else {
-					return String(
-						localized: "Wait until the folder is done synchronizing and try again.")
-				}
-
-			}
-		}
-		catch {
-			return String(
-				localized:
-					"The synchronization setting for this item could not be changed: \(error.localizedDescription)."
-			)
-		}
-
-		return nil
-	}
-}
-
-private struct ItemSelectSwipeView<Content: View>: View {
-	let file: SushitrainEntry
-	@ViewBuilder var content: Content
-
-	@State private var errorMessage: String? = nil
-
-	var body: some View {
-		if self.file.isSelectionToggleAvailable {
-			self.content
-				.alert(
-					isPresented: Binding(
-						get: {
-							errorMessage != nil
-						},
-						set: { s in
-							errorMessage = s ? errorMessage : nil
-						})
-				) {
-					Alert(
-						title: Text("Could not change synchronization setting"),
-						message: Text(errorMessage ?? ""), dismissButton: .default(Text("OK")))
-				}
-				.swipeActions(allowsFullSwipe: false) {
-					if file.isExplicitlySelected() || file.isSelected() {
-						// Unselect button
-						Button {
-							Task {
-								self.errorMessage = await self.file
-									.setSelectedFromToggle(s: false)
-							}
-						} label: {
-							Label(
-								"Do not synchronize with this device",
-								systemImage: "pin.slash")
-						}
-						.tint(.red)
-					}
-					else {
-						// Select button
-						Button {
-							Task {
-								self.errorMessage = await self.file
-									.setSelectedFromToggle(s: true)
-							}
-						} label: {
-							Label("Synchronize with this device", systemImage: "pin")
-						}
-					}
-				}
-		}
-		else {
-			self.content
-		}
-	}
-}
-
-struct MultiItemSelectToggleView: View {
-	let appState: AppState
-	let files: [SushitrainEntry]
-
-	private var isAvailable: Bool {
-		return files.allSatisfy {
-			$0.isSelectionToggleAvailable && !$0.isSelectionToggleShallowDisabled
-		}
-	}
-
-	private var allSelected: Bool? {
-		var anySelected: Bool = false
-		var anyDeselected: Bool = false
-
-		for file in files {
-			if !file.isSelectionToggleAvailable || file.isSelectionToggleShallowDisabled {
-				return false
-			}
-
-			let s = (file.isExplicitlySelected() || file.isSelected())
-			anySelected = anySelected || s
-			anyDeselected = anyDeselected || !s
-		}
-
-		switch (anySelected, anyDeselected) {
-		case (true, true): return nil
-		case (true, false): return true
-		case (false, true): return false
-		case (false, false): return false
-		}
-
-	}
-
-	private func selectAll(_ s: Bool) async {
-		// [folderID: [path: selected]]
-		var filesPerFolder: [String: [String: Bool]] = [:]
-
-		// Sort files by folder
-		for file in files {
-			if file.isSelected() && !file.isExplicitlySelected() {
-				continue  // File is implicitly selected
-			}
-
-			if let fid = file.folder?.folderID {
-				if var ff = filesPerFolder[fid] {
-					ff[file.path()] = s
-					filesPerFolder[fid] = ff
-				}
-				else {
-					filesPerFolder[fid] = [file.path(): s]
-				}
-			}
-		}
-
-		// Batch select by folder
-		do {
-			for (folderID, selection) in filesPerFolder {
-				if let folder = appState.client.folder(withID: folderID) {
-					let json = try JSONEncoder().encode(selection)
-					try folder.setExplicitlySelectedJSON(json)
-				}
-			}
-		}
-		catch {
-			// We can't use our own alert since by the time we get here, the context menu is gone
-			appState.alert(message: error.localizedDescription)
-		}
-	}
-
-	var body: some View {
-		Toggle(
-			"Synchronize with this device", systemImage: "pin",
-			isOn: Binding(
-				get: { allSelected == true },
-				set: { s in
-					Task {
-						await selectAll(s)
-					}
-				})
-		)
-		.disabled(!self.isAvailable)
 	}
 }
 
@@ -1529,7 +789,7 @@ struct ItemSelectToggleView: View {
 	}
 }
 
-struct BrowserViewStylePickerView: View {
+private struct BrowserViewStylePickerView: View {
 	@Binding var viewStyle: BrowserViewStyle
 
 	var body: some View {

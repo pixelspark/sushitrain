@@ -9,6 +9,8 @@ import SushitrainCore
 import VisionKit
 import WebKit
 import CoreTransferable
+import SwiftUI
+import Combine
 
 extension SushitrainListOfStrings {
 	public func asArray() -> [String] {
@@ -45,91 +47,6 @@ extension SushitrainPeer {
 extension SushitrainDate {
 	public func date() -> Date {
 		return Date(timeIntervalSince1970: Double(self.unixMilliseconds()) / 1000.0)
-	}
-}
-
-extension SushitrainFolder: @retroactive Comparable {
-	public static func < (lhs: SushitrainFolder, rhs: SushitrainFolder) -> Bool {
-		return lhs.displayName < rhs.displayName
-	}
-}
-
-extension SushitrainPeer: @retroactive Comparable {
-	// Sort peers by display name, when there is a tie sort by the device ID (always unique)
-	public static func < (lhs: SushitrainPeer, rhs: SushitrainPeer) -> Bool {
-		let a = lhs.displayName
-		let b = rhs.displayName
-		if a == b {
-			return lhs.deviceID() < rhs.deviceID()
-		}
-		return a < b
-	}
-}
-
-extension SushitrainEntry: @retroactive Comparable {
-	public static func < (lhs: SushitrainEntry, rhs: SushitrainEntry) -> Bool {
-		return lhs.path() < rhs.path()
-	}
-}
-
-extension SushitrainEntry: @retroactive Identifiable {
-	public var id: String {
-		return (self.folder?.folderID ?? "") + ":" + self.path()
-	}
-}
-
-extension SushitrainPeer: @retroactive Identifiable {
-	public var id: String {
-		return self.deviceID()
-	}
-}
-
-extension SushitrainFolder: @retroactive Identifiable {
-	public var id: String {
-		return self.folderID
-	}
-}
-
-extension SushitrainChange: @retroactive Identifiable {
-}
-
-extension SushitrainChange {
-	var systemImage: String {
-		switch self.action {
-		case "deleted":
-			return "trash"
-
-		case "modified":
-			fallthrough
-
-		default:
-			return "pencil.circle"
-		}
-	}
-}
-
-import SwiftUI
-import Combine
-struct BackgroundSyncRun: Codable, Equatable {
-	var started: Date
-	var ended: Date?
-
-	var asString: String {
-		if let ended = self.ended {
-			return "\(self.started.formatted()) - \(ended.formatted())"
-		}
-		return self.started.formatted()
-	}
-}
-
-final class PublisherObservableObject: ObservableObject {
-
-	var subscriber: AnyCancellable?
-
-	init(publisher: AnyPublisher<Void, Never>) {
-		subscriber = publisher.sink(receiveValue: { [weak self] _ in
-			self?.objectWillChange.send()
-		})
 	}
 }
 
@@ -250,6 +167,21 @@ extension SushitrainFolder {
 			}
 		}
 		return entries.sorted()
+	}
+}
+
+extension SushitrainChange {
+	var systemImage: String {
+		switch self.action {
+		case "deleted":
+			return "trash"
+
+		case "modified":
+			fallthrough
+
+		default:
+			return "pencil.circle"
+		}
 	}
 }
 
@@ -384,6 +316,138 @@ extension SushitrainEntry {
 			return available
 		}
 		return false
+	}
+
+	// Shared functionality for swipe and toggle selection views
+	var isSelectionToggleAvailable: Bool {
+		if let folder = self.folder {
+			return folder.isSelective()
+		}
+		return false
+	}
+
+	// First check to see if this action should be disabled
+	var isSelectionToggleShallowDisabled: Bool {
+		if self.isSymlink() {
+			return true
+		}
+		if let folder = self.folder {
+			return !folder.isSelective() || !folder.isIdleOrSyncing
+		}
+		return true
+	}
+
+	// Returns error message on fail
+	func setSelectedFromToggle(s: Bool) async -> String? {
+		do {
+			if !self.isSelectionToggleShallowDisabled {
+				// Check some additional things
+				let isExplicitlySelected = self.isExplicitlySelected()
+				if self.isSelected() && !isExplicitlySelected {
+					// File is implicitly selected, do not allow changes
+					return String(
+						localized:
+							"The synchronization setting for this item cannot be changed, because it is inside a subdirectory that is configured to be kept on this device."
+					)
+				}
+
+				if !s {
+					let isLocalOnlyCopy = try await self.isLocalOnlyCopy()
+					if isLocalOnlyCopy {
+						// We are the only remaining copy, can't deselect
+						return String(
+							localized:
+								"The synchronization setting for this item cannot be changed, as the local copy is the only copy currently available."
+						)
+					}
+				}
+
+				// We can change the selection status
+				try self.setExplicitlySelected(s)
+			}
+			else {
+				if self.isSymlink() {
+					return String(
+						localized: "The synchronization setting for symlinks cannot be changed."
+					)
+				}
+				else if let f = self.folder, !f.isSelective() {
+					return String(
+						localized: "The folder is not configured for selective synchronization."
+					)
+				}
+				else {
+					return String(
+						localized: "Wait until the folder is done synchronizing and try again.")
+				}
+
+			}
+		}
+		catch {
+			return String(
+				localized:
+					"The synchronization setting for this item could not be changed: \(error.localizedDescription)."
+			)
+		}
+
+		return nil
+	}
+}
+
+extension SushitrainFolder: @retroactive Comparable {
+	public static func < (lhs: SushitrainFolder, rhs: SushitrainFolder) -> Bool {
+		return lhs.displayName < rhs.displayName
+	}
+}
+
+extension SushitrainPeer: @retroactive Comparable {
+	// Sort peers by display name, when there is a tie sort by the device ID (always unique)
+	public static func < (lhs: SushitrainPeer, rhs: SushitrainPeer) -> Bool {
+		let a = lhs.displayName
+		let b = rhs.displayName
+		if a == b {
+			return lhs.deviceID() < rhs.deviceID()
+		}
+		return a < b
+	}
+}
+
+extension SushitrainEntry: @retroactive Comparable {
+	public static func < (lhs: SushitrainEntry, rhs: SushitrainEntry) -> Bool {
+		return lhs.path() < rhs.path()
+	}
+}
+
+extension SushitrainEntry: @retroactive Identifiable {
+	public var id: String {
+		return (self.folder?.folderID ?? "") + ":" + self.path()
+	}
+}
+
+extension SushitrainPeer: @retroactive Identifiable {
+	public var id: String {
+		return self.deviceID()
+	}
+}
+
+extension SushitrainFolder: @retroactive Identifiable {
+	public var id: String {
+		return self.folderID
+	}
+}
+
+extension SushitrainChange: @retroactive Identifiable {
+}
+
+struct BackgroundSyncRun: Codable, Equatable {
+	var started: Date
+	var ended: Date?
+
+	var asString: String {
+		if let ended = self.ended {
+			return "\(self.started.formatted()) - \(ended.formatted())"
+		}
+		return self.started.formatted()
 	}
 }
 
