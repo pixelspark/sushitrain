@@ -132,7 +132,7 @@ struct FileView: View {
 								}
 							}
 						}
-						else {
+						else if !self.file.isLocallyPresent() {
 							if self.folder.connectedPeerCount() == 0 {
 								Text(
 									"When you select this file, it will not become immediately available on this device, because there are no other devices connected to download the file from."
