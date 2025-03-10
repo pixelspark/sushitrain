@@ -21,6 +21,10 @@ func (peer *Peer) DeviceID() string {
 	return peer.deviceID.String()
 }
 
+func (peer *Peer) ShortDeviceID() string {
+	return peer.deviceID.Short().String()
+}
+
 type Date struct {
 	time time.Time
 }

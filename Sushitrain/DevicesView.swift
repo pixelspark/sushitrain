@@ -156,6 +156,7 @@ private struct DevicesListView: View {
 
 #if os(macOS)
 	private enum GridViewStyle: String {
+		case simple = "simple"
 		case sharing = "sharing"
 		case percentageOfGlobal = "percentageOfGlobal"
 		case needBytes = "needBytes"
@@ -169,7 +170,11 @@ private struct DevicesListView: View {
 		@State private var transpose = false
 		@State private var selectedPeers = Set<SushitrainPeer.ID>()
 		@State private var selectedFolders = Set<SushitrainFolder.ID>()
-		@State private var viewStyle: GridViewStyle = .sharing
+		@State private var viewStyle: GridViewStyle = .simple
+		@State private var openedDevice: SushitrainPeer? = nil
+
+		@SceneStorage("DeviceTableViewConfig") private var columnCustomization:
+			TableColumnCustomization<SushitrainPeer>
 
 		var body: some View {
 			ZStack {
@@ -177,7 +182,7 @@ private struct DevicesListView: View {
 					ProgressView()
 				}
 				else {
-					if self.transpose {
+					if self.transpose && self.viewStyle != .simple {
 						Table(self.folders, selection: $selectedFolders) {
 							TableColumn("Folder") { folder in
 								Label(folder.displayName, systemImage: "folder")
@@ -196,7 +201,10 @@ private struct DevicesListView: View {
 						}
 					}
 					else {
-						Table(self.peers, selection: $selectedPeers) {
+						Table(
+							self.peers, selection: $selectedPeers,
+							columnCustomization: $columnCustomization
+						) {
 							TableColumn("Device") { peer in
 								Label(peer.displayName, systemImage: peer.systemImage)
 									.contextMenu {
@@ -209,18 +217,55 @@ private struct DevicesListView: View {
 										}
 									}
 							}
-							.width(ideal: 100)
+							.width(ideal: self.viewStyle == .simple ? 200 : 100)
+							.defaultVisibility(.visible)
+							.customizationID("deviceName")
 
-							TableColumnForEach(self.folders) { folder in
-								TableColumn(folder.displayName) { device in
-									DevicesGridCellView(
-										appState: appState, device: device,
-										folder: folder, viewStyle: viewStyle)
+							if viewStyle == .simple {
+								TableColumn("Short device ID") { peer in
+									Text(peer.shortDeviceID()).monospaced()
 								}
 								.width(ideal: 50)
-								.alignment(.center)
+								.defaultVisibility(.automatic)
+								.customizationID("shortID")
+
+								TableColumn("Device ID") { peer in
+									Text(peer.deviceID()).monospaced()
+								}
+								.width(ideal: 520)
+								.defaultVisibility(.hidden)
+								.customizationID("longID")
+							}
+
+							if viewStyle != .simple {
+								TableColumnForEach(self.folders) { folder in
+									TableColumn(folder.displayName) { device in
+										DevicesGridCellView(
+											appState: appState,
+											device: device,
+											folder: folder,
+											viewStyle: viewStyle)
+									}
+									.width(ideal: 50)
+									.alignment(.center)
+								}
 							}
 						}
+						.contextMenu(
+							forSelectionType: SushitrainPeer.ID.self,
+							menu: { items in
+								Text("\(items.count) selected")
+							}, primaryAction: self.doubleClick
+						)
+						.navigationDestination(
+							isPresented: Binding(
+								get: { self.openedDevice != nil },
+								set: {
+									self.openedDevice = $0 ? self.openedDevice : nil
+								}),
+							destination: {
+								self.nextView()
+							})
 					}
 				}
 			}
@@ -228,20 +273,43 @@ private struct DevicesListView: View {
 				self.update()
 			}
 			.toolbar {
-				ToolbarItemGroup(placement: .status) {
-					Picker("View as", selection: $viewStyle) {
-						Text("Sharing").tag(GridViewStyle.sharing)
-						Text("Completion").tag(GridViewStyle.percentageOfGlobal)
-						Text("Remaining").tag(GridViewStyle.needBytes)
-					}
-					.pickerStyle(.segmented)
-				}
+				ToolbarItemGroup(placement: .primaryAction) {
+					Menu {
+						Picker("Show details", selection: $viewStyle) {
+							Text("Device information").tag(GridViewStyle.simple)
+							Text("Shared folders").tag(GridViewStyle.sharing)
+							Text("Completion").tag(GridViewStyle.percentageOfGlobal)
+							Text("Remaining").tag(GridViewStyle.needBytes)
+						}.pickerStyle(.inline)
 
-				ToolbarItem(placement: .status) {
-					Toggle(isOn: $transpose) {
-						Label("Switch rows/columns", systemImage: "rotate.right")
+						Divider()
+
+						Toggle(isOn: $transpose) {
+							Label("Switch rows/columns", systemImage: "rotate.right")
+						}.disabled(viewStyle == .simple)
+
+					} label: {
+						Label("Show details", systemImage: "slider.vertical.3")
 					}
 				}
+			}
+		}
+
+		@ViewBuilder private func nextView() -> some View {
+			if let device = self.openedDevice {
+				DeviceView(device: device, appState: appState)
+			}
+			else {
+				EmptyView()
+			}
+		}
+
+		private func doubleClick(_ items: Set<SushitrainEntry.ID>) {
+			if let itemID = items.first,
+				let device = self.peers.first(where: { $0.id == itemID }),
+				items.count == 1
+			{
+				self.openedDevice = device
 			}
 		}
 
@@ -267,6 +335,8 @@ private struct DevicesListView: View {
 		var body: some View {
 			HStack {
 				switch viewStyle {
+				case .simple:
+					EmptyView()  // Not reached
 				case .sharing:
 					Toggle(
 						isOn: Binding(
