@@ -5,57 +5,6 @@
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 import SwiftUI
 @preconcurrency import SushitrainCore
-import CoreImage
-import CoreImage.CIFilterBuiltins
-
-private struct QRView: View {
-	private var text: String
-	#if os(iOS)
-		@State private var image: UIImage? = nil
-	#elseif os(macOS)
-		@State private var image: NSImage? = nil
-	#endif
-
-	init(text: String) {
-		self.text = text
-	}
-
-	var body: some View {
-		ZStack {
-			if let image = image {
-				#if os(iOS)
-					Image(uiImage: image)
-						.resizable()
-						.frame(width: 200, height: 200)
-				#elseif os(macOS)
-					Image(nsImage: image)
-						.resizable()
-						.frame(width: 200, height: 200)
-				#endif
-			}
-			else {
-				ProgressView()
-			}
-		}
-		.navigationTitle("Device ID")
-		#if os(iOS)
-			.navigationBarTitleDisplayMode(.inline)
-		#endif
-		.onAppear {
-			let filter = CIFilter.qrCodeGenerator()
-			let data = text.data(using: .ascii, allowLossyConversion: false)!
-			filter.message = data
-			let ciimage = filter.outputImage!
-			let transform = CGAffineTransform(scaleX: 10, y: 10)
-			let scaledCIImage = ciimage.transformed(by: transform)
-			#if os(iOS)
-				image = UIImage(data: UIImage(ciImage: scaledCIImage).pngData()!)
-			#elseif os(macOS)
-				image = NSImage.fromCIImage(scaledCIImage)
-			#endif
-		}
-	}
-}
 
 #if os(iOS)
 	private struct WaitView: View {
@@ -141,37 +90,6 @@ private struct QRView: View {
 		}
 	}
 #endif
-
-private struct ResolvedAddressesView: View {
-	@ObservedObject var appState: AppState
-
-	var body: some View {
-		List {
-			ForEach(Array(self.appState.resolvedListenAddresses), id: \.self) { addr in
-				Text(addr).contextMenu {
-					Button(action: {
-						#if os(iOS)
-							UIPasteboard.general.string = addr
-						#endif
-
-						#if os(macOS)
-							let pasteboard = NSPasteboard.general
-							pasteboard.clearContents()
-							pasteboard.prepareForNewContents()
-							pasteboard.setString(addr, forType: .string)
-						#endif
-					}) {
-						Text("Copy to clipboard")
-						Image(systemName: "doc.on.doc")
-					}
-				}
-			}
-		}
-		#if os(macOS)
-			.frame(minHeight: 320)
-		#endif
-	}
-}
 
 private struct OverallDownloadProgressView: View {
 	@ObservedObject var appState: AppState
@@ -343,43 +261,9 @@ struct StartView: View {
 			}
 
 			Section(header: Text("This device's identifier")) {
-				Label(self.appState.localDeviceID, systemImage: "qrcode")
-					.monospaced()
-					.onTapGesture {
-						qrCodeShown = true
-					}
-					.contextMenu {
-						Button(action: {
-							#if os(iOS)
-								UIPasteboard.general.string =
-									self.appState.localDeviceID
-							#endif
-
-							#if os(macOS)
-								let pasteboard = NSPasteboard.general
-								pasteboard.clearContents()
-								pasteboard.prepareForNewContents()
-								pasteboard.setString(
-									self.appState.localDeviceID, forType: .string)
-							#endif
-						}) {
-							Text("Copy to clipboard")
-							Image(systemName: "doc.on.doc")
-						}
-
-						Button(action: {
-							qrCodeShown = true
-						}) {
-							Text("Show QR code")
-							Image(systemName: "qrcode")
-						}
-
-						Button(action: {
-							self.showAddresses = true
-						}) {
-							Text("Show addresses")
-						}
-					}
+				DeviceIDView(
+					appState: self.appState,
+					device: self.appState.client.peer(withID: self.appState.localDeviceID)!)
 			}
 
 			// Getting started
@@ -484,38 +368,6 @@ struct StartView: View {
 				}
 			}
 		#endif
-		.sheet(isPresented: $showAddresses) {
-			NavigationStack {
-				ResolvedAddressesView(appState: appState)
-					.navigationTitle("Addresses")
-					.toolbar(content: {
-						ToolbarItem(
-							placement: .confirmationAction,
-							content: {
-								Button("Done") {
-									self.showAddresses = false
-								}
-							})
-					})
-			}
-		}
-		.sheet(
-			isPresented: $qrCodeShown,
-			content: {
-				NavigationStack {
-					QRView(text: self.appState.localDeviceID)
-						.toolbar(content: {
-							ToolbarItem(
-								placement: .confirmationAction,
-								content: {
-									Button("Done") {
-										self.qrCodeShown = false
-									}
-								})
-						})
-				}
-			}
-		)
 		#if os(iOS)
 			.fullScreenCover(isPresented: $showWaitScreen) {
 				WaitView(appState: appState, isPresented: $showWaitScreen)

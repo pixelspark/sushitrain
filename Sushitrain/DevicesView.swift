@@ -248,6 +248,24 @@ struct DevicesView: View {
 								.customizationID("deviceName")
 
 								if viewStyle == .simple {
+									// Identicon
+									TableColumn("Fingerprint") {
+										(row: DevicesGridRow) in
+										switch row {
+										case .connectedDevice(let peer):
+											IdenticonView(
+												deviceID:
+													peer.deviceID()
+											).padding(5)
+										case .discoveredDevice(let s):
+											IdenticonView(deviceID: s)
+												.padding(5)
+										}
+									}
+									.width(min: 25, ideal: 25, max: 125)
+									.defaultVisibility(.hidden)
+									.customizationID("fingerprint")
+
 									// Short device ID
 									TableColumn("Short device ID") {
 										(row: DevicesGridRow) in
@@ -321,7 +339,7 @@ struct DevicesView: View {
 												else {
 													EmptyView()
 												}
-											case .discoveredDevice(let s):
+											case .discoveredDevice(_):
 												EmptyView()
 											}
 										}
@@ -353,7 +371,7 @@ struct DevicesView: View {
 												) {
 													EmptyView()
 												}
-											case .discoveredDevice(let s):
+											case .discoveredDevice(_):
 												EmptyView()
 											}
 										}
@@ -385,7 +403,7 @@ struct DevicesView: View {
 												) {
 													EmptyView()
 												}
-											case .discoveredDevice(let s):
+											case .discoveredDevice(_):
 												EmptyView()
 											}
 										}
@@ -417,7 +435,7 @@ struct DevicesView: View {
 												) {
 													EmptyView()
 												}
-											case .discoveredDevice(let s):
+											case .discoveredDevice(_):
 												EmptyView()
 											}
 										}

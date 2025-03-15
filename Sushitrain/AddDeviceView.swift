@@ -22,12 +22,19 @@ struct AddDeviceView: View {
 		NavigationStack {
 			Form {
 				Section("Device identifier") {
-					TextField("", text: $deviceID, prompt: Text("XXXX-XXXX"), axis: .vertical)
+					HStack {
+						IdenticonView(deviceID: deviceID).frame(width: 50)
+
+						TextField(
+							"", text: $deviceID, prompt: Text("XXXX-XXXX"), axis: .vertical
+						)
 						.focused($idFieldFocus)
 						#if os(iOS)
 							.textInputAutocapitalization(.never)
 						#endif
 						.foregroundColor(SushitrainIsValidDeviceID(deviceID) ? .green : .red)
+
+					}
 
 					#if os(iOS)
 						if DataScannerViewController.isSupported

@@ -73,12 +73,18 @@ struct DeviceView: View {
 					Text("Display name")
 				}
 
+				Section("Device ID") {
+					DeviceIDView(appState: self.appState, device: device)
+				}
+
 				Section {
 					Toggle(
 						"Enabled",
 						isOn: Binding(
 							get: { !device.isPaused() },
 							set: { active in try? device.setPaused(!active) }))
+				} header: {
+					Text("Device settings")
 				} footer: {
 					Text("If a device is not enabled, synchronization with this device is paused.")
 				}
@@ -93,27 +99,6 @@ struct DeviceView: View {
 					Text(
 						"If a device is not trusted, an encryption password is required for each folder synchronized with the device."
 					)
-				}
-
-				Section("Device ID") {
-					Label(device.deviceID(), systemImage: "qrcode").contextMenu {
-						Button(action: {
-							#if os(iOS)
-								UIPasteboard.general.string = device.deviceID()
-							#endif
-
-							#if os(macOS)
-								let pasteboard = NSPasteboard.general
-								pasteboard.clearContents()
-								pasteboard.prepareForNewContents()
-								pasteboard.setString(
-									device.deviceID(), forType: .string)
-							#endif
-						}) {
-							Text("Copy to clipboard")
-							Image(systemName: "doc.on.doc")
-						}
-					}.monospaced()
 				}
 
 				Section {
