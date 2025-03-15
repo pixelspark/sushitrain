@@ -119,7 +119,7 @@ func (entry *Entry) MaterializeSubdirectory() error {
 		return errors.New("entry is not a directory or was deleted")
 	}
 
-	ffs := fc.Filesystem(nil)
+	ffs := fc.Filesystem()
 	nativeFilename := osutil.NativeFilename(entry.info.FileName())
 	mode := fs.FileMode(entry.info.Permissions & 0o777)
 	if fc.IgnorePerms || entry.info.NoPermissions {
@@ -145,7 +145,7 @@ func (entry *Entry) IsLocallyPresent() bool {
 		return false
 	}
 
-	ffs := fc.Filesystem(nil)
+	ffs := fc.Filesystem()
 	nativeFilename := osutil.NativeFilename(entry.info.FileName())
 	_, err := ffs.Stat(nativeFilename)
 	return err == nil
