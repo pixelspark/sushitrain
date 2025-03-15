@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"iter"
 	"net/url"
 	"os"
 	"path"
@@ -22,7 +23,6 @@ import (
 
 	"github.com/syncthing/syncthing/lib/build"
 	"github.com/syncthing/syncthing/lib/config"
-	"github.com/syncthing/syncthing/lib/db/backend"
 	"github.com/syncthing/syncthing/lib/events"
 	"github.com/syncthing/syncthing/lib/locations"
 	"github.com/syncthing/syncthing/lib/logger"
@@ -35,7 +35,6 @@ import (
 
 type Client struct {
 	app                        *syncthing.App
-	backend                    backend.Backend
 	cancel                     context.CancelFunc
 	cert                       tls.Certificate
 	config                     config.Wrapper
@@ -191,8 +190,14 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 	}
 
 	// Load database
-	dbFile := locations.Get(locations.Database)
-	ldb, err := syncthing.OpenDBBackend(dbFile, config.Options().DatabaseTuning)
+	dbPath := locations.Get(locations.Database)
+	legacyDBPath := locations.Get(locations.LegacyDatabase)
+	// ldb, err := syncthing.OpenDBBackend(dbFile, config.Options().DatabaseTuning)
+	// if err != nil {
+	// 	cancel()
+	// 	return nil, err
+	// }
+	sdb, err := syncthing.OpenDatabase(dbPath, legacyDBPath, evLogger)
 	if err != nil {
 		cancel()
 		return nil, err
@@ -207,7 +212,7 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 		DBIndirectGCInterval: 0,
 	}
 
-	app, err := syncthing.New(config, ldb, evLogger, cert, appOpts)
+	app, err := syncthing.New(config, sdb, evLogger, cert, appOpts)
 	if err != nil {
 		cancel()
 		return nil, err
@@ -225,7 +230,6 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 		config:                     config,
 		cancel:                     cancel,
 		ctx:                        ctx,
-		backend:                    ldb,
 		app:                        app,
 		evLogger:                   evLogger,
 		Server:                     server,
@@ -1063,13 +1067,17 @@ func (clt *Client) Statistics() (*FolderStats, error) {
 	localTotal := FolderCounts{}
 
 	for _, folder := range clt.config.FolderList() {
-		snap, err := clt.app.Internals.DBSnapshot(folder.ID)
+		globalFolderSize, err := clt.app.Internals.GlobalSize(folder.ID)
 		if err != nil {
 			return nil, err
 		}
-		defer snap.Release()
-		globalTotal.add(newFolderCounts(snap.GlobalSize()))
-		localTotal.add(newFolderCounts(snap.LocalSize()))
+		localFolderSize, err := clt.app.Internals.LocalSize(folder.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		globalTotal.add(newFolderCounts(globalFolderSize))
+		localTotal.add(newFolderCounts(localFolderSize))
 	}
 
 	return &FolderStats{
@@ -1081,6 +1089,22 @@ func (clt *Client) Statistics() (*FolderStats, error) {
 type SearchResultDelegate interface {
 	Result(entry *Entry)
 	IsCancelled() bool
+}
+
+// Zip interleaves the iterator value with the error. The iteration ends
+// after a non-nil error.
+func zipError[T any](it iter.Seq[T], errFn func() error) iter.Seq2[T, error] {
+	return func(yield func(T, error) bool) {
+		for v := range it {
+			if !yield(v, nil) {
+				break
+			}
+		}
+		if err := errFn(); err != nil {
+			var zero T
+			yield(zero, err)
+		}
+	}
 }
 
 /*
@@ -1105,42 +1129,34 @@ func (clt *Client) Search(text string, delegate SearchResultDelegate, maxResults
 			FolderID: folder.ID,
 		}
 
-		snap, err := clt.app.Internals.DBSnapshot(folder.ID)
-		if err != nil {
-			return err
-		}
-		defer snap.Release()
+		for f, err := range zipError(clt.app.Internals.AllGlobalFiles(folder.ID)) {
+			if err != nil {
+				return err
+			}
 
-		snap.WithGlobal(func(f protocol.FileInfo) bool {
 			if delegate.IsCancelled() {
 				// This shouild cancel the scan
-				return false
+				break
 			}
 
 			gimmeMore := maxResults <= 0 || resultCount < maxResults
 
 			// Check prefix
-			if !strings.HasPrefix(f.FileName(), prefix) {
-				return gimmeMore
+			if !strings.HasPrefix(f.Name, prefix) {
+				continue
 			}
 
-			pathParts := strings.Split(f.FileName(), "/")
+			pathParts := strings.Split(f.Name, "/")
 			lowerFileName := strings.ToLower(pathParts[len(pathParts)-1])
 
-			if gimmeMore && !f.IsDeleted() && strings.Contains(lowerFileName, text) {
-				entry := &Entry{
-					Folder: &folderObject,
-					info:   f,
-				}
-
+			if gimmeMore && !f.Deleted && strings.Contains(lowerFileName, text) {
+				entry, err := folderObject.GetFileInformation(f.Name)
 				if err == nil {
 					resultCount += 1
 					delegate.Result(entry)
 				}
 			}
-
-			return gimmeMore
-		})
+		}
 	}
 	return nil
 }
