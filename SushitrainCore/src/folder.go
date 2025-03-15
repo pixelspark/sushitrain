@@ -131,7 +131,7 @@ func (fld *Folder) filesystem() (fs.Filesystem, error) {
 	if fc == nil {
 		return nil, errors.New("folder does not exist")
 	}
-	return fc.Filesystem(nil), nil
+	return fc.Filesystem(), nil
 }
 
 func (fld *Folder) Remove() error {
@@ -617,7 +617,7 @@ func (fld *Folder) LocalNativePath() (string, error) {
 	}
 
 	// This is a bit of a hack, according to similar code in model.warnAboutOverwritingProtectedFiles :-)
-	ffs := fld.folderConfiguration().Filesystem(nil)
+	ffs := fld.folderConfiguration().Filesystem()
 	if ffs.Type() != fs.FilesystemTypeBasic {
 		return "", errors.New("unsupported FS type")
 	}
@@ -630,7 +630,7 @@ func (fld *Folder) loadIgnores() (*ignore.Matcher, error) {
 		return nil, errors.New("folder does not exist")
 	}
 
-	ffs := cfg.Filesystem(nil)
+	ffs := cfg.Filesystem()
 	stat, statErr := ffs.Lstat(ignoreFileName)
 
 	// If we have a matcher cached and the 'last modified time' matches, assume it's the same
@@ -640,7 +640,7 @@ func (fld *Folder) loadIgnores() (*ignore.Matcher, error) {
 		}
 	}
 
-	ignores := ignore.New(cfg.Filesystem(nil), ignore.WithCache(false))
+	ignores := ignore.New(cfg.Filesystem(), ignore.WithCache(false))
 	if err := ignores.Load(ignoreFileName); err != nil && !fs.IsNotExist(err) {
 		return nil, err
 	}
@@ -687,7 +687,7 @@ func (fld *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 
 	extraFiles := make([]string, 0)
 
-	ffs := fld.folderConfiguration().Filesystem(nil)
+	ffs := fld.folderConfiguration().Filesystem()
 	foundOneError := errors.New("found one")
 	err = ffs.Walk("", func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
@@ -755,7 +755,7 @@ func (fld *Folder) CleanSelection() error {
 		if fc == nil {
 			return errors.New("folder does not exist")
 		}
-		ffs := fc.Filesystem(nil)
+		ffs := fc.Filesystem()
 		return ffs.Walk("", func(path string, info fs.FileInfo, err error) error {
 			if strings.HasPrefix(path, cfg.MarkerName) {
 				return nil
@@ -811,7 +811,7 @@ func (fld *Folder) RemoveSuperfluousSelectionEntries() error {
 		return errors.New("invalid folder state")
 	}
 
-	ffs := fc.Filesystem(nil)
+	ffs := fc.Filesystem()
 
 	// Enumerate selection entries, find out if we need them
 	selection.FilterSelectedPaths(func(path string) bool {
@@ -851,7 +851,7 @@ func (fld *Folder) RemoveSuperfluousSubdirectories() error {
 		return errors.New("Folder is not selective")
 	}
 
-	ffs := fld.folderConfiguration().Filesystem(nil)
+	ffs := fld.folderConfiguration().Filesystem()
 	return fld.removeRedundantChildren(ffs, "", true)
 }
 
@@ -939,7 +939,7 @@ func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string, direc
 // If `path` points to a file, remove it. If `path` points to a subdirectory, delete children that we are reasonably sure
 // are also on other devices, then try to remove the subdirectory if empty. Finally, remove any empty parent directories.
 func (fld *Folder) deleteLocalFileAndRedundantChildren(path string) error {
-	ffs := fld.folderConfiguration().Filesystem(nil)
+	ffs := fld.folderConfiguration().Filesystem()
 
 	stat, err := ffs.Lstat(path)
 	if err != nil {
