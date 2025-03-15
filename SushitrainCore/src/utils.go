@@ -9,8 +9,8 @@ import (
 	"mime"
 	"strings"
 
-	"github.com/syncthing/syncthing/lib/db"
 	"github.com/syncthing/syncthing/lib/logger"
+	"github.com/syncthing/syncthing/lib/syncthing"
 )
 
 var (
@@ -191,7 +191,7 @@ type FolderStats struct {
 	LocalNeed *FolderCounts
 }
 
-func newFolderCounts(from db.Counts) *FolderCounts {
+func newFolderCounts(from syncthing.Counts) *FolderCounts {
 	return &FolderCounts{
 		Bytes:       from.Bytes,
 		Files:       from.Files,
