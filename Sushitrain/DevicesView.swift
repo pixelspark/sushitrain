@@ -240,13 +240,15 @@ struct DevicesView: View {
 									}
 								}
 								.width(
+									min: 100,
 									ideal: self.viewStyle == .simple ? 200 : 100,
-									max: 200
+									max: 500
 								)
 								.defaultVisibility(.visible)
 								.customizationID("deviceName")
 
 								if viewStyle == .simple {
+									// Short device ID
 									TableColumn("Short device ID") {
 										(row: DevicesGridRow) in
 										switch row {
@@ -258,10 +260,11 @@ struct DevicesView: View {
 												.monospaced()
 										}
 									}
-									.width(ideal: 50)
+									.width(min: 80, ideal: 100)
 									.defaultVisibility(.automatic)
 									.customizationID("shortID")
 
+									// Long device ID
 									TableColumn("Device ID") {
 										(row: DevicesGridRow) in
 										switch row {
@@ -272,9 +275,180 @@ struct DevicesView: View {
 											Text(s).monospaced()
 										}
 									}
-									.width(ideal: 520)
+									.width(min: 100, ideal: 520)
 									.defaultVisibility(.hidden)
 									.customizationID("longID")
+
+									// Last seen device address
+									TableColumn("Last address") {
+										(row: DevicesGridRow) in
+										switch row {
+										case .connectedDevice(let peer):
+											Text(
+												self.appState.client
+													.getLastPeerAddress(
+														peer
+															.deviceID()
+													)
+											).monospaced()
+										case .discoveredDevice(let s):
+											Text(
+												self.appState.client
+													.getLastPeerAddress(
+														s)
+											).monospaced()
+										}
+									}
+									.width(min: 100, ideal: 200)
+									.defaultVisibility(.hidden)
+									.customizationID("lastAddress")
+
+									Group {
+										// Introduced by
+										TableColumn("Introduced by") {
+											(row: DevicesGridRow) in
+											switch row {
+											case .connectedDevice(let peer):
+												if let introducedBy =
+													peer
+													.introducedBy()
+												{
+													Text(
+														introducedBy
+															.displayName
+													)
+												}
+												else {
+													EmptyView()
+												}
+											case .discoveredDevice(let s):
+												EmptyView()
+											}
+										}
+										.width(min: 100, ideal: 200)
+										.defaultVisibility(.hidden)
+										.customizationID("introducedBy")
+
+										// Trusted
+										TableColumn("Trusted") {
+											(row: DevicesGridRow) in
+											switch row {
+											case .connectedDevice(
+												let device):
+												Toggle(
+													isOn: Binding(
+														get: {
+															!device
+																.isUntrusted()
+														},
+														set: {
+															trusted
+															in
+															try?
+																device
+																.setUntrusted(
+																	!trusted
+																)
+														})
+												) {
+													EmptyView()
+												}
+											case .discoveredDevice(let s):
+												EmptyView()
+											}
+										}
+										.width(min: 50, ideal: 50, max: 50)
+										.defaultVisibility(.hidden)
+										.customizationID("trusted")
+
+										// Enabled
+										TableColumn("Enabled") {
+											(row: DevicesGridRow) in
+											switch row {
+											case .connectedDevice(
+												let device):
+												Toggle(
+													isOn: Binding(
+														get: {
+															!device
+																.isPaused()
+														},
+														set: {
+															active
+															in
+															try?
+																device
+																.setPaused(
+																	!active
+																)
+														})
+												) {
+													EmptyView()
+												}
+											case .discoveredDevice(let s):
+												EmptyView()
+											}
+										}
+										.width(min: 50, ideal: 50, max: 50)
+										.defaultVisibility(.hidden)
+										.customizationID("enabled")
+
+										// Introducer
+										TableColumn("Introducer") {
+											(row: DevicesGridRow) in
+											switch row {
+											case .connectedDevice(
+												let device):
+												Toggle(
+													isOn: Binding(
+														get: {
+															device
+																.isIntroducer()
+														},
+														set: {
+															trusted
+															in
+															try?
+																device
+																.setIntroducer(
+																	trusted
+																)
+														})
+												) {
+													EmptyView()
+												}
+											case .discoveredDevice(let s):
+												EmptyView()
+											}
+										}
+										.width(min: 50, ideal: 50, max: 50)
+										.defaultVisibility(.hidden)
+										.customizationID("introducer")
+
+										// Last seen
+										TableColumn("Last seen") {
+											(row: DevicesGridRow) in
+											switch row {
+											case .connectedDevice(
+												let device):
+												if let lastSeen =
+													device.lastSeen(),
+													!lastSeen.isZero()
+												{
+													Text(
+														lastSeen
+															.date()
+															.formatted()
+													)
+												}
+											case .discoveredDevice(_):
+												EmptyView()
+											}
+										}
+										.width(min: 100, ideal: 150)
+										.defaultVisibility(.hidden)
+										.customizationID("lastSeen")
+									}
 								}
 
 								if viewStyle != .simple {
