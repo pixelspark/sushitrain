@@ -1108,16 +1108,26 @@ func (fld *Folder) Statistics() (*FolderStats, error) {
 		return nil, ErrStillLoading
 	}
 
-	snap, err := fld.client.app.Internals.DBSnapshot(fld.FolderID)
+	internals := fld.client.app.Internals
+	globalSize, err := internals.GlobalSize(fld.FolderID)
 	if err != nil {
 		return nil, err
 	}
-	defer snap.Release()
+
+	localSize, err := internals.LocalSize(fld.FolderID)
+	if err != nil {
+		return nil, err
+	}
+
+	needSize, err := internals.NeedSize(fld.FolderID, protocol.LocalDeviceID)
+	if err != nil {
+		return nil, err
+	}
 
 	return &FolderStats{
-		Global:    newFolderCounts(snap.GlobalSize()),
-		Local:     newFolderCounts(snap.LocalSize()),
-		LocalNeed: newFolderCounts(snap.NeedSize(fld.client.deviceID())),
+		Global:    newFolderCounts(globalSize),
+		Local:     newFolderCounts(localSize),
+		LocalNeed: newFolderCounts(needSize),
 	}, nil
 }
 
