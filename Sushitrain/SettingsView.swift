@@ -944,8 +944,7 @@ private struct BandwidthSettingsView: View {
 					}
 
 					#if os(iOS)
-						NavigationLink(destination: BackgroundSettingsView(appState: appState))
-						{
+						NavigationLink(destination: BackgroundSettingsView(appState: appState)) {
 							Text("Background synchronization").badge(
 								appState.longBackgroundSyncEnabled
 									|| appState.shortBackgroundSyncEnabled

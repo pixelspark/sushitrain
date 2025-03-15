@@ -17,8 +17,7 @@ struct BrowserTableView: View {
 	@State private var openedEntry: (SushitrainEntry, Bool)? = nil
 	@State private var sortOrder = [EntryComparator(order: .forward, sortBy: .name)]
 	@State private var entries: [SushitrainEntry] = []
-	@SceneStorage("BrowserTableViewConfig") private var columnCustomization:
-		TableColumnCustomization<SushitrainEntry>
+	@SceneStorage("BrowserTableViewConfig") private var columnCustomization: TableColumnCustomization<SushitrainEntry>
 
 	@Environment(\.openURL) private var openURL
 

@@ -704,8 +704,7 @@ extension PHAsset {
 		return result.originalFilename.replacingOccurrences(of: "/", with: "_")
 	}
 
-	fileprivate func directoryPathInFolder(structure: PhotoSyncFolderStructure, subdirectoryPath: String) -> String
-	{
+	fileprivate func directoryPathInFolder(structure: PhotoSyncFolderStructure, subdirectoryPath: String) -> String {
 		var inFolderURL = URL(fileURLWithPath: subdirectoryPath)
 
 		switch structure {
@@ -747,8 +746,7 @@ extension PHAsset {
 		return url.path(percentEncoded: false)
 	}
 
-	fileprivate func livePhotoPathInFolder(structure: PhotoSyncFolderStructure, subdirectoryPath: String) -> String
-	{
+	fileprivate func livePhotoPathInFolder(structure: PhotoSyncFolderStructure, subdirectoryPath: String) -> String {
 		let fileName = self.fileNameInFolder(structure: structure) + ".MOV"
 		let url = URL(
 			fileURLWithPath: self.livePhotoDirectoryPathInFolder(

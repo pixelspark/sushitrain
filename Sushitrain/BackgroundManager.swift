@@ -31,8 +31,7 @@ import BackgroundTasks
 			}
 			get {
 				if let encoded = UserDefaults.standard.data(forKey: "backgroundSyncRuns") {
-					if let runs = try? JSONDecoder().decode([BackgroundSyncRun].self, from: encoded)
-					{
+					if let runs = try? JSONDecoder().decode([BackgroundSyncRun].self, from: encoded) {
 						return runs
 					}
 				}

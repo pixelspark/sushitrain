@@ -23,8 +23,7 @@ struct ChangesView: View {
 									.foregroundColor(.gray)
 							}
 
-							if let peer = appState.client.peer(withShortID: change.shortID)
-							{
+							if let peer = appState.client.peer(withShortID: change.shortID) {
 								if peer.deviceID() == appState.localDeviceID {
 									Text("By this device").dynamicTypeSize(.small)
 										.foregroundColor(.gray)

@@ -39,8 +39,7 @@ struct DevicesView: View {
 							}
 							else {
 								ContentUnavailableView(
-									"No devices added yet",
-									systemImage: "externaldrive.badge.questionmark",
+									"No devices added yet", systemImage: "externaldrive.badge.questionmark",
 									description: Text(
 										"To synchronize files, first add a remote device. Either select a device from the list below, or add manually using the device ID."
 									))
@@ -50,28 +49,17 @@ struct DevicesView: View {
 					}
 					else {
 						ForEach(peers) { peer in
-							NavigationLink(
-								destination: DeviceView(
-									device: peer, appState: appState)
-							) {
+							NavigationLink(destination: DeviceView(device: peer, appState: appState)) {
 								if peer.isPaused() {
-									Label(
-										peer.displayName,
-										systemImage: "externaldrive.fill"
-									).foregroundStyle(.gray)
+									Label(peer.displayName, systemImage: "externaldrive.fill").foregroundStyle(.gray)
 								}
 								else {
-									Label(
-										peer.displayName,
-										systemImage: peer.systemImage)
+									Label(peer.displayName, systemImage: peer.systemImage)
 								}
 							}
-						}
-						.onDelete(perform: { indexSet in
+						}.onDelete(perform: { indexSet in
 							let p = peers
-							for idx in indexSet {
-								try? p[idx].remove()
-							}
+							for idx in indexSet { try? p[idx].remove() }
 						})
 					}
 				}
@@ -102,21 +90,11 @@ struct DevicesView: View {
 				}
 			}
 			#if os(iOS)
-				.toolbar {
-					if !peers.isEmpty {
-						EditButton()
-					}
-				}
+				.toolbar { if !peers.isEmpty { EditButton() } }
 			#endif
 			.sheet(isPresented: $showingAddDevicePopup) {
 				AddDeviceView(appState: appState, suggestedDeviceID: $addingDeviceID)
-			}
-			.task {
-				self.update()
-			}
-			.onChange(of: appState.eventCounter) {
-				self.update()
-			}
+			}.task { self.update() }.onChange(of: appState.eventCounter) { self.update() }
 		}
 
 		private func update() {
@@ -125,9 +103,7 @@ struct DevicesView: View {
 
 			// Discovered peers
 			let peerIDs = peers.map { $0.deviceID() }
-			self.discoveredNewDevices = Array(appState.discoveredDevices.keys).filter({ d in
-				!peerIDs.contains(d)
-			})
+			self.discoveredNewDevices = Array(appState.discoveredDevices.keys).filter({ d in !peerIDs.contains(d) })
 			self.loading = false
 		}
 	}
@@ -169,8 +145,7 @@ struct DevicesView: View {
 		@State private var discoveredNewDevices: [String] = []
 		@State private var confirmDeleteSelection = false
 
-		@SceneStorage("DeviceTableViewConfig") private var columnCustomization:
-			TableColumnCustomization<DevicesGridRow>
+		@SceneStorage("DeviceTableViewConfig") private var columnCustomization: TableColumnCustomization<DevicesGridRow>
 
 		var body: some View {
 			ZStack {
@@ -180,382 +155,172 @@ struct DevicesView: View {
 				else {
 					if self.transpose && self.viewStyle != .simple {
 						Table(self.folders, selection: $selectedFolders) {
-							TableColumn("Folder") { folder in
-								Label(folder.displayName, systemImage: "folder")
-							}
-							.width(ideal: 100)
+							TableColumn("Folder") { folder in Label(folder.displayName, systemImage: "folder") }.width(ideal: 100)
 
 							TableColumnForEach(self.peers) { peer in
 								TableColumn(peer.displayName) { folder in
-									DevicesGridCellView(
-										appState: appState, device: peer,
-										folder: folder, viewStyle: viewStyle)
-								}
-								.width(ideal: 50)
-								.alignment(.center)
+									DevicesGridCellView(appState: appState, device: peer, folder: folder, viewStyle: viewStyle)
+								}.width(ideal: 50).alignment(.center)
 							}
 						}
 					}
 					else {
 						Table(
-							of: DevicesGridRow.self,
-							selection: $selectedPeers,
-							columnCustomization: $columnCustomization,
+							of: DevicesGridRow.self, selection: $selectedPeers, columnCustomization: $columnCustomization,
 							columns: {
 								// Device name and label
 								TableColumn("Device") { (row: DevicesGridRow) in
 									switch row {
 									case .connectedDevice(let peer):
 										HStack {
-											Image(
-												systemName: peer
-													.systemImage
-											)
-											.foregroundStyle(
-												peer.displayColor)
-											Text(peer.displayName)
-												.foregroundStyle(
-													Color.primary)
+											Image(systemName: peer.systemImage).foregroundStyle(peer.displayColor)
+											Text(peer.displayName).foregroundStyle(Color.primary)
 											Spacer()
-										}
-										.frame(maxWidth: .infinity)
+										}.frame(maxWidth: .infinity)
 
 									case .discoveredDevice(let devID):
 										HStack {
-											Image(
-												systemName: "plus"
-											)
-											.foregroundStyle(
-												Color.accentColor)
+											Image(systemName: "plus").foregroundStyle(Color.accentColor)
 
-											Text(
-												SushitrainShortDeviceID(
-													devID)
-											).monospaced()
-												.foregroundStyle(
-													Color.primary)
+											Text(SushitrainShortDeviceID(devID)).monospaced().foregroundStyle(Color.primary)
 											Spacer()
-										}
-										.frame(maxWidth: .infinity)
+										}.frame(maxWidth: .infinity)
 									}
-								}
-								.width(
-									min: 100,
-									ideal: self.viewStyle == .simple ? 200 : 100,
-									max: 500
-								)
-								.defaultVisibility(.visible)
-								.customizationID("deviceName")
+								}.width(min: 100, ideal: self.viewStyle == .simple ? 200 : 100, max: 500).defaultVisibility(.visible)
+									.customizationID("deviceName")
 
 								if viewStyle == .simple {
 									// Identicon
-									TableColumn("Fingerprint") {
-										(row: DevicesGridRow) in
+									TableColumn("Fingerprint") { (row: DevicesGridRow) in
 										switch row {
-										case .connectedDevice(let peer):
-											IdenticonView(
-												deviceID:
-													peer.deviceID()
-											).padding(5)
-										case .discoveredDevice(let s):
-											IdenticonView(deviceID: s)
-												.padding(5)
+										case .connectedDevice(let peer): IdenticonView(deviceID: peer.deviceID()).padding(5)
+										case .discoveredDevice(let s): IdenticonView(deviceID: s).padding(5)
 										}
-									}
-									.width(min: 25, ideal: 25, max: 125)
-									.defaultVisibility(.hidden)
-									.customizationID("fingerprint")
+									}.width(min: 25, ideal: 25, max: 125).defaultVisibility(.hidden).customizationID("fingerprint")
 
 									// Short device ID
-									TableColumn("Short device ID") {
-										(row: DevicesGridRow) in
+									TableColumn("Short device ID") { (row: DevicesGridRow) in
 										switch row {
-										case .connectedDevice(let peer):
-											Text(peer.shortDeviceID())
-												.monospaced()
-										case .discoveredDevice(let s):
-											Text(SushitrainShortDeviceID(s))
-												.monospaced()
+										case .connectedDevice(let peer): Text(peer.shortDeviceID()).monospaced()
+										case .discoveredDevice(let s): Text(SushitrainShortDeviceID(s)).monospaced()
 										}
-									}
-									.width(min: 80, ideal: 100)
-									.defaultVisibility(.automatic)
-									.customizationID("shortID")
+									}.width(min: 80, ideal: 100).defaultVisibility(.automatic).customizationID("shortID")
 
 									// Long device ID
-									TableColumn("Device ID") {
-										(row: DevicesGridRow) in
+									TableColumn("Device ID") { (row: DevicesGridRow) in
 										switch row {
-										case .connectedDevice(let peer):
-											Text(peer.deviceID())
-												.monospaced()
-										case .discoveredDevice(let s):
-											Text(s).monospaced()
+										case .connectedDevice(let peer): Text(peer.deviceID()).monospaced()
+										case .discoveredDevice(let s): Text(s).monospaced()
 										}
-									}
-									.width(min: 100, ideal: 520)
-									.defaultVisibility(.hidden)
-									.customizationID("longID")
+									}.width(min: 100, ideal: 520).defaultVisibility(.hidden).customizationID("longID")
 
 									// Last seen device address
-									TableColumn("Last address") {
-										(row: DevicesGridRow) in
+									TableColumn("Last address") { (row: DevicesGridRow) in
 										switch row {
-										case .connectedDevice(let peer):
-											Text(
-												self.appState.client
-													.getLastPeerAddress(
-														peer
-															.deviceID()
-													)
-											).monospaced()
-										case .discoveredDevice(let s):
-											Text(
-												self.appState.client
-													.getLastPeerAddress(
-														s)
-											).monospaced()
+										case .connectedDevice(let peer): Text(self.appState.client.getLastPeerAddress(peer.deviceID())).monospaced()
+										case .discoveredDevice(let s): Text(self.appState.client.getLastPeerAddress(s)).monospaced()
 										}
-									}
-									.width(min: 100, ideal: 200)
-									.defaultVisibility(.hidden)
-									.customizationID("lastAddress")
+									}.width(min: 100, ideal: 200).defaultVisibility(.hidden).customizationID("lastAddress")
 
 									Group {
 										// Introduced by
-										TableColumn("Introduced by") {
-											(row: DevicesGridRow) in
+										TableColumn("Introduced by") { (row: DevicesGridRow) in
 											switch row {
 											case .connectedDevice(let peer):
-												if let introducedBy =
-													peer
-													.introducedBy()
-												{
-													Text(
-														introducedBy
-															.displayName
-													)
+												if let introducedBy = peer.introducedBy() {
+													Text(introducedBy.displayName)
 												}
 												else {
 													EmptyView()
 												}
-											case .discoveredDevice(_):
-												EmptyView()
+											case .discoveredDevice(_): EmptyView()
 											}
-										}
-										.width(min: 100, ideal: 200)
-										.defaultVisibility(.hidden)
-										.customizationID("introducedBy")
+										}.width(min: 100, ideal: 200).defaultVisibility(.hidden).customizationID("introducedBy")
 
 										// Trusted
-										TableColumn("Trusted") {
-											(row: DevicesGridRow) in
+										TableColumn("Trusted") { (row: DevicesGridRow) in
 											switch row {
-											case .connectedDevice(
-												let device):
+											case .connectedDevice(let device):
 												Toggle(
-													isOn: Binding(
-														get: {
-															!device
-																.isUntrusted()
-														},
-														set: {
-															trusted
-															in
-															try?
-																device
-																.setUntrusted(
-																	!trusted
-																)
-														})
-												) {
-													EmptyView()
-												}
-											case .discoveredDevice(_):
-												EmptyView()
+													isOn: Binding(get: { !device.isUntrusted() }, set: { trusted in try? device.setUntrusted(!trusted) })
+												) { EmptyView() }
+											case .discoveredDevice(_): EmptyView()
 											}
-										}
-										.width(min: 50, ideal: 50, max: 50)
-										.defaultVisibility(.hidden)
-										.customizationID("trusted")
+										}.width(min: 50, ideal: 50, max: 50).defaultVisibility(.hidden).customizationID("trusted")
 
 										// Enabled
-										TableColumn("Enabled") {
-											(row: DevicesGridRow) in
+										TableColumn("Enabled") { (row: DevicesGridRow) in
 											switch row {
-											case .connectedDevice(
-												let device):
-												Toggle(
-													isOn: Binding(
-														get: {
-															!device
-																.isPaused()
-														},
-														set: {
-															active
-															in
-															try?
-																device
-																.setPaused(
-																	!active
-																)
-														})
-												) {
+											case .connectedDevice(let device):
+												Toggle(isOn: Binding(get: { !device.isPaused() }, set: { active in try? device.setPaused(!active) })) {
 													EmptyView()
 												}
-											case .discoveredDevice(_):
-												EmptyView()
+											case .discoveredDevice(_): EmptyView()
 											}
-										}
-										.width(min: 50, ideal: 50, max: 50)
-										.defaultVisibility(.hidden)
-										.customizationID("enabled")
+										}.width(min: 50, ideal: 50, max: 50).defaultVisibility(.hidden).customizationID("enabled")
 
 										// Introducer
-										TableColumn("Introducer") {
-											(row: DevicesGridRow) in
+										TableColumn("Introducer") { (row: DevicesGridRow) in
 											switch row {
-											case .connectedDevice(
-												let device):
+											case .connectedDevice(let device):
 												Toggle(
-													isOn: Binding(
-														get: {
-															device
-																.isIntroducer()
-														},
-														set: {
-															trusted
-															in
-															try?
-																device
-																.setIntroducer(
-																	trusted
-																)
-														})
-												) {
-													EmptyView()
-												}
-											case .discoveredDevice(_):
-												EmptyView()
+													isOn: Binding(get: { device.isIntroducer() }, set: { trusted in try? device.setIntroducer(trusted) })
+												) { EmptyView() }
+											case .discoveredDevice(_): EmptyView()
 											}
-										}
-										.width(min: 50, ideal: 50, max: 50)
-										.defaultVisibility(.hidden)
-										.customizationID("introducer")
+										}.width(min: 50, ideal: 50, max: 50).defaultVisibility(.hidden).customizationID("introducer")
 
 										// Last seen
-										TableColumn("Last seen") {
-											(row: DevicesGridRow) in
+										TableColumn("Last seen") { (row: DevicesGridRow) in
 											switch row {
-											case .connectedDevice(
-												let device):
-												if let lastSeen =
-													device.lastSeen(),
-													!lastSeen.isZero()
-												{
-													Text(
-														lastSeen
-															.date()
-															.formatted()
-													)
-												}
-											case .discoveredDevice(_):
-												EmptyView()
+											case .connectedDevice(let device):
+												if let lastSeen = device.lastSeen(), !lastSeen.isZero() { Text(lastSeen.date().formatted()) }
+											case .discoveredDevice(_): EmptyView()
 											}
-										}
-										.width(min: 100, ideal: 150)
-										.defaultVisibility(.hidden)
-										.customizationID("lastSeen")
+										}.width(min: 100, ideal: 150).defaultVisibility(.hidden).customizationID("lastSeen")
 									}
 								}
 
 								if viewStyle != .simple {
 									TableColumnForEach(self.folders) { folder in
-										TableColumn(folder.displayName) {
-											(row: DevicesGridRow) in
-											if case .connectedDevice(
-												let peer) = row
-											{
-												DevicesGridCellView(
-													appState:
-														appState,
-													device: peer,
-													folder: folder,
-													viewStyle:
-														viewStyle
-												)
+										TableColumn(folder.displayName) { (row: DevicesGridRow) in
+											if case .connectedDevice(let peer) = row {
+												DevicesGridCellView(appState: appState, device: peer, folder: folder, viewStyle: viewStyle)
 											}
 											else {
 												EmptyView()
 											}
-										}
-										.width(ideal: 50)
-										.alignment(.center)
+										}.width(ideal: 50).alignment(.center)
 									}
 								}
 							},
 							rows: {
-								Section {
-									ForEach(self.peers) { peer in
-										TableRow(
-											DevicesGridRow.connectedDevice(
-												peer))
-									}
-								}
+								Section { ForEach(self.peers) { peer in TableRow(DevicesGridRow.connectedDevice(peer)) } }
 
 								if !discoveredNewDevices.isEmpty {
 									Section("Discovered devices") {
-										ForEach(
-											discoveredNewDevices, id: \.self
-										) {
-											devID in
-											TableRow(
-												DevicesGridRow
-													.discoveredDevice(
-														devID))
-										}
+										ForEach(discoveredNewDevices, id: \.self) { devID in TableRow(DevicesGridRow.discoveredDevice(devID)) }
 									}
 								}
 							}
-						)
-						.onDeleteCommand {
-							confirmDeleteSelection = true
-						}
-						.confirmationDialog(
-							"Are you sure you want to unlink the selected devices?",
-							isPresented: $confirmDeleteSelection,
+						).onDeleteCommand { confirmDeleteSelection = true }.confirmationDialog(
+							"Are you sure you want to unlink the selected devices?", isPresented: $confirmDeleteSelection,
 							titleVisibility: .visible
 						) {
-							Button(
-								"Unlink devices",
-								role: .destructive
-							) {
+							Button("Unlink devices", role: .destructive) {
 								confirmDeleteSelection = false
 								self.unlinkSelectedDevices()
 							}
-						}
-						.contextMenu(
-							forSelectionType: SushitrainPeer.ID.self,
-							menu: { items in
-								Text("\(items.count) selected")
-							}, primaryAction: self.doubleClick
-						)
-						.navigationDestination(
+						}.contextMenu(
+							forSelectionType: SushitrainPeer.ID.self, menu: { items in Text("\(items.count) selected") },
+							primaryAction: self.doubleClick
+						).navigationDestination(
 							isPresented: Binding(
-								get: { self.openedDevice != nil },
-								set: {
-									self.openedDevice = $0 ? self.openedDevice : nil
-								}),
-							destination: {
-								self.nextView()
-							})
+								get: { self.openedDevice != nil }, set: { self.openedDevice = $0 ? self.openedDevice : nil }),
+							destination: { self.nextView() })
 					}
 				}
-			}
-			.task {
-				self.update()
-			}
-			.toolbar {
+			}.task { self.update() }.toolbar {
 				ToolbarItemGroup(placement: .primaryAction) {
 					Menu {
 						Picker("Show details", selection: $viewStyle) {
@@ -567,9 +332,8 @@ struct DevicesView: View {
 
 						Divider()
 
-						Toggle(isOn: $transpose) {
-							Label("Switch rows/columns", systemImage: "rotate.right")
-						}.disabled(viewStyle == .simple)
+						Toggle(isOn: $transpose) { Label("Switch rows/columns", systemImage: "rotate.right") }.disabled(
+							viewStyle == .simple)
 
 					} label: {
 						Label("Show details", systemImage: "slider.vertical.3")
@@ -580,8 +344,7 @@ struct DevicesView: View {
 						showingAddDevicePopup = true
 					}
 				}
-			}
-			.sheet(isPresented: $showingAddDevicePopup) {
+			}.sheet(isPresented: $showingAddDevicePopup) {
 				AddDeviceView(appState: appState, suggestedDeviceID: $addingDeviceID)
 			}
 		}
@@ -596,11 +359,7 @@ struct DevicesView: View {
 		}
 
 		private func unlinkSelectedDevices() {
-			for peer in self.peers {
-				if self.selectedPeers.contains(peer.id) {
-					try? peer.remove()
-				}
-			}
+			for peer in self.peers { if self.selectedPeers.contains(peer.id) { try? peer.remove() } }
 
 			self.update()
 		}
@@ -623,9 +382,7 @@ struct DevicesView: View {
 			self.folders = appState.folders().sorted()
 
 			let peerIDs = peers.map { $0.deviceID() }
-			self.discoveredNewDevices = Array(appState.discoveredDevices.keys).filter({ d in
-				!peerIDs.contains(d)
-			})
+			self.discoveredNewDevices = Array(appState.discoveredDevices.keys).filter({ d in !peerIDs.contains(d) })
 
 			self.loading = false
 		}
@@ -645,68 +402,41 @@ struct DevicesView: View {
 		var body: some View {
 			HStack {
 				switch viewStyle {
-				case .simple:
-					EmptyView()  // Not reached
+				case .simple: EmptyView()  // Not reached
 				case .sharing:
-					Toggle(
-						isOn: Binding(
-							get: {
-								return isShared
-							}, set: { nv in self.share(nv) })
-					) {
-						EmptyView()
-					}
-					.disabled(self.isLoading)
+					Toggle(isOn: Binding(get: { return isShared }, set: { nv in self.share(nv) })) { EmptyView() }.disabled(
+						self.isLoading)
 
-					Image(systemName: "lock").help(
-						"An encrypted version of the folder is shared with this device."
-					).opacity(isSharedEncrypted ? 1 : 0)
+					Image(systemName: "lock").help("An encrypted version of the folder is shared with this device.").opacity(
+						isSharedEncrypted ? 1 : 0)
 				case .percentageOfGlobal:
 					if isShared {
 						if let c = self.completion {
-							Text("\(Int(c.completionPct))%")
-								.foregroundStyle(
-									c.completionPct < 100 ? .red : .primary
-								)
-								.bold(c.completionPct < 100)
-								.help(
-									c.completionPct < 100
-										? "This device still needs \(c.needItems) items out of \(c.globalItems)"
-										: "This device has a copy of all items")
+							Text("\(Int(c.completionPct))%").foregroundStyle(c.completionPct < 100 ? .red : .primary).bold(
+								c.completionPct < 100
+							).help(
+								c.completionPct < 100
+									? "This device still needs \(c.needItems) items out of \(c.globalItems)"
+									: "This device has a copy of all items")
 						}
 					}
 				case .needBytes:
 					if isShared {
 						if let c = self.completion {
-							Text(c.needBytes.formatted(.byteCount(style: .file)))
-								.foregroundStyle(
-									c.completionPct < 100 ? .red : .primary
-								)
-								.bold(c.completionPct < 100)
-								.help(
+							Text(c.needBytes.formatted(.byteCount(style: .file))).foregroundStyle(c.completionPct < 100 ? .red : .primary)
+								.bold(c.completionPct < 100).help(
 									c.completionPct < 100
 										? "This device still needs \(c.needBytes.formatted(.byteCount(style: .file))) of \(c.globalBytes.formatted(.byteCount(style: .file)))"
 										: "This device has a copy of all items")
 						}
 					}
 				}
-			}
-			.contextMenu {
-				Button(action: { self.showEditEncryptionPassword = true }) {
-					Text("Show info...")
-				}
-			}
-			.task {
+			}.contextMenu { Button(action: { self.showEditEncryptionPassword = true }) { Text("Show info...") } }.task {
 				self.update()
-			}
-			.onChange(of: viewStyle, initial: false) { _, _ in
-				self.update()
-			}
-			.sheet(isPresented: $showEditEncryptionPassword) {
+			}.onChange(of: viewStyle, initial: false) { _, _ in self.update() }.sheet(isPresented: $showEditEncryptionPassword) {
 				NavigationStack {
 					ShareFolderWithDeviceDetailsView(
-						appState: self.appState, folder: self.folder,
-						deviceID: .constant(device.deviceID()))
+						appState: self.appState, folder: self.folder, deviceID: .constant(device.deviceID()))
 				}
 			}
 		}
@@ -717,8 +447,7 @@ struct DevicesView: View {
 			Task.detached {
 				let sharedWithDeviceIDs = folder.sharedWithDeviceIDs()?.asArray() ?? []
 				let sharedEncrypted = folder.sharedEncryptedWithDeviceIDs()?.asArray() ?? []
-				let completion =
-					self.viewStyle == .sharing ? nil : try? self.folder.completion(forDevice: devID)
+				let completion = self.viewStyle == .sharing ? nil : try? self.folder.completion(forDevice: devID)
 
 				DispatchQueue.main.async {
 					self.isShared = sharedWithDeviceIDs.contains(self.device.deviceID())
@@ -735,14 +464,11 @@ struct DevicesView: View {
 					showEditEncryptionPassword = true
 				}
 				else {
-					try folder.share(
-						withDevice: device.deviceID(), toggle: shared, encryptionPassword: "")
+					try folder.share(withDevice: device.deviceID(), toggle: shared, encryptionPassword: "")
 					self.update()
 				}
 			}
-			catch let error {
-				Log.warn("Error sharing folder: " + error.localizedDescription)
-			}
+			catch let error { Log.warn("Error sharing folder: " + error.localizedDescription) }
 		}
 	}
 #endif

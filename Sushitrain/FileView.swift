@@ -76,10 +76,8 @@ struct FileView: View {
 
 						let mby = file.modifiedByShortDeviceID()
 						if !mby.isEmpty {
-							if let modifyingDevice = appState.client.peer(withShortID: mby)
-							{
-								if modifyingDevice.deviceID() == appState.localDeviceID
-								{
+							if let modifyingDevice = appState.client.peer(withShortID: mby) {
+								if modifyingDevice.deviceID() == appState.localDeviceID {
 									Text("Last modified from").badge(
 										Text("This device"))
 								}
