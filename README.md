@@ -80,6 +80,16 @@ To select a specific version:
 
 To use the `main` branch, run `go get -u github.com/syncthing/syncthing@main` in the `SushitrainCore` directory.
 
+### Using a local version of Syncthing
+
+Edit `go.mod`:
+
+````
+replace github.com/syncthing/syncthing => /local/path/to/syncthing
+````
+
+Then, run `go mod tidy`.
+
 ## Architecture
 
 The Sushitrain app is written in Swift and uses SwiftUI. It embeds a framework called SushitrainCore, which is written
