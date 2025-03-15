@@ -1298,3 +1298,11 @@ func LogInfo(message string) {
 func LogWarn(message string) {
 	Logger.Warnln("[App] " + message)
 }
+
+func ShortDeviceID(devID string) string {
+	did, err := protocol.DeviceIDFromString(devID)
+	if err != nil {
+		return "(invalid device ID)"
+	}
+	return did.Short().String()
+}

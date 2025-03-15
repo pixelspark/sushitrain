@@ -39,6 +39,15 @@ extension SushitrainPeer {
 		return self.deviceID()
 	}
 
+	var displayColor: Color {
+		if self.isPaused() {
+			return Color.gray
+		}
+		else {
+			return Color.accentColor
+		}
+	}
+
 	var systemImage: String {
 		return self.isConnected() ? "externaldrive.fill.badge.checkmark" : "externaldrive.fill"
 	}

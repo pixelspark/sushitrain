@@ -2700,6 +2700,40 @@
         }
       }
     },
+    "Are you sure you want to unlink the selected devices?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Möchten Sie die ausgewählten Geräte wirklich trennen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Estás seguro de que deseas desvincular los dispositivos seleccionados?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sei sicuro di voler scollegare i dispositivi selezionati?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weet je zeker dat je de geselecteerde apparaten wilt ontkoppelen?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ви впевнені, що хочете від'єднати обрані пристрої?"
+          }
+        }
+      }
+    },
     "Are you sure you want to unlink this folder? The folder will not be synchronized any longer. Files currently on this device will not be deleted." : {
       "localizations" : {
         "de" : {
@@ -15091,7 +15125,38 @@
       }
     },
     "Short device ID" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kurze Geräte-ID"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID de dispositivo corto"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID dispositivo breve"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Korte apparaat-ID"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Короткий ідентифікатор пристрою"
+          }
+        }
+      }
     },
     "Show" : {
       "localizations" : {
@@ -19113,6 +19178,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Від'єднати пристрій"
+          }
+        }
+      }
+    },
+    "Unlink devices" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geräte entkoppeln"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desvincular dispositivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scollega dispositivi"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ontkoppel apparaten"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Від'єднати пристрої"
           }
         }
       }

@@ -8,151 +8,130 @@ import SushitrainCore
 
 struct DevicesView: View {
 	@ObservedObject var appState: AppState
-	@State private var viewStyle: DevicesViewStyle = .list
-
-	enum DevicesViewStyle: String {
-		case list = "list"
-		#if os(macOS)
-			case grid = "grid"
-		#endif
-	}
 
 	var body: some View {
-		ZStack {
-			switch self.viewStyle {
-			#if os(macOS)
-				case .grid:
-					DevicesGridView(appState: appState)
-			#endif
-			case .list:
-				DevicesListView(appState: appState)
-			}
-		}
-		.navigationTitle("Devices")
 		#if os(macOS)
-			.toolbar {
-				ToolbarItemGroup(placement: .primaryAction) {
-					Picker("View as", selection: $viewStyle) {
-						Image(systemName: "list.bullet").tag(DevicesViewStyle.list)
-						.accessibilityLabel(Text("List"))
-						Image(systemName: "tablecells").tag(DevicesViewStyle.grid)
-						.accessibilityLabel(Text("Grid"))
-					}
-					.pickerStyle(.segmented)
-				}
-			}
+			DevicesGridView(appState: appState).navigationTitle("Devices")
+		#else
+			DevicesListView(appState: appState).navigationTitle("Devices")
 		#endif
+
 	}
 }
 
-private struct DevicesListView: View {
-	@ObservedObject var appState: AppState
-	@State private var showingAddDevicePopup = false
-	@State private var addingDeviceID: String = ""
-	@State private var discoveredNewDevices: [String] = []
-	@State private var peers: [SushitrainPeer] = []
-	@State private var loading = true
+#if os(iOS)
+	private struct DevicesListView: View {
+		@ObservedObject var appState: AppState
+		@State private var showingAddDevicePopup = false
+		@State private var addingDeviceID: String = ""
+		@State private var discoveredNewDevices: [String] = []
+		@State private var peers: [SushitrainPeer] = []
+		@State private var loading = true
 
-	var body: some View {
-		List {
-			Section("Associated devices") {
-				if peers.isEmpty {
-					HStack {
-						Spacer()
-						if loading {
-							ProgressView()
-						}
-						else {
-							ContentUnavailableView(
-								"No devices added yet",
-								systemImage: "externaldrive.badge.questionmark",
-								description: Text(
-									"To synchronize files, first add a remote device. Either select a device from the list below, or add manually using the device ID."
-								))
-						}
-						Spacer()
-					}
-				}
-				else {
-					ForEach(peers) { peer in
-						NavigationLink(
-							destination: DeviceView(device: peer, appState: appState)
-						) {
-							if peer.isPaused() {
-								Label(
-									peer.displayName,
-									systemImage: "externaldrive.fill"
-								).foregroundStyle(.gray)
+		var body: some View {
+			List {
+				Section("Associated devices") {
+					if peers.isEmpty {
+						HStack {
+							Spacer()
+							if loading {
+								ProgressView()
 							}
 							else {
-								Label(peer.displayName, systemImage: peer.systemImage)
+								ContentUnavailableView(
+									"No devices added yet",
+									systemImage: "externaldrive.badge.questionmark",
+									description: Text(
+										"To synchronize files, first add a remote device. Either select a device from the list below, or add manually using the device ID."
+									))
+							}
+							Spacer()
+						}
+					}
+					else {
+						ForEach(peers) { peer in
+							NavigationLink(
+								destination: DeviceView(
+									device: peer, appState: appState)
+							) {
+								if peer.isPaused() {
+									Label(
+										peer.displayName,
+										systemImage: "externaldrive.fill"
+									).foregroundStyle(.gray)
+								}
+								else {
+									Label(
+										peer.displayName,
+										systemImage: peer.systemImage)
+								}
+							}
+						}
+						.onDelete(perform: { indexSet in
+							let p = peers
+							for idx in indexSet {
+								try? p[idx].remove()
+							}
+						})
+					}
+				}
+
+				if !discoveredNewDevices.isEmpty {
+					Section("Discovered devices") {
+						ForEach(discoveredNewDevices, id: \.self) { devID in
+							Label(devID, systemImage: "plus").onTapGesture {
+								addingDeviceID = devID
+								showingAddDevicePopup = true
 							}
 						}
 					}
-					.onDelete(perform: { indexSet in
-						let p = peers
-						for idx in indexSet {
-							try? p[idx].remove()
-						}
-					})
 				}
-			}
 
-			if !discoveredNewDevices.isEmpty {
-				Section("Discovered devices") {
-					ForEach(discoveredNewDevices, id: \.self) { devID in
-						Label(devID, systemImage: "plus").onTapGesture {
-							addingDeviceID = devID
+				// Add peer manually
+				Section {
+					Button(
+						"Add device...", systemImage: "plus",
+						action: {
+							addingDeviceID = ""
 							showingAddDevicePopup = true
 						}
-					}
+					)
+					#if os(macOS)
+						.buttonStyle(.borderless)
+					#endif
 				}
 			}
-
-			// Add peer manually
-			Section {
-				Button(
-					"Add device...", systemImage: "plus",
-					action: {
-						addingDeviceID = ""
-						showingAddDevicePopup = true
+			#if os(iOS)
+				.toolbar {
+					if !peers.isEmpty {
+						EditButton()
 					}
-				)
-				#if os(macOS)
-					.buttonStyle(.borderless)
-				#endif
-			}
-		}
-		#if os(iOS)
-			.toolbar {
-				if !peers.isEmpty {
-					EditButton()
 				}
+			#endif
+			.sheet(isPresented: $showingAddDevicePopup) {
+				AddDeviceView(appState: appState, suggestedDeviceID: $addingDeviceID)
 			}
-		#endif
-		.sheet(isPresented: $showingAddDevicePopup) {
-			AddDeviceView(appState: appState, suggestedDeviceID: $addingDeviceID)
+			.task {
+				self.update()
+			}
+			.onChange(of: appState.eventCounter) {
+				self.update()
+			}
 		}
-		.task {
-			self.update()
-		}
-		.onChange(of: appState.eventCounter) {
-			self.update()
+
+		private func update() {
+			self.loading = true
+			self.peers = appState.peers().filter({ x in !x.isSelf() }).sorted()
+
+			// Discovered peers
+			let peerIDs = peers.map { $0.deviceID() }
+			self.discoveredNewDevices = Array(appState.discoveredDevices.keys).filter({ d in
+				!peerIDs.contains(d)
+			})
+			self.loading = false
 		}
 	}
-
-	private func update() {
-		self.loading = true
-		self.peers = appState.peers().filter({ x in !x.isSelf() }).sorted()
-
-		// Discovered peers
-		let peerIDs = peers.map { $0.deviceID() }
-		self.discoveredNewDevices = Array(appState.discoveredDevices.keys).filter({ d in
-			!peerIDs.contains(d)
-		})
-		self.loading = false
-	}
-}
+#endif
 
 #if os(macOS)
 	private enum GridViewStyle: String {
@@ -164,17 +143,34 @@ private struct DevicesListView: View {
 
 	private struct DevicesGridView: View {
 		@ObservedObject var appState: AppState
+
+		private enum DevicesGridRow: Identifiable {
+			var id: String {
+				switch self {
+				case .connectedDevice(let p): return p.id
+				case .discoveredDevice(let s): return s
+				}
+			}
+
+			case connectedDevice(SushitrainPeer)
+			case discoveredDevice(String)
+		}
+
 		@State private var loading = true
 		@State private var peers: [SushitrainPeer] = []
 		@State private var folders: [SushitrainFolder] = []
 		@State private var transpose = false
-		@State private var selectedPeers = Set<SushitrainPeer.ID>()
+		@State private var selectedPeers = Set<DevicesGridRow.ID>()
 		@State private var selectedFolders = Set<SushitrainFolder.ID>()
 		@State private var viewStyle: GridViewStyle = .simple
 		@State private var openedDevice: SushitrainPeer? = nil
+		@State private var showingAddDevicePopup = false
+		@State private var addingDeviceID: String = ""
+		@State private var discoveredNewDevices: [String] = []
+		@State private var confirmDeleteSelection = false
 
 		@SceneStorage("DeviceTableViewConfig") private var columnCustomization:
-			TableColumnCustomization<SushitrainPeer>
+			TableColumnCustomization<DevicesGridRow>
 
 		var body: some View {
 			ZStack {
@@ -202,53 +198,148 @@ private struct DevicesListView: View {
 					}
 					else {
 						Table(
-							self.peers, selection: $selectedPeers,
-							columnCustomization: $columnCustomization
-						) {
-							TableColumn("Device") { peer in
-								Label(peer.displayName, systemImage: peer.systemImage)
-									.contextMenu {
-										NavigationLink(
-											destination: DeviceView(
-												device: peer,
-												appState: appState)
-										) {
-											Text("Show info...")
+							of: DevicesGridRow.self,
+							selection: $selectedPeers,
+							columnCustomization: $columnCustomization,
+							columns: {
+								// Device name and label
+								TableColumn("Device") { (row: DevicesGridRow) in
+									switch row {
+									case .connectedDevice(let peer):
+										HStack {
+											Image(
+												systemName: peer
+													.systemImage
+											)
+											.foregroundStyle(
+												peer.displayColor)
+											Text(peer.displayName)
+												.foregroundStyle(
+													Color.primary)
+											Spacer()
+										}
+										.frame(maxWidth: .infinity)
+
+									case .discoveredDevice(let devID):
+										HStack {
+											Image(
+												systemName: "plus"
+											)
+											.foregroundStyle(
+												Color.accentColor)
+
+											Text(
+												SushitrainShortDeviceID(
+													devID)
+											).monospaced()
+												.foregroundStyle(
+													Color.primary)
+											Spacer()
+										}
+										.frame(maxWidth: .infinity)
+									}
+								}
+								.width(
+									ideal: self.viewStyle == .simple ? 200 : 100,
+									max: 200
+								)
+								.defaultVisibility(.visible)
+								.customizationID("deviceName")
+
+								if viewStyle == .simple {
+									TableColumn("Short device ID") {
+										(row: DevicesGridRow) in
+										switch row {
+										case .connectedDevice(let peer):
+											Text(peer.shortDeviceID())
+												.monospaced()
+										case .discoveredDevice(let s):
+											Text(SushitrainShortDeviceID(s))
+												.monospaced()
 										}
 									}
-							}
-							.width(ideal: self.viewStyle == .simple ? 200 : 100)
-							.defaultVisibility(.visible)
-							.customizationID("deviceName")
-
-							if viewStyle == .simple {
-								TableColumn("Short device ID") { peer in
-									Text(peer.shortDeviceID()).monospaced()
-								}
-								.width(ideal: 50)
-								.defaultVisibility(.automatic)
-								.customizationID("shortID")
-
-								TableColumn("Device ID") { peer in
-									Text(peer.deviceID()).monospaced()
-								}
-								.width(ideal: 520)
-								.defaultVisibility(.hidden)
-								.customizationID("longID")
-							}
-
-							if viewStyle != .simple {
-								TableColumnForEach(self.folders) { folder in
-									TableColumn(folder.displayName) { device in
-										DevicesGridCellView(
-											appState: appState,
-											device: device,
-											folder: folder,
-											viewStyle: viewStyle)
-									}
 									.width(ideal: 50)
-									.alignment(.center)
+									.defaultVisibility(.automatic)
+									.customizationID("shortID")
+
+									TableColumn("Device ID") {
+										(row: DevicesGridRow) in
+										switch row {
+										case .connectedDevice(let peer):
+											Text(peer.deviceID())
+												.monospaced()
+										case .discoveredDevice(let s):
+											Text(s).monospaced()
+										}
+									}
+									.width(ideal: 520)
+									.defaultVisibility(.hidden)
+									.customizationID("longID")
 								}
+
+								if viewStyle != .simple {
+									TableColumnForEach(self.folders) { folder in
+										TableColumn(folder.displayName) {
+											(row: DevicesGridRow) in
+											if case .connectedDevice(
+												let peer) = row
+											{
+												DevicesGridCellView(
+													appState:
+														appState,
+													device: peer,
+													folder: folder,
+													viewStyle:
+														viewStyle
+												)
+											}
+											else {
+												EmptyView()
+											}
+										}
+										.width(ideal: 50)
+										.alignment(.center)
+									}
+								}
+							},
+							rows: {
+								Section {
+									ForEach(self.peers) { peer in
+										TableRow(
+											DevicesGridRow.connectedDevice(
+												peer))
+									}
+								}
+
+								if !discoveredNewDevices.isEmpty {
+									Section("Discovered devices") {
+										ForEach(
+											discoveredNewDevices, id: \.self
+										) {
+											devID in
+											TableRow(
+												DevicesGridRow
+													.discoveredDevice(
+														devID))
+										}
+									}
+								}
+							}
+						)
+						.onDeleteCommand {
+							confirmDeleteSelection = true
+						}
+						.confirmationDialog(
+							"Are you sure you want to unlink the selected devices?",
+							isPresented: $confirmDeleteSelection,
+							titleVisibility: .visible
+						) {
+							Button(
+								"Unlink devices",
+								role: .destructive
+							) {
+								confirmDeleteSelection = false
+								self.unlinkSelectedDevices()
 							}
 						}
 						.contextMenu(
@@ -291,7 +382,15 @@ private struct DevicesListView: View {
 					} label: {
 						Label("Show details", systemImage: "slider.vertical.3")
 					}
+
+					Button("Add device", systemImage: "plus") {
+						addingDeviceID = ""
+						showingAddDevicePopup = true
+					}
 				}
+			}
+			.sheet(isPresented: $showingAddDevicePopup) {
+				AddDeviceView(appState: appState, suggestedDeviceID: $addingDeviceID)
 			}
 		}
 
@@ -304,12 +403,25 @@ private struct DevicesListView: View {
 			}
 		}
 
-		private func doubleClick(_ items: Set<SushitrainEntry.ID>) {
-			if let itemID = items.first,
-				let device = self.peers.first(where: { $0.id == itemID }),
-				items.count == 1
-			{
-				self.openedDevice = device
+		private func unlinkSelectedDevices() {
+			for peer in self.peers {
+				if self.selectedPeers.contains(peer.id) {
+					try? peer.remove()
+				}
+			}
+
+			self.update()
+		}
+
+		private func doubleClick(_ items: Set<DevicesGridRow.ID>) {
+			if let itemID = items.first, items.count == 1 {
+				if let device = self.peers.first(where: { $0.id == itemID }) {
+					self.openedDevice = device
+				}
+				else {
+					self.addingDeviceID = itemID
+					self.showingAddDevicePopup = true
+				}
 			}
 		}
 
@@ -317,6 +429,12 @@ private struct DevicesListView: View {
 			self.loading = true
 			self.peers = appState.peers().filter({ x in !x.isSelf() }).sorted()
 			self.folders = appState.folders().sorted()
+
+			let peerIDs = peers.map { $0.deviceID() }
+			self.discoveredNewDevices = Array(appState.discoveredDevices.keys).filter({ d in
+				!peerIDs.contains(d)
+			})
+
 			self.loading = false
 		}
 	}
