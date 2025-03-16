@@ -46,8 +46,8 @@ struct IdenticonView: View {
 	var body: some View {
 		Canvas(opaque: false, colorMode: .linear, rendersAsynchronously: false) { context, size in
 			let rect = CGRect(origin: .zero, size: size)
-			let rectWidth = floor(size.width / CGFloat(cells))
-			let rectHeight = floor(size.height / CGFloat(cells))
+			let rectWidth = ceil(size.width / CGFloat(cells))
+			let rectHeight = ceil(size.height / CGFloat(cells))
 			context.fill(Rectangle().path(in: rect), with: .color(Color.accentColor.opacity(0.05)))
 
 			for row in 0..<cells {

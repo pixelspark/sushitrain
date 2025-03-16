@@ -246,7 +246,7 @@ struct DevicesView: View {
 												) { EmptyView() }
 											case .discoveredDevice(_): EmptyView()
 											}
-										}.width(min: 50, ideal: 50, max: 50).defaultVisibility(.hidden).customizationID("trusted")
+										}.width(min: 50, ideal: 50, max: 50).alignment(.center).defaultVisibility(.hidden).customizationID("trusted")
 
 										// Enabled
 										TableColumn("Enabled") { (row: DevicesGridRow) in
@@ -257,7 +257,7 @@ struct DevicesView: View {
 												}
 											case .discoveredDevice(_): EmptyView()
 											}
-										}.width(min: 50, ideal: 50, max: 50).defaultVisibility(.hidden).customizationID("enabled")
+										}.width(min: 50, ideal: 50, max: 50).alignment(.center).defaultVisibility(.hidden).customizationID("enabled")
 
 										// Introducer
 										TableColumn("Introducer") { (row: DevicesGridRow) in
@@ -268,7 +268,8 @@ struct DevicesView: View {
 												) { EmptyView() }
 											case .discoveredDevice(_): EmptyView()
 											}
-										}.width(min: 50, ideal: 50, max: 50).defaultVisibility(.hidden).customizationID("introducer")
+										}.width(min: 50, ideal: 50, max: 50).alignment(.center).defaultVisibility(.hidden).customizationID(
+											"introducer")
 
 										// Last seen
 										TableColumn("Last seen") { (row: DevicesGridRow) in
