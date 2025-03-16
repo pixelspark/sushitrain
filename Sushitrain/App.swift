@@ -57,7 +57,6 @@ struct SushitrainApp: App {
 			#if os(macOS)
 				// On macOS, we show the start up error straight away in a modal alert, then exit
 				AppState.modalAlert(message: errorMessage)
-				print("CONTINUE AFTER MSG")
 				exit(-1)
 			#else
 				// On iOS, the appStartupState = .error makes the app show the error message in the main window
