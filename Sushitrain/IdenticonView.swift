@@ -50,19 +50,22 @@ struct IdenticonView: View {
 			let rectHeight = ceil(size.height / CGFloat(cells))
 			context.fill(Rectangle().path(in: rect), with: .color(Color.accentColor.opacity(0.05)))
 
+			let xOffset = -(rectWidth * CGFloat(cells) - size.width) / 2.0
+			let yOffset = -(rectHeight * CGFloat(cells) - size.height) / 2.0
 			for row in 0..<cells {
 				for column in 0...middleColumn {
 					if self.shouldFillRectAt(row: row, column: column) {
 						let square = CGRect(
-							x: CGFloat(column) * rectWidth, y: CGFloat(row) * rectHeight,
+							x: xOffset + CGFloat(column) * rectWidth,
+							y: yOffset + CGFloat(row) * rectHeight,
 							width: rectWidth, height: rectHeight)
 						context.fill(
 							Rectangle().path(in: square), with: .color(Color.accentColor))
 
 						if self.shouldMirrorRectAt(row: row, column: column) {
 							let square = CGRect(
-								x: CGFloat(mirrorColumnFor(column: column)) * rectWidth,
-								y: CGFloat(row) * rectHeight, width: rectWidth,
+								x: xOffset + CGFloat(mirrorColumnFor(column: column)) * rectWidth,
+								y: yOffset + CGFloat(row) * rectHeight, width: rectWidth,
 								height: rectHeight)
 							context.fill(
 								Rectangle().path(in: square),
