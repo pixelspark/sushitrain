@@ -621,7 +621,6 @@ private struct BrowserItemsView: View {
 							showSettings = true
 						}
 					}
-
 				}
 				else {
 					ContentUnavailableView(
@@ -651,6 +650,11 @@ private struct BrowserItemsView: View {
 		.onChange(of: self.folder.folderStateForUpdating) {
 			Task {
 				await self.reload()
+			}
+		}
+		.onChange(of: appState.eventCounter) {
+			Task {
+				await self.updateExtraneousFiles()
 			}
 		}
 	}
@@ -709,6 +713,13 @@ private struct BrowserItemsView: View {
 			return []
 		}.value
 
+		await self.updateExtraneousFiles()
+
+		self.isLoading = false
+		loadingSpinnerTask.cancel()
+	}
+	
+	private func updateExtraneousFiles() async {
 		if self.folder.isIdle {
 			hasExtraneousFiles = await Task.detached {
 				var hasExtra: ObjCBool = false
@@ -725,9 +736,6 @@ private struct BrowserItemsView: View {
 		else {
 			hasExtraneousFiles = false
 		}
-
-		self.isLoading = false
-		loadingSpinnerTask.cancel()
 	}
 }
 
