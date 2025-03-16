@@ -81,6 +81,12 @@ struct SelectiveFolderView: View {
 						.help(
 							"Remove the files shown in the list from this device, but do not remove them from other devices. If the file is not available on another device it will be permanently removed."
 						)
+						
+						Divider()
+						
+						Button("Remove unsynchronized empty subdirectories", systemImage: "eraser") {
+							self.removeUnsynchronizedEmpty()
+						}
 					}
 				} label: {
 					Label("Free up space", systemImage: "pin.slash")
@@ -133,6 +139,24 @@ struct SelectiveFolderView: View {
 		.searchable(text: $searchString, prompt: "Search files by name...")
 		.task {
 			self.update()
+		}
+	}
+	
+	private func removeUnsynchronizedEmpty() {
+		Task {
+			do {
+				self.isClearing = true
+				try await Task.detached {
+					try folder.removeSuperfluousSubdirectories()
+					try folder.removeSuperfluousSelectionEntries()
+				}.value
+				self.isClearing = false
+			}
+			catch {
+				self.showError = true
+				errorText = error.localizedDescription
+				self.isClearing = false
+			}
 		}
 	}
 
