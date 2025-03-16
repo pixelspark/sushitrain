@@ -48,10 +48,12 @@ struct IdenticonView: View {
 			let rect = CGRect(origin: .zero, size: size)
 			let rectWidth = ceil(size.width / CGFloat(cells))
 			let rectHeight = ceil(size.height / CGFloat(cells))
+			context.fill(Rectangle().path(in: rect), with: .style(.windowBackground))
 			context.fill(Rectangle().path(in: rect), with: .color(Color.accentColor.opacity(0.05)))
 
 			let xOffset = -(rectWidth * CGFloat(cells) - size.width) / 2.0
 			let yOffset = -(rectHeight * CGFloat(cells) - size.height) / 2.0
+
 			for row in 0..<cells {
 				for column in 0...middleColumn {
 					if self.shouldFillRectAt(row: row, column: column) {
