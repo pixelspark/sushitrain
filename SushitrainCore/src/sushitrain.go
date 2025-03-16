@@ -1064,10 +1064,10 @@ func (clt *Client) Statistics() (*FolderStats, error) {
 
 	for _, folder := range clt.config.FolderList() {
 		snap, err := clt.app.Internals.DBSnapshot(folder.ID)
-		defer snap.Release()
 		if err != nil {
 			return nil, err
 		}
+		defer snap.Release()
 		globalTotal.add(newFolderCounts(snap.GlobalSize()))
 		localTotal.add(newFolderCounts(snap.LocalSize()))
 	}
