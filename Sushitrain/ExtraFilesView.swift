@@ -27,53 +27,37 @@ struct ExtraFilesView: View {
 				List {
 					Section {
 						if folder.folderType() == SushitrainFolderTypeSendReceive {
-							Text(
-								"Extra files have been found. Please decide for each file whether they should be synchronized or removed."
-							).textFieldStyle(.plain)
+							Text("Extra files have been found. Please decide for each file whether they should be synchronized or removed.")
+								.textFieldStyle(.plain)
 						}
 						else if folder.folderType() == SushitrainFolderTypeReceiveOnly {
-							Text(
-								"Extra files have been found. Because this is a receive-only folder, these files will not be synchronized."
-							).textFieldStyle(.plain)
+							Text("Extra files have been found. Because this is a receive-only folder, these files will not be synchronized.")
+								.textFieldStyle(.plain)
 						}
 					}
 
 					Section {
 						HStack {
-							VStack(alignment: .leading) {
-								Text("For all files").multilineTextAlignment(.leading)
-							}.frame(
-								maxWidth: .infinity, maxHeight: .infinity,
-								alignment: .leading)
+							VStack(alignment: .leading) { Text("For all files").multilineTextAlignment(.leading) }.frame(
+								maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
 
 							Picker(
 								"Action",
 								selection: Binding(
-									get: {
-										return allVerdict
-									},
+									get: { return allVerdict },
 									set: { s in
 										allVerdict = s
-										for f in extraFiles {
-											verdicts[f] = s
-										}
+										for f in extraFiles { verdicts[f] = s }
 									})
 							) {
-								Image(systemName: "trash").tint(.red).tag(false)
-									.accessibilityLabel("Delete file")
-								if folder.folderType()
-									== SushitrainFolderTypeReceiveOnly
-								{
-									Image(systemName: "trash.slash").tag(true)
-										.accessibilityLabel("Keep file")
+								Image(systemName: "trash").tint(.red).tag(false).accessibilityLabel("Delete file")
+								if folder.folderType() == SushitrainFolderTypeReceiveOnly {
+									Image(systemName: "trash.slash").tag(true).accessibilityLabel("Keep file")
 								}
 								else {
-									Image(systemName: "plus.square.fill").tag(true)
-										.accessibilityLabel("Keep file")
+									Image(systemName: "plus.square.fill").tag(true).accessibilityLabel("Keep file")
 								}
-							}
-							.pickerStyle(.segmented)
-							.frame(width: 100)
+							}.pickerStyle(.segmented).frame(width: 100)
 						}
 					}
 
@@ -83,69 +67,37 @@ struct ExtraFilesView: View {
 
 							HStack {
 								VStack(alignment: .leading) {
-									Text(path)
-										.multilineTextAlignment(.leading)
-										.dynamicTypeSize(.small)
-										.foregroundStyle(
-											verdict == false
-												? .red
-												: verdict == true
-													? .green
-													: .primary
-										)
-										.onTapGesture {
-											if let folderNativePath = folder
-												.localNativeURL
-											{
-												self.localItemURL =
-													folderNativePath
-													.appending(
-														path:
-															path
-													)
-											}
-										}
-										.disabled(folder.localNativeURL == nil)
-								}.frame(
-									maxWidth: .infinity, maxHeight: .infinity,
-									alignment: .leading)
+									Text(path).multilineTextAlignment(.leading).dynamicTypeSize(.small).foregroundStyle(
+										verdict == false ? .red : verdict == true ? .green : .primary
+									).onTapGesture {
+										if let folderNativePath = folder.localNativeURL { self.localItemURL = folderNativePath.appending(path: path) }
+									}.disabled(folder.localNativeURL == nil)
+								}.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
 
 								Picker(
 									"Action",
 									selection: Binding(
-										get: {
-											return verdicts[path]
-										},
+										get: { return verdicts[path] },
 										set: { s in
 											verdicts[path] = s
 											allVerdict = nil
 										})
 								) {
-									Image(systemName: "trash").tint(.red).tag(false)
-										.accessibilityLabel("Delete file")
-									if folder.folderType()
-										== SushitrainFolderTypeReceiveOnly
-									{
-										Image(systemName: "trash.slash").tag(
-											true
-										).accessibilityLabel("Keep file")
+									Image(systemName: "trash").tint(.red).tag(false).accessibilityLabel("Delete file")
+									if folder.folderType() == SushitrainFolderTypeReceiveOnly {
+										Image(systemName: "trash.slash").tag(true).accessibilityLabel("Keep file")
 									}
 									else {
-										Image(systemName: "plus.square.fill")
-											.tag(true).accessibilityLabel(
-												"Keep file")
+										Image(systemName: "plus.square.fill").tag(true).accessibilityLabel("Keep file")
 									}
-								}
-								.pickerStyle(.segmented)
-								.frame(width: 100)
+								}.pickerStyle(.segmented).frame(width: 100)
 							}
 						}
 					}
 				}
 			}
-		}.task {
-			await reload()
 		}
+		.task { await reload() }
 		.navigationTitle("Extra files in folder \(folder.label())")
 		#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)
@@ -154,41 +106,32 @@ struct ExtraFilesView: View {
 			ToolbarItem(
 				placement: .confirmationAction,
 				content: {
-					Button(
-						"Apply",
-						action: {
-							do {
-								let json = try JSONEncoder().encode(self.verdicts)
-								try folder.setExplicitlySelectedJSON(json)
-								verdicts = [:]
-								allVerdict = nil
-								dismiss()
-							}
-							catch {
-								errorMessage = error.localizedDescription
-								Task {
-									await reload()
-								}
-							}
-						}
-					).disabled(!folder.isIdleOrSyncing || verdicts.isEmpty || extraFiles.isEmpty)
+					Button("Apply") { Task { await self.apply() } }.disabled(
+						!folder.isIdleOrSyncing || verdicts.isEmpty || extraFiles.isEmpty)
 				})
-		}
-		.quickLookPreview(self.$localItemURL)
-		.alert(isPresented: Binding.constant(errorMessage != nil)) {
+		}.quickLookPreview(self.$localItemURL).alert(isPresented: Binding.constant(errorMessage != nil)) {
 			Alert(
 				title: Text("An error occurred"), message: Text(errorMessage ?? ""),
-				dismissButton: .default(Text("OK")) {
-					errorMessage = nil
-				})
+				dismissButton: .default(Text("OK")) { errorMessage = nil })
+		}
+	}
+	private func apply() async {
+		do {
+			let json = try JSONEncoder().encode(self.verdicts)
+			try folder.setExplicitlySelectedJSON(json)
+			verdicts = [:]
+			allVerdict = nil
+			dismiss()
+		}
+		catch {
+			errorMessage = error.localizedDescription
+			Task { await reload() }
 		}
 	}
 
 	private func reload() async {
 		if folder.isIdleOrSyncing {
-			extraFiles = await Task.detached {
-				return (try? folder.extraneousFiles().asArray().sorted()) ?? []
-			}.value
+			extraFiles = await Task.detached { return (try? folder.extraneousFiles().asArray().sorted()) ?? [] }.value
 		}
 		else {
 			extraFiles = []
