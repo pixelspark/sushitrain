@@ -17,10 +17,15 @@ class SushitrainDelegate: NSObject {
 	}
 }
 
+enum AppStartupState {
+	case normal(AppState)
+	case error(String)
+}
+
 @main
 struct SushitrainApp: App {
-	fileprivate var appState: AppState
-	fileprivate var delegate: SushitrainDelegate
+	fileprivate var appStartupState: AppStartupState
+	fileprivate var delegate: SushitrainDelegate?
 	private let qaService = QuickActionService.shared
 
 	#if os(iOS)
@@ -42,22 +47,34 @@ struct SushitrainApp: App {
 
 		let enableLogging = UserDefaults.standard.bool(forKey: "loggingEnabled")
 		Log.info("Logging enabled: \(enableLogging)")
+
 		var error: NSError? = nil
 		guard let client = SushitrainNewClient(configPath, documentsPath, enableLogging, &error) else {
-			Log.warn("Error initializing: \(error?.localizedDescription ?? "unknown error")")
-			exit(-1)
+			let errorMessage = error?.localizedDescription ?? "unknown error"
+			Log.warn("Error initializing: \(errorMessage)")
+			self.appStartupState = .error(errorMessage)
+
+			#if os(macOS)
+				// On macOS, we show the start up error straight away in a modal alert, then exit
+				AppState.modalAlert(message: errorMessage)
+				print("CONTINUE AFTER MSG")
+				exit(-1)
+			#else
+				// On iOS, the appStartupState = .error makes the app show the error message in the main window
+				return
+			#endif
 		}
 
 		let appState = AppState(
 			client: client, documentsDirectory: documentsDirectory, configDirectory: configDirectory)
-		self.appState = appState
+		self.appStartupState = .normal(appState)
 		AppDependencyManager.shared.add(dependency: appState)
-		self.appState.isLogging = enableLogging
-		self.delegate = SushitrainDelegate(appState: self.appState)
+		appState.isLogging = enableLogging
+		self.delegate = SushitrainDelegate(appState: appState)
 		client.delegate = self.delegate
 		client.server?.delegate = self.delegate
 		self.performMigrations()
-		self.appState.update()
+		appState.update()
 
 		// Resolve bookmarks
 		let folderIDs = client.folders()?.asArray() ?? []
@@ -117,28 +134,30 @@ struct SushitrainApp: App {
 	}
 
 	private func performMigrations() {
-		let lastRunBuild = UserDefaults.standard.integer(forKey: "lastRunBuild")
-		let currentBuild = Int(Bundle.main.buildVersionNumber ?? "0") ?? 0
-		Log.info("Migrations: current build is \(currentBuild), last run build \(lastRunBuild)")
+		if case .normal(let appState) = self.appStartupState {
+			let lastRunBuild = UserDefaults.standard.integer(forKey: "lastRunBuild")
+			let currentBuild = Int(Bundle.main.buildVersionNumber ?? "0") ?? 0
+			Log.info("Migrations: current build is \(currentBuild), last run build \(lastRunBuild)")
 
-		if lastRunBuild < currentBuild {
-			#if os(macOS)
-				// From build 19 onwards, enable fs watching for all folders by default. It can later be disabled
-				if lastRunBuild <= 18 {
-					Log.info("Enabling FS watching for all folders")
-					self.appState.client.setFSWatchingEnabledForAllFolders(true)
-				}
-			#endif
+			if lastRunBuild < currentBuild {
+				#if os(macOS)
+					// From build 19 onwards, enable fs watching for all folders by default. It can later be disabled
+					if lastRunBuild <= 18 {
+						Log.info("Enabling FS watching for all folders")
+						appState.client.setFSWatchingEnabledForAllFolders(true)
+					}
+				#endif
 
-			#if os(iOS)
-				// From build 26 onwards, FS watching is supported on iOS, but it should not be enabled by default
-				if lastRunBuild <= 26 {
-					Log.info("Disabling FS watching for all folders")
-					self.appState.client.setFSWatchingEnabledForAllFolders(false)
-				}
-			#endif
+				#if os(iOS)
+					// From build 26 onwards, FS watching is supported on iOS, but it should not be enabled by default
+					if lastRunBuild <= 26 {
+						Log.info("Disabling FS watching for all folders")
+						appState.client.setFSWatchingEnabledForAllFolders(false)
+					}
+				#endif
+			}
+			UserDefaults.standard.set(currentBuild, forKey: "lastRunBuild")
 		}
-		UserDefaults.standard.set(currentBuild, forKey: "lastRunBuild")
 	}
 
 	private static func configDirectoryURL() -> URL {
@@ -195,26 +214,35 @@ struct SushitrainApp: App {
 
 	var body: some Scene {
 		#if os(macOS)
-			WindowGroup(id: "folder", for: String.self) { [appState] folderID in
-				ContentView(
-					appState: appState,
-					route: folderID.wrappedValue == nil
-						? .start : .folder(folderID: folderID.wrappedValue))
+			WindowGroup(id: "folder", for: String.self) { [appStartupState] folderID in
+				if case .normal(let appState) = appStartupState {
+					ContentView(
+						appState: appState,
+						route: folderID.wrappedValue == nil
+							? .start : .folder(folderID: folderID.wrappedValue))
+				}
 			}
 
-			WindowGroup(id: "preview", for: Preview.self) { [appState] preview in
-				if let p = preview.wrappedValue {
-					PreviewWindow(preview: p, appState: appState)
+			WindowGroup(id: "preview", for: Preview.self) { [appStartupState] preview in
+				if case .normal(let appState) = appStartupState {
+					if let p = preview.wrappedValue {
+						PreviewWindow(preview: p, appState: appState)
+					}
 				}
 			}
 			.windowManagerRole(.associated)
 		#endif
 
-		WindowGroup(id: "main") { [appState] in
-			ContentView(appState: appState)
-				#if os(iOS)
-					.handleOpenURLInApp()
-				#endif
+		WindowGroup(id: "main") { [appStartupState] in
+			switch appStartupState {
+			case .normal(let appState):
+				ContentView(appState: appState)
+					#if os(iOS)
+						.handleOpenURLInApp()
+					#endif
+			case .error(let e):
+				ContentUnavailableView("Cannot start the app", image: "exclamationmark.triangle.fill", description: Text(e))
+			}
 		}
 		#if os(macOS)
 			.onChange(of: hideInDock, initial: true) { _ov, nv in
@@ -247,29 +275,35 @@ struct SushitrainApp: App {
 		#endif
 
 		#if os(macOS)
-			MenuBarExtraView(hideInDock: $hideInDock, appState: appState)
-
-			Settings {
-				NavigationStack {
-					TabbedSettingsView(appState: appState, hideInDock: $hideInDock)
-				}
-			}
-			.windowResizability(.contentSize)
-
 			// About window
 			Window("About Synctrain", id: "about") {
 				AboutView()
 			}
 			.windowResizability(.contentSize)
 
+			MenuBarExtraView(hideInDock: $hideInDock, appStartupState: appStartupState)
+
+			Settings {
+				if case .normal(let appState) = appStartupState {
+					NavigationStack {
+						TabbedSettingsView(appState: appState, hideInDock: $hideInDock)
+					}
+				}
+			}
+			.windowResizability(.contentSize)
+
 			Window("Statistics", id: "stats") {
-				TotalStatisticsView(appState: appState)
-					.frame(maxWidth: 320)
+				if case .normal(let appState) = appStartupState {
+					TotalStatisticsView(appState: appState)
+						.frame(maxWidth: 320)
+				}
 			}
 			.windowResizability(.contentSize)
 
 			Window("Synctrain", id: "singleMain") {
-				ContentView(appState: appState)
+				if case .normal(let appState) = appStartupState {
+					ContentView(appState: appState)
+				}
 			}
 			.windowResizability(.contentSize)
 		#endif
@@ -337,73 +371,77 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 #if os(macOS)
 	struct MenuBarExtraView: Scene {
 		@Binding var hideInDock: Bool
-		@ObservedObject var appState: AppState
+		let appStartupState: AppStartupState
 		@Environment(\.openWindow) private var openWindow
 
 		var body: some Scene {
 			Window("Settings", id: "appSettings") {
-				NavigationStack {
-					TabbedSettingsView(appState: appState, hideInDock: $hideInDock)
+				if case .normal(let appState) = appStartupState {
+					NavigationStack {
+						TabbedSettingsView(appState: appState, hideInDock: $hideInDock)
+					}
 				}
 			}
 
 			MenuBarExtra("Synctrain", systemImage: self.menuIcon, isInserted: $hideInDock) {
-				OverallStatusView(appState: appState)
+				if case .normal(let appState) = appStartupState {
+					OverallStatusView(appState: appState)
 
-				Button("Open file browser...") {
-					openWindow(id: "singleMain")
-					NSApplication.shared.activate()
-				}
+					Button("Open file browser...") {
+						openWindow(id: "singleMain")
+						NSApplication.shared.activate()
+					}
 
-				// List of folders
-				if appState.menuFolderAction != .hide {
-					let folders = appState.folders().filter { $0.isHidden == false }.sorted()
-					if !folders.isEmpty {
-						Divider()
-						ForEach(folders, id: \.folderID) { fld in
-							Button("\(fld.displayName)") {
-								switch appState.menuFolderAction {
-								case .hide:
-									break  // Should not be reached
+					// List of folders
+					if appState.menuFolderAction != .hide {
+						let folders = appState.folders().filter { $0.isHidden == false }.sorted()
+						if !folders.isEmpty {
+							Divider()
+							ForEach(folders, id: \.folderID) { fld in
+								Button("\(fld.displayName)") {
+									switch appState.menuFolderAction {
+									case .hide:
+										break  // Should not be reached
 
-								case .finder:
-									if let lnu = fld.localNativeURL {
-										openURLInSystemFilesApp(url: lnu)
-									}
-									else {
-										openWindow(
-											id: "folder",
-											value: fld.folderID)
+									case .finder:
+										if let lnu = fld.localNativeURL {
+											openURLInSystemFilesApp(url: lnu)
+										}
+										else {
+											openWindow(
+												id: "folder",
+												value: fld.folderID)
+											NSApplication.shared.activate()
+										}
+
+									case .browser:
+										openWindow(id: "folder", value: fld.folderID)
 										NSApplication.shared.activate()
-									}
 
-								case .browser:
-									openWindow(id: "folder", value: fld.folderID)
-									NSApplication.shared.activate()
-
-								case .finderExceptSelective:
-									if fld.isSelective() {
-										openWindow(
-											id: "folder",
-											value: fld.folderID)
-										NSApplication.shared.activate()
-									}
-									else if let lnu = fld.localNativeURL {
-										openURLInSystemFilesApp(url: lnu)
-									}
-									else {
-										openWindow(
-											id: "folder",
-											value: fld.folderID)
-										NSApplication.shared.activate()
+									case .finderExceptSelective:
+										if fld.isSelective() {
+											openWindow(
+												id: "folder",
+												value: fld.folderID)
+											NSApplication.shared.activate()
+										}
+										else if let lnu = fld.localNativeURL {
+											openURLInSystemFilesApp(url: lnu)
+										}
+										else {
+											openWindow(
+												id: "folder",
+												value: fld.folderID)
+											NSApplication.shared.activate()
+										}
 									}
 								}
 							}
 						}
 					}
-				}
 
-				Divider()
+					Divider()
+				}
 
 				Button(
 					action: {
@@ -447,14 +485,19 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 		}
 
 		private var menuIcon: String {
-			if self.appState.client.connectedPeerCount() > 0 {
-				if self.appState.client.isDownloading() || self.appState.client.isUploading() {
-					return "folder.fill.badge.gearshape"
+			if case .normal(let appState) = appStartupState {
+				if appState.client.connectedPeerCount() > 0 {
+					if appState.client.isDownloading() || appState.client.isUploading() {
+						return "folder.fill.badge.gearshape"
+					}
+					return "folder.fill"
 				}
-				return "folder.fill"
+				else {
+					return "folder"
+				}
 			}
 			else {
-				return "folder"
+				return "exclamationmark.triangle.fill"
 			}
 		}
 	}

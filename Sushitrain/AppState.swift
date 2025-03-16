@@ -222,6 +222,11 @@ enum FolderMetric: String {
 
 	@MainActor
 	func alert(message: String) {
+		Self.modalAlert(message: message)
+	}
+
+	@MainActor
+	static func modalAlert(message: String) {
 		#if os(macOS)
 			let nsa = NSAlert()
 			nsa.messageText = message

@@ -718,7 +718,7 @@ private struct BrowserItemsView: View {
 		self.isLoading = false
 		loadingSpinnerTask.cancel()
 	}
-	
+
 	private func updateExtraneousFiles() async {
 		if self.folder.isIdle {
 			hasExtraneousFiles = await Task.detached {

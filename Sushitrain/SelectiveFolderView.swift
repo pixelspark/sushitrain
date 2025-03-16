@@ -81,9 +81,9 @@ struct SelectiveFolderView: View {
 						.help(
 							"Remove the files shown in the list from this device, but do not remove them from other devices. If the file is not available on another device it will be permanently removed."
 						)
-						
+
 						Divider()
-						
+
 						Button("Remove unsynchronized empty subdirectories", systemImage: "eraser") {
 							self.removeUnsynchronizedEmpty()
 						}
@@ -141,7 +141,7 @@ struct SelectiveFolderView: View {
 			self.update()
 		}
 	}
-	
+
 	private func removeUnsynchronizedEmpty() {
 		Task {
 			do {
