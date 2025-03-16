@@ -931,7 +931,11 @@ private struct BandwidthSettingsView: View {
 							},
 							set: { nn in
 								try? appState.client.setName(nn)
-							}))
+							})
+					)
+					.autocorrectionDisabled()
+					.textInputAutocapitalization(.never)
+					.keyboardType(.asciiCapable)
 				}
 
 				Section {
