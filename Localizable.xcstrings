@@ -16892,6 +16892,40 @@
         }
       }
     },
+    "Synctrain cannot be started: " : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain kann nicht gestartet werden:"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain no se puede iniciar:"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain non può essere avviato:"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain kan niet worden gestart:"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain не може бути запущено:"
+          }
+        }
+      }
+    },
     "Synctrain is © 2024, Tommy van der Vorst" : {
       "localizations" : {
         "de" : {
