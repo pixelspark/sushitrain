@@ -118,8 +118,6 @@ struct DevicesView: View {
 	}
 
 	private struct DevicesGridView: View {
-		@ObservedObject var appState: AppState
-
 		private enum DevicesGridRow: Identifiable {
 			var id: String {
 				switch self {
@@ -131,6 +129,8 @@ struct DevicesView: View {
 			case connectedDevice(SushitrainPeer)
 			case discoveredDevice(String)
 		}
+
+		@ObservedObject var appState: AppState
 
 		@State private var loading = true
 		@State private var peers: [SushitrainPeer] = []
@@ -432,9 +432,11 @@ struct DevicesView: View {
 						}
 					}
 				}
-			}.contextMenu { Button(action: { self.showEditEncryptionPassword = true }) { Text("Show info...") } }.task {
-				self.update()
-			}.onChange(of: viewStyle, initial: false) { _, _ in self.update() }.sheet(isPresented: $showEditEncryptionPassword) {
+			}.contextMenu { Button(action: { self.showEditEncryptionPassword = true }) { Text("Show info...") } }
+				.task {
+					self.update()
+				}.onChange(of: viewStyle, initial: false) { _, _ in self.update() }.sheet(isPresented: $showEditEncryptionPassword)
+			{
 				NavigationStack {
 					ShareFolderWithDeviceDetailsView(
 						appState: self.appState, folder: self.folder, deviceID: .constant(device.deviceID()))
@@ -461,7 +463,7 @@ struct DevicesView: View {
 
 		private func share(_ shared: Bool) {
 			do {
-				if shared && device.isUntrusted() {
+				if shared {
 					showEditEncryptionPassword = true
 				}
 				else {

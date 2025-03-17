@@ -106,18 +106,28 @@ struct ShareFolderWithDeviceDetailsView: View {
 	var body: some View {
 		NavigationStack {
 			Form {
-				Section("Share with device") {
-					Text(deviceID).monospaced()
-				}
+				if let device = appState.client.peer(withID: deviceID) {
+					Section("Share with device") {
+						DeviceIDView(appState: appState, device: device)
+					}
 
-				Section("Encryption password") {
-					TextField("Password", text: $newPassword)
-						.textContentType(.password)
-						#if os(iOS)
-							.textInputAutocapitalization(.never)
-						#endif
-						.monospaced()
-						.focused($passwordFieldFocus)
+					Section {
+						TextField("Password", text: $newPassword)
+							.textContentType(.password)
+							#if os(iOS)
+								.textInputAutocapitalization(.never)
+							#endif
+							.monospaced()
+							.focused($passwordFieldFocus)
+					} header: {
+						Text("Encryption password")
+					} footer: {
+						Text(
+							"If you leave the password empty, files will not be encrypted on the other device, and therefore can be read by anyone who has access to the other device. If you set an encryption password, ensure that all devices that synchronize the same folder with the other device are using the same password."
+						).multilineTextAlignment(.leading)
+							.lineLimit(nil)
+							.fixedSize(horizontal: false, vertical: true)
+					}
 				}
 			}
 			#if os(macOS)

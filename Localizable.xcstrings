@@ -9172,6 +9172,40 @@
         }
       }
     },
+    "If you leave the password empty, files will not be encrypted on the other device, and therefore can be read by anyone who has access to the other device. If you set an encryption password, ensure that all devices that synchronize the same folder with the other device are using the same password." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn Sie das Passwort leer lassen, werden Dateien auf dem anderen Gerät nicht verschlüsselt und können daher von jedem, der Zugriff auf das andere Gerät hat, gelesen werden. Wenn Sie ein Verschlüsselungspasswort festlegen, stellen Sie sicher, dass alle Geräte, die denselben Ordner mit dem anderen Gerät synchronisieren, dasselbe Passwort verwenden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si dejas la contraseña vacía, los archivos no se cifrarán en el otro dispositivo y, por lo tanto, podrán ser leídos por cualquier persona que tenga acceso al otro dispositivo. Si estableces una contraseña de cifrado, asegúrate de que todos los dispositivos que sincronizan la misma carpeta con el otro dispositivo utilicen la misma contraseña."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se lasci vuota la password, i file non saranno crittografati sull'altro dispositivo e quindi potranno essere letti da chiunque abbia accesso all'altro dispositivo. Se imposti una password di crittografia, assicurati che tutti i dispositivi che sincronizzano la stessa cartella con l'altro dispositivo utilizzino la stessa password."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als je het wachtwoord leeg laat, worden bestanden niet versleuteld op het andere apparaat, en kunnen ze dus gelezen worden door iedereen die toegang heeft tot dat andere apparaat. Als je een versleutelingswachtwoord instelt, zorg er dan voor dat alle apparaten die dezelfde map met het andere apparaat synchroniseren hetzelfde wachtwoord gebruiken."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Якщо залишити поле пароля порожнім, файли на іншому пристрої не будуть зашифровані, і, таким чином, їх зможе прочитати будь-хто, у кого є доступ до іншого пристрою. Якщо ви встановите пароль шифрування, переконайтеся, що всі пристрої, які синхронізують ту ж папку з іншим пристроєм, використовують однаковий пароль."
+          }
+        }
+      }
+    },
     "Ignore certain system files" : {
       "localizations" : {
         "de" : {
