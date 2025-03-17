@@ -56,6 +56,10 @@ struct IdenticonView: View {
 
 			for row in 0..<cells {
 				for column in 0...middleColumn {
+						if row == cells - 1 && column == middleColumn {
+							// Bottom middle cell is apparently never filled
+							continue
+						}
 					if self.shouldFillRectAt(row: row, column: column) {
 						let square = CGRect(
 							x: xOffset + CGFloat(column) * rectWidth,
