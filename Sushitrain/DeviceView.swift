@@ -10,6 +10,7 @@ private struct DeviceAddressesView: View {
 	var device: SushitrainPeer
 	@ObservedObject var appState: AppState
 	@State private var addresses: [String] = []
+	@State private var error: String? = nil
 
 	var body: some View {
 		AddressesView(
@@ -19,13 +20,25 @@ private struct DeviceAddressesView: View {
 					return self.device.addresses()?.asArray() ?? []
 				},
 				set: { nv in
-					try! self.device.setAddresses(SushitrainListOfStrings.from(nv))
+					do {
+						try self.device.setAddresses(SushitrainListOfStrings.from(nv))
+					}
+					catch let e {
+						self.error = e.localizedDescription
+					}
 				}), editingAddresses: self.device.addresses()?.asArray() ?? [], addressType: .device
 		)
 		#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)
 		#endif
 		.navigationTitle("Device addresses")
+		.alert(
+			isPresented: Binding(get: { self.error != nil }, set: { show in self.error = show ? self.error : nil }),
+			content: {
+				Alert(
+					title: Text("Could not change addresses"), message: Text(self.error ?? ""),
+					dismissButton: .default(Text("OK")))
+			})
 	}
 }
 
