@@ -12,6 +12,7 @@ import CoreImage.CIFilterBuiltins
 struct IdenticonView: View {
 	let deviceID: String
 	let cells = 5
+	let cornerRadius = 5.0
 
 	private func shouldFillRectAt(row: Int, column: Int) -> Bool {
 		let deviceIDClean = deviceID.replacingOccurrences(
@@ -45,44 +46,53 @@ struct IdenticonView: View {
 
 	var body: some View {
 		Canvas(opaque: false, colorMode: .linear, rendersAsynchronously: false) { context, size in
+			let padding = size.width < 25.0 || size.height < 25.0 ? 0.0 : self.cornerRadius
 			let rect = CGRect(origin: .zero, size: size)
-			let rectWidth = ceil(size.width / CGFloat(cells))
-			let rectHeight = ceil(size.height / CGFloat(cells))
+			let paddedRect = rect.insetBy(dx: padding, dy: padding)
+			let rectWidth = ceil(paddedRect.width / CGFloat(cells))
+			let rectHeight = ceil(paddedRect.height / CGFloat(cells))
 			context.fill(Rectangle().path(in: rect), with: .style(.windowBackground))
 			context.fill(Rectangle().path(in: rect), with: .color(Color.accentColor.opacity(0.05)))
 
-			let xOffset = -(rectWidth * CGFloat(cells) - size.width) / 2.0
-			let yOffset = -(rectHeight * CGFloat(cells) - size.height) / 2.0
+			let xOffset = -(rectWidth * CGFloat(cells) - paddedRect.width) / 2.0 + paddedRect.origin.x
+			let yOffset = -(rectHeight * CGFloat(cells) - paddedRect.height) / 2.0 + paddedRect.origin.y
 
-			for row in 0..<cells {
-				for column in 0...middleColumn {
+			context.drawLayer { context in
+				context.clip(
+					to: RoundedRectangle(cornerSize: CGSizeMake(self.cornerRadius / 2.0, self.cornerRadius / 2.0)).path(in: paddedRect)
+				)
+
+				for row in 0..<cells {
+					for column in 0...middleColumn {
 						if row == cells - 1 && column == middleColumn {
 							// Bottom middle cell is apparently never filled
 							continue
 						}
-					if self.shouldFillRectAt(row: row, column: column) {
-						let square = CGRect(
-							x: xOffset + CGFloat(column) * rectWidth,
-							y: yOffset + CGFloat(row) * rectHeight,
-							width: rectWidth, height: rectHeight)
-						context.fill(
-							Rectangle().path(in: square), with: .color(Color.accentColor))
 
-						if self.shouldMirrorRectAt(row: row, column: column) {
+						if self.shouldFillRectAt(row: row, column: column) {
 							let square = CGRect(
-								x: xOffset + CGFloat(mirrorColumnFor(column: column)) * rectWidth,
-								y: yOffset + CGFloat(row) * rectHeight, width: rectWidth,
-								height: rectHeight)
+								x: xOffset + CGFloat(column) * rectWidth,
+								y: yOffset + CGFloat(row) * rectHeight,
+								width: rectWidth, height: rectHeight)
 							context.fill(
-								Rectangle().path(in: square),
-								with: .color(Color.accentColor))
+								Rectangle().path(in: square), with: .color(Color.accentColor))
+
+							if self.shouldMirrorRectAt(row: row, column: column) {
+								let square = CGRect(
+									x: xOffset + CGFloat(mirrorColumnFor(column: column)) * rectWidth,
+									y: yOffset + CGFloat(row) * rectHeight, width: rectWidth,
+									height: rectHeight)
+								context.fill(
+									Rectangle().path(in: square),
+									with: .color(Color.accentColor))
+							}
 						}
 					}
 				}
 			}
 		}
 		.aspectRatio(1.0, contentMode: .fit)
-		.clipShape(.rect(cornerRadius: 5.0))
+		.clipShape(.rect(cornerRadius: self.cornerRadius))
 	}
 }
 
