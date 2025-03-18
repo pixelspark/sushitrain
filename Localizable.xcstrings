@@ -494,7 +494,7 @@
         },
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "%1$lld files and %2$lld subdirectories"
           }
         },
@@ -13385,6 +13385,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Видалення оригіналів"
+          }
+        }
+      }
+    },
+    "Replace existing file" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestehende Datei ersetzen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reemplazar archivo existente"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sostituisci il file esistente"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestaand bestand vervangen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Замінити наявний файл"
           }
         }
       }

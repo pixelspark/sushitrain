@@ -64,6 +64,7 @@ struct ExtraFilesView: View {
 					Section {
 						ForEach(extraFiles, id: \.self) { path in
 							let verdict = verdicts[path]
+							let globalEntry = try? folder.getFileInformation(path)
 
 							HStack {
 								VStack(alignment: .leading) {
@@ -88,7 +89,12 @@ struct ExtraFilesView: View {
 										Image(systemName: "trash.slash").tag(true).accessibilityLabel("Keep file")
 									}
 									else {
-										Image(systemName: "plus.square.fill").tag(true).accessibilityLabel("Keep file")
+										if let ge = globalEntry, !ge.isDeleted() {
+											Image(systemName: "rectangle.2.swap").tag(true).accessibilityLabel("Replace existing file")
+										}
+										else {
+											Image(systemName: "plus.square.fill").tag(true).accessibilityLabel("Keep file")
+										}
 									}
 								}.pickerStyle(.segmented).frame(width: 100)
 							}
