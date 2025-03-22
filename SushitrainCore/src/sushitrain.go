@@ -36,7 +36,7 @@ import (
 type Client struct {
 	app                        *syncthing.App
 	cancel                     context.CancelFunc
-	cert                       tls.Certificate
+	cert                       *tls.Certificate
 	config                     config.Wrapper
 	ctx                        context.Context
 	Delegate                   ClientDelegate
@@ -82,7 +82,7 @@ const (
 	bookmarkFileName     = "sushitrain-bookmark.dat"
 )
 
-func NewClient(configPath string, filesPath string, saveLog bool) (*Client, error) {
+func NewClient(configPath string, filesPath string, saveLog bool) *Client {
 	// Set version info
 	build.Version = "v1.29.2"
 	build.Host = "t-shaped.nl"
@@ -124,14 +124,6 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 		})
 	}
 
-	// Some early chores
-	osutil.MaximizeOpenFileLimit()
-
-	// Set up logging and context for cancellation
-	ctx, cancel := context.WithCancel(context.Background())
-	evLogger := events.NewLogger()
-	go evLogger.Serve(ctx)
-
 	// Set up default locations
 	locations.SetBaseDir(locations.DataBaseDir, configPath)
 	locations.SetBaseDir(locations.ConfigBaseDir, configPath)
@@ -166,77 +158,20 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 		}
 	}
 
-	// Print final locations
-	Logger.Infof("Config file: %s\n", locations.Get(locations.ConfigFile))
-	Logger.Infof("Cert file: %s key file: %s\n", locations.Get(locations.CertFile), locations.Get(locations.KeyFile))
-
-	// Ensure that we have a certificate and key.
-	cert, err := syncthing.LoadOrGenerateCertificate(
-		locations.Get(locations.CertFile),
-		locations.Get(locations.KeyFile),
-	)
-	if err != nil {
-		cancel()
-		return nil, err
-	}
-
-	// Load or create the config
-	devID := protocol.NewDeviceID(cert.Certificate[0])
-	Logger.Infof("Loading config file from %s\n", locations.Get(locations.ConfigFile))
-	config, err := loadOrDefaultConfig(devID, ctx, evLogger, filesPath)
-	if err != nil {
-		cancel()
-		return nil, err
-	}
-
-	// Load database
-	dbPath := locations.Get(locations.Database)
-	legacyDBPath := locations.Get(locations.LegacyDatabase)
-	// ldb, err := syncthing.OpenDBBackend(dbFile, config.Options().DatabaseTuning)
-	// if err != nil {
-	// 	cancel()
-	// 	return nil, err
-	// }
-	sdb, err := syncthing.OpenDatabase(dbPath)
-	if err != nil {
-		cancel()
-		return nil, err
-	}
-
-	if err := syncthing.TryMigrateDatabase(sdb, nil, legacyDBPath); err != nil {
-		Logger.Warnln("Failed to migrate legacy database:", err)
-		cancel()
-		return nil, err
-	}
-
-	appOpts := syncthing.Options{
-		NoUpgrade:      false,
-		ProfilerAddr:   "",
-		ResetDeltaIdxs: false,
-		Verbose:        false,
-	}
-
-	app, err := syncthing.New(config, sdb, evLogger, cert, appOpts)
-	if err != nil {
-		cancel()
-		return nil, err
-	}
-
-	server, err := NewServer(app, ctx)
-	if err != nil {
-		cancel()
-		return nil, err
-	}
+	// Set up logging
+	ctx, cancel := context.WithCancel(context.Background())
+	evLogger := events.NewLogger()
+	go evLogger.Serve(ctx)
 
 	return &Client{
 		Delegate:                   nil,
-		cert:                       cert,
-		config:                     config,
+		cert:                       nil,
+		config:                     nil,
 		cancel:                     cancel,
 		ctx:                        ctx,
-		app:                        app,
+		app:                        nil,
 		evLogger:                   evLogger,
-		Server:                     server,
+		Server:                     nil,
 		foldersDownloading:         make(map[string]bool, 0),
 		connectedDeviceAddresses:   make(map[string]string, 0),
 		IsUsingCustomConfiguration: isUsingCustomConfiguration,
@@ -245,7 +180,7 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 		uploadProgress:             make(map[string]map[string]map[string]int),
 		ResolvedListenAddresses:    make(map[string][]string),
 		extraneousIgnored:          make([]string, 0),
-	}, nil
+	}
 }
 
 func (clt *Client) SetExtraneousIgnored(names []string) {
@@ -540,7 +475,77 @@ func (clt *Client) IsDownloading() bool {
 	return false
 }
 
+// This method loads and migrates the Syncthing database, then starts up an instance. It also starts the streaming web
+// server. This method can take a while to complete and should only ever be called once.
 func (clt *Client) Start() error {
+	clt.mutex.Lock()
+	defer clt.mutex.Unlock()
+
+	if clt.app != nil || clt.Server != nil {
+		return errors.New("client already started")
+	}
+
+	// Some early chores
+	osutil.MaximizeOpenFileLimit()
+
+	// Print final locations
+	Logger.Infof("Config file: %s\n", locations.Get(locations.ConfigFile))
+	Logger.Infof("Cert file: %s key file: %s\n", locations.Get(locations.CertFile), locations.Get(locations.KeyFile))
+
+	// Ensure that we have a certificate and key.
+	cert, err := syncthing.LoadOrGenerateCertificate(
+		locations.Get(locations.CertFile),
+		locations.Get(locations.KeyFile),
+	)
+	if err != nil {
+		clt.cancel()
+		return err
+	}
+	clt.cert = &cert
+
+	// Load or create the config
+	devID := protocol.NewDeviceID(cert.Certificate[0])
+	Logger.Infof("Loading config file from %s\n", locations.Get(locations.ConfigFile))
+	config, err := loadOrDefaultConfig(devID, clt.ctx, clt.evLogger, clt.filesPath)
+	if err != nil {
+		clt.cancel()
+		return err
+	}
+	clt.config = config
+
+	// Load database
+	dbPath := locations.Get(locations.Database)
+	legacyDBPath := locations.Get(locations.LegacyDatabase)
+
+	sdb, err := syncthing.OpenDatabase(dbPath)
+	if err != nil {
+		return err
+	}
+
+	if err := syncthing.TryMigrateDatabase(sdb, legacyDBPath); err != nil {
+		Logger.Warnln("Failed to migrate legacy database:", err)
+		return err
+	}
+
+	appOpts := syncthing.Options{
+		NoUpgrade:      false,
+		ProfilerAddr:   "",
+		ResetDeltaIdxs: false,
+		Verbose:        false,
+	}
+
+	app, err := syncthing.New(clt.config, sdb, clt.evLogger, *clt.cert, appOpts)
+	if err != nil {
+		return err
+	}
+	clt.app = app
+
+	server, err := NewServer(app, clt.ctx)
+	if err != nil {
+		return err
+	}
+	clt.Server = server
+
 	// Subscribe to events
 	go clt.startEventListener()
 
