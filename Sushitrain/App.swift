@@ -17,14 +17,9 @@ class SushitrainDelegate: NSObject {
 	}
 }
 
-enum AppStartupState {
-	case normal(AppState)
-	case error(String)
-}
-
 @main
 struct SushitrainApp: App {
-	fileprivate var appStartupState: AppStartupState
+	fileprivate var appState: AppState
 	fileprivate var delegate: SushitrainDelegate?
 	private let qaService = QuickActionService.shared
 
@@ -56,26 +51,11 @@ struct SushitrainApp: App {
 			Log.warn("Error initializing: \(errorMessage)")
 			self.appStartupState = .error(errorMessage)
 
-			#if os(macOS)
-				// On macOS, we show the start up error straight away in a modal alert, then exit
-				AppState.modalAlert(message: String(localized: "Synctrain cannot be started: ") + errorMessage)
-				exit(-1)
-			#else
-				// On iOS, the appStartupState = .error makes the app show the error message in the main window
-				return
-			#endif
-		}
-
-		let appState = AppState(
-			client: client, documentsDirectory: documentsDirectory, configDirectory: configDirectory)
-		self.appStartupState = .normal(appState)
 		AppDependencyManager.shared.add(dependency: appState)
 		appState.isLogging = enableLogging
 		self.delegate = SushitrainDelegate(appState: appState)
 		client.delegate = self.delegate
 		client.server?.delegate = self.delegate
-		self.performMigrations()
-		appState.update()
 
 		// Resolve bookmarks
 		let folderIDs = client.folders()?.asArray() ?? []
@@ -106,58 +86,13 @@ struct SushitrainApp: App {
 			let hideInDock = self.hideInDock
 		#endif
 
-		DispatchQueue.global(qos: .userInitiated).async {
-			do {
-				try client.start()
+		appState.start()
 
-				DispatchQueue.main.async {
-					appState.applySettings()
-					appState.update()
-					Task {
-						await appState.updateBadge()
-					}
-					appState.protectFiles()
-				}
+		#if os(macOS)
+			DispatchQueue.main.async {
+				NSApp.setActivationPolicy(hideInDock ? .accessory : .regular)
 			}
-			catch let error {
-				DispatchQueue.main.async {
-					appState.alert(message: error.localizedDescription)
-				}
-			}
-
-			#if os(macOS)
-				DispatchQueue.main.async {
-					NSApp.setActivationPolicy(hideInDock ? .accessory : .regular)
-				}
-			#endif
-		}
-	}
-
-	private func performMigrations() {
-		if case .normal(let appState) = self.appStartupState {
-			let lastRunBuild = UserDefaults.standard.integer(forKey: "lastRunBuild")
-			let currentBuild = Int(Bundle.main.buildVersionNumber ?? "0") ?? 0
-			Log.info("Migrations: current build is \(currentBuild), last run build \(lastRunBuild)")
-
-			if lastRunBuild < currentBuild {
-				#if os(macOS)
-					// From build 19 onwards, enable fs watching for all folders by default. It can later be disabled
-					if lastRunBuild <= 18 {
-						Log.info("Enabling FS watching for all folders")
-						appState.client.setFSWatchingEnabledForAllFolders(true)
-					}
-				#endif
-
-				#if os(iOS)
-					// From build 26 onwards, FS watching is supported on iOS, but it should not be enabled by default
-					if lastRunBuild <= 26 {
-						Log.info("Disabling FS watching for all folders")
-						appState.client.setFSWatchingEnabledForAllFolders(false)
-					}
-				#endif
-			}
-			UserDefaults.standard.set(currentBuild, forKey: "lastRunBuild")
-		}
+		#endif
 	}
 
 	private static func configDirectoryURL() -> URL {
@@ -214,17 +149,14 @@ struct SushitrainApp: App {
 
 	var body: some Scene {
 		#if os(macOS)
-			WindowGroup(id: "folder", for: String.self) { [appStartupState] folderID in
-				if case .normal(let appState) = appStartupState {
-					ContentView(
-						route: folderID.wrappedValue == nil ? .start : .folder(folderID: folderID.wrappedValue)
-					)
-					.environmentObject(appState)
-				}
+			WindowGroup(id: "folder", for: String.self) { [appState] folderID in
+				MainView(
+					route: folderID.wrappedValue == nil ? .start : .folder(folderID: folderID.wrappedValue)
+				).environmentObject(appState)
 			}
 
-			WindowGroup(id: "preview", for: Preview.self) { [appStartupState] preview in
-				if case .normal(let appState) = appStartupState {
+			WindowGroup(id: "preview", for: Preview.self) { [appState] preview in
+				if case .started = appState.startupState {
 					if let p = preview.wrappedValue {
 						PreviewWindow(preview: p)
 							.environmentObject(appState)
@@ -234,17 +166,8 @@ struct SushitrainApp: App {
 			.windowManagerRole(.associated)
 		#endif
 
-		WindowGroup(id: "main") { [appStartupState] in
-			switch appStartupState {
-			case .normal(let appState):
-				ContentView()
-					#if os(iOS)
-						.handleOpenURLInApp()
-					#endif
-					.environmentObject(appState)
-			case .error(let e):
-				ContentUnavailableView("Cannot start the app", systemImage: "exclamationmark.triangle.fill", description: Text(e))
-			}
+		WindowGroup(id: "main") { [appState] in
+			MainView().environmentObject(appState)
 		}
 		#if os(macOS)
 			.onChange(of: hideInDock, initial: true) { _ov, nv in
@@ -283,10 +206,10 @@ struct SushitrainApp: App {
 			}
 			.windowResizability(.contentSize)
 
-			MenuBarExtraView(hideInDock: $hideInDock, appStartupState: appStartupState)
+			MenuBarExtraView(hideInDock: $hideInDock, appState: appState)
 
 			Settings {
-				if case .normal(let appState) = appStartupState {
+				if case .started = appState.startupState {
 					NavigationStack {
 						TabbedSettingsView(hideInDock: $hideInDock)
 					}.environmentObject(appState)
@@ -295,18 +218,16 @@ struct SushitrainApp: App {
 			.windowResizability(.contentSize)
 
 			Window("Statistics", id: "stats") {
-				if case .normal(let appState) = appStartupState {
-					TotalStatisticsView()
-						.environmentObject(appState)
+				if case .started = appState.startupState {
+					TotalStatisticsView(appState: appState)
 						.frame(maxWidth: 320)
 				}
 			}
 			.windowResizability(.contentSize)
 
 			Window("Synctrain", id: "singleMain") {
-				if case .normal(let appState) = appStartupState {
-					ContentView()
-						.environmentObject(appState)
+				if case .started = appState.startupState {
+					MainView().environmentObject(appState)
 				}
 			}
 			.windowResizability(.contentSize)
@@ -375,12 +296,12 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 #if os(macOS)
 	struct MenuBarExtraView: Scene {
 		@Binding var hideInDock: Bool
-		let appStartupState: AppStartupState
+		@EnvironmentObject var appState: AppState
 		@Environment(\.openWindow) private var openWindow
 
 		var body: some Scene {
 			Window("Settings", id: "appSettings") {
-				if case .normal(let appState) = appStartupState {
+				if case .started = appState.startupState {
 					NavigationStack {
 						TabbedSettingsView(hideInDock: $hideInDock).environmentObject(appState)
 					}
@@ -388,8 +309,8 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 			}
 
 			MenuBarExtra("Synctrain", systemImage: self.menuIcon, isInserted: $hideInDock) {
-				if case .normal(let appState) = appStartupState {
-					OverallStatusView().environmentObject(appState)
+				if case .started = appState.startupState {
+					OverallStatusView()
 
 					Button("Open file browser...") {
 						openWindow(id: "singleMain")
@@ -445,26 +366,26 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 					}
 
 					Divider()
+
+					Button(
+						action: {
+							// Open the "about" window
+							openWindow(id: "appSettings")
+							NSApplication.shared.activate()
+						},
+						label: {
+							Text("Settings...")
+						})
+
+					Button(
+						action: {
+							openWindow(id: "stats")
+							NSApplication.shared.activate()
+						},
+						label: {
+							Text("Statistics...")
+						})
 				}
-
-				Button(
-					action: {
-						// Open the "about" window
-						openWindow(id: "appSettings")
-						NSApplication.shared.activate()
-					},
-					label: {
-						Text("Settings...")
-					})
-
-				Button(
-					action: {
-						openWindow(id: "stats")
-						NSApplication.shared.activate()
-					},
-					label: {
-						Text("Statistics...")
-					})
 
 				Button(
 					action: {
@@ -489,7 +410,7 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 		}
 
 		private var menuIcon: String {
-			if case .normal(let appState) = appStartupState {
+			if case .started = appState.startupState {
 				if appState.client.connectedPeerCount() > 0 {
 					if appState.client.isDownloading() || appState.client.isUploading() {
 						return "folder.fill.badge.gearshape"

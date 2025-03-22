@@ -7,14 +7,32 @@ import SushitrainCore
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct ContentView: View {
+struct MainView: View {
+	@EnvironmentObject var appState: AppState
+	@State var route: Route? = .start
+
+	var body: some View {
+		switch appState.startupState {
+		case .notStarted:
+			ProgressView().progressViewStyle(.circular)
+		case .error(let e):
+			ContentUnavailableView("Cannot start the app", systemImage: "exclamationmark.triangle.fill", description: Text(e))
+		case .started:
+			ContentView(route: route)
+				#if os(iOS)
+					.handleOpenURLInApp()
+				#endif
+		}
+	}
+}
+
+private struct ContentView: View {
 	private static let currentOnboardingVersion = 1
-	@AppStorage("onboardingVersionShown") var onboardingVersionShown = 0
 
 	@EnvironmentObject var appState: AppState
+	@AppStorage("onboardingVersionShown") var onboardingVersionShown = 0
 	@Environment(\.scenePhase) var scenePhase
 	@Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
 	@State private var showCustomConfigWarning = false
 	@State private var showOnboarding = false
 	@State var route: Route? = .start
