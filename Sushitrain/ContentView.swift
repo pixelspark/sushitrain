@@ -14,7 +14,16 @@ struct MainView: View {
 	var body: some View {
 		switch appState.startupState {
 		case .notStarted:
-			ProgressView().progressViewStyle(.circular)
+			VStack(spacing: 10) {
+				ProgressView().progressViewStyle(.circular)
+				if !appState.isMigratedToNewDatabase {
+					// We are likely migrating now
+					Text("Upgrading the database. This may take a few minutes, depending on how many files you have. Please do not close the app until this is finished.")
+						.foregroundStyle(.secondary)
+						.multilineTextAlignment(.center)
+						.frame(maxWidth: 320)
+				}
+			}
 		case .error(let e):
 			ContentUnavailableView("Cannot start the app", systemImage: "exclamationmark.triangle.fill", description: Text(e))
 		case .started:

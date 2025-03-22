@@ -475,6 +475,14 @@ func (clt *Client) IsDownloading() bool {
 	return false
 }
 
+func (clt *Client) HasOldDatabase() bool {
+	if _, err := os.Lstat(locations.Get(locations.LegacyDatabase)); err != nil {
+		// No old database
+		return false
+	}
+	return true
+}
+
 // This method loads and migrates the Syncthing database, then starts up an instance. It also starts the streaming web
 // server. This method can take a while to complete and should only ever be called once.
 func (clt *Client) Start() error {
