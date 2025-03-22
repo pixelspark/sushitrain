@@ -16,6 +16,7 @@
 		652763C02C49589200250D3C /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652763BF2C49589200250D3C /* OnboardingView.swift */; };
 		652879A82C4D06F5004AF46F /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652879A72C4D06F5004AF46F /* SearchView.swift */; };
 		652EA4152CBA60AA009EC5FE /* notices.html in Resources */ = {isa = PBXBuildFile; fileRef = 652EA4142CBA60AA009EC5FE /* notices.html */; };
+		653359C92D8EAF3A005CCA43 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 653359C82D8EAF3A005CCA43 /* Settings.bundle */; };
 		65361E6A2D18360F00BCC52C /* FileViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65361E692D18360800BCC52C /* FileViewerView.swift */; };
 		654272982C7BC77000F2CEF8 /* FileQuickLookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654272972C7BC77000F2CEF8 /* FileQuickLookView.swift */; };
 		6550DFE82D6A645300D8DCC9 /* EncryptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6550DFE72D6A644E00D8DCC9 /* EncryptionView.swift */; };
@@ -90,6 +91,7 @@
 		652763BF2C49589200250D3C /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		652879A72C4D06F5004AF46F /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		652EA4142CBA60AA009EC5FE /* notices.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = notices.html; path = SushitrainCore/notices.html; sourceTree = SOURCE_ROOT; };
+		653359C82D8EAF3A005CCA43 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		65361E692D18360800BCC52C /* FileViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewerView.swift; sourceTree = "<group>"; };
 		654272972C7BC77000F2CEF8 /* FileQuickLookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileQuickLookView.swift; sourceTree = "<group>"; };
 		6550DFE72D6A644E00D8DCC9 /* EncryptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionView.swift; sourceTree = "<group>"; };
@@ -209,6 +211,7 @@
 				65F15C022CA1F85D00E13DDD /* SafariView.swift */,
 				652879A72C4D06F5004AF46F /* SearchView.swift */,
 				65D40FCB2CBDB10300CAE91A /* SelectiveFolderView.swift */,
+				653359C82D8EAF3A005CCA43 /* Settings.bundle */,
 				652763BA2C45C99200250D3C /* SettingsView.swift */,
 				65C9E14B2C3F341F00EDCE6C /* StartView.swift */,
 				65C9E1462C3DB67C00EDCE6C /* Sushitrain.entitlements */,
@@ -326,6 +329,7 @@
 				65AE123C2C39F34B00E721D4 /* PrivacyInfo.xcprivacy in Resources */,
 				65AE12042C39EE0F00E721D4 /* Preview Assets.xcassets in Resources */,
 				6506158B2C3C4EA9002B6EE6 /* Localizable.xcstrings in Resources */,
+				653359C92D8EAF3A005CCA43 /* Settings.bundle in Resources */,
 				65AE12012C39EE0F00E721D4 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
