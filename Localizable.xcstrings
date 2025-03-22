@@ -19520,6 +19520,40 @@
         }
       }
     },
+    "Upgrading the database. This may take a few minutes, depending on how many files you have. Please do not close the app until this is finished." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Datenbank wird aktualisiert. Dies kann einige Minuten dauern, je nach der Anzahl der Dateien, die Sie haben. Bitte schließen Sie die App nicht, bis dieser Vorgang abgeschlossen ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualizando la base de datos. Esto puede tardar unos minutos, dependiendo de cuántos archivos tengas. Por favor, no cierres la app hasta que esto termine."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiornamento del database. Questo potrebbe richiedere alcuni minuti, a seconda del numero di file che hai. Si prega di non chiudere l'app finché non è terminato."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De database wordt bijgewerkt. Dit kan enkele minuten duren, afhankelijk van hoeveel bestanden je hebt. Sluit de app niet totdat dit is voltooid."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оновлення бази даних. Це може зайняти кілька хвилин, залежно від кількості ваших файлів. Будь ласка, не закривайте програму, доки оновлення не завершиться."
+          }
+        }
+      }
+    },
     "Uptime" : {
       "localizations" : {
         "de" : {
