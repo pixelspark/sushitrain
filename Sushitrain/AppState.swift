@@ -40,6 +40,12 @@ enum FolderMetric: String {
 	}
 #endif
 
+enum AppStartupState: Equatable {
+	case notStarted
+	case error(String)
+	case started
+}
+
 @MainActor class AppState: ObservableObject {
 	var client: SushitrainClient
 	private let documentsDirectory: URL
@@ -54,6 +60,7 @@ enum FolderMetric: String {
 	@Published var lastChanges: [SushitrainChange] = []
 	@Published var isLogging: Bool = false
 	@Published var foldersWithExtraFiles: [String] = []
+	@Published var startupState: AppStartupState = .notStarted
 
 	#if os(iOS)
 		@Published var currentAction: QuickAction? = nil
@@ -135,6 +142,47 @@ enum FolderMetric: String {
 			if let s = self {
 				s.eventCounter += 1
 				s.update()
+			}
+		}
+	}
+
+	@MainActor func start() {
+		if self.startupState != .notStarted {
+			assertionFailure("cannot start again")
+		}
+
+		self.performMigrations()
+
+		let client = self.client
+		DispatchQueue.global(qos: .userInitiated).async {
+			do {
+				// This one opens the database, migrates stuff, etc. and may take a while
+				Log.info("Starting the client...")
+				try client.start()
+				Log.info("Client started")
+
+				DispatchQueue.main.async {
+					Log.info("Configuring the user interface...")
+					self.applySettings()
+					self.update()
+					Task {
+						await self.updateBadge()
+					}
+					self.protectFiles()
+					Log.info("Ready to go")
+					self.startupState = .started
+				}
+			}
+			catch let error {
+				Log.warn("Could not start: \(error.localizedDescription)")
+
+				DispatchQueue.main.async {
+					self.startupState = .error(error.localizedDescription)
+
+					#if os(macOS)
+						self.alert(message: error.localizedDescription)
+					#endif
+				}
 			}
 		}
 	}
@@ -271,6 +319,32 @@ enum FolderMetric: String {
 			folderInfos.append(folderInfo)
 		}
 		return folderInfos
+	}
+
+	// Perform several changes we need to do between versions
+	private func performMigrations() {
+		let lastRunBuild = UserDefaults.standard.integer(forKey: "lastRunBuild")
+		let currentBuild = Int(Bundle.main.buildVersionNumber ?? "0") ?? 0
+		Log.info("Migrations: current build is \(currentBuild), last run build \(lastRunBuild)")
+
+		if lastRunBuild < currentBuild {
+			#if os(macOS)
+				// From build 19 onwards, enable fs watching for all folders by default. It can later be disabled
+				if lastRunBuild <= 18 {
+					Log.info("Enabling FS watching for all folders")
+					self.client.setFSWatchingEnabledForAllFolders(true)
+				}
+			#endif
+
+			#if os(iOS)
+				// From build 26 onwards, FS watching is supported on iOS, but it should not be enabled by default
+				if lastRunBuild <= 26 {
+					Log.info("Disabling FS watching for all folders")
+					self.client.setFSWatchingEnabledForAllFolders(false)
+				}
+			#endif
+		}
+		UserDefaults.standard.set(currentBuild, forKey: "lastRunBuild")
 	}
 
 	@MainActor
