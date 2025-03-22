@@ -680,6 +680,7 @@ func openURLInSystemFilesApp(url: URL) {
 	let openInFilesAppLabel = String(localized: "Show in Finder")
 #endif
 
+extension SushitrainClient: @unchecked @retroactive Sendable {}
 extension SushitrainChange: @unchecked @retroactive Sendable {}
 extension SushitrainFolder: @unchecked @retroactive Sendable {}
 extension SushitrainFolderStats: @unchecked @retroactive Sendable {}
