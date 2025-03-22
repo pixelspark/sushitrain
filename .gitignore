@@ -3,4 +3,4 @@
 /Sushitrain.xcodeproj/xcuserdata
 /localize.sh
 /Build
-/Assets
+*.p12
