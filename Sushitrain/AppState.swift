@@ -61,6 +61,7 @@ enum AppStartupState: Equatable {
 	@Published var isLogging: Bool = false
 	@Published var foldersWithExtraFiles: [String] = []
 	@Published var startupState: AppStartupState = .notStarted
+	@Published var isMigratedToNewDatabase: Bool = false
 
 	#if os(iOS)
 		@Published var currentAction: QuickAction? = nil
@@ -152,6 +153,7 @@ enum AppStartupState: Equatable {
 		}
 
 		self.performMigrations()
+		self.isMigratedToNewDatabase = !client.hasOldDatabase()
 
 		let client = self.client
 		DispatchQueue.global(qos: .userInitiated).async {
@@ -162,6 +164,8 @@ enum AppStartupState: Equatable {
 				Log.info("Client started")
 
 				DispatchQueue.main.async {
+					// Check to see if we have migrated
+					self.isMigratedToNewDatabase = !client.hasOldDatabase()
 					Log.info("Configuring the user interface...")
 					self.applySettings()
 					self.update()
