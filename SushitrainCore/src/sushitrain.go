@@ -197,19 +197,23 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 	// 	cancel()
 	// 	return nil, err
 	// }
-	sdb, err := syncthing.OpenDatabase(dbPath, legacyDBPath, evLogger)
+	sdb, err := syncthing.OpenDatabase(dbPath)
 	if err != nil {
 		cancel()
 		return nil, err
 	}
 
+	if err := syncthing.TryMigrateDatabase(sdb, nil, legacyDBPath); err != nil {
+		Logger.Warnln("Failed to migrate legacy database:", err)
+		cancel()
+		return nil, err
+	}
+
 	appOpts := syncthing.Options{
-		NoUpgrade:            false,
-		ProfilerAddr:         "",
-		ResetDeltaIdxs:       false,
-		Verbose:              false,
-		DBRecheckInterval:    0,
-		DBIndirectGCInterval: 0,
+		NoUpgrade:      false,
+		ProfilerAddr:   "",
+		ResetDeltaIdxs: false,
+		Verbose:        false,
 	}
 
 	app, err := syncthing.New(config, sdb, evLogger, cert, appOpts)
