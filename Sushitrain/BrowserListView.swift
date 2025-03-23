@@ -365,27 +365,23 @@ struct FileEntryLink<Content: View>: View {
 
 	private func previewFile() {
 		#if os(macOS)
-			// Cmd-click to open preview window directory
-			if NSEvent.modifierFlags.contains(.command) {
-				openWindow(
-					id: "preview",
-					value: Preview(
-						folderID: entry.folder!.folderID,
-						path: entry.path()
-					))
-				return
+			openWindow(
+				id: "preview",
+				value: Preview(
+					folderID: entry.folder!.folderID,
+					path: entry.path()
+				))
+		#else
+			// Tap to preview local file in QuickLook
+			if entry.isLocallyPresent(),
+				let url = entry.localNativeFileURL
+			{
+				self.quickLookURL = url
+			}
+			else if entry.isStreamable {
+				self.showPreviewSheet = true
 			}
 		#endif
-
-		// Tap to preview local file in QuickLook
-		if entry.isLocallyPresent(),
-			let url = entry.localNativeFileURL
-		{
-			self.quickLookURL = url
-		}
-		else if entry.isStreamable {
-			self.showPreviewSheet = true
-		}
 	}
 
 	private var inner: some View {
