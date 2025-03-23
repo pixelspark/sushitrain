@@ -4026,6 +4026,40 @@
         }
       }
     },
+    "Conflicting versions of this file" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konfliktierende Versionen dieser Datei"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versiones en conflicto de este archivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versioni conflittuali di questo file"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conflicterende versies van dit bestand"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Конфліктуючі версії цього файлу"
+          }
+        }
+      }
+    },
     "Connected" : {
       "localizations" : {
         "de" : {

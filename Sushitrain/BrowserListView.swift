@@ -21,112 +21,36 @@ struct BrowserListView: View {
 				FolderStatusView(appState: appState, folder: folder)
 
 				if hasExtraneousFiles {
-					NavigationLink(destination: {
-						ExtraFilesView(
-							folder: self.folder,
-							appState: self.appState)
-					}) {
-						Label(
-							"This folder has new files",
-							systemImage:
-								"exclamationmark.triangle.fill"
-						).foregroundColor(.orange)
+					NavigationLink(destination: { ExtraFilesView(folder: self.folder, appState: self.appState) }) {
+						Label("This folder has new files", systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange)
 					}
 				}
 			}
 
 			// List subdirectories
 			Section {
-				ForEach(subdirectories, id: \.self) {
-					(subDirEntry: SushitrainEntry) in
+				ForEach(subdirectories, id: \.self) { (subDirEntry: SushitrainEntry) in
 					let fileName = subDirEntry.fileName()
-					NavigationLink(
-						destination: BrowserView(
-							appState: appState,
-							folder: folder,
-							prefix: "\(prefix)\(fileName)/"
-						)
-					) {
+					NavigationLink(destination: BrowserView(appState: appState, folder: folder, prefix: "\(prefix)\(fileName)/")) {
 						ItemSelectSwipeView(file: subDirEntry) {
 							// Subdirectory name
 							HStack(spacing: 9.0) {
-								Image(
-									systemName:
-										subDirEntry
-										.systemImage
-								)
-								.foregroundStyle(
-									subDirEntry
-										.color
-										?? Color
-										.accentColor
-								)
-								Text(
-									subDirEntry
-										.fileName()
-								)
-								.multilineTextAlignment(
-									.leading
-								)
-								.foregroundStyle(
-									Color.primary
-								)
-								.opacity(
-									subDirEntry
-										.isLocallyPresent()
-										? 1.0
-										: EntryView
-											.remoteFileOpacity
-								)
+								Image(systemName: subDirEntry.systemImage).foregroundStyle(subDirEntry.color ?? Color.accentColor)
+								Text(subDirEntry.fileName()).multilineTextAlignment(.leading).foregroundStyle(Color.primary).opacity(
+									subDirEntry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
 								Spacer()
-							}
-							.frame(maxWidth: .infinity)
-							.padding(0)
+							}.frame(maxWidth: .infinity).padding(0)
 						}
-					}
-					.contextMenu(
+					}.contextMenu(
 						ContextMenu(menuItems: {
-							if let file =
-								try? folder
-								.getFileInformation(
-									self.prefix
-										+ fileName
-								)
-							{
-								NavigationLink(
-									destination:
-										FileView(
-											file:
-												file,
-											appState:
-												self
-												.appState,
-											showPath:
-												false
-										)
-								) {
-									Label(
-										"Subdirectory properties",
-										systemImage:
-											"folder.badge.gearshape"
-									)
+							if let file = try? folder.getFileInformation(self.prefix + fileName) {
+								NavigationLink(destination: FileView(file: file, appState: self.appState, showPath: false)) {
+									Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
 								}
 
-								ItemSelectToggleView(
-									appState:
-										appState,
-									file: file)
+								ItemSelectToggleView(appState: appState, file: file)
 
-								if file
-									.hasExternalSharingURL
-								{
-									FileSharingLinksView(
-										entry:
-											file,
-										sync:
-											true
-									)
-								}
+								if file.hasExternalSharingURL { FileSharingLinksView(entry: file, sync: true) }
 							}
 						}))
 				}
@@ -136,41 +60,27 @@ struct BrowserListView: View {
 			Section {
 				ForEach(files, id: \.self) { file in
 					EntryView(
-						appState: appState, entry: file,
-						folder: folder,
-						siblings: files,
+						appState: appState, entry: file, folder: folder, siblings: files,
 						showThumbnail: self.appState.browserViewStyle == .thumbnailList
-					)
-					.id(file.id)
+					).id(file.id)
 				}
 			}
 
 			// Show number of items
 			Group {
 				if !self.subdirectories.isEmpty && self.files.isEmpty {
-					Text(
-						"\(self.subdirectories.count) subdirectories"
-					)
+					Text("\(self.subdirectories.count) subdirectories")
 				}
-				else if !self.files.isEmpty
-					&& self.subdirectories.isEmpty
-				{
+				else if !self.files.isEmpty && self.subdirectories.isEmpty {
 					Text("\(self.files.count) files")
 				}
-				else if !self.files.isEmpty
-					&& !self.subdirectories.isEmpty
-				{
-					Text(
-						"\(self.files.count) files and \(self.subdirectories.count) subdirectories"
-					)
+				else if !self.files.isEmpty && !self.subdirectories.isEmpty {
+					Text("\(self.files.count) files and \(self.subdirectories.count) subdirectories")
 				}
-			}
-			.font(.footnote)
-			.foregroundColor(.secondary)
-			.frame(maxWidth: .infinity)
-			#if os(iOS)
-				.listRowBackground(Color(.systemGroupedBackground))
-			#endif
+			}.font(.footnote).foregroundColor(.secondary).frame(maxWidth: .infinity)
+				#if os(iOS)
+					.listRowBackground(Color(.systemGroupedBackground))
+				#endif
 		}
 		#if os(macOS)
 			.listStyle(.inset(alternatesRowBackgrounds: true))
@@ -192,36 +102,25 @@ struct EntryView: View {
 			if self.showThumbnail {
 				// Thubmnail view shows thumbnail image next to the file name
 				HStack(alignment: .center, spacing: 9.0) {
-					ThumbnailView(
-						file: entry, appState: appState, showFileName: false,
-						showErrorMessages: false
-					)
-					.frame(width: 60, height: 40)
-					.cornerRadius(6.0)
-					.id(entry.id)
-					.help(entry.fileName())
+					ThumbnailView(file: entry, appState: appState, showFileName: false, showErrorMessages: false).frame(
+						width: 60, height: 40
+					).cornerRadius(6.0).id(entry.id).help(entry.fileName())
 
 					// The entry name (grey when not locally present)
-					Text(entry.fileName())
-						.multilineTextAlignment(.leading)
-						.foregroundStyle(Color.primary)
-						.opacity(entry.isLocallyPresent() ? 1.0 : Self.remoteFileOpacity)
+					Text(entry.fileName()).multilineTextAlignment(.leading).foregroundStyle(
+						entry.isConflictCopy() ? Color.red : Color.primary
+					).opacity(entry.isLocallyPresent() ? 1.0 : Self.remoteFileOpacity)
 					Spacer()
-				}
-				.frame(maxWidth: .infinity)
-				.padding(0)
+				}.frame(maxWidth: .infinity).padding(0)
 			}
 			else {
 				HStack {
-					Image(systemName: entry.systemImage)
-						.foregroundStyle(entry.color ?? Color.accentColor)
-					Text(entry.fileName())
-						.multilineTextAlignment(.leading)
-						.foregroundStyle(Color.primary)
-						.opacity(entry.isLocallyPresent() ? 1.0 : Self.remoteFileOpacity)
+					Image(systemName: entry.systemImage).foregroundStyle(entry.color ?? Color.accentColor)
+					Text(entry.fileName()).multilineTextAlignment(.leading).foregroundStyle(
+						entry.isConflictCopy() ? Color.red : Color.primary
+					).opacity(entry.isLocallyPresent() ? 1.0 : Self.remoteFileOpacity)
 					Spacer()
-				}
-				.frame(maxWidth: .infinity)
+				}.frame(maxWidth: .infinity)
 			}
 		}
 	}
@@ -234,107 +133,45 @@ struct EntryView: View {
 				if targetEntry.isDirectory() {
 					if let targetFolder = targetEntry.folder {
 						NavigationLink(
-							destination: BrowserView(
-								appState: appState,
-								folder: targetFolder,
-								prefix: targetEntry.path() + "/"
-							)
-						) {
-							self.entryView(entry: entry)
-						}
-						.contextMenu {
+							destination: BrowserView(appState: appState, folder: targetFolder, prefix: targetEntry.path() + "/")
+						) { self.entryView(entry: entry) }.contextMenu {
 							NavigationLink(
-								destination: FileView(
-									file: targetEntry,
-									appState: self.appState,
-									showPath: self.folder == nil,
-									siblings: []
-								)
-							) {
-								Label(
-									targetEntry.fileName(),
-									systemImage: targetEntry.systemImage)
-							}
+								destination: FileView(file: targetEntry, appState: self.appState, showPath: self.folder == nil, siblings: [])
+							) { Label(targetEntry.fileName(), systemImage: targetEntry.systemImage) }
 							NavigationLink(
-								destination: FileView(
-									file: entry,
-									appState: self.appState,
-									showPath: self.folder == nil,
-									siblings: siblings
-								)
-							) {
-								Label(entry.fileName(), systemImage: entry.systemImage)
-							}
+								destination: FileView(file: entry, appState: self.appState, showPath: self.folder == nil, siblings: siblings)
+							) { Label(entry.fileName(), systemImage: entry.systemImage) }
 						}
 					}
 				}
 				else {
-					FileEntryLink(
-						appState: appState, entry: targetEntry, inFolder: self.folder,
-						siblings: []
-					) {
+					FileEntryLink(appState: appState, entry: targetEntry, inFolder: self.folder, siblings: [], honorTapToPreview: true)
+					{
 						self.entryView(entry: targetEntry)
-					}
-					.contextMenu {
+					}.contextMenu {
 						NavigationLink(
-							destination: FileView(
-								file: targetEntry,
-								appState: self.appState,
-								showPath: self.folder == nil,
-								siblings: []
-							)
-						) {
-							Label(
-								targetEntry.fileName(),
-								systemImage: targetEntry.systemImage)
-						}
+							destination: FileView(file: targetEntry, appState: self.appState, showPath: self.folder == nil, siblings: [])
+						) { Label(targetEntry.fileName(), systemImage: targetEntry.systemImage) }
 						NavigationLink(
-							destination: FileView(
-								file: entry,
-								appState: self.appState,
-								showPath: self.folder == nil,
-								siblings: siblings
-							)
-						) {
-							Label(entry.fileName(), systemImage: entry.systemImage)
-						}
+							destination: FileView(file: entry, appState: self.appState, showPath: self.folder == nil, siblings: siblings)
+						) { Label(entry.fileName(), systemImage: entry.systemImage) }
 					} preview: {
 						NavigationStack {  // to force the image to take up all available space
 							VStack {
-								ThumbnailView(
-									file: targetEntry, appState: appState,
-									showFileName: false,
-									showErrorMessages: false
-								)
-								.frame(
-									minWidth: 240, maxWidth: .infinity,
-									minHeight: 320,
-									maxHeight: .infinity
-								)
-								.id(targetEntry.id)
+								ThumbnailView(file: targetEntry, appState: appState, showFileName: false, showErrorMessages: false).frame(
+									minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity
+								).id(targetEntry.id)
 							}
 						}
 					}
 				}
 			}
 			else if let targetURL = entry.symlinkTargetURL {
-				Link(destination: targetURL) {
-					self.entryView(entry: entry)
-				}
-				.contextMenu {
-					Link(destination: targetURL) {
-						Label(targetURL.absoluteString, systemImage: "globe")
-					}
+				Link(destination: targetURL) { self.entryView(entry: entry) }.contextMenu {
+					Link(destination: targetURL) { Label(targetURL.absoluteString, systemImage: "globe") }
 					NavigationLink(
-						destination: FileView(
-							file: entry,
-							appState: self.appState,
-							showPath: self.folder == nil,
-							siblings: siblings
-						)
-					) {
-						Label(entry.fileName(), systemImage: entry.systemImage)
-					}
+						destination: FileView(file: entry, appState: self.appState, showPath: self.folder == nil, siblings: siblings)
+					) { Label(entry.fileName(), systemImage: entry.systemImage) }
 				}
 			}
 			else {
@@ -342,7 +179,7 @@ struct EntryView: View {
 			}
 		}
 		else {
-			FileEntryLink(appState: appState, entry: entry, inFolder: self.folder, siblings: siblings) {
+			FileEntryLink(appState: appState, entry: entry, inFolder: self.folder, siblings: siblings, honorTapToPreview: true) {
 				self.entryView(entry: entry)
 			}
 		}
@@ -354,6 +191,7 @@ struct FileEntryLink<Content: View>: View {
 	let entry: SushitrainEntry
 	let inFolder: SushitrainFolder?
 	let siblings: [SushitrainEntry]
+	let honorTapToPreview: Bool
 	@ViewBuilder var content: () -> Content
 
 	@State private var quickLookURL: URL? = nil
@@ -365,17 +203,10 @@ struct FileEntryLink<Content: View>: View {
 
 	private func previewFile() {
 		#if os(macOS)
-			openWindow(
-				id: "preview",
-				value: Preview(
-					folderID: entry.folder!.folderID,
-					path: entry.path()
-				))
+			openWindow(id: "preview", value: Preview(folderID: entry.folder!.folderID, path: entry.path()))
 		#else
 			// Tap to preview local file in QuickLook
-			if entry.isLocallyPresent(),
-				let url = entry.localNativeFileURL
-			{
+			if entry.isLocallyPresent(), let url = entry.localNativeFileURL {
 				self.quickLookURL = url
 			}
 			else if entry.isStreamable {
@@ -386,132 +217,88 @@ struct FileEntryLink<Content: View>: View {
 
 	private var inner: some View {
 		Group {
-			if appState.tapFileToPreview && entry.canPreview {
-				Button(action: {
-					self.previewFile()
-				}) {
-					self.content()
-				}
-				#if os(macOS)
-					.buttonStyle(.link)
-				#endif
-				.foregroundStyle(.primary)
-				.frame(maxWidth: .infinity)
-				.quickLookPreview(self.$quickLookURL)
+			if honorTapToPreview && appState.tapFileToPreview && entry.canPreview {
+				Button(action: { self.previewFile() }) { self.content() }
+					#if os(macOS)
+						.buttonStyle(.link)
+					#endif
+					.foregroundStyle(.primary)
+					.frame(maxWidth: .infinity)
+					.quickLookPreview(self.$quickLookURL)
 			}
 			else {
 				// Tap to go to file view
 				NavigationLink(
-					destination: FileView(
-						file: entry, appState: self.appState, showPath: self.inFolder == nil,
-						siblings: siblings)
-				) {
-					self.content()
-				}
+					destination: FileView(file: entry, appState: self.appState, showPath: self.inFolder == nil, siblings: siblings)
+				) { self.content() }
 			}
 		}
 		#if os(macOS)
 			.sheet(isPresented: $showPreviewSheet) {
-				FileViewerView(
-					appState: appState, file: entry, siblings: siblings,
-					inSheet: true,
-					isShown: $showPreviewSheet
-				)
+				FileViewerView(appState: appState, file: entry, siblings: siblings, inSheet: true, isShown: $showPreviewSheet)
 				.presentationSizing(.fitted)
 				.frame(minWidth: 640, minHeight: 480)
 				.navigationTitle(entry.fileName())
 				.toolbar {
-					ToolbarItem(placement: .confirmationAction) {
-						Button("Done") { showPreviewSheet = false }
-					}
+					ToolbarItem(placement: .confirmationAction) { Button("Done") { showPreviewSheet = false } }
 				}
 			}
 		#else
 			.fullScreenCover(isPresented: $showPreviewSheet) {
-				FileViewerView(
-					appState: appState, file: entry, siblings: siblings,
-					inSheet: true,
-					isShown: $showPreviewSheet)
+				FileViewerView(appState: appState, file: entry, siblings: siblings, inSheet: true, isShown: $showPreviewSheet)
 			}
 		#endif
 	}
 
 	var body: some View {
-		self.inner
-			.draggable(entry)
-			.contextMenu {
-				#if os(iOS)
-					NavigationLink(
-						destination: FileView(
-							file: entry,
-							appState: self.appState,
-							showPath: self.inFolder == nil,
-							siblings: siblings
-						)
-					) {
-						Label(entry.fileName(), systemImage: entry.systemImage)
-					}
-				#endif
+		self.inner.draggable(entry).contextMenu {
+			#if os(iOS)
+				NavigationLink(
+					destination: FileView(file: entry, appState: self.appState, showPath: self.inFolder == nil, siblings: siblings)
+				) { Label(entry.fileName(), systemImage: entry.systemImage) }
+			#endif
 
-				if !appState.tapFileToPreview {
-					Button("Show preview...", systemImage: "doc.text.magnifyingglass") {
-						self.previewFile()
-					}.disabled(
-						!entry.canPreview
-							|| ((try? entry.peersWithFullCopy().count()) ?? 0) == 0
-					)
-				}
+			if !appState.tapFileToPreview {
+				Button("Show preview...", systemImage: "doc.text.magnifyingglass") { self.previewFile() }.disabled(
+					!entry.canPreview || ((try? entry.peersWithFullCopy().count()) ?? 0) == 0)
+			}
 
-				#if os(macOS)
-					Button("Copy", systemImage: "document.on.document") {
-						self.copy()
-					}.disabled(!entry.isLocallyPresent())
-				#endif
+			#if os(macOS)
+				Button("Copy", systemImage: "document.on.document") { self.copy() }.disabled(!entry.isLocallyPresent())
+			#endif
 
-				// Show 'go to location' in list if we are not in the file's folder already
-				if self.inFolder == nil {
-					if let folder = entry.folder {
-						NavigationLink(
-							destination: BrowserView(
-								appState: appState, folder: folder,
-								prefix: entry.parentPath())
-						) {
-							let parentFolderName = entry.parentFolderName
-							if parentFolderName.isEmpty {
-								Label("Go to location", systemImage: "document.circle")
-							}
-							else {
-								Label(
-									"Go to directory '\(parentFolderName)'",
-									systemImage: "document.circle")
-							}
+			// Show 'go to location' in list if we are not in the file's folder already
+			if self.inFolder == nil {
+				if let folder = entry.folder {
+					NavigationLink(destination: BrowserView(appState: appState, folder: folder, prefix: entry.parentPath())) {
+						let parentFolderName = entry.parentFolderName
+						if parentFolderName.isEmpty {
+							Label("Go to location", systemImage: "document.circle")
+						}
+						else {
+							Label("Go to directory '\(parentFolderName)'", systemImage: "document.circle")
 						}
 					}
 				}
+			}
 
-				if entry.hasExternalSharingURL {
-					Divider()
-					FileSharingLinksView(entry: entry, sync: true)
-				}
-
+			if entry.hasExternalSharingURL {
 				Divider()
+				FileSharingLinksView(entry: entry, sync: true)
+			}
 
-				ItemSelectToggleView(appState: appState, file: entry)
-			} preview: {
-				NavigationStack {  // to force the image to take up all available space
-					VStack {
-						ThumbnailView(
-							file: entry, appState: appState, showFileName: false,
-							showErrorMessages: false
-						)
-						.frame(
-							minWidth: 240, maxWidth: .infinity, minHeight: 320,
-							maxHeight: .infinity
-						)
-						.id(entry.id)
-					}
+			Divider()
+
+			ItemSelectToggleView(appState: appState, file: entry)
+		} preview: {
+			NavigationStack {  // to force the image to take up all available space
+				VStack {
+					ThumbnailView(file: entry, appState: appState, showFileName: false, showErrorMessages: false).frame(
+						minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity
+					).id(entry.id)
 				}
 			}
+		}
 	}
 
 	private func copy() {
@@ -532,47 +319,30 @@ private struct ItemSelectSwipeView<Content: View>: View {
 
 	var body: some View {
 		if self.file.isSelectionToggleAvailable {
-			self.content
-				.alert(
-					isPresented: Binding(
-						get: {
-							errorMessage != nil
-						},
-						set: { s in
-							errorMessage = s ? errorMessage : nil
-						})
-				) {
-					Alert(
-						title: Text("Could not change synchronization setting"),
-						message: Text(errorMessage ?? ""), dismissButton: .default(Text("OK")))
+			self.content.alert(
+				isPresented: Binding(get: { errorMessage != nil }, set: { s in errorMessage = s ? errorMessage : nil })
+			) {
+				Alert(
+					title: Text("Could not change synchronization setting"), message: Text(errorMessage ?? ""),
+					dismissButton: .default(Text("OK")))
+			}.swipeActions(allowsFullSwipe: false) {
+				if file.isExplicitlySelected() || file.isSelected() {
+					// Unselect button
+					Button {
+						Task { self.errorMessage = await self.file.setSelectedFromToggle(s: false) }
+					} label: {
+						Label("Do not synchronize with this device", systemImage: "pin.slash")
+					}.tint(.red)
 				}
-				.swipeActions(allowsFullSwipe: false) {
-					if file.isExplicitlySelected() || file.isSelected() {
-						// Unselect button
-						Button {
-							Task {
-								self.errorMessage = await self.file
-									.setSelectedFromToggle(s: false)
-							}
-						} label: {
-							Label(
-								"Do not synchronize with this device",
-								systemImage: "pin.slash")
-						}
-						.tint(.red)
-					}
-					else {
-						// Select button
-						Button {
-							Task {
-								self.errorMessage = await self.file
-									.setSelectedFromToggle(s: true)
-							}
-						} label: {
-							Label("Synchronize with this device", systemImage: "pin")
-						}
+				else {
+					// Select button
+					Button {
+						Task { self.errorMessage = await self.file.setSelectedFromToggle(s: true) }
+					} label: {
+						Label("Synchronize with this device", systemImage: "pin")
 					}
 				}
+			}
 		}
 		else {
 			self.content

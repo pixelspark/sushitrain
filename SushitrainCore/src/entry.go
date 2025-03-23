@@ -30,6 +30,7 @@ func (entry *Entry) Path() string {
 	return entry.info.FileName()
 }
 
+// Parent path, will always end in a slash, but never start with a slash (so "" for root)
 func (entry *Entry) ParentPath() string {
 	p := path.Dir(entry.info.FileName())
 	if p == "/" || p == "." {

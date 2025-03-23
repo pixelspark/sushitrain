@@ -24,6 +24,7 @@ struct FileView: View {
 	@State private var fullyAvailableOnDevices: [SushitrainPeer]? = nil
 	@State private var availabilityError: Error? = nil
 	@State private var showEncryptionSheet: Bool = false
+	@State private var conflictingEntries: [SushitrainEntry]? = nil
 
 	private static let formatter = ByteCountFormatter()
 
@@ -49,8 +50,7 @@ struct FileView: View {
 
 	var body: some View {
 		if file.isDeleted() {
-			ContentUnavailableView(
-				"File was deleted", systemImage: "trash", description: Text("This file was deleted."))
+			ContentUnavailableView("File was deleted", systemImage: "trash", description: Text("This file was deleted."))
 		}
 		else {
 			var error: NSError? = nil
@@ -58,32 +58,24 @@ struct FileView: View {
 
 			Form {
 				// Symbolic link: show link target
-				if file.isSymlink() {
-					Section("Link destination") {
-						Text(file.symlinkTarget())
-					}
-				}
+				if file.isSymlink() { Section("Link destination") { Text(file.symlinkTarget()) } }
 
 				Section {
 					if !file.isDirectory() && !file.isSymlink() {
-						Text("File size").badge(
-							Self.formatter.string(fromByteCount: file.size()))
+						Text("File size").badge(Self.formatter.string(fromByteCount: file.size()))
 					}
 
 					if let md = file.modifiedAt()?.date(), !file.isSymlink() {
-						Text("Last modified").badge(
-							md.formatted(date: .abbreviated, time: .shortened))
+						Text("Last modified").badge(md.formatted(date: .abbreviated, time: .shortened))
 
 						let mby = file.modifiedByShortDeviceID()
 						if !mby.isEmpty {
 							if let modifyingDevice = appState.client.peer(withShortID: mby) {
 								if modifyingDevice.deviceID() == appState.localDeviceID {
-									Text("Last modified from").badge(
-										Text("This device"))
+									Text("Last modified from").badge(Text("This device"))
 								}
 								else {
-									Text("Last modified from").badge(
-										modifyingDevice.displayName)
+									Text("Last modified from").badge(modifyingDevice.displayName)
 								}
 							}
 						}
@@ -94,34 +86,21 @@ struct FileView: View {
 						Toggle(
 							"Synchronize with this device", systemImage: "pin",
 							isOn: Binding(
-								get: {
-									file.isExplicitlySelected() || file.isSelected()
-								},
-								set: { s in
-									try? file.setExplicitlySelected(s)
-								})
-						)
-						.disabled(
-							!folder.isIdleOrSyncing
-								|| (file.isSelected() && !isExplicitlySelected)
+								get: { file.isExplicitlySelected() || file.isSelected() }, set: { s in try? file.setExplicitlySelected(s) })
+						).disabled(
+							!folder.isIdleOrSyncing || (file.isSelected() && !isExplicitlySelected)
 								|| (isExplicitlySelected && localIsOnlyCopy))
 					}
 				} footer: {
-					if !file.isSymlink() && self.folder.isSelective()
-						&& (file.isSelected() && !file.isExplicitlySelected())
-					{
-						Text(
-							"This item is synchronized with this device because a parent folder is synchronized with this device."
-						)
+					if !file.isSymlink() && self.folder.isSelective() && (file.isSelected() && !file.isExplicitlySelected()) {
+						Text("This item is synchronized with this device because a parent folder is synchronized with this device.")
 					}
 
 					if !file.isSymlink() {
 						if file.isExplicitlySelected() {
 							if localIsOnlyCopy {
 								if self.folder.connectedPeerCount() > 0 {
-									Text(
-										"There are currently no other devices connected that have a full copy of this file."
-									)
+									Text("There are currently no other devices connected that have a full copy of this file.")
 								}
 								else {
 									Text(
@@ -136,12 +115,25 @@ struct FileView: View {
 									"When you select this file, it will not become immediately available on this device, because there are no other devices connected to download the file from."
 								)
 							}
-							else if self.fullyAvailableOnDevices == nil
-								|| (self.fullyAvailableOnDevices ?? []).isEmpty
-							{
+							else if self.fullyAvailableOnDevices == nil || (self.fullyAvailableOnDevices ?? []).isEmpty {
 								Text(
 									"When you select this file, it will not become immediately available on this device, because none of the currently connected devices have a full copy of the file that can be downloaded."
 								)
+							}
+						}
+					}
+				}
+				// Conflicts
+				if let ce = conflictingEntries, !ce.isEmpty {
+					Section("Conflicting versions of this file") {
+						ForEach(ce) { (conflictingEntry: SushitrainEntry) in
+							if conflictingEntry.path() != self.file.path() {
+								FileEntryLink(
+									appState: appState, entry: conflictingEntry, inFolder: self.folder, siblings: ce, honorTapToPreview: false
+								) {
+									// TODO: attempt to interpret conflict file name, show date/time/device info neatly
+									Text(conflictingEntry.fileName()).foregroundStyle(.red)
+								}
 							}
 						}
 					}
@@ -153,39 +145,27 @@ struct FileView: View {
 						if availability.isEmpty && self.folder.connectedPeerCount() > 0 {
 							Label(
 								"This file it not fully available on any connected device",
-								systemImage:
-									"externaldrive.trianglebadge.exclamationmark"
-							)
-							.foregroundStyle(.orange)
+								systemImage: "externaldrive.trianglebadge.exclamationmark"
+							).foregroundStyle(.orange)
 						}
 					}
 					else {
 						if let err = self.availabilityError {
 							Label(
-								"Could not determine file availability: \(err)",
-								systemImage:
-									"externaldrive.trianglebadge.exclamationmark"
+								"Could not determine file availability: \(err)", systemImage: "externaldrive.trianglebadge.exclamationmark"
 							).foregroundStyle(.orange)
 						}
 						else {
-							Label(
-								"Checking availability on other devices...",
-								systemImage: "externaldrive.badge.questionmark"
-							).foregroundStyle(.gray)
+							Label("Checking availability on other devices...", systemImage: "externaldrive.badge.questionmark")
+								.foregroundStyle(.gray)
 						}
 					}
 				}
 
 				if showPath {
 					Section("Location") {
-						NavigationLink(
-							destination: BrowserView(
-								appState: appState, folder: folder,
-								prefix: file.parentPath())
-						) {
-							Label(
-								"\(folder.label()): \(file.parentPath())",
-								systemImage: "folder")
+						NavigationLink(destination: BrowserView(appState: appState, folder: folder, prefix: file.parentPath())) {
+							Label("\(folder.label()): \(file.parentPath())", systemImage: "folder")
 						}
 					}
 				}
@@ -193,55 +173,33 @@ struct FileView: View {
 				if !file.isDirectory() && !file.isSymlink() {
 					#if os(macOS)
 						let openInSafariButton = Button(
-							"Open in Safari", systemImage: "safari",
-							action: {
-								if let u = URL(string: file.onDemandURL()) {
-									openURL(u)
-								}
-							}
-						)
-						.buttonStyle(.link)
-						.disabled(folder.connectedPeerCount() == 0)
+							"Open in Safari", systemImage: "safari", action: { if let u = URL(string: file.onDemandURL()) { openURL(u) } }
+						).buttonStyle(.link).disabled(folder.connectedPeerCount() == 0)
 					#endif
 
 					// Image preview
 					if file.canThumbnail && !showFullScreenViewer {
 						Section {
-							ThumbnailView(
-								file: file, appState: appState, showFileName: false,
-								showErrorMessages: true
+							ThumbnailView(file: file, appState: appState, showFileName: false, showErrorMessages: true).id(file.id).padding(
+								.all, 10
 							)
-							.id(file.id)
-							.padding(.all, 10)
+							// Fixes issue where image is still tappable outside its rectangle
+							.contentShape(Rectangle().inset(by: 10))
 							.cornerRadius(8.0)
 							.onTapGesture {
 								#if os(macOS)
 									// On macOS prefer local QuickLook
 									if file.isLocallyPresent() {
-										localItemURL = URL(
-											fileURLWithPath: localPath!)
+										localItemURL = URL(fileURLWithPath: localPath!)
 									}
 									else if file.isVideo || file.isImage {
 										#if os(macOS)
 											// Cmd-click to open preview window directory
-											if NSEvent.modifierFlags
-												.contains(.command)
-											{
-												openWindow(
-													id: "preview",
-													value: Preview(
-														folderID:
-															file
-															.folder!
-															.folderID,
-														path:
-															file
-															.path()
-													))
+											if NSEvent.modifierFlags.contains(.command) {
+												openWindow(id: "preview", value: Preview(folderID: file.folder!.folderID, path: file.path()))
 											}
 											else {
-												showFullScreenViewer =
-													true
+												showFullScreenViewer = true
 											}
 										#else
 											showFullScreenViewer = true
@@ -253,8 +211,7 @@ struct FileView: View {
 										showFullScreenViewer = true
 									}
 									else if file.isLocallyPresent() {
-										localItemURL = URL(
-											fileURLWithPath: localPath!)
+										localItemURL = URL(fileURLWithPath: localPath!)
 									}
 								#endif
 							}
@@ -266,53 +223,29 @@ struct FileView: View {
 						if file.isLocallyPresent() {
 							if error == nil, let localPathActual = localPath {
 								Section {
-									Button(
-										"View file", systemImage: "eye",
-										action: {
-											localItemURL = URL(
-												fileURLWithPath:
-													localPathActual)
-										}
-									)
-									#if os(macOS)
-										.buttonStyle(.link)
-									#endif
+									Button("View file", systemImage: "eye", action: { localItemURL = URL(fileURLWithPath: localPathActual) })
+										#if os(macOS)
+											.buttonStyle(.link)
+										#endif
 
-									ShareLink(
-										"Share file",
-										item: URL(
-											fileURLWithPath: localPathActual
-										)
-									)
-									#if os(macOS)
-										.buttonStyle(.link)
-									#endif
+									ShareLink("Share file", item: URL(fileURLWithPath: localPathActual))
+										#if os(macOS)
+											.buttonStyle(.link)
+										#endif
 
 									#if os(iOS)
 										// On macOS, this button is in the toolbar; on iOS there is not enough horizontal space
 										Button(
-											openInFilesAppLabel,
-											systemImage:
-												"arrow.up.forward.app",
-											action: {
-												openURLInSystemFilesApp(
-													url: URL(
-														fileURLWithPath:
-															localPathActual
-													))
-											}
-										)
-										.disabled(localPath == nil)
+											openInFilesAppLabel, systemImage: "arrow.up.forward.app",
+											action: { openURLInSystemFilesApp(url: URL(fileURLWithPath: localPathActual)) }
+										).disabled(localPath == nil)
 									#endif
 								}
 							}
 						}
 						else {
 							// Waiting for sync
-							Section {
-								DownloadProgressView(
-									appState: appState, file: file, folder: folder)
-							}
+							Section { DownloadProgressView(appState: appState, file: file, folder: folder) }
 						}
 					}
 					else {
@@ -374,49 +307,33 @@ struct FileView: View {
 					}
 
 					// Sharing
-					Section {
-						FileSharingLinksView(entry: file, sync: false)
-					}
+					Section { FileSharingLinksView(entry: file, sync: false) }
 
 					// Devices that have this file
 					if let availability = self.fullyAvailableOnDevices {
 						if !availability.isEmpty {
 							Section("This file is fully available on") {
-								ForEach(availability, id: \.self) { device in
-									Label(
-										device.displayName,
-										systemImage: "externaldrive")
-								}
+								ForEach(availability, id: \.self) { device in Label(device.displayName, systemImage: "externaldrive") }
 							}
 						}
 					}
 
 					// Remove file
-					if file.isSelected() && file.isLocallyPresent()
-						&& folder.folderType() == SushitrainFolderTypeSendReceive
-					{
+					if file.isSelected() && file.isLocallyPresent() && folder.folderType() == SushitrainFolderTypeSendReceive {
 						Section {
-							Button(
-								"Remove file from all devices", systemImage: "trash",
-								role: .destructive
-							) {
+							Button("Remove file from all devices", systemImage: "trash", role: .destructive) {
 								showRemoveConfirmation = true
 							}
 							#if os(macOS)
 								.buttonStyle(.link)
 							#endif
-							.foregroundColor(.red)
-							.confirmationDialog(
+							.foregroundColor(.red).confirmationDialog(
 								self.localIsOnlyCopy
 									? "Are you sure you want to remove this file from all devices? The local copy of this file is the only one currently available on any device. This will remove the last copy. It will not be possible to recover the file after removing it."
-									: "Are you sure you want to remove this file from all devices?",
-								isPresented: $showRemoveConfirmation,
+									: "Are you sure you want to remove this file from all devices?", isPresented: $showRemoveConfirmation,
 								titleVisibility: .visible
 							) {
-								Button(
-									"Remove the file from all devices",
-									role: .destructive
-								) {
+								Button("Remove the file from all devices", role: .destructive) {
 									dismiss()
 									try? file.remove()
 								}
@@ -429,14 +346,8 @@ struct FileView: View {
 					// Devices that have this folder and all its contents
 					if let availability = self.fullyAvailableOnDevices {
 						if !availability.isEmpty {
-							Section(
-								"This subdirectory and all its contents are fully available on"
-							) {
-								List(availability, id: \.self) { device in
-									Label(
-										device.displayName,
-										systemImage: "externaldrive")
-								}
+							Section("This subdirectory and all its contents are fully available on") {
+								List(availability, id: \.self) { device in Label(device.displayName, systemImage: "externaldrive") }
 							}
 						}
 					}
@@ -445,22 +356,15 @@ struct FileView: View {
 			#if os(macOS)
 				.formStyle(.grouped)
 			#endif
-			.navigationTitle(file.fileName())
-			.quickLookPreview(self.$localItemURL)
+			.navigationTitle(file.fileName()).quickLookPreview(self.$localItemURL)
 
 			// Sheet viewer
 			.sheet(isPresented: $showSheetViewer) {
-				FileViewerView(
-					appState: appState,
-					file: file,
-					siblings: siblings,
-					inSheet: true,
-					isShown: $showSheetViewer
-				)
-				#if os(macOS)
-					.presentationSizing(.fitted)
-					.frame(minWidth: 640, minHeight: 480)
-				#endif
+				FileViewerView(appState: appState, file: file, siblings: siblings, inSheet: true, isShown: $showSheetViewer)
+					#if os(
+						macOS)
+						.presentationSizing(.fitted).frame(minWidth: 640, minHeight: 480)
+					#endif
 			}
 
 			// Full screen viewer
@@ -468,25 +372,12 @@ struct FileView: View {
 				.fullScreenCover(
 					isPresented: $showFullScreenViewer,
 					content: {
-						FileViewerView(
-							appState: appState,
-							file: file,
-							siblings: siblings,
-							inSheet: true,
-							isShown: $showFullScreenViewer
-						)
+						FileViewerView(appState: appState, file: file, siblings: siblings, inSheet: true, isShown: $showFullScreenViewer)
 					})
 			#elseif os(macOS)
 				.sheet(isPresented: $showFullScreenViewer) {
-					FileViewerView(
-						appState: appState,
-						file: file,
-						siblings: siblings,
-						inSheet: true,
-						isShown: $showFullScreenViewer
-					)
-					.presentationSizing(.fitted)
-					.frame(minWidth: 640, minHeight: 480)
+					FileViewerView(appState: appState, file: file, siblings: siblings, inSheet: true, isShown: $showFullScreenViewer)
+					.presentationSizing(.fitted).frame(minWidth: 640, minHeight: 480)
 				}
 			#endif
 
@@ -499,32 +390,19 @@ struct FileView: View {
 								.navigationBarTitleDisplayMode(.inline)
 							#endif
 							.toolbar(content: {
-								ToolbarItem(
-									placement: .cancellationAction,
-									content: {
-										Button("Cancel") {
-											showDownloader = false
-										}
-									})
+								ToolbarItem(placement: .cancellationAction, content: { Button("Cancel") { showDownloader = false } })
 							})
 					}
 				}
-			)
-			.toolbar {
+			).toolbar {
 				// Next/previous buttons
 				if let selfIndex = selfIndex, let siblings = siblings {
 					ToolbarItemGroup(placement: .navigation) {
-						Button("Previous", systemImage: "chevron.up") {
-							next(-1)
-						}
-						.keyboardShortcut(KeyEquivalent.upArrow)  // Cmd-up
-						.disabled(selfIndex < 1)
+						Button("Previous", systemImage: "chevron.up") { next(-1) }.keyboardShortcut(KeyEquivalent.upArrow)  // Cmd-up
+							.disabled(selfIndex < 1)
 
-						Button("Next", systemImage: "chevron.down") {
-							next(1)
-						}
-						.keyboardShortcut(KeyEquivalent.downArrow)  // Cmd-down
-						.disabled(selfIndex >= siblings.count - 1)
+						Button("Next", systemImage: "chevron.down") { next(1) }.keyboardShortcut(KeyEquivalent.downArrow)  // Cmd-down
+							.disabled(selfIndex >= siblings.count - 1)
 					}
 				}
 
@@ -532,16 +410,10 @@ struct FileView: View {
 					// Menu for advanced actions
 					ToolbarItem {
 						Menu {
-							Button(
-								"Encryption details...",
-								systemImage: "lock.document.fill"
-							) {
-								showEncryptionSheet = true
-							}
+							Button("Encryption details...", systemImage: "lock.document.fill") { showEncryptionSheet = true }
 						} label: {
 							Label("Advanced", systemImage: "ellipsis.circle")
-						}
-						.disabled(!(file.folder?.hasEncryptedPeers ?? false))
+						}.disabled(!(file.folder?.hasEncryptedPeers ?? false))
 					}
 
 					// Open in Finder button
@@ -549,40 +421,33 @@ struct FileView: View {
 						Button(
 							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
 							action: {
-								if let localPathActual = localPath {
-									openURLInSystemFilesApp(
-										url: URL(
-											fileURLWithPath: localPathActual
-										))
-								}
+								if let localPathActual = localPath { openURLInSystemFilesApp(url: URL(fileURLWithPath: localPathActual)) }
 							}
-						)
-						.labelStyle(.iconOnly)
-						.disabled(localPath == nil)
+						).labelStyle(.iconOnly).disabled(localPath == nil)
 					}
 				#endif
-			}
-			.sheet(isPresented: $showEncryptionSheet) {
-				EncryptionView(
-					entry: self.file, appState: self.appState)
-			}
-			.onAppear {
+			}.sheet(isPresented: $showEncryptionSheet) { EncryptionView(entry: self.file, appState: self.appState) }.onAppear {
 				selfIndex = self.siblings?.firstIndex(of: file)
-			}
-			.task {
+			}.task {
 				let fileEntry = self.file
 				do {
 					self.fullyAvailableOnDevices = nil
 					self.availabilityError = nil
-					let availability = try await Task.detached { [fileEntry] in
-						return (try fileEntry.peersWithFullCopy()).asArray()
-					}.value
+					let availability = try await Task.detached { [fileEntry] in return (try fileEntry.peersWithFullCopy()).asArray() }
+						.value
 
 					self.fullyAvailableOnDevices = availability.flatMap { devID in
-						if let p = self.appState.client.peer(withID: devID) {
-							return [p]
-						}
+						if let p = self.appState.client.peer(withID: devID) { return [p] }
 						return []
+					}
+					let conflicts = try self.folder.conflicts(inSubdirectory: fileEntry.parentPath())
+					if let conflictSiblings = conflicts.conflictSiblings(fileEntry.path()) {
+						var ce: [SushitrainEntry] = []
+						for a in 0..<conflictSiblings.count() { ce.append(try folder.getFileInformation(conflictSiblings.item(at: a))) }
+						conflictingEntries = ce
+					}
+					else {
+						conflictingEntries = []
 					}
 				}
 				catch {
@@ -620,30 +485,24 @@ private struct DownloadProgressView: View {
 				ProgressView(value: progress.percentage, total: 1.0) {
 					VStack {
 						HStack {
-							Label("Downloading file...", systemImage: "arrow.clockwise")
-								.foregroundStyle(.green)
-								.symbolEffect(.pulse, value: date)
+							Label("Downloading file...", systemImage: "arrow.clockwise").foregroundStyle(.green).symbolEffect(
+								.pulse, value: date)
 							Spacer()
 						}
 
 						if let (lastDate, lastProgress) = self.lastProgress {
 							HStack {
-								let diffBytes =
-									progress.bytesDone - lastProgress.bytesDone
+								let diffBytes = progress.bytesDone - lastProgress.bytesDone
 								let diffTime = date.timeIntervalSince(lastDate)
 								let speed = Int64(Double(diffBytes) / Double(diffTime))
 								let formatter = ByteCountFormatter()
 
 								Spacer()
-								Text("\(formatter.string(fromByteCount: speed))/s")
-									.foregroundStyle(.green)
+								Text("\(formatter.string(fromByteCount: speed))/s").foregroundStyle(.green)
 
 								if speed > 0 {
-									let secondsToGo =
-										(progress.bytesTotal
-											- progress.bytesDone) / speed
-									Text("\(secondsToGo) seconds").foregroundStyle(
-										.green)
+									let secondsToGo = (progress.bytesTotal - progress.bytesDone) / speed
+									Text("\(secondsToGo) seconds").foregroundStyle(.green)
 								}
 							}
 						}
@@ -653,20 +512,12 @@ private struct DownloadProgressView: View {
 			else {
 				Label("Waiting to synchronize...", systemImage: "hourglass")
 			}
-		}
-		.task {
-			self.updateProgress()
-		}
-		.onChange(of: self.appState.eventCounter) {
-			self.updateProgress()
-		}
+		}.task { self.updateProgress() }.onChange(of: self.appState.eventCounter) { self.updateProgress() }
 	}
 
 	private func updateProgress() {
 		self.lastProgress = self.progress
-		if let p = self.appState.client.getDownloadProgress(
-			forFile: self.file.path(), folder: self.folder.folderID)
-		{
+		if let p = self.appState.client.getDownloadProgress(forFile: self.file.path(), folder: self.folder.folderID) {
 			self.progress = (Date.now, p)
 		}
 		else {
@@ -683,15 +534,11 @@ struct FileSharingLinksView: View {
 	private func update() async {
 		self.sharingLink = nil
 		let entry = self.entry
-		self.sharingLink = await Task.detached {
-			return await entry.externalSharingURLExpensive()
-		}.value
+		self.sharingLink = await Task.detached { return await entry.externalSharingURLExpensive() }.value
 	}
 
 	private var linkToUse: URL? {
-		if self.sync {
-			return self.entry.externalSharingURLExpensive()
-		}
+		if self.sync { return self.entry.externalSharingURLExpensive() }
 		return self.sharingLink
 	}
 
@@ -699,12 +546,10 @@ struct FileSharingLinksView: View {
 		if entry.hasExternalSharingURL {
 			Group {
 				if let link = linkToUse {
-					ShareLink(item: link) {
-						Label("Share external link", systemImage: "link.circle")
-					}
-					#if os(macOS)
-						.buttonStyle(.link)
-					#endif
+					ShareLink(item: link) { Label("Share external link", systemImage: "link.circle") }
+						#if os(macOS)
+							.buttonStyle(.link)
+						#endif
 				}
 				else {
 					EmptyView()
@@ -719,18 +564,9 @@ struct FileSharingLinksView: View {
 						else if let se = entry.externalSharingURLExpensive() {
 							writeURLToPasteboard(url: se)
 						}
-					}
-					.buttonStyle(.link)
+					}.buttonStyle(.link)
 				#endif
-			}
-			.task {
-				await self.update()
-			}
-			.onChange(of: entry) {
-				Task {
-					await self.update()
-				}
-			}
+			}.task { await self.update() }.onChange(of: entry) { Task { await self.update() } }
 		}
 	}
 }

@@ -196,7 +196,10 @@ extension SushitrainChange {
 
 extension SushitrainEntry {
 	var color: Color? {
-		if self.isSymlink() {
+		if self.isConflictCopy() {
+			return Color.red
+		}
+		else if self.isSymlink() {
 			return Color.blue
 		}
 		else if self.isLocallyPresent() {

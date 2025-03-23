@@ -431,7 +431,7 @@ private struct EntryNameView: View {
 				// The entry name (grey when not locally present)
 				Text(entry.fileName())
 					.multilineTextAlignment(.leading)
-					.foregroundStyle(Color.primary)
+					.foregroundStyle(entry.isConflictCopy() ? Color.red : Color.primary)
 					.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
 				Spacer()
 			}
@@ -444,7 +444,7 @@ private struct EntryNameView: View {
 					.foregroundStyle(entry.color ?? Color.accentColor)
 				Text(entry.fileName())
 					.multilineTextAlignment(.leading)
-					.foregroundStyle(Color.primary)
+					.foregroundStyle(entry.isConflictCopy() ? Color.red : Color.primary)
 					.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
 				Spacer()
 			}
