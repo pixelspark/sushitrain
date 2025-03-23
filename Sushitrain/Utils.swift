@@ -259,7 +259,14 @@ extension SushitrainEntry {
 	}
 
 	var isWebPreviewable: Bool {
-		return self.isPDF || self.isHTML || self.isImage
+		if self.isPDF || self.isHTML || self.isImage {
+			return true
+		}
+
+		return [
+			"text/plain",
+			"text/csv",
+		].contains(self.mimeType())
 	}
 
 	var isStreamable: Bool {
