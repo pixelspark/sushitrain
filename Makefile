@@ -8,10 +8,10 @@
 build: macos ios
 
 format: Sushitrain/*.swift
-	swift-format format -r -i .
+	swift format format -r -i .
 
 lint: Sushitrain/*.swift
-	swift-format lint -r .
+	swift format lint -r .
 
 BUILD_DIR=$(shell pwd)/Build
 KEYCHAIN_PATH=$(BUILD_DIR)/keychain.db
