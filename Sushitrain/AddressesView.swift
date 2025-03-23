@@ -15,21 +15,16 @@ enum AddressType {
 
 	var defaultOption: String {
 		switch self {
-		case .listening, .discovery, .stun:
-			return "default"
-		case .device:
-			return "dynamic"
+		case .listening, .discovery, .stun: return "default"
+		case .device: return "dynamic"
 		}
 	}
 
 	var templateAddress: String {
 		switch self {
-		case .listening, .device:
-			return "tcp://0.0.0.0:22000"
-		case .stun:
-			return "stun.example:4378"
-		case .discovery:
-			return "https://discovery.example"
+		case .listening, .device: return "tcp://0.0.0.0:22000"
+		case .stun: return "stun.example:4378"
+		case .discovery: return "https://discovery.example"
 		}
 	}
 }
@@ -41,11 +36,9 @@ private struct AddressView: View {
 	private var url: URL? {
 		get {
 			switch self.addressType {
-			case .stun:
-				return URL(string: "stun://" + self.address)
+			case .stun: return URL(string: "stun://" + self.address)
 
-			case .device, .discovery, .listening:
-				return URL(string: self.address)
+			case .device, .discovery, .listening: return URL(string: self.address)
 			}
 		}
 		nonmutating set {
@@ -63,8 +56,7 @@ private struct AddressView: View {
 					self.address = ""
 				}
 
-			case .device, .discovery, .listening:
-				self.address = newValue?.absoluteString ?? ""
+			case .device, .discovery, .listening: self.address = newValue?.absoluteString ?? ""
 			}
 		}
 	}
@@ -83,10 +75,7 @@ private struct AddressView: View {
 							},
 							set: { (nv: String) in
 								var url =
-									URLComponents(
-										url: URL(string: self.address) ?? URL(
-											string: "tcp://")!,
-										resolvingAgainstBaseURL: false)
+									URLComponents(url: URL(string: self.address) ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false)
 									?? URLComponents()
 								url.scheme = nv
 								if nv == "dynamic+https" {
@@ -96,18 +85,10 @@ private struct AddressView: View {
 									url.path = ""
 								}
 
-								if nv != "relay" {
-									url.queryItems = nil
-								}
+								if nv != "relay" { url.queryItems = nil }
 
 								if self.addressType == .discovery {
-									url.queryItems =
-										nv == "http"
-										? [
-											URLQueryItem(
-												name: "insecure",
-												value: nil)
-										] : []
+									url.queryItems = nv == "http" ? [URLQueryItem(name: "insecure", value: nil)] : []
 								}
 
 								self.address = url.string ?? ""
@@ -131,8 +112,7 @@ private struct AddressView: View {
 							}
 
 						}
-					)
-					.pickerStyle(.segmented)
+					).pickerStyle(.segmented)
 				}
 			}
 
@@ -148,20 +128,14 @@ private struct AddressView: View {
 							},
 							set: { nv in
 								var url =
-									URLComponents(
-										url: self.url ?? URL(string: "tcp://")!,
-										resolvingAgainstBaseURL: false)
-									?? URLComponents()
+									URLComponents(url: self.url ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false) ?? URLComponents()
 								url.host = nv
 								self.url = url.url
 							}), prompt: Text("0.0.0.0")
-					)
-					.multilineTextAlignment(.trailing)
-					#if os(iOS)
-						.keyboardType(.asciiCapable)
-						.autocorrectionDisabled()
-						.autocapitalization(.none)
-					#endif
+					).multilineTextAlignment(.trailing)
+						#if os(iOS)
+							.keyboardType(.asciiCapable).autocorrectionDisabled().autocapitalization(.none)
+						#endif
 				} label: {
 					Text("IP address or host name")
 				}
@@ -172,36 +146,26 @@ private struct AddressView: View {
 						text: Binding(
 							get: {
 								let url = self.url
-								if let p = url?.port {
-									return String(p)
-								}
+								if let p = url?.port { return String(p) }
 								return ""
 							},
 							set: { nv in
 								var url =
-									URLComponents(
-										url: URL(string: self.address) ?? URL(
-											string: "tcp://")!,
-										resolvingAgainstBaseURL: false)
+									URLComponents(url: URL(string: self.address) ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false)
 									?? URLComponents()
 								url.port = Int(nv)
 								self.address = url.string ?? ""
 							}), prompt: Text("22000")
-					)
-					.multilineTextAlignment(.trailing)
-					#if os(iOS)
-						.keyboardType(.numberPad)
-						.autocorrectionDisabled()
-						.autocapitalization(.none)
-					#endif
+					).multilineTextAlignment(.trailing)
+						#if os(iOS)
+							.keyboardType(.numberPad).autocorrectionDisabled().autocapitalization(.none)
+						#endif
 				} label: {
 					Text("Port")
 				}
 
 				let urlComponents =
-					URLComponents(
-						url: self.url ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false)
-					?? URLComponents()
+					URLComponents(url: self.url ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false) ?? URLComponents()
 
 				if urlComponents.scheme == "relay" {
 					LabeledContent {
@@ -210,25 +174,13 @@ private struct AddressView: View {
 							text: Binding(
 								get: {
 									let url =
-										URLComponents(
-											url: URL(string: self.address)
-												?? URL(
-													string: "tcp://"
-												)!,
-											resolvingAgainstBaseURL: false)
+										URLComponents(url: URL(string: self.address) ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false)
 										?? URLComponents()
-									return url.queryItems?.first(where: {
-										$0.name == "id"
-									})?.value ?? ""
+									return url.queryItems?.first(where: { $0.name == "id" })?.value ?? ""
 								},
 								set: { nv in
 									var url =
-										URLComponents(
-											url: URL(string: self.address)
-												?? URL(
-													string: "tcp://"
-												)!,
-											resolvingAgainstBaseURL: false)
+										URLComponents(url: URL(string: self.address) ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false)
 										?? URLComponents()
 									var qi = url.queryItems ?? []
 									qi.removeAll(where: { $0.name == "id" })
@@ -236,14 +188,10 @@ private struct AddressView: View {
 									url.queryItems = qi
 									self.address = url.string ?? ""
 								}), prompt: Text("")
-						)
-						.multilineTextAlignment(.trailing)
-						.monospaced()
-						#if os(iOS)
-							.keyboardType(.asciiCapable)
-							.autocorrectionDisabled()
-							.autocapitalization(.none)
-						#endif
+						).multilineTextAlignment(.trailing).monospaced()
+							#if os(iOS)
+								.keyboardType(.asciiCapable).autocorrectionDisabled().autocapitalization(.none)
+							#endif
 					} label: {
 						Text("Relay ID")
 					}
@@ -254,37 +202,22 @@ private struct AddressView: View {
 							text: Binding(
 								get: {
 									let url =
-										URLComponents(
-											url: self.url ?? URL(
-												string: "tcp://")!,
-											resolvingAgainstBaseURL: false)
-										?? URLComponents()
-									return url.queryItems?.first(where: {
-										$0.name == "token"
-									})?.value ?? ""
+										URLComponents(url: self.url ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false) ?? URLComponents()
+									return url.queryItems?.first(where: { $0.name == "token" })?.value ?? ""
 								},
 								set: { nv in
 									var url =
-										URLComponents(
-											url: self.url ?? URL(
-												string: "tcp://")!,
-											resolvingAgainstBaseURL: false)
-										?? URLComponents()
+										URLComponents(url: self.url ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false) ?? URLComponents()
 									var qi = url.queryItems ?? []
 									qi.removeAll(where: { $0.name == "token" })
-									qi.append(
-										URLQueryItem(name: "token", value: nv))
+									qi.append(URLQueryItem(name: "token", value: nv))
 									url.queryItems = qi
 									self.address = url.string ?? ""
 								}), prompt: Text("")
-						)
-						.multilineTextAlignment(.trailing)
-						.monospaced()
-						#if os(iOS)
-							.keyboardType(.asciiCapable)
-							.autocorrectionDisabled()
-							.autocapitalization(.none)
-						#endif
+						).multilineTextAlignment(.trailing).monospaced()
+							#if os(iOS)
+								.keyboardType(.asciiCapable).autocorrectionDisabled().autocapitalization(.none)
+							#endif
 					} label: {
 						Text("Access token")
 					}
@@ -293,21 +226,16 @@ private struct AddressView: View {
 
 			if self.addressType != .stun {
 				Section("URL") {
-					TextField("", text: $address)
-						.frame(maxWidth: .infinity)
-						.monospaced()
-						.multilineTextAlignment(.leading)
+					TextField("", text: $address).frame(maxWidth: .infinity).monospaced().multilineTextAlignment(.leading)
 						#if os(iOS)
-							.autocorrectionDisabled()
-							.autocapitalization(.none)
+							.autocorrectionDisabled().autocapitalization(.none)
 						#endif
 				}
 			}
-		}
-		.navigationTitle(self.address)
-		#if os(macOS)
-			.formStyle(.grouped)
-		#endif
+		}.navigationTitle(self.address)
+			#if os(macOS)
+				.formStyle(.grouped)
+			#endif
 	}
 }
 
@@ -323,40 +251,24 @@ struct AddressesView: View {
 				Toggle(
 					"Use default addresses",
 					isOn: Binding(
-						get: {
-							return self.editingAddresses.contains(
-								self.addressType.defaultOption)
-						},
+						get: { return self.editingAddresses.contains(self.addressType.defaultOption) },
 						set: { nv in
-							if nv
-								&& !self.editingAddresses.contains(
-									self.addressType.defaultOption)
-							{
-								self.editingAddresses.append(
-									self.addressType.defaultOption)
+							if nv && !self.editingAddresses.contains(self.addressType.defaultOption) {
+								self.editingAddresses.append(self.addressType.defaultOption)
 							}
 							else {
-								self.editingAddresses.removeAll {
-									$0 == self.addressType.defaultOption
-								}
+								self.editingAddresses.removeAll { $0 == self.addressType.defaultOption }
 							}
 						}))
 			} footer: {
 				switch self.addressType {
-				case .stun:
-					Text("When enabled, the app will use the default STUN servers.")
-				case .discovery:
-					Text(
-						"When enabled, the app will use the default discovery service to announce itself."
-					)
+				case .stun: Text("When enabled, the app will use the default STUN servers.")
+				case .discovery: Text("When enabled, the app will use the default discovery service to announce itself.")
 				case .listening:
-					Text(
-						"When enabled, the app will listen on default addresses, and will use the default relay pool."
-					)
+					Text("When enabled, the app will listen on default addresses, and will use the default relay pool.")
 				case .device:
 					Text(
-						"When enabled, the app will look up addresses for this device automatically using various discovery mechanisms."
-					)
+						"When enabled, the app will look up addresses for this device automatically using various discovery mechanisms.")
 				}
 			}
 
@@ -366,35 +278,24 @@ struct AddressesView: View {
 						NavigationLink(
 							destination: AddressView(
 								address: Binding(
-									get: {
-										return editingAddresses[idx.offset]
-									},
-									set: { nv in
-										editingAddresses[idx.offset] = nv
-									}), addressType: addressType)
+									get: { return editingAddresses[idx.offset] }, set: { nv in editingAddresses[idx.offset] = nv }),
+								addressType: addressType)
 						) {
 							HStack {
 								#if os(macOS)
-									Button("Delete", systemImage: "trash") {
-										editingAddresses.remove(at: idx.offset)
-									}
-									.labelStyle(.iconOnly)
-									.buttonStyle(.borderless)
+									Button("Delete", systemImage: "trash") { editingAddresses.remove(at: idx.offset) }.labelStyle(.iconOnly)
+										.buttonStyle(.borderless)
 								#endif
 								Text(idx.element)
 
 							}
 						}
 					}
-				}
-				.onDelete(perform: { indexSet in
-					editingAddresses.remove(atOffsets: indexSet)
-				})
+				}.onDelete(perform: { indexSet in editingAddresses.remove(atOffsets: indexSet) })
 
-				Button("Add address") {
-					self.editingAddresses.append(self.addressType.templateAddress)
-				}.deleteDisabled(true)
-					#if os(macOS)
+				Button("Add address") { self.editingAddresses.append(self.addressType.templateAddress) }.deleteDisabled(true)
+					#if os(
+						macOS)
 						.buttonStyle(.link)
 					#endif
 			}
@@ -405,14 +306,9 @@ struct AddressesView: View {
 		#if os(macOS)
 			.formStyle(.grouped)
 		#endif
-		.onDisappear {
-			self.addresses = self.editingAddresses
-		}
-		.toolbar {
+		.onDisappear { self.addresses = self.editingAddresses }.toolbar {
 			#if os(iOS)
-				if !editingAddresses.isEmpty {
-					EditButton()
-				}
+				if !editingAddresses.isEmpty { EditButton() }
 			#endif
 		}
 	}
