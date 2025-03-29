@@ -521,16 +521,7 @@ func (clt *Client) Start() error {
 	}
 	clt.config = config
 
-	// Load database
-	dbPath := locations.Get(locations.Database)
-	legacyDBPath := locations.Get(locations.LegacyDatabase)
-
-	sdb, err := syncthing.OpenDatabase(dbPath)
-	if err != nil {
-		return err
-	}
-
-	if err := syncthing.TryMigrateDatabase(sdb, legacyDBPath); err != nil {
+	if err := syncthing.TryMigrateDatabase(); err != nil {
 		Logger.Warnln("Failed to migrate legacy database:", err)
 		return err
 	}
@@ -540,6 +531,14 @@ func (clt *Client) Start() error {
 		ProfilerAddr:   "",
 		ResetDeltaIdxs: false,
 		Verbose:        false,
+	}
+
+	// Load database
+	dbPath := locations.Get(locations.Database)
+
+	sdb, err := syncthing.OpenDatabase(dbPath)
+	if err != nil {
+		return err
 	}
 
 	app, err := syncthing.New(clt.config, sdb, clt.evLogger, *clt.cert, appOpts)

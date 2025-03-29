@@ -4,3 +4,5 @@
 /localize.sh
 /Build
 *.p12
+/SushitrainCore/gobind
+/SushitrainCore/gomobile
