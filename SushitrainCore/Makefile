@@ -16,12 +16,10 @@ deps:
 ifndef GO_VERSION
 	echo Go is not installed!
 endif
-ifndef GOMOBILE_VERSION
 	go get golang.org/x/mobile/cmd/gomobile
 	go get golang.org/x/mobile/cmd/gobind
 	go build golang.org/x/mobile/cmd/gomobile
 	go build golang.org/x/mobile/cmd/gobind
-endif
 
 notices.html: notices.template.html go.mod go.sum
 	go install github.com/google/go-licenses@latest
