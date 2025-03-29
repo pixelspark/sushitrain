@@ -6,6 +6,12 @@ toolchain go1.24.0
 
 replace github.com/syncthing/syncthing => /Users/tommy/Repos/syncthing
 
+// gopsutil vanilla does not build on iOS. In the below fork some files are removed (iostat_darwin_cgo.go, iostat_drawin.c/.h)
+// To update to a newer version, replace the 'v4.2.**'  with 'master', then run go mod tidy
+replace github.com/shirou/gopsutil/v4 v4.0.0 => github.com/pixelspark/gopsutil/v4 v4.24.9-0.20240922111650-71ae9b06ea66
+
+replace github.com/gobwas/glob v0.2.3 => github.com/calmh/glob v0.0.0-20220615080505-1d823af5017b
+
 require (
 	github.com/gotd/contrib v0.21.0
 	github.com/miscreant/miscreant.go v0.0.0-20200214223636-26d376326b75
@@ -21,6 +27,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/ebitengine/purego v0.8.3 // indirect
 	github.com/go-asn1-ber/asn1-ber v1.5.8-0.20250403174932-29230038a667 // indirect
 	github.com/go-ldap/ldap/v3 v3.4.11 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
@@ -35,7 +42,7 @@ require (
 	github.com/jmoiron/sqlx v1.4.0 // indirect
 	github.com/julienschmidt/httprouter v1.3.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
-	github.com/lufia/plan9stats v0.0.0-20240909124753-873cd0166683 // indirect
+	github.com/lufia/plan9stats v0.0.0-20250317134145-8bc96cf8fc35 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-sqlite3 v1.14.28 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
@@ -52,14 +59,13 @@ require (
 	github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/shirou/gopsutil/v4 v4.25.4 // indirect
-	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/syncthing/notify v0.0.0-20250528144937-c7027d4f7465 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/thejerf/suture/v4 v4.0.6 // indirect
-	github.com/tklauser/go-sysconf v0.3.14 // indirect
-	github.com/tklauser/numcpus v0.9.0 // indirect
+	github.com/tklauser/go-sysconf v0.3.15 // indirect
+	github.com/tklauser/numcpus v0.10.0 // indirect
 	github.com/vitrun/qart v0.0.0-20160531060029-bf64b92db6b0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.uber.org/automaxprocs v1.6.0 // indirect
@@ -80,9 +86,3 @@ require (
 	modernc.org/memory v1.9.1 // indirect
 	modernc.org/sqlite v1.37.0 // indirect
 )
-
-// gopsutil vanilla does not build on iOS. In the below fork some files are removed (iostat_darwin_cgo.go, iostat_drawin.c/.h)
-// To update to a newer version, replace the 'v4.2.**'  with 'master', then run go mod tidy
-replace github.com/shirou/gopsutil/v4 => github.com/pixelspark/gopsutil/v4 v4.24.9-0.20240922111650-71ae9b06ea66
-
-replace github.com/gobwas/glob v0.2.3 => github.com/calmh/glob v0.0.0-20220615080505-1d823af5017b
