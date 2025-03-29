@@ -6,10 +6,6 @@ toolchain go1.24.0
 
 replace github.com/syncthing/syncthing => /Users/tommy/Repos/syncthing
 
-// gopsutil vanilla does not build on iOS. In the below fork some files are removed (iostat_darwin_cgo.go, iostat_drawin.c/.h)
-// To update to a newer version, replace the 'v4.2.**'  with 'master', then run go mod tidy
-replace github.com/shirou/gopsutil/v4 v4.0.0 => github.com/pixelspark/gopsutil/v4 v4.24.9-0.20240922111650-71ae9b06ea66
-
 replace github.com/gobwas/glob v0.2.3 => github.com/calmh/glob v0.0.0-20220615080505-1d823af5017b
 
 require (
