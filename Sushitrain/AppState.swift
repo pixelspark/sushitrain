@@ -153,7 +153,6 @@ enum AppStartupState: Equatable {
 			assertionFailure("cannot start again")
 		}
 
-		self.performMigrations()
 		self.isMigratedToNewDatabase = !client.hasOldDatabase()
 
 		let client = self.client
@@ -167,6 +166,9 @@ enum AppStartupState: Equatable {
 				DispatchQueue.main.async {
 					// Check to see if we have migrated
 					self.isMigratedToNewDatabase = !client.hasOldDatabase()
+					Log.info("Performing app migrations...")
+					self.performMigrations()
+					
 					Log.info("Configuring the user interface...")
 					self.applySettings()
 					self.update()
