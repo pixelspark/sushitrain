@@ -155,11 +155,19 @@ enum AppStartupState: Equatable {
 		self.isMigratedToNewDatabase = !client.hasOldDatabase()
 
 		let client = self.client
+		let resetDeltas = UserDefaults.standard.bool(forKey: "resetDeltas")
+		if resetDeltas {
+			Log.info("Reset deltas requested from settings")
+		}
+		
 		DispatchQueue.global(qos: .userInitiated).async {
 			do {
 				// This one opens the database, migrates stuff, etc. and may take a while
 				Log.info("Starting the client...")
-				try client.start()
+				try client.start(resetDeltas)
+				if resetDeltas {
+					UserDefaults.standard.setValue(false, forKey: "resetDeltas")
+				}
 				Log.info("Client started")
 
 				DispatchQueue.main.async {
