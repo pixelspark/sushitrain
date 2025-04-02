@@ -661,61 +661,61 @@ struct AppShortcuts: AppShortcutsProvider {
 		return [
 			AppShortcut(
 				intent: SynchronizePhotosIntent(),
-				phrases: ["Copy new photos"],
+				phrases: ["Copy new photos using ${applicationName}"],
 				shortTitle: "Copy new photos",
 				systemImageName: "photo.badge.arrow.down.fill"
 			),
 			AppShortcut(
 				intent: SynchronizeIntent(),
-				phrases: ["Synchronize files"],
+				phrases: ["Synchronize ${applicationName} files"],
 				shortTitle: "Synchronize",
 				systemImageName: "bolt.horizontal"
 			),
 			AppShortcut(
 				intent: RescanIntent(),
-				phrases: ["Rescan folder"],
+				phrases: ["Rescan folder in ${applicationName}"],
 				shortTitle: "Rescan",
 				systemImageName: "arrow.clockwise.square"
 			),
 			AppShortcut(
 				intent: ConfigureFolderIntent(),
-				phrases: ["Change folder settings"],
+				phrases: ["Change ${applicationName} folder settings"],
 				shortTitle: "Configure folder",
 				systemImageName: "folder.fill.badge.gearshape"
 			),
 			AppShortcut(
 				intent: ConfigureDeviceIntent(),
-				phrases: ["Change device settings"],
+				phrases: ["Change ${applicationName} device settings"],
 				shortTitle: "Configure device",
 				systemImageName: "externaldrive.fill.badge.plus"
 			),
 			AppShortcut(
 				intent: GetFolderIntent(),
-				phrases: ["Get folder directory"],
+				phrases: ["Get ${applicationName} folder directory"],
 				shortTitle: "Get folder directory",
 				systemImageName: "externaldrive.fill"
 			),
 			AppShortcut(
 				intent: SearchInAppIntent(),
-				phrases: ["Search files"],
+				phrases: ["Search ${applicationName} files"],
 				shortTitle: "Search for files",
 				systemImageName: "magnifyingglass"
 			),
 			AppShortcut(
 				intent: GetDeviceIDIntent(),
-				phrases: ["Get device ID"],
+				phrases: ["Get ${applicationName} device ID"],
 				shortTitle: "Get device ID",
 				systemImageName: "qrcode"
 			),
 			AppShortcut(
 				intent: GetExtraneousFilesIntent(),
-				phrases: ["List new files"],
+				phrases: ["List new files in ${applicationName}"],
 				shortTitle: "List new files",
 				systemImageName: "document.badge.plus.fill"
 			),
 			AppShortcut(
 				intent: DownloadFilesIntent(),
-				phrases: ["Download files"],
+				phrases: ["Download ${applicationName} files"],
 				shortTitle: "Download files",
 				systemImageName: "arrow.down.circle.fill"
 			),
