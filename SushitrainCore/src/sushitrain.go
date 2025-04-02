@@ -80,7 +80,6 @@ const (
 	ExportConfigFileName = "exported-config.xml"
 	CertFileName         = "cert.pem"
 	KeyFileName          = "key.pem"
-	bookmarkFileName     = "sushitrain-bookmark.dat"
 )
 
 func NewClient(configPath string, filesPath string, saveLog bool) *Client {
