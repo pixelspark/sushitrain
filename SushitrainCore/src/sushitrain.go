@@ -565,7 +565,7 @@ func (clt *Client) Start() error {
 
 func (clt *Client) SetFSWatchingEnabledForAllFolders(enabled bool) {
 	clt.changeConfiguration(func(cfg *config.Configuration) {
-		for _, fc := range clt.config.FolderList() {
+		for _, fc := range cfg.Folders {
 			fc.FSWatcherEnabled = enabled
 			cfg.SetFolder(fc)
 		}
