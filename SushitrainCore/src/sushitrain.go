@@ -1338,3 +1338,15 @@ func ShortDeviceID(devID string) string {
 	}
 	return did.Short().String()
 }
+
+func (c *Client) ClearV1Index() error {
+	dbPath := locations.Get(locations.LegacyDatabase)
+	Logger.Warnf("Removing v1 index at %s", dbPath)
+	return os.RemoveAll(dbPath)
+}
+
+func (c *Client) ClearV2Index() error {
+	dbPath := locations.Get(locations.Database)
+	Logger.Warnf("Removing v2 index at %s", dbPath)
+	return os.RemoveAll(dbPath)
+}

@@ -44,6 +44,31 @@ struct SushitrainApp: App {
 		Log.info("Logging enabled: \(enableLogging)")
 
 		let client = SushitrainNewClient(configPath, documentsPath, enableLogging)!
+		
+		// Optionally clear v1 and/or v2 index
+		let clearV1Index = UserDefaults.standard.bool(forKey: "clearV1Index")
+		let clearV2Index = UserDefaults.standard.bool(forKey: "clearV2Index")
+		if clearV1Index {
+			Log.info("Deleting v1 index...")
+			do {
+				try client.clearV1Index()
+				UserDefaults.standard.setValue(false, forKey: "clearV1Index")
+			}
+			catch {
+				Log.warn("Failed to delete v1 index: " + error.localizedDescription)
+			}
+		}
+		if clearV2Index {
+			Log.info("Deleting v2 index...")
+			do {
+				try client.clearV2Index()
+				UserDefaults.standard.setValue(false, forKey: "clearV2Index")
+			}
+			catch {
+				Log.warn("Failed to delete v2 index: " + error.localizedDescription)
+			}
+		}
+		
 		let appState = AppState(client: client, documentsDirectory: documentsDirectory, configDirectory: configDirectory)
 		self.appState = appState
 
