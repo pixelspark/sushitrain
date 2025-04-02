@@ -8,39 +8,11 @@
 	<array>
 		<dict>
 			<key>Type</key>
-			<string>PSGroupSpecifier</string>
+			<string>PSChildPaneSpecifier</string>
 			<key>Title</key>
 			<string>Troubleshooting</string>
-		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
-			<key>Title</key>
-			<string>Debug logging</string>
-			<key>Key</key>
-			<string>loggingEnabled</string>
-			<key>DefaultValue</key>
-			<false/>
-		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
-			<key>Title</key>
-			<string>Delete v1 index</string>
-			<key>Key</key>
-			<string>clearV1Index</string>
-			<key>DefaultValue</key>
-			<false/>
-		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
-			<key>Title</key>
-			<string>Delete v2 index</string>
-			<key>Key</key>
-			<string>clearV2Index</string>
-			<key>DefaultValue</key>
-			<false/>
+			<key>File</key>
+			<string>Troubleshooting</string>
 		</dict>
 	</array>
 </dict>
