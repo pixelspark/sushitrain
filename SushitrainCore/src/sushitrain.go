@@ -520,7 +520,9 @@ func (clt *Client) Start(resetDeltaIdxs bool) error {
 	}
 	clt.config = config
 
-	if err := syncthing.TryMigrateDatabase(); err != nil {
+	// Default retention interval taken from Syncthing's CLI default
+	dbDeleteRetentionInterval, _ := time.ParseDuration("4320h")
+	if err := syncthing.TryMigrateDatabase(dbDeleteRetentionInterval); err != nil {
 		Logger.Warnln("Failed to migrate legacy database:", err)
 		return err
 	}
@@ -535,7 +537,7 @@ func (clt *Client) Start(resetDeltaIdxs bool) error {
 	// Load database
 	dbPath := locations.Get(locations.Database)
 
-	sdb, err := syncthing.OpenDatabase(dbPath)
+	sdb, err := syncthing.OpenDatabase(dbPath, dbDeleteRetentionInterval)
 	if err != nil {
 		return err
 	}
