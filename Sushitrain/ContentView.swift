@@ -281,14 +281,16 @@ private struct LoadingView: View {
 				.frame(maxWidth: 320)
 			}
 		}
-		.onAppear {
-			Log.info("Asserting idle timer disable")
-			UIApplication.shared.isIdleTimerDisabled = true
-		}
-		.onDisappear {
-			Log.info("Deasserting idle timer disable")
-			UIApplication.shared.isIdleTimerDisabled = false
-		}
+		#if os(iOS)
+			.onAppear {
+				Log.info("Asserting idle timer disable")
+				UIApplication.shared.isIdleTimerDisabled = true
+			}
+			.onDisappear {
+				Log.info("Deasserting idle timer disable")
+				UIApplication.shared.isIdleTimerDisabled = false
+			}
+		#endif
 	}
 }
 
