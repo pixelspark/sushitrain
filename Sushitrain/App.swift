@@ -74,7 +74,7 @@ struct SushitrainApp: App {
 				Log.warn("Failed to delete v2 index: " + error.localizedDescription)
 			}
 		}
-		
+
 		let appState = AppState(client: client, documentsDirectory: documentsDirectory, configDirectory: configDirectory)
 		self.appState = appState
 

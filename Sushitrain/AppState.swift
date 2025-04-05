@@ -160,7 +160,7 @@ enum AppStartupState: Equatable {
 		if resetDeltas {
 			Log.info("Reset deltas requested from settings")
 		}
-		
+
 		DispatchQueue.global(qos: .userInitiated).async {
 			do {
 				// This one opens the database, migrates stuff, etc. and may take a while
@@ -176,7 +176,7 @@ enum AppStartupState: Equatable {
 					self.isMigratedToNewDatabase = !client.hasOldDatabase()
 					Log.info("Performing app migrations...")
 					self.performMigrations()
-					
+
 					Log.info("Configuring the user interface...")
 					self.applySettings()
 					self.update()
