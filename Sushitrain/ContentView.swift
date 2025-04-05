@@ -14,16 +14,7 @@ struct MainView: View {
 	var body: some View {
 		switch appState.startupState {
 		case .notStarted:
-			VStack(spacing: 10) {
-				ProgressView().progressViewStyle(.circular)
-				if !appState.isMigratedToNewDatabase {
-					// We are likely migrating now
-					Text("Upgrading the database. This may take a few minutes, depending on how many files you have. Please do not close the app until this is finished.")
-						.foregroundStyle(.secondary)
-						.multilineTextAlignment(.center)
-						.frame(maxWidth: 320)
-				}
-			}
+			LoadingView(appState: appState)
 		case .error(let e):
 			ContentUnavailableView("Cannot start the app", systemImage: "exclamationmark.triangle.fill", description: Text(e))
 		case .started:
@@ -270,6 +261,33 @@ private struct ContentView: View {
 		else {
 			// Go straight on to request notification permissions
 			AppState.requestNotificationPermissionIfNecessary()
+		}
+	}
+}
+
+private struct LoadingView: View {
+	@ObservedObject var appState: AppState
+
+	var body: some View {
+		VStack(spacing: 10) {
+			ProgressView().progressViewStyle(.circular)
+			if !appState.isMigratedToNewDatabase {
+				// We are likely migrating now
+				Text(
+					"Upgrading the database. This may take a few minutes, depending on how many files you have. Please do not close the app until this is finished."
+				)
+				.foregroundStyle(.secondary)
+				.multilineTextAlignment(.center)
+				.frame(maxWidth: 320)
+			}
+		}
+		.onAppear {
+			Log.info("Asserting idle timer disable")
+			UIApplication.shared.isIdleTimerDisabled = true
+		}
+		.onDisappear {
+			Log.info("Deasserting idle timer disable")
+			UIApplication.shared.isIdleTimerDisabled = false
 		}
 	}
 }
