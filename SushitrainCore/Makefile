@@ -16,18 +16,16 @@ deps:
 ifndef GO_VERSION
 	echo Go is not installed!
 endif
-ifndef GOMOBILE_VERSION
-	go get golang.org/x/mobile/cmd/gomobile
-	go get golang.org/x/mobile/cmd/gobind
-	go build golang.org/x/mobile/cmd/gomobile
-	go build golang.org/x/mobile/cmd/gobind
-endif
 
 notices.html: notices.template.html go.mod go.sum
 	go install github.com/google/go-licenses@latest
 	go-licenses report ./... --template=./notices.template.html > notices.html
 
 build/SushitrainCore.xcframework: src/*.go Makefile go.mod notices.html
+	go get golang.org/x/mobile/cmd/gomobile
+	go get golang.org/x/mobile/cmd/gobind
+	go build golang.org/x/mobile/cmd/gomobile
+	go build golang.org/x/mobile/cmd/gobind
 	gomobile bind -target ios,iossimulator,macos -iosversion=15 -tags noassets -o ./build/SushitrainCore.xcframework ./src
 
 install: build
