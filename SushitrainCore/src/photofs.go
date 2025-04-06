@@ -14,12 +14,19 @@ type PhotoFilesystem struct {
 }
 
 type PhotoFile struct {
+	name string
 }
 
-var PhotoFilesystemType fs.FilesystemType = "sushitrain.photos.v1"
-var notImplementedErr = errors.New("not implemented by photo filesystem")
+type PhotoFileInfo struct {
+	file *PhotoFile
+}
+
 var _ fs.Filesystem = PhotoFilesystem{}
 var _ fs.File = PhotoFile{}
+var _ fs.FileInfo = PhotoFileInfo{}
+
+var PhotoFilesystemType fs.FilesystemType = "sushitrain.photos.v1"
+var errNotImplemented = errors.New("not implemented by photo filesystem")
 
 func init() {
 	fs.RegisterFilesystemType(PhotoFilesystemType, func(uri string, _opts ...fs.Option) (fs.Filesystem, error) {
@@ -83,7 +90,7 @@ func (p PhotoFilesystem) PlatformData(name string, withOwnership bool, withXattr
 }
 
 func (p PhotoFilesystem) ReadSymlink(name string) (string, error) {
-	return "", notImplementedErr
+	return "", errNotImplemented
 }
 
 func (p PhotoFilesystem) Type() fs.FilesystemType {
@@ -105,59 +112,59 @@ func (p PhotoFilesystem) Underlying() (fs.Filesystem, bool) {
 
 // Unimplemented parts of the Filesystem interface return an error. They should not normally be called
 func (p PhotoFilesystem) Chmod(name string, mode fs.FileMode) error {
-	return notImplementedErr
+	return errNotImplemented
 }
 
 func (p PhotoFilesystem) Chtimes(name string, atime time.Time, mtime time.Time) error {
-	return notImplementedErr
+	return errNotImplemented
 }
 
 func (p PhotoFilesystem) Create(name string) (fs.File, error) {
-	return nil, notImplementedErr
+	return nil, errNotImplemented
 }
 
 func (p PhotoFilesystem) CreateSymlink(target string, name string) error {
-	return notImplementedErr
+	return errNotImplemented
 }
 
 func (p PhotoFilesystem) Hide(name string) error {
-	return notImplementedErr
+	return errNotImplemented
 }
 
 func (p PhotoFilesystem) Lchown(name string, uid string, gid string) error {
-	return notImplementedErr
+	return errNotImplemented
 }
 
 func (p PhotoFilesystem) Mkdir(name string, perm fs.FileMode) error {
-	return notImplementedErr
+	return errNotImplemented
 }
 
 func (p PhotoFilesystem) MkdirAll(name string, perm fs.FileMode) error {
-	return notImplementedErr
+	return errNotImplemented
 }
 
 func (p PhotoFilesystem) Remove(name string) error {
-	return notImplementedErr
+	return errNotImplemented
 }
 
 func (p PhotoFilesystem) RemoveAll(name string) error {
-	return notImplementedErr
+	return errNotImplemented
 }
 
 func (p PhotoFilesystem) Rename(oldname string, newname string) error {
-	return notImplementedErr
+	return errNotImplemented
 }
 
 func (p PhotoFilesystem) SetXattr(path string, xattrs []protocol.Xattr, xattrFilter fs.XattrFilter) error {
-	return notImplementedErr
+	return errNotImplemented
 }
 
 func (p PhotoFilesystem) Unhide(name string) error {
-	return notImplementedErr
+	return errNotImplemented
 }
 
 func (p PhotoFilesystem) Watch(path string, ignore fs.Matcher, ctx context.Context, ignorePerms bool) (<-chan fs.Event, <-chan error, error) {
-	return nil, nil, notImplementedErr
+	return nil, nil, errNotImplemented
 }
 
 // Photo file implementation
@@ -167,7 +174,7 @@ func (p PhotoFile) Close() error {
 
 // Name implements fs.File.
 func (p PhotoFile) Name() string {
-	panic("unimplemented")
+	return p.name
 }
 
 // Read implements fs.File.
@@ -187,6 +194,7 @@ func (p PhotoFile) Seek(offset int64, whence int) (int64, error) {
 
 // Stat implements fs.File.
 func (p PhotoFile) Stat() (fs.FileInfo, error) {
+	return PhotoFileInfo{file: &p}, nil
 	panic("unimplemented")
 }
 
@@ -197,13 +205,67 @@ func (p PhotoFile) Sync() error {
 
 // Unimplemented parts of fs.File for PhotoFile return an error
 func (p PhotoFile) Truncate(size int64) error {
-	return notImplementedErr
+	return errNotImplemented
 }
 
 func (PhotoFile) Write(p []byte) (n int, err error) {
-	return 0, notImplementedErr
+	return 0, errNotImplemented
 }
 
 func (PhotoFile) WriteAt(p []byte, off int64) (n int, err error) {
-	return 0, notImplementedErr
+	return 0, errNotImplemented
+}
+
+// PhotoFileInfo implementation
+func (p PhotoFileInfo) Group() int {
+	return 0
+}
+
+// InodeChangeTime implements fs.FileInfo.
+func (p PhotoFileInfo) InodeChangeTime() time.Time {
+	panic("unimplemented")
+}
+
+// IsDir implements fs.FileInfo.
+func (p PhotoFileInfo) IsDir() bool {
+	panic("unimplemented")
+}
+
+// IsRegular implements fs.FileInfo.
+func (p PhotoFileInfo) IsRegular() bool {
+	panic("unimplemented")
+}
+
+// We don't do symlinks
+func (p PhotoFileInfo) IsSymlink() bool {
+	return false
+}
+
+// ModTime implements fs.FileInfo.
+func (p PhotoFileInfo) ModTime() time.Time {
+	panic("unimplemented")
+}
+
+func (p PhotoFileInfo) Mode() fs.FileMode {
+	if p.IsDir() {
+		return 0555 // Read-only with execute bit to list dir
+	}
+	return 0444 // Read-only
+}
+
+func (p PhotoFileInfo) Name() string {
+	return p.file.name
+}
+
+func (p PhotoFileInfo) Owner() int {
+	return 0
+}
+
+// Size implements fs.FileInfo.
+func (p PhotoFileInfo) Size() int64 {
+	panic("unimplemented")
+}
+
+func (p PhotoFileInfo) Sys() interface{} {
+	return nil
 }
