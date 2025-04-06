@@ -8,269 +8,352 @@ package sushitrain
 import (
 	"context"
 	"errors"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/syncthing/syncthing/lib/fs"
 	"github.com/syncthing/syncthing/lib/protocol"
 )
 
-type PhotoFilesystem struct {
-	uri string
+type photoFilesystem struct {
+	uri  string
+	root *photoFileInfo
 }
 
-type PhotoFile struct {
-	name string
+type photoFile struct {
+	info *photoFileInfo
 }
 
-type PhotoFileInfo struct {
-	file *PhotoFile
+type photoFileInfo struct {
+	leafName string
+	children []*photoFileInfo
 }
 
-var _ fs.Filesystem = PhotoFilesystem{}
-var _ fs.File = PhotoFile{}
-var _ fs.FileInfo = PhotoFileInfo{}
+var _ fs.Filesystem = photoFilesystem{}
+var _ fs.File = photoFile{}
+var _ fs.FileInfo = photoFileInfo{}
 
 var PhotoFilesystemType fs.FilesystemType = "sushitrain.photos.v1"
 var errNotImplemented = errors.New("not implemented by photo filesystem")
 
 func init() {
 	fs.RegisterFilesystemType(PhotoFilesystemType, func(uri string, _opts ...fs.Option) (fs.Filesystem, error) {
-		return &PhotoFilesystem{
+		return &photoFilesystem{
 			uri: uri,
+			root: &photoFileInfo{
+				leafName: "",
+				children: []*photoFileInfo{
+					&photoFileInfo{
+						leafName: ".stfolder",
+						children: []*photoFileInfo{},
+					},
+					&photoFileInfo{
+						leafName: "DIRA",
+						children: []*photoFileInfo{
+							&photoFileInfo{
+								leafName: "FileA",
+							},
+						},
+					},
+					&photoFileInfo{
+						leafName: "DIRB",
+						children: []*photoFileInfo{},
+					},
+				},
+			},
 		}, nil
 	})
 }
 
-func (p PhotoFilesystem) Roots() ([]string, error) {
+func (p photoFilesystem) Roots() ([]string, error) {
+	return []string{"/"}, nil
+}
+
+func (p photoFilesystem) Open(name string) (fs.File, error) {
+	return p.OpenFile(name, os.O_RDONLY, 0)
+}
+
+func (p photoFilesystem) OpenFile(name string, flags int, mode fs.FileMode) (fs.File, error) {
+	var item *photoFileInfo
+	var err error
+	if item, err = p.itemAt(name); err != nil {
+		return nil, err
+	}
+	return photoFile{info: item}, nil
+}
+
+func (p photoFilesystem) Glob(pattern string) ([]string, error) {
 	panic("unimplemented")
 }
 
-func (p PhotoFilesystem) Open(name string) (fs.File, error) {
-	panic("unimplemented")
+func (p photoFilesystem) itemAt(path string) (*photoFileInfo, error) {
+	parts := strings.Split(path, "/")
+
+	item := p.root
+	for _, p := range parts {
+		if p == "." || p == "" {
+			continue
+		}
+
+		if item.children == nil || !item.IsDir() {
+			return nil, fs.ErrNotExist
+		}
+
+		found := false
+		for _, child := range item.children {
+			if child.leafName == p {
+				item = child
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			return nil, fs.ErrNotExist
+		}
+	}
+
+	return item, nil
 }
 
-func (p PhotoFilesystem) OpenFile(name string, flags int, mode fs.FileMode) (fs.File, error) {
-	panic("unimplemented")
+func (p photoFilesystem) DirNames(name string) ([]string, error) {
+	folder, err := p.itemAt((name))
+	if err != nil {
+		return nil, err
+	}
+
+	names := make([]string, 0)
+	for _, child := range folder.children {
+		names = append(names, child.leafName)
+	}
+
+	return names, nil
 }
 
-func (p PhotoFilesystem) Glob(pattern string) ([]string, error) {
-	panic("unimplemented")
+// Lstat is equal to Stat, except that when name refers to a symlink, Lstat returns data about the link, not the target
+func (p photoFilesystem) Lstat(name string) (fs.FileInfo, error) {
+	return p.Stat(name)
 }
 
-func (p PhotoFilesystem) DirNames(name string) ([]string, error) {
-	panic("unimplemented")
+func (p photoFilesystem) SameFile(fi1 fs.FileInfo, fi2 fs.FileInfo) bool {
+	return false
 }
 
-func (p PhotoFilesystem) Lstat(name string) (fs.FileInfo, error) {
-	panic("unimplemented")
+func (p photoFilesystem) Stat(name string) (fs.FileInfo, error) {
+	Logger.Infoln("PFS Stat", name)
+	path := strings.TrimPrefix(name, "/")
+	item, err := p.itemAt((path))
+	if err != nil {
+		return nil, err
+	}
+
+	if item == nil {
+		return nil, fs.ErrNotExist
+	}
+
+	return item, nil
 }
 
-func (p PhotoFilesystem) SameFile(fi1 fs.FileInfo, fi2 fs.FileInfo) bool {
-	panic("unimplemented")
+func (p photoFilesystem) Usage(name string) (fs.Usage, error) {
+	return fs.Usage{
+		Free:  0,
+		Total: 0,
+	}, nil
 }
 
-func (p PhotoFilesystem) Stat(name string) (fs.FileInfo, error) {
-	panic("unimplemented")
-}
-
-func (p PhotoFilesystem) Usage(name string) (fs.Usage, error) {
-	panic("unimplemented")
-}
-
-func (p PhotoFilesystem) Walk(name string, walkFn fs.WalkFunc) error {
+func (p photoFilesystem) Walk(name string, walkFn fs.WalkFunc) error {
+	// Implemented by Syncthing itself through WalkFS
 	panic("unimplemented")
 }
 
 // We support no options
-func (p PhotoFilesystem) Options() []fs.Option {
+func (p photoFilesystem) Options() []fs.Option {
 	return make([]fs.Option, 0)
 }
 
-func (p PhotoFilesystem) SymlinksSupported() bool {
+func (p photoFilesystem) SymlinksSupported() bool {
 	return false
 }
 
-func (p PhotoFilesystem) PlatformData(name string, withOwnership bool, withXattrs bool, xattrFilter fs.XattrFilter) (protocol.PlatformData, error) {
+func (p photoFilesystem) PlatformData(name string, withOwnership bool, withXattrs bool, xattrFilter fs.XattrFilter) (protocol.PlatformData, error) {
 	return protocol.PlatformData{}, nil
 }
 
-func (p PhotoFilesystem) ReadSymlink(name string) (string, error) {
+func (p photoFilesystem) ReadSymlink(name string) (string, error) {
 	return "", errNotImplemented
 }
 
-func (p PhotoFilesystem) Type() fs.FilesystemType {
+func (p photoFilesystem) Type() fs.FilesystemType {
 	return PhotoFilesystemType
 }
 
-func (p PhotoFilesystem) URI() string {
+func (p photoFilesystem) URI() string {
 	return p.uri
 }
 
 // We don't have no xattrs
-func (p PhotoFilesystem) GetXattr(name string, xattrFilter fs.XattrFilter) ([]protocol.Xattr, error) {
+func (p photoFilesystem) GetXattr(name string, xattrFilter fs.XattrFilter) ([]protocol.Xattr, error) {
 	return make([]protocol.Xattr, 0), nil
 }
 
-func (p PhotoFilesystem) Underlying() (fs.Filesystem, bool) {
+func (p photoFilesystem) Underlying() (fs.Filesystem, bool) {
 	return nil, false
 }
 
 // Unimplemented parts of the Filesystem interface return an error. They should not normally be called
-func (p PhotoFilesystem) Chmod(name string, mode fs.FileMode) error {
+func (p photoFilesystem) Chmod(name string, mode fs.FileMode) error {
 	return errNotImplemented
 }
 
-func (p PhotoFilesystem) Chtimes(name string, atime time.Time, mtime time.Time) error {
+func (p photoFilesystem) Chtimes(name string, atime time.Time, mtime time.Time) error {
 	return errNotImplemented
 }
 
-func (p PhotoFilesystem) Create(name string) (fs.File, error) {
+func (p photoFilesystem) Create(name string) (fs.File, error) {
 	return nil, errNotImplemented
 }
 
-func (p PhotoFilesystem) CreateSymlink(target string, name string) error {
+func (p photoFilesystem) CreateSymlink(target string, name string) error {
 	return errNotImplemented
 }
 
-func (p PhotoFilesystem) Hide(name string) error {
+func (p photoFilesystem) Hide(name string) error {
 	return errNotImplemented
 }
 
-func (p PhotoFilesystem) Lchown(name string, uid string, gid string) error {
+func (p photoFilesystem) Lchown(name string, uid string, gid string) error {
 	return errNotImplemented
 }
 
-func (p PhotoFilesystem) Mkdir(name string, perm fs.FileMode) error {
+func (p photoFilesystem) Mkdir(name string, perm fs.FileMode) error {
 	return errNotImplemented
 }
 
-func (p PhotoFilesystem) MkdirAll(name string, perm fs.FileMode) error {
+func (p photoFilesystem) MkdirAll(name string, perm fs.FileMode) error {
 	return errNotImplemented
 }
 
-func (p PhotoFilesystem) Remove(name string) error {
+func (p photoFilesystem) Remove(name string) error {
 	return errNotImplemented
 }
 
-func (p PhotoFilesystem) RemoveAll(name string) error {
+func (p photoFilesystem) RemoveAll(name string) error {
 	return errNotImplemented
 }
 
-func (p PhotoFilesystem) Rename(oldname string, newname string) error {
+func (p photoFilesystem) Rename(oldname string, newname string) error {
 	return errNotImplemented
 }
 
-func (p PhotoFilesystem) SetXattr(path string, xattrs []protocol.Xattr, xattrFilter fs.XattrFilter) error {
+func (p photoFilesystem) SetXattr(path string, xattrs []protocol.Xattr, xattrFilter fs.XattrFilter) error {
 	return errNotImplemented
 }
 
-func (p PhotoFilesystem) Unhide(name string) error {
+func (p photoFilesystem) Unhide(name string) error {
 	return errNotImplemented
 }
 
-func (p PhotoFilesystem) Watch(path string, ignore fs.Matcher, ctx context.Context, ignorePerms bool) (<-chan fs.Event, <-chan error, error) {
+func (p photoFilesystem) Watch(path string, ignore fs.Matcher, ctx context.Context, ignorePerms bool) (<-chan fs.Event, <-chan error, error) {
 	return nil, nil, errNotImplemented
 }
 
 // Photo file implementation
-func (p PhotoFile) Close() error {
+func (p photoFile) Close() error {
 	return nil
 }
 
 // Name implements fs.File.
-func (p PhotoFile) Name() string {
-	return p.name
+func (p photoFile) Name() string {
+	return p.info.leafName
 }
 
 // Read implements fs.File.
-func (PhotoFile) Read(p []byte) (n int, err error) {
+func (photoFile) Read(p []byte) (n int, err error) {
 	panic("unimplemented")
 }
 
 // ReadAt implements fs.File.
-func (PhotoFile) ReadAt(p []byte, off int64) (n int, err error) {
+func (photoFile) ReadAt(p []byte, off int64) (n int, err error) {
 	panic("unimplemented")
 }
 
 // Seek implements fs.File.
-func (p PhotoFile) Seek(offset int64, whence int) (int64, error) {
+func (p photoFile) Seek(offset int64, whence int) (int64, error) {
 	panic("unimplemented")
 }
 
 // Stat implements fs.File.
-func (p PhotoFile) Stat() (fs.FileInfo, error) {
-	return PhotoFileInfo{file: &p}, nil
-	panic("unimplemented")
+func (p photoFile) Stat() (fs.FileInfo, error) {
+	return p.info, nil
 }
 
 // Sync implements fs.File.
-func (p PhotoFile) Sync() error {
+func (p photoFile) Sync() error {
 	return nil
 }
 
 // Unimplemented parts of fs.File for PhotoFile return an error
-func (p PhotoFile) Truncate(size int64) error {
+func (p photoFile) Truncate(size int64) error {
 	return errNotImplemented
 }
 
-func (PhotoFile) Write(p []byte) (n int, err error) {
+func (photoFile) Write(p []byte) (n int, err error) {
 	return 0, errNotImplemented
 }
 
-func (PhotoFile) WriteAt(p []byte, off int64) (n int, err error) {
+func (photoFile) WriteAt(p []byte, off int64) (n int, err error) {
 	return 0, errNotImplemented
 }
 
 // PhotoFileInfo implementation
-func (p PhotoFileInfo) Group() int {
+func (p photoFileInfo) Group() int {
 	return 0
 }
 
-// InodeChangeTime implements fs.FileInfo.
-func (p PhotoFileInfo) InodeChangeTime() time.Time {
-	panic("unimplemented")
+func (p photoFileInfo) InodeChangeTime() time.Time {
+	return time.Time{}
 }
 
-// IsDir implements fs.FileInfo.
-func (p PhotoFileInfo) IsDir() bool {
-	panic("unimplemented")
+func (p photoFileInfo) IsDir() bool {
+	return p.children != nil
 }
 
-// IsRegular implements fs.FileInfo.
-func (p PhotoFileInfo) IsRegular() bool {
-	panic("unimplemented")
+func (p photoFileInfo) IsRegular() bool {
+	return p.children == nil
 }
 
 // We don't do symlinks
-func (p PhotoFileInfo) IsSymlink() bool {
+func (p photoFileInfo) IsSymlink() bool {
 	return false
 }
 
-// ModTime implements fs.FileInfo.
-func (p PhotoFileInfo) ModTime() time.Time {
-	panic("unimplemented")
+func (p photoFileInfo) ModTime() time.Time {
+	return time.Time{}
 }
 
-func (p PhotoFileInfo) Mode() fs.FileMode {
+func (p photoFileInfo) Mode() fs.FileMode {
 	if p.IsDir() {
 		return 0555 // Read-only with execute bit to list dir
 	}
 	return 0444 // Read-only
 }
 
-func (p PhotoFileInfo) Name() string {
-	return p.file.name
+func (p photoFileInfo) Name() string {
+	return p.leafName
 }
 
-func (p PhotoFileInfo) Owner() int {
+func (p photoFileInfo) Owner() int {
 	return 0
 }
 
-// Size implements fs.FileInfo.
-func (p PhotoFileInfo) Size() int64 {
-	panic("unimplemented")
+func (p photoFileInfo) Size() int64 {
+	if p.IsDir() {
+		return 0
+	}
+	return 0
 }
 
-func (p PhotoFileInfo) Sys() interface{} {
+func (p photoFileInfo) Sys() interface{} {
 	return nil
 }
