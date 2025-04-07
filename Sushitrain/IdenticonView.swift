@@ -237,14 +237,15 @@ private struct QRView: View {
 			let filter = CIFilter.qrCodeGenerator()
 			let data = text.data(using: .ascii, allowLossyConversion: false)!
 			filter.message = data
-			let ciimage = filter.outputImage!
-			let transform = CGAffineTransform(scaleX: 10, y: 10)
-			let scaledCIImage = ciimage.transformed(by: transform)
-			#if os(iOS)
-				image = UIImage(data: UIImage(ciImage: scaledCIImage).pngData()!)
-			#elseif os(macOS)
-				image = NSImage.fromCIImage(scaledCIImage)
-			#endif
+			if let ciimage = filter.outputImage {
+				let transform = CGAffineTransform(scaleX: 10, y: 10)
+				let scaledCIImage = ciimage.transformed(by: transform)
+				#if os(iOS)
+					image = UIImage(data: UIImage(ciImage: scaledCIImage).pngData()!)
+				#elseif os(macOS)
+					image = NSImage.fromCIImage(scaledCIImage)
+				#endif
+			}
 		}
 	}
 }
