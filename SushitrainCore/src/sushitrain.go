@@ -533,6 +533,8 @@ func (clt *Client) Start(resetDeltaIdxs bool) error {
 		ProfilerAddr:   "",
 		ResetDeltaIdxs: resetDeltaIdxs,
 		Verbose:        false,
+		// Syncthing default is 8h, we'll do 24h as mobile devices are likely on the charger once a day only
+		DBMaintenanceInterval: time.Hour * time.Duration(24),
 	}
 
 	// Load database
