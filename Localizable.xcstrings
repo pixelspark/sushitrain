@@ -3011,31 +3011,31 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Möchten Sie diesen Ordner wirklich löschen? Bitte sorgfältig überlegen. Alle Dateien in diesem Ordner werden von diesem Gerät entfernt. Dateien, die noch nicht auf andere Geräte synchronisiert wurden, können nicht wiederhergestellt werden."
+            "value" : "Möchten Sie diesen Ordner wirklich löschen? Bitte überlegen Sie sorgfältig. Alle Dateien in diesem Ordner werden von diesem Gerät entfernt. Dateien, die noch nicht mit anderen Geräten synchronisiert wurden, können nicht wiederhergestellt werden."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "¿Estás seguro de que deseas eliminar esta carpeta? Por favor, considérelo cuidadosamente. Todos los archivos en esta carpeta se eliminarán de este dispositivo. Los archivos que aún no se han sincronizado con otros dispositivos no se pueden recuperar."
+            "value" : "¿Estás seguro de que deseas eliminar esta carpeta? Considéralo detenidamente. Todos los archivos en esta carpeta se eliminarán de este dispositivo. Los archivos que aún no se han sincronizado con otros dispositivos no se podrán recuperar."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sei sicuro di voler rimuovere questa cartella? Si prega di considerare attentamente. Tutti i file in questa cartella verranno rimossi da questo dispositivo. I file che non sono ancora stati sincronizzati con altri dispositivi non possono essere recuperati."
+            "value" : "Sei sicuro di voler rimuovere questa cartella? Valuta attentamente. Tutti i file in questa cartella verranno rimossi da questo dispositivo. I file che non sono stati ancora sincronizzati con altri dispositivi non possono essere recuperati."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Weet u zeker dat u deze map wilt verwijderen? Overweeg dit goed. Alle bestanden in deze map worden van dit apparaat verwijderd. Bestanden die nog niet naar andere apparaten zijn gesynchroniseerd, kunnen niet worden hersteld."
+            "value" : "Weet je zeker dat je deze map wilt verwijderen? Overweeg dit zorgvuldig. Alle bestanden in deze map worden van dit apparaat verwijderd. Bestanden die nog niet naar andere apparaten zijn gesynchroniseerd, kunnen niet worden hersteld."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ви впевнені, що хочете видалити цю папку? Будь ласка, розгляньте це уважно. Усі файли у цій папці буде видалено з цього пристрою. Файли, які ще не були синхронізовані з іншими пристроями, не можуть бути відновлені."
+            "value" : "Ви впевнені, що хочете видалити цю папку? Будь ласка, обміркуйте це ретельно. Усі файли в цій папці будуть видалені з цього пристрою. Файли, що ще не синхронізовані з іншими пристроями, не можуть бути відновлені."
           }
         }
       }
@@ -7505,13 +7505,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Manejo de archivos"
+            "value" : "Gestión de archivos"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gestione dei file"
+            "value" : "Gestione file"
           }
         },
         "nl" : {
@@ -7523,7 +7523,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Обробка файлів"
+            "value" : "Операції з файлами"
           }
         }
       }
@@ -8271,7 +8271,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Дії з папкою"
+            "value" : "Дії з папками"
           }
         }
       }
@@ -17083,7 +17083,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Voorbeeld weergeven"
+            "value" : "Toon voorbeeld"
           }
         },
         "uk" : {
@@ -18450,40 +18450,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Synctrain наразі не може отримати доступ до вашої фототеки"
-          }
-        }
-      }
-    },
-    "Synctrain cannot be started: " : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain kann nicht gestartet werden:"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain no se puede iniciar:"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain non può essere avviato:"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain kan niet worden gestart:"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain не може бути запущено:"
           }
         }
       }
