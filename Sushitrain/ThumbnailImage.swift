@@ -368,18 +368,18 @@ struct ThumbnailImage<Content>: View where Content: View {
 						let jpegData = rep.representation(
 							using: .jpeg, properties: [.compressionFactor: 0.8])
 					{
-						let url = Self.pathFor(cacheKey: cacheKey)
+						let url = self.pathFor(cacheKey: cacheKey)
 						let dirURL = url.deletingLastPathComponent()
 						do {
 							try FileManager.default.createDirectory(
 								at: dirURL, withIntermediateDirectories: true)
 							try FileManager.default.createDirectory(
-								at: Self.cacheDirectory,
+								at: self.cacheDirectory,
 								withIntermediateDirectories: true)
 							try jpegData.write(to: url)
 
 							// If we're using the default thumbnails directory, do not set complete protection for thumbnails
-							if Self.customCacheDirectory == nil {
+							if self.customCacheDirectory == nil {
 								try (url as NSURL).setResourceValue(
 									URLFileProtection.complete,
 									forKey: .fileProtectionKey)
