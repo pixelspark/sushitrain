@@ -8,7 +8,7 @@ import SwiftUI
 import SushitrainCore
 
 struct SelectiveFolderView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	var folder: SushitrainFolder
 	@State private var showError = false
 	@State private var errorText = ""
@@ -33,7 +33,7 @@ struct SelectiveFolderView: View {
 							let item = selectedPaths[itemIndex]
 							if st.isEmpty || item.lowercased().contains(st) {
 								SelectiveFileView(
-									appState: appState, path: item, folder: folder,
+									path: item, folder: folder,
 									deselect: {
 										self.deselectIndexes(
 											IndexSet([itemIndex]))
@@ -287,7 +287,7 @@ struct SelectiveFolderView: View {
 }
 
 private struct SelectiveFileView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	let path: String
 	let folder: SushitrainFolder
 	let deselect: () -> Void
@@ -340,15 +340,13 @@ private struct SelectiveFileView: View {
 						.contextMenu {
 							NavigationLink(
 								destination: FileView(
-									file: file, appState: self.appState)
+									file: file)
 							) {
 								Label("Show info...", systemImage: file.systemImage)
 							}
 						}
 					#else
-						NavigationLink(
-							destination: FileView(file: file, appState: self.appState)
-						) {
+						NavigationLink(destination: FileView(file: file)) {
 							Label(path, systemImage: file.systemImage)
 						}
 					#endif

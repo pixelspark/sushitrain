@@ -9,7 +9,7 @@ import QuickLook
 import AVKit
 
 struct FileView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	private var showPath = false
 	private var siblings: [SushitrainEntry]? = nil
 	private var folder: SushitrainFolder
@@ -35,9 +35,8 @@ struct FileView: View {
 		@Environment(\.openWindow) private var openWindow
 	#endif
 
-	init(file: SushitrainEntry, appState: AppState, showPath: Bool = false, siblings: [SushitrainEntry]? = nil) {
+	init(file: SushitrainEntry, showPath: Bool = false, siblings: [SushitrainEntry]? = nil) {
 		self.file = file
-		self.appState = appState
 		self.showPath = showPath
 		self.siblings = siblings
 		self.folder = file.folder!
@@ -129,7 +128,7 @@ struct FileView: View {
 						ForEach(ce) { (conflictingEntry: SushitrainEntry) in
 							if conflictingEntry.path() != self.file.path() {
 								FileEntryLink(
-									appState: appState, entry: conflictingEntry, inFolder: self.folder, siblings: ce, honorTapToPreview: false
+									entry: conflictingEntry, inFolder: self.folder, siblings: ce, honorTapToPreview: false
 								) {
 									// TODO: attempt to interpret conflict file name, show date/time/device info neatly
 									Text(conflictingEntry.fileName()).foregroundStyle(.red)
@@ -164,7 +163,7 @@ struct FileView: View {
 
 				if showPath {
 					Section("Location") {
-						NavigationLink(destination: BrowserView(appState: appState, folder: folder, prefix: file.parentPath())) {
+						NavigationLink(destination: BrowserView(folder: folder, prefix: file.parentPath())) {
 							Label("\(folder.label()): \(file.parentPath())", systemImage: "folder")
 						}
 					}
@@ -180,7 +179,7 @@ struct FileView: View {
 					// Image preview
 					if file.canThumbnail && !showFullScreenViewer {
 						Section {
-							ThumbnailView(file: file, appState: appState, showFileName: false, showErrorMessages: true).id(file.id).padding(
+							ThumbnailView(file: file, showFileName: false, showErrorMessages: true).id(file.id).padding(
 								.all, 10
 							)
 							// Fixes issue where image is still tappable outside its rectangle
@@ -245,7 +244,7 @@ struct FileView: View {
 						}
 						else {
 							// Waiting for sync
-							Section { DownloadProgressView(appState: appState, file: file, folder: folder) }
+							Section { DownloadProgressView(file: file, folder: folder) }
 						}
 					}
 					else {
@@ -360,7 +359,7 @@ struct FileView: View {
 
 			// Sheet viewer
 			.sheet(isPresented: $showSheetViewer) {
-				FileViewerView(appState: appState, file: file, siblings: siblings, inSheet: true, isShown: $showSheetViewer)
+				FileViewerView(file: file, siblings: siblings, inSheet: true, isShown: $showSheetViewer)
 					#if os(
 						macOS)
 						.presentationSizing(.fitted).frame(minWidth: 640, minHeight: 480)
@@ -372,11 +371,11 @@ struct FileView: View {
 				.fullScreenCover(
 					isPresented: $showFullScreenViewer,
 					content: {
-						FileViewerView(appState: appState, file: file, siblings: siblings, inSheet: true, isShown: $showFullScreenViewer)
+						FileViewerView(file: file, siblings: siblings, inSheet: true, isShown: $showFullScreenViewer)
 					})
 			#elseif os(macOS)
 				.sheet(isPresented: $showFullScreenViewer) {
-					FileViewerView(appState: appState, file: file, siblings: siblings, inSheet: true, isShown: $showFullScreenViewer)
+					FileViewerView(file: file, siblings: siblings, inSheet: true, isShown: $showFullScreenViewer)
 					.presentationSizing(.fitted).frame(minWidth: 640, minHeight: 480)
 				}
 			#endif
@@ -385,7 +384,7 @@ struct FileView: View {
 				isPresented: $showDownloader,
 				content: {
 					NavigationStack {
-						FileQuickLookView(appState: self.appState, file: file)
+						FileQuickLookView(file: file)
 							#if os(iOS)
 								.navigationBarTitleDisplayMode(.inline)
 							#endif
@@ -426,7 +425,7 @@ struct FileView: View {
 						).labelStyle(.iconOnly).disabled(localPath == nil)
 					}
 				#endif
-			}.sheet(isPresented: $showEncryptionSheet) { EncryptionView(entry: self.file, appState: self.appState) }.onAppear {
+			}.sheet(isPresented: $showEncryptionSheet) { EncryptionView(entry: self.file) }.onAppear {
 				selfIndex = self.siblings?.firstIndex(of: file)
 			}.task {
 				let fileEntry = self.file
@@ -472,7 +471,7 @@ struct FileView: View {
 }
 
 private struct DownloadProgressView: View {
-	let appState: AppState
+	@EnvironmentObject var appState: AppState
 	let file: SushitrainEntry
 	let folder: SushitrainFolder
 

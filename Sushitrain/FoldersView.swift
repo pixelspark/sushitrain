@@ -13,7 +13,7 @@ enum Route: Hashable, Equatable {
 }
 
 private struct FolderMetricView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	let metric: FolderMetric
 	let folder: SushitrainFolder
 	@State private var stats: SushitrainFolderStats? = nil
@@ -115,7 +115,7 @@ private struct FolderMetricView: View {
 }
 
 struct FoldersSections: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 
 	@State private var showingAddFolderPopup = false
 	@State private var pendingFolderIds: [String] = []
@@ -138,7 +138,7 @@ struct FoldersSections: View {
 								Label(folder.displayName, systemImage: "folder.fill")
 								Spacer()
 								FolderMetricView(
-									appState: appState,
+
 									metric: self.appState.viewMetric, folder: folder
 								)
 							}
@@ -193,9 +193,7 @@ struct FoldersSections: View {
 		.sheet(
 			isPresented: $showingAddFolderPopup,
 			content: {
-				AddFolderView(
-					folderID: $addFolderID, shareWithPendingPeersByDefault: addFolderShareDefault,
-					appState: appState)
+				AddFolderView(folderID: $addFolderID, shareWithPendingPeersByDefault: addFolderShareDefault)
 			}
 		)
 		.task {
@@ -218,11 +216,11 @@ struct FoldersSections: View {
 }
 
 struct FoldersView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 
 	var body: some View {
 		List {
-			FoldersSections(appState: self.appState)
+			FoldersSections()
 		}
 		.navigationTitle("Folders")
 		.navigationDestination(
@@ -235,7 +233,6 @@ struct FoldersView: View {
 					{
 						if folder.exists() {
 							BrowserView(
-								appState: self.appState,
 								folder: folder,
 								prefix: ""
 							).id(folder.folderID)
@@ -259,7 +256,7 @@ struct FoldersView: View {
 			ToolbarItem {
 				Menu(
 					content: {
-						FolderMetricPickerView(appState: self.appState)
+						FolderMetricPickerView()
 					},
 					label: { Image(systemName: "ellipsis.circle").accessibilityLabel(Text("Menu")) }
 				)
@@ -269,7 +266,7 @@ struct FoldersView: View {
 }
 
 struct FolderMetricPickerView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 
 	var body: some View {
 		Picker("Show metric", selection: self.appState.$viewMetric) {

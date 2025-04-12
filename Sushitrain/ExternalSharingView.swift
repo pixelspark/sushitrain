@@ -15,7 +15,7 @@ private enum ExternalSharingTypeBare: Equatable, Hashable {
 
 struct ExternalSharingSettingsView: View {
 	var folder: SushitrainFolder
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 
 	@State private var settings: ExternalSharingType = .none
 
@@ -69,7 +69,6 @@ struct ExternalSharingSettingsView: View {
 			case .encrypted(let encryptedSharingEncrypted):
 				EncryptedSharingSettingsView(
 					folder: self.folder,
-					appState: self.appState,
 					settings: Binding(
 						get: {
 							return encryptedSharingEncrypted
@@ -159,7 +158,7 @@ private struct UnencryptedSharingSettingsView: View {
 private struct EncryptedSharingSettingsView: View {
 	let folder: SushitrainFolder
 
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	@Binding var settings: ExternalSharingEncrypted
 
 	private var encryptedPeers: [(SushitrainPeer, String)] {

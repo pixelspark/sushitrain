@@ -86,8 +86,7 @@ import BackgroundTasks
 			var photoSyncTask: Task<(), Error>? = nil
 			if self.appState.photoSync.enableBackgroundCopy {
 				Log.info("Start photo sync task")
-				self.appState.photoSync.synchronize(
-					self.appState, fullExport: false, isInBackground: true)
+				self.appState.photoSync.synchronize(appState: self.appState, fullExport: false, isInBackground: true)
 				photoSyncTask = self.appState.photoSync.syncTask
 			}
 

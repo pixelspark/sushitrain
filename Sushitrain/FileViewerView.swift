@@ -9,7 +9,7 @@ import QuickLook
 import AVKit
 
 struct FileViewerView: View {
-	let appState: AppState
+	@EnvironmentObject var appState: AppState
 	@State var file: SushitrainEntry
 	let siblings: [SushitrainEntry]?
 	let inSheet: Bool
@@ -24,7 +24,7 @@ struct FileViewerView: View {
 
 	var body: some View {
 		NavigationStack {
-			FileViewerContentView(appState: appState, file: file, isShown: $isShown)
+			FileViewerContentView(file: file, isShown: $isShown)
 				.navigationTitle(file.fileName())
 				#if os(iOS)
 					// Allow toolbar to be hidden on iOS
@@ -142,7 +142,7 @@ struct FileViewerView: View {
 }
 
 private struct FileViewerContentView: View {
-	let appState: AppState
+	@EnvironmentObject var appState: AppState
 	var file: SushitrainEntry
 	@Binding var isShown: Bool
 	@State private var error: (any Error)? = nil
@@ -161,7 +161,7 @@ private struct FileViewerContentView: View {
 			}
 			else {
 				if file.isVideo || file.isAudio {
-					FileMediaPlayer(appState: appState, file: file, visible: $isShown)
+					FileMediaPlayer(file: file, visible: $isShown)
 				}
 				else if file.isWebPreviewable {
 					let url = file.localNativeFileURL ?? URL(string: self.file.onDemandURL())!
@@ -192,7 +192,7 @@ private struct FileViewerContentView: View {
 }
 
 private struct FileMediaPlayer: View {
-	let appState: AppState
+	@EnvironmentObject var appState: AppState
 	var file: SushitrainEntry
 	@Binding var visible: Bool
 

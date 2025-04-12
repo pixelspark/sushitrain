@@ -8,7 +8,7 @@ import QuickLook
 @preconcurrency import SushitrainCore
 
 struct BrowserTableView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	var folder: SushitrainFolder
 	var files: [SushitrainEntry] = []
 	var subdirectories: [SushitrainEntry] = []
@@ -59,7 +59,8 @@ struct BrowserTableView: View {
 				// Name and icon
 				TableColumn("Name", sortUsing: EntryComparator(order: .forward, sortBy: .name)) {
 					(entry: SushitrainEntry) in
-					EntryNameView(appState: self.appState, entry: entry)
+					EntryNameView(entry: entry)
+						.environmentObject(self.appState)  // Needed because for some reason it does not propagate
 				}
 				.defaultVisibility(.visible)
 				.customizationID("name")
@@ -180,7 +181,7 @@ struct BrowserTableView: View {
 						}
 
 						Divider()
-						ItemSelectToggleView(appState: appState, file: oe)
+						ItemSelectToggleView(file: oe)
 
 						Divider()
 						Button("Show info...") {
@@ -192,7 +193,7 @@ struct BrowserTableView: View {
 					// Multiple items selected
 					Text("\(items.count) items selected")
 
-					MultiItemSelectToggleView(appState: appState, files: self.entriesForIds(items))
+					MultiItemSelectToggleView(files: self.entriesForIds(items))
 				}
 			},
 			primaryAction: self.doubleClick
@@ -211,7 +212,7 @@ struct BrowserTableView: View {
 			if oe.isSymlink() {
 				if !honorTapToPreview {
 					// Just show symlink properties
-					FileView(file: oe, appState: appState, siblings: self.entries)
+					FileView(file: oe, siblings: self.entries)
 						.id(oe.id)
 				}
 				else if let targetEntry = try? oe.symlinkTargetEntry() {
@@ -219,7 +220,7 @@ struct BrowserTableView: View {
 					if targetEntry.isDirectory() {
 						if let targetFolder = targetEntry.folder {
 							BrowserView(
-								appState: appState,
+
 								folder: targetFolder,
 								prefix: targetEntry.path() + "/"
 							)
@@ -229,7 +230,7 @@ struct BrowserTableView: View {
 						// Symlink to file
 						if honorTapToPreview && appState.tapFileToPreview {
 							FileViewerView(
-								appState: appState, file: targetEntry,
+								file: targetEntry,
 								siblings: entries,
 								inSheet: false,
 								isShown: .constant(true)
@@ -238,7 +239,7 @@ struct BrowserTableView: View {
 						}
 						else {
 							FileView(
-								file: targetEntry, appState: appState,
+								file: targetEntry,
 								siblings: self.entries
 							)
 							.id(oe.id)
@@ -253,11 +254,11 @@ struct BrowserTableView: View {
 			else if oe.isDirectory() {
 				if honorTapToPreview {
 					BrowserView(
-						appState: appState, folder: folder,
+						folder: folder,
 						prefix: oe.path() + "/")
 				}
 				else {
-					FileView(file: oe, appState: appState, siblings: self.entries)
+					FileView(file: oe, siblings: self.entries)
 						.id(oe.id)
 				}
 			}
@@ -265,14 +266,14 @@ struct BrowserTableView: View {
 				// Only on iOS
 				if honorTapToPreview && appState.tapFileToPreview {
 					FileViewerView(
-						appState: appState, file: oe, siblings: entries,
+						file: oe, siblings: entries,
 						inSheet: false,
 						isShown: .constant(true)
 					)
 					.navigationTitle(oe.fileName())
 				}
 				else {
-					FileView(file: oe, appState: appState, siblings: self.entries)
+					FileView(file: oe, siblings: self.entries)
 						.id(oe.id)
 				}
 			}
@@ -324,7 +325,7 @@ struct BrowserTableView: View {
 }
 
 struct MultiItemSelectToggleView: View {
-	let appState: AppState
+	@EnvironmentObject var appState: AppState
 	let files: [SushitrainEntry]
 
 	private var isAvailable: Bool {
@@ -408,7 +409,7 @@ struct MultiItemSelectToggleView: View {
 }
 
 private struct EntryNameView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	var entry: SushitrainEntry
 
 	private var showThumbnail: Bool {
@@ -420,7 +421,7 @@ private struct EntryNameView: View {
 			// Thubmnail view shows thumbnail image next to the file name
 			HStack(alignment: .center, spacing: 9.0) {
 				ThumbnailView(
-					file: entry, appState: appState, showFileName: false,
+					file: entry, showFileName: false,
 					showErrorMessages: false
 				)
 				.frame(width: 60, height: 40)

@@ -8,13 +8,8 @@ import SwiftUI
 import SushitrainCore
 
 struct FolderStatisticsView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	var folder: SushitrainFolder
-
-	init(appState: AppState, folder: SushitrainFolder) {
-		self.appState = appState
-		self.folder = folder
-	}
 
 	var possiblePeers: [String: SushitrainPeer] {
 		let peers = appState.peers().filter({ d in !d.isSelf() })
@@ -95,7 +90,7 @@ struct FolderStatisticsView: View {
 }
 
 struct ShareFolderWithDeviceDetailsView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	@Environment(\.dismiss) private var dismiss
 	var folder: SushitrainFolder
 	@Binding var deviceID: String
@@ -108,7 +103,7 @@ struct ShareFolderWithDeviceDetailsView: View {
 			Form {
 				if let device = appState.client.peer(withID: deviceID) {
 					Section("Share with device") {
-						DeviceIDView(appState: appState, device: device)
+						DeviceIDView(device: device)
 					}
 
 					Section {
@@ -176,7 +171,7 @@ struct ShareFolderWithDeviceDetailsView: View {
 }
 
 struct FolderStatusView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	var folder: SushitrainFolder
 
 	var isAvailable: Bool {
@@ -301,7 +296,7 @@ struct FolderStatusView: View {
 }
 
 struct FolderSyncTypePicker: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	@State private var changeProhibited = true
 	var folder: SushitrainFolder
 
@@ -349,7 +344,7 @@ struct FolderSyncTypePicker: View {
 }
 
 struct FolderDirectionPicker: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	var folder: SushitrainFolder
 	@State private var changeProhibited: Bool = true
 
@@ -397,7 +392,7 @@ struct FolderDirectionPicker: View {
 }
 
 private struct ExternalFolderSectionView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	var folder: SushitrainFolder
 	@State private var showPathSelector: Bool = false
 	@State private var errorText: String? = nil
@@ -492,7 +487,7 @@ private struct ExternalFolderSectionView: View {
 
 struct FolderView: View {
 	var folder: SushitrainFolder
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	@Environment(\.dismiss) private var dismiss
 	@State private var isWorking = false
 	@State private var showAlert: ShowAlert? = nil
@@ -522,11 +517,11 @@ struct FolderView: View {
 		Form {
 			if folder.exists() {
 				#if os(iOS)
-					FolderStatusView(appState: appState, folder: folder)
+					FolderStatusView(folder: folder)
 				#endif
 
 				if isExternal == true {
-					ExternalFolderSectionView(appState: appState, folder: folder)
+					ExternalFolderSectionView(folder: folder)
 				}
 
 				Section("Folder settings") {
@@ -543,8 +538,8 @@ struct FolderView: View {
 						Text("Display name")
 					}
 
-					FolderDirectionPicker(appState: appState, folder: folder)
-					FolderSyncTypePicker(appState: appState, folder: folder)
+					FolderDirectionPicker(folder: folder)
+					FolderSyncTypePicker(folder: folder)
 
 					Toggle(
 						"Synchronize",
@@ -557,7 +552,7 @@ struct FolderView: View {
 					Section(header: Text("Shared with")) {
 						ForEach(self.possiblePeers, id: \.self.id) { (addr: SushitrainPeer) in
 							ShareWithDeviceToggleView(
-								appState: appState, peer: addr, folder: folder,
+								peer: addr, folder: folder,
 								showFolderName: false)
 						}
 					}
@@ -596,7 +591,7 @@ struct FolderView: View {
 				#if os(iOS)
 					NavigationLink(
 						destination: AdvancedFolderSettingsView(
-							appState: appState, folder: folder)
+							folder: folder)
 					) {
 						Text("Advanced folder settings")
 					}
@@ -682,7 +677,7 @@ struct FolderView: View {
 					Section {
 						NavigationLink(
 							destination: AdvancedFolderSettingsView(
-								appState: appState, folder: self.folder)
+								folder: self.folder)
 						) {
 							Label("Advanced folder settings", systemImage: "gear")
 						}
@@ -730,7 +725,7 @@ struct FolderView: View {
 }
 
 struct ShareWithDeviceToggleView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	let peer: SushitrainPeer
 	let folder: SushitrainFolder
 	let showFolderName: Bool
@@ -801,7 +796,7 @@ struct ShareWithDeviceToggleView: View {
 		.sheet(isPresented: $showEditEncryptionPassword) {
 			NavigationStack {
 				ShareFolderWithDeviceDetailsView(
-					appState: self.appState, folder: self.folder,
+					folder: self.folder,
 					deviceID: $editEncryptionPasswordDeviceID)
 			}
 		}
@@ -809,7 +804,7 @@ struct ShareWithDeviceToggleView: View {
 }
 
 private struct FolderThumbnailSettingsView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	let folder: SushitrainFolder
 	@State private var showGenerateThumbnails = false
 	@State private var showGenerateThumbnailsConfirm = false
@@ -874,7 +869,7 @@ private struct FolderThumbnailSettingsView: View {
 		case .disabled, .global: return
 		}
 	}
-	
+
 	var canClear: Bool {
 		switch self.settings {
 		case .inside(path: let p): return !p.isEmpty
@@ -989,29 +984,27 @@ private struct FolderThumbnailSettingsView: View {
 		}
 		.sheet(isPresented: $showGenerateThumbnails) {
 			NavigationStack {
-				FolderGenerateThumbnailsView(
-					appState: self.appState, isShown: $showGenerateThumbnails, folder: self.folder
-				)
-				.navigationTitle("Generate thumbnails")
-				#if os(iOS)
-					.navigationBarTitleDisplayMode(.inline)
-				#endif
-				.toolbar(content: {
-					ToolbarItem(
-						placement: .cancellationAction,
-						content: {
-							Button("Cancel") {
-								showGenerateThumbnails = false
-							}
-						})
-				})
+				FolderGenerateThumbnailsView(isShown: $showGenerateThumbnails, folder: self.folder)
+					.navigationTitle("Generate thumbnails")
+					#if os(iOS)
+						.navigationBarTitleDisplayMode(.inline)
+					#endif
+					.toolbar(content: {
+						ToolbarItem(
+							placement: .cancellationAction,
+							content: {
+								Button("Cancel") {
+									showGenerateThumbnails = false
+								}
+							})
+					})
 			}
 		}
 	}
 }
 
 private struct FolderGenerateThumbnailsView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	@Binding var isShown: Bool
 	let folder: SushitrainFolder
 	@State private var error: String? = nil
@@ -1166,7 +1159,7 @@ private struct FolderGenerateThumbnailsView: View {
 }
 
 private struct AdvancedFolderSettingsView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	let folder: SushitrainFolder
 
 	var body: some View {
@@ -1175,13 +1168,11 @@ private struct AdvancedFolderSettingsView: View {
 				if !folder.isSelective() {
 					Section {
 						NavigationLink(
-							destination: IgnoresView(
-								appState: self.appState, folder: self.folder
-							)
-							.navigationTitle("Files to ignore")
-							#if os(iOS)
-								.navigationBarTitleDisplayMode(.inline)
-							#endif
+							destination: IgnoresView(folder: self.folder)
+								.navigationTitle("Files to ignore")
+								#if os(iOS)
+									.navigationBarTitleDisplayMode(.inline)
+								#endif
 						) {
 							Label(
 								"Files to ignore",
@@ -1194,7 +1185,7 @@ private struct AdvancedFolderSettingsView: View {
 			Section {
 				NavigationLink(
 					destination:
-						FolderThumbnailSettingsView(appState: appState, folder: folder)
+						FolderThumbnailSettingsView(folder: folder)
 				) {
 					Label("Thumbnails", systemImage: "photo.stack")
 				}
@@ -1202,8 +1193,7 @@ private struct AdvancedFolderSettingsView: View {
 
 			Section {
 				NavigationLink(
-					destination: ExternalSharingSettingsView(
-						folder: self.folder, appState: appState)
+					destination: ExternalSharingSettingsView(folder: self.folder)
 				) {
 					Label("External sharing", systemImage: "link.circle.fill")
 				}

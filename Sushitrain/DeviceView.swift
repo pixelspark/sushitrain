@@ -8,13 +8,13 @@ import SushitrainCore
 
 private struct DeviceAddressesView: View {
 	var device: SushitrainPeer
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	@State private var addresses: [String] = []
 	@State private var error: String? = nil
 
 	var body: some View {
 		AddressesView(
-			appState: appState,
+
 			addresses: Binding(
 				get: {
 					return self.device.addresses()?.asArray() ?? []
@@ -44,7 +44,7 @@ private struct DeviceAddressesView: View {
 
 struct DeviceView: View {
 	var device: SushitrainPeer
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	@Environment(\.dismiss) private var dismiss
 	@State var changedDeviceName: String? = nil
 
@@ -87,7 +87,7 @@ struct DeviceView: View {
 				}
 
 				Section("Device ID") {
-					DeviceIDView(appState: self.appState, device: device)
+					DeviceIDView(device: device)
 				}
 
 				Section {
@@ -132,16 +132,14 @@ struct DeviceView: View {
 					)
 				}
 
-				NavigationLink(destination: DeviceAddressesView(device: device, appState: appState)) {
+				NavigationLink(destination: DeviceAddressesView(device: device)) {
 					Label("Addresses", systemImage: "envelope.front")
 				}
 
 				let folders = appState.folders()
 				Section("Shared folders") {
 					ForEach(folders, id: \.self.folderID) { (folder: SushitrainFolder) in
-						ShareWithDeviceToggleView(
-							appState: self.appState, peer: self.device, folder: folder,
-							showFolderName: true)
+						ShareWithDeviceToggleView(peer: self.device, folder: folder, showFolderName: true)
 					}
 				}
 

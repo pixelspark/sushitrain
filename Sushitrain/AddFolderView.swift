@@ -10,7 +10,7 @@ struct AddFolderView: View {
 	@Binding var folderID: String
 	var shareWithPendingPeersByDefault: Bool = false
 
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 
 	@Environment(\.dismiss) private var dismiss
 	@FocusState private var idFieldFocus: Bool

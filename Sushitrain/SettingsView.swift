@@ -8,11 +8,7 @@ import SwiftUI
 import SushitrainCore
 
 struct TotalStatisticsView: View {
-	@ObservedObject var appState: AppState
-
-	init(appState: AppState) {
-		self.appState = appState
-	}
+	@EnvironmentObject var appState: AppState
 
 	var body: some View {
 		let formatter = ByteCountFormatter()
@@ -51,7 +47,7 @@ struct TotalStatisticsView: View {
 	private struct ExportButtonView: View {
 		@State private var error: Error? = nil
 		@State private var showSuccess: Bool = false
-		@ObservedObject var appState: AppState
+		@EnvironmentObject var appState: AppState
 
 		var body: some View {
 			Button("Export configuration file") {
@@ -91,7 +87,7 @@ struct TotalStatisticsView: View {
 
 #if os(macOS)
 	struct ConfigurationSettingsView: View {
-		@ObservedObject var appState: AppState
+		@EnvironmentObject var appState: AppState
 		@State private var showHomeDirectorySelector = false
 		@State private var currentPath: URL? = nil
 		@State private var showRestartAlert: Bool = false
@@ -203,7 +199,7 @@ struct TotalStatisticsView: View {
 #endif
 
 struct AdvancedSettingsView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	@State private var diskCacheSizeBytes: UInt? = nil
 
 	var body: some View {
@@ -222,7 +218,7 @@ struct AdvancedSettingsView: View {
 				NavigationLink(
 					destination:
 						AddressesView(
-							appState: appState,
+
 							addresses: Binding(
 								get: {
 									return self.appState.client.listenAddresses()?
@@ -304,7 +300,7 @@ struct AdvancedSettingsView: View {
 				NavigationLink(
 					destination:
 						AddressesView(
-							appState: appState,
+
 							addresses: Binding(
 								get: {
 									return self.appState.client
@@ -357,7 +353,7 @@ struct AdvancedSettingsView: View {
 				NavigationLink(
 					destination:
 						AddressesView(
-							appState: appState,
+
 							addresses: Binding(
 								get: {
 									return self.appState.client.stunAddresses()?
@@ -448,7 +444,7 @@ struct AdvancedSettingsView: View {
 
 			#if os(iOS)
 				Section {
-					ExportButtonView(appState: appState)
+					ExportButtonView()
 				} footer: {
 					if self.appState.client.isUsingCustomConfiguration {
 						Text(
@@ -460,7 +456,7 @@ struct AdvancedSettingsView: View {
 
 			#if os(macOS)
 				Section {
-					NavigationLink(destination: ConfigurationSettingsView(appState: appState)) {
+					NavigationLink(destination: ConfigurationSettingsView()) {
 						Text("Configuration settings")
 					}
 				}
@@ -514,14 +510,13 @@ struct AdvancedSettingsView: View {
 
 #if os(iOS)
 	struct BackgroundSettingsView: View {
-		@ObservedObject var appState: AppState
+		@EnvironmentObject var appState: AppState
 		let durationFormatter = DateComponentsFormatter()
 		@State private var alertShown = false
 		@State private var alertMessage = ""
 		@State private var authorizationStatus: UNAuthorizationStatus = .notDetermined
 
-		init(appState: AppState) {
-			self.appState = appState
+		init() {
 			durationFormatter.allowedUnits = [.day, .hour, .minute]
 			durationFormatter.unitsStyle = .abbreviated
 		}
@@ -653,7 +648,7 @@ struct AdvancedSettingsView: View {
 #endif
 
 private struct BandwidthSettingsView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 
 	var body: some View {
 		Form {
@@ -818,7 +813,7 @@ private struct BandwidthSettingsView: View {
 
 #if os(macOS)
 	struct TabbedSettingsView: View {
-		@ObservedObject var appState: AppState
+		@EnvironmentObject var appState: AppState
 		@Binding var hideInDock: Bool
 		@State private var selection: String = "general"
 
@@ -827,7 +822,7 @@ private struct BandwidthSettingsView: View {
 				Tab(
 					value: "general",
 					content: {
-						GeneralSettingsView(appState: appState, hideInDock: $hideInDock)
+						GeneralSettingsView(hideInDock: $hideInDock)
 					},
 					label: {
 						Label("General", systemImage: "app.badge.checkmark.fill")
@@ -836,7 +831,7 @@ private struct BandwidthSettingsView: View {
 				Tab(
 					value: "bandwidth",
 					content: {
-						BandwidthSettingsView(appState: appState)
+						BandwidthSettingsView()
 					},
 					label: {
 						Label("Bandwidth", systemImage: "tachometer")
@@ -845,7 +840,7 @@ private struct BandwidthSettingsView: View {
 				Tab(
 					value: "photo",
 					content: {
-						PhotoSettingsView(appState: appState, photoSync: appState.photoSync)
+						PhotoSettingsView(photoSync: appState.photoSync)
 					},
 					label: {
 						Label("Photo synchronization", systemImage: "photo")
@@ -854,7 +849,7 @@ private struct BandwidthSettingsView: View {
 				Tab(
 					value: "advanced",
 					content: {
-						AdvancedSettingsView(appState: appState)
+						AdvancedSettingsView()
 					},
 					label: {
 						Label("Advanced", systemImage: "gear")
@@ -867,7 +862,7 @@ private struct BandwidthSettingsView: View {
 	}
 
 	struct GeneralSettingsView: View {
-		@ObservedObject var appState: AppState
+		@EnvironmentObject var appState: AppState
 		@Binding var hideInDock: Bool
 
 		var body: some View {
@@ -902,7 +897,7 @@ private struct BandwidthSettingsView: View {
 				}
 
 				Section("View settings") {
-					ViewSettingsView(appState: appState)
+					ViewSettingsView()
 				}
 			}
 		}
@@ -911,7 +906,7 @@ private struct BandwidthSettingsView: View {
 
 #if os(iOS)
 	struct SettingsView: View {
-		@ObservedObject var appState: AppState
+		@EnvironmentObject var appState: AppState
 
 		var limitsEnabled: Bool {
 			return self.appState.streamingLimitMbitsPerSec > 0
@@ -940,15 +935,15 @@ private struct BandwidthSettingsView: View {
 
 				Section {
 					NavigationLink("View settings") {
-						ViewSettingsView(appState: appState)
+						ViewSettingsView()
 					}
 
-					NavigationLink(destination: BandwidthSettingsView(appState: appState)) {
+					NavigationLink(destination: BandwidthSettingsView()) {
 						Text("Bandwidth limitations").badge(limitsEnabled ? "On" : "Off")
 					}
 
 					#if os(iOS)
-						NavigationLink(destination: BackgroundSettingsView(appState: appState)) {
+						NavigationLink(destination: BackgroundSettingsView()) {
 							Text("Background synchronization").badge(
 								appState.longBackgroundSyncEnabled
 									|| appState.shortBackgroundSyncEnabled
@@ -958,7 +953,7 @@ private struct BandwidthSettingsView: View {
 
 					NavigationLink(
 						destination: PhotoSettingsView(
-							appState: appState, photoSync: appState.photoSync)
+							photoSync: appState.photoSync)
 					) {
 						Text("Photo synchronization").badge(
 							appState.photoSync.isReady
@@ -967,13 +962,13 @@ private struct BandwidthSettingsView: View {
 					}
 
 					NavigationLink("Advanced settings") {
-						AdvancedSettingsView(appState: appState)
+						AdvancedSettingsView()
 					}
 				}
 
 				Section {
 					NavigationLink("Statistics") {
-						TotalStatisticsView(appState: appState)
+						TotalStatisticsView()
 					}
 				}
 
@@ -992,7 +987,7 @@ private struct BandwidthSettingsView: View {
 #endif
 
 struct ViewSettingsView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 
 	var body: some View {
 		Form {

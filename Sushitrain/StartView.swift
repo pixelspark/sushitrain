@@ -8,7 +8,7 @@ import SwiftUI
 
 #if os(iOS)
 	private struct WaitView: View {
-		@ObservedObject var appState: AppState
+		@EnvironmentObject var appState: AppState
 		@Binding var isPresented: Bool
 
 		@State private var position: CGPoint = .zero
@@ -25,7 +25,7 @@ import SwiftUI
 
 					if !appState.isFinished {
 						VStack(alignment: .leading, spacing: 10) {
-							OverallStatusView(appState: appState).frame(maxWidth: .infinity)
+							OverallStatusView().frame(maxWidth: .infinity)
 
 							if appState.photoSync.isSynchronizing {
 								PhotoSyncProgressView(photoSync: appState.photoSync)
@@ -92,7 +92,7 @@ import SwiftUI
 #endif
 
 private struct OverallDownloadProgressView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	@State private var lastProgress: (Date, SushitrainProgress)? = nil
 	@State private var progress: (Date, SushitrainProgress)? = nil
 	@State private var showSpeeds: Bool = false
@@ -174,7 +174,7 @@ private struct OverallDownloadProgressView: View {
 }
 
 struct OverallStatusView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 
 	private var peerStatusText: String {
 		return "\(self.appState.client.connectedPeerCount())/\(self.appState.peers().count - 1)"
@@ -190,14 +190,14 @@ struct OverallStatusView: View {
 			let isUploading = self.appState.client.isUploading()
 			if isDownloading || isUploading {
 				if isDownloading {
-					OverallDownloadProgressView(appState: appState)
+					OverallDownloadProgressView()
 				}
 
 				// Uploads
 				if isUploading {
 					let progress = self.appState.client.getTotalUploadProgress()
 
-					NavigationLink(destination: UploadView(appState: self.appState)) {
+					NavigationLink(destination: UploadView()) {
 						if let progress = progress {
 							ProgressView(value: progress.percentage, total: 1.0) {
 								Label(
@@ -232,7 +232,7 @@ struct OverallStatusView: View {
 }
 
 struct StartView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	@Binding var route: Route?
 	@State private var qrCodeShown = false
 	@State private var showWaitScreen: Bool = false
@@ -245,7 +245,7 @@ struct StartView: View {
 	var body: some View {
 		Form {
 			Section {
-				OverallStatusView(appState: appState)
+				OverallStatusView()
 					#if os(iOS)
 						.contextMenu {
 							if !self.appState.isFinished {
@@ -261,9 +261,7 @@ struct StartView: View {
 			}
 
 			Section(header: Text("This device's identifier")) {
-				DeviceIDView(
-					appState: self.appState,
-					device: self.appState.client.peer(withID: self.appState.localDeviceID)!)
+				DeviceIDView(device: self.appState.client.peer(withID: self.appState.localDeviceID)!)
 			}
 
 			// Getting started
@@ -317,7 +315,7 @@ struct StartView: View {
 					.sheet(
 						isPresented: $showAddFolderSheet,
 						content: {
-							AddFolderView(folderID: $addFolderID, appState: appState)
+							AddFolderView(folderID: $addFolderID)
 						})
 				}
 			}
@@ -327,7 +325,7 @@ struct StartView: View {
 					ForEach(appState.foldersWithExtraFiles, id: \.self) { folderID in
 						if let folder = appState.client.folder(withID: folderID) {
 							NavigationLink(destination: {
-								ExtraFilesView(folder: folder, appState: appState)
+								ExtraFilesView(folder: folder)
 							}) {
 								Label(
 									"Folder '\(folder.displayName)' has extra files",
@@ -342,7 +340,7 @@ struct StartView: View {
 			}
 
 			Section("Manage files and folders") {
-				NavigationLink(destination: ChangesView(appState: appState)) {
+				NavigationLink(destination: ChangesView()) {
 					Label("Recent changes", systemImage: "clock.arrow.2.circlepath").badge(
 						appState.lastChanges.count)
 				}.disabled(appState.lastChanges.isEmpty)
@@ -350,7 +348,7 @@ struct StartView: View {
 
 			if appState.photoSync.isReady {
 				Section {
-					PhotoSyncButton(appState: appState, photoSync: appState.photoSync)
+					PhotoSyncButton(photoSync: appState.photoSync)
 				}
 			}
 
@@ -362,7 +360,7 @@ struct StartView: View {
 		#if os(iOS)
 			.toolbar {
 				ToolbarItem {
-					NavigationLink(destination: SettingsView(appState: self.appState)) {
+					NavigationLink(destination: SettingsView()) {
 						Image(systemName: "gear").accessibilityLabel("Settings")
 					}
 				}
@@ -370,7 +368,7 @@ struct StartView: View {
 		#endif
 		#if os(iOS)
 			.fullScreenCover(isPresented: $showWaitScreen) {
-				WaitView(appState: appState, isPresented: $showWaitScreen)
+				WaitView(isPresented: $showWaitScreen)
 			}
 		#endif
 		.task {

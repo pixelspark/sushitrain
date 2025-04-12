@@ -8,7 +8,7 @@ import QuickLook
 @preconcurrency import SushitrainCore
 
 struct BrowserListView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	var folder: SushitrainFolder
 	var prefix: String
 	var hasExtraneousFiles: Bool
@@ -18,10 +18,10 @@ struct BrowserListView: View {
 	var body: some View {
 		List {
 			Section {
-				FolderStatusView(appState: appState, folder: folder)
+				FolderStatusView(folder: folder)
 
 				if hasExtraneousFiles {
-					NavigationLink(destination: { ExtraFilesView(folder: self.folder, appState: self.appState) }) {
+					NavigationLink(destination: { ExtraFilesView(folder: self.folder) }) {
 						Label("This folder has new files", systemImage: "exclamationmark.triangle.fill").foregroundColor(.orange)
 					}
 				}
@@ -31,7 +31,7 @@ struct BrowserListView: View {
 			Section {
 				ForEach(subdirectories, id: \.self) { (subDirEntry: SushitrainEntry) in
 					let fileName = subDirEntry.fileName()
-					NavigationLink(destination: BrowserView(appState: appState, folder: folder, prefix: "\(prefix)\(fileName)/")) {
+					NavigationLink(destination: BrowserView(folder: folder, prefix: "\(prefix)\(fileName)/")) {
 						ItemSelectSwipeView(file: subDirEntry) {
 							// Subdirectory name
 							HStack(spacing: 9.0) {
@@ -44,11 +44,11 @@ struct BrowserListView: View {
 					}.contextMenu(
 						ContextMenu(menuItems: {
 							if let file = try? folder.getFileInformation(self.prefix + fileName) {
-								NavigationLink(destination: FileView(file: file, appState: self.appState, showPath: false)) {
+								NavigationLink(destination: FileView(file: file, showPath: false)) {
 									Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
 								}
 
-								ItemSelectToggleView(appState: appState, file: file)
+								ItemSelectToggleView(file: file)
 
 								if file.hasExternalSharingURL { FileSharingLinksView(entry: file, sync: true) }
 							}
@@ -60,7 +60,7 @@ struct BrowserListView: View {
 			Section {
 				ForEach(files, id: \.self) { file in
 					EntryView(
-						appState: appState, entry: file, folder: folder, siblings: files,
+						entry: file, folder: folder, siblings: files,
 						showThumbnail: self.appState.browserViewStyle == .thumbnailList
 					).id(file.id)
 				}
@@ -89,7 +89,7 @@ struct BrowserListView: View {
 }
 
 struct EntryView: View {
-	let appState: AppState
+	@EnvironmentObject var appState: AppState
 	let entry: SushitrainEntry
 	let folder: SushitrainFolder?
 	let siblings: [SushitrainEntry]
@@ -102,7 +102,7 @@ struct EntryView: View {
 			if self.showThumbnail {
 				// Thubmnail view shows thumbnail image next to the file name
 				HStack(alignment: .center, spacing: 9.0) {
-					ThumbnailView(file: entry, appState: appState, showFileName: false, showErrorMessages: false).frame(
+					ThumbnailView(file: entry, showFileName: false, showErrorMessages: false).frame(
 						width: 60, height: 40
 					).cornerRadius(6.0).id(entry.id).help(entry.fileName())
 
@@ -133,32 +133,31 @@ struct EntryView: View {
 				if targetEntry.isDirectory() {
 					if let targetFolder = targetEntry.folder {
 						NavigationLink(
-							destination: BrowserView(appState: appState, folder: targetFolder, prefix: targetEntry.path() + "/")
+							destination: BrowserView(folder: targetFolder, prefix: targetEntry.path() + "/")
 						) { self.entryView(entry: entry) }.contextMenu {
 							NavigationLink(
-								destination: FileView(file: targetEntry, appState: self.appState, showPath: self.folder == nil, siblings: [])
+								destination: FileView(file: targetEntry, showPath: self.folder == nil, siblings: [])
 							) { Label(targetEntry.fileName(), systemImage: targetEntry.systemImage) }
 							NavigationLink(
-								destination: FileView(file: entry, appState: self.appState, showPath: self.folder == nil, siblings: siblings)
+								destination: FileView(file: entry, showPath: self.folder == nil, siblings: siblings)
 							) { Label(entry.fileName(), systemImage: entry.systemImage) }
 						}
 					}
 				}
 				else {
-					FileEntryLink(appState: appState, entry: targetEntry, inFolder: self.folder, siblings: [], honorTapToPreview: true)
-					{
+					FileEntryLink(entry: targetEntry, inFolder: self.folder, siblings: [], honorTapToPreview: true) {
 						self.entryView(entry: targetEntry)
 					}.contextMenu {
 						NavigationLink(
-							destination: FileView(file: targetEntry, appState: self.appState, showPath: self.folder == nil, siblings: [])
+							destination: FileView(file: targetEntry, showPath: self.folder == nil, siblings: [])
 						) { Label(targetEntry.fileName(), systemImage: targetEntry.systemImage) }
 						NavigationLink(
-							destination: FileView(file: entry, appState: self.appState, showPath: self.folder == nil, siblings: siblings)
+							destination: FileView(file: entry, showPath: self.folder == nil, siblings: siblings)
 						) { Label(entry.fileName(), systemImage: entry.systemImage) }
 					} preview: {
 						NavigationStack {  // to force the image to take up all available space
 							VStack {
-								ThumbnailView(file: targetEntry, appState: appState, showFileName: false, showErrorMessages: false).frame(
+								ThumbnailView(file: targetEntry, showFileName: false, showErrorMessages: false).frame(
 									minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity
 								).id(targetEntry.id)
 							}
@@ -170,7 +169,7 @@ struct EntryView: View {
 				Link(destination: targetURL) { self.entryView(entry: entry) }.contextMenu {
 					Link(destination: targetURL) { Label(targetURL.absoluteString, systemImage: "globe") }
 					NavigationLink(
-						destination: FileView(file: entry, appState: self.appState, showPath: self.folder == nil, siblings: siblings)
+						destination: FileView(file: entry, showPath: self.folder == nil, siblings: siblings)
 					) { Label(entry.fileName(), systemImage: entry.systemImage) }
 				}
 			}
@@ -179,7 +178,7 @@ struct EntryView: View {
 			}
 		}
 		else {
-			FileEntryLink(appState: appState, entry: entry, inFolder: self.folder, siblings: siblings, honorTapToPreview: true) {
+			FileEntryLink(entry: entry, inFolder: self.folder, siblings: siblings, honorTapToPreview: true) {
 				self.entryView(entry: entry)
 			}
 		}
@@ -187,7 +186,7 @@ struct EntryView: View {
 }
 
 struct FileEntryLink<Content: View>: View {
-	let appState: AppState
+	@EnvironmentObject var appState: AppState
 	let entry: SushitrainEntry
 	let inFolder: SushitrainFolder?
 	let siblings: [SushitrainEntry]
@@ -229,13 +228,13 @@ struct FileEntryLink<Content: View>: View {
 			else {
 				// Tap to go to file view
 				NavigationLink(
-					destination: FileView(file: entry, appState: self.appState, showPath: self.inFolder == nil, siblings: siblings)
+					destination: FileView(file: entry, showPath: self.inFolder == nil, siblings: siblings)
 				) { self.content() }
 			}
 		}
 		#if os(macOS)
 			.sheet(isPresented: $showPreviewSheet) {
-				FileViewerView(appState: appState, file: entry, siblings: siblings, inSheet: true, isShown: $showPreviewSheet)
+				FileViewerView(file: entry, siblings: siblings, inSheet: true, isShown: $showPreviewSheet)
 				.presentationSizing(.fitted)
 				.frame(minWidth: 640, minHeight: 480)
 				.navigationTitle(entry.fileName())
@@ -245,7 +244,7 @@ struct FileEntryLink<Content: View>: View {
 			}
 		#else
 			.fullScreenCover(isPresented: $showPreviewSheet) {
-				FileViewerView(appState: appState, file: entry, siblings: siblings, inSheet: true, isShown: $showPreviewSheet)
+				FileViewerView(file: entry, siblings: siblings, inSheet: true, isShown: $showPreviewSheet)
 			}
 		#endif
 	}
@@ -254,7 +253,7 @@ struct FileEntryLink<Content: View>: View {
 		self.inner.draggable(entry).contextMenu {
 			#if os(iOS)
 				NavigationLink(
-					destination: FileView(file: entry, appState: self.appState, showPath: self.inFolder == nil, siblings: siblings)
+					destination: FileView(file: entry, showPath: self.inFolder == nil, siblings: siblings)
 				) { Label(entry.fileName(), systemImage: entry.systemImage) }
 			#endif
 
@@ -270,7 +269,7 @@ struct FileEntryLink<Content: View>: View {
 			// Show 'go to location' in list if we are not in the file's folder already
 			if self.inFolder == nil {
 				if let folder = entry.folder {
-					NavigationLink(destination: BrowserView(appState: appState, folder: folder, prefix: entry.parentPath())) {
+					NavigationLink(destination: BrowserView(folder: folder, prefix: entry.parentPath())) {
 						let parentFolderName = entry.parentFolderName
 						if parentFolderName.isEmpty {
 							Label("Go to location", systemImage: "document.circle")
@@ -289,11 +288,11 @@ struct FileEntryLink<Content: View>: View {
 
 			Divider()
 
-			ItemSelectToggleView(appState: appState, file: entry)
+			ItemSelectToggleView(file: entry)
 		} preview: {
 			NavigationStack {  // to force the image to take up all available space
 				VStack {
-					ThumbnailView(file: entry, appState: appState, showFileName: false, showErrorMessages: false).frame(
+					ThumbnailView(file: entry, showFileName: false, showErrorMessages: false).frame(
 						minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity
 					).id(entry.id)
 				}

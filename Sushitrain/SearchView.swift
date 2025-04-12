@@ -51,7 +51,7 @@ class SearchOperation: NSObject, ObservableObject, SushitrainSearchResultDelegat
 }
 
 struct SearchView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	@State private var searchText = ""
 	@FocusState private var isSearchFieldFocused
 	var prefix: String = ""
@@ -60,7 +60,6 @@ struct SearchView: View {
 
 	private var view: some View {
 		SearchResultsView(
-			appState: self.appState,
 			searchText: $searchText,
 			folderID: .constant(self.folder?.folderID ?? ""),
 			prefix: .constant(self.prefix)
@@ -103,7 +102,7 @@ struct SearchView: View {
 }
 
 struct SearchResultsView: View, SearchViewDelegate {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	@Binding var searchText: String
 	@Binding var folderID: String
 	@Binding var prefix: String
@@ -140,8 +139,7 @@ struct SearchResultsView: View, SearchViewDelegate {
 				if !folderID.isEmpty {
 					if let folder = appState.client.folder(withID: folderID) {
 						// Encrypted file path pasted? Attempt to show decrypted path
-						DecryptedFilePathsView(
-							folder: folder, path: searchText, appState: appState)
+						DecryptedFilePathsView(folder: folder, path: searchText)
 					}
 				}
 
@@ -152,10 +150,7 @@ struct SearchResultsView: View, SearchViewDelegate {
 								|| !(item.folder?.isHidden ?? false)
 							{
 								EntryView(
-									appState: appState, entry: item, folder: nil,
-									siblings: results,
-									showThumbnail: appState
-										.showThumbnailsInSearchResults)
+									entry: item, folder: nil, siblings: results, showThumbnail: self.appState.showThumbnailsInSearchResults)
 							}
 						}
 

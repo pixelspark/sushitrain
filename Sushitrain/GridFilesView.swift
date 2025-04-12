@@ -7,7 +7,7 @@ import SwiftUI
 @preconcurrency import SushitrainCore
 
 private struct GridItemView: View {
-	let appState: AppState
+	@EnvironmentObject var appState: AppState
 	let size: Double
 	let file: SushitrainEntry
 
@@ -18,7 +18,7 @@ private struct GridItemView: View {
 				.backgroundStyle(Color.primary)
 				.opacity(0.05)
 
-			ThumbnailView(file: file, appState: appState, showFileName: true, showErrorMessages: false)
+			ThumbnailView(file: file, showFileName: true, showErrorMessages: false)
 				.frame(width: size, height: size)
 				.id(file.id)
 		}
@@ -26,7 +26,7 @@ private struct GridItemView: View {
 }
 
 struct GridFilesView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	var prefix: String
 	var files: [SushitrainEntry]
 	var subdirectories: [SushitrainEntry]
@@ -42,13 +42,13 @@ struct GridFilesView: View {
 					let fileName = subDirEntry.fileName()
 					NavigationLink(
 						destination: BrowserView(
-							appState: appState,
+
 							folder: folder,
 							prefix: "\(self.prefix)\(fileName)/"
 						)
 					) {
 						GridItemView(
-							appState: appState, size: geo.size.width, file: subDirEntry)
+							size: geo.size.width, file: subDirEntry)
 					}
 					.buttonStyle(PlainButtonStyle())
 					.contextMenu(
@@ -58,14 +58,14 @@ struct GridFilesView: View {
 							{
 								NavigationLink(
 									destination: FileView(
-										file: file, appState: self.appState)
+										file: file)
 								) {
 									Label(
 										"Subdirectory properties",
 										systemImage: "folder.badge.gearshape")
 								}
 
-								ItemSelectToggleView(appState: appState, file: file)
+								ItemSelectToggleView(file: file)
 							}
 						}))
 				}
@@ -77,9 +77,9 @@ struct GridFilesView: View {
 			ForEach(files, id: \.self) { file in
 				GeometryReader { geo in
 					FileEntryLink(
-						appState: appState, entry: file, inFolder: self.folder, siblings: files, honorTapToPreview: true
+						entry: file, inFolder: self.folder, siblings: files, honorTapToPreview: true
 					) {
-						GridItemView(appState: appState, size: geo.size.width, file: file)
+						GridItemView(size: geo.size.width, file: file)
 					}
 					.buttonStyle(PlainButtonStyle())
 				}

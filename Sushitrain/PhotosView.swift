@@ -22,7 +22,7 @@ struct PhotoSyncProgressView: View {
 }
 
 struct PhotoSyncButton: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	@ObservedObject var photoSync: PhotoSynchronisation
 
 	var body: some View {
@@ -42,7 +42,7 @@ struct PhotoSyncButton: View {
 		}
 		else {
 			Button("Copy new photos", systemImage: "photo.badge.arrow.down.fill") {
-				photoSync.synchronize(self.appState, fullExport: false, isInBackground: false)
+				photoSync.synchronize(appState: self.appState, fullExport: false, isInBackground: false)
 			}
 			#if os(macOS)
 				.buttonStyle(.link)
@@ -53,7 +53,7 @@ struct PhotoSyncButton: View {
 }
 
 struct PhotoSettingsView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	@State private var authorizationStatus: PHAuthorizationStatus = .notDetermined
 	@State private var albumPickerShown = false
 	@ObservedObject var photoSync: PhotoSynchronisation
@@ -218,14 +218,14 @@ struct PhotoSettingsView: View {
 			}.disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
 
 			Section {
-				PhotoSyncButton(appState: appState, photoSync: photoSync)
+				PhotoSyncButton(photoSync: photoSync)
 			} footer: {
 				Text("Saves photos in the album that have not been copied before to the folder.")
 			}
 
 			Section {
 				Button("Re-copy all photos", systemImage: "photo.badge.arrow.down.fill") {
-					photoSync.synchronize(self.appState, fullExport: true, isInBackground: false)
+					photoSync.synchronize(appState: self.appState, fullExport: true, isInBackground: false)
 				}
 				.disabled(photoSync.isSynchronizing || !photoSync.isReady)
 				#if os(macOS)

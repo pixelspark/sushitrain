@@ -7,7 +7,7 @@ import SwiftUI
 @preconcurrency import SushitrainCore
 
 struct IgnoresView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	var folder: SushitrainFolder
 	@State var ignoreLines: [String] = []
 	@State var error: Error? = nil

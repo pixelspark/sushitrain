@@ -7,7 +7,7 @@ import SwiftUI
 @preconcurrency import SushitrainCore
 
 struct UploadView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 
 	var body: some View {
 		List {

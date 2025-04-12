@@ -215,16 +215,17 @@ struct SushitrainApp: App {
 			WindowGroup(id: "folder", for: String.self) { [appStartupState] folderID in
 				if case .normal(let appState) = appStartupState {
 					ContentView(
-						appState: appState,
-						route: folderID.wrappedValue == nil
-							? .start : .folder(folderID: folderID.wrappedValue))
+						route: folderID.wrappedValue == nil ? .start : .folder(folderID: folderID.wrappedValue)
+					)
+					.environmentObject(appState)
 				}
 			}
 
 			WindowGroup(id: "preview", for: Preview.self) { [appStartupState] preview in
 				if case .normal(let appState) = appStartupState {
 					if let p = preview.wrappedValue {
-						PreviewWindow(preview: p, appState: appState)
+						PreviewWindow(preview: p)
+							.environmentObject(appState)
 					}
 				}
 			}
@@ -234,10 +235,11 @@ struct SushitrainApp: App {
 		WindowGroup(id: "main") { [appStartupState] in
 			switch appStartupState {
 			case .normal(let appState):
-				ContentView(appState: appState)
+				ContentView()
 					#if os(iOS)
 						.handleOpenURLInApp()
 					#endif
+					.environmentObject(appState)
 			case .error(let e):
 				ContentUnavailableView("Cannot start the app", image: "exclamationmark.triangle.fill", description: Text(e))
 			}
@@ -284,15 +286,16 @@ struct SushitrainApp: App {
 			Settings {
 				if case .normal(let appState) = appStartupState {
 					NavigationStack {
-						TabbedSettingsView(appState: appState, hideInDock: $hideInDock)
-					}
+						TabbedSettingsView(hideInDock: $hideInDock)
+					}.environmentObject(appState)
 				}
 			}
 			.windowResizability(.contentSize)
 
 			Window("Statistics", id: "stats") {
 				if case .normal(let appState) = appStartupState {
-					TotalStatisticsView(appState: appState)
+					TotalStatisticsView()
+						.environmentObject(appState)
 						.frame(maxWidth: 320)
 				}
 			}
@@ -300,7 +303,8 @@ struct SushitrainApp: App {
 
 			Window("Synctrain", id: "singleMain") {
 				if case .normal(let appState) = appStartupState {
-					ContentView(appState: appState)
+					ContentView()
+						.environmentObject(appState)
 				}
 			}
 			.windowResizability(.contentSize)
@@ -376,14 +380,14 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 			Window("Settings", id: "appSettings") {
 				if case .normal(let appState) = appStartupState {
 					NavigationStack {
-						TabbedSettingsView(appState: appState, hideInDock: $hideInDock)
+						TabbedSettingsView(hideInDock: $hideInDock).environmentObject(appState)
 					}
 				}
 			}
 
 			MenuBarExtra("Synctrain", systemImage: self.menuIcon, isInserted: $hideInDock) {
 				if case .normal(let appState) = appStartupState {
-					OverallStatusView(appState: appState)
+					OverallStatusView().environmentObject(appState)
 
 					Button("Open file browser...") {
 						openWindow(id: "singleMain")

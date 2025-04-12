@@ -7,13 +7,13 @@ import SwiftUI
 import SushitrainCore
 
 struct DevicesView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 
 	var body: some View {
 		#if os(macOS)
-			DevicesGridView(appState: appState).navigationTitle("Devices")
+			DevicesGridView().navigationTitle("Devices")
 		#else
-			DevicesListView(appState: appState).navigationTitle("Devices")
+			DevicesListView().navigationTitle("Devices")
 		#endif
 
 	}
@@ -21,7 +21,7 @@ struct DevicesView: View {
 
 #if os(iOS)
 	private struct DevicesListView: View {
-		@ObservedObject var appState: AppState
+		@EnvironmentObject var appState: AppState
 		@State private var showingAddDevicePopup = false
 		@State private var addingDeviceID: String = ""
 		@State private var discoveredNewDevices: [String] = []
@@ -49,7 +49,7 @@ struct DevicesView: View {
 					}
 					else {
 						ForEach(peers) { peer in
-							NavigationLink(destination: DeviceView(device: peer, appState: appState)) {
+							NavigationLink(destination: DeviceView(device: peer)) {
 								if peer.isPaused() {
 									Label(peer.displayName, systemImage: "externaldrive.fill").foregroundStyle(.gray)
 								}
@@ -93,7 +93,7 @@ struct DevicesView: View {
 				.toolbar { if !peers.isEmpty { EditButton() } }
 			#endif
 			.sheet(isPresented: $showingAddDevicePopup) {
-				AddDeviceView(appState: appState, suggestedDeviceID: $addingDeviceID)
+				AddDeviceView(suggestedDeviceID: $addingDeviceID)
 			}.task { self.update() }.onChange(of: appState.eventCounter) { self.update() }
 		}
 
@@ -130,7 +130,7 @@ struct DevicesView: View {
 			case discoveredDevice(String)
 		}
 
-		@ObservedObject var appState: AppState
+		@EnvironmentObject var appState: AppState
 
 		@State private var loading = true
 		@State private var peers: [SushitrainPeer] = []
@@ -159,7 +159,8 @@ struct DevicesView: View {
 
 							TableColumnForEach(self.peers) { peer in
 								TableColumn(peer.displayName) { folder in
-									DevicesGridCellView(appState: appState, device: peer, folder: folder, viewStyle: viewStyle)
+									DevicesGridCellView(device: peer, folder: folder, viewStyle: viewStyle)
+										.environmentObject(self.appState)  // Needed because for some reason SwiftUI doesn't propagate environment inside TableColumn
 								}.width(ideal: 50).alignment(.center)
 							}
 						}
@@ -193,8 +194,14 @@ struct DevicesView: View {
 									// Identicon
 									TableColumn("Fingerprint") { (row: DevicesGridRow) in
 										switch row {
-										case .connectedDevice(let peer): IdenticonView(deviceID: peer.deviceID()).padding(5)
-										case .discoveredDevice(let s): IdenticonView(deviceID: s).padding(5)
+										case .connectedDevice(let peer):
+											IdenticonView(deviceID: peer.deviceID())
+												.padding(5)
+												.environmentObject(self.appState)  // Needed because for some reason SwiftUI doesn't propagate environment inside TableColumn
+										case .discoveredDevice(let s):
+											IdenticonView(deviceID: s)
+												.padding(5)
+												.environmentObject(self.appState)  // Needed because for some reason SwiftUI doesn't propagate environment inside TableColumn
 										}
 									}.width(min: 25, ideal: 25, max: 125).defaultVisibility(.hidden).customizationID("fingerprint")
 
@@ -286,7 +293,7 @@ struct DevicesView: View {
 									TableColumnForEach(self.folders) { folder in
 										TableColumn(folder.displayName) { (row: DevicesGridRow) in
 											if case .connectedDevice(let peer) = row {
-												DevicesGridCellView(appState: appState, device: peer, folder: folder, viewStyle: viewStyle)
+												DevicesGridCellView(device: peer, folder: folder, viewStyle: viewStyle)
 											}
 											else {
 												EmptyView()
@@ -346,13 +353,13 @@ struct DevicesView: View {
 					}
 				}
 			}.sheet(isPresented: $showingAddDevicePopup) {
-				AddDeviceView(appState: appState, suggestedDeviceID: $addingDeviceID)
+				AddDeviceView(suggestedDeviceID: $addingDeviceID)
 			}
 		}
 
 		@ViewBuilder private func nextView() -> some View {
 			if let device = self.openedDevice {
-				DeviceView(device: device, appState: appState)
+				DeviceView(device: device)
 			}
 			else {
 				EmptyView()
@@ -390,7 +397,7 @@ struct DevicesView: View {
 	}
 
 	private struct DevicesGridCellView: View {
-		var appState: AppState
+		@EnvironmentObject var appState: AppState
 		var device: SushitrainPeer
 		var folder: SushitrainFolder
 		var viewStyle: GridViewStyle
@@ -438,8 +445,7 @@ struct DevicesView: View {
 				}.onChange(of: viewStyle, initial: false) { _, _ in self.update() }.sheet(isPresented: $showEditEncryptionPassword)
 			{
 				NavigationStack {
-					ShareFolderWithDeviceDetailsView(
-						appState: self.appState, folder: self.folder, deviceID: .constant(device.deviceID()))
+					ShareFolderWithDeviceDetailsView(folder: self.folder, deviceID: .constant(device.deviceID()))
 				}
 			}
 		}

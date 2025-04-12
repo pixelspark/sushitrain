@@ -11,7 +11,7 @@ struct ContentView: View {
 	private static let currentOnboardingVersion = 1
 	@AppStorage("onboardingVersionShown") var onboardingVersionShown = 0
 
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	@Environment(\.scenePhase) var scenePhase
 	@Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
@@ -29,7 +29,7 @@ struct ContentView: View {
 		TabView(selection: $route) {
 			// Me
 			NavigationStack {
-				StartOrSearchView(appState: appState, route: $route)
+				StartOrSearchView(route: $route)
 			}
 			.tabItem {
 				Label("Start", systemImage: self.appState.systemImage)
@@ -37,7 +37,7 @@ struct ContentView: View {
 
 			// Folders
 			NavigationStack {
-				FoldersView(appState: appState)
+				FoldersView()
 					.toolbar {
 						Button(
 							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
@@ -56,7 +56,7 @@ struct ContentView: View {
 
 			// Peers
 			NavigationStack {
-				DevicesView(appState: appState)
+				DevicesView()
 			}
 			.tabItem {
 				Label("Devices", systemImage: "externaldrive.fill")
@@ -81,11 +81,11 @@ struct ContentView: View {
 						}
 					}
 
-					FoldersSections(appState: self.appState)
+					FoldersSections()
 				}
 				#if os(macOS)
 					.contextMenu {
-						FolderMetricPickerView(appState: self.appState)
+						FolderMetricPickerView()
 					}
 				#endif
 				#if os(iOS)
@@ -106,10 +106,10 @@ struct ContentView: View {
 				NavigationStack {
 					switch self.route {
 					case .start:
-						StartOrSearchView(appState: self.appState, route: $route)
+						StartOrSearchView(route: $route)
 
 					case .devices:
-						DevicesView(appState: self.appState)
+						DevicesView()
 
 					case .folder(let folderID):
 						if let folderID = folderID,
@@ -117,7 +117,6 @@ struct ContentView: View {
 						{
 							if folder.exists() {
 								BrowserView(
-									appState: self.appState,
 									folder: folder,
 									prefix: ""
 								).id(folder.folderID)
@@ -212,7 +211,7 @@ struct ContentView: View {
 			.sheet(isPresented: $showSearchSheet) {
 				NavigationStack {
 					SearchView(
-						appState: self.appState, prefix: "",
+						prefix: "",
 						initialSearchText: self.searchSheetSearchTerm
 					)
 					.navigationTitle("Search")
@@ -247,14 +246,14 @@ struct ContentView: View {
 }
 
 private struct StartOrSearchView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	@Binding var route: Route?
 	@State private var searchText: String = ""
 	@FocusState private var isSearchFieldFocused
 
 	// This is needed because isSearching is not available from the parent view
 	struct InnerView: View {
-		@ObservedObject var appState: AppState
+		@EnvironmentObject var appState: AppState
 		@Binding var route: Route?
 		@Binding var searchText: String
 		@Environment(\.isSearching) private var isSearching
@@ -262,21 +261,20 @@ private struct StartOrSearchView: View {
 		var body: some View {
 			if isSearching {
 				SearchResultsView(
-					appState: self.appState,
 					searchText: $searchText,
 					folderID: .constant(""),
 					prefix: .constant("")
 				)
 			}
 			else {
-				StartView(appState: appState, route: $route)
+				StartView(route: $route)
 			}
 		}
 	}
 
 	private var view: some View {
 		ZStack {
-			InnerView(appState: appState, route: $route, searchText: $searchText)
+			InnerView(route: $route, searchText: $searchText)
 		}
 		.searchable(
 			text: $searchText, placement: SearchFieldPlacement.toolbar,

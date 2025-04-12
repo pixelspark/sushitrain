@@ -97,7 +97,7 @@ struct IdenticonView: View {
 }
 
 struct DeviceIDView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	let device: SushitrainPeer
 	@State private var qrCodeShown = false
 	@State private var localAddressesShown = false
@@ -153,7 +153,7 @@ struct DeviceIDView: View {
 		)
 		.sheet(isPresented: $localAddressesShown) {
 			NavigationStack {
-				ResolvedAddressesView(appState: appState)
+				ResolvedAddressesView()
 					.navigationTitle("Addresses")
 					.toolbar(content: {
 						ToolbarItem(
@@ -170,7 +170,7 @@ struct DeviceIDView: View {
 }
 
 private struct ResolvedAddressesView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 
 	var body: some View {
 		List {

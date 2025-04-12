@@ -156,7 +156,7 @@ class PhotoSynchronisation: ObservableObject {
 	}
 
 	@MainActor
-	func synchronize(_ appState: AppState, fullExport: Bool, isInBackground: Bool) {
+	func synchronize(appState: AppState, fullExport: Bool, isInBackground: Bool) {
 		if !self.isReady {
 			return
 		}

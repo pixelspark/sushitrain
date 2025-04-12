@@ -14,7 +14,7 @@ enum BrowserViewStyle: String {
 }
 
 struct BrowserView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	var folder: SushitrainFolder
 	var prefix: String
 
@@ -44,7 +44,7 @@ struct BrowserView: View {
 
 	var body: some View {
 		BrowserItemsView(
-			appState: appState, folder: folder, prefix: prefix, searchText: $searchText,
+			folder: folder, prefix: prefix, searchText: $searchText,
 			showSettings: $showSettings
 		)
 		.navigationTitle(folderName)
@@ -58,7 +58,7 @@ struct BrowserView: View {
 		#elseif os(iOS)
 			.sheet(isPresented: $showSearch) {
 				NavigationStack {
-					SearchView(appState: self.appState, prefix: self.prefix, folder: self.folder)
+					SearchView(prefix: self.prefix, folder: self.folder)
 					.navigationTitle("Search in this folder")
 					.navigationBarTitleDisplayMode(.inline)
 					.toolbar(content: {
@@ -130,7 +130,7 @@ struct BrowserView: View {
 						if folderExists && folderIsSelective {
 							NavigationLink(
 								destination: SelectiveFolderView(
-									appState: appState, folder: folder)
+									folder: folder)
 							) {
 								Label(
 									"Files kept on this device...",
@@ -181,9 +181,7 @@ struct BrowserView: View {
 									self.prefix.withoutEndingSlash)
 								{
 									NavigationLink(
-										destination: FileView(
-											file: entry,
-											appState: self.appState)
+										destination: FileView(file: entry)
 									) {
 										Label(
 											"Subdirectory properties...",
@@ -237,7 +235,7 @@ struct BrowserView: View {
 
 								NavigationLink(
 									destination: SelectiveFolderView(
-										appState: appState, folder: folder)
+										folder: folder)
 								) {
 									Label(
 										"Files kept on this device...",
@@ -263,7 +261,7 @@ struct BrowserView: View {
 		}
 		.sheet(isPresented: $showFolderStatistics) {
 			NavigationStack {
-				FolderStatisticsView(appState: appState, folder: folder)
+				FolderStatisticsView(folder: folder)
 					.toolbar(content: {
 						ToolbarItem(
 							placement: .confirmationAction,
@@ -277,7 +275,7 @@ struct BrowserView: View {
 		}
 		.sheet(isPresented: $showSettings) {
 			NavigationStack {
-				FolderView(folder: self.folder, appState: self.appState)
+				FolderView(folder: self.folder)
 					.toolbar {
 						ToolbarItem(
 							placement: .confirmationAction,
@@ -292,7 +290,7 @@ struct BrowserView: View {
 		#if os(macOS)
 			.sheet(isPresented: $showIgnores) {
 				NavigationStack {
-					IgnoresView(appState: self.appState, folder: self.folder)
+					IgnoresView(folder: self.folder)
 					.navigationTitle("Files to ignore")
 					.presentationSizing(.fitted)
 					.frame(minWidth: 640, minHeight: 480)
@@ -316,11 +314,11 @@ struct BrowserView: View {
 		#if os(macOS)
 			.contextMenu {
 				if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
-					NavigationLink(destination: FileView(file: entry, appState: self.appState)) {
+					NavigationLink(destination: FileView(file: entry)) {
 						Label("Subdirectory properties...", systemImage: entry.systemImage)
 					}
 
-					ItemSelectToggleView(appState: appState, file: entry)
+					ItemSelectToggleView(file: entry)
 				}
 			}
 			.onDrop(
@@ -450,7 +448,7 @@ struct BrowserView: View {
 }
 
 private struct BrowserItemsView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 	var folder: SushitrainFolder
 	var prefix: String
 	@Binding var searchText: String
@@ -476,7 +474,7 @@ private struct BrowserItemsView: View {
 							ScrollView {
 								HStack {
 									FolderStatusView(
-										appState: appState, folder: folder
+										folder: folder
 									).padding(
 										.all, 10)
 
@@ -503,9 +501,7 @@ private struct BrowserItemsView: View {
 
 								if hasExtraneousFiles {
 									NavigationLink(destination: {
-										ExtraFilesView(
-											folder: self.folder,
-											appState: self.appState)
+										ExtraFilesView(folder: self.folder)
 									}) {
 										Label(
 											"This folder has new files",
@@ -517,7 +513,7 @@ private struct BrowserItemsView: View {
 								}
 
 								GridFilesView(
-									appState: appState, prefix: self.prefix,
+									prefix: self.prefix,
 									files: files,
 									subdirectories: subdirectories, folder: folder
 								)
@@ -539,9 +535,7 @@ private struct BrowserItemsView: View {
 										Spacer()
 
 										NavigationLink(destination: {
-											ExtraFilesView(
-												folder: self.folder,
-												appState: self.appState)
+											ExtraFilesView(folder: self.folder)
 										}) {
 											Text("Review...")
 										}
@@ -553,13 +547,13 @@ private struct BrowserItemsView: View {
 								}
 
 								BrowserTableView(
-									appState: appState, folder: folder,
+									folder: folder,
 									files: files,
 									subdirectories: subdirectories)
 							}
 						#else
 							BrowserListView(
-								appState: appState, folder: folder, prefix: prefix,
+								folder: folder, prefix: prefix,
 								hasExtraneousFiles: hasExtraneousFiles, files: files,
 								subdirectories: subdirectories)
 						#endif
@@ -568,7 +562,6 @@ private struct BrowserItemsView: View {
 				else {
 					// Search
 					SearchResultsView(
-						appState: self.appState,
 						searchText: $searchText,
 						folderID: .constant(self.folder.folderID),
 						prefix: Binding(get: { prefix }, set: { _ in () })
@@ -751,7 +744,7 @@ extension SushitrainFolder {
 }
 
 struct ItemSelectToggleView: View {
-	let appState: AppState
+	@EnvironmentObject var appState: AppState
 	let file: SushitrainEntry
 
 	var body: some View {

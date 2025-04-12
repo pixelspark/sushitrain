@@ -20,7 +20,7 @@ import SwiftUI
 	// A floating preview window (that can be 'detached' from the file preview sheet
 	struct PreviewWindow: View {
 		let preview: Preview
-		@ObservedObject var appState: AppState
+		@EnvironmentObject var appState: AppState
 
 		@State private var entry: SushitrainEntry? = nil
 		@State private var siblings: [SushitrainEntry] = []
@@ -31,7 +31,7 @@ import SwiftUI
 			ZStack {
 				if let entry = self.entry {
 					FileViewerView(
-						appState: appState,
+
 						file: entry,
 						siblings: self.siblings,
 						inSheet: false,

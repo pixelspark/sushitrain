@@ -8,14 +8,14 @@ import SwiftUI
 @preconcurrency import SushitrainCore
 
 struct ChangesView: View {
-	@ObservedObject var appState: AppState
+	@EnvironmentObject var appState: AppState
 
 	var body: some View {
 		List {
 			ForEach(appState.lastChanges, id: \.id) { change in
 				if let folder = appState.client.folder(withID: change.folderID) {
 					if let entry = try? folder.getFileInformation(change.path), !entry.isDeleted() {
-						NavigationLink(destination: FileView(file: entry, appState: self.appState, showPath: true, siblings: [])) {
+						NavigationLink(destination: FileView(file: entry, showPath: true, siblings: [])) {
 							self.changeDetails(change: change, folder: folder)
 						}
 					}
