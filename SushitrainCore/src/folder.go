@@ -553,6 +553,14 @@ func (fld *Folder) SetPath(path string) error {
 	})
 }
 
+func (fld *Folder) FilesystemType() string {
+	fc := fld.folderConfiguration()
+	if fc == nil {
+		return ""
+	}
+	return fc.FilesystemType.String()
+}
+
 func (fld *Folder) SetFolderType(folderType string) error {
 	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
 		fc := fld.folderConfiguration()

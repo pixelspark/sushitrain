@@ -539,11 +539,13 @@ struct FolderView: View {
 					}
 				}
 
-				NavigationLink(
-					destination: AdvancedFolderSettingsView(
-						folder: self.folder)
-				) {
-					Label("Advanced folder settings", systemImage: "gear")
+				if folder.isRegularFolder {}
+					NavigationLink(
+						destination: AdvancedFolderSettingsView(
+							folder: self.folder)
+					) {
+						Label("Advanced folder settings", systemImage: "gear")
+					}
 				}
 			}
 		}
