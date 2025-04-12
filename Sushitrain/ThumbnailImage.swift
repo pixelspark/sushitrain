@@ -176,7 +176,7 @@ struct ThumbnailImage<Content>: View where Content: View {
 				return ic
 			}
 
-			bf.configure(settings, folderPath: folder.localNativeURL)
+			bf.configure(settings, folder: folder)
 			return bf
 		}
 	}
@@ -187,7 +187,7 @@ struct ThumbnailImage<Content>: View where Content: View {
 	var diskCacheEnabled: Bool = true
 	var customCacheDirectory: URL? = nil
 
-	private func configure(_ settings: ThumbnailGeneration, folderPath: URL?) {
+	private func configure(_ settings: ThumbnailGeneration, folder: SushitrainFolder) {
 		switch settings {
 		case .disabled:
 			self.diskCacheEnabled = false
@@ -198,14 +198,16 @@ struct ThumbnailImage<Content>: View where Content: View {
 			self.customCacheDirectory = nil
 
 		case .deviceLocal:
-			self.customCacheDirectory = nil
+			let folderSpecificPath = URL.cachesDirectory.appendingPathComponent("thumbnails", isDirectory: true)
+				.appendingPathComponent(folder.folderID, isDirectory: true)
+			self.customCacheDirectory = folderSpecificPath
 			self.diskCacheEnabled = true
 
 		case .inside(var path):
 			if path.isEmpty {
 				path = ThumbnailGeneration.DefaultInsideFolderThumbnailPath
 			}
-			self.customCacheDirectory = folderPath?.appendingPathComponent(path, isDirectory: true)
+			self.customCacheDirectory = folder.localNativeURL?.appendingPathComponent(path, isDirectory: true)
 			self.diskCacheEnabled = true
 		}
 	}

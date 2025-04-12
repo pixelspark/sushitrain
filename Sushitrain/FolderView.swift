@@ -866,12 +866,20 @@ private struct FolderThumbnailSettingsView: View {
 	private func updateSize() async {
 		self.diskCacheSizeBytes = nil
 		switch self.settings {
-		case .inside(_):
+		case .inside(_), .deviceLocal:
 			let ic = ImageCache.forFolder(self.folder)
 			if ic !== ImageCache.shared {
 				self.diskCacheSizeBytes = try? await ic.diskCacheSizeBytes()
 			}
-		case .deviceLocal, .disabled, .global: return
+		case .disabled, .global: return
+		}
+	}
+	
+	var canClear: Bool {
+		switch self.settings {
+		case .inside(path: let p): return !p.isEmpty
+		case .deviceLocal: return true
+		case .disabled, .global: return false
 		}
 	}
 
@@ -946,7 +954,7 @@ private struct FolderThumbnailSettingsView: View {
 				}
 			}
 
-			if case .inside(let insidePath) = settings, !insidePath.isEmpty {
+			if self.canClear {
 				Section {
 					Button("Clear thumbnail cache", systemImage: "eraser.line.dashed.fill") {
 						self.showClearThumbnailsConfirm = true
