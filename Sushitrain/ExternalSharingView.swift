@@ -90,11 +90,12 @@ struct ExternalSharingSettingsView: View {
 			.formStyle(.grouped)
 		#endif
 		.onAppear {
-			self.settings = ExternalSharingManager.shared.externalSharingFor(folderID: folder.folderID)
+			self.settings = FolderSettingsManager.shared.settingsFor(folderID: folder.folderID).externalSharing
 		}
 		.onChange(of: settings) { (_, nv) in
-			ExternalSharingManager.shared.setExternalSharingFor(
-				folderID: self.folder.folderID, externalSharing: nv)
+			FolderSettingsManager.shared.mutateSettingsFor(folderID: folder.folderID) { fs in
+				fs.externalSharing = self.settings
+			}
 		}
 	}
 }

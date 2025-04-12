@@ -120,66 +120,13 @@ struct ExternalSharingUnencrypted: Equatable, Hashable, Codable {
 	}
 }
 
-class ExternalSharingManager {
-	@MainActor static let shared = ExternalSharingManager()
-
-	private static let defaultsKey = "externalSharingConfiguration"
-
-	private var cachedConfiguration: [String: ExternalSharingType]? = nil
-
-	private var configuration: [String: ExternalSharingType] {
-		get {
-			if let c = cachedConfiguration {
-				return c
-			}
-
-			if let json = UserDefaults.standard.data(forKey: Self.defaultsKey) {
-				return (try? JSONDecoder().decode([String: ExternalSharingType].self, from: json))
-					?? [:]
-			}
-			return [:]
-		}
-		set {
-			let json = try! JSONEncoder().encode(newValue)
-			UserDefaults.standard.set(json, forKey: Self.defaultsKey)
-			self.cachedConfiguration = newValue
-		}
-	}
-
-	func externalSharingFor(folderID: String) -> ExternalSharingType {
-		return self.configuration[folderID] ?? .none
-	}
-
-	func setExternalSharingFor(folderID: String, externalSharing: ExternalSharingType) {
-		var c = self.configuration
-		c[folderID] = externalSharing
-		self.configuration = c
-	}
-
-	func removeExternalSharingFor(folderID: String) {
-		var c = self.configuration
-		c.removeValue(forKey: folderID)
-		self.configuration = c
-	}
-
-	func removeExternalSharingForFoldersNotIn(_ folderIDs: Set<String>) {
-		var c = self.configuration
-		let toRemove = c.keys.filter({ !folderIDs.contains($0) })
-		for toRemoveKey in toRemove {
-			Log.warn("Removing stale external sharing settings for \(toRemoveKey)")
-			c.removeValue(forKey: toRemoveKey)
-		}
-		self.configuration = c
-	}
-}
-
 extension SushitrainEntry {
 	@MainActor var hasExternalSharingURL: Bool {
 		if self.isDeleted() {
 			return false
 		}
-
-		let settings = ExternalSharingManager.shared.externalSharingFor(folderID: self.folder!.folderID)
+		
+		let settings = FolderSettingsManager.shared.settingsFor(folderID: self.folder!.folderID).externalSharing
 		return settings.hasURLForFile(self)
 	}
 
@@ -187,7 +134,7 @@ extension SushitrainEntry {
 		if self.isDeleted() {
 			return nil
 		}
-		let settings = ExternalSharingManager.shared.externalSharingFor(folderID: self.folder!.folderID)
+		let settings = FolderSettingsManager.shared.settingsFor(folderID: self.folder!.folderID).externalSharing
 		return settings.urlForFile(self)
 	}
 }

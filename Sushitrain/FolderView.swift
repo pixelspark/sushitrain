@@ -579,7 +579,7 @@ struct FolderView: View {
 						Button("Unlink the folder", role: .destructive) {
 							do {
 								dismiss()
-								try folder.unlinkAndRemoveBookmark()
+								try folder.unlinkFolderAndRemoveSettings()
 							}
 							catch let error {
 								self.showAlert = .error(error.localizedDescription)
@@ -603,7 +603,7 @@ struct FolderView: View {
 							Button("Remove the folder and all files", role: .destructive) {
 								do {
 									dismiss()
-									try folder.removeAndRemoveBookmark()
+									try folder.removeFolderAndSettings()
 								}
 								catch let error {
 									self.showAlert = .error(

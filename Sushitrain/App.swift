@@ -95,10 +95,9 @@ struct SushitrainApp: App {
 				Log.warn("Error restoring bookmark for \(folderID): \(error.localizedDescription)")
 			}
 		}
-		BookmarkManager.shared.removeBookmarksForFoldersNotIn(Set(folderIDs))
 
 		// Other housekeeping
-		ExternalSharingManager.shared.removeExternalSharingForFoldersNotIn(Set(folderIDs))
+		FolderSettingsManager.shared.removeSettingsForFoldersNotIn(Set(folderIDs))
 
 		// Start Syncthing node in the background
 		#if os(macOS)

@@ -147,16 +147,14 @@ extension SushitrainFolder {
 	}
 
 	@MainActor
-	func removeAndRemoveBookmark() throws {
-		BookmarkManager.shared.removeBookmarkFor(folderID: self.folderID)
-		ExternalSharingManager.shared.removeExternalSharingFor(folderID: self.folderID)
+	func removeFolderAndSettings() throws {
+		FolderSettingsManager.shared.removeSettingsFor(folderID: self.folderID)
 		try self.remove()
 	}
 
 	@MainActor
-	func unlinkAndRemoveBookmark() throws {
-		BookmarkManager.shared.removeBookmarkFor(folderID: self.folderID)
-		ExternalSharingManager.shared.removeExternalSharingFor(folderID: self.folderID)
+	func unlinkFolderAndRemoveSettings() throws {
+		FolderSettingsManager.shared.removeSettingsFor(folderID: self.folderID)
 		try self.unlink()
 	}
 
@@ -786,117 +784,6 @@ struct WebView: UIViewRepresentable {
 			}
 		}
 	#endif
-}
-
-@MainActor
-struct BookmarkManager {
-	static var shared = BookmarkManager()
-	private static let defaultsKey = "bookmarksByFolderID"
-	private var bookmarks: [String: Data] = [:]
-	private var accessing: [String: Accessor] = [:]
-
-	enum BookmarkManagerError: Error {
-		case cannotAccess
-	}
-
-	class Accessor {
-		var url: URL
-
-		init(url: URL) throws {
-			self.url = url
-			if !url.startAccessingSecurityScopedResource() {
-				throw BookmarkManagerError.cannotAccess
-			}
-			Log.info("Start accessing \(url)")
-		}
-
-		deinit {
-			Log.info("Stop accessing \(url)")
-			url.stopAccessingSecurityScopedResource()
-		}
-	}
-
-	init() {
-		self.load()
-	}
-
-	mutating func saveBookmark(folderID: String, url: URL) throws {
-		self.accessing[folderID] = try Accessor(url: url)
-		#if os(macOS)
-			bookmarks[folderID] = try url.bookmarkData(options: .withSecurityScope)
-		#else
-			bookmarks[folderID] = try url.bookmarkData(options: .minimalBookmark)
-		#endif
-		self.save()
-	}
-
-	mutating func removeBookmarkFor(folderID: String) {
-		self.bookmarks.removeValue(forKey: folderID)
-		self.accessing.removeValue(forKey: folderID)
-		self.save()
-	}
-
-	func hasBookmarkFor(folderID: String) -> Bool {
-		return self.bookmarks[folderID] != nil
-	}
-
-	mutating func resolveBookmark(folderID: String) throws -> URL? {
-		guard let bookmarkData = bookmarks[folderID] else { return nil }
-		var isStale = false
-
-		#if os(macOS)
-			let url = try URL(
-				resolvingBookmarkData: bookmarkData, options: [.withSecurityScope],
-				bookmarkDataIsStale: &isStale)
-		#else
-			let url = try URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &isStale)
-		#endif
-
-		if isStale {
-			// Refresh bookmark
-			Log.info("Bookmark for \(folderID) is stale")
-			do {
-				#if os(macOS)
-					bookmarks[folderID] = try url.bookmarkData(options: .withSecurityScope)
-				#else
-					bookmarks[folderID] = try url.bookmarkData(options: .minimalBookmark)
-				#endif
-				self.save()
-			}
-			catch {
-				Log.warn("Could not refresh stale bookmark: \(error.localizedDescription)")
-			}
-		}
-
-		// Start accessing
-		if let currentAccessor = self.accessing[folderID] {
-			if currentAccessor.url != url {
-				self.accessing[folderID] = try Accessor(url: url)
-			}
-		}
-		else {
-			self.accessing[folderID] = try Accessor(url: url)
-		}
-		return url
-	}
-
-	private mutating func load() {
-		self.bookmarks = UserDefaults.standard.object(forKey: Self.defaultsKey) as? [String: Data] ?? [:]
-		Log.info("Load bookmarks: \(self.bookmarks)")
-	}
-
-	private func save() {
-		Log.info("Saving bookmarks: \(self.bookmarks)")
-		UserDefaults.standard.set(self.bookmarks, forKey: Self.defaultsKey)
-	}
-
-	mutating func removeBookmarksForFoldersNotIn(_ folderIDs: Set<String>) {
-		let toRemove = self.bookmarks.keys.filter({ !folderIDs.contains($0) })
-		for toRemoveKey in toRemove {
-			Log.warn("Removing stale bookmark \(toRemoveKey)")
-			self.bookmarks.removeValue(forKey: toRemoveKey)
-		}
-	}
 }
 
 final class Log {
