@@ -397,17 +397,62 @@ struct FolderDirectionPicker: View {
 }
 
 private struct ExternalFolderSectionView: View {
-	var folderID: String
+	@ObservedObject var appState: AppState
+	var folder: SushitrainFolder
+	@State private var showPathSelector: Bool = false
+	@State private var errorText: String? = nil
 
 	var body: some View {
-		let isAccessible = BookmarkManager.shared.hasBookmarkFor(folderID: folderID)
+		let isAccessible = BookmarkManager.shared.hasBookmarkFor(folderID: folder.folderID)
 		Section {
-			if isAccessible {
-				Label("External folder", systemImage: "app.badge.checkmark").foregroundStyle(.pink)
+			ZStack {
+				if isAccessible {
+					Label("External folder", systemImage: "app.badge.checkmark").foregroundStyle(.pink)
+						.onLongPressGesture {
+							self.showPathSelector = true
+						}
+				}
+				else {
+					Label("Inaccessible external folder", systemImage: "xmark.app").foregroundStyle(.red).onTapGesture {
+						self.tryFixBookmark()
+					}
+				}
 			}
-			else {
-				Label("Inaccessible external folder", systemImage: "xmark.app").foregroundStyle(.red)
-			}
+			// Folder selector for fixing external folders
+			.fileImporter(
+				isPresented: $showPathSelector, allowedContentTypes: [.folder],
+				onCompletion: { result in
+					switch result {
+					case .success(let url):
+						if appState.isInsideDocumentsFolder(url) {
+							// Check if the folder path is or is inside our regular folder path - that is not allowed
+							self.errorText = String(
+								localized:
+									"The folder you have selected is inside the app folder. Only folders outside the app folder can be selected."
+							)
+							return
+						}
+						
+						// Attempt to create a new bookmark
+						do {
+							try BookmarkManager.shared.saveBookmark(folderID: self.folder.folderID, url: url)
+							try folder.setPath(url.path(percentEncoded: false))
+						}
+						catch {
+							self.errorText = String(localized: "Could not re-link folder: \(error.localizedDescription)")
+							return
+						}
+						
+					case .failure(let e):
+						Log.warn("Failed to select folder: \(e.localizedDescription)")
+					}
+				})
+			.alert(
+				isPresented: .constant(self.errorText != nil),
+				content: {
+					Alert(title: Text("Could not relink folder"), message: Text(errorText ?? ""), dismissButton: .default(Text("OK")))
+				}
+			)
 		} footer: {
 			if isAccessible {
 				Text("This folder is not in the default location, and may belong to another app.")
@@ -418,6 +463,29 @@ private struct ExternalFolderSectionView: View {
 				)
 			}
 		}
+	}
+	
+	private func tryFixBookmark() {
+		if BookmarkManager.shared.hasBookmarkFor(folderID: self.folder.folderID) {
+			Log.info("We already have a bookmark for folder \(self.folder.folderID)")
+		}
+		
+		if let u = self.folder.localNativeURL {
+			do {
+				try BookmarkManager.shared.saveBookmark(folderID: self.folder.folderID, url: u)
+			}
+			catch {
+				Log.warn("while attempting bookmark recreation: \(error.localizedDescription)")
+			}
+		}
+		
+		// Do we have a bookmark now?
+		if BookmarkManager.shared.hasBookmarkFor(folderID: self.folder.folderID) {
+			Log.info("We now have a bookmark for folder \(self.folder.folderID)")
+			return
+		}
+		
+		self.showPathSelector = true
 	}
 }
 
@@ -457,18 +525,15 @@ struct FolderView: View {
 				#endif
 
 				if isExternal == true {
-					ExternalFolderSectionView(folderID: folder.folderID)
+					ExternalFolderSectionView(appState: appState, folder: folder)
 				}
 
 				Section("Folder settings") {
 					Text("Folder ID").badge(Text(folder.folderID))
 
 					LabeledContent {
-						TextField(
-							"",
-							text: Binding(
-								get: { folder.label() },
-								set: { lbl in try? folder.setLabel(lbl) }),
+						TextField("",
+							text: Binding(get: { folder.label() }, set: { lbl in try? folder.setLabel(lbl) }),
 							prompt: Text(folder.folderID)
 						)
 						.multilineTextAlignment(.trailing)
