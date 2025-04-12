@@ -7,7 +7,7 @@ toolchain go1.24.1
 require (
 	github.com/gotd/contrib v0.21.0
 	github.com/miscreant/miscreant.go v0.0.0-20200214223636-26d376326b75
-	github.com/syncthing/syncthing v1.29.4
+	github.com/syncthing/syncthing v1.29.5
 )
 
 replace github.com/gobwas/glob v0.2.3 => github.com/calmh/glob v0.0.0-20220615080505-1d823af5017b
