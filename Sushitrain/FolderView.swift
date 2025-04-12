@@ -958,6 +958,9 @@ private struct FolderThumbnailSettingsView: View {
 				}
 			}
 		}
+		#if(macOS)
+			.formStyle(.grouped)
+		#endif
 		.task {
 			await self.updateSize()
 		}
