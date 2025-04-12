@@ -810,6 +810,7 @@ private struct FolderThumbnailSettingsView: View {
 	@State private var showGenerateThumbnailsConfirm = false
 	@State private var showClearThumbnailsConfirm = false
 	@State private var diskCacheSizeBytes: UInt? = nil
+	@State private var deletingFromSharedCache = false
 
 	private var settings: ThumbnailGeneration {
 		get {
@@ -951,12 +952,25 @@ private struct FolderThumbnailSettingsView: View {
 
 			if self.canClear {
 				Section {
+					if case .inside(_) = settings {
+						Button(
+							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
+							action: {
+								let ic = ImageCache.forFolder(self.folder)
+								if let url = ic.customCacheDirectory {
+									openURLInSystemFilesApp(url: url)
+								}
+							}
+						)
+					}
+
 					Button("Clear thumbnail cache", systemImage: "eraser.line.dashed.fill") {
 						self.showClearThumbnailsConfirm = true
 					}
 					#if os(macOS)
 						.buttonStyle(.link)
 					#endif
+					.foregroundStyle(.red)
 					.confirmationDialog(
 						"This will delete all files from inside the configured subdirectory. Are you sure you want to continue?",
 						isPresented: $showClearThumbnailsConfirm, titleVisibility: .visible
@@ -971,6 +985,37 @@ private struct FolderThumbnailSettingsView: View {
 					}
 				}
 			}
+
+			if appState.cacheThumbnailsToDisk {
+				Section {
+					Button("Remove thumbnails from app-wide cache", systemImage: "eraser.line.dashed.fill") {
+						deletingFromSharedCache = true
+						Task.detached {
+							do {
+								try await self.deleteFromSharedCache(prefix: nil)
+							}
+							catch {
+								Log.warn("Failed deleting from shared cache: \(error.localizedDescription)")
+							}
+
+							DispatchQueue.main.async {
+								Task {
+									self.diskCacheSizeBytes = nil
+									await self.updateSize()
+									deletingFromSharedCache = false
+								}
+							}
+						}
+					}
+					.disabled(deletingFromSharedCache)
+					.foregroundStyle(.red)
+					#if os(macOS)
+						.buttonStyle(.link)
+					#endif
+				} footer: {
+					Text("Remove thumbnails that were generated for files in this folder from the app-wide thumbnail cache.")
+				}
+			}
 		}
 		.navigationTitle("Thumbnails")
 		#if os(iOS)
@@ -980,7 +1025,9 @@ private struct FolderThumbnailSettingsView: View {
 			.formStyle(.grouped)
 		#endif
 		.task {
-			await self.updateSize()
+			await Task.detached {
+				await self.updateSize()
+			}.value
 		}
 		.sheet(isPresented: $showGenerateThumbnails) {
 			NavigationStack {
@@ -998,6 +1045,33 @@ private struct FolderThumbnailSettingsView: View {
 								}
 							})
 					})
+			}
+		}
+	}
+
+	private func deleteFromSharedCache(prefix: String?) async throws {
+		// Iterate over this folder's entries
+		let files = try self.folder.list(prefix, directories: false, recurse: false)
+
+		for idx in 0..<files.count() {
+			let filePath = files.item(at: idx)
+			if Task.isCancelled {
+				Log.info("Thumbnail generate task cancelled")
+				return
+			}
+
+			let fullPath = (prefix ?? "") + "/" + filePath
+
+			if let file = try? self.folder.getFileInformation(fullPath) {
+				// Recurse into subdirectories (depth-first)
+				if file.isDirectory() {
+					try await self.deleteFromSharedCache(prefix: file.path())
+				}
+
+				try? ImageCache.shared.remove(cacheKey: file.cacheKey)
+			}
+			else {
+				Log.warn("Could not get file entry for path \(filePath)")
 			}
 		}
 	}

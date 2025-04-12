@@ -287,6 +287,16 @@ struct ThumbnailImage<Content>: View where Content: View {
 		return totalSize
 	}
 
+	func remove(cacheKey: String) throws {
+		if cacheKey.count < 3 {
+			return
+		}
+		self.cache.removeValue(forKey: cacheKey)
+		if self.diskCacheEnabled {
+			try FileManager.default.removeItem(atPath: self.pathFor(cacheKey: cacheKey).path(percentEncoded: false))
+		}
+	}
+
 	subscript(cacheKey: String) -> Image? {
 		get {
 			if cacheKey.count < 3 {
