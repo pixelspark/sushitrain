@@ -247,7 +247,15 @@ struct ThumbnailImage<Content>: View where Content: View {
 	func clear() {
 		do {
 			self.cache.removeAll()
-			try FileManager.default.removeItem(at: self.cacheDirectory)
+			//try FileManager.default.removeItem(at: self.cacheDirectory)
+			// Remove folders inside the cache path that have a name that consists of just one character
+			let fileManager = FileManager.default
+			let fileURLs = try fileManager.contentsOfDirectory(at: self.cacheDirectory, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants)
+			for url in fileURLs {
+				if url.lastPathComponent.count == 1 {
+					try fileManager.removeItem(at: url)
+				}
+			}
 		}
 		catch {
 			Log.warn("Could not clear cache: \(error.localizedDescription)")
