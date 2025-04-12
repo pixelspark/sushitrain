@@ -310,7 +310,11 @@ struct ThumbnailImage<Content>: View where Content: View {
 						}
 					#endif
 				}
-				return nil
+			}
+			
+			// If we are not the shared cache, try the shared cache
+			if self !== Self.shared {
+				return Self.shared[cacheKey]
 			}
 
 			return nil
