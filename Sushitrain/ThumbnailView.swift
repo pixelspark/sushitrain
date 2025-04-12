@@ -12,11 +12,15 @@ struct ThumbnailView: View {
 	@State var showPreview = false
 	var showFileName: Bool
 	var showErrorMessages: Bool
+	
+	private var imageCache: ImageCache {
+		return ImageCache.forFolder(file.folder)
+	}
 
 	var body: some View {
 		if file.canThumbnail {
 			let isLocallyPresent = file.isLocallyPresent()
-			if isLocallyPresent || showPreview || ImageCache[file.cacheKey] != nil
+			if isLocallyPresent || showPreview || self.imageCache[file.cacheKey] != nil
 				|| file.size() <= appState.maxBytesForPreview
 				|| (appState.previewVideos && file.isVideo)
 			{

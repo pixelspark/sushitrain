@@ -429,8 +429,6 @@ struct FolderView: View {
 	@State private var showAlert: ShowAlert? = nil
 	@State private var showRemoveConfirmation = false
 	@State private var showUnlinkConfirmation = false
-	@State private var showGenerateThumbnails = false
-	@State private var showGenerateThumbnailsConfirm = false
 	@State private var advancedExpanded = false
 
 	private enum ShowAlert: Identifiable {
@@ -550,21 +548,6 @@ struct FolderView: View {
 						.buttonStyle(.link)
 					#endif
 
-					Button("Generate thumbnails", systemImage: "photo.stack") {
-						self.showGenerateThumbnailsConfirm = true
-					}
-					#if os(macOS)
-						.buttonStyle(.link)
-					#endif
-					.confirmationDialog(
-						"Generating thumbnails may take a while and could use a lot of data. It is advisable to connect to a Wi-Fi network before proceeding. Are you sure you want to continue?",
-						isPresented: $showGenerateThumbnailsConfirm, titleVisibility: .visible
-					) {
-						Button("Generate thumbnails") {
-							self.showGenerateThumbnails = true
-						}
-					}
-
 					Button("Unlink folder", systemImage: "folder.badge.minus", role: .destructive) {
 						showUnlinkConfirmation = true
 					}
@@ -657,26 +640,6 @@ struct FolderView: View {
 						"Subdirectories that were empty and had no files in them were removed from this device."
 					), dismissButton: .default(Text("OK")))
 
-			}
-		}
-		.sheet(isPresented: $showGenerateThumbnails) {
-			NavigationStack {
-				FolderGenerateThumbnailsView(
-					appState: self.appState, isShown: $showGenerateThumbnails, folder: self.folder
-				)
-				.navigationTitle("Generate thumbnails")
-				#if os(iOS)
-					.navigationBarTitleDisplayMode(.inline)
-				#endif
-				.toolbar(content: {
-					ToolbarItem(
-						placement: .cancellationAction,
-						content: {
-							Button("Cancel") {
-								showGenerateThumbnails = false
-							}
-						})
-				})
 			}
 		}
 	}
@@ -778,6 +741,136 @@ struct ShareWithDeviceToggleView: View {
 	}
 }
 
+private struct FolderThumbnailSettingsView: View {
+	@ObservedObject var appState: AppState
+	let folder: SushitrainFolder
+	@State private var showGenerateThumbnails = false
+	@State private var showGenerateThumbnailsConfirm = false
+	
+	private var settings: ThumbnailGeneration {
+		get {
+			return FolderSettingsManager.shared.settingsFor(folderID: folder.folderID).thumbnailGeneration
+		}
+		set {
+			FolderSettingsManager.shared.mutateSettingsFor(folderID: folder.folderID) { fs in
+				fs.thumbnailGeneration = newValue
+			}
+		}
+	}
+	
+	private var insidePathBinding: Binding<String> {
+		return Binding(get: {
+			let tg = FolderSettingsManager.shared.settingsFor(folderID: folder.folderID).thumbnailGeneration
+			if case ThumbnailGeneration.inside(path: let path) = tg {
+				return path
+			}
+			return ThumbnailGeneration.DefaultInsideFolderThumbnailPath
+		}, set: { newPath in
+			FolderSettingsManager.shared.mutateSettingsFor(folderID: folder.folderID) { fs in
+				fs.thumbnailGeneration = .inside(path: newPath)
+			}
+		})
+	}
+	
+	private var insideChoice: ThumbnailGeneration {
+		switch settings {
+			case .inside(path: let path): return .inside(path: path)
+			default: return .inside(path: ThumbnailGeneration.DefaultInsideFolderThumbnailPath)
+		}
+	}
+	
+	private var localDirectoryEntry: SushitrainEntry? {
+		switch settings {
+		case .inside(path: let path):
+			let e = try? self.folder.getFileInformation(path)
+			if let e = e, e.isDirectory() && !e.isDeleted() {
+				return e
+			}
+			return nil
+		default:
+			return nil
+		}
+	}
+	
+	var body: some View {
+		let settings = self.settings
+		
+		let settingsBinding = Binding(get: {
+			return FolderSettingsManager.shared.settingsFor(folderID: folder.folderID).thumbnailGeneration
+		}, set: { newSettings in
+			FolderSettingsManager.shared.mutateSettingsFor(folderID: folder.folderID) { fs in
+				fs.thumbnailGeneration = newSettings
+			}
+		})
+		
+		Form {
+			Section {
+				Picker("Thumbnails", selection: settingsBinding) {
+					Text("Do not cache").tag(ThumbnailGeneration.disabled)
+					Text("Use app-wide cache").tag(ThumbnailGeneration.global)
+					Text("Cache inside folder").tag(insideChoice)
+					Text("Cache on this device").tag(ThumbnailGeneration.deviceLocal)
+				}
+				.pickerStyle(.menu)
+				
+				if case ThumbnailGeneration.inside(_) = settings {
+					LabeledContent {
+						TextField("", text: insidePathBinding, prompt: Text(ThumbnailGeneration.DefaultInsideFolderThumbnailPath))
+							.multilineTextAlignment(.trailing)
+					} label: {
+						Text("Subdirectory")
+					}
+					
+					if let localDirectoryEntry = self.localDirectoryEntry, self.folder.isSelective() {
+						Toggle("Synchronize", isOn: Binding(get: { localDirectoryEntry.isExplicitlySelected() }, set: {
+							try? localDirectoryEntry.setExplicitlySelected($0)
+						}))
+						.disabled(localDirectoryEntry.isSelected() != localDirectoryEntry.isExplicitlySelected())
+					}
+				}
+			}
+			
+			Section {
+				Button("Generate thumbnails", systemImage: "photo.stack") {
+					self.showGenerateThumbnailsConfirm = true
+				}
+				.disabled(settings == .disabled || settings == .global && !appState.cacheThumbnailsToDisk)
+#if os(macOS)
+				.buttonStyle(.link)
+#endif
+				.confirmationDialog(
+					"Generating thumbnails may take a while and could use a lot of data. It is advisable to connect to a Wi-Fi network before proceeding. Are you sure you want to continue?",
+					isPresented: $showGenerateThumbnailsConfirm, titleVisibility: .visible
+				) {
+					Button("Generate thumbnails") {
+						self.showGenerateThumbnails = true
+					}
+				}
+			}
+		}
+		.sheet(isPresented: $showGenerateThumbnails) {
+			NavigationStack {
+				FolderGenerateThumbnailsView(
+					appState: self.appState, isShown: $showGenerateThumbnails, folder: self.folder
+				)
+				.navigationTitle("Generate thumbnails")
+				#if os(iOS)
+					.navigationBarTitleDisplayMode(.inline)
+				#endif
+				.toolbar(content: {
+					ToolbarItem(
+						placement: .cancellationAction,
+						content: {
+							Button("Cancel") {
+								showGenerateThumbnails = false
+							}
+						})
+				})
+			}
+		}
+	}
+}
+
 private struct FolderGenerateThumbnailsView: View {
 	@ObservedObject var appState: AppState
 	@Binding var isShown: Bool
@@ -787,6 +880,43 @@ private struct FolderGenerateThumbnailsView: View {
 	@State private var processedFiles: Int = 0
 	@State private var lastThumbnail: AsyncImagePhase? = nil
 	@State private var lastThumbnailTime: Date = Date.distantPast
+	@State private var generatingTask: Task<Void, Never>? = nil
+	
+	private func startGenerating() {
+		if self.generatingTask != nil {
+			return
+		}
+		
+		self.generatingTask = Task {
+			Log.info("Start generating thumbnails")
+			let ic = ImageCache.forFolder(self.folder)
+			if !ic.diskCacheEnabled || !ic.diskHasSpace {
+				self.error = String(
+					localized:
+						"There is very little disk space available. Free up some space and try again."
+				)
+				return
+			}
+			
+			#if os(iOS)
+				UIApplication.shared.isIdleTimerDisabled = true
+			#endif
+			
+			do {
+				let stats = try self.folder.statistics()
+				self.totalFiles = stats.global?.files ?? 0
+				self.processedFiles = 0
+				try await self.generateFor(prefix: nil)
+				self.isShown = false
+			}
+			catch {
+				self.error = error.localizedDescription
+			}
+			#if os(iOS)
+				UIApplication.shared.isIdleTimerDisabled = false
+			#endif
+		}
+	}
 
 	var body: some View {
 		VStack {
@@ -814,7 +944,7 @@ private struct FolderGenerateThumbnailsView: View {
 
 				Text("Generating thumbnails... (\(self.processedFiles) / \(self.totalFiles))")
 				if self.totalFiles > 0 {
-					ProgressView(value: Float(self.processedFiles), total: Float(self.totalFiles))
+					ProgressView(value: Float(self.processedFiles), total: Float(max(self.totalFiles, self.processedFiles)))
 				}
 			}
 		}
@@ -826,39 +956,32 @@ private struct FolderGenerateThumbnailsView: View {
 					isShown = false
 				})
 		}
-		.task {
-			if !ImageCache.diskCacheEnabled || !ImageCache.diskHasSpace {
-				self.error = String(
-					localized:
-						"There is very little disk space available. Free up some space and try again."
-				)
-				return
-			}
-
-			#if os(iOS)
-				UIApplication.shared.isIdleTimerDisabled = true
-			#endif
-			do {
-				let stats = try self.folder.statistics()
-				self.totalFiles = stats.global?.files ?? 0
-				self.processedFiles = 0
-				try await self.generateFor(prefix: nil)
-				self.isShown = false
-			}
-			catch {
-				self.error = error.localizedDescription
-			}
-			#if os(iOS)
-				UIApplication.shared.isIdleTimerDisabled = false
-			#endif
+		.onAppear {
+			self.startGenerating()
+		}
+		.onDisappear {
+			self.generatingTask?.cancel()
 		}
 	}
 
 	private static let thumbnailInterval: TimeInterval = 1.0
 
 	private func generateFor(prefix: String?) async throws {
+		let ic = ImageCache.forFolder(self.folder)
+		let tg = FolderSettingsManager.shared.settingsFor(folderID: self.folder.folderID).thumbnailGeneration
+		
 		// If thumbnails are written to a custom folder, also write thumbnails for local images
-		let forceCache = !appState.cacheThumbnailsToFolderID.isEmpty
+		let forceCachingLocalFiles: Bool
+		switch tg {
+		case .global:
+			forceCachingLocalFiles = !appState.cacheThumbnailsToFolderID.isEmpty
+		case .disabled:
+			forceCachingLocalFiles = false
+		case .deviceLocal:
+			forceCachingLocalFiles = false
+		case .inside(_):
+			forceCachingLocalFiles = true
+		}
 
 		// Iterate over this folder's entries
 		let files = try self.folder.list(prefix, directories: false, recurse: false)
@@ -869,8 +992,15 @@ private struct FolderGenerateThumbnailsView: View {
 				Log.info("Thumbnail generate task cancelled")
 				return
 			}
+			
+			let fullPath = (prefix ?? "") + "/" + filePath
+			
+			if case .inside(path: let insidePath) = tg, fullPath.withoutStartingSlash.starts(with: insidePath) {
+				Log.info("Skipping file \(fullPath), inside thumbnail directory")
+				continue
+			}
 
-			if let file = try? self.folder.getFileInformation((prefix ?? "") + "/" + filePath) {
+			if let file = try? self.folder.getFileInformation(fullPath) {
 				// Recurse into subdirectories (depth-first)
 				if file.isDirectory() {
 					try await self.generateFor(prefix: file.path())
@@ -879,8 +1009,8 @@ private struct FolderGenerateThumbnailsView: View {
 				// Generate thumbnail for files that are not locally present (otherwise QuickLook will manage it for us)
 				// except when we are writing to a custom thumbnail folder (this device can then generate thumbnails for
 				// another from local files)
-				if file.canThumbnail && (forceCache || !file.isLocallyPresent()) {
-					let thumb = await ImageCache.getThumbnail(file: file, forceCache: forceCache)
+				if file.canThumbnail && (forceCachingLocalFiles || !file.isLocallyPresent()) {
+					let thumb = await ic.getThumbnail(file: file, forceCache: forceCachingLocalFiles)
 
 					if (-lastThumbnailTime.timeIntervalSinceNow) > Self.thumbnailInterval {
 						lastThumbnailTime = Date.now
@@ -923,21 +1053,39 @@ private struct AdvancedFolderSettingsView: View {
 			#endif
 
 			Section {
+				NavigationLink(destination:
+					FolderThumbnailSettingsView(appState: appState, folder: folder)
+						.navigationTitle("Thumbnails")
+						#if os(iOS)
+							.navigationBarTitleDisplayMode(.inline)
+						#endif
+				) {
+					Label("Thumbnails", systemImage: "photo.stack")
+				}
+			}
+			
+			Section {
+				NavigationLink(
+					destination: ExternalSharingSettingsView(
+						folder: self.folder, appState: appState)
+				) {
+					Label("External sharing", systemImage: "link.circle.fill")
+				}
+			}
+			
+			Section {
 				LabeledContent {
 					TextField(
 						"",
 						text: Binding(
 							get: {
-								let interval: Int =
-									folder.rescanIntervalSeconds()
-									/ 60
+								let interval: Int = folder.rescanIntervalSeconds() / 60
 								return "\(interval)"
 							},
 							set: { (lbl: String) in
 								if !lbl.isEmpty {
 									let interval = Int(lbl) ?? 0
-									try? folder.setRescanInterval(
-										interval * 60)
+									try? folder.setRescanInterval(interval * 60)
 								}
 							}), prompt: Text("")
 					)
@@ -945,18 +1093,10 @@ private struct AdvancedFolderSettingsView: View {
 				} label: {
 					Text("Rescan interval (minutes)")
 				}
-			}
 
-			Section {
 				Toggle(
 					"Watch for changes",
-					isOn: Binding(
-						get: {
-							return folder.isWatcherEnabled()
-						},
-						set: { nv in
-							try? folder.setWatcherEnabled(nv)
-						}))
+					isOn: Binding(get: { folder.isWatcherEnabled() }, set: { try? folder.setWatcherEnabled($0) }))
 
 				if folder.isWatcherEnabled() {
 					LabeledContent {
@@ -964,19 +1104,13 @@ private struct AdvancedFolderSettingsView: View {
 							"",
 							text: Binding(
 								get: {
-									let interval: Int =
-										folder
-										.watcherDelaySeconds()
+									let interval: Int = folder .watcherDelaySeconds()
 									return "\(interval)"
 								},
 								set: { (lbl: String) in
 									if !lbl.isEmpty {
-										let interval =
-											Int(lbl) ?? 0
-										try? folder
-											.setWatcherDelaySeconds(
-												interval
-											)
+										let interval = Int(lbl) ?? 0
+										try? folder .setWatcherDelaySeconds(interval)
 									}
 								}), prompt: Text("")
 						)
@@ -985,9 +1119,7 @@ private struct AdvancedFolderSettingsView: View {
 						Text("Delay for processing changes (seconds)")
 					}
 				}
-			}
 
-			Section {
 				Toggle(
 					"Keep conflicting versions",
 					isOn: Binding(
@@ -997,15 +1129,6 @@ private struct AdvancedFolderSettingsView: View {
 						set: { nv in
 							try? folder.setMaxConflicts(nv ? -1 : 0)
 						}))
-			}
-
-			Section {
-				NavigationLink(
-					destination: ExternalSharingSettingsView(
-						folder: self.folder, appState: appState)
-				) {
-					Label("External sharing", systemImage: "link.circle.fill")
-				}
 			}
 		}
 		.navigationTitle(Text("Advanced folder settings"))

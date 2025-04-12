@@ -160,18 +160,18 @@ enum FolderMetric: String {
 	}
 
 	func applySettings() {
-		ImageCache.diskCacheEnabled = self.cacheThumbnailsToDisk
+		ImageCache.shared.diskCacheEnabled = self.cacheThumbnailsToDisk
 		if !self.cacheThumbnailsToFolderID.isEmpty,
 			let folder = self.client.folder(withID: self.cacheThumbnailsToFolderID)
 		{
 			// Check if we have this folder
-			ImageCache.customCacheDirectory = folder.localNativeURL
+			ImageCache.shared.customCacheDirectory = folder.localNativeURL
 		}
 		else {
-			ImageCache.customCacheDirectory = nil
+			ImageCache.shared.customCacheDirectory = nil
 		}
 		Log.info(
-			"Apply settings: image cache enabled \(ImageCache.diskCacheEnabled) dir: \(ImageCache.customCacheDirectory.debugDescription)"
+			"Apply settings: image cache enabled \(ImageCache.shared.diskCacheEnabled) dir: \(ImageCache.shared.customCacheDirectory.debugDescription)"
 		)
 
 		self.client.server?.maxMbitsPerSecondsStreaming = Int64(self.streamingLimitMbitsPerSec)

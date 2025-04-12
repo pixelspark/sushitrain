@@ -803,6 +803,13 @@ extension String {
 		}
 		return self
 	}
+	
+	var withoutStartingSlash: String {
+		if self.first == "/" {
+			return String(self.dropFirst())
+		}
+		return self
+	}
 }
 
 extension CGImage {

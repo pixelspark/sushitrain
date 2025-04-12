@@ -407,7 +407,7 @@ struct AdvancedSettingsView: View {
 				// Clear thumbnail cache button
 				if appState.cacheThumbnailsToFolderID == "" {
 					Button("Clear thumbnail cache") {
-						ImageCache.clear()
+						ImageCache.shared.clear()
 						self.diskCacheSizeBytes = nil
 					}
 				}
@@ -468,7 +468,7 @@ struct AdvancedSettingsView: View {
 		}
 		.task {
 			do {
-				self.diskCacheSizeBytes = try await ImageCache.diskCacheSizeBytes()
+				self.diskCacheSizeBytes = try await ImageCache.shared.diskCacheSizeBytes()
 			}
 			catch {
 				Log.warn("Could not determine thumbnail cache size: \(error.localizedDescription)")

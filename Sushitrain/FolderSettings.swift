@@ -6,9 +6,19 @@
 import Foundation
 @preconcurrency import SushitrainCore
 
+enum ThumbnailGeneration: Equatable, Hashable, Codable {
+	case disabled	// Do not generate thumbnails for this folder, regardless of global setting
+	case global		// Just use the global app setting
+	case deviceLocal // Use the device local thumbnail folder
+	case inside(path: String)	// Generate thumbnails and place them inside this folder at the specified path
+	
+	static let DefaultInsideFolderThumbnailPath = ".thumbnails"
+}
+
 struct FolderSettings: Equatable, Hashable, Codable {
 	var externalSharing: ExternalSharingType = .none
 	var bookmark: Data? = nil
+	var thumbnailGeneration: ThumbnailGeneration = .global
 }
 
 class FolderSettingsManager {

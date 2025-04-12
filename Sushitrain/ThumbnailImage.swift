@@ -150,30 +150,77 @@ struct ThumbnailImage<Content>: View where Content: View {
 	}
 
 	private func fetchOrCached() async -> AsyncImagePhase {
-		return await ImageCache.getThumbnail(file: self.entry, forceCache: false)
+		return await ImageCache.forFolder(entry.folder).getThumbnail(file: self.entry, forceCache: false)
 	}
 }
 
-@MainActor
-class ImageCache {
-	static private var cache: [String: Image] = [:]
-	static private var maxCacheSize = 255
-	static private var minDiskFreeBytes = 1024 * 1024 * 1024 * 1  // 1 GiB
+@MainActor class ImageCache {
+	static let shared = ImageCache()
+	private static var byFolder: [String: ImageCache] = [:]
+	
+	static func forFolder(_ folder: SushitrainFolder?) -> ImageCache {
+		guard let folder = folder else {
+			return Self.shared
+		}
+		
+		let settings = FolderSettingsManager.shared.settingsFor(folderID: folder.folderID).thumbnailGeneration
+		switch settings {
+		case .global:
+			Self.byFolder.removeValue(forKey: folder.folderID)
+			return Self.shared
+			
+		case .deviceLocal, .inside(_), .disabled:
+			guard let bf = Self.byFolder[folder.folderID] else {
+				let ic =  ImageCache()
+				Self.byFolder[folder.folderID] = ic
+				return ic
+			}
+			
+			bf.configure(settings, folderPath: folder.localNativeURL)
+			return bf
+		}
+	}
+	
+	private var cache: [String: Image] = [:]
+	private var maxCacheSize = 255
+	private var minDiskFreeBytes = 1024 * 1024 * 1024 * 1  // 1 GiB
+	var diskCacheEnabled: Bool = true
+	var customCacheDirectory: URL? = nil
+	
+	private func configure(_ settings: ThumbnailGeneration, folderPath: URL?) {
+		switch settings {
+		case .disabled:
+			self.diskCacheEnabled = false
+			
+		case .global:
+			// Unreachable because for these folders we return the global cache
+			self.diskCacheEnabled = false
+			self.customCacheDirectory = nil
+			
+		case .deviceLocal:
+			self.customCacheDirectory = nil
+			self.diskCacheEnabled = true
+			
+		case .inside(path: var path):
+			if path.isEmpty {
+				path = ThumbnailGeneration.DefaultInsideFolderThumbnailPath
+			}
+			self.customCacheDirectory = folderPath?.appendingPathComponent(path, isDirectory: true)
+			self.diskCacheEnabled = true
+		}
+	}
 
-	static var diskCacheEnabled: Bool = true
-	static var customCacheDirectory: URL? = nil
-
-	private static var cacheDirectory: URL {
-		if let cc = Self.customCacheDirectory {
+	private var cacheDirectory: URL {
+		if let cc = self.customCacheDirectory {
 			return cc
 		}
 		return URL.cachesDirectory.appendingPathComponent("thumbnails", isDirectory: true)
 	}
 
-	static var diskHasSpace: Bool {
+	var diskHasSpace: Bool {
 		if let vals = try? self.cacheDirectory.resourceValues(forKeys: [.volumeAvailableCapacityKey]) {
 			if let f = vals.volumeAvailableCapacity {
-				return f > Self.minDiskFreeBytes
+				return f > self.minDiskFreeBytes
 			}
 			else {
 				Log.warn("Did not get volume capacity")
@@ -185,35 +232,35 @@ class ImageCache {
 		return true
 	}
 
-	private static func pathFor(cacheKey: String) -> URL {
+	private func pathFor(cacheKey: String) -> URL {
 		assert(cacheKey.count > 3, "cache key too short")
 		let prefixA = String(cacheKey.prefix(1))
 		let prefixB = String(cacheKey.prefix(2).suffix(1))
 		let fileName = cacheKey.suffix(cacheKey.count - 2)
 
-		return Self.cacheDirectory
+		return self.cacheDirectory
 			.appendingPathComponent(prefixA, isDirectory: true)
 			.appendingPathComponent(prefixB, isDirectory: true)
 			.appendingPathComponent("\(fileName).jpg", isDirectory: false)
 	}
 
-	static func clear() {
+	func clear() {
 		do {
 			self.cache.removeAll()
-			try FileManager.default.removeItem(at: Self.cacheDirectory)
+			try FileManager.default.removeItem(at: self.cacheDirectory)
 		}
 		catch {
 			Log.warn("Could not clear cache: \(error.localizedDescription)")
 		}
 	}
 
-	static func diskCacheSizeBytes() async throws -> UInt {
+	func diskCacheSizeBytes() async throws -> UInt {
 		return try await Task.detached(priority: .utility) {
-			return try await Self.sizeOfFolder(path: Self.cacheDirectory)
+			return try await self.sizeOfFolder(path: self.cacheDirectory)
 		}.value
 	}
 
-	private nonisolated static func sizeOfFolder(path: URL) async throws -> UInt {
+	private nonisolated func sizeOfFolder(path: URL) async throws -> UInt {
 		let files = try FileManager.default.subpathsOfDirectory(atPath: path.path())
 		var totalSize: UInt = 0
 		for file in files {
@@ -229,18 +276,18 @@ class ImageCache {
 		return totalSize
 	}
 
-	static subscript(cacheKey: String) -> Image? {
+	subscript(cacheKey: String) -> Image? {
 		get {
 			if cacheKey.count < 3 {
 				return nil
 			}
 			// Attempt to retrieve from memory cache first
-			if let img = ImageCache.cache[cacheKey] {
+			if let img = self.cache[cacheKey] {
 				return img
 			}
 
-			if Self.diskCacheEnabled {
-				let url = Self.pathFor(cacheKey: cacheKey)
+			if self.diskCacheEnabled {
+				let url = self.pathFor(cacheKey: cacheKey)
 				if FileManager.default.fileExists(atPath: url.path) {
 					#if os(iOS)
 						if let img = UIImage(contentsOfFile: url.path()) {
@@ -265,25 +312,27 @@ class ImageCache {
 			// Memory cache (always enabled)
 			while cache.count >= maxCacheSize {
 				// This is a rather random way to remove items from the cache, investigate using an ordered map
-				_ = ImageCache.cache.popFirst()
+				_ = self.cache.popFirst()
 			}
-			ImageCache.cache[cacheKey] = newValue
+			self.cache[cacheKey] = newValue
 
 			if let image = newValue {
-				Self.writeToDiskCache(image: image, cacheKey: cacheKey)
+				self.writeToDiskCache(image: image, cacheKey: cacheKey)
 			}
 		}
 	}
 
-	fileprivate static func writeToDiskCache(image: Image, cacheKey: String) {
+	fileprivate func writeToDiskCache(image: Image, cacheKey: String) {
 		if diskCacheEnabled && diskHasSpace {
 			let renderer = ImageRenderer(content: image)
 			renderer.isOpaque = true
+			let isShared = self === Self.shared
+			Log.info("Writing to disk cache: shared=\(isShared) \(cacheKey) \(self.pathFor(cacheKey: cacheKey))")
 
 			#if os(iOS)
 				// We're using JPEG for now, because HEIC leads to distorted thumbnails for HDR videos
 				if let data = renderer.uiImage?.jpegData(compressionQuality: 0.8) {
-					let url = Self.pathFor(cacheKey: cacheKey)
+					let url = self.pathFor(cacheKey: cacheKey)
 					let dirURL = url.deletingLastPathComponent()
 
 					do {
@@ -292,7 +341,7 @@ class ImageCache {
 						try data.write(to: url)
 
 						// If we're using the default thumbnails directory, do not set complete protection for thumbnails
-						if Self.customCacheDirectory == nil {
+						if self.customCacheDirectory == nil {
 							try (url as NSURL).setResourceValue(
 								URLFileProtection.complete, forKey: .fileProtectionKey)
 						}
@@ -342,16 +391,16 @@ class ImageCache {
 		}
 	}
 
-	nonisolated static func getThumbnail(file: SushitrainEntry, forceCache: Bool) async -> AsyncImagePhase {
+	nonisolated func getThumbnail(file: SushitrainEntry, forceCache: Bool) async -> AsyncImagePhase {
 		let cacheKey = file.cacheKey
 		if cacheKey.count < 6 {
 			return AsyncImagePhase.failure(ThumbnailImageError.invalidCacheKey)
 		}
 
 		// If we have a cached thumbnail, use that
-		if let cached = await ImageCache[cacheKey] {
+		if let cached = await self[cacheKey] {
 			if forceCache {
-				await ImageCache.writeToDiskCache(image: cached, cacheKey: cacheKey)
+				await self.writeToDiskCache(image: cached, cacheKey: cacheKey)
 			}
 			return .success(cached)
 		}
@@ -369,7 +418,7 @@ class ImageCache {
 
 				// If caching is forced, save successful result to disk cache
 				if case .success(let image) = result, forceCache {
-					await ImageCache.writeToDiskCache(image: image, cacheKey: cacheKey)
+					await self.writeToDiskCache(image: image, cacheKey: cacheKey)
 				}
 
 				return result
@@ -396,7 +445,7 @@ class ImageCache {
 		// Save remote thumbnail to in-memory cache
 		if case .success(let image) = ph {
 			DispatchQueue.main.async {
-				ImageCache[cacheKey] = image
+				self[cacheKey] = image
 			}
 		}
 		return ph
