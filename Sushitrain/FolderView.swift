@@ -432,7 +432,7 @@ private struct ExternalFolderSectionView: View {
 							)
 							return
 						}
-						
+
 						// Attempt to create a new bookmark
 						do {
 							try BookmarkManager.shared.saveBookmark(folderID: self.folder.folderID, url: url)
@@ -442,11 +442,12 @@ private struct ExternalFolderSectionView: View {
 							self.errorText = String(localized: "Could not re-link folder: \(error.localizedDescription)")
 							return
 						}
-						
+
 					case .failure(let e):
 						Log.warn("Failed to select folder: \(e.localizedDescription)")
 					}
-				})
+				}
+			)
 			.alert(
 				isPresented: .constant(self.errorText != nil),
 				content: {
@@ -464,12 +465,12 @@ private struct ExternalFolderSectionView: View {
 			}
 		}
 	}
-	
+
 	private func tryFixBookmark() {
 		if BookmarkManager.shared.hasBookmarkFor(folderID: self.folder.folderID) {
 			Log.info("We already have a bookmark for folder \(self.folder.folderID)")
 		}
-		
+
 		if let u = self.folder.localNativeURL {
 			do {
 				try BookmarkManager.shared.saveBookmark(folderID: self.folder.folderID, url: u)
@@ -478,13 +479,13 @@ private struct ExternalFolderSectionView: View {
 				Log.warn("while attempting bookmark recreation: \(error.localizedDescription)")
 			}
 		}
-		
+
 		// Do we have a bookmark now?
 		if BookmarkManager.shared.hasBookmarkFor(folderID: self.folder.folderID) {
 			Log.info("We now have a bookmark for folder \(self.folder.folderID)")
 			return
 		}
-		
+
 		self.showPathSelector = true
 	}
 }
@@ -532,7 +533,8 @@ struct FolderView: View {
 					Text("Folder ID").badge(Text(folder.folderID))
 
 					LabeledContent {
-						TextField("",
+						TextField(
+							"",
 							text: Binding(get: { folder.label() }, set: { lbl in try? folder.setLabel(lbl) }),
 							prompt: Text(folder.folderID)
 						)
@@ -813,7 +815,7 @@ private struct FolderThumbnailSettingsView: View {
 	@State private var showGenerateThumbnailsConfirm = false
 	@State private var showClearThumbnailsConfirm = false
 	@State private var diskCacheSizeBytes: UInt? = nil
-	
+
 	private var settings: ThumbnailGeneration {
 		get {
 			return FolderSettingsManager.shared.settingsFor(folderID: folder.folderID).thumbnailGeneration
@@ -824,31 +826,33 @@ private struct FolderThumbnailSettingsView: View {
 			}
 		}
 	}
-	
+
 	private var insidePathBinding: Binding<String> {
-		return Binding(get: {
-			let tg = FolderSettingsManager.shared.settingsFor(folderID: folder.folderID).thumbnailGeneration
-			if case ThumbnailGeneration.inside(path: let path) = tg {
-				return path
-			}
-			return ThumbnailGeneration.DefaultInsideFolderThumbnailPath
-		}, set: { newPath in
-			FolderSettingsManager.shared.mutateSettingsFor(folderID: folder.folderID) { fs in
-				fs.thumbnailGeneration = .inside(path: newPath)
-			}
-		})
+		return Binding(
+			get: {
+				let tg = FolderSettingsManager.shared.settingsFor(folderID: folder.folderID).thumbnailGeneration
+				if case ThumbnailGeneration.inside(path: let path) = tg {
+					return path
+				}
+				return ThumbnailGeneration.DefaultInsideFolderThumbnailPath
+			},
+			set: { newPath in
+				FolderSettingsManager.shared.mutateSettingsFor(folderID: folder.folderID) { fs in
+					fs.thumbnailGeneration = .inside(path: newPath)
+				}
+			})
 	}
-	
+
 	private var insideChoice: ThumbnailGeneration {
 		switch settings {
-			case .inside(path: let path): return .inside(path: path)
-			default: return .inside(path: ThumbnailGeneration.DefaultInsideFolderThumbnailPath)
+		case .inside(let path): return .inside(path: path)
+		default: return .inside(path: ThumbnailGeneration.DefaultInsideFolderThumbnailPath)
 		}
 	}
-	
+
 	private var localDirectoryEntry: SushitrainEntry? {
 		switch settings {
-		case .inside(path: let path):
+		case .inside(let path):
 			let e = try? self.folder.getFileInformation(path)
 			if let e = e, e.isDirectory() && !e.isDeleted() {
 				return e
@@ -858,7 +862,7 @@ private struct FolderThumbnailSettingsView: View {
 			return nil
 		}
 	}
-	
+
 	private func updateSize() async {
 		self.diskCacheSizeBytes = nil
 		switch self.settings {
@@ -870,18 +874,20 @@ private struct FolderThumbnailSettingsView: View {
 		case .deviceLocal, .disabled, .global: return
 		}
 	}
-	
+
 	var body: some View {
 		let settings = self.settings
-		
-		let settingsBinding = Binding(get: {
-			return FolderSettingsManager.shared.settingsFor(folderID: folder.folderID).thumbnailGeneration
-		}, set: { newSettings in
-			FolderSettingsManager.shared.mutateSettingsFor(folderID: folder.folderID) { fs in
-				fs.thumbnailGeneration = newSettings
-			}
-		})
-		
+
+		let settingsBinding = Binding(
+			get: {
+				return FolderSettingsManager.shared.settingsFor(folderID: folder.folderID).thumbnailGeneration
+			},
+			set: { newSettings in
+				FolderSettingsManager.shared.mutateSettingsFor(folderID: folder.folderID) { fs in
+					fs.thumbnailGeneration = newSettings
+				}
+			})
+
 		Form {
 			Section {
 				Picker("Thumbnails", selection: settingsBinding) {
@@ -891,7 +897,7 @@ private struct FolderThumbnailSettingsView: View {
 					Text("Cache on this device").tag(ThumbnailGeneration.deviceLocal)
 				}
 				.pickerStyle(.menu)
-				
+
 				if case ThumbnailGeneration.inside(_) = settings {
 					LabeledContent {
 						TextField("", text: insidePathBinding, prompt: Text(ThumbnailGeneration.DefaultInsideFolderThumbnailPath))
@@ -899,11 +905,16 @@ private struct FolderThumbnailSettingsView: View {
 					} label: {
 						Text("Subdirectory")
 					}
-					
+
 					if let localDirectoryEntry = self.localDirectoryEntry, self.folder.isSelective() {
-						Toggle("Synchronize", isOn: Binding(get: { localDirectoryEntry.isExplicitlySelected() }, set: {
-							try? localDirectoryEntry.setExplicitlySelected($0)
-						}))
+						Toggle(
+							"Synchronize",
+							isOn: Binding(
+								get: { localDirectoryEntry.isExplicitlySelected() },
+								set: {
+									try? localDirectoryEntry.setExplicitlySelected($0)
+								})
+						)
 						.disabled(localDirectoryEntry.isSelected() != localDirectoryEntry.isExplicitlySelected())
 					}
 				}
@@ -915,15 +926,15 @@ private struct FolderThumbnailSettingsView: View {
 					)
 				}
 			}
-			
+
 			Section {
 				Button("Generate thumbnails", systemImage: "photo.stack") {
 					self.showGenerateThumbnailsConfirm = true
 				}
 				.disabled(settings == .disabled || settings == .global && !appState.cacheThumbnailsToDisk)
-#if os(macOS)
-				.buttonStyle(.link)
-#endif
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
 				.confirmationDialog(
 					"Generating thumbnails may take a while and could use a lot of data. It is advisable to connect to a Wi-Fi network before proceeding. Are you sure you want to continue?",
 					isPresented: $showGenerateThumbnailsConfirm, titleVisibility: .visible
@@ -934,7 +945,7 @@ private struct FolderThumbnailSettingsView: View {
 					}
 				}
 			}
-			
+
 			if case .inside(let insidePath) = settings, !insidePath.isEmpty {
 				Section {
 					Button("Clear thumbnail cache", systemImage: "eraser.line.dashed.fill") {
@@ -958,7 +969,11 @@ private struct FolderThumbnailSettingsView: View {
 				}
 			}
 		}
-		#if(macOS)
+		.navigationTitle("Thumbnails")
+		#if os(iOS)
+			.navigationBarTitleDisplayMode(.inline)
+		#endif
+		#if (macOS)
 			.formStyle(.grouped)
 		#endif
 		.task {
@@ -997,12 +1012,12 @@ private struct FolderGenerateThumbnailsView: View {
 	@State private var lastThumbnail: AsyncImagePhase? = nil
 	@State private var lastThumbnailTime: Date = Date.distantPast
 	@State private var generatingTask: Task<Void, Never>? = nil
-	
+
 	private func startGenerating() {
 		if self.generatingTask != nil {
 			return
 		}
-		
+
 		self.generatingTask = Task {
 			Log.info("Start generating thumbnails")
 			let ic = ImageCache.forFolder(self.folder)
@@ -1013,11 +1028,11 @@ private struct FolderGenerateThumbnailsView: View {
 				)
 				return
 			}
-			
+
 			#if os(iOS)
 				UIApplication.shared.isIdleTimerDisabled = true
 			#endif
-			
+
 			do {
 				let stats = try self.folder.statistics()
 				self.totalFiles = stats.global?.files ?? 0
@@ -1085,7 +1100,7 @@ private struct FolderGenerateThumbnailsView: View {
 	private func generateFor(prefix: String?) async throws {
 		let ic = ImageCache.forFolder(self.folder)
 		let tg = FolderSettingsManager.shared.settingsFor(folderID: self.folder.folderID).thumbnailGeneration
-		
+
 		// If thumbnails are written to a custom folder, also write thumbnails for local images
 		let forceCachingLocalFiles: Bool
 		switch tg {
@@ -1108,9 +1123,9 @@ private struct FolderGenerateThumbnailsView: View {
 				Log.info("Thumbnail generate task cancelled")
 				return
 			}
-			
+
 			let fullPath = (prefix ?? "") + "/" + filePath
-			
+
 			if case .inside(path: let insidePath) = tg, fullPath.withoutStartingSlash.starts(with: insidePath) {
 				Log.info("Skipping file \(fullPath), inside thumbnail directory")
 				continue
@@ -1169,17 +1184,14 @@ private struct AdvancedFolderSettingsView: View {
 			#endif
 
 			Section {
-				NavigationLink(destination:
-					FolderThumbnailSettingsView(appState: appState, folder: folder)
-						.navigationTitle("Thumbnails")
-						#if os(iOS)
-							.navigationBarTitleDisplayMode(.inline)
-						#endif
+				NavigationLink(
+					destination:
+						FolderThumbnailSettingsView(appState: appState, folder: folder)
 				) {
 					Label("Thumbnails", systemImage: "photo.stack")
 				}
 			}
-			
+
 			Section {
 				NavigationLink(
 					destination: ExternalSharingSettingsView(
@@ -1188,7 +1200,7 @@ private struct AdvancedFolderSettingsView: View {
 					Label("External sharing", systemImage: "link.circle.fill")
 				}
 			}
-			
+
 			Section {
 				LabeledContent {
 					TextField(
@@ -1220,13 +1232,13 @@ private struct AdvancedFolderSettingsView: View {
 							"",
 							text: Binding(
 								get: {
-									let interval: Int = folder .watcherDelaySeconds()
+									let interval: Int = folder.watcherDelaySeconds()
 									return "\(interval)"
 								},
 								set: { (lbl: String) in
 									if !lbl.isEmpty {
 										let interval = Int(lbl) ?? 0
-										try? folder .setWatcherDelaySeconds(interval)
+										try? folder.setWatcherDelaySeconds(interval)
 									}
 								}), prompt: Text("")
 						)

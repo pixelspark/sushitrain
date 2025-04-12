@@ -125,7 +125,7 @@ extension SushitrainEntry {
 		if self.isDeleted() {
 			return false
 		}
-		
+
 		let settings = FolderSettingsManager.shared.settingsFor(folderID: self.folder!.folderID).externalSharing
 		return settings.hasURLForFile(self)
 	}

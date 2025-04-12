@@ -157,51 +157,51 @@ struct ThumbnailImage<Content>: View where Content: View {
 @MainActor class ImageCache {
 	static let shared = ImageCache()
 	private static var byFolder: [String: ImageCache] = [:]
-	
+
 	static func forFolder(_ folder: SushitrainFolder?) -> ImageCache {
 		guard let folder = folder else {
 			return Self.shared
 		}
-		
+
 		let settings = FolderSettingsManager.shared.settingsFor(folderID: folder.folderID).thumbnailGeneration
 		switch settings {
 		case .global:
 			Self.byFolder.removeValue(forKey: folder.folderID)
 			return Self.shared
-			
+
 		case .deviceLocal, .inside(_), .disabled:
 			guard let bf = Self.byFolder[folder.folderID] else {
-				let ic =  ImageCache()
+				let ic = ImageCache()
 				Self.byFolder[folder.folderID] = ic
 				return ic
 			}
-			
+
 			bf.configure(settings, folderPath: folder.localNativeURL)
 			return bf
 		}
 	}
-	
+
 	private var cache: [String: Image] = [:]
 	private var maxCacheSize = 255
 	private var minDiskFreeBytes = 1024 * 1024 * 1024 * 1  // 1 GiB
 	var diskCacheEnabled: Bool = true
 	var customCacheDirectory: URL? = nil
-	
+
 	private func configure(_ settings: ThumbnailGeneration, folderPath: URL?) {
 		switch settings {
 		case .disabled:
 			self.diskCacheEnabled = false
-			
+
 		case .global:
 			// Unreachable because for these folders we return the global cache
 			self.diskCacheEnabled = false
 			self.customCacheDirectory = nil
-			
+
 		case .deviceLocal:
 			self.customCacheDirectory = nil
 			self.diskCacheEnabled = true
-			
-		case .inside(path: var path):
+
+		case .inside(var path):
 			if path.isEmpty {
 				path = ThumbnailGeneration.DefaultInsideFolderThumbnailPath
 			}
@@ -250,7 +250,8 @@ struct ThumbnailImage<Content>: View where Content: View {
 			//try FileManager.default.removeItem(at: self.cacheDirectory)
 			// Remove folders inside the cache path that have a name that consists of just one character
 			let fileManager = FileManager.default
-			let fileURLs = try fileManager.contentsOfDirectory(at: self.cacheDirectory, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants)
+			let fileURLs = try fileManager.contentsOfDirectory(
+				at: self.cacheDirectory, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants)
 			for url in fileURLs {
 				if url.lastPathComponent.count == 1 {
 					try fileManager.removeItem(at: url)

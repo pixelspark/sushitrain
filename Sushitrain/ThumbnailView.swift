@@ -12,7 +12,7 @@ struct ThumbnailView: View {
 	@State var showPreview = false
 	var showFileName: Bool
 	var showErrorMessages: Bool
-	
+
 	private var imageCache: ImageCache {
 		return ImageCache.forFolder(file.folder)
 	}

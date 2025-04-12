@@ -7,11 +7,11 @@ import Foundation
 @preconcurrency import SushitrainCore
 
 enum ThumbnailGeneration: Equatable, Hashable, Codable {
-	case disabled	// Do not generate thumbnails for this folder, regardless of global setting
-	case global		// Just use the global app setting
-	case deviceLocal // Use the device local thumbnail folder
-	case inside(path: String)	// Generate thumbnails and place them inside this folder at the specified path
-	
+	case disabled  // Do not generate thumbnails for this folder, regardless of global setting
+	case global  // Just use the global app setting
+	case deviceLocal  // Use the device local thumbnail folder
+	case inside(path: String)  // Generate thumbnails and place them inside this folder at the specified path
+
 	static let DefaultInsideFolderThumbnailPath = ".thumbnails"
 }
 
@@ -28,15 +28,16 @@ class FolderSettingsManager {
 	private static let oldBookmarksDefaultsKey = "bookmarksByFolderID"
 
 	private var cachedSettings: [String: FolderSettings]? = nil
-	
+
 	private init() {
 		var s = self.settings
-		
+
 		// Migrate external sharing settings from older stores
 		if let json = UserDefaults.standard.data(forKey: Self.oldExternalSharingDefaultsKey),
-			let oldData = (try? JSONDecoder().decode([String: ExternalSharingType].self, from: json)) {
+			let oldData = (try? JSONDecoder().decode([String: ExternalSharingType].self, from: json))
+		{
 			Log.info("Migrating external sharing settings to folder settings")
-			
+
 			for (folderID, externalSharingSetting) in oldData {
 				var folderSettings = s[folderID] ?? FolderSettings()
 				folderSettings.externalSharing = externalSharingSetting
@@ -45,7 +46,7 @@ class FolderSettingsManager {
 			}
 			UserDefaults.standard.removeObject(forKey: Self.oldExternalSharingDefaultsKey)
 		}
-		
+
 		// Migrate bookmarks from older stores
 		if let oldData = UserDefaults.standard.object(forKey: Self.oldBookmarksDefaultsKey) as? [String: Data] {
 			Log.info("Migrating bookmarks to folder settings")
@@ -57,7 +58,7 @@ class FolderSettingsManager {
 			}
 			UserDefaults.standard.removeObject(forKey: Self.oldBookmarksDefaultsKey)
 		}
-		
+
 		self.settings = s
 	}
 
@@ -105,8 +106,8 @@ class FolderSettingsManager {
 		}
 		self.settings = c
 	}
-	
-	func mutateSettingsFor(folderID: String, _ block: (inout FolderSettings) -> ()) {
+
+	func mutateSettingsFor(folderID: String, _ block: (inout FolderSettings) -> Void) {
 		var s = self.settingsFor(folderID: folderID)
 		block(&s)
 		self.setSettingsFor(folderID: folderID, settings: s)
@@ -116,7 +117,7 @@ class FolderSettingsManager {
 @MainActor
 struct BookmarkManager {
 	static var shared = BookmarkManager()
-	
+
 	private var accessing: [String: Accessor] = [:]
 
 	enum BookmarkManagerError: Error {
@@ -147,12 +148,12 @@ struct BookmarkManager {
 		#else
 			let newBookmark = try url.bookmarkData(options: .minimalBookmark)
 		#endif
-		
+
 		FolderSettingsManager.shared.mutateSettingsFor(folderID: folderID) { fs in
 			fs.bookmark = newBookmark
 		}
 	}
-	
+
 	private func bookmarkFor(folderID: String) -> Data? {
 		return FolderSettingsManager.shared.settingsFor(folderID: folderID).bookmark
 	}
@@ -182,7 +183,7 @@ struct BookmarkManager {
 				#else
 					let newBookmark = try url.bookmarkData(options: .minimalBookmark)
 				#endif
-				
+
 				FolderSettingsManager.shared.mutateSettingsFor(folderID: folderID) { fs in
 					fs.bookmark = newBookmark
 				}
