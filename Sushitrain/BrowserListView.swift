@@ -258,8 +258,7 @@ struct FileEntryLink<Content: View>: View {
 			#endif
 
 			if !appState.tapFileToPreview {
-				Button("Show preview...", systemImage: "doc.text.magnifyingglass") { self.previewFile() }.disabled(
-					!entry.canPreview || ((try? entry.peersWithFullCopy().count()) ?? 0) == 0)
+				Button("Show preview...", systemImage: "doc.text.magnifyingglass") { self.previewFile() }.disabled(!entry.canPreview)
 			}
 
 			#if os(macOS)
