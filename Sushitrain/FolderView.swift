@@ -746,6 +746,8 @@ private struct FolderThumbnailSettingsView: View {
 	let folder: SushitrainFolder
 	@State private var showGenerateThumbnails = false
 	@State private var showGenerateThumbnailsConfirm = false
+	@State private var showClearThumbnailsConfirm = false
+	@State private var diskCacheSizeBytes: UInt? = nil
 	
 	private var settings: ThumbnailGeneration {
 		get {
@@ -792,6 +794,18 @@ private struct FolderThumbnailSettingsView: View {
 		}
 	}
 	
+	private func updateSize() async {
+		self.diskCacheSizeBytes = nil
+		switch self.settings {
+		case .inside(_):
+			let ic = ImageCache.forFolder(self.folder)
+			if ic !== ImageCache.shared {
+				self.diskCacheSizeBytes = try? await ic.diskCacheSizeBytes()
+			}
+		case .deviceLocal, .disabled, .global: return
+		}
+	}
+	
 	var body: some View {
 		let settings = self.settings
 		
@@ -828,6 +842,13 @@ private struct FolderThumbnailSettingsView: View {
 						.disabled(localDirectoryEntry.isSelected() != localDirectoryEntry.isExplicitlySelected())
 					}
 				}
+			} footer: {
+				if let bytes = self.diskCacheSizeBytes {
+					let formatter = ByteCountFormatter()
+					Text(
+						"Currently the thumbnail cache is using \(formatter.string(fromByteCount: Int64(bytes))) of disk space."
+					)
+				}
 			}
 			
 			Section {
@@ -844,9 +865,36 @@ private struct FolderThumbnailSettingsView: View {
 				) {
 					Button("Generate thumbnails") {
 						self.showGenerateThumbnails = true
+						self.diskCacheSizeBytes = nil
 					}
 				}
 			}
+			
+			if case .inside(let insidePath) = settings, !insidePath.isEmpty {
+				Section {
+					Button("Clear thumbnail cache", systemImage: "eraser.line.dashed.fill") {
+						self.showClearThumbnailsConfirm = true
+					}
+					#if os(macOS)
+						.buttonStyle(.link)
+					#endif
+					.confirmationDialog(
+						"This will delete all files from inside the configured subdirectory. Are you sure you want to continue?",
+						isPresented: $showClearThumbnailsConfirm, titleVisibility: .visible
+					) {
+						Button("Delete thumbnails") {
+							let ic = ImageCache.forFolder(self.folder)
+							if ic !== ImageCache.shared {
+								ic.clear()
+								self.diskCacheSizeBytes = nil
+							}
+						}
+					}
+				}
+			}
+		}
+		.task {
+			await self.updateSize()
 		}
 		.sheet(isPresented: $showGenerateThumbnails) {
 			NavigationStack {

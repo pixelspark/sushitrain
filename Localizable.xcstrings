@@ -5080,6 +5080,40 @@
         }
       }
     },
+    "Delete thumbnails" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Miniaturansichten löschen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar miniaturas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina miniature"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Miniaturen verwijderen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видалити ескізи"
+          }
+        }
+      }
+    },
     "Device" : {
       "localizations" : {
         "de" : {
@@ -19006,6 +19040,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Цей підкаталог та весь його вміст повністю доступні на"
+          }
+        }
+      }
+    },
+    "This will delete all files from inside the configured subdirectory. Are you sure you want to continue?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dadurch werden alle Dateien im konfigurierten Unterverzeichnis gelöscht. Sind Sie sicher, dass Sie fortfahren möchten?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esto eliminará todos los archivos dentro del subdirectorio configurado. ¿Estás seguro de que deseas continuar?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo eliminerà tutti i file all'interno della sottodirectory configurata. Sei sicuro di voler continuare?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiermee worden alle bestanden in de geconfigureerde subdirectory verwijderd. Weet je zeker dat je wilt doorgaan?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Це видалить всі файли з налаштованої підтеки. Ви впевнені, що хочете продовжити?"
           }
         }
       }
