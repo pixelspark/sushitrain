@@ -34,7 +34,9 @@ var _ fs.Filesystem = photoFilesystem{}
 var _ fs.File = photoFile{}
 var _ fs.FileInfo = photoFileInfo{}
 
-var PhotoFilesystemType fs.FilesystemType = "sushitrain.photos.v1"
+const PhotoFilesystemTypeString string = "sushitrain.photos.v1" // For Swift side
+const PhotoFilesystemType fs.FilesystemType = fs.FilesystemType(PhotoFilesystemTypeString)
+
 var errNotImplemented = errors.New("not implemented by photo filesystem")
 
 func init() {
