@@ -167,6 +167,10 @@ struct SushitrainApp: App {
 				}
 			}
 			.windowManagerRole(.associated)
+
+			WindowGroup(id: "decrypter") {
+				DecrypterView()
+			}
 		#endif
 
 		WindowGroup(id: "main") { [appState] in
@@ -200,6 +204,14 @@ struct SushitrainApp: App {
 						},
 						label: {
 							Text("Statistics...")
+						})
+
+					Button(
+						action: {
+							openWindow(id: "decrypter")
+						},
+						label: {
+							Text("Decrypt a folder...")
 						})
 				}
 			}

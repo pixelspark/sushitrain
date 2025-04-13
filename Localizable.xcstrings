@@ -518,6 +518,12 @@
                   "state" : "translated",
                   "value" : "%lld bestanden"
                 }
+              },
+              "zero" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Geen bestanden"
+                }
               }
             }
           }
@@ -592,6 +598,58 @@
         }
       }
     },
+    "%lld files selected" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Dateien ausgewählt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld archivos seleccionados"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld file selezionati"
+          }
+        },
+        "nl" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Één bestand geselecteerd"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld bestanden geselecteerd"
+                }
+              },
+              "zero" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Geen bestanden geselecteerd"
+                }
+              }
+            }
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld файлів вибрано"
+          }
+        }
+      }
+    },
     "%lld items selected" : {
       "localizations" : {
         "de" : {
@@ -625,6 +683,12 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld items geselecteerd"
+                }
+              },
+              "zero" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Niets geselecteerd"
                 }
               }
             }
@@ -847,6 +911,12 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld submappen"
+                }
+              },
+              "zero" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "geen submappen"
                 }
               }
             }
@@ -5208,6 +5278,40 @@
         }
       }
     },
+    "Could not decrypt folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner konnte nicht entschlüsselt werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo descifrar la carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile decrittare la cartella"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kon niet map ontsleutelen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося розшифрувати папку"
+          }
+        }
+      }
+    },
     "Could not determine file availability: %@" : {
       "localizations" : {
         "de" : {
@@ -5888,6 +5992,142 @@
         }
       }
     },
+    "Decrypt %lld files" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Dateien entschlüsseln"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descifrar %lld archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decrittografare %lld file"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld bestanden ontsleutelen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Розшифрувати %lld файлів"
+          }
+        }
+      }
+    },
+    "Decrypt a folder..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner entschlüsseln..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descifrar una carpeta..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decrittare una cartella..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map ontsleutelen…"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Розшифрувати теку..."
+          }
+        }
+      }
+    },
+    "Decrypt file list" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateiliste entschlüsseln"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descifrar lista de archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decritta elenco file"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decodeer bestandlijst"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Розшифрувати список файлів"
+          }
+        }
+      }
+    },
+    "Decrypt folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner entschlüsseln"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descifrar carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decrittografa cartella"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map ontsleutelen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Розшифрувати папку"
+          }
+        }
+      }
+    },
     "Decrypted path" : {
       "localizations" : {
         "de" : {
@@ -5918,6 +6158,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Розшифрований шлях"
+          }
+        }
+      }
+    },
+    "Decryption completed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entschlüsselung abgeschlossen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descifrado completado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decrittazione completata"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decryptie voltooid"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Розшифрування завершено"
           }
         }
       }
@@ -7418,6 +7692,40 @@
         }
       }
     },
+    "Encrypted folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verschlüsselter Ordner"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carpeta cifrada"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartella crittografata"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versleutelde map"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зашифрована папка"
+          }
+        }
+      }
+    },
     "Encrypted sharing links" : {
       "localizations" : {
         "de" : {
@@ -8196,6 +8504,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Операції з файлами"
+          }
+        }
+      }
+    },
+    "File name" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateiname"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre de archivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nome file"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestandsnaam"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ім'я файлу"
           }
         }
       }
@@ -13012,6 +13354,40 @@
         }
       }
     },
+    "No encrypted folder selected" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein verschlüsselter Ordner ausgewählt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se ha seleccionado ninguna carpeta cifrada"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna cartella crittografata selezionata"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen versleutelde map geselecteerd"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вибрано зашифровану папку"
+          }
+        }
+      }
+    },
     "No extra files found" : {
       "localizations" : {
         "de" : {
@@ -15256,6 +15632,40 @@
         }
       }
     },
+    "Recreate folder structure" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordnerstruktur neu erstellen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volver a crear estructura de carpetas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ricrea la struttura delle cartelle"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maak mapstructuur opnieuw"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Створити структуру папок заново"
+          }
+        }
+      }
+    },
     "Refresh" : {
       "localizations" : {
         "de" : {
@@ -17458,6 +17868,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Виберіть папку конфігурації..."
+          }
+        }
+      }
+    },
+    "Select..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auswählen..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleccionar..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleziona..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selecteer..."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Виберіть..."
           }
         }
       }
@@ -25132,6 +25576,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ваші пристрої, ваші дані, ваша відповідальність"
+          }
+        }
+      }
+    },
+    "Zoek bestand..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei suchen..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar archivo..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca file..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoek bestand..."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пошук файлу..."
           }
         }
       }
