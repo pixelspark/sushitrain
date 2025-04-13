@@ -12,7 +12,7 @@ enum ThumbnailGeneration: Equatable, Hashable, Codable {
 	case deviceLocal  // Use the device local thumbnail folder
 	case inside(path: String)  // Generate thumbnails and place them inside this folder at the specified path
 
-	static let DefaultInsideFolderThumbnailPath = ".thumbnails"
+	static let defaultInsideFolderThumbnailPath = ".thumbnails"
 }
 
 struct FolderSettings: Equatable, Hashable, Codable {

@@ -205,7 +205,7 @@ struct ThumbnailImage<Content>: View where Content: View {
 
 		case .inside(var path):
 			if path.isEmpty {
-				path = ThumbnailGeneration.DefaultInsideFolderThumbnailPath
+				path = ThumbnailGeneration.defaultInsideFolderThumbnailPath
 			}
 			self.customCacheDirectory = folder.localNativeURL?.appendingPathComponent(path, isDirectory: true)
 			self.diskCacheEnabled = true

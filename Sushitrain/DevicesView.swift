@@ -160,7 +160,8 @@ struct DevicesView: View {
 							TableColumnForEach(self.peers) { peer in
 								TableColumn(peer.displayName) { folder in
 									DevicesGridCellView(device: peer, folder: folder, viewStyle: viewStyle)
-										.environmentObject(self.appState)  // Needed because for some reason SwiftUI doesn't propagate environment inside TableColumn
+										// Needed because for some reason SwiftUI doesn't propagate environment inside TableColumn
+										.environmentObject(self.appState)
 								}.width(ideal: 50).alignment(.center)
 							}
 						}
@@ -197,11 +198,13 @@ struct DevicesView: View {
 										case .connectedDevice(let peer):
 											IdenticonView(deviceID: peer.deviceID())
 												.padding(5)
-												.environmentObject(self.appState)  // Needed because for some reason SwiftUI doesn't propagate environment inside TableColumn
+												// Needed because for some reason SwiftUI doesn't propagate environment inside TableColumn
+												.environmentObject(self.appState)
 										case .discoveredDevice(let s):
 											IdenticonView(deviceID: s)
 												.padding(5)
-												.environmentObject(self.appState)  // Needed because for some reason SwiftUI doesn't propagate environment inside TableColumn
+												// Needed because for some reason SwiftUI doesn't propagate environment inside TableColumn
+												.environmentObject(self.appState)
 										}
 									}.width(min: 25, ideal: 25, max: 125).defaultVisibility(.hidden).customizationID("fingerprint")
 

@@ -867,7 +867,7 @@ private struct FolderThumbnailSettingsView: View {
 				if case ThumbnailGeneration.inside(path: let path) = tg {
 					return path
 				}
-				return ThumbnailGeneration.DefaultInsideFolderThumbnailPath
+				return ThumbnailGeneration.defaultInsideFolderThumbnailPath
 			},
 			set: { newPath in
 				FolderSettingsManager.shared.mutateSettingsFor(folderID: folder.folderID) { fs in
@@ -879,7 +879,7 @@ private struct FolderThumbnailSettingsView: View {
 	private var insideChoice: ThumbnailGeneration {
 		switch settings {
 		case .inside(let path): return .inside(path: path)
-		default: return .inside(path: ThumbnailGeneration.DefaultInsideFolderThumbnailPath)
+		default: return .inside(path: ThumbnailGeneration.defaultInsideFolderThumbnailPath)
 		}
 	}
 
@@ -941,7 +941,7 @@ private struct FolderThumbnailSettingsView: View {
 
 				if case ThumbnailGeneration.inside(_) = settings {
 					LabeledContent {
-						TextField("", text: insidePathBinding, prompt: Text(ThumbnailGeneration.DefaultInsideFolderThumbnailPath))
+						TextField("", text: insidePathBinding, prompt: Text(ThumbnailGeneration.defaultInsideFolderThumbnailPath))
 							.multilineTextAlignment(.trailing)
 					} label: {
 						Text("Subdirectory")
