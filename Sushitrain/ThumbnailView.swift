@@ -32,7 +32,7 @@ struct ThumbnailView: View {
 							HStack(
 								alignment: .center,
 								content: {
-									ProgressView()
+									ProgressView().controlSize(.small)
 								})
 
 						case .success(let image):
