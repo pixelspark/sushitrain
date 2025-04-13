@@ -92,6 +92,7 @@ struct BrowserView: View {
 						Button(fsd.text, systemImage: fsd.systemImage) {
 							showStatusPopover = true
 						}
+						.animation(.spring(), value: fsd.systemImage)
 						.labelStyle(.iconOnly)
 						.foregroundStyle(fsd.color)
 						.accessibilityLabel(fsd.text)
