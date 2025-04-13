@@ -146,6 +146,10 @@ extension SushitrainFolder {
 		let fsType = self.filesystemType()
 		return fsType == "basic" || fsType == ""
 	}
+	
+	var isPhotoFolder: Bool {
+		return self.filesystemType() == SushitrainPhotoFilesystemTypeString
+	}
 
 	var hasEncryptedPeers: Bool {
 		return (self.sharedEncryptedWithDeviceIDs()?.count() ?? 0) > 0

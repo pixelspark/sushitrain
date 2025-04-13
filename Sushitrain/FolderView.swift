@@ -347,6 +347,12 @@ struct FolderDirectionPicker: View {
 	}
 }
 
+private struct PhotoFolderSectionView: View {
+	var body: some View {
+		Label("Photo folder", systemImage: "camera.fill").foregroundStyle(.cyan)
+	}
+}
+
 private struct ExternalFolderSectionView: View {
 	@EnvironmentObject var appState: AppState
 	var folder: SushitrainFolder
@@ -498,10 +504,14 @@ struct FolderView: View {
 
 	var body: some View {
 		let isExternal = folder.isExternal
+		let isPhotoFolder = folder.isPhotoFolder
 
 		Form {
 			if folder.exists() {
-				if isExternal == true {
+				if isPhotoFolder {
+					PhotoFolderSectionView()
+				}
+				else if isExternal == true {
 					ExternalFolderSectionView(folder: folder)
 				}
 
@@ -519,8 +529,8 @@ struct FolderView: View {
 						Text("Display name")
 					}
 
-					FolderDirectionPicker(folder: folder)
-					FolderSyncTypePicker(folder: folder)
+					FolderDirectionPicker(folder: folder).disabled(isPhotoFolder)
+					FolderSyncTypePicker(folder: folder).disabled(isPhotoFolder)
 
 					Toggle(
 						"Synchronize",
@@ -628,7 +638,7 @@ struct FolderView: View {
 			.foregroundColor(.red)
 
 			// Only allow removing a full folder when we are sure it is in the area managed by us
-			if folder.isExternal == false {
+			if folder.isRegularFolder && folder.isExternal == false {
 				Button("Remove folder", systemImage: "trash", role: .destructive) {
 					showConfirmable = .removeFolder
 				}
