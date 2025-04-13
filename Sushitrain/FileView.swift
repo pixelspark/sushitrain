@@ -428,32 +428,57 @@ struct FileView: View {
 			}.sheet(isPresented: $showEncryptionSheet) { EncryptionView(entry: self.file) }.onAppear {
 				selfIndex = self.siblings?.firstIndex(of: file)
 			}.task {
-				let fileEntry = self.file
-				do {
-					self.fullyAvailableOnDevices = nil
-					self.availabilityError = nil
-					let availability = try await Task.detached { [fileEntry] in return (try fileEntry.peersWithFullCopy()).asArray() }
-						.value
-
-					self.fullyAvailableOnDevices = availability.flatMap { devID in
-						if let p = self.appState.client.peer(withID: devID) { return [p] }
-						return []
-					}
-					let conflicts = try self.folder.conflicts(inSubdirectory: fileEntry.parentPath())
-					if let conflictSiblings = conflicts.conflictSiblings(fileEntry.path()) {
-						var ce: [SushitrainEntry] = []
-						for a in 0..<conflictSiblings.count() { ce.append(try folder.getFileInformation(conflictSiblings.item(at: a))) }
-						conflictingEntries = ce
-					}
-					else {
-						conflictingEntries = []
-					}
+				Task {
+					await updateConflicts()
 				}
-				catch {
-					self.availabilityError = error
-					self.fullyAvailableOnDevices = nil
+				
+				Task {
+					let fileEntry = self.file
+					do {
+						self.fullyAvailableOnDevices = nil
+						self.availabilityError = nil
+						let availability = try await Task.detached { [fileEntry] in return (try fileEntry.peersWithFullCopy()).asArray() }
+							.value
+						
+						self.fullyAvailableOnDevices = availability.flatMap { devID in
+							if let p = self.appState.client.peer(withID: devID) { return [p] }
+							return []
+						}
+					}
+					catch {
+						self.availabilityError = error
+						self.fullyAvailableOnDevices = nil
+					}
 				}
 			}
+		}
+	}
+	
+	private func updateConflicts() async {
+		self.conflictingEntries = []
+		let file = self.file
+		let folder = self.folder
+		do {
+			self.conflictingEntries = try await Task.detached {
+				let conflicts = try folder.conflicts(inSubdirectory: file.parentPath())
+				if let conflictSiblings = conflicts.conflictSiblings(file.path()) {
+					var ce: [SushitrainEntry] = []
+					for a in 0..<conflictSiblings.count() {
+						let conflictItem = conflictSiblings.item(at: a)
+						let conflictEntry = try folder.getFileInformation(conflictItem)
+						if conflictEntry.path() != file.path() {
+							ce.append(conflictEntry)
+						}
+					}
+					return ce
+				}
+				else {
+					return []
+				}
+			}.value
+		}
+		catch {
+			Log.warn("Could not fetch conflicts for file \(file.path()): \(error.localizedDescription)")
 		}
 	}
 
