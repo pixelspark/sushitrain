@@ -170,128 +170,159 @@ struct ShareFolderWithDeviceDetailsView: View {
 	}
 }
 
+struct FolderStatusDescription {
+	var text: String
+	var systemImage: String
+	var color: Color
+	var badge: String
+
+	init(_ folder: SushitrainFolder) {
+		self.badge = ""
+		if !folder.exists() {
+			(self.text, self.systemImage, self.color) = (String(localized: "Folder does not exist"), "trash", .red)
+		}
+		else {
+			let isAvailable = folder.connectedPeerCount() > 0
+
+			if !folder.isPaused() {
+				let isSelective = folder.isSelective()
+
+				let peerStatusText: String
+				if folder.exists() {
+					let peerCount = (folder.sharedWithDeviceIDs()?.count() ?? 1) - 1
+					peerStatusText = "\(folder.connectedPeerCount())/\(peerCount)"
+				}
+				else {
+					peerStatusText = ""
+				}
+
+				if !isAvailable {
+					(self.text, self.systemImage, self.color) = (String(localized: "Not connected"), "network.slash", .gray)
+					self.badge = peerStatusText
+				}
+				else {
+					var error: NSError? = nil
+					let status = folder.state(&error)
+
+					switch status {
+					case "idle":
+						if !isSelective {
+							(self.text, self.systemImage, self.color) = (String(localized: "Synchronized"), "checkmark.circle.fill", .green)
+							self.badge = peerStatusText
+						}
+						else {
+							(self.text, self.systemImage, self.color) = (String(localized: "Connected"), "checkmark.circle.fill", .green)
+							self.badge = peerStatusText
+						}
+
+					case "syncing":
+						(self.text, self.systemImage, self.color) = (
+							String(localized: "Synchronizing..."), "bolt.horizontal.circle", .orange
+						)
+
+					case "scanning":
+						(self.text, self.systemImage, self.color) = (String(localized: "Scanning..."), "bolt.horizontal.circle", .orange)
+
+					case "sync-preparing":
+						(self.text, self.systemImage, self.color) = (
+							String(localized: "Preparing to synchronize..."), "bolt.horizontal.circle", .orange
+						)
+
+					case "cleaning":
+						(self.text, self.systemImage, self.color) = (
+							String(localized: "Cleaning up..."), "bolt.horizontal.circle", .orange
+						)
+
+					case "sync-waiting":
+						(self.text, self.systemImage, self.color) = (
+							String(localized: "Waiting to synchronize..."), "ellipsis.circle", .gray
+						)
+
+					case "scan-waiting":
+						(self.text, self.systemImage, self.color) = (String(localized: "Waiting to scan..."), "ellipsis.circle", .gray)
+
+					case "clean-waiting":
+						(self.text, self.systemImage, self.color) = (String(localized: "Waiting to clean..."), "ellipsis.circle", .gray)
+
+					case "error":
+						(self.text, self.systemImage, self.color) = (String(localized: "Error"), "exclamationmark.triangle.fill", .red)
+
+					default:
+						(self.text, self.systemImage, self.color) = (
+							String(localized: "Unknown state"), "exclamationmark.triangle.fill", .red
+						)
+					}
+				}
+			}
+			else {
+				(self.text, self.systemImage, self.color) = (String(localized: "Synchronization paused"), "pause.circle", .gray)
+			}
+		}
+	}
+
+	var fullText: String {
+		var text = self.text
+		if !self.badge.isEmpty {
+			text += " (\(self.badge))"
+		}
+		return text
+	}
+}
+
 struct FolderStatusView: View {
 	@EnvironmentObject var appState: AppState
 	var folder: SushitrainFolder
-
-	var isAvailable: Bool {
-		return self.folder.connectedPeerCount() > 0
-	}
-
-	var peerStatusText: String {
-		if self.folder.exists() {
-			let peerCount = (folder.sharedWithDeviceIDs()?.count() ?? 1) - 1
-			return "\(folder.connectedPeerCount())/\(peerCount)"
-		}
-		return ""
-	}
 
 	var body: some View {
 		var error: NSError? = nil
 		let status = folder.state(&error)
 
-		if !self.folder.exists() {
-			Section {
-				Label("Folder does not exist", systemImage: "trash").foregroundColor(.gray)
-			}
-		}
-		else if !self.folder.isPaused() {
-			let isSelective = self.folder.isSelective()
-			Section {
-				if !isAvailable {
-					Label("Not connected", systemImage: "network.slash").badge(Text(peerStatusText))
-						.foregroundColor(.gray)
-				}
+		if status == "syncing" && !folder.isSelective() {
+			if let statistics = try? folder.statistics(), statistics.global!.bytes > 0 {
+				let formatter = ByteCountFormatter()
+				if let globalBytes = statistics.global?.bytes, let localBytes = statistics.local?.bytes {
+					let remainingText = formatter.string(fromByteCount: (globalBytes - localBytes))
 
-				// Sync status (in case non-selective or selective with selected files
-				else if status == "idle" {
-					if !isSelective {
-						Label("Synchronized", systemImage: "checkmark.circle.fill")
-							.foregroundStyle(.green).badge(Text(peerStatusText))
-					}
-					else {
-						if self.isAvailable {
-							Label("Connected", systemImage: "checkmark.circle.fill")
-								.foregroundStyle(.green).badge(Text(peerStatusText))
-						}
-						else {
-							Label("Unavailable", systemImage: "xmark.circle").badge(
-								Text(peerStatusText))
-						}
-					}
-				}
-				else if status == "syncing" {
-					if !isSelective {
-						if let statistics = try? folder.statistics(),
-							statistics.global!.bytes > 0
-						{
-							let formatter = ByteCountFormatter()
-							if let globalBytes = statistics.global?.bytes,
-								let localBytes = statistics.local?.bytes
-							{
-								let remainingText = formatter.string(
-									fromByteCount: (globalBytes - localBytes))
-								ProgressView(
-									value: Double(localBytes) / Double(globalBytes),
-									total: 1.0
-								) {
-									Label(
-										"Synchronizing...",
-										systemImage: "bolt.horizontal.circle"
-									)
-									.foregroundStyle(.orange)
-									.badge(Text(remainingText))
-								}.tint(.orange)
-							}
-						}
-						else {
-							Label("Synchronizing...", systemImage: "bolt.horizontal.circle")
-								.foregroundStyle(.orange)
-						}
-					}
-					else {
-						Label("Synchronizing...", systemImage: "bolt.horizontal.circle")
-							.foregroundStyle(.orange)
-					}
-				}
-				else if status == "scanning" {
-					Label("Scanning...", systemImage: "bolt.horizontal.circle").foregroundStyle(
-						.orange)
-				}
-				else if status == "sync-preparing" {
-					Label("Preparing to synchronize...", systemImage: "bolt.horizontal.circle")
+					ProgressView(
+						value: Double(localBytes) / Double(globalBytes),
+						total: 1.0
+					) {
+						Label(
+							"Synchronizing...",
+							systemImage: "bolt.horizontal.circle"
+						)
 						.foregroundStyle(.orange)
-				}
-				else if status == "cleaning" {
-					Label("Cleaning up...", systemImage: "bolt.horizontal.circle").foregroundStyle(
-						.orange)
-				}
-				else if status == "sync-waiting" {
-					Label("Waiting to synchronize...", systemImage: "ellipsis.circle")
-						.foregroundStyle(.gray)
-				}
-				else if status == "scan-waiting" {
-					Label("Waiting to scan...", systemImage: "ellipsis.circle").foregroundStyle(
-						.gray)
-				}
-				else if status == "clean-waiting" {
-					Label("Waiting to clean...", systemImage: "ellipsis.circle").foregroundStyle(
-						.gray)
-				}
-				else if status == "error" {
-					Label("Error", systemImage: "exclamationmark.triangle.fill").foregroundStyle(
-						.red)
+						.badge(Text(remainingText))
+					}.tint(.orange)
 				}
 				else {
-					Label("Unknown state", systemImage: "exclamationmark.triangle.fill")
-						.foregroundStyle(.red)
-				}
-
-				if let error = error {
-					Text(error.localizedDescription).foregroundStyle(.red)
+					self.statusLabel()
 				}
 			}
+			else {
+				self.statusLabel()
+			}
 		}
+		else {
+			self.statusLabel()
+		}
+
+		if let error = error {
+			Text(error.localizedDescription).foregroundStyle(.red)
+		}
+	}
+
+	@ViewBuilder private func statusLabel() -> some View {
+		let folderStatus = FolderStatusDescription(folder)
+
+		#if os(iOS)
+			Label(folderStatus.text, systemImage: folderStatus.systemImage)
+				.foregroundStyle(folderStatus.color)
+				.badge(folderStatus.badge)
+		#else
+			Label(folderStatus.fullText, systemImage: folderStatus.systemImage)
+				.foregroundStyle(folderStatus.color)
+		#endif
 	}
 }
 
@@ -486,13 +517,42 @@ private struct ExternalFolderSectionView: View {
 }
 
 struct FolderView: View {
+	private enum ConfirmableAction {
+		case none
+		case unlinkFolder
+		case removeFolder
+
+		var message: String {
+			switch self {
+			case .none: return ""
+			case .removeFolder:
+				return String(
+					localized:
+						"Are you sure you want to remove this folder? Please consider carefully. All files in this folder will be removed from this device. Files that have not been synchronized to other devices yet cannot be recovered."
+				)
+			case .unlinkFolder:
+				return String(
+					localized:
+						"Are you sure you want to unlink this folder? The folder will not be synchronized any longer. Files currently on this device will not be deleted.",
+				)
+			}
+		}
+
+		var buttonTitle: String {
+			switch self {
+			case .none: return ""
+			case .removeFolder: return String(localized: "Remove the folder and all files")
+			case .unlinkFolder: return String(localized: "Unlink the folder")
+			}
+		}
+	}
+
 	var folder: SushitrainFolder
 	@EnvironmentObject var appState: AppState
 	@Environment(\.dismiss) private var dismiss
 	@State private var isWorking = false
 	@State private var showAlert: ShowAlert? = nil
-	@State private var showRemoveConfirmation = false
-	@State private var showUnlinkConfirmation = false
+	@State private var showConfirmable: ConfirmableAction = .none
 	@State private var advancedExpanded = false
 
 	private enum ShowAlert: Identifiable {
@@ -516,10 +576,6 @@ struct FolderView: View {
 
 		Form {
 			if folder.exists() {
-				#if os(iOS)
-					FolderStatusView(folder: folder)
-				#endif
-
 				if isExternal == true {
 					ExternalFolderSectionView(folder: folder)
 				}
@@ -558,135 +614,19 @@ struct FolderView: View {
 					}
 				}
 
-				Section("System settings") {
-					#if os(iOS)
-						Toggle(
-							"Include in device back-up",
-							isOn: Binding(
-								get: {
-									if let f = folder.isExcludedFromBackup {
-										return !f
-									}
-									return false
-								},
-								set: { nv in
-									folder.isExcludedFromBackup = !nv
-								})
-						).disabled(isExternal != false)
-					#endif
-
-					Toggle(
-						"Hide in Files app",
-						isOn: Binding(
-							get: {
-								if let f = folder.isHidden { return f }
-								return false
-							},
-							set: { nv in
-								folder.isHidden = nv
-							})
-					).disabled(isExternal != false)
+				NavigationLink(
+					destination: AdvancedFolderSettingsView(
+						folder: self.folder)
+				) {
+					Label("Advanced folder settings", systemImage: "gear")
 				}
-
-				#if os(iOS)
-					NavigationLink(
-						destination: AdvancedFolderSettingsView(
-							folder: folder)
-					) {
-						Text("Advanced folder settings")
-					}
-				#endif
-
-				Section {
-					Button("Re-scan folder", systemImage: "sparkle.magnifyingglass") {
-						do {
-							try folder.rescan()
-						}
-						catch let error {
-							self.showAlert = .error(error.localizedDescription)
-						}
-					}
-					#if os(macOS)
-						.buttonStyle(.link)
-					#endif
-
-					Button("Unlink folder", systemImage: "folder.badge.minus", role: .destructive) {
-						showUnlinkConfirmation = true
-					}
-					#if os(macOS)
-						.buttonStyle(.link)
-					#endif
-					.foregroundColor(.red)
-					.confirmationDialog(
-						"Are you sure you want to unlink this folder? The folder will not be synchronized any longer. Files currently on this device will not be deleted.",
-						isPresented: $showUnlinkConfirmation, titleVisibility: .visible
-					) {
-						Button("Unlink the folder", role: .destructive) {
-							do {
-								dismiss()
-								try folder.unlinkFolderAndRemoveSettings()
-							}
-							catch let error {
-								self.showAlert = .error(error.localizedDescription)
-							}
-						}
-					}
-
-					// Only allow removing a full folder when we are sure it is in the area managed by us
-					if isExternal == false {
-						Button("Remove folder", systemImage: "trash", role: .destructive) {
-							showRemoveConfirmation = true
-						}
-						#if os(macOS)
-							.buttonStyle(.link)
-						#endif
-						.foregroundColor(.red)
-						.confirmationDialog(
-							"Are you sure you want to remove this folder? Please consider carefully. All files in this folder will be removed from this device. Files that have not been synchronized to other devices yet cannot be recoered.",
-							isPresented: $showRemoveConfirmation, titleVisibility: .visible
-						) {
-							Button("Remove the folder and all files", role: .destructive) {
-								do {
-									dismiss()
-									try folder.removeFolderAndSettings()
-								}
-								catch let error {
-									self.showAlert = .error(
-										error.localizedDescription)
-								}
-							}
-						}
-					}
-
-					if folder.isSelective() {
-						Button(
-							"Remove unsynchronized empty subdirectories",
-							systemImage: "eraser", role: .destructive
-						) {
-							self.removeUnsynchronizedEmpty()
-						}
-						#if os(macOS)
-							.buttonStyle(.link)
-						#endif
-						.foregroundColor(.red)
-						.disabled(isWorking)
-					}
-				}
-
-				#if os(macOS)
-					Section {
-						NavigationLink(
-							destination: AdvancedFolderSettingsView(
-								folder: self.folder)
-						) {
-							Label("Advanced folder settings", systemImage: "gear")
-						}
-					}
-				#endif
 			}
 		}
 		#if os(macOS)
 			.formStyle(.grouped)
+		#endif
+		#if os(iOS)
+			.navigationBarTitleDisplayMode(.inline)
 		#endif
 		.navigationTitle(folder.displayName)
 		.alert(item: $showAlert) { alert in
@@ -703,6 +643,103 @@ struct FolderView: View {
 					), dismissButton: .default(Text("OK")))
 
 			}
+		}
+		.toolbar {
+			#if os(iOS)
+				ToolbarItem(placement: .topBarLeading) {
+					self.folderOperationsMenu()
+				}
+			#else
+				ToolbarItem(placement: .automatic) {
+					self.folderOperationsMenu()
+				}
+			#endif
+		}
+		.confirmationDialog(
+			showConfirmable.message,
+			isPresented: Binding(
+				get: { self.showConfirmable != .none },
+				set: { self.showConfirmable = $0 ? self.showConfirmable : .none }
+			),
+			titleVisibility: .visible
+		) {
+			Button(showConfirmable.buttonTitle, role: .destructive, action: self.confirmedAction)
+		}
+	}
+
+	@ViewBuilder private func folderOperationsMenu() -> some View {
+		Menu {
+			Button("Re-scan folder", systemImage: "sparkle.magnifyingglass", action: rescanFolder)
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
+
+			Divider()
+
+			if folder.isSelective() {
+				Button(
+					"Remove unsynchronized empty subdirectories",
+					systemImage: "eraser", role: .destructive
+				) {
+					self.removeUnsynchronizedEmpty()
+				}
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
+				.foregroundColor(.red)
+				.disabled(isWorking)
+			}
+
+			Divider()
+
+			Button("Unlink folder", systemImage: "folder.badge.minus", role: .destructive) {
+				showConfirmable = .unlinkFolder
+			}
+			#if os(macOS)
+				.buttonStyle(.link)
+			#endif
+			.foregroundColor(.red)
+
+			// Only allow removing a full folder when we are sure it is in the area managed by us
+			if folder.isExternal == false {
+				Button("Remove folder", systemImage: "trash", role: .destructive) {
+					showConfirmable = .removeFolder
+				}
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
+				.foregroundColor(.red)
+			}
+		} label: {
+			Label("Folder actions", systemImage: "ellipsis.circle")
+		}
+	}
+
+	private func confirmedAction() {
+		do {
+			switch self.showConfirmable {
+			case .none:
+				return
+			case .unlinkFolder:
+				dismiss()
+				try folder.unlinkFolderAndRemoveSettings()
+			case .removeFolder:
+				dismiss()
+				try folder.removeFolderAndSettings()
+			}
+		}
+		catch let error {
+			self.showAlert = .error(error.localizedDescription)
+		}
+		self.showConfirmable = .none
+	}
+
+	private func rescanFolder() {
+		do {
+			try folder.rescan()
+		}
+		catch let error {
+			self.showAlert = .error(error.localizedDescription)
 		}
 	}
 
@@ -1237,6 +1274,8 @@ private struct AdvancedFolderSettingsView: View {
 	let folder: SushitrainFolder
 
 	var body: some View {
+		let isExternal = folder.isExternal
+
 		Form {
 			#if os(iOS)
 				if !folder.isSelective() {
@@ -1273,7 +1312,37 @@ private struct AdvancedFolderSettingsView: View {
 				}
 			}
 
-			Section {
+			Section("System settings") {
+				#if os(iOS)
+					Toggle(
+						"Include in device back-up",
+						isOn: Binding(
+							get: {
+								if let f = folder.isExcludedFromBackup {
+									return !f
+								}
+								return false
+							},
+							set: { nv in
+								folder.isExcludedFromBackup = !nv
+							})
+					).disabled(isExternal != false)
+				#endif
+
+				Toggle(
+					"Hide in Files app",
+					isOn: Binding(
+						get: {
+							if let f = folder.isHidden { return f }
+							return false
+						},
+						set: { nv in
+							folder.isHidden = nv
+						})
+				).disabled(isExternal != false)
+			}
+
+			Section("File handling") {
 				LabeledContent {
 					TextField(
 						"",

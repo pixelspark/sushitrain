@@ -29,6 +29,7 @@ struct BrowserView: View {
 
 	#if os(macOS)
 		@State private var showIgnores = false
+		@State private var showStatusPopover = false
 	#endif
 
 	private var folderName: String {
@@ -47,15 +48,19 @@ struct BrowserView: View {
 			folder: folder, prefix: prefix, searchText: $searchText,
 			showSettings: $showSettings
 		)
-		.navigationTitle(folderName)
+
 		#if os(iOS)
+			.navigationTitle(folderName)
 			.navigationBarTitleDisplayMode(.inline)
 		#endif
+
 		#if os(macOS)
 			.searchable(
 				text: $searchText, placement: SearchFieldPlacement.toolbar,
 				prompt: "Search files in this folder...")
-		#elseif os(iOS)
+		#endif
+
+		#if os(iOS)
 			.sheet(isPresented: $showSearch) {
 				NavigationStack {
 					SearchView(prefix: self.prefix, folder: self.folder)
@@ -73,8 +78,32 @@ struct BrowserView: View {
 				}
 			}
 		#endif
+
+		#if os(macOS)
+			.navigationTitle("")
+		#endif
+
 		.toolbar {
 			#if os(macOS)
+				// On iOS, this is done with .navigationTitle() and the sync status is shown in the view
+				ToolbarItem(placement: .navigation) {
+					let fsd = FolderStatusDescription(folder)
+					HStack(alignment: .center) {
+						Button(fsd.text, systemImage: fsd.systemImage) {
+							showStatusPopover = true
+						}
+						.labelStyle(.iconOnly)
+						.foregroundStyle(fsd.color)
+						.accessibilityLabel(fsd.text)
+						.popover(isPresented: $showStatusPopover, arrowEdge: .bottom) {
+							FolderStatusView(folder: folder)
+								.padding()
+								.frame(minWidth: 120)
+						}
+						Text(folderName).font(.headline)
+					}
+				}
+
 				ToolbarItemGroup(placement: .status) {
 					Picker("View as", selection: appState.$browserViewStyle) {
 						Image(systemName: "list.bullet").tag(BrowserViewStyle.list)
@@ -116,148 +145,11 @@ struct BrowserView: View {
 						}
 					}
 				}
-
-				ToolbarItem {
-					Menu {
-						if folderExists {
-							Button {
-								showFolderStatistics = true
-							} label: {
-								Label("Folder statistics...", systemImage: "scalemass")
-							}
-						}
-
-						if folderExists && folderIsSelective {
-							NavigationLink(
-								destination: SelectiveFolderView(
-									folder: folder)
-							) {
-								Label(
-									"Files kept on this device...",
-									systemImage: "pin")
-							}
-						}
-
-						Button {
-							showSettings = true
-						} label: {
-							Label(
-								"Folder settings...",
-								systemImage: "folder.badge.gearshape")
-						}
-
-						#if os(macOS)
-							if !folder.isSelective() {
-								// On iOS this is in the folder settings screen
-								Button {
-									showIgnores = true
-								} label: {
-									Label(
-										"Files to ignore...",
-										systemImage: "rectangle.dashed")
-								}
-							}
-						#endif
-					} label: {
-						Label("Folder settings", systemImage: "folder.badge.gearshape")
-					}.disabled(!folderExists)
-				}
-			#elseif os(iOS)
-				ToolbarItem {
-					Menu(
-						content: {
-							BrowserViewStylePickerView(
-								viewStyle: appState.$browserViewStyle
-							)
-							.pickerStyle(.inline)
-
-							Toggle(
-								"Search here...", systemImage: "magnifyingglass",
-								isOn: $showSearch
-							).disabled(!folderExists)
-
-							if folderExists && !self.prefix.isEmpty {
-								if let entry = try? self.folder.getFileInformation(
-									self.prefix.withoutEndingSlash)
-								{
-									NavigationLink(
-										destination: FileView(file: entry)
-									) {
-										Label(
-											"Subdirectory properties...",
-											systemImage:
-												"folder.badge.gearshape"
-										)
-									}
-								}
-							}
-
-							Divider()
-
-							if folderExists {
-								// Open in Finder/Files (and possibly materialize empty folder)
-								if let localNativeURL = self.localNativeURL {
-									Button(
-										openInFilesAppLabel,
-										systemImage: "arrow.up.forward.app",
-										action: {
-											openURLInSystemFilesApp(
-												url: localNativeURL)
-										})
-								}
-								else {
-									if let entry = try? self.folder
-										.getFileInformation(
-											self.prefix.withoutEndingSlash)
-									{
-										if entry.isDirectory()
-											&& !entry.isLocallyPresent()
-										{
-											Button(
-												openInFilesAppLabel,
-												systemImage:
-													"arrow.up.forward.app",
-												action: {
-													try? entry
-														.showInFinder()
-												})
-										}
-									}
-								}
-
-								Button {
-									showFolderStatistics = true
-								} label: {
-									Label(
-										"Folder statistics...",
-										systemImage: "scalemass")
-								}
-
-								NavigationLink(
-									destination: SelectiveFolderView(
-										folder: folder)
-								) {
-									Label(
-										"Files kept on this device...",
-										systemImage: "pin")
-								}.disabled(!folderIsSelective)
-							}
-
-							Button(
-								"Folder settings...",
-								systemImage: "folder.badge.gearshape",
-								action: {
-									showSettings = true
-								}
-							).disabled(!folderExists)
-
-						},
-						label: {
-							Image(systemName: "ellipsis.circle").accessibilityLabel(
-								Text("Menu"))
-						})
-				}
 			#endif
+
+			ToolbarItem {
+				self.folderMenu()
+			}
 		}
 		.sheet(isPresented: $showFolderStatistics) {
 			NavigationStack {
@@ -351,6 +243,87 @@ struct BrowserView: View {
 				message: self.error == nil ? nil : Text(self.error!.localizedDescription),
 				dismissButton: .default(Text("OK")))
 		}
+	}
+
+	@ViewBuilder private func folderMenu() -> some View {
+		Menu {
+			#if os(iOS)
+				BrowserViewStylePickerView(
+					viewStyle: appState.$browserViewStyle
+				)
+				.pickerStyle(.inline)
+
+				Toggle(
+					"Search here...",
+					systemImage: "magnifyingglass",
+					isOn: $showSearch
+				).disabled(!folderExists)
+			#endif
+
+			if folderExists && !self.prefix.isEmpty {
+				if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
+					NavigationLink(destination: FileView(file: entry)) {
+						Label("Subdirectory properties...", systemImage: "folder.badge.gearshape")
+					}
+
+					Divider()
+				}
+			}
+
+			if folderExists {
+				#if os(iOS)
+					// Open in Finder/Files (and possibly materialize empty folder)
+					// On macOS this has its own toolbar button
+					if let localNativeURL = self.localNativeURL {
+						Button(
+							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
+							action: {
+								openURLInSystemFilesApp(url: localNativeURL)
+							})
+					}
+					else {
+						if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash),
+							entry.isDirectory() && !entry.isLocallyPresent()
+						{
+							Button(
+								openInFilesAppLabel, systemImage: "arrow.up.forward.app",
+								action: {
+									try? entry.showInFinder()
+								})
+						}
+					}
+				#endif
+
+				Button("Folder statistics...", systemImage: "scalemass") {
+					showFolderStatistics = true
+				}
+
+				if folderIsSelective {
+					NavigationLink(destination: SelectiveFolderView(folder: folder)) {
+						Label("Files kept on this device...", systemImage: "pin")
+					}
+				}
+			}
+
+			Button("Folder settings...", systemImage: "folder.badge.gearshape") {
+				showSettings = true
+			}
+
+			#if os(macOS)
+				if !folder.isSelective() {
+					// On iOS this is in the folder settings screen
+					Button("Files to ignore...", systemImage: "rectangle.dashed") {
+						showIgnores = true
+					}
+				}
+			#endif
+		} label: {
+			#if os(macOS)
+				Label("Folder settings", systemImage: "folder.badge.gearshape")
+			#else
+				Label("Actions", systemImage: "ellipsis.circle")
+			#endif
+		}.disabled(!folderExists)
 	}
 
 	#if os(macOS)
@@ -473,26 +446,22 @@ private struct BrowserItemsView: View {
 						VStack {
 							ScrollView {
 								HStack {
-									FolderStatusView(
-										folder: folder
-									).padding(
-										.all, 10)
+									#if os(iOS)
+										FolderStatusView(folder: folder).padding(.all, 10)
+									#endif
 
 									Spacer()
 
 									Slider(
 										value: Binding(
 											get: {
-												return Double(
-													appState
-														.browserGridColumns
-												)
+												return Double(appState.browserGridColumns)
 											},
 											set: { nv in
-												appState
-													.browserGridColumns =
-													Int(nv)
-											}), in: 1.0...10.0, step: 1.0
+												appState.browserGridColumns = Int(nv)
+											}
+										),
+										in: 1.0...10.0, step: 1.0
 									)
 									.frame(minWidth: 50, maxWidth: 150)
 									.padding(.horizontal, 20)

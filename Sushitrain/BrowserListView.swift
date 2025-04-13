@@ -266,7 +266,7 @@ struct FileEntryLink<Content: View>: View {
 			if !appState.tapFileToPreview {
 				Button("Show preview", systemImage: "doc.text.magnifyingglass") { self.previewFile() }.disabled(!entry.canPreview)
 			}
-			
+
 			// Show file in Finder
 			if entry.canShowInFinder {
 				Button(

@@ -431,7 +431,7 @@ struct FileView: View {
 				Task {
 					await updateConflicts()
 				}
-				
+
 				Task {
 					let fileEntry = self.file
 					do {
@@ -439,7 +439,7 @@ struct FileView: View {
 						self.availabilityError = nil
 						let availability = try await Task.detached { [fileEntry] in return (try fileEntry.peersWithFullCopy()).asArray() }
 							.value
-						
+
 						self.fullyAvailableOnDevices = availability.flatMap { devID in
 							if let p = self.appState.client.peer(withID: devID) { return [p] }
 							return []
@@ -453,7 +453,7 @@ struct FileView: View {
 			}
 		}
 	}
-	
+
 	private func updateConflicts() async {
 		self.conflictingEntries = []
 		let file = self.file
