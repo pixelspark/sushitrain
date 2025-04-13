@@ -614,7 +614,7 @@ struct FolderView: View {
 					}
 				}
 
-				if folder.isRegularFolder {}
+				if folder.isRegularFolder {
 					NavigationLink(
 						destination: AdvancedFolderSettingsView(
 							folder: self.folder)
