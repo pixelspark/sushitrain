@@ -148,7 +148,7 @@ struct BrowserTableView: View {
 						if !oe.isDirectory() && !oe.isSymlink() {
 							#if os(macOS)
 								Button(
-									"Show preview...",
+									"Show preview",
 									systemImage: "doc.text.magnifyingglass"
 								) {
 									openWindow(
@@ -184,7 +184,7 @@ struct BrowserTableView: View {
 						ItemSelectToggleView(file: oe)
 
 						Divider()
-						Button("Show info...") {
+						Button("Show info") {
 							self.openedEntry = (oe, false)
 						}
 					}

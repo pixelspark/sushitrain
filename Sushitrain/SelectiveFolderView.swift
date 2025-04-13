@@ -342,7 +342,7 @@ private struct SelectiveFileView: View {
 								destination: FileView(
 									file: file)
 							) {
-								Label("Show info...", systemImage: file.systemImage)
+								Label("Show info", systemImage: file.systemImage)
 							}
 						}
 					#else
