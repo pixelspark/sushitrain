@@ -7,8 +7,8 @@ import SwiftUI
 @preconcurrency import SushitrainCore
 
 protocol SearchViewDelegate {
-	@MainActor func add(entry: SushitrainEntry)
-	@MainActor func setStatus(searching: Bool)
+	@MainActor func add(entry: SushitrainEntry, from: SearchOperation)
+	@MainActor func setStatus(searching: Bool, from: SearchOperation)
 }
 
 class SearchOperation: NSObject, ObservableObject, SushitrainSearchResultDelegateProtocol, @unchecked Sendable {
@@ -46,7 +46,7 @@ class SearchOperation: NSObject, ObservableObject, SushitrainSearchResultDelegat
 	}
 
 	@MainActor private func add(entry: SushitrainEntry) {
-		view.add(entry: entry)
+		view.add(entry: entry, from: self)
 	}
 }
 
@@ -113,11 +113,19 @@ struct SearchResultsView: View, SearchViewDelegate {
 	@FocusState private var isSearchFieldFocused: Bool
 	@State private var showHiddenFolderEntries = false
 
-	func add(entry: SushitrainEntry) {
+	func add(entry: SushitrainEntry, from: SearchOperation) {
+		if from !== self.searchOperation {
+			// Old search operation
+			return
+		}
 		self.results.append(entry)
 	}
 
-	func setStatus(searching: Bool) {
+	func setStatus(searching: Bool, from: SearchOperation) {
+		if from !== self.searchOperation {
+			// Old search operation
+			return
+		}
 		self.searchCount += (searching ? 1 : -1)
 	}
 
@@ -264,13 +272,13 @@ struct SearchResultsView: View, SearchViewDelegate {
 			DispatchQueue.global(qos: .userInitiated).async {
 				do {
 					DispatchQueue.main.async {
-						sr.view.setStatus(searching: true)
+						sr.view.setStatus(searching: true, from: sr)
 					}
 					try client.search(
 						text, delegate: sr, maxResults: SearchOperation.maxResultCount,
 						folderID: folderID, prefix: prefix)
 					DispatchQueue.main.async {
-						sr.view.setStatus(searching: false)
+						sr.view.setStatus(searching: false, from: sr)
 					}
 				}
 				catch let error {
