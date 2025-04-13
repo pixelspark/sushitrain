@@ -255,10 +255,27 @@ struct FileEntryLink<Content: View>: View {
 				NavigationLink(
 					destination: FileView(file: entry, showPath: self.inFolder == nil, siblings: siblings)
 				) { Label(entry.fileName(), systemImage: entry.systemImage) }
+			#else
+				if appState.tapFileToPreview {
+					NavigationLink(
+						destination: FileView(file: entry, showPath: self.inFolder == nil, siblings: siblings)
+					) { Label("Show info", systemImage: entry.systemImage) }
+				}
 			#endif
 
 			if !appState.tapFileToPreview {
-				Button("Show preview...", systemImage: "doc.text.magnifyingglass") { self.previewFile() }.disabled(!entry.canPreview)
+				Button("Show preview", systemImage: "doc.text.magnifyingglass") { self.previewFile() }.disabled(!entry.canPreview)
+			}
+			
+			// Show file in Finder
+			if entry.canShowInFinder {
+				Button(
+					openInFilesAppLabel,
+					systemImage: "arrow.up.forward.app",
+					action: {
+						try? entry.showInFinder()
+					}
+				)
 			}
 
 			#if os(macOS)
