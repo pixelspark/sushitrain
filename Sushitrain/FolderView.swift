@@ -533,7 +533,7 @@ struct FolderView: View {
 			case .unlinkFolder:
 				return String(
 					localized:
-						"Are you sure you want to unlink this folder? The folder will not be synchronized any longer. Files currently on this device will not be deleted.",
+						"Are you sure you want to unlink this folder? The folder will not be synchronized any longer. Files currently on this device will not be deleted."
 				)
 			}
 		}
