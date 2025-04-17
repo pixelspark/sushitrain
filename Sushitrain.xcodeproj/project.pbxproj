@@ -528,7 +528,7 @@
 				CODE_SIGN_ENTITLEMENTS = Sushitrain/Sushitrain.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 37;
+				CURRENT_PROJECT_VERSION = 38;
 				DEVELOPMENT_ASSET_PATHS = "\"Sushitrain/Preview Content\"";
 				DEVELOPMENT_TEAM = 2N89DJPQ2P;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -551,7 +551,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.9;
+				MARKETING_VERSION = 1.10;
 				PRODUCT_BUNDLE_IDENTIFIER = "nl.t-shaped.Sushitrain";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -573,7 +573,7 @@
 				CODE_SIGN_ENTITLEMENTS = Sushitrain/Sushitrain.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 37;
+				CURRENT_PROJECT_VERSION = 38;
 				DEVELOPMENT_ASSET_PATHS = "\"Sushitrain/Preview Content\"";
 				DEVELOPMENT_TEAM = 2N89DJPQ2P;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -596,7 +596,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.9;
+				MARKETING_VERSION = 1.10;
 				PRODUCT_BUNDLE_IDENTIFIER = "nl.t-shaped.Sushitrain";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
