@@ -204,7 +204,7 @@ struct AdvancedSettingsView: View {
 	@State private var showListeningAddresses = false
 	@State private var showDiscoveryAddresses = false
 	@State private var showSTUNAddresses = false
-	
+
 	#if os(macOS)
 		@State private var showConfigurationSettings = false
 	#endif
@@ -221,7 +221,7 @@ struct AdvancedSettingsView: View {
 						set: { listening in
 							try? appState.client.setListening(listening)
 						}))
-				
+
 				// Listening addresses popup sheet
 				Button("Listening addresses...", systemImage: "envelope.front") {
 					showListeningAddresses = true
@@ -520,15 +520,15 @@ struct AdvancedSettingsView: View {
 		#if os(macOS)
 			.sheet(isPresented: $showConfigurationSettings) {
 				ConfigurationSettingsView()
-					.toolbar(content: {
-						ToolbarItem(
-							placement: .confirmationAction,
-							content: {
-								Button("Close") {
-									showConfigurationSettings = false
-								}
-							})
-					})
+				.toolbar(content: {
+					ToolbarItem(
+						placement: .confirmationAction,
+						content: {
+							Button("Close") {
+								showConfigurationSettings = false
+							}
+						})
+				})
 			}
 		#endif
 		.task {

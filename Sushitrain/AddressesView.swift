@@ -306,9 +306,16 @@ struct AddressesView: View {
 		#if os(macOS)
 			.formStyle(.grouped)
 		#endif
-		.onDisappear { self.addresses = self.editingAddresses }.toolbar {
+		.onDisappear {
+			self.addresses = self.editingAddresses
+		}
+		.toolbar {
 			#if os(iOS)
-				if !editingAddresses.isEmpty { EditButton() }
+				ToolbarItem(placement: .topBarLeading) {
+					if !editingAddresses.isEmpty {
+						EditButton()
+					}
+				}
 			#endif
 		}
 	}
