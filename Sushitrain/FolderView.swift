@@ -1054,12 +1054,12 @@ private struct FolderThumbnailSettingsView: View {
 				}
 			}
 		}
+		#if os(macOS)
+			.formStyle(.grouped)
+		#endif
 		.navigationTitle("Thumbnails")
 		#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)
-		#endif
-		#if (macOS)
-			.formStyle(.grouped)
 		#endif
 		.task {
 			await Task.detached {
