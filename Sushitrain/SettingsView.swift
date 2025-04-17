@@ -201,6 +201,13 @@ struct TotalStatisticsView: View {
 struct AdvancedSettingsView: View {
 	@EnvironmentObject var appState: AppState
 	@State private var diskCacheSizeBytes: UInt? = nil
+	@State private var showListeningAddresses = false
+	@State private var showDiscoveryAddresses = false
+	@State private var showSTUNAddresses = false
+	
+	#if os(macOS)
+		@State private var showConfigurationSettings = false
+	#endif
 
 	var body: some View {
 		Form {
@@ -214,27 +221,42 @@ struct AdvancedSettingsView: View {
 						set: { listening in
 							try? appState.client.setListening(listening)
 						}))
-
-				NavigationLink(
-					destination:
+				
+				// Listening addresses popup sheet
+				Button("Listening addresses...", systemImage: "envelope.front") {
+					showListeningAddresses = true
+				}
+				.sheet(isPresented: $showListeningAddresses) {
+					NavigationStack {
 						AddressesView(
-
 							addresses: Binding(
 								get: {
-									return self.appState.client.listenAddresses()?
-										.asArray() ?? []
+									return self.appState.client.listenAddresses()?.asArray() ?? []
 								},
 								set: { nv in
-									try! self.appState.client.setListenAddresses(
-										SushitrainListOfStrings.from(nv))
+									try! self.appState.client.setListenAddresses(SushitrainListOfStrings.from(nv))
 								}),
-							editingAddresses: self.appState.client.listenAddresses()?
-								.asArray() ?? [], addressType: .listening
+							editingAddresses: self.appState.client.listenAddresses()?.asArray() ?? [], addressType: .listening
 						)
 						.navigationTitle("Listening addresses")
-				) {
-					Label("Listening addresses", systemImage: "envelope.front")
-				}.disabled(!appState.client.isListening())
+						#if os(iOS)
+							.navigationBarTitleDisplayMode(.inline)
+						#endif
+						.toolbar(content: {
+							ToolbarItem(
+								placement: .confirmationAction,
+								content: {
+									Button("Done") {
+										showListeningAddresses = false
+									}
+								})
+						})
+					}
+				}
+				.disabled(!appState.client.isListening())
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
 			} header: {
 				Text("Connectivity")
 			} footer: {
@@ -297,10 +319,13 @@ struct AdvancedSettingsView: View {
 							try? appState.client.setGlobalAnnounceEnabled(nv)
 						}))
 
-				NavigationLink(
-					destination:
+				// Global announce addresses popup sheet
+				Button("Global announce servers...", systemImage: "megaphone.fill") {
+					showDiscoveryAddresses = true
+				}
+				.sheet(isPresented: $showDiscoveryAddresses) {
+					NavigationStack {
 						AddressesView(
-
 							addresses: Binding(
 								get: {
 									return self.appState.client
@@ -314,9 +339,24 @@ struct AdvancedSettingsView: View {
 								.asArray() ?? [], addressType: .discovery
 						)
 						.navigationTitle("Global announce servers")
-				) {
-					Label("Global announce servers", systemImage: "megaphone.fill")
-				}.disabled(!appState.client.isGlobalAnnounceEnabled())
+						#if os(iOS)
+							.navigationBarTitleDisplayMode(.inline)
+						#endif
+						.toolbar(content: {
+							ToolbarItem(
+								placement: .confirmationAction,
+								content: {
+									Button("Done") {
+										showDiscoveryAddresses = false
+									}
+								})
+						})
+					}
+				}
+				.disabled(!appState.client.isGlobalAnnounceEnabled())
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
 			}
 
 			Section("Network traversal") {
@@ -350,26 +390,41 @@ struct AdvancedSettingsView: View {
 							try? appState.client.setSTUNEnabled(nv)
 						}))
 
-				NavigationLink(
-					destination:
+				// STUN server addresses popup sheet
+				Button("STUN Servers...", systemImage: "arrow.trianglehead.swap") {
+					showSTUNAddresses = true
+				}
+				.sheet(isPresented: $showSTUNAddresses) {
+					NavigationStack {
 						AddressesView(
-
 							addresses: Binding(
 								get: {
-									return self.appState.client.stunAddresses()?
-										.asArray() ?? []
+									return self.appState.client.stunAddresses()?.asArray() ?? []
 								},
 								set: { nv in
-									try! self.appState.client.setStunAddresses(
-										SushitrainListOfStrings.from(nv))
+									try! self.appState.client.setStunAddresses(SushitrainListOfStrings.from(nv))
 								}),
-							editingAddresses: self.appState.client.stunAddresses()?
-								.asArray() ?? [], addressType: .stun
+							editingAddresses: self.appState.client.stunAddresses()?.asArray() ?? [], addressType: .stun
 						)
 						.navigationTitle("STUN servers")
-				) {
-					Label("STUN servers", systemImage: "arrow.trianglehead.swap")
-				}.disabled(!appState.client.isNATEnabled())
+						#if os(iOS)
+							.navigationBarTitleDisplayMode(.inline)
+						#endif
+						.toolbar(content: {
+							ToolbarItem(
+								placement: .confirmationAction,
+								content: {
+									Button("Done") {
+										showSTUNAddresses = false
+									}
+								})
+						})
+					}
+				}
+				.disabled(!appState.client.isNATEnabled())
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
 			}
 
 			Section {
@@ -456,12 +511,26 @@ struct AdvancedSettingsView: View {
 
 			#if os(macOS)
 				Section {
-					NavigationLink(destination: ConfigurationSettingsView()) {
-						Text("Configuration settings")
+					Button("Configuration settings") {
+						self.showConfigurationSettings = true
 					}
-				}
+				}.buttonStyle(.link)
 			#endif
 		}
+		#if os(macOS)
+			.sheet(isPresented: $showConfigurationSettings) {
+				ConfigurationSettingsView()
+					.toolbar(content: {
+						ToolbarItem(
+							placement: .confirmationAction,
+							content: {
+								Button("Close") {
+									showConfigurationSettings = false
+								}
+							})
+					})
+			}
+		#endif
 		.task {
 			do {
 				self.diskCacheSizeBytes = try await ImageCache.shared.diskCacheSizeBytes()
