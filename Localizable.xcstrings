@@ -10741,7 +10741,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Abhöradressen"
+            "value" : "Adressen für das Synchronisierungsprotokoll"
           }
         },
         "es" : {
@@ -10775,7 +10775,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Höradressen..."
+            "value" : "Adressen für das Synchronisierungsprotokoll..."
           }
         },
         "es" : {
@@ -10911,7 +10911,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Das Protokollieren verlangsamt die App und verbraucht mehr Akku. Aktivieren Sie es nur, wenn Sie Probleme haben."
+            "value" : "Das erweiterte Logging verlangsamt die App und verbraucht mehr Akku. Aktivieren Sie es nur, wenn Sie Probleme haben."
           }
         },
         "es" : {
@@ -11081,7 +11081,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Netzwerkdurchlauf"
+            "value" : "NAT-Durchdringung"
           }
         },
         "es" : {
@@ -11319,7 +11319,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keine Ausschlussmuster definiert"
+            "value" : "Keine Ignoriermuster definiert"
           }
         },
         "es" : {
@@ -11591,7 +11591,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rufen Sie die Quellcode-Modifikationen ab"
+            "value" : "Quellcode-Modifikationen abrufen"
           }
         },
         "es" : {
@@ -11863,7 +11863,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nur Dateien, die Sie auswählen, werden auf dieses Gerät kopiert. Sie können jedoch weiterhin alle Dateien im Ordner auf Abruf zugreifen, wenn Sie mit anderen Geräten verbunden sind, die eine Kopie der Datei haben."
+            "value" : "Nur Dateien, die Sie auswählen, werden auf dieses Gerät kopiert. Sie können jedoch weiterhin auf alle Dateien im Ordner zugreifen, wenn Sie mit anderen Geräten verbunden sind, die eine Kopie der Datei haben."
           }
         },
         "es" : {
@@ -12441,7 +12441,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fotos aus dem ausgewählten Album werden im ausgewählten Ordner gespeichert, in Unterordnern nach Erstellungsdatum sortiert. Wenn ein Foto mit demselben Dateinamen bereits im Ordner existiert oder zuvor aus dem Ordner gelöscht wurde, wird es nicht erneut gespeichert."
+            "value" : "Fotos aus dem ausgewählten Album werden im ausgewählten Ordner gespeichert und in Unterordnern nach Erstellungsdatum sortiert. Wenn ein Foto mit demselben Dateinamen bereits im Ordner existiert oder zuvor aus dem Ordner gelöscht wurde, wird es nicht erneut gespeichert."
           }
         },
         "es" : {
@@ -12509,7 +12509,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fotos werden nur entfernt, wenn die Fotosynchronisation manuell aus der App gestartet wird, da ein Berechtigungsbildschirm angezeigt wird, bevor die App Fotos entfernen kann."
+            "value" : "Fotos werden nur entfernt, wenn die Fotosynchronisation manuell in der App gestartet wird, da eine separate Berechtigung erteilt werden muss, bevor die App Fotos entfernen kann."
           }
         },
         "es" : {
@@ -12645,7 +12645,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vorbereitung auf die Synchronisierung..."
+            "value" : "Vorbereitung der Synchronisierung..."
           }
         },
         "es" : {
@@ -12679,7 +12679,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dateien bei Tippen anzeigen"
+            "value" : "Dateiinhalt beim antippen anzeigen"
           }
         },
         "es" : {
@@ -13121,7 +13121,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aktuelle Änderungen"
+            "value" : "Kürzliche Änderungen"
           }
         },
         "es" : {
@@ -13189,7 +13189,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Weiterleitung"
+            "value" : "Relay"
           }
         },
         "es" : {
@@ -13257,7 +13257,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Relaispool"
+            "value" : "Relay pool"
           }
         },
         "es" : {
@@ -13529,7 +13529,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gespeicherte Fotos aus der Quelle entfernen"
+            "value" : "Gespeicherte Fotos von der Quelle entfernen"
           }
         },
         "es" : {
@@ -14039,7 +14039,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Überprüfen Sie Berechtigungen in der Einstellungs-App"
+            "value" : "Überprüfen Sie die Berechtigungen in der Einstellungs-App"
           }
         },
         "es" : {
@@ -15535,7 +15535,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Datei freigeben"
+            "value" : "Datei teilen"
           }
         },
         "es" : {
@@ -15569,7 +15569,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ordner '%@' freigeben"
+            "value" : "Ordner '%@' teilen"
           }
         },
         "es" : {
