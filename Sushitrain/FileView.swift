@@ -179,41 +179,41 @@ struct FileView: View {
 					// Image preview
 					if file.canThumbnail && !showFullScreenViewer {
 						Section {
-							ThumbnailView(file: file, showFileName: false, showErrorMessages: true).id(file.id).padding(
-								.all, 10
-							)
-							// Fixes issue where image is still tappable outside its rectangle
-							.contentShape(Rectangle().inset(by: 10))
-							.cornerRadius(8.0)
-							.onTapGesture {
-								#if os(macOS)
-									// On macOS prefer local QuickLook
-									if file.isLocallyPresent() {
-										localItemURL = URL(fileURLWithPath: localPath!)
-									}
-									else if file.isVideo || file.isImage {
-										#if os(macOS)
-											// Cmd-click to open preview window directory
-											if NSEvent.modifierFlags.contains(.command) {
-												openWindow(id: "preview", value: Preview(folderID: file.folder!.folderID, path: file.path()))
-											}
-											else {
+							ThumbnailView(file: file, appState: appState, showFileName: false, showErrorMessages: true)
+								.id(file.id)
+								.padding(.all, 10)
+								// Fixes issue where image is still tappable outside its rectangle
+								.contentShape(Rectangle().inset(by: 10))
+								.cornerRadius(8.0)
+								.onTapGesture {
+									#if os(macOS)
+										// On macOS prefer local QuickLook
+										if file.isLocallyPresent() {
+											localItemURL = URL(fileURLWithPath: localPath!)
+										}
+										else if file.isVideo || file.isImage {
+											#if os(macOS)
+												// Cmd-click to open preview window directory
+												if NSEvent.modifierFlags.contains(.command) {
+													openWindow(id: "preview", value: Preview(folderID: file.folder!.folderID, path: file.path()))
+												}
+												else {
+													showFullScreenViewer = true
+												}
+											#else
 												showFullScreenViewer = true
-											}
-										#else
+											#endif
+										}
+									#elseif os(iOS)
+										// On iOS prefer streaming view over QuickLook
+										if file.isVideo || file.isImage {
 											showFullScreenViewer = true
-										#endif
-									}
-								#elseif os(iOS)
-									// On iOS prefer streaming view over QuickLook
-									if file.isVideo || file.isImage {
-										showFullScreenViewer = true
-									}
-									else if file.isLocallyPresent() {
-										localItemURL = URL(fileURLWithPath: localPath!)
-									}
-								#endif
-							}
+										}
+										else if file.isLocallyPresent() {
+											localItemURL = URL(fileURLWithPath: localPath!)
+										}
+									#endif
+								}
 						}
 					}
 

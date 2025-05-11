@@ -420,14 +420,11 @@ private struct EntryNameView: View {
 		if self.showThumbnail && !self.entry.isDirectory() {
 			// Thubmnail view shows thumbnail image next to the file name
 			HStack(alignment: .center, spacing: 9.0) {
-				ThumbnailView(
-					file: entry, showFileName: false,
-					showErrorMessages: false
-				)
-				.frame(width: 60, height: 40)
-				.cornerRadius(6.0)
-				.id(entry.id)
-				.help(entry.fileName())
+				ThumbnailView(file: entry, appState: appState, showFileName: false, showErrorMessages: false)
+					.frame(width: 60, height: 40)
+					.cornerRadius(6.0)
+					.id(entry.id)
+					.help(entry.fileName())
 
 				// The entry name (grey when not locally present)
 				Text(entry.fileName())
