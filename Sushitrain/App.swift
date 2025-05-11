@@ -241,7 +241,7 @@ struct SushitrainApp: App {
 					#endif
 					.environmentObject(appState)
 			case .error(let e):
-				ContentUnavailableView("Cannot start the app", image: "exclamationmark.triangle.fill", description: Text(e))
+				ContentUnavailableView("Cannot start the app", systemImage: "exclamationmark.triangle.fill", description: Text(e))
 			}
 		}
 		#if os(macOS)
