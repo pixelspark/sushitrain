@@ -195,6 +195,7 @@ struct FileEntryLink<Content: View>: View {
 
 	@State private var quickLookURL: URL? = nil
 	@State private var showPreviewSheet: Bool = false
+	@State private var canPreview: Bool = false
 
 	#if os(macOS)
 		@Environment(\.openWindow) private var openWindow
@@ -216,7 +217,7 @@ struct FileEntryLink<Content: View>: View {
 
 	private var inner: some View {
 		Group {
-			if honorTapToPreview && appState.tapFileToPreview && entry.canPreview {
+			if canPreview && honorTapToPreview && appState.tapFileToPreview {
 				Button(action: { self.previewFile() }) { self.content() }
 					#if os(macOS)
 						.buttonStyle(.link)
@@ -264,7 +265,7 @@ struct FileEntryLink<Content: View>: View {
 			#endif
 
 			if !appState.tapFileToPreview {
-				Button("Show preview", systemImage: "doc.text.magnifyingglass") { self.previewFile() }.disabled(!entry.canPreview)
+				Button("Show preview", systemImage: "doc.text.magnifyingglass") { self.previewFile() }.disabled(!canPreview)
 			}
 
 			// Show file in Finder
@@ -313,6 +314,9 @@ struct FileEntryLink<Content: View>: View {
 					).id(entry.id)
 				}
 			}
+		}
+		.task {
+			self.canPreview = entry.canPreview
 		}
 	}
 
