@@ -85,7 +85,7 @@ const (
 
 func NewClient(configPath string, filesPath string, saveLog bool) (*Client, error) {
 	// Set version info
-	build.Version = "v1.29.5"
+	build.Version = "v1.29.6"
 	build.Host = "t-shaped.nl"
 	build.User = "sushitrain"
 
@@ -572,7 +572,6 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 		conf.Options.CRURL = ""                              // No crash reporting for now
 		conf.Options.URURL = ""                              // No usage reporting for now
 		conf.Options.ReleasesURL = ""                        // Disable auto update, we can't do so on iOS anyway
-		conf.Options.InsecureAllowOldTLSVersions = false     // Never allow insecure TLS
 		conf.Defaults.Folder.IgnorePerms = true              // iOS doesn't expose permissions to users
 		conf.Defaults.Folder.RescanIntervalS = 3600          // Force default rescan interval
 		conf.Options.RelayReconnectIntervalM = 1             // Set this to one minute (from the default 10) because on mobile networks this is more often necessary
