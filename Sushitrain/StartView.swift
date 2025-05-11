@@ -27,8 +27,8 @@ import SwiftUI
 						VStack(alignment: .leading, spacing: 10) {
 							OverallStatusView().frame(maxWidth: .infinity)
 
-							if appState.photoSync.isSynchronizing {
-								PhotoSyncProgressView(photoSync: appState.photoSync)
+							if appState.photoBackup.isSynchronizing {
+								PhotoBackupProgressView(photoBackup: appState.photoBackup)
 							}
 
 							Text(
@@ -136,7 +136,7 @@ private struct OverallDownloadProgressView: View {
 			self.updateProgress()
 		}
 	}
-	
+
 	@ViewBuilder private var speeds: some View {
 		// Download speed
 		if let (date, progress) = progress, let (lastDate, lastProgress) = self.lastProgress, showSpeeds {
@@ -145,13 +145,14 @@ private struct OverallDownloadProgressView: View {
 				let diffTime = date.timeIntervalSince(lastDate)
 				let speed = Int64(Double(diffBytes) / Double(diffTime))
 				let formatter = ByteCountFormatter()
-				
+
 				if speed > 0 && diffTime > 0 {
 					Spacer()
 					Text("\(formatter.string(fromByteCount: speed))/s")
 						.foregroundStyle(.green)
-					
-					let secondsToGo = Duration(secondsComponent: (progress.bytesTotal - progress.bytesDone) / speed, attosecondsComponent: 0)
+
+					let secondsToGo = Duration(
+						secondsComponent: (progress.bytesTotal - progress.bytesDone) / speed, attosecondsComponent: 0)
 					let secondsToGoFormatted: String = secondsToGo.formatted(.time(pattern: .hourMinuteSecond(padHourToLength: 0)))
 					Text(secondsToGoFormatted).foregroundStyle(.green)
 				}
@@ -347,9 +348,9 @@ struct StartView: View {
 				}.disabled(appState.lastChanges.isEmpty)
 			}
 
-			if appState.photoSync.isReady {
+			if appState.photoBackup.isReady {
 				Section {
-					PhotoSyncButton(photoSync: appState.photoSync)
+					PhotoBackupButton(photoBackup: appState.photoBackup)
 				}
 			}
 

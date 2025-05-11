@@ -8,12 +8,12 @@
 import UniformTypeIdentifiers
 
 struct SynchronizePhotosIntent: AppIntent {
-	static let title: LocalizedStringResource = "Copy new photos"
+	static let title: LocalizedStringResource = "Back-up new photos"
 
 	@Dependency private var appState: AppState
 
 	func perform() async throws -> some IntentResult {
-		await appState.photoSync.synchronize(appState: appState, fullExport: false, isInBackground: true)
+		await appState.photoBackup.synchronize(appState: appState, fullExport: false, isInBackground: true)
 		return .result()
 	}
 }
@@ -661,8 +661,8 @@ struct AppShortcuts: AppShortcutsProvider {
 		return [
 			AppShortcut(
 				intent: SynchronizePhotosIntent(),
-				phrases: ["Copy new photos using ${applicationName}"],
-				shortTitle: "Copy new photos",
+				phrases: ["Back-up new photos using ${applicationName}"],
+				shortTitle: "Back-up new photos",
 				systemImageName: "photo.badge.arrow.down.fill"
 			),
 			AppShortcut(

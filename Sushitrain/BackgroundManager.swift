@@ -82,12 +82,12 @@ import BackgroundTasks
 			Log.info("Rescheduling watchdog")
 			await self.rescheduleWatchdogNotification()
 
-			// Start photo synchronization if the user has enabled it
-			var photoSyncTask: Task<(), Error>? = nil
-			if self.appState.photoSync.enableBackgroundCopy {
-				Log.info("Start photo sync task")
-				self.appState.photoSync.synchronize(appState: self.appState, fullExport: false, isInBackground: true)
-				photoSyncTask = self.appState.photoSync.syncTask
+			// Start photo back-up if the user has enabled it
+			var photoBackupTask: Task<(), Error>? = nil
+			if self.appState.photoBackup.enableBackgroundCopy {
+				Log.info("Start photo backup task")
+				self.appState.photoBackup.synchronize(appState: self.appState, fullExport: false, isInBackground: true)
+				photoBackupTask = self.appState.photoBackup.syncTask
 			}
 
 			// Start background sync on long and short sync task
@@ -120,45 +120,45 @@ import BackgroundTasks
 				}
 			}
 			else {
-				// We're just doing some photo syncing this time
+				// We're just doing some photo backupping this time
 				if task.identifier == Self.longBackgroundSyncID {
-					// When background task expires, end photo sync
+					// When background task expires, end photo back-up
 					task.expirationHandler = {
 						Log.warn(
-							"Photo sync task expiry with \(UIApplication.shared.backgroundTimeRemaining) remaining."
+							"Photo backup task expiry with \(UIApplication.shared.backgroundTimeRemaining) remaining."
 						)
-						self.appState.photoSync.cancel()
+						self.appState.photoBackup.cancel()
 					}
 
 					expireTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { t in
 						DispatchQueue.main.async {
 							let remaining = UIApplication.shared.backgroundTimeRemaining
 							Log.info(
-								"Check background time remaining (photo sync): \(remaining)"
+								"Check background time remaining (photo backup): \(remaining)"
 							)
 
 							// iOS seems to start expiring us at 5 seconds before the end
 							if remaining <= Self.backgroundTimeReserve {
 								Log.info(
-									"End of our background stint is nearing (photo sync)"
+									"End of our background stint is nearing (photo backup)"
 								)
-								self.appState.photoSync.cancel()
+								self.appState.photoBackup.cancel()
 							}
 						}
 					}
 
-					// Wait for photo sync to finish
-					try? await photoSyncTask?.value
-					Log.info("Photo sync ended gracefully")
+					// Wait for photo backup to finish
+					try? await photoBackupTask?.value
+					Log.info("Photo backup ended gracefully")
 					task.setTaskCompleted(success: true)
 					self.expireTimer?.invalidate()
 					self.expireTimer = nil
 					self.currentBackgroundTask = nil
-					Log.info("Photo sync task ended gracefully")
+					Log.info("Photo backup task ended gracefully")
 				}
 				else {
-					// Do not do any photo sync on short background refresh
-					Log.info("Photo sync not started on short background refresh")
+					// Do not do any photo backup on short background refresh
+					Log.info("Photo backup not started on short background refresh")
 					task.setTaskCompleted(success: true)
 					self.currentBackgroundTask = nil
 				}
@@ -177,7 +177,7 @@ import BackgroundTasks
 				run.ended = Date.now
 
 				Log.info("Background sync stopped at \(run.ended!.debugDescription)")
-				self.appState.photoSync.cancel()
+				self.appState.photoBackup.cancel()
 
 				Log.info("Suspending peers")
 				self.appState.suspend(true)

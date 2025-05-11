@@ -2836,6 +2836,40 @@
         }
       }
     },
+    "Back-up new photos" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neue Fotos sichern"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hacer copia de seguridad de nuevas fotos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup nuove foto"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back-up nieuwe foto's"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Резервне копіювання нових фото"
+          }
+        }
+      }
+    },
     "Background synchronization" : {
       "localizations" : {
         "de" : {
@@ -4362,40 +4396,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Скопіювати зовнішнє посилання"
-          }
-        }
-      }
-    },
-    "Copy new photos" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Neue Fotos kopieren"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Copiar nuevas fotos"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Copia nuove foto"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nieuwe foto's kopiëren"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Копіювати нові фото"
           }
         }
       }
@@ -12368,36 +12368,36 @@
         }
       }
     },
-    "Photo synchronization" : {
+    "Photo back-up" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fotosynchronisation"
+            "value" : "Foto-Backup"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sincronización de fotos"
+            "value" : "Copia de seguridad de fotos"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sincronizzazione foto"
+            "value" : "Backup foto"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fotosynchronisatie"
+            "value" : "Foto-back-up"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Синхронізація фото"
+            "value" : "Резервне копіювання фото"
           }
         }
       }
@@ -12504,36 +12504,36 @@
         }
       }
     },
-    "Photos will only be removed when photo synchronization is started manually from inside the app, because a permission screen will be shown before the app is able to remove photos." : {
+    "Photos will only be removed when photo back-up is started manually from inside the app, because a permission screen will be shown before the app is able to remove photos." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fotos werden nur entfernt, wenn die Fotosynchronisation manuell aus der App gestartet wird, da ein Berechtigungsbildschirm angezeigt wird, bevor die App Fotos entfernen kann."
+            "value" : "Fotos werden nur entfernt, wenn das Foto-Backup manuell aus der App gestartet wird, da ein Berechtigungsbildschirm angezeigt wird, bevor die App Fotos entfernen kann."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Las fotos solo se eliminarán cuando la sincronización de fotos se inicie manualmente desde dentro de la aplicación, porque se mostrará una pantalla de permisos antes de que la aplicación pueda eliminar fotos."
+            "value" : "Las fotos solo se eliminarán cuando la copia de seguridad de fotos se inicie manualmente desde dentro de la aplicación, porque se mostrará una pantalla de permisos antes de que la aplicación pueda eliminar fotos."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Le foto verranno rimosse solo quando la sincronizzazione delle foto verrà avviata manualmente dall'interno dell'app, poiché verrà mostrata una schermata di autorizzazione prima che l'app possa rimuovere le foto."
+            "value" : "Le foto verranno rimosse solo quando il backup foto viene avviato manualmente dall'interno dell'app, poiché verrà mostrata una schermata di autorizzazione prima che l'app possa rimuovere le foto."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Foto's worden alleen verwijderd wanneer de fotosynchronisatie handmatig vanuit de app wordt gestart, omdat er een toestemmingsscherm wordt getoond voordat de app foto's kan verwijderen."
+            "value" : "Foto's worden alleen verwijderd wanneer de foto-back-up handmatig vanuit de app wordt gestart, omdat er een toestemmingsscherm wordt getoond voordat de app foto's kan verwijderen."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Фотографії будуть видалені лише тоді, коли синхронізацію фотографій буде запущено вручну в програмі, оскільки перед видаленням фотографій програма покаже екран дозволів."
+            "value" : "Фотографії будуть видалені лише тоді, коли резервне копіювання фотографій буде розпочато вручну зсередини додатка, оскільки перед тим, як додаток зможе видалити фотографії, буде показано екран дозволу."
           }
         }
       }
@@ -16687,41 +16687,6 @@
       }
     },
     "STUN servers" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "STUN-Server"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Servidores STUN"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Server STUN"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "STUN-servers"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "STUN-сервери"
-          }
-        }
-      }
-    },
-    "STUN Servers" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

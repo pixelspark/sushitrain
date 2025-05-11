@@ -14,7 +14,7 @@ enum PhotoSyncCategories: String, Codable {
 	case video = "video"
 }
 
-enum PhotoSyncFolderStructure: String, Codable {
+enum PhotoBackupFolderStructure: String, Codable {
 	case byType = "byType"
 	case byDate = "byDate"
 	case byDateAndType = "byDateAndType"
@@ -115,7 +115,8 @@ enum PhotoSyncProgress {
 }
 
 @MainActor
-class PhotoSynchronisation: ObservableObject {
+class PhotoBackup: ObservableObject {
+	// These settings are prefixed 'photoSync' because that is what the feature used to be called
 	@AppStorage("photoSyncSelectedAlbumID") var selectedAlbumID: String = ""
 	@AppStorage("photoSyncFolderID") var selectedFolderID: String = ""
 
@@ -127,7 +128,7 @@ class PhotoSynchronisation: ObservableObject {
 	@AppStorage("photoSyncCategories") var categories: Set<PhotoSyncCategories> = Set([.photo, .video, .livePhoto])
 	@AppStorage("photoSyncPurgeEnabled") var purgeEnabled = false
 	@AppStorage("photoSyncPurgeAfterDays") var purgeAfterDays = 7
-	@AppStorage("photoSyncFolderStructure") var folderStructure = PhotoSyncFolderStructure.byDateAndType
+	@AppStorage("PhotoBackupFolderStructure") var folderStructure = PhotoBackupFolderStructure.byDateAndType
 	@AppStorage("photoSyncSubdirectoryPath") var subDirectoryPath = ""
 
 	@Published var isSynchronizing = false
@@ -214,7 +215,7 @@ class PhotoSynchronisation: ObservableObject {
 			// Let iOS know we are about to do some background stuff
 			#if os(iOS)
 				let bgIdentifier = await UIApplication.shared.beginBackgroundTask(
-					withName: "Photo synchronization",
+					withName: "Photo back-up",
 					expirationHandler: {
 						Log.info("Cancelling background task due to expiration")
 						self.cancel()
@@ -662,7 +663,7 @@ class PhotoSynchronisation: ObservableObject {
 			DispatchQueue.main.async {
 				self.progress = .finished(error: nil)
 			}
-			Log.info("Photo synchronization done")
+			Log.info("Photo back-up done")
 
 			#if os(iOS)
 				Log.info(
@@ -704,7 +705,7 @@ extension PHAsset {
 		return result.originalFilename.replacingOccurrences(of: "/", with: "_")
 	}
 
-	fileprivate func directoryPathInFolder(structure: PhotoSyncFolderStructure, subdirectoryPath: String) -> String {
+	fileprivate func directoryPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: String) -> String {
 		var inFolderURL = URL(fileURLWithPath: subdirectoryPath)
 
 		switch structure {
@@ -731,7 +732,7 @@ extension PHAsset {
 		return inFolderURL.path(percentEncoded: false)
 	}
 
-	fileprivate func livePhotoDirectoryPathInFolder(structure: PhotoSyncFolderStructure, subdirectoryPath: String)
+	fileprivate func livePhotoDirectoryPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: String)
 		-> String
 	{
 		var url = URL(
@@ -746,7 +747,7 @@ extension PHAsset {
 		return url.path(percentEncoded: false)
 	}
 
-	fileprivate func livePhotoPathInFolder(structure: PhotoSyncFolderStructure, subdirectoryPath: String) -> String {
+	fileprivate func livePhotoPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: String) -> String {
 		let fileName = self.fileNameInFolder(structure: structure) + ".MOV"
 		let url = URL(
 			fileURLWithPath: self.livePhotoDirectoryPathInFolder(
@@ -755,7 +756,7 @@ extension PHAsset {
 		return url.path(percentEncoded: false)
 	}
 
-	fileprivate func fileNameInFolder(structure: PhotoSyncFolderStructure) -> String {
+	fileprivate func fileNameInFolder(structure: PhotoBackupFolderStructure) -> String {
 		switch structure {
 		case .byDate, .byDateAndType, .singleFolder, .byType:
 			return self.originalFilename
@@ -771,7 +772,7 @@ extension PHAsset {
 		}
 	}
 
-	fileprivate func pathInFolder(structure: PhotoSyncFolderStructure, subdirectoryPath: String) -> String {
+	fileprivate func pathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: String) -> String {
 		let url = URL(
 			fileURLWithPath: self.directoryPathInFolder(
 				structure: structure, subdirectoryPath: subdirectoryPath)

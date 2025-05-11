@@ -8,11 +8,11 @@ import SwiftUI
 import SushitrainCore
 import Photos
 
-struct PhotoSyncProgressView: View {
-	@ObservedObject var photoSync: PhotoSynchronisation
+struct PhotoBackupProgressView: View {
+	@ObservedObject var photoBackup: PhotoBackup
 
 	var body: some View {
-		let progress = photoSync.progress
+		let progress = photoBackup.progress
 		ProgressView(value: progress.stepProgress, total: 1.0) {
 			Label(progress.localizedDescription, systemImage: "photo.badge.arrow.down.fill")
 				.foregroundStyle(.orange)
@@ -21,33 +21,33 @@ struct PhotoSyncProgressView: View {
 	}
 }
 
-struct PhotoSyncButton: View {
+struct PhotoBackupButton: View {
 	@EnvironmentObject var appState: AppState
-	@ObservedObject var photoSync: PhotoSynchronisation
+	@ObservedObject var photoBackup: PhotoBackup
 
 	var body: some View {
-		if case .finished(error: let e) = photoSync.progress, let e = e {
+		if case .finished(error: let e) = photoBackup.progress, let e = e {
 			Text(e).foregroundStyle(.red)
 		}
 
-		if photoSync.isSynchronizing {
-			PhotoSyncProgressView(photoSync: photoSync)
+		if photoBackup.isSynchronizing {
+			PhotoBackupProgressView(photoBackup: photoBackup)
 
 			Button("Cancel") {
-				photoSync.cancel()
+				photoBackup.cancel()
 			}
 			#if os(macOS)
 				.buttonStyle(.link)
 			#endif
 		}
 		else {
-			Button("Copy new photos", systemImage: "photo.badge.arrow.down.fill") {
-				photoSync.synchronize(appState: self.appState, fullExport: false, isInBackground: false)
+			Button("Back-up new photos", systemImage: "photo.badge.arrow.down.fill") {
+				photoBackup.synchronize(appState: self.appState, fullExport: false, isInBackground: false)
 			}
 			#if os(macOS)
 				.buttonStyle(.link)
 			#endif
-			.disabled(photoSync.isSynchronizing || !photoSync.isReady)
+			.disabled(photoBackup.isSynchronizing || !photoBackup.isReady)
 		}
 	}
 }
@@ -56,7 +56,7 @@ struct PhotoSettingsView: View {
 	@EnvironmentObject var appState: AppState
 	@State private var authorizationStatus: PHAuthorizationStatus = .notDetermined
 	@State private var albumPickerShown = false
-	@ObservedObject var photoSync: PhotoSynchronisation
+	@ObservedObject var photoBackup: PhotoBackup
 
 	var body: some View {
 		let albums = self.authorizationStatus == .authorized ? self.loadAlbums() : []
@@ -64,14 +64,14 @@ struct PhotoSettingsView: View {
 		Form {
 			Section {
 				if authorizationStatus == .authorized {
-					Picker("From album", selection: $photoSync.selectedAlbumID) {
+					Picker("From album", selection: $photoBackup.selectedAlbumID) {
 						Text("None").tag("")
 						ForEach(albums, id: \.localIdentifier) { album in
 							Text(album.localizedTitle ?? "Unknown album").tag(
 								album.localIdentifier)
 						}
 					}
-					.pickerStyle(.menu).disabled(photoSync.isSynchronizing)
+					.pickerStyle(.menu).disabled(photoBackup.isSynchronizing)
 				}
 				else if authorizationStatus == .denied || authorizationStatus == .restricted {
 					Text("Synctrain cannot access your photo library right now")
@@ -93,19 +93,19 @@ struct PhotoSettingsView: View {
 				}
 
 				if authorizationStatus == .authorized {
-					Picker("To folder", selection: $photoSync.selectedFolderID) {
+					Picker("To folder", selection: $photoBackup.selectedFolderID) {
 						Text("(No folder selected)").tag("")
 						ForEach(appState.folders().sorted(), id: \.self.folderID) { option in
 							Text(option.displayName).tag(option.folderID)
 						}
 					}
 					.pickerStyle(.menu).disabled(
-						photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
+						photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
 				}
 			} header: {
 				Text("Copy photos")
 			} footer: {
-				if photoSync.isReady {
+				if photoBackup.isReady {
 					Text(
 						"Photos from the selected album will be saved in the selected folder, in sub folders by creation date. If a photo with the same file name already exists in the folder, or has been deleted from the folder before, it will not be saved again."
 					)
@@ -116,8 +116,8 @@ struct PhotoSettingsView: View {
 				Section {
 					Toggle(
 						"Copy photos periodically in the background",
-						isOn: photoSync.$enableBackgroundCopy
-					).disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
+						isOn: photoBackup.$enableBackgroundCopy
+					).disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
 				}
 			#endif
 
@@ -125,32 +125,32 @@ struct PhotoSettingsView: View {
 				Toggle(
 					"Photos",
 					isOn: Binding(
-						get: { photoSync.categories.contains(.photo) },
+						get: { photoBackup.categories.contains(.photo) },
 						set: { s in
-							photoSync.categories.toggle(.photo, s)
+							photoBackup.categories.toggle(.photo, s)
 						})
-				).disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
+				).disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
 				Toggle(
 					"Live photos",
 					isOn: Binding(
-						get: { photoSync.categories.contains(.livePhoto) },
+						get: { photoBackup.categories.contains(.livePhoto) },
 						set: { s in
-							photoSync.categories.toggle(.livePhoto, s)
+							photoBackup.categories.toggle(.livePhoto, s)
 						})
-				).disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
+				).disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
 				Toggle(
 					"Videos",
 					isOn: Binding(
-						get: { photoSync.categories.contains(.video) },
+						get: { photoBackup.categories.contains(.video) },
 						set: { s in
-							photoSync.categories.toggle(.video, s)
+							photoBackup.categories.toggle(.video, s)
 						})
-				).disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
+				).disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
 			}
 
 			Section {
 				LabeledContent {
-					TextField("", text: photoSync.$subDirectoryPath, prompt: Text("(Top level)"))
+					TextField("", text: photoBackup.$subDirectoryPath, prompt: Text("(Top level)"))
 						.multilineTextAlignment(.trailing)
 						#if os(iOS)
 							.keyboardType(.asciiCapable)
@@ -160,17 +160,17 @@ struct PhotoSettingsView: View {
 				} label: {
 					Text("Path in folder")
 				}
-				Picker("Folder structure", selection: $photoSync.folderStructure) {
-					Text("By date").tag(PhotoSyncFolderStructure.byDate)
-					Text("By type").tag(PhotoSyncFolderStructure.byType)
-					Text("By date and type").tag(PhotoSyncFolderStructure.byDateAndType)
-					Text("Single folder").tag(PhotoSyncFolderStructure.singleFolder)
+				Picker("Folder structure", selection: $photoBackup.folderStructure) {
+					Text("By date").tag(PhotoBackupFolderStructure.byDate)
+					Text("By type").tag(PhotoBackupFolderStructure.byType)
+					Text("By date and type").tag(PhotoBackupFolderStructure.byDateAndType)
+					Text("Single folder").tag(PhotoBackupFolderStructure.singleFolder)
 					Text("Single folder with dates").tag(
-						PhotoSyncFolderStructure.singleFolderDatePrefixed)
+						PhotoBackupFolderStructure.singleFolderDatePrefixed)
 				}
-				.pickerStyle(.menu).disabled(photoSync.isSynchronizing)
+				.pickerStyle(.menu).disabled(photoBackup.isSynchronizing)
 				Text("Example file location in folder: ")
-					+ Text("\(photoSync.subDirectoryPath)/\(photoSync.folderStructure.examplePath)")
+					+ Text("\(photoBackup.subDirectoryPath)/\(photoBackup.folderStructure.examplePath)")
 					.monospaced()
 			} footer: {
 				Text(
@@ -179,7 +179,7 @@ struct PhotoSettingsView: View {
 			}
 
 			Section {
-				Picker("Add to album", selection: $photoSync.savedAlbumID) {
+				Picker("Add to album", selection: $photoBackup.savedAlbumID) {
 					Text("None").tag("")
 					ForEach(albums, id: \.localIdentifier) { album in
 						Text(album.localizedTitle ?? "Unknown album").tag(album.localIdentifier)
@@ -187,12 +187,12 @@ struct PhotoSettingsView: View {
 				}
 				.pickerStyle(.menu)
 				.disabled(
-					photoSync.isSynchronizing || self.authorizationStatus != .authorized
-						|| photoSync.selectedAlbumID.isEmpty)
+					photoBackup.isSynchronizing || self.authorizationStatus != .authorized
+						|| photoBackup.selectedAlbumID.isEmpty)
 			} header: {
 				Text("After saving")
 			} footer: {
-				if photoSync.purgeEnabled && photoSync.purgeAfterDays <= 0 {
+				if photoBackup.purgeEnabled && photoBackup.purgeAfterDays <= 0 {
 					Text(
 						"Because of the setting below to immediately delete photos after saving, newly saved photos will not be added to this album."
 					)
@@ -200,34 +200,34 @@ struct PhotoSettingsView: View {
 			}
 
 			Section {
-				Toggle("Remove saved photos from source", isOn: photoSync.$purgeEnabled)
-				if photoSync.purgeEnabled {
+				Toggle("Remove saved photos from source", isOn: photoBackup.$purgeEnabled)
+				if photoBackup.purgeEnabled {
 					Stepper(
-						photoSync.purgeAfterDays <= 0
-							? "Immediately" : "After \(photoSync.purgeAfterDays) days",
-						value: photoSync.$purgeAfterDays, in: 0...30)
+						photoBackup.purgeAfterDays <= 0
+							? "Immediately" : "After \(photoBackup.purgeAfterDays) days",
+						value: photoBackup.$purgeAfterDays, in: 0...30)
 				}
 			} footer: {
 				#if os(iOS)
-					if photoSync.purgeEnabled && photoSync.enableBackgroundCopy {
+					if photoBackup.purgeEnabled && photoBackup.enableBackgroundCopy {
 						Text(
-							"Photos will only be removed when photo synchronization is started manually from inside the app, because a permission screen will be shown before the app is able to remove photos."
+							"Photos will only be removed when photo back-up is started manually from inside the app, because a permission screen will be shown before the app is able to remove photos."
 						)
 					}
 				#endif
-			}.disabled(photoSync.isSynchronizing || photoSync.selectedAlbumID.isEmpty)
+			}.disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
 
 			Section {
-				PhotoSyncButton(photoSync: photoSync)
+				PhotoBackupButton(photoBackup: photoBackup)
 			} footer: {
 				Text("Saves photos in the album that have not been copied before to the folder.")
 			}
 
 			Section {
 				Button("Re-copy all photos", systemImage: "photo.badge.arrow.down.fill") {
-					photoSync.synchronize(appState: self.appState, fullExport: true, isInBackground: false)
+					photoBackup.synchronize(appState: self.appState, fullExport: true, isInBackground: false)
 				}
-				.disabled(photoSync.isSynchronizing || !photoSync.isReady)
+				.disabled(photoBackup.isSynchronizing || !photoBackup.isReady)
 				#if os(macOS)
 					.buttonStyle(.link)
 				#endif
@@ -237,8 +237,8 @@ struct PhotoSettingsView: View {
 				)
 			}
 
-			if photoSync.lastCompletedDate > 0.0 {
-				let lastDate = Date(timeIntervalSinceReferenceDate: photoSync.lastCompletedDate)
+			if photoBackup.lastCompletedDate > 0.0 {
+				let lastDate = Date(timeIntervalSinceReferenceDate: photoBackup.lastCompletedDate)
 				Section {
 					Text("Last completed").badge(
 						lastDate.formatted(date: .abbreviated, time: .shortened))

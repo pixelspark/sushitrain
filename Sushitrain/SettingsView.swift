@@ -909,10 +909,10 @@ private struct BandwidthSettingsView: View {
 				Tab(
 					value: "photo",
 					content: {
-						PhotoSettingsView(photoSync: appState.photoSync)
+						PhotoSettingsView(photoBackup: appState.photoBackup)
 					},
 					label: {
-						Label("Photo synchronization", systemImage: "photo")
+						Label("Photo back-up", systemImage: "photo")
 					})
 
 				Tab(
@@ -1020,14 +1020,9 @@ private struct BandwidthSettingsView: View {
 						}
 					#endif
 
-					NavigationLink(
-						destination: PhotoSettingsView(
-							photoSync: appState.photoSync)
-					) {
-						Text("Photo synchronization").badge(
-							appState.photoSync.isReady
-								&& appState.photoSync.enableBackgroundCopy
-								? "On" : "Off")
+					NavigationLink(destination: PhotoSettingsView(photoBackup: appState.photoBackup)) {
+						Text("Photo back-up")
+							.badge(appState.photoBackup.isReady && appState.photoBackup.enableBackgroundCopy ? "On" : "Off")
 					}
 
 					NavigationLink("Advanced settings") {

@@ -92,7 +92,7 @@ enum FolderMetric: String {
 		".DocumentRevisions-V100", ".TemporaryItems", "$RECYCLE.BIN", "@eaDir",
 	]
 
-	var photoSync = PhotoSynchronisation()
+	var photoBackup = PhotoBackup()
 
 	var changePublisher = PassthroughSubject<Void, Never>()
 	private var changeCancellable: AnyCancellable? = nil
@@ -217,7 +217,7 @@ enum FolderMetric: String {
 	}
 
 	var isFinished: Bool {
-		return !self.client.isDownloading() && !self.client.isUploading() && !self.photoSync.isSynchronizing
+		return !self.client.isDownloading() && !self.client.isUploading() && !self.photoBackup.isSynchronizing
 	}
 
 	@MainActor

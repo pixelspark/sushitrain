@@ -37,7 +37,8 @@ struct SelectiveFolderView: View {
 									deselect: {
 										self.deselectIndexes(
 											IndexSet([itemIndex]))
-								})
+									}
+								)
 								.swipeActions(allowsFullSwipe: false) {
 									// Unselect button
 									Button(role: .destructive) {
