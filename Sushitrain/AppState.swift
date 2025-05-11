@@ -399,6 +399,9 @@ enum FolderMetric: String {
 		case .inactive:
 			Task {
 				await self.updateBadge()
+				#if os(iOS)
+					self.backgroundManager.inactivate()
+				#endif
 			}
 			#if os(iOS)
 				self.client.ignoreEvents = true
