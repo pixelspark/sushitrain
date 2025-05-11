@@ -542,6 +542,8 @@ extension PHAsset {
 		switch structure {
 		case .byDate, .byDateAndType:
 			if let creationDate = self.creationDate {
+				// FIXME: this uses the currently set local timezone. When moving between timezones, asset's creation
+				// day may be +/- one day, which leads to the asset being saved twice.
 				let dateFormatter = DateFormatter()
 				dateFormatter.dateFormat = "yyyy-MM-dd"
 				let dateString = dateFormatter.string(from: creationDate)
