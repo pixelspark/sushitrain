@@ -37,11 +37,23 @@ struct SelectiveFolderView: View {
 									deselect: {
 										self.deselectIndexes(
 											IndexSet([itemIndex]))
-									})
+								})
+								.swipeActions(allowsFullSwipe: false) {
+									// Unselect button
+									Button(role: .destructive) {
+										self.deselectIndexes(IndexSet([itemIndex]))
+									} label: {
+										Label("Do not synchronize with this device", systemImage: "pin.slash")
+									}
+								}
 							}
-						}.onDelete { pathIndexes in
-							deselectIndexes(pathIndexes)
-						}.disabled(!folder.isIdleOrSyncing)
+						}
+						.disabled(!folder.isIdleOrSyncing)
+					}
+				}
+				.refreshable {
+					Task { @MainActor in
+						await self.update()
 					}
 				}
 				#if os(macOS)
@@ -138,7 +150,9 @@ struct SelectiveFolderView: View {
 
 		.searchable(text: $searchString, prompt: "Search files by name...")
 		.task {
-			self.update()
+			Task { @MainActor in
+				await self.update()
+			}
 		}
 	}
 
@@ -177,8 +191,8 @@ struct SelectiveFolderView: View {
 					errorText = error.localizedDescription
 				}
 			}
-			DispatchQueue.main.async {
-				self.update()
+			Task { @MainActor in
+				await self.update()
 				isClearing = false
 			}
 		}
@@ -219,18 +233,21 @@ struct SelectiveFolderView: View {
 						showError = true
 					}
 				}
-				DispatchQueue.main.async {
-					self.update()
+				Task { @MainActor in
+					await self.update()
 					isClearing = false
 				}
 			}
 		}
 	}
 
-	private func update() {
+	private func update() async {
 		do {
 			self.isLoading = true
-			self.selectedPaths = try self.folder.selectedPaths(true).asArray().sorted()
+			let folder = self.folder
+			self.selectedPaths = try await Task.detached {
+				try folder.selectedPaths(true).asArray().sorted()
+			}.value
 		}
 		catch {
 			self.errorText = error.localizedDescription
@@ -265,8 +282,8 @@ struct SelectiveFolderView: View {
 		}
 		let json = try JSONEncoder().encode(verdicts)
 		try folder.setExplicitlySelectedJSON(json)
-		Task {
-			self.update()
+		Task { @MainActor in
+			await self.update()
 		}
 	}
 
