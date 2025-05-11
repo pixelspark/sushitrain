@@ -87,7 +87,7 @@ import BackgroundTasks
 			if self.appState.photoBackup.enableBackgroundCopy {
 				Log.info("Start photo backup task")
 				self.appState.photoBackup.synchronize(appState: self.appState, fullExport: false, isInBackground: true)
-				photoBackupTask = self.appState.photoBackup.syncTask
+				photoBackupTask = self.appState.photoBackup.photoBackupTask
 			}
 
 			// Start background sync on long and short sync task
