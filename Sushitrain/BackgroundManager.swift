@@ -71,10 +71,12 @@ import BackgroundTasks
 				await self.rescheduleWatchdogNotification()
 			}
 		}
-		
+
 		func inactivate() {
 			if self.currentBackgroundTask == nil {
-				Log.info("Canceling photo back-up because we are moving to the inactive state, and we were not started from a background task.")
+				Log.info(
+					"Canceling photo back-up because we are moving to the inactive state, and we were not started from a background task."
+				)
 				self.appState.photoBackup.cancel()
 			}
 		}

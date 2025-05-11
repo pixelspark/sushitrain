@@ -401,6 +401,49 @@ struct GetExtraneousFilesIntent: AppIntent {
 	}
 }
 
+struct GetNeededFilesIntent: AppIntent {
+	static let title: LocalizedStringResource = "Get files in folder needed by this device"
+
+	@Dependency private var appState: AppState
+
+	@Parameter(title: "Folder", description: "The folder to list files in")
+	var folderEntity: FolderEntity
+
+	@MainActor
+	func perform() async throws -> some ReturnsValue<[IntentFile]> {
+		let files = (try folderEntity.folder.filesNeeded()).asArray()
+		let folderPath = folderEntity.folder.localNativeURL!
+		return .result(
+			value: files.compactMap { path in
+				let fileURL = folderPath.appending(path: path)
+				return IntentFile(fileURL: fileURL)
+			})
+	}
+}
+
+struct GetRemoteNeededFilesIntent: AppIntent {
+	static let title: LocalizedStringResource = "Get files in folder needed by another device"
+
+	@Dependency private var appState: AppState
+
+	@Parameter(title: "Folder", description: "The folder to list files in")
+	var folderEntity: FolderEntity
+
+	@Parameter(title: "Device", description: "The device to list files for")
+	var deviceEntity: DeviceEntity
+
+	@MainActor
+	func perform() async throws -> some ReturnsValue<[IntentFile]> {
+		let files = (try folderEntity.folder.filesNeeded(by: deviceEntity.deviceID)).asArray()
+		let folderPath = folderEntity.folder.localNativeURL!
+		return .result(
+			value: files.compactMap { path in
+				let fileURL = folderPath.appending(path: path)
+				return IntentFile(fileURL: fileURL)
+			})
+	}
+}
+
 struct RescanIntent: AppIntent {
 	static let title: LocalizedStringResource = "Rescan folder"
 
@@ -678,46 +721,10 @@ struct AppShortcuts: AppShortcutsProvider {
 				systemImageName: "arrow.clockwise.square"
 			),
 			AppShortcut(
-				intent: ConfigureFolderIntent(),
-				phrases: ["Change ${applicationName} folder settings"],
-				shortTitle: "Configure folder",
-				systemImageName: "folder.fill.badge.gearshape"
-			),
-			AppShortcut(
-				intent: ConfigureDeviceIntent(),
-				phrases: ["Change ${applicationName} device settings"],
-				shortTitle: "Configure device",
-				systemImageName: "externaldrive.fill.badge.plus"
-			),
-			AppShortcut(
-				intent: GetFolderIntent(),
-				phrases: ["Get ${applicationName} folder directory"],
-				shortTitle: "Get folder directory",
-				systemImageName: "externaldrive.fill"
-			),
-			AppShortcut(
 				intent: SearchInAppIntent(),
 				phrases: ["Search ${applicationName} files"],
 				shortTitle: "Search for files",
 				systemImageName: "magnifyingglass"
-			),
-			AppShortcut(
-				intent: GetDeviceIDIntent(),
-				phrases: ["Get ${applicationName} device ID"],
-				shortTitle: "Get device ID",
-				systemImageName: "qrcode"
-			),
-			AppShortcut(
-				intent: GetExtraneousFilesIntent(),
-				phrases: ["List new files in ${applicationName}"],
-				shortTitle: "List new files",
-				systemImageName: "document.badge.plus.fill"
-			),
-			AppShortcut(
-				intent: DownloadFilesIntent(),
-				phrases: ["Download ${applicationName} files"],
-				shortTitle: "Download files",
-				systemImageName: "arrow.down.circle.fill"
 			),
 		]
 	}

@@ -226,14 +226,14 @@ struct FileView: View {
 										#if os(macOS)
 											.buttonStyle(.link)
 										#endif
-									
+
 									#if os(macOS)
-									
-									if let appURL = NSWorkspace.shared.urlForApplication(toOpen: URL(fileURLWithPath: localPathActual)) {
-										Button("Open with '\(appURL.lastPathComponent)'", systemImage: "app.badge") {
-											NSWorkspace.shared.open(URL(fileURLWithPath: localPathActual))
-										}.buttonStyle(.link)
-									}
+
+										if let appURL = NSWorkspace.shared.urlForApplication(toOpen: URL(fileURLWithPath: localPathActual)) {
+											Button("Open with '\(appURL.lastPathComponent)'", systemImage: "app.badge") {
+												NSWorkspace.shared.open(URL(fileURLWithPath: localPathActual))
+											}.buttonStyle(.link)
+										}
 									#endif
 
 									ShareLink("Share file", item: URL(fileURLWithPath: localPathActual))

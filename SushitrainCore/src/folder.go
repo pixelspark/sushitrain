@@ -1158,3 +1158,62 @@ func (fld *Folder) CompletionForDevice(deviceID string) (*Completion, error) {
 
 	return &ourCompletion, nil
 }
+
+func (fld *Folder) FilesNeeded() (*ListOfStrings, error) {
+	files := make([]string, 0)
+
+	page := 1
+	perPage := 512
+	for {
+		// Three different statuses are reported, throw all on a big list for now
+		progress, queued, rest, err := fld.client.app.Internals.NeedFolderFiles(fld.FolderID, page, perPage)
+		if err != nil {
+			return nil, err
+		}
+
+		batch := append(append(progress, queued...), rest...)
+
+		if len(batch) == 0 {
+			break
+		}
+
+		for _, fi := range batch {
+			files = append(files, fi.FileName())
+		}
+
+		page += 1
+	}
+
+	return List(files), nil
+}
+
+func (fld *Folder) FilesNeededBy(peer string) (*ListOfStrings, error) {
+	var devID protocol.DeviceID
+	var err error
+	if devID, err = protocol.DeviceIDFromString(peer); err != nil {
+		return nil, err
+	}
+
+	files := make([]string, 0)
+
+	page := 1
+	perPage := 512
+	for {
+		batch, err := fld.client.app.Internals.RemoteNeedFolderFiles(fld.FolderID, devID, page, perPage)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(batch) == 0 {
+			break
+		}
+
+		for _, fi := range batch {
+			files = append(files, fi.FileName())
+		}
+
+		page += 1
+	}
+
+	return List(files), nil
+}

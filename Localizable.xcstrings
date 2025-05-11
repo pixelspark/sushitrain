@@ -272,7 +272,7 @@
         },
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "%1$@ (%2$@)"
           }
         },
@@ -4027,6 +4027,7 @@
       }
     },
     "Configure device" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4095,6 +4096,7 @@
       }
     },
     "Configure folder" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -8696,6 +8698,74 @@
         }
       }
     },
+    "Get files in folder needed by another device" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien im Ordner benötigt von einem anderen Gerät abrufen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obtener archivos en la carpeta necesarios por otro dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recupera i file nella cartella richiesti da un altro dispositivo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestanden in map nodig door een ander apparaat ophalen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отримати файли у папці, які потрібні іншому пристрою"
+          }
+        }
+      }
+    },
+    "Get files in folder needed by this device" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien im Ordner abrufen, die von diesem Gerät benötigt werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obtener archivos en la carpeta necesarios para este dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recupera i file nella cartella necessari per questo dispositivo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestanden in map opvragen die door dit apparaat nodig zijn"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отримати файли у папці, які необхідні цьому пристрою"
+          }
+        }
+      }
+    },
     "Get folder directory" : {
       "localizations" : {
         "de" : {
@@ -10635,6 +10705,7 @@
       }
     },
     "List new files" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -18008,6 +18079,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Пристрій додано. Щоб забезпечити з'єднання, переконайтеся, що інший пристрій приймає цей пристрій, або додайте цей пристрій туди також."
+          }
+        }
+      }
+    },
+    "The device to list files for" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Gerät zur Dateiauflistung für"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El dispositivo para listar archivos para"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il dispositivo per elencare i file per"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het apparaat om bestanden voor te weergeven"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пристрій для відображення файлів для"
           }
         }
       }
