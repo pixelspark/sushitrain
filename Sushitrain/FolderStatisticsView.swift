@@ -7,15 +7,15 @@ import Foundation
 import SwiftUI
 import SushitrainCore
 
-fileprivate struct NeededFilesView: View {
+private struct NeededFilesView: View {
 	@EnvironmentObject var appState: AppState
 	var folder: SushitrainFolder
 	var device: SushitrainPeer?
-	
+
 	@State private var loading = false
 	@State private var files: [SushitrainEntry] = []
 	@State private var error: Error? = nil
-	
+
 	var body: some View {
 		Group {
 			if loading {
@@ -29,7 +29,9 @@ fileprivate struct NeededFilesView: View {
 				ContentUnavailableView(e.localizedDescription, systemImage: "exclamationmark.triangle.fill")
 			}
 			else if files.isEmpty {
-				ContentUnavailableView(device == nil ? "This device has all the files it wants" : "\(device!.displayName) has all the files it wants", systemImage: "checkmark.circle.fill")
+				ContentUnavailableView(
+					device == nil ? "This device has all the files it wants" : "\(device!.displayName) has all the files it wants",
+					systemImage: "checkmark.circle.fill")
 			}
 			else {
 				List {
@@ -47,12 +49,12 @@ fileprivate struct NeededFilesView: View {
 		}
 		.navigationTitle(device == nil ? "Files needed by this device" : "Files needed by \(device!.displayName)")
 	}
-	
+
 	private func update() async {
 		if loading {
 			return
 		}
-		
+
 		do {
 			self.loading = true
 			self.files = try await Task {
