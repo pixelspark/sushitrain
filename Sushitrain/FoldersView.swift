@@ -98,7 +98,7 @@ private struct FolderMetricView: View {
 	private func updateMetric() async {
 		let folder = self.folder
 		if !folder.isPaused() {
-			self.stats = await Task.detached {
+			self.stats = await Task {
 				do {
 					return try folder.statistics()
 				}
