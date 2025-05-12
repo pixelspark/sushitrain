@@ -9990,6 +9990,74 @@
         }
       }
     },
+    "Insufficient free storage space" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht genügend freier Speicherplatz"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espacio de almacenamiento libre insuficiente"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spazio di archiviazione libero insufficiente"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onvoldoende vrije opslagruimte"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Недостатньо вільного місця для зберігання"
+          }
+        }
+      }
+    },
+    "Insufficient storage space" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht genügend Speicherplatz"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espacio de almacenamiento insuficiente"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spazio di archiviazione insufficiente"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onvoldoende opslagruimte"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Недостатньо місця для зберігання"
+          }
+        }
+      }
+    },
     "Introduced by" : {
       "localizations" : {
         "de" : {
@@ -18963,6 +19031,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "На даний момент немає інших підключених пристроїв, тому не може бути встановлено, що цей файл повністю доступний на принаймні одному іншому пристрої."
+          }
+        }
+      }
+    },
+    "There is little to no free storage space left on this device. To prevent issues, synchronization is temporarily disabled. To resume synchronization, free up space on the device by removing files, and/or by unselecting files for synchronization in selectively synced folders." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es ist kaum oder gar kein freier Speicherplatz mehr auf diesem Gerät vorhanden. Um Probleme zu vermeiden, wird die Synchronisation vorübergehend deaktiviert. Um die Synchronisation fortzusetzen, schaffen Sie Speicherplatz auf dem Gerät frei, indem Sie Dateien entfernen und/oder Dateien in selektiv synchronisierten Ordnern für die Synchronisation abwählen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Queda poco o ningún espacio de almacenamiento libre en este dispositivo. Para evitar problemas, la sincronización se ha desactivado temporalmente. Para reanudar la sincronización, libera espacio en el dispositivo eliminando archivos y/o desmarcando archivos para sincronización en carpetas sincronizadas selectivamente."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "C'è poco o nessuno spazio di archiviazione libero su questo dispositivo. Per evitare problemi, la sincronizzazione è temporaneamente disabilitata. Per riprendere la sincronizzazione, libera spazio sul dispositivo rimuovendo file e/o deselezionando i file per la sincronizzazione nelle cartelle sincronizzate selettivamente."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er is weinig tot geen vrije opslagruimte meer op dit apparaat. Om problemen te voorkomen, is synchronisatie tijdelijk uitgeschakeld. Om synchronisatie te hervatten, maak ruimte vrij op het apparaat door bestanden te verwijderen en/of bestanden in selectief gesynchroniseerde mappen te deselecteren voor synchronisatie."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На цьому пристрої мало або зовсім немає вільного місця для зберігання. Щоб уникнути проблем, синхронізація тимчасово відключена. Щоб відновити синхронізацію, звільніть місце на пристрої, видаливши файли, та/або зніміть вибір файлів для синхронізації у вибірково синхронізованих папках."
           }
         }
       }

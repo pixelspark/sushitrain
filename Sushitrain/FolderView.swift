@@ -166,9 +166,14 @@ struct FolderStatusDescription {
 						(self.text, self.systemImage, self.color) = (String(localized: "Error"), "exclamationmark.triangle.fill", .red)
 
 					default:
-						(self.text, self.systemImage, self.color) = (
-							String(localized: "Unknown state"), "exclamationmark.triangle.fill", .red
-						)
+						if !folder.isDiskSpaceSufficient() {
+							(self.text, self.systemImage, self.color) = (String(localized: "Insufficient free storage space"), "exclamationmark.triangle.fill", .red)
+						}
+						else {
+							(self.text, self.systemImage, self.color) = (
+								String(localized: "Unknown state"), "exclamationmark.triangle.fill", .red
+							)
+						}
 					}
 				}
 			}
@@ -225,7 +230,7 @@ struct FolderStatusView: View {
 			self.statusLabel()
 		}
 
-		if let error = error {
+		if let error = error, folder.isDiskSpaceSufficient() {
 			Text(error.localizedDescription).foregroundStyle(.red)
 		}
 	}

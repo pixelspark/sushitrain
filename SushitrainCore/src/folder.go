@@ -1021,18 +1021,39 @@ func (fld *Folder) SetIgnoreLines(lines *ListOfStrings) error {
 
 func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
 	Logger.Infoln("Set explicitly selected: ", paths)
+
 	fld.cachedIgnore.matcher = nil // Purge our cache
 	state, err := fld.State()
+	var lowDiskSpace = false
+
 	if err != nil {
-		return err
+		// We allow deselections when disk space is insufficient (to clear up space)
+		if !fld.IsDiskSpaceSufficient() {
+			lowDiskSpace = true
+		} else {
+			return err
+		}
 	}
 	if state != "idle" && state != "syncing" {
-		return errors.New("cannot change explicit selection state when not idle or syncing")
+		if lowDiskSpace || !fld.IsDiskSpaceSufficient() {
+			lowDiskSpace = true
+		} else {
+			return errors.New("cannot change explicit selection state when not idle or syncing")
+		}
 	}
 
 	// Check if we have any work to do
 	if len(paths) == 0 {
 		return nil
+	}
+
+	// If we are in the special 'low disk space' mode, allow only deselections
+	if lowDiskSpace {
+		for _, selected := range paths {
+			if selected {
+				return errors.New("there is insufficient disk space, new files cannot be selected")
+			}
+		}
 	}
 
 	// Load ignores from file
@@ -1216,4 +1237,18 @@ func (fld *Folder) FilesNeededBy(peer string) (*ListOfStrings, error) {
 	}
 
 	return List(files), nil
+}
+
+func (fld *Folder) IsDiskSpaceSufficient() bool {
+	if minFree := fld.folderConfiguration().MinDiskFree; minFree.Value > 0 {
+		fs := fld.folderConfiguration().Filesystem(nil)
+
+		if usage, err := fs.Usage("."); err == nil {
+			if err = config.CheckFreeSpace(minFree, usage); err != nil {
+				return false
+			}
+		}
+	}
+
+	return fld.client.IsDiskSpaceSufficient()
 }

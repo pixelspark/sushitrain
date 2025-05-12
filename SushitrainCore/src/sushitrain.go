@@ -24,6 +24,7 @@ import (
 	"github.com/syncthing/syncthing/lib/config"
 	"github.com/syncthing/syncthing/lib/db/backend"
 	"github.com/syncthing/syncthing/lib/events"
+	"github.com/syncthing/syncthing/lib/fs"
 	"github.com/syncthing/syncthing/lib/locations"
 	"github.com/syncthing/syncthing/lib/logger"
 	"github.com/syncthing/syncthing/lib/model"
@@ -1279,6 +1280,18 @@ func (clt *Client) SetStunAddresses(addrs *ListOfStrings) error {
 			cfg.Options.StunKeepaliveMinS = 0 // Disable
 		}
 	})
+}
+
+func (clt *Client) IsDiskSpaceSufficient() bool {
+	if minFree := clt.config.Options().MinHomeDiskFree; minFree.Value > 0 {
+		dbPath := locations.Get(locations.Database)
+		if usage, err := fs.NewFilesystem(fs.FilesystemTypeBasic, dbPath).Usage("."); err == nil {
+			if err = config.CheckFreeSpace(minFree, usage); err != nil {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 func IsValidDeviceID(devID string) bool {

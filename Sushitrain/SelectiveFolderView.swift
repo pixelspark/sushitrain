@@ -49,7 +49,7 @@ struct SelectiveFolderView: View {
 								}
 							}
 						}
-						.disabled(!folder.isIdleOrSyncing)
+						.disabled(!folder.isIdleOrSyncing && folder.isDiskSpaceSufficient())
 					}
 				}
 				.refreshable {

@@ -265,6 +265,21 @@ struct StartView: View {
 			Section(header: Text("This device's identifier")) {
 				DeviceIDView(device: self.appState.client.peer(withID: self.appState.localDeviceID)!)
 			}
+			
+			// Disk space warning
+			if !appState.client.isDiskSpaceSufficient() {
+				Section {
+					VStack(alignment: .leading, spacing: 5) {
+						Label("Insufficient storage space", systemImage: "externaldrive.fill.badge.exclamationmark")
+							.bold()
+							.foregroundStyle(.red)
+						Text(
+							"There is little to no free storage space left on this device. To prevent issues, synchronization is temporarily disabled. To resume synchronization, free up space on the device by removing files, and/or by unselecting files for synchronization in selectively synced folders."
+						)
+						.foregroundStyle(.red)
+					}
+				}
+			}
 
 			// Getting started
 			if let p = peers, p.isEmpty {
