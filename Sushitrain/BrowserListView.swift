@@ -145,7 +145,7 @@ struct EntryView: View {
 					}
 				}
 				else {
-					FileEntryLink(entry: targetEntry, inFolder: self.folder, siblings: [], honorTapToPreview: true) {
+					FileEntryLink(appState: appState, entry: targetEntry, inFolder: self.folder, siblings: [], honorTapToPreview: true) {
 						self.entryView(entry: targetEntry)
 					}.contextMenu {
 						NavigationLink(
@@ -178,7 +178,7 @@ struct EntryView: View {
 			}
 		}
 		else {
-			FileEntryLink(entry: entry, inFolder: self.folder, siblings: siblings, honorTapToPreview: true) {
+			FileEntryLink(appState: appState, entry: entry, inFolder: self.folder, siblings: siblings, honorTapToPreview: true) {
 				self.entryView(entry: entry)
 			}
 		}
@@ -186,7 +186,7 @@ struct EntryView: View {
 }
 
 struct FileEntryLink<Content: View>: View {
-	@EnvironmentObject var appState: AppState
+	let appState: AppState
 	let entry: SushitrainEntry
 	let inFolder: SushitrainFolder?
 	let siblings: [SushitrainEntry]

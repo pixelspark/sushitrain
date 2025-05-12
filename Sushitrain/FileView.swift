@@ -127,9 +127,7 @@ struct FileView: View {
 					Section("Conflicting versions of this file") {
 						ForEach(ce) { (conflictingEntry: SushitrainEntry) in
 							if conflictingEntry.path() != self.file.path() {
-								FileEntryLink(
-									entry: conflictingEntry, inFolder: self.folder, siblings: ce, honorTapToPreview: false
-								) {
+								FileEntryLink(appState: appState, entry: conflictingEntry, inFolder: self.folder, siblings: ce, honorTapToPreview: false) {
 									// TODO: attempt to interpret conflict file name, show date/time/device info neatly
 									Text(conflictingEntry.fileName()).foregroundStyle(.red)
 								}

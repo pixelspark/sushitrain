@@ -77,6 +77,7 @@ struct GridFilesView: View {
 			ForEach(files, id: \.self) { file in
 				GeometryReader { geo in
 					FileEntryLink(
+						appState: appState,
 						entry: file, inFolder: self.folder, siblings: files, honorTapToPreview: true
 					) {
 						GridItemView(size: geo.size.width, file: file)
