@@ -265,7 +265,7 @@ struct StartView: View {
 			Section(header: Text("This device's identifier")) {
 				DeviceIDView(device: self.appState.client.peer(withID: self.appState.localDeviceID)!)
 			}
-			
+
 			// Disk space warning
 			if !appState.client.isDiskSpaceSufficient() {
 				Section {

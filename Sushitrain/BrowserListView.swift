@@ -145,7 +145,8 @@ struct EntryView: View {
 					}
 				}
 				else {
-					FileEntryLink(appState: appState, entry: targetEntry, inFolder: self.folder, siblings: [], honorTapToPreview: true) {
+					FileEntryLink(appState: appState, entry: targetEntry, inFolder: self.folder, siblings: [], honorTapToPreview: true)
+					{
 						self.entryView(entry: targetEntry)
 					}.contextMenu {
 						NavigationLink(

@@ -415,7 +415,7 @@ struct ThumbnailImage<Content>: View where Content: View {
 			#endif
 		}
 	}
-	
+
 	let remoteThumbnailDownloadLimiter = ConcurrentActor<AsyncImagePhase>(maxConcurrent: 5)
 
 	nonisolated func getThumbnail(file: SushitrainEntry, forceCache: Bool) async -> AsyncImagePhase {
@@ -423,7 +423,7 @@ struct ThumbnailImage<Content>: View where Content: View {
 		if cacheKey.count < 6 {
 			return AsyncImagePhase.failure(ThumbnailImageError.invalidCacheKey)
 		}
-		
+
 		// If we have a cached thumbnail, use that
 		if let cached = await self[cacheKey] {
 			if forceCache {
@@ -431,7 +431,7 @@ struct ThumbnailImage<Content>: View where Content: View {
 			}
 			return .success(cached)
 		}
-		
+
 		// For local files, ask QuickLook (and bypass our cache)
 		if file.isLocallyPresent() {
 			if let url = file.localNativeFileURL {
@@ -442,23 +442,23 @@ struct ThumbnailImage<Content>: View where Content: View {
 							width: maxThumbnailDimensionsInPixels,
 							height: maxThumbnailDimensionsInPixels))
 				}.value
-				
+
 				// If caching is forced, save successful result to disk cache
 				if case .success(let image) = result, forceCache {
 					await self.writeToDiskCache(image: image, cacheKey: cacheKey)
 				}
-				
+
 				return result
 			}
 			else {
 				return AsyncImagePhase.failure(ThumbnailImageError.invalidLocalURL)
 			}
 		}
-		
+
 		// Remote files
 		let strategy = file.thumbnailStrategy
 		let url = URL(string: file.onDemandURL())!
-		
+
 		let ph = await remoteThumbnailDownloadLimiter.dispatch {
 			dispatchPrecondition(condition: .notOnQueue(.main))
 			switch strategy {
@@ -493,22 +493,22 @@ actor ConcurrentActor<Result: Sendable> {
 		var block: () async -> Result
 		var continuation: CheckedContinuation<Result, Never>
 	}
-	
+
 	private var queue: [Item] = []
 	let maxConcurrent: Int
 	private var activeTasks: Int = 0
-	
+
 	init(maxConcurrent: Int) {
 		self.maxConcurrent = maxConcurrent
 	}
-	
+
 	func dispatch(_ block: @escaping () async -> Result) async -> Result {
 		return await withCheckedContinuation { cb in
 			queue.append(Item(block: block, continuation: cb))
 			startTasksIfNeeded()
 		}
 	}
-	
+
 	private func startTasksIfNeeded() {
 		while activeTasks < maxConcurrent && !queue.isEmpty {
 			let task = queue.removeFirst()

@@ -167,7 +167,9 @@ struct FolderStatusDescription {
 
 					default:
 						if !folder.isDiskSpaceSufficient() {
-							(self.text, self.systemImage, self.color) = (String(localized: "Insufficient free storage space"), "exclamationmark.triangle.fill", .red)
+							(self.text, self.systemImage, self.color) = (
+								String(localized: "Insufficient free storage space"), "exclamationmark.triangle.fill", .red
+							)
 						}
 						else {
 							(self.text, self.systemImage, self.color) = (
