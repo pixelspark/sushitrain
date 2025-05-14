@@ -532,7 +532,7 @@
 				CODE_SIGN_ENTITLEMENTS = Sushitrain/Sushitrain.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 39;
+				CURRENT_PROJECT_VERSION = 40;
 				DEVELOPMENT_ASSET_PATHS = "\"Sushitrain/Preview Content\"";
 				DEVELOPMENT_TEAM = 2N89DJPQ2P;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -577,7 +577,7 @@
 				CODE_SIGN_ENTITLEMENTS = Sushitrain/Sushitrain.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 39;
+				CURRENT_PROJECT_VERSION = 40;
 				DEVELOPMENT_ASSET_PATHS = "\"Sushitrain/Preview Content\"";
 				DEVELOPMENT_TEAM = 2N89DJPQ2P;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
