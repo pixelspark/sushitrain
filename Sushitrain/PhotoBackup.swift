@@ -194,9 +194,9 @@ enum PhotoSyncProgress {
 			}
 
 			// Ensure the subdirectory exists
-			let subDirectoryPath = await self.subDirectoryPath
-			if subDirectoryPath != "" {
-				let subDirectoryPathURL = URL(fileURLWithPath: folderPath).appendingPathComponent(subDirectoryPath)
+			let subDirectoryPath = EntryPath(await self.subDirectoryPath, isDirectory: true)
+			if subDirectoryPath.pathInFolder != "" {
+				let subDirectoryPathURL = URL(fileURLWithPath: folderPath).appendingPathComponent(subDirectoryPath.pathInFolder)
 				try FileManager.default.createDirectory(at: subDirectoryPathURL, withIntermediateDirectories: true)
 			}
 
@@ -214,9 +214,9 @@ enum PhotoSyncProgress {
 			let count = assets.count
 			DispatchQueue.main.async { self.progress = .exportingPhotos(index: 0, total: count, current: nil) }
 
-			var videosToExport: [(PHAsset, URL, String)] = []
-			var livePhotosToExport: [(PHAsset, URL, String)] = []
-			var selectPaths: [String] = []
+			var videosToExport: [(PHAsset, URL, EntryPath)] = []
+			var livePhotosToExport: [(PHAsset, URL, EntryPath)] = []
+			var selectPaths: [EntryPath] = []
 			var originalsToPurge: [PHAsset] = []
 			var assetsSavedSuccessfully: [PHAsset] = []
 			let structure = await self.folderStructure
@@ -236,7 +236,7 @@ enum PhotoSyncProgress {
 
 					// Create containing directory
 					let assetDirectoryPath = asset.directoryPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
-					let dirInFolder = folderURL.appending(path: assetDirectoryPath, directoryHint: .isDirectory)
+					let dirInFolder = folderURL.appending(path: assetDirectoryPath.pathInFolder, directoryHint: .isDirectory)
 					try FileManager.default.createDirectory(at: dirInFolder, withIntermediateDirectories: true)
 
 					let inFolderPath = asset.pathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
@@ -244,7 +244,7 @@ enum PhotoSyncProgress {
 
 					// Check if this photo was saved or deleted before
 					if purgeEnabled || !fullExport {
-						if let entry = try? folder.getFileInformation(inFolderPath) {
+						if let entry = try? folder.getFileInformation(inFolderPath.pathInFolder) {
 							// If purging is enabled, check if we should remove the photo from the source
 							if purgeEnabled {
 								if let mTime = entry.modifiedAt(), mTime.date() < purgeCutoffDate {
@@ -278,7 +278,7 @@ enum PhotoSyncProgress {
 					}
 
 					// Save asset if it doesn't exist already locally
-					let fileURL = folderURL.appending(path: inFolderPath, directoryHint: .notDirectory)
+					let fileURL = folderURL.appending(path: inFolderPath.pathInFolder, directoryHint: .notDirectory)
 					if !FileManager.default.fileExists(atPath: fileURL.path) || fullExport {
 						// If a video: queue video export session
 						if asset.mediaType == .video {
@@ -318,10 +318,11 @@ enum PhotoSyncProgress {
 					if asset.mediaType == .image && asset.mediaSubtypes.contains(.photoLive) && categories.contains(.livePhoto) {
 						let liveInFolderPath = asset.livePhotoPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
 						let liveDirectoryURL = folderURL.appending(
-							path: asset.livePhotoDirectoryPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath),
+							path: asset.livePhotoDirectoryPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
+								.pathInFolder,
 							directoryHint: .isDirectory)
 						try FileManager.default.createDirectory(at: liveDirectoryURL, withIntermediateDirectories: true)
-						let liveFileURL = folderURL.appending(path: liveInFolderPath, directoryHint: .notDirectory)
+						let liveFileURL = folderURL.appending(path: liveInFolderPath.pathInFolder, directoryHint: .notDirectory)
 						Log.info("Found live photo \(asset.originalFilename) \(liveInFolderPath)")
 
 						if !FileManager.default.fileExists(atPath: liveFileURL.path) {
@@ -462,9 +463,7 @@ enum PhotoSyncProgress {
 
 				let stList = SushitrainNewListOfStrings()!
 				for path in selectPaths {
-					// Make paths relative to root
-					let url = URL(fileURLWithPath: path, relativeTo: URL(fileURLWithPath: "/"))
-					stList.append(url.path(percentEncoded: false))
+					stList.append(path.pathInFolder)
 				}
 				try? folder.setLocalPathsExplicitlySelected(stList)
 			}
@@ -536,8 +535,9 @@ extension PHAsset {
 		return result.originalFilename.replacingOccurrences(of: "/", with: "_")
 	}
 
-	fileprivate func directoryPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: String) -> String {
-		var inFolderURL = URL(fileURLWithPath: subdirectoryPath)
+	fileprivate func directoryPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath) -> EntryPath
+	{
+		var inFolderURL = subdirectoryPath
 
 		switch structure {
 		case .byDate, .byDateAndType:
@@ -547,7 +547,7 @@ extension PHAsset {
 				let dateFormatter = DateFormatter()
 				dateFormatter.dateFormat = "yyyy-MM-dd"
 				let dateString = dateFormatter.string(from: creationDate)
-				inFolderURL = inFolderURL.appendingPathComponent(dateString, isDirectory: true)
+				inFolderURL = inFolderURL.appending(dateString, isDirectory: true)
 			}
 		case .singleFolder, .byType, .singleFolderDatePrefixed: break
 		}
@@ -555,29 +555,32 @@ extension PHAsset {
 		// Postfix media type
 		switch structure {
 		case .byDateAndType, .byType:
-			if self.mediaType == .video { inFolderURL = inFolderURL.appending(path: "Video", directoryHint: .isDirectory) }
+			if self.mediaType == .video {
+				inFolderURL = inFolderURL.appending("Video", isDirectory: true)
+			}
 		case .byDate, .singleFolder, .singleFolderDatePrefixed: break
 		}
-		return inFolderURL.path(percentEncoded: false)
+
+		return inFolderURL
 	}
 
-	fileprivate func livePhotoDirectoryPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: String)
-		-> String
+	fileprivate func livePhotoDirectoryPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath)
+		-> EntryPath
 	{
-		var url = URL(fileURLWithPath: self.directoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath))
+		var path = self.directoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath)
 		switch structure {
-		case .byDateAndType, .byType: url = url.appending(path: "Live", directoryHint: .isDirectory)
+		case .byDateAndType, .byType:
+			path = path.appending("Live", isDirectory: true)
 		case .byDate, .singleFolder, .singleFolderDatePrefixed: break
 		}
-		return url.path(percentEncoded: false)
+		return path
 	}
 
-	fileprivate func livePhotoPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: String) -> String {
+	fileprivate func livePhotoPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath) -> EntryPath
+	{
 		let fileName = self.fileNameInFolder(structure: structure) + ".MOV"
-		let url = URL(
-			fileURLWithPath: self.livePhotoDirectoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath)
-		).appendingPathComponent(fileName)
-		return url.path(percentEncoded: false)
+		return self.livePhotoDirectoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath)
+			.appending(fileName, isDirectory: false)
 	}
 
 	fileprivate func fileNameInFolder(structure: PhotoBackupFolderStructure) -> String {
@@ -595,9 +598,29 @@ extension PHAsset {
 		}
 	}
 
-	fileprivate func pathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: String) -> String {
-		let url = URL(fileURLWithPath: self.directoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath))
-			.appendingPathComponent(self.fileNameInFolder(structure: structure))
-		return url.path(percentEncoded: false)
+	fileprivate func pathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath) -> EntryPath {
+		return self.directoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath)
+			.appending(self.fileNameInFolder(structure: structure), isDirectory: false)
+	}
+}
+
+private struct EntryPath {
+	let url: URL
+
+	init(_ path: String = "", isDirectory: Bool) {
+		self.url = URL(filePath: "/" + path, directoryHint: isDirectory ? .isDirectory : .notDirectory)
+	}
+
+	private init(url: URL) {
+		self.url = url
+	}
+
+	func appending(_ p: String, isDirectory: Bool) -> EntryPath {
+		return EntryPath(url: self.url.appendingPathComponent(p, isDirectory: isDirectory))
+	}
+
+	// Absolute path, not starting with a leading '/' (as accepted by SushitrainEntry.getFileInformation).
+	var pathInFolder: String {
+		return self.url.path(percentEncoded: false).withoutStartingSlash
 	}
 }
