@@ -124,11 +124,20 @@ extension SushitrainFolder {
 
 	var isHidden: Bool? {
 		get {
+			if self.isPhotoFolder {
+				return false
+			}
+			
 			guard let lu = self.localNativeURL else { return nil }
 			let values = try? lu.resourceValues(forKeys: [.isHiddenKey])
 			return values?.isHidden
 		}
 		set {
+			if self.isPhotoFolder {
+				Log.info("Cannot change hide setting for photo folders; reaching this is a bug")
+				return
+			}
+			
 			guard var lu = self.localNativeURL else { return }
 			if var values = try? lu.resourceValues(forKeys: [.isHiddenKey]) {
 				values.isHidden = newValue
