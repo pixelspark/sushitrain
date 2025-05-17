@@ -49,7 +49,8 @@ struct GridFilesView: View {
 					.contextMenu(
 						ContextMenu(menuItems: {
 							if let file = try? folder.getFileInformation(
-								self.prefix + fileName) {
+								self.prefix + fileName)
+							{
 								NavigationLink(destination: FileView(file: file)) {
 									Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
 								}
