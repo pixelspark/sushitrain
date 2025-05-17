@@ -131,6 +131,12 @@ private class PhotoFSAssetEntry: CustomFSEntry {
 	override func data() throws -> Data {
 		let options = PHImageRequestOptions()
 		options.isSynchronous = true
+		options.resizeMode = .none
+		options.deliveryMode = .highQualityFormat
+		options.isNetworkAccessAllowed = true
+		options.allowSecondaryDegradedImage = false
+		options.version = .current
+		
 		var exported: Data! = nil
 		PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
 			exported = data

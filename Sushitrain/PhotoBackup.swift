@@ -292,6 +292,12 @@ enum PhotoSyncProgress {
 								// Save image
 								let options = PHImageRequestOptions()
 								options.isSynchronous = true
+								options.resizeMode = .none
+								options.deliveryMode = .highQualityFormat
+								options.isNetworkAccessAllowed = true
+								options.allowSecondaryDegradedImage = false
+								options.version = .current
+								
 								PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
 									if let data = data {
 										do {
