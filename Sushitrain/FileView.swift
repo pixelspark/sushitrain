@@ -436,7 +436,7 @@ struct FileView: View {
 				#endif
 			}.sheet(isPresented: $showEncryptionSheet) { EncryptionView(entry: self.file) }.onAppear {
 				selfIndex = self.siblings?.firstIndex(of: file)
-			}.task {
+			}.onChange(of: file, initial: true) { _, _ in
 				Task {
 					await updateConflicts()
 				}
