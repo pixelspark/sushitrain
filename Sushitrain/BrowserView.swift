@@ -487,7 +487,6 @@ private struct BrowserItemsView: View {
 									files: files,
 									subdirectories: subdirectories, folder: folder
 								)
-								.padding(.horizontal, 15)
 							}
 						}
 					case .list, .thumbnailList:

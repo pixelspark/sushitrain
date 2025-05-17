@@ -33,44 +33,32 @@ struct GridFilesView: View {
 	var folder: SushitrainFolder
 
 	var body: some View {
-		let gridColumns = Array(repeating: GridItem(.flexible()), count: appState.browserGridColumns)
+		let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 1.0), count: appState.browserGridColumns)
 
-		LazyVGrid(columns: gridColumns) {
+		LazyVGrid(columns: gridColumns, spacing: 1.0) {
 			// List subdirectories
 			ForEach(subdirectories, id: \.self.id) { (subDirEntry: SushitrainEntry) in
 				GeometryReader { geo in
 					let fileName = subDirEntry.fileName()
 					NavigationLink(
-						destination: BrowserView(
-
-							folder: folder,
-							prefix: "\(self.prefix)\(fileName)/"
-						)
+						destination: BrowserView(folder: folder, prefix: "\(self.prefix)\(fileName)/")
 					) {
-						GridItemView(
-							size: geo.size.width, file: subDirEntry)
+						GridItemView(size: geo.size.width, file: subDirEntry)
 					}
 					.buttonStyle(PlainButtonStyle())
 					.contextMenu(
 						ContextMenu(menuItems: {
 							if let file = try? folder.getFileInformation(
-								self.prefix + fileName)
-							{
-								NavigationLink(
-									destination: FileView(
-										file: file)
-								) {
-									Label(
-										"Subdirectory properties",
-										systemImage: "folder.badge.gearshape")
+								self.prefix + fileName) {
+								NavigationLink(destination: FileView(file: file)) {
+									Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
 								}
-
 								ItemSelectToggleView(file: file)
 							}
 						}))
 				}
 				.aspectRatio(1, contentMode: .fit)
-				.clipShape(.rect(cornerSize: CGSize(width: 8.0, height: 8.0)))
+				.clipShape(.rect)
 			}
 
 			// List files
@@ -84,7 +72,7 @@ struct GridFilesView: View {
 					}
 					.buttonStyle(PlainButtonStyle())
 				}
-				.clipShape(.rect(cornerSize: CGSize(width: 8.0, height: 8.0)))
+				.clipShape(.rect)
 				.aspectRatio(1, contentMode: .fit)
 			}
 		}
