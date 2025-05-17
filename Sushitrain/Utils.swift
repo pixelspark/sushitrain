@@ -141,14 +141,14 @@ extension SushitrainFolder {
 			}
 		}
 	}
-	
+
 	var isRegularFolder: Bool {
 		let fsType = self.filesystemType()
 		return fsType == "basic" || fsType == ""
 	}
-	
+
 	var isPhotoFolder: Bool {
-		return self.filesystemType() == SushitrainPhotoFilesystemTypeString
+		return self.filesystemType() == PhotoFSType
 	}
 
 	var hasEncryptedPeers: Bool {
