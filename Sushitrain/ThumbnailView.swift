@@ -43,6 +43,7 @@ struct ThumbnailView: View {
 						case .failure(_):
 							if self.showErrorMessages {
 								Text("The file is currently not available for preview.")
+									.padding(10)
 							}
 							else {
 								self.iconAndTextBody

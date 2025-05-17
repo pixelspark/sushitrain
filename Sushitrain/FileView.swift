@@ -181,10 +181,12 @@ struct FileView: View {
 						Section {
 							ThumbnailView(file: file, appState: appState, showFileName: false, showErrorMessages: true)
 								.id(file.id)
-								.padding(.all, 10)
+								.ignoresSafeArea()
+								.padding(.all, 0)
 								// Fixes issue where image is still tappable outside its rectangle
-								.contentShape(Rectangle().inset(by: 10))
+								.contentShape(Rectangle().inset(by: 0))
 								.cornerRadius(8.0)
+								.listRowInsets(EdgeInsets())
 								.onTapGesture {
 									#if os(macOS)
 										// On macOS prefer local QuickLook
