@@ -11,7 +11,7 @@ import Photos
 struct PhotoFolderSettingsView: View {
 	let folder: SushitrainFolder
 	@State private var config: PhotoFSConfiguration = PhotoFSConfiguration()
-	
+
 	var body: some View {
 		PhotoFolderConfigurationView(config: $config)
 			.task {
@@ -23,7 +23,7 @@ struct PhotoFolderSettingsView: View {
 				}
 			}
 	}
-	
+
 	private func save() async {
 		do {
 			let serialized = try JSONEncoder().encode(self.config)
@@ -33,7 +33,7 @@ struct PhotoFolderSettingsView: View {
 			Log.info("Error saving album config: \(error.localizedDescription)")
 		}
 	}
-	
+
 	private func update() async {
 		do {
 			let path: String = self.folder.path()
@@ -52,13 +52,13 @@ struct PhotoFolderSettingsView: View {
 
 struct PhotoFolderConfigurationView: View {
 	@Binding var config: PhotoFSConfiguration
-	
+
 	@State private var editingAlbumConfig = PhotoFSAlbumConfiguration()
 	@State private var addingNewAlbum = false
 	@State private var editingAlbum = false
 	@State private var editingDirName = ""
 	@State private var editingOldDirName = ""
-	
+
 	var body: some View {
 		Section("Albums") {
 			List {
@@ -82,9 +82,9 @@ struct PhotoFolderConfigurationView: View {
 				.sheet(isPresented: $editingAlbum) {
 					NavigationStack {
 						PhotoFolderAlbumSettingsView(config: $editingAlbumConfig, dirName: $editingDirName)
-						#if os(iOS)
-							.navigationBarTitleDisplayMode(.inline)
-						#endif
+							#if os(iOS)
+								.navigationBarTitleDisplayMode(.inline)
+							#endif
 							.toolbar {
 								ToolbarItem(
 									placement: .confirmationAction,
@@ -98,22 +98,22 @@ struct PhotoFolderConfigurationView: View {
 							}
 					}
 				}.interactiveDismissDisabled()
-				
+
 				Button("Add album...", systemImage: "plus") {
 					editingAlbumConfig = PhotoFSAlbumConfiguration()
 					addingNewAlbum = true
 					editingDirName = ""
 				}
 				#if os(macOS)
-				.buttonStyle(.link)
+					.buttonStyle(.link)
 				#endif
 				.sheet(isPresented: $addingNewAlbum) {
 					NavigationStack {
 						PhotoFolderAlbumSettingsView(config: $editingAlbumConfig, dirName: $editingDirName)
 							.navigationTitle("Add album")
-						#if os(iOS)
-							.navigationBarTitleDisplayMode(.inline)
-						#endif
+							#if os(iOS)
+								.navigationBarTitleDisplayMode(.inline)
+							#endif
 							.toolbar {
 								ToolbarItem(
 									placement: .confirmationAction,
@@ -128,10 +128,12 @@ struct PhotoFolderConfigurationView: View {
 			}
 		}
 	}
-	
+
 	private func edit() {
 		Task {
-			let newName = editingDirName.isEmpty ? (self.editingOldDirName.isEmpty ? self.editingAlbumConfig.albumID : editingOldDirName) : editingDirName
+			let newName =
+				editingDirName.isEmpty
+				? (self.editingOldDirName.isEmpty ? self.editingAlbumConfig.albumID : editingOldDirName) : editingDirName
 			self.config.folders.removeValue(forKey: self.editingOldDirName)
 			self.config.folders[newName] = self.editingAlbumConfig
 			editingAlbum = false
@@ -139,7 +141,7 @@ struct PhotoFolderConfigurationView: View {
 			editingDirName = ""
 		}
 	}
-	
+
 	private func add() {
 		Task {
 			let newName = editingDirName.isEmpty ? self.editingAlbumConfig.albumID : editingDirName
@@ -152,7 +154,7 @@ struct PhotoFolderConfigurationView: View {
 private struct PhotoFolderAlbumSettingsView: View {
 	@Binding var config: PhotoFSAlbumConfiguration
 	@Binding var dirName: String
-	
+
 	@EnvironmentObject var appState: AppState
 	@State private var authorizationStatus: PHAuthorizationStatus = .notDetermined
 	@State private var albumPickerShown = false
@@ -199,7 +201,7 @@ private struct PhotoFolderAlbumSettingsView: View {
 					}
 				}
 			}
-			
+
 			Section {
 				LabeledContent {
 					TextField("", text: $dirName).monospaced().multilineTextAlignment(.trailing)

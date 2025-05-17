@@ -57,7 +57,7 @@ struct AddFolderView: View {
 					#if os(macOS)
 						.buttonStyle(.link)
 					#endif
-					
+
 					Button(action: {
 						self.isPhotoFolder = true
 					}) {
@@ -86,7 +86,7 @@ struct AddFolderView: View {
 						.buttonStyle(.link)
 					#endif
 				}
-				
+
 				if isPhotoFolder {
 					PhotoFolderConfigurationView(config: $photoFolderConfig)
 				}

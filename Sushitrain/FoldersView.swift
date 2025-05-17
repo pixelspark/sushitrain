@@ -181,7 +181,8 @@ struct FoldersSections: View {
 		}
 
 		Section {
-			Button("Add folder...", systemImage: "plus",
+			Button(
+				"Add folder...", systemImage: "plus",
 				action: {
 					addFolderID = ""
 					addFolderShareDefault = false

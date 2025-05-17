@@ -117,7 +117,8 @@ struct ContentView: View {
 								BrowserView(folder: folder, prefix: "").id(folder.folderID)
 							}
 							else {
-								ContentUnavailableView("Folder was deleted", systemImage: "trash",
+								ContentUnavailableView(
+									"Folder was deleted", systemImage: "trash",
 									description: Text("This folder was deleted."))
 							}
 						}

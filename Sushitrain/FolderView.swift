@@ -313,7 +313,7 @@ struct FolderDirectionPicker: View {
 			) {
 				Text("Send and receive").tag(SushitrainFolderTypeSendReceive)
 				Text("Receive only").tag(SushitrainFolderTypeReceiveOnly)
-				
+
 				// Cannot be selected, but should be here when it is set
 				if folder.folderType() == SushitrainFolderTypeSendOnly {
 					Text("Send only").tag(SushitrainFolderTypeSendOnly)
@@ -543,7 +543,7 @@ struct FolderView: View {
 							get: { !folder.isPaused() },
 							set: { active in try? folder.setPaused(!active) }))
 				}
-				
+
 				if folder.isPhotoFolder {
 					PhotoFolderSettingsView(folder: self.folder)
 				}
@@ -1272,7 +1272,7 @@ private struct AdvancedFolderSettingsView: View {
 								})
 						).disabled(isExternal != false)
 					#endif
-					
+
 					Toggle(
 						"Hide in Files app",
 						isOn: Binding(
@@ -1312,7 +1312,7 @@ private struct AdvancedFolderSettingsView: View {
 					Toggle(
 						"Watch for changes",
 						isOn: Binding(get: { folder.isWatcherEnabled() }, set: { try? folder.setWatcherEnabled($0) }))
-					
+
 					if folder.isWatcherEnabled() {
 						LabeledContent {
 							TextField(
@@ -1334,7 +1334,7 @@ private struct AdvancedFolderSettingsView: View {
 							Text("Delay for processing changes (seconds)")
 						}
 					}
-					
+
 					Toggle(
 						"Keep conflicting versions",
 						isOn: Binding(

@@ -297,7 +297,7 @@ enum PhotoSyncProgress {
 								options.isNetworkAccessAllowed = true
 								options.allowSecondaryDegradedImage = false
 								options.version = .current
-								
+
 								PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
 									if let data = data {
 										do {
@@ -540,7 +540,8 @@ extension PHAsset {
 		return result.originalFilename.replacingOccurrences(of: "/", with: "_")
 	}
 
-	fileprivate func directoryPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath) -> EntryPath {
+	fileprivate func directoryPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath) -> EntryPath
+	{
 		var inFolderURL = subdirectoryPath
 
 		switch structure {

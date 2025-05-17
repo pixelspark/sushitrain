@@ -127,7 +127,7 @@ extension SushitrainFolder {
 			if self.isPhotoFolder {
 				return false
 			}
-			
+
 			guard let lu = self.localNativeURL else { return nil }
 			let values = try? lu.resourceValues(forKeys: [.isHiddenKey])
 			return values?.isHidden
@@ -137,7 +137,7 @@ extension SushitrainFolder {
 				Log.info("Cannot change hide setting for photo folders; reaching this is a bug")
 				return
 			}
-			
+
 			guard var lu = self.localNativeURL else { return }
 			if var values = try? lu.resourceValues(forKeys: [.isHiddenKey]) {
 				values.isHidden = newValue
@@ -193,7 +193,7 @@ extension SushitrainFolder {
 		}
 		return entries.sorted()
 	}
-	
+
 	var systemImage: String {
 		if self.isPhotoFolder {
 			return "photo.stack"
@@ -317,7 +317,7 @@ extension SushitrainEntry {
 		if let f = self.folder, f.isPhotoFolder {
 			return nil
 		}
-		
+
 		var error: NSError? = nil
 		if self.isLocallyPresent() {
 			let path = self.localNativePath(&error)
@@ -455,11 +455,11 @@ extension SushitrainEntry {
 			if !f.isRegularFolder {
 				return
 			}
-			
+
 			if !self.isLocallyPresent() && self.isDirectory() {
 				try? self.materializeSubdirectory()
 			}
-			
+
 			if let localNativeURL = self.localNativeFileURL {
 				openURLInSystemFilesApp(url: localNativeURL)
 			}
