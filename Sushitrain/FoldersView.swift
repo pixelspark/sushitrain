@@ -130,28 +130,31 @@ struct FoldersSections: View {
 				if !appState.hideHiddenFolders || folder.isHidden == false {
 					NavigationLink(value: Route.folder(folderID: folder.folderID)) {
 						if folder.isPaused() {
-							Label(folder.displayName, systemImage: "folder.fill")
+							Label(folder.displayName, systemImage: folder.systemImage)
 								.foregroundStyle(.gray)
 						}
 						else {
 							HStack {
-								Label(folder.displayName, systemImage: "folder.fill")
-								Spacer()
-								FolderMetricView(
-
-									metric: self.appState.viewMetric, folder: folder
-								)
+								Label(folder.displayName, systemImage: folder.systemImage)
+								if !folder.isPhotoFolder {
+									Spacer()
+									FolderMetricView(
+										metric: self.appState.viewMetric, folder: folder
+									)
+								}
 							}
 						}
 					}
 					.contextMenu {
-						Button(
-							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
-							action: {
-								if let url = folder.localNativeURL {
-									openURLInSystemFilesApp(url: url)
-								}
-							})
+						if folder.isRegularFolder {
+							Button(
+								openInFilesAppLabel, systemImage: "arrow.up.forward.app",
+								action: {
+									if let url = folder.localNativeURL {
+										openURLInSystemFilesApp(url: url)
+									}
+								})
+						}
 					}
 					.id(folder.folderID)
 				}
@@ -178,8 +181,7 @@ struct FoldersSections: View {
 		}
 
 		Section {
-			Button(
-				"Add folder...", systemImage: "plus",
+			Button("Add folder...", systemImage: "plus",
 				action: {
 					addFolderID = ""
 					addFolderShareDefault = false

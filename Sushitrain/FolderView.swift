@@ -313,6 +313,11 @@ struct FolderDirectionPicker: View {
 			) {
 				Text("Send and receive").tag(SushitrainFolderTypeSendReceive)
 				Text("Receive only").tag(SushitrainFolderTypeReceiveOnly)
+				
+				// Cannot be selected, but should be here when it is set
+				if folder.folderType() == SushitrainFolderTypeSendOnly {
+					Text("Send only").tag(SushitrainFolderTypeSendOnly)
+				}
 			}
 			.pickerStyle(.menu)
 			.disabled(changeProhibited)
@@ -344,6 +349,12 @@ struct FolderDirectionPicker: View {
 				}
 			}
 		}
+	}
+}
+
+private struct PhotoFolderSectionView: View {
+	var body: some View {
+		Label("Photo folder", systemImage: "camera.fill").foregroundStyle(.cyan)
 	}
 }
 
@@ -498,10 +509,14 @@ struct FolderView: View {
 
 	var body: some View {
 		let isExternal = folder.isExternal
+		let isPhotoFolder = folder.isPhotoFolder
 
 		Form {
 			if folder.exists() {
-				if isExternal == true {
+				if isPhotoFolder {
+					PhotoFolderSectionView()
+				}
+				else if isExternal == true {
 					ExternalFolderSectionView(folder: folder)
 				}
 
@@ -519,14 +534,18 @@ struct FolderView: View {
 						Text("Display name")
 					}
 
-					FolderDirectionPicker(folder: folder)
-					FolderSyncTypePicker(folder: folder)
+					FolderDirectionPicker(folder: folder).disabled(isPhotoFolder)
+					FolderSyncTypePicker(folder: folder).disabled(isPhotoFolder)
 
 					Toggle(
 						"Synchronize",
 						isOn: Binding(
 							get: { !folder.isPaused() },
 							set: { active in try? folder.setPaused(!active) }))
+				}
+				
+				if folder.isPhotoFolder {
+					PhotoFolderSettingsView(folder: self.folder)
 				}
 
 				if !possiblePeers.isEmpty {
@@ -539,11 +558,10 @@ struct FolderView: View {
 					}
 				}
 
-				NavigationLink(
-					destination: AdvancedFolderSettingsView(
-						folder: self.folder)
-				) {
-					Label("Advanced folder settings", systemImage: "gear")
+				if folder.isRegularFolder || folder.isPhotoFolder {
+					NavigationLink(destination: AdvancedFolderSettingsView(folder: self.folder)) {
+						Label("Advanced folder settings", systemImage: "gear")
+					}
 				}
 			}
 		}
@@ -626,7 +644,7 @@ struct FolderView: View {
 			.foregroundColor(.red)
 
 			// Only allow removing a full folder when we are sure it is in the area managed by us
-			if folder.isExternal == false {
+			if folder.isRegularFolder && folder.isExternal == false {
 				Button("Remove folder", systemImage: "trash", role: .destructive) {
 					showConfirmable = .removeFolder
 				}
@@ -1203,7 +1221,7 @@ private struct AdvancedFolderSettingsView: View {
 
 		Form {
 			#if os(iOS)
-				if !folder.isSelective() {
+				if !folder.isSelective() && !folder.isPhotoFolder {
 					Section {
 						NavigationLink(
 							destination: IgnoresView(folder: self.folder)
@@ -1237,34 +1255,36 @@ private struct AdvancedFolderSettingsView: View {
 				}
 			}
 
-			Section("System settings") {
-				#if os(iOS)
+			if !folder.isPhotoFolder {
+				Section("System settings") {
+					#if os(iOS)
+						Toggle(
+							"Include in device back-up",
+							isOn: Binding(
+								get: {
+									if let f = folder.isExcludedFromBackup {
+										return !f
+									}
+									return false
+								},
+								set: { nv in
+									folder.isExcludedFromBackup = !nv
+								})
+						).disabled(isExternal != false)
+					#endif
+					
 					Toggle(
-						"Include in device back-up",
+						"Hide in Files app",
 						isOn: Binding(
 							get: {
-								if let f = folder.isExcludedFromBackup {
-									return !f
-								}
+								if let f = folder.isHidden { return f }
 								return false
 							},
 							set: { nv in
-								folder.isExcludedFromBackup = !nv
+								folder.isHidden = nv
 							})
 					).disabled(isExternal != false)
-				#endif
-
-				Toggle(
-					"Hide in Files app",
-					isOn: Binding(
-						get: {
-							if let f = folder.isHidden { return f }
-							return false
-						},
-						set: { nv in
-							folder.isHidden = nv
-						})
-				).disabled(isExternal != false)
+				}
 			}
 
 			Section("File handling") {
@@ -1288,41 +1308,43 @@ private struct AdvancedFolderSettingsView: View {
 					Text("Rescan interval (minutes)")
 				}
 
-				Toggle(
-					"Watch for changes",
-					isOn: Binding(get: { folder.isWatcherEnabled() }, set: { try? folder.setWatcherEnabled($0) }))
-
-				if folder.isWatcherEnabled() {
-					LabeledContent {
-						TextField(
-							"",
-							text: Binding(
-								get: {
-									let interval: Int = folder.watcherDelaySeconds()
-									return "\(interval)"
-								},
-								set: { (lbl: String) in
-									if !lbl.isEmpty {
-										let interval = Int(lbl) ?? 0
-										try? folder.setWatcherDelaySeconds(interval)
-									}
-								}), prompt: Text("")
-						)
-						.multilineTextAlignment(.trailing)
-					} label: {
-						Text("Delay for processing changes (seconds)")
+				if !folder.isPhotoFolder {
+					Toggle(
+						"Watch for changes",
+						isOn: Binding(get: { folder.isWatcherEnabled() }, set: { try? folder.setWatcherEnabled($0) }))
+					
+					if folder.isWatcherEnabled() {
+						LabeledContent {
+							TextField(
+								"",
+								text: Binding(
+									get: {
+										let interval: Int = folder.watcherDelaySeconds()
+										return "\(interval)"
+									},
+									set: { (lbl: String) in
+										if !lbl.isEmpty {
+											let interval = Int(lbl) ?? 0
+											try? folder.setWatcherDelaySeconds(interval)
+										}
+									}), prompt: Text("")
+							)
+							.multilineTextAlignment(.trailing)
+						} label: {
+							Text("Delay for processing changes (seconds)")
+						}
 					}
+					
+					Toggle(
+						"Keep conflicting versions",
+						isOn: Binding(
+							get: {
+								return folder.maxConflicts() != 0
+							},
+							set: { nv in
+								try? folder.setMaxConflicts(nv ? -1 : 0)
+							}))
 				}
-
-				Toggle(
-					"Keep conflicting versions",
-					isOn: Binding(
-						get: {
-							return folder.maxConflicts() != 0
-						},
-						set: { nv in
-							try? folder.setMaxConflicts(nv ? -1 : 0)
-						}))
 			}
 		}
 		.navigationTitle(Text("Advanced folder settings"))

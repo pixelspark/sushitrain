@@ -771,6 +771,33 @@ func (clt *Client) AddPeer(deviceID string) error {
 	})
 }
 
+func (clt *Client) AddSpecialFolder(folderID string, fsType string, folderPath string, folderType string) error {
+	if clt.app == nil || clt.app.Internals == nil {
+		return ErrStillLoading
+	}
+
+	ft := config.FolderTypeSendReceive
+	ft.UnmarshalText([]byte(folderType))
+
+	folderConfig := clt.config.DefaultFolder()
+	folderConfig.ID = folderID
+	folderConfig.FilesystemType = config.FilesystemType(fsType)
+	folderConfig.Type = ft
+	folderConfig.Path = folderPath
+	folderConfig.Label = folderID
+	folderConfig.Paused = false
+
+	// Add to configuration
+	err := clt.changeConfiguration(func(cfg *config.Configuration) {
+		cfg.SetFolder(folderConfig)
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Leave path empty to add folder at default location
 func (clt *Client) AddFolder(folderID string, folderPath string, createAsOnDemand bool) error {
 	if clt.app == nil || clt.app.Internals == nil {

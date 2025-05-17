@@ -513,6 +513,7 @@ func (fld *Folder) HasSelectedPaths() bool {
 const (
 	FolderTypeSendReceive = "sendrecieve"
 	FolderTypeReceiveOnly = "receiveonly"
+	FolderTypeSendOnly    = "sendonly"
 )
 
 func (fld *Folder) FolderType() string {
@@ -528,6 +529,8 @@ func (fld *Folder) FolderType() string {
 		fallthrough
 	case config.FolderTypeSendReceive:
 		return FolderTypeSendReceive
+	case config.FolderTypeSendOnly:
+		return FolderTypeSendOnly
 	}
 }
 
@@ -542,6 +545,14 @@ func (fld *Folder) IsExternal() (bool, error) {
 	return defaultPath != fc.Path, nil
 }
 
+func (fld *Folder) Path() string {
+	fc := fld.folderConfiguration()
+	if fc == nil {
+		return ""
+	}
+	return fc.Path
+}
+
 func (fld *Folder) SetPath(path string) error {
 	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
 		fc := fld.folderConfiguration()
@@ -551,6 +562,14 @@ func (fld *Folder) SetPath(path string) error {
 		fc.Path = path
 		cfg.SetFolder(*fc)
 	})
+}
+
+func (fld *Folder) FilesystemType() string {
+	fc := fld.folderConfiguration()
+	if fc == nil {
+		return ""
+	}
+	return fc.FilesystemType.String()
 }
 
 func (fld *Folder) SetFolderType(folderType string) error {
