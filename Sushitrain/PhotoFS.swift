@@ -4,31 +4,41 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 @preconcurrency import SushitrainCore
+import Photos
 
 let PhotoFSType: String = "sushitrain.photos.v1"
 
 private class PhotoFS: NSObject {
 }
 
+enum CustomFSError: Error {
+	case notADirectory
+	case notAFile
+}
+
+enum PhotoFSError: Error {
+	case albumNotFound
+	case invalidURI
+	
+	var localizedDescription: String {
+		switch self {
+		case .albumNotFound:
+			return String(localized: "album not found")
+		case .invalidURI:
+			return String(localized: "invalid configuration")
+		}
+	}
+}
+
 private class CustomFSEntry: NSObject, SushitrainCustomFileEntryProtocol {
-	let children: [CustomFSEntry]
-	let isDirectory: Bool
 	let entryName: String
 
-	init(_ name: String, _ children: [CustomFSEntry]? = nil) {
-		if let c = children {
-			self.children = c
-			self.isDirectory = true
-		}
-		else {
-			self.children = []
-			self.isDirectory = false
-		}
+	internal init(_ name: String, _ children: [CustomFSEntry]? = nil) {
 		self.entryName = name
 	}
 
 	func isDir() -> Bool {
-		return self.isDirectory
+		return false
 	}
 
 	func name() -> String {
@@ -36,54 +46,210 @@ private class CustomFSEntry: NSObject, SushitrainCustomFileEntryProtocol {
 	}
 
 	func child(at index: Int) throws -> any SushitrainCustomFileEntryProtocol {
-		return self.children[index]
+		throw CustomFSError.notADirectory
 	}
 
 	func childCount(_ ret: UnsafeMutablePointer<Int>?) throws {
-		ret?.pointee = self.children.count
+		throw CustomFSError.notADirectory
 	}
 
 	func data() throws -> Data {
-		return Data()
+		throw CustomFSError.notAFile
+	}
+	
+	func modifiedTime() -> Int64 {
+		return 0
+	}
+}
+
+private class StaticCustomFSDirectory: CustomFSEntry {
+	let children: [CustomFSEntry]
+	let modTime: Date
+	
+	init(_ name: String, children: [CustomFSEntry]) {
+		self.children = children
+		self.modTime = Date()
+		super.init(name)
+	}
+	
+	override func isDir() -> Bool {
+		return true
+	}
+	
+	override func child(at index: Int) throws -> any SushitrainCustomFileEntryProtocol {
+		return self.children[index]
+	}
+
+	override func childCount(_ ret: UnsafeMutablePointer<Int>?) throws {
+		ret?.pointee = self.children.count
+	}
+	
+	override func modifiedTime() -> Int64 {
+		return Int64(self.modTime.timeIntervalSince1970)
 	}
 }
 
 private class StaticCustomFSEntry: CustomFSEntry {
 	let contents: Data
+	let modTime: Date
 
 	init(_ name: String, contents: Data) {
 		self.contents = contents
+		self.modTime = Date()
 		super.init(name, nil)
+	}
+	
+	override func isDir() -> Bool {
+		return false
 	}
 
 	override func data() throws -> Data {
-		if self.isDirectory {
-			return Data()
-		}
 		return self.contents
 	}
+	
+	override func modifiedTime() -> Int64 {
+		return Int64(self.modTime.timeIntervalSince1970)
+	}
+}
+
+private class PhotoFSAssetEntry: CustomFSEntry {
+	let asset: PHAsset
+	
+	init(_ name: String, asset: PHAsset) {
+		self.asset = asset
+		super.init(name)
+	}
+	
+	override func modifiedTime() -> Int64 {
+		return Int64(asset.creationDate?.timeIntervalSince1970 ?? 0.0)
+	}
+	
+	override func isDir() -> Bool {
+		return false
+	}
+	
+	override func data() throws -> Data {
+		let options = PHImageRequestOptions()
+		options.isSynchronous = true
+		var exported: Data! = nil
+		PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
+			exported = data
+		}
+		Log.info("Exported asset \(asset.localIdentifier) \(self.modifiedTime()) bytes=\(exported.count)")
+		return exported
+	}
+}
+
+private class PhotoFSAlbumEntry: CustomFSEntry {
+	private var children: [CustomFSEntry]? = nil
+	private let config: PhotoFSAlbumConfiguration
+	
+	init(_ name: String, config: PhotoFSAlbumConfiguration) throws {
+		self.config = config
+		super.init(name)
+	}
+	
+	override func isDir() -> Bool {
+		return true
+	}
+	
+	private func update() throws {
+		if self.children == nil {
+			let fetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [self.config.albumID], options: nil)
+			guard let album = fetchResult.firstObject else {
+				throw PhotoFSError.albumNotFound
+			}
+			
+			let assets = PHAsset.fetchAssets(in: album, options: nil)
+			var children: [CustomFSEntry] = []
+			
+			assets.enumerateObjects { asset, index, stop in
+				if asset.mediaType == .image {
+					children.append(PhotoFSAssetEntry(asset.originalFilename, asset: asset))
+				}
+			}
+			
+			children.sort { a, b in
+				return a.name() < b.name()
+			}
+			
+			Log.info("Enumerated album \(self.config.albumID): \(children.count) assets")
+			self.children = children
+		}
+	}
+	
+	override func child(at index: Int) throws -> any SushitrainCustomFileEntryProtocol {
+		try self.update()
+		return self.children![index]
+	}
+	
+	override func childCount(_ ret: UnsafeMutablePointer<Int>?) throws {
+		try self.update()
+		ret?.pointee = self.children!.count
+	}
+}
+
+private struct Shared<T: Sendable>: Sendable {
+	private let lock = NSLock()
+	private var value: T
+	
+	init(_ value: T) {
+		self.value = value
+	}
+	
+	mutating func locked<V>(_ block: (inout T) -> V) -> V {
+		lock.lock()
+		let res = block(&self.value)
+		lock.unlock()
+		return res
+	}
+}
+
+struct PhotoFSAlbumConfiguration: Codable, Equatable {
+	var albumID: String = ""
+	
+	var isValid: Bool {
+		return !self.albumID.isEmpty
+	}
+}
+
+struct PhotoFSConfiguration: Codable, Equatable {
+	var folders: [String: PhotoFSAlbumConfiguration] = [:]
 }
 
 extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 	func root(_ uri: String?) throws -> any SushitrainCustomFileEntryProtocol {
-		Log.info("PhotoFS root uri=\(uri ?? "")")
-		return CustomFSEntry(
-			"",
-			[
-				CustomFSEntry(
-					".stfolder",
-					[
-						CustomFSEntry(".photofs-marker")
-					]),
-				CustomFSEntry("DirectoryA", []),
-				CustomFSEntry(
-					"DirectoryB",
-					[
-						CustomFSEntry("DirectoryBA", []),
-						StaticCustomFSEntry("FileBD.txt", contents: "Hello, world!".data(using: .utf8)!),
-						StaticCustomFSEntry("FileBE.txt", contents: "Hello again, world!".data(using: .utf8)!),
-					]),
-			])
+		guard let uri = uri else {
+			throw PhotoFSError.invalidURI
+		}
+		
+		// Attempt to decode URI as JSON containing a configuration struct
+		var config = PhotoFSConfiguration()
+		if let d = uri.data(using: .utf8) {
+			config = (try? JSONDecoder().decode(PhotoFSConfiguration.self, from: d)) ?? config
+		}
+		
+		var albumFolders: [CustomFSEntry] = []
+		for (folderName, albumConfig) in config.folders {
+			if !folderName.isEmpty && folderName != ".stfolder" && folderName != ".stignore" {
+				let folderNameClean = folderName.replacingOccurrences(of: "/", with: "_")
+				albumFolders.append(try PhotoFSAlbumEntry(folderNameClean, config: albumConfig))
+			}
+		}
+		
+		let fs = StaticCustomFSDirectory("",
+			children: [
+				// Folder marker (needs to be present for Syncthing to know the folder is healthy
+				StaticCustomFSDirectory(".stfolder", children: [
+					StaticCustomFSEntry(".photofs-marker", contents: "# EMPTY ON PURPOSE\n".data(using: .ascii)!)
+				]),
+				
+				// Ignore file (empty for now)
+				StaticCustomFSEntry(".stignore", contents: "# EMPTY ON PURPOSE\n".data(using: .ascii)!),
+				
+				// Albums (one directory for each)
+			] + albumFolders)
+		return fs
 	}
 }
 

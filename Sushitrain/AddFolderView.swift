@@ -25,6 +25,8 @@ struct AddFolderView: View {
 	@State private var showPathSelector: Bool = false
 	@State private var showAddingExternalWarning: Bool = false
 	@State private var isSelective = true
+	@State private var isPhotoFolder = false
+	@State private var photoFolderConfig = PhotoFSConfiguration()
 
 	var folderExists: Bool {
 		appState.client.folder(withID: self.folderID) != nil
@@ -43,13 +45,23 @@ struct AddFolderView: View {
 						#endif
 				}
 
-				Section("Folder location") {
+				Section("Folder type") {
 					Button(action: {
 						self.folderPath = nil
+						self.isPhotoFolder = false
 					}) {
 						Label(
-							"Create a new folder",
-							systemImage: self.folderPath == nil ? "checkmark" : "")
+							"Regular folder",
+							systemImage: self.folderPath == nil && !isPhotoFolder ? "checkmark" : "")
+					}
+					#if os(macOS)
+						.buttonStyle(.link)
+					#endif
+					
+					Button(action: {
+						self.isPhotoFolder = true
+					}) {
+						Label("Photo folder", systemImage: self.isPhotoFolder ? "checkmark" : "")
 					}
 					#if os(macOS)
 						.buttonStyle(.link)
@@ -58,7 +70,7 @@ struct AddFolderView: View {
 					Button(action: {
 						self.showPathSelector = true
 					}) {
-						if let u = self.folderPath {
+						if let u = self.folderPath, !isPhotoFolder {
 							Label(
 								"Existing folder: '\(u.lastPathComponent)'",
 								systemImage: "checkmark"
@@ -67,27 +79,33 @@ struct AddFolderView: View {
 							}
 						}
 						else {
-							Label("Select existing folder...", systemImage: "")
+							Label("Existing folder...", systemImage: "")
 						}
 					}
 					#if os(macOS)
 						.buttonStyle(.link)
 					#endif
 				}
+				
+				if isPhotoFolder {
+					PhotoFolderConfigurationView(config: $photoFolderConfig)
+				}
 
-				Section {
-					Picker("Synchronize", selection: $isSelective) {
-						Text("All files").tag(false)
-						Text("Selected files").tag(true)
-					}
-				} footer: {
-					if isSelective {
-						Text(
-							"Only files that you select will be copied to this device. You can still access all files in the folder on demand when connected to other devices that have a copy of the file."
-						)
-					}
-					else {
-						Text("All files in the folder will be copied to this device.")
+				if !isPhotoFolder {
+					Section {
+						Picker("Synchronize", selection: $isSelective) {
+							Text("All files").tag(false)
+							Text("Selected files").tag(true)
+						}
+					} footer: {
+						if isSelective {
+							Text(
+								"Only files that you select will be copied to this device. You can still access all files in the folder on demand when connected to other devices that have a copy of the file."
+							)
+						}
+						else {
+							Text("All files in the folder will be copied to this device.")
+						}
 					}
 				}
 
@@ -200,6 +218,7 @@ struct AddFolderView: View {
 						}
 						else {
 							self.folderPath = url
+							self.isPhotoFolder = false
 						}
 					case .failure(let e):
 						Log.warn("Failed to select folder: \(e.localizedDescription)")
@@ -220,20 +239,28 @@ struct AddFolderView: View {
 	private func add() {
 		do {
 			// Add the folder
-			if let fp = self.folderPath {
-				try BookmarkManager.shared.saveBookmark(folderID: self.folderID, url: fp)
-				try appState.client.addFolder(
-					self.folderID, folderPath: fp.path(percentEncoded: false),
-					createAsOnDemand: self.isSelective)
+			if self.isPhotoFolder {
+				let path = String(data: try JSONEncoder().encode(self.photoFolderConfig), encoding: .utf8)!
+				try appState.client.addSpecialFolder(self.folderID, fsType: PhotoFSType, folderPath: path, folderType: "sendonly")
 			}
 			else {
-				try appState.client.addFolder(
-					self.folderID, folderPath: "", createAsOnDemand: self.isSelective)
+				if let fp = self.folderPath {
+					try BookmarkManager.shared.saveBookmark(folderID: self.folderID, url: fp)
+					try appState.client.addFolder(
+						self.folderID, folderPath: fp.path(percentEncoded: false),
+						createAsOnDemand: self.isSelective)
+				}
+				else {
+					try appState.client.addFolder(
+						self.folderID, folderPath: "", createAsOnDemand: self.isSelective)
+				}
 			}
 
 			if let folder = appState.client.folder(withID: self.folderID) {
-				// By default, exclude from backup
-				folder.isExcludedFromBackup = true
+				if folder.isRegularFolder {
+					// By default, exclude from backup
+					folder.isExcludedFromBackup = true
+				}
 
 				// Add peers
 				for devID in self.sharedWith {

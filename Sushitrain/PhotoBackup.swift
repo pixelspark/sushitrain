@@ -529,14 +529,12 @@ extension PHAsset {
 		return resource ?? resources.first
 	}
 
-	fileprivate var originalFilename: String {
+	var originalFilename: String {
 		guard let result = primaryResource else { return "file" }
-
 		return result.originalFilename.replacingOccurrences(of: "/", with: "_")
 	}
 
-	fileprivate func directoryPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath) -> EntryPath
-	{
+	fileprivate func directoryPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath) -> EntryPath {
 		var inFolderURL = subdirectoryPath
 
 		switch structure {

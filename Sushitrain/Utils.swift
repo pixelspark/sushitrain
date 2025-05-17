@@ -184,6 +184,13 @@ extension SushitrainFolder {
 		}
 		return entries.sorted()
 	}
+	
+	var systemImage: String {
+		if self.isPhotoFolder {
+			return "photo.stack"
+		}
+		return "folder.fill"
+	}
 }
 
 extension SushitrainChange {
@@ -230,6 +237,9 @@ extension SushitrainEntry {
 			return "trash"
 		}
 		else if self.isSelected() {
+			if let f = self.folder, f.isPhotoFolder {
+				return base
+			}
 			if self.isDirectory() {
 				return "questionmark.folder"
 			}
@@ -294,6 +304,11 @@ extension SushitrainEntry {
 	}
 
 	var localNativeFileURL: URL? {
+		// For photo folders, there is never a local native URL
+		if let f = self.folder, f.isPhotoFolder {
+			return nil
+		}
+		
 		var error: NSError? = nil
 		if self.isLocallyPresent() {
 			let path = self.localNativePath(&error)
@@ -420,16 +435,25 @@ extension SushitrainEntry {
 	}
 
 	var canShowInFinder: Bool {
-		return self.isLocallyPresent() || self.isDirectory()  // Directories can be materialized
+		if let f = self.folder {
+			return f.isRegularFolder && (self.isLocallyPresent() || self.isDirectory())  // Directories can be materialized
+		}
+		return false
 	}
 
 	@MainActor func showInFinder() throws {
-		if !self.isLocallyPresent() && self.isDirectory() {
-			try? self.materializeSubdirectory()
-		}
-
-		if let localNativeURL = self.localNativeFileURL {
-			openURLInSystemFilesApp(url: localNativeURL)
+		if let f = self.folder {
+			if !f.isRegularFolder {
+				return
+			}
+			
+			if !self.isLocallyPresent() && self.isDirectory() {
+				try? self.materializeSubdirectory()
+			}
+			
+			if let localNativeURL = self.localNativeFileURL {
+				openURLInSystemFilesApp(url: localNativeURL)
+			}
 		}
 	}
 

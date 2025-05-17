@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/syncthing/syncthing/lib/config"
 	"github.com/syncthing/syncthing/lib/fs"
 	"github.com/syncthing/syncthing/lib/model"
 	"github.com/syncthing/syncthing/lib/osutil"
@@ -142,6 +143,11 @@ func (entry *Entry) MaterializeSubdirectory() error {
 func (entry *Entry) IsLocallyPresent() bool {
 	fc := entry.Folder.folderConfiguration()
 	if fc == nil {
+		return false
+	}
+
+	// For custom filesystem types, files are never 'locally present' (their paths will not work on the actual system FS)
+	if fc.FilesystemType != config.FilesystemTypeBasic && fc.FilesystemType.String() != "" {
 		return false
 	}
 
