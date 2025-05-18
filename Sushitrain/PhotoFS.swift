@@ -19,6 +19,7 @@ enum CustomFSError: Error {
 enum PhotoFSError: Error {
 	case albumNotFound
 	case invalidURI
+	case assetUnavailable
 
 	var localizedDescription: String {
 		switch self {
@@ -26,6 +27,8 @@ enum PhotoFSError: Error {
 			return String(localized: "album not found")
 		case .invalidURI:
 			return String(localized: "invalid configuration")
+		case .assetUnavailable:
+			return String(localized: "media file is currently unavailable")
 		}
 	}
 }
@@ -137,12 +140,19 @@ private class PhotoFSAssetEntry: CustomFSEntry {
 		options.allowSecondaryDegradedImage = false
 		options.version = .current
 
-		var exported: Data! = nil
-		PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
+		var exported: Data? = nil
+		PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, info in
+			if let info = info, let errorMessage = info[PHImageErrorKey] {
+				Log.warn("Could not export asset \(self.asset.localIdentifier): \(errorMessage) \(info)")
+			}
 			exported = data
 		}
-		Log.info("Exported asset \(asset.localIdentifier) \(self.modifiedTime()) bytes=\(exported.count)")
-		return exported
+		Log.info("Exported asset \(asset.localIdentifier) \(self.modifiedTime()) bytes=\(exported?.count ?? -1)")
+		
+		if let exported = exported {
+			return exported
+		}
+		throw PhotoFSError.assetUnavailable
 	}
 }
 

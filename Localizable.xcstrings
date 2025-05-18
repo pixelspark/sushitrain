@@ -8456,7 +8456,7 @@
         },
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "For a file inside this folder at location '%1$@', the generated sharing link will be %2$@'. For the link to actually work, you need to set up a web server serving the the folder at the indicated URL."
           }
         },
@@ -11310,6 +11310,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Максимальний час очікування (секунди)"
+          }
+        }
+      }
+    },
+    "media file is currently unavailable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mediendatei ist derzeit nicht verfügbar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "archivo multimedia no está disponible actualmente"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "file multimediale attualmente non disponibile"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mediabestand is momenteel niet beschikbaar"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "медіафайл наразі недоступний"
           }
         }
       }
