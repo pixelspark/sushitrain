@@ -61,6 +61,7 @@ struct ThumbnailView: View {
 					Button("Show preview for large files") {
 						showPreview = true
 					}
+					.padding(10)
 					#if os(macOS)
 						.buttonStyle(.link)
 					#endif
