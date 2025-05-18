@@ -86,9 +86,7 @@ struct BrowserTableView: View {
 					if !entry.isDirectory() {
 						Text(Self.formatter.string(fromByteCount: entry.size()))
 							.foregroundStyle(Color.primary)
-							.opacity(
-								entry.isLocallyPresent()
-									? 1.0 : EntryView.remoteFileOpacity)
+							.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
 					}
 				}
 				.width(min: 100, max: 120)
@@ -104,9 +102,7 @@ struct BrowserTableView: View {
 					if let md = entry.modifiedAt()?.date(), !entry.isSymlink() {
 						Text(md.formatted(date: .numeric, time: .shortened))
 							.foregroundStyle(Color.primary)
-							.opacity(
-								entry.isLocallyPresent()
-									? 1.0 : EntryView.remoteFileOpacity)
+							.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
 					}
 				}
 				.width(min: 150, max: 180)
@@ -147,16 +143,11 @@ struct BrowserTableView: View {
 					if let oe = self.entryById(item) {
 						if !oe.isDirectory() && !oe.isSymlink() {
 							#if os(macOS)
-								Button(
-									"Show preview",
-									systemImage: "doc.text.magnifyingglass"
-								) {
+								Button("Show preview", systemImage: "doc.text.magnifyingglass") {
 									openWindow(
 										id: "preview",
-										value: Preview(
-											folderID: self.folder.folderID,
-											path: oe.path()
-										))
+										value: Preview(folderID: self.folder.folderID, path: oe.path())
+									)
 								}.disabled(!oe.canPreview)
 
 								// Copy
@@ -172,12 +163,9 @@ struct BrowserTableView: View {
 
 						// Show file in Finder
 						if oe.canShowInFinder {
-							Button(
-								openInFilesAppLabel,
-								systemImage: "arrow.up.forward.app",
-								action: {
-									try? oe.showInFinder()
-								})
+							Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
+								try? oe.showInFinder()
+							}
 						}
 
 						Divider()
@@ -218,11 +206,7 @@ struct BrowserTableView: View {
 					// Symlink to a directory
 					if targetEntry.isDirectory() {
 						if let targetFolder = targetEntry.folder {
-							BrowserView(
-
-								folder: targetFolder,
-								prefix: targetEntry.path() + "/"
-							)
+							BrowserView(folder: targetFolder, prefix: targetEntry.path() + "/")
 						}
 					}
 					else {
@@ -248,9 +232,7 @@ struct BrowserTableView: View {
 			}
 			else if oe.isDirectory() {
 				if honorTapToPreview {
-					BrowserView(
-						folder: folder,
-						prefix: oe.path() + "/")
+					BrowserView(folder: folder, prefix: oe.path() + "/")
 				}
 				else {
 					FileView(file: oe, siblings: self.entries)
