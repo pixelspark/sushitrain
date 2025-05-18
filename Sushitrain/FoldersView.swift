@@ -156,7 +156,6 @@ struct FoldersSections: View {
 								})
 						}
 					}
-					.id(folder.folderID)
 				}
 			}
 		}
@@ -172,7 +171,6 @@ struct FoldersSections: View {
 							showingAddFolderPopup = true
 						}
 					)
-					.id(folderID)
 					#if os(macOS)
 						.buttonStyle(.link)
 					#endif
@@ -238,7 +236,7 @@ struct FoldersView: View {
 							BrowserView(
 								folder: folder,
 								prefix: ""
-							).id(folder.folderID)
+							)
 						}
 						else {
 							ContentUnavailableView(

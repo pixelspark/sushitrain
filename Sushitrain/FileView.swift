@@ -180,7 +180,6 @@ struct FileView: View {
 					if file.canThumbnail && !showFullScreenViewer {
 						Section {
 							ThumbnailView(file: file, appState: appState, showFileName: false, showErrorMessages: true)
-								.id(file.id)
 								.ignoresSafeArea()
 								.padding(.all, 0)
 								// Fixes issue where image is still tappable outside its rectangle

@@ -213,7 +213,6 @@ struct BrowserTableView: View {
 				if !honorTapToPreview {
 					// Just show symlink properties
 					FileView(file: oe, siblings: self.entries)
-						.id(oe.id)
 				}
 				else if let targetEntry = try? oe.symlinkTargetEntry() {
 					// Symlink to a directory
@@ -238,11 +237,7 @@ struct BrowserTableView: View {
 							.navigationTitle(targetEntry.fileName())
 						}
 						else {
-							FileView(
-								file: targetEntry,
-								siblings: self.entries
-							)
-							.id(oe.id)
+							FileView(file: targetEntry, siblings: self.entries)
 						}
 					}
 				}
@@ -259,7 +254,6 @@ struct BrowserTableView: View {
 				}
 				else {
 					FileView(file: oe, siblings: self.entries)
-						.id(oe.id)
 				}
 			}
 			else {
@@ -274,7 +268,6 @@ struct BrowserTableView: View {
 				}
 				else {
 					FileView(file: oe, siblings: self.entries)
-						.id(oe.id)
 				}
 			}
 		}
@@ -423,7 +416,6 @@ private struct EntryNameView: View {
 				ThumbnailView(file: entry, appState: appState, showFileName: false, showErrorMessages: false)
 					.frame(width: 60, height: 40)
 					.cornerRadius(6.0)
-					.id(entry.id)
 					.help(entry.fileName())
 
 				// The entry name (grey when not locally present)

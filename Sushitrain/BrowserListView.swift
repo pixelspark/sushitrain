@@ -62,7 +62,7 @@ struct BrowserListView: View {
 					EntryView(
 						entry: file, folder: folder, siblings: files,
 						showThumbnail: self.appState.browserViewStyle == .thumbnailList
-					).id(file.id)
+					)
 				}
 			}
 
@@ -104,7 +104,7 @@ struct EntryView: View {
 				HStack(alignment: .center, spacing: 9.0) {
 					ThumbnailView(file: entry, appState: appState, showFileName: false, showErrorMessages: false).frame(
 						width: 60, height: 40
-					).cornerRadius(6.0).id(entry.id).help(entry.fileName())
+					).cornerRadius(6.0).help(entry.fileName())
 
 					// The entry name (grey when not locally present)
 					Text(entry.fileName()).multilineTextAlignment(.leading).foregroundStyle(
@@ -160,7 +160,7 @@ struct EntryView: View {
 							VStack {
 								ThumbnailView(file: targetEntry, appState: appState, showFileName: false, showErrorMessages: false).frame(
 									minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity
-								).id(targetEntry.id)
+								)
 							}
 						}
 					}
@@ -312,7 +312,7 @@ struct FileEntryLink<Content: View>: View {
 				VStack {
 					ThumbnailView(file: entry, appState: appState, showFileName: false, showErrorMessages: false).frame(
 						minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity
-					).id(entry.id)
+					)
 				}
 			}
 		}

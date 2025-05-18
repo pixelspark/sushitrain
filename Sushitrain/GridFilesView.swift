@@ -20,7 +20,6 @@ private struct GridItemView: View {
 
 			ThumbnailView(file: file, appState: appState, showFileName: true, showErrorMessages: false)
 				.frame(width: size, height: size)
-				.id(file.id)
 		}
 	}
 }
