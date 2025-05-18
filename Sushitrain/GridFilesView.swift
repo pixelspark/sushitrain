@@ -60,6 +60,7 @@ struct GridFilesView: View {
 				}
 				.aspectRatio(1, contentMode: .fit)
 				.clipShape(.rect)
+				.contentShape(.rect())
 			}
 
 			// List files
@@ -74,6 +75,7 @@ struct GridFilesView: View {
 					.buttonStyle(PlainButtonStyle())
 				}
 				.clipShape(.rect)
+				.contentShape(.rect())
 				.aspectRatio(1, contentMode: .fit)
 			}
 		}

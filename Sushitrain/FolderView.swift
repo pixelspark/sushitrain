@@ -1116,16 +1116,19 @@ private struct FolderGenerateThumbnailsView: View {
 						img.frame(maxWidth: 200, maxHeight: 200)
 							.scaledToFit()
 							.clipShape(.rect(cornerRadius: 10))
+							.contentShape(.rect)
 					default:
 						Rectangle().frame(width: 200, height: 200)
 							.foregroundStyle(.gray)
 							.opacity(0.2)
 							.clipShape(.rect(cornerRadius: 10))
+							.contentShape(.rect)
 					}
 				}
 				else {
 					Rectangle().frame(width: 200, height: 200).foregroundStyle(.gray).opacity(0.2)
 						.clipShape(.rect(cornerRadius: 10))
+						.contentShape(.rect)
 				}
 
 				Text("Generating thumbnails... (\(self.processedFiles) / \(self.totalFiles))")
