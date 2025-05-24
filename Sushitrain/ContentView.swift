@@ -114,7 +114,7 @@ struct ContentView: View {
 					case .folder(let folderID):
 						if let folderID = folderID, let folder = self.appState.client.folder(withID: folderID) {
 							if folder.exists() {
-								BrowserView(folder: folder, prefix: "")
+								BrowserView(folder: folder, prefix: "").id(folder.folderID)
 							}
 							else {
 								ContentUnavailableView(
