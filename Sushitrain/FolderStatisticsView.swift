@@ -15,6 +15,19 @@ private struct NeededFilesView: View {
 	@State private var loading = false
 	@State private var files: [SushitrainEntry] = []
 	@State private var error: Error? = nil
+	
+	private static let fileLimit = 100
+	
+	private enum Errors: LocalizedError {
+		case tooManyFiles(count: Int)
+		
+		var errorDescription: String? {
+			switch self {
+			case .tooManyFiles(let count):
+				return String(localized: "Too many files (\(count)) to display.")
+			}
+		}
+	}
 
 	var body: some View {
 		Group {
@@ -26,19 +39,20 @@ private struct NeededFilesView: View {
 				}
 			}
 			else if let e = error {
-				ContentUnavailableView(e.localizedDescription, systemImage: "exclamationmark.triangle.fill")
+				ContentUnavailableView(e.localizedDescription, systemImage: "exclamationmark.triangle.fill").frame(minHeight: 300)
 			}
 			else if files.isEmpty {
 				ContentUnavailableView(
 					device == nil ? "This device has all the files it wants" : "\(device!.displayName) has all the files it wants",
 					systemImage: "checkmark.circle.fill")
+				.frame(minHeight: 300)
 			}
 			else {
 				List {
 					ForEach(self.files) { file in
 						Text(file.name())
 					}
-				}
+				}.frame(minHeight: 300)
 				.refreshable {
 					await self.update()
 				}
@@ -57,18 +71,30 @@ private struct NeededFilesView: View {
 
 		do {
 			self.loading = true
+
 			self.files = try await Task {
 				var paths: [String]
 				if let device = self.device {
+					let completion = try folder.completion(forDevice: device.deviceID())
+					Log.info("CPN \(completion.needItems), \(Self.fileLimit)")
+					if completion.needItems > Self.fileLimit {
+						throw Errors.tooManyFiles(count: completion.needItems)
+					}
+					
 					paths = (try folder.filesNeeded(by: device.deviceID())).asArray()
 				}
 				else {
+					let stats = try folder.statistics()
+					if let ln = stats.localNeed, ln.files > Self.fileLimit {
+						throw Errors.tooManyFiles(count: ln.files)
+					}
 					paths = (try folder.filesNeeded()).asArray()
 				}
 				return paths.compactMap { try? folder.getFileInformation($0) }
 			}.value
 		}
 		catch {
+			self.error = error
 			self.files = []
 		}
 		self.loading = false
@@ -113,7 +139,13 @@ struct FolderStatisticsView: View {
 						Text("Number of directories").badge(local.directories.formatted())
 						Text("File size").badge(formatter.string(fromByteCount: local.bytes))
 					} header: {
-						Text("On this device: \(myPercentage)% of the full folder")
+						HStack {
+							Text("On this device: \(myPercentage)% of the full folder")
+							Spacer()
+							ProgressView(value: Double(myPercentage), total: 100.0)
+								.progressViewStyle(.circular)
+								.controlSize(.mini)
+						}
 					}
 				}
 
@@ -128,10 +160,13 @@ struct FolderStatisticsView: View {
 							{
 								if let device = peers[deviceID] {
 									NavigationLink(destination: NeededFilesView(folder: folder, device: device)) {
-										Label(
-											device.name(),
-											systemImage: "externaldrive"
-										).badge(
+										HStack {
+											Label(
+												device.name(),
+												systemImage: "externaldrive"
+											)
+											Spacer()
+										}.badge(
 											Text(
 												"\(Int(completion.completionPct))%"
 											))

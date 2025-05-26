@@ -20370,6 +20370,40 @@
         }
       }
     },
+    "Too many files (%lld) to display." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zu viele Dateien (%lld), um angezeigt zu werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demasiados archivos (%lld) para mostrar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Troppi file (%lld) da visualizzare."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te veel bestanden (%lld) om weer te geven."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Занадто багато файлів (%lld) для відображення."
+          }
+        }
+      }
+    },
     "Total folder size" : {
       "localizations" : {
         "de" : {
