@@ -304,6 +304,8 @@ struct BrowserView: View {
 						Label("Files kept on this device...", systemImage: "pin")
 					}
 				}
+				
+				Divider()
 			}
 
 			Button("Folder settings...", systemImage: "folder.badge.gearshape") {
