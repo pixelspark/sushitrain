@@ -451,21 +451,26 @@ struct DevicesView: View {
 					ShareFolderWithDeviceDetailsView(folder: self.folder, deviceID: .constant(device.deviceID()))
 				}
 			}
+			.onChange(of: appState.eventCounter) {
+				self.update()
+			}
 		}
 
 		private func update() {
 			self.isLoading = true
 			let devID = self.device.deviceID()
-			Task.detached {
+			Task {
 				let sharedWithDeviceIDs = folder.sharedWithDeviceIDs()?.asArray() ?? []
 				let sharedEncrypted = folder.sharedEncryptedWithDeviceIDs()?.asArray() ?? []
 				let completion = self.viewStyle == .sharing ? nil : try? self.folder.completion(forDevice: devID)
 
-				DispatchQueue.main.async {
-					self.isShared = sharedWithDeviceIDs.contains(self.device.deviceID())
-					self.isSharedEncrypted = sharedEncrypted.contains(device.deviceID())
-					self.completion = completion
-					self.isLoading = false
+				Task { @MainActor in 
+					withAnimation {
+						self.isShared = sharedWithDeviceIDs.contains(self.device.deviceID())
+						self.isSharedEncrypted = sharedEncrypted.contains(device.deviceID())
+						self.completion = completion
+						self.isLoading = false
+					}
 				}
 			}
 		}
