@@ -141,10 +141,12 @@ struct FolderStatisticsView: View {
 					} header: {
 						HStack {
 							Text("On this device: \(myPercentage)% of the full folder")
-							Spacer()
-							ProgressView(value: Double(myPercentage), total: 100.0)
-								.progressViewStyle(.circular)
-								.controlSize(.mini)
+							#if os(macOS)
+								Spacer()
+								ProgressView(value: Double(myPercentage), total: 100.0)
+									.progressViewStyle(.circular)
+									.controlSize(.mini)
+							#endif
 						}
 					}
 				}
