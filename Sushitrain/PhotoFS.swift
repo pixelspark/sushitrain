@@ -16,12 +16,12 @@ enum CustomFSError: Error {
 	case notAFile
 }
 
-enum PhotoFSError: Error {
+enum PhotoFSError: LocalizedError {
 	case albumNotFound
 	case invalidURI
 	case assetUnavailable
 
-	var localizedDescription: String {
+	var errorDescription: String {
 		switch self {
 		case .albumNotFound:
 			return String(localized: "album not found")

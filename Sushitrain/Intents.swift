@@ -80,11 +80,11 @@ struct FileEntityQuery: EntityQuery, EntityPropertyQuery {
 		}
 	}
 
-	private enum FileEntityQueryError: Error {
+	private enum FileEntityQueryError: LocalizedError {
 		case modeNotSupported
 		case queryNotSupported
 
-		var localizedDescription: String {
+		var errorDescription: String {
 			switch self {
 			case .modeNotSupported:
 				return String(
