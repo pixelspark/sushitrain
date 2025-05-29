@@ -78,36 +78,43 @@ private func fetchVideoThumbnail(url: URL, maxDimensionsInPixels: Int) async -> 
 		}.value)
 }
 
-private func fetchImageThumbnail(_ url: URL, maxDimensionsInPixels: Int) async -> AsyncImagePhase {
-	// For other files, fetch from URL
-	let imageSourceOption = [kCGImageSourceShouldCache: false] as CFDictionary
-	guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, imageSourceOption) else {
-		return .failure(ImageFetchError.failedToFetchImage)
-	}
+let fetchQueue = DispatchQueue(label: "fetchImageQueue", qos: .background)
 
-	let downsampledOptions =
+private func fetchImageThumbnail(_ url: URL, maxDimensionsInPixels: Int) async -> AsyncImagePhase {
+	// This is here to fix "Thread running at User-initiated quality-of-service class waiting on a lower QoS thread
+	// running at Default quality-of-service class. Investigate ways to avoid priority inversions" warning from
+	// thread performance checker.
+	await Task(priority: .background) {
+		// For other files, fetch from URL
+		let imageSourceOption = [kCGImageSourceShouldCache: false] as CFDictionary
+		guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, imageSourceOption) else {
+			return .failure(ImageFetchError.failedToFetchImage)
+		}
+		
+		let downsampledOptions =
 		[
 			kCGImageSourceCreateThumbnailFromImageAlways: true,
 			kCGImageSourceShouldCache: true,
 			kCGImageSourceCreateThumbnailWithTransform: true,
 			kCGImageSourceThumbnailMaxPixelSize: maxDimensionsInPixels,
 		] as CFDictionary
-
-	guard
-		let downsampledImage = CGImageSourceCreateThumbnailAtIndex(
-			imageSource,
-			0,
-			downsampledOptions
-		)
-	else {
-		return .failure(ImageFetchError.failedToDownsample)
-	}
-
-	#if os(iOS)
-		return .success(Image(uiImage: UIImage(cgImage: downsampledImage)))
-	#else
-		return .success(Image(nsImage: NSImage(cgImage: downsampledImage, size: .zero)))
-	#endif
+		
+		guard
+			let downsampledImage = CGImageSourceCreateThumbnailAtIndex(
+				imageSource,
+				0,
+				downsampledOptions
+			)
+		else {
+			return .failure(ImageFetchError.failedToDownsample)
+		}
+		
+		#if os(iOS)
+				return .success(Image(uiImage: UIImage(cgImage: downsampledImage)))
+		#else
+				return .success(Image(nsImage: NSImage(cgImage: downsampledImage, size: .zero)))
+		#endif
+	}.value
 
 }
 
