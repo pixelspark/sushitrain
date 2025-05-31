@@ -140,6 +140,40 @@ func (entry *Entry) MaterializeSubdirectory() error {
 	return nil
 }
 
+func (entry *Entry) FetchLocal(start int64, length int64) ([]byte, error) {
+	fc := entry.Folder.folderConfiguration()
+	if fc == nil {
+		return nil, errors.New("invalid folder")
+	}
+
+	ffs := fc.Filesystem(nil)
+	_, err := ffs.Stat(entry.info.FileName())
+	if err == nil {
+		file, err := ffs.Open(entry.info.FileName())
+		if err != nil {
+			return nil, err
+		}
+		defer file.Close()
+
+		var read int64
+		buffer := make([]byte, length)
+		for {
+			n, err := file.ReadAt(buffer[read:], start+int64(read))
+			read += int64(n)
+			if err != nil {
+				Logger.Debugln("FetchLocal ReadAt: ", read, " n=", n, " fn=", entry.info.FileName(), " error=", err)
+				return buffer, err
+			}
+			if read == length {
+				return buffer, nil
+			}
+		}
+	} else {
+		Logger.Debugln("FetchLocal start=", start, " length=", length, " fn=", entry.info.FileName(), " error=", err)
+		return nil, errors.New("file not available")
+	}
+}
+
 func (entry *Entry) IsLocallyPresent() bool {
 	fc := entry.Folder.folderConfiguration()
 	if fc == nil {

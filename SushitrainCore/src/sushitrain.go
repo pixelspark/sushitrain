@@ -220,7 +220,7 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 		return nil, err
 	}
 
-	return &Client{
+	clt := &Client{
 		Delegate:                   nil,
 		cert:                       cert,
 		config:                     config,
@@ -238,7 +238,10 @@ func NewClient(configPath string, filesPath string, saveLog bool) (*Client, erro
 		uploadProgress:             make(map[string]map[string]map[string]int),
 		ResolvedListenAddresses:    make(map[string][]string),
 		extraneousIgnored:          make([]string, 0),
-	}, nil
+	}
+
+	server.client = clt
+	return clt, nil
 }
 
 func (clt *Client) SetExtraneousIgnored(names []string) {

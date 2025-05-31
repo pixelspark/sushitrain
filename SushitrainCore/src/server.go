@@ -198,6 +198,17 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 		folder := r.URL.Query().Get("folder")
 		path := r.URL.Query().Get("path")
 		Logger.Infoln("Request", r.Method, folder, path)
+		stFolder := server.client.FolderWithID(folder)
+		if stFolder == nil {
+			w.WriteHeader(404)
+			return
+		}
+		stEntry, err := stFolder.GetFileInformation(path)
+		if err != nil {
+			w.WriteHeader(500)
+			w.Write([]byte(err.Error()))
+			return
+		}
 
 		m := app.Internals
 		info, ok, err := m.GlobalFileInfo(folder, path)
@@ -249,6 +260,15 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 					Logger.Warnln("Requested range ", rng, " is larger than file; shrinking range to length=", max(0, info.Size-rng.Start))
 					rng.Length = max(0, info.Size-rng.Start)
 				}
+
+				// Do we have this file ourselves?
+				// FIXME: this will lead to re-opening the file for each block, persist the file handle and 'ReadAt' from it directly.
+				if buffer, err := stEntry.FetchLocal(rng.Start, rng.Length); err == nil {
+					Logger.Debugln("We have this block locally; writing ", len(buffer), " bytes")
+					w.Write(buffer)
+					continue
+				}
+
 				startBlock := rng.Start / int64(blockSize)
 				blockCount := ceilDiv(rng.Length, blockSize)
 
@@ -325,16 +345,22 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 			w.Header().Add("Content-length", fmt.Sprintf("%d", info.Size))
 			w.WriteHeader(200)
 
-			fetchedBytes := int64(0)
-			mp := newMiniPuller(r.Context())
+			// Do we have this file ourselves?
+			if buffer, err := stEntry.FetchLocal(0, info.Size); err == nil {
+				Logger.Debugln("We have this file completely locally; writing ", len(buffer), " bytes")
+				w.Write(buffer)
+			} else {
+				fetchedBytes := int64(0)
+				mp := newMiniPuller(r.Context())
 
-			for blockNo, block := range info.Blocks {
-				buf, err := mp.downloadBock(m, folder, blockNo, info, block)
-				if err != nil {
-					return
+				for blockNo, block := range info.Blocks {
+					buf, err := mp.downloadBock(m, folder, blockNo, info, block)
+					if err != nil {
+						return
+					}
+					fetchedBytes += int64(block.Size)
+					w.Write(buf)
 				}
-				fetchedBytes += int64(block.Size)
-				w.Write(buf)
 			}
 		}
 	}))
