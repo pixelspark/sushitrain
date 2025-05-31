@@ -467,6 +467,74 @@ struct RescanIntent: AppIntent {
 	}
 }
 
+struct RemoveEmptySubdirectoriesIntent: AppIntent {
+	static let title: LocalizedStringResource = "Remove unsynchronized empty subdirectories"
+
+	@Dependency private var appState: AppState
+
+	@Parameter(title: "Folder", description: "Folder to remove empty unsynchronized subdirectories from. The folder must be selectively synchronized.")
+	var folderEntity: FolderEntity
+
+	@MainActor
+	func perform() async throws -> some IntentResult {
+		try folderEntity.folder.removeSuperfluousSubdirectories()
+		try folderEntity.folder.removeSuperfluousSelectionEntries()
+		return .result()
+	}
+}
+
+struct UnselectSynchronizedFilesIntent: AppIntent {
+	static let title: LocalizedStringResource = "Deselect files that are on other devices"
+	
+	enum Errors: LocalizedError {
+		case invalidQuorum
+		
+		var errorDescription: String? {
+			switch self {
+			case .invalidQuorum:
+				return String(localized: "The quorum must be a positive number.")
+			}
+		}
+	}
+
+	@Dependency private var appState: AppState
+
+	@Parameter(title: "Folder", description: "Folder to deselect files in.")
+	var folderEntity: FolderEntity
+	
+	@Parameter(title: "Quorum", description: "Minimum number of devices that need to have a copy before a file can be desynchronized.",
+		   default: 1, controlStyle: .field, inclusiveRange: (1, Int.max))
+	var quorum: Int
+
+	@MainActor
+	func perform() async throws -> some IntentResult {
+		if self.quorum < 1 {
+			throw Errors.invalidQuorum
+		}
+		
+		let folder = folderEntity.folder
+		var selectedPaths = Set(try folder.selectedPaths(true).asArray())
+		
+		for path in selectedPaths {
+			let entry = try folderEntity.folder.getFileInformation(path)
+			let peersWithFullCopy = try entry.peersWithFullCopy()
+			let numPeersWithCopy = peersWithFullCopy.count()
+			if numPeersWithCopy < self.quorum {
+				Log.info("Not removing \(path), there are only \(numPeersWithCopy) other devices with a copy (required: \(self.quorum).")
+				selectedPaths.remove(path)
+			}
+		}
+		
+		let verdicts = selectedPaths.reduce(into: [:]) { dict, p in
+			dict[p] = false
+		}
+		let json = try JSONEncoder().encode(verdicts)
+		try folder.setExplicitlySelectedJSON(json)
+		
+		return .result()
+	}
+}
+
 enum ConfigureEnabled: String, Codable, Sendable {
 	case enabled = "enabled"
 	case disabled = "disabled"

@@ -5284,6 +5284,40 @@
         }
       }
     },
+    "Deselect files that are on other devices" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien auf anderen Geräten abwählen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deseleccionar archivos que están en otros dispositivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deseleziona i file presenti su altri dispositivi"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deselecteer bestanden die op andere apparaten staan"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зняти вибір файлів, які знаходяться на інших пристроях"
+          }
+        }
+      }
+    },
     "Device" : {
       "localizations" : {
         "de" : {
@@ -8306,6 +8340,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Структура папок"
+          }
+        }
+      }
+    },
+    "Folder to deselect files in." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner, um Dateien abzuwählen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carpeta para deseleccionar archivos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartella per deselezionare i file."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map om bestanden te deselecteren."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Папка для зняття вибору файлів."
+          }
+        }
+      }
+    },
+    "Folder to remove empty unsynchronized subdirectories from. The folder must be selectively synchronized." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner, um leere nicht synchronisierte Unterverzeichnisse zu entfernen. Der Ordner muss selektiv synchronisiert werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carpeta para eliminar subdirectorios vacíos no sincronizados. La carpeta debe estar sincronizada selectivamente."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartella da cui rimuovere le sottodirectory non sincronizzate vuote. La cartella deve essere sincronizzata selettivamente."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map om lege niet-gesynchroniseerde submappen uit te verwijderen. De map moet selectief gesynchroniseerd zijn."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Папка для видалення порожніх незсинхронізованих підкаталогів. Папка має бути вибірково синхронізована."
           }
         }
       }
@@ -11382,6 +11484,40 @@
         }
       }
     },
+    "Minimum number of devices that need to have a copy before a file can be desynchronized." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mindestanzahl von Geräten, die eine Kopie haben müssen, bevor eine Datei desynchronisiert werden kann."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Número mínimo de dispositivos que deben tener una copia antes de que un archivo pueda desincronizarse."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Numero minimo di dispositivi che devono avere una copia prima che un file possa essere desincronizzato."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minimaal aantal apparaten dat een kopie moet hebben voordat een bestand kan worden gedesynchroniseerd."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мінімальна кількість пристроїв, що повинні мати копію, перед тим як файл може бути десинхронізований."
+          }
+        }
+      }
+    },
     "Name" : {
       "localizations" : {
         "de" : {
@@ -13316,6 +13452,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Вийти з Synctrain"
+          }
+        }
+      }
+    },
+    "Quorum" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quorum"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuórum"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quorum"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quorum"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кворум"
           }
         }
       }
@@ -18892,6 +19062,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Відсоток файлів, які пристрій синхронізував, відносно частини папки, яку він хоче синхронізувати. Оскільки пристрої можуть ігнорувати певні файли або взагалі не синхронізувати жодних файлів, відсоток не вказує на відсоток повної папки, фактично присутньої на пристрої."
+          }
+        }
+      }
+    },
+    "The quorum must be a positive number." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Quorum muss eine positive Zahl sein."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El quórum debe ser un número positivo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il quorum deve essere un numero positivo."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het quorum moet een positief getal zijn."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кворум має бути позитивним числом."
           }
         }
       }
