@@ -132,13 +132,10 @@ struct BrowserView: View {
 						).disabled(!folderExists)
 					}
 					else if folderExists {
-						if let entry = try? self.folder.getFileInformation(
-							self.prefix.withoutEndingSlash)
-						{
-							if entry.isDirectory() && !entry.isLocallyPresent() {
+						if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
+							if entry.isDirectory() && !entry.isLocallyPresent() && entry.canShowInFinder {
 								Button(
-									openInFilesAppLabel,
-									systemImage: "arrow.up.forward.app",
+									openInFilesAppLabel, systemImage: "arrow.up.forward.app",
 									action: {
 										try? entry.showInFinder()
 									})
@@ -299,7 +296,7 @@ struct BrowserView: View {
 					showFolderStatistics = true
 				}
 
-				if folderIsSelective {
+				if folderIsSelective && folder.isRegularFolder {
 					NavigationLink(destination: SelectiveFolderView(folder: folder)) {
 						Label("Files kept on this device...", systemImage: "pin")
 					}
@@ -313,7 +310,7 @@ struct BrowserView: View {
 			}
 
 			#if os(macOS)
-				if !folder.isSelective() {
+				if !folder.isSelective() && folder.isRegularFolder {
 					// On iOS this is in the folder settings screen
 					Button("Files to ignore...", systemImage: "rectangle.dashed") {
 						showIgnores = true
