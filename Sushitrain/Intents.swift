@@ -508,7 +508,7 @@ struct UnselectSynchronizedFilesIntent: AppIntent {
 	@Parameter(
 		title: "Quorum",
 		description: "Minimum number of devices that need to have a copy before a file can be desynchronized.",
-		default: 1, controlStyle: .field, inclusiveRange: (1, Int.max))
+		default: 1, controlStyle: .field, inclusiveRange: (1, 1000))
 	var quorum: Int
 
 	@MainActor
