@@ -1270,7 +1270,7 @@ func (fld *Folder) FilesNeededBy(peer string) (*ListOfStrings, error) {
 
 func (fld *Folder) IsDiskSpaceSufficient() bool {
 	if minFree := fld.folderConfiguration().MinDiskFree; minFree.Value > 0 {
-		fs := fld.folderConfiguration().Filesystem(nil)
+		fs := fld.folderConfiguration().Filesystem()
 
 		if usage, err := fs.Usage("."); err == nil {
 			if err = config.CheckFreeSpace(minFree, usage); err != nil {

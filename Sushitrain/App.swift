@@ -45,11 +45,7 @@ struct SushitrainApp: App {
 
 		registerPhotoFilesystem()
 
-		var error: NSError? = nil
-		guard let client = SushitrainNewClient(configPath, documentsPath, enableLogging, &error) else {
-			let errorMessage = error?.localizedDescription ?? "unknown error"
-			Log.warn("Error initializing: \(errorMessage)")
-			self.appStartupState = .error(errorMessage)
+		let client = SushitrainNewClient(configPath, documentsPath, enableLogging)!
 		
 		// Optionally clear v1 and/or v2 index
 		let clearV1Index = UserDefaults.standard.bool(forKey: "clearV1Index")
