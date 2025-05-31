@@ -148,7 +148,7 @@ private class PhotoFSAssetEntry: CustomFSEntry {
 			exported = data
 		}
 		Log.info("Exported asset \(asset.localIdentifier) \(self.modifiedTime()) bytes=\(exported?.count ?? -1)")
-		
+
 		if let exported = exported {
 			return exported
 		}

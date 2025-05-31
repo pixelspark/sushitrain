@@ -451,9 +451,9 @@ struct DevicesView: View {
 					ShareFolderWithDeviceDetailsView(folder: self.folder, deviceID: .constant(device.deviceID()))
 				}
 			}
-			.onChange(of: appState.eventCounter) {
-				self.update()
-			}
+				.onChange(of: appState.eventCounter) {
+					self.update()
+				}
 		}
 
 		private func update() {
@@ -464,7 +464,7 @@ struct DevicesView: View {
 				let sharedEncrypted = folder.sharedEncryptedWithDeviceIDs()?.asArray() ?? []
 				let completion = self.viewStyle == .sharing ? nil : try? self.folder.completion(forDevice: devID)
 
-				Task { @MainActor in 
+				Task { @MainActor in
 					withAnimation {
 						self.isShared = sharedWithDeviceIDs.contains(self.device.deviceID())
 						self.isSharedEncrypted = sharedEncrypted.contains(device.deviceID())

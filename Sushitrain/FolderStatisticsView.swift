@@ -15,12 +15,12 @@ private struct NeededFilesView: View {
 	@State private var loading = false
 	@State private var files: [SushitrainEntry] = []
 	@State private var error: Error? = nil
-	
+
 	private static let fileLimit = 100
-	
+
 	private enum Errors: LocalizedError {
 		case tooManyFiles(count: Int)
-		
+
 		var errorDescription: String? {
 			switch self {
 			case .tooManyFiles(let count):
@@ -44,7 +44,8 @@ private struct NeededFilesView: View {
 			else if files.isEmpty {
 				ContentUnavailableView(
 					device == nil ? "This device has all the files it wants" : "\(device!.displayName) has all the files it wants",
-					systemImage: "checkmark.circle.fill")
+					systemImage: "checkmark.circle.fill"
+				)
 				.frame(minHeight: 300)
 			}
 			else {
@@ -53,9 +54,9 @@ private struct NeededFilesView: View {
 						Text(file.name())
 					}
 				}.frame(minHeight: 300)
-				.refreshable {
-					await self.update()
-				}
+					.refreshable {
+						await self.update()
+					}
 			}
 		}
 		.task {
@@ -80,7 +81,7 @@ private struct NeededFilesView: View {
 					if completion.needItems > Self.fileLimit {
 						throw Errors.tooManyFiles(count: completion.needItems)
 					}
-					
+
 					paths = (try folder.filesNeeded(by: device.deviceID())).asArray()
 				}
 				else {

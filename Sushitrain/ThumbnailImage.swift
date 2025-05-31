@@ -90,15 +90,15 @@ private func fetchImageThumbnail(_ url: URL, maxDimensionsInPixels: Int) async -
 		guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, imageSourceOption) else {
 			return .failure(ImageFetchError.failedToFetchImage)
 		}
-		
+
 		let downsampledOptions =
-		[
-			kCGImageSourceCreateThumbnailFromImageAlways: true,
-			kCGImageSourceShouldCache: true,
-			kCGImageSourceCreateThumbnailWithTransform: true,
-			kCGImageSourceThumbnailMaxPixelSize: maxDimensionsInPixels,
-		] as CFDictionary
-		
+			[
+				kCGImageSourceCreateThumbnailFromImageAlways: true,
+				kCGImageSourceShouldCache: true,
+				kCGImageSourceCreateThumbnailWithTransform: true,
+				kCGImageSourceThumbnailMaxPixelSize: maxDimensionsInPixels,
+			] as CFDictionary
+
 		guard
 			let downsampledImage = CGImageSourceCreateThumbnailAtIndex(
 				imageSource,
@@ -108,11 +108,11 @@ private func fetchImageThumbnail(_ url: URL, maxDimensionsInPixels: Int) async -
 		else {
 			return .failure(ImageFetchError.failedToDownsample)
 		}
-		
+
 		#if os(iOS)
-				return .success(Image(uiImage: UIImage(cgImage: downsampledImage)))
+			return .success(Image(uiImage: UIImage(cgImage: downsampledImage)))
 		#else
-				return .success(Image(nsImage: NSImage(cgImage: downsampledImage, size: .zero)))
+			return .success(Image(nsImage: NSImage(cgImage: downsampledImage, size: .zero)))
 		#endif
 	}.value
 
