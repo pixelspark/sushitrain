@@ -77,7 +77,6 @@ private struct NeededFilesView: View {
 				var paths: [String]
 				if let device = self.device {
 					let completion = try folder.completion(forDevice: device.deviceID())
-					Log.info("CPN \(completion.needItems), \(Self.fileLimit)")
 					if completion.needItems > Self.fileLimit {
 						throw Errors.tooManyFiles(count: completion.needItems)
 					}
