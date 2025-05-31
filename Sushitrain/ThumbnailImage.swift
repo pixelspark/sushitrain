@@ -322,7 +322,7 @@ struct ThumbnailImage<Content>: View where Content: View {
 							return Image(uiImage: img)
 						}
 					#elseif os(macOS)
-						if let img = NSImage(contentsOfFile: url.path()) {
+						if let img = NSImage(byReferencingFile: url.path()), img.isValid {
 							return Image(nsImage: img)
 						}
 					#endif
