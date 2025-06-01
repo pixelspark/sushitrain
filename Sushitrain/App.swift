@@ -48,7 +48,7 @@ struct SushitrainApp: App {
 		let enableLogging = UserDefaults.standard.bool(forKey: "loggingEnabled")
 		Log.info("Logging enabled: \(enableLogging)")
 
-		RegisterPhotoFilesystem()
+		registerPhotoFilesystem()
 
 		var error: NSError? = nil
 		guard let client = SushitrainNewClient(configPath, documentsPath, enableLogging, &error) else {

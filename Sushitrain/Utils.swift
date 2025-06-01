@@ -157,7 +157,7 @@ extension SushitrainFolder {
 	}
 
 	var isPhotoFolder: Bool {
-		return self.filesystemType() == PhotoFSType
+		return self.filesystemType() == photoFSType
 	}
 
 	var hasEncryptedPeers: Bool {

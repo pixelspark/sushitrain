@@ -241,7 +241,7 @@ struct AddFolderView: View {
 			// Add the folder
 			if self.isPhotoFolder {
 				let path = String(data: try JSONEncoder().encode(self.photoFolderConfig), encoding: .utf8)!
-				try appState.client.addSpecialFolder(self.folderID, fsType: PhotoFSType, folderPath: path, folderType: "sendonly")
+				try appState.client.addSpecialFolder(self.folderID, fsType: photoFSType, folderPath: path, folderType: "sendonly")
 			}
 			else {
 				if let fp = self.folderPath {

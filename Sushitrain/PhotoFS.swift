@@ -6,7 +6,7 @@
 @preconcurrency import SushitrainCore
 import Photos
 
-let PhotoFSType: String = "sushitrain.photos.v1"
+let photoFSType: String = "sushitrain.photos.v1"
 
 private class PhotoFS: NSObject {
 }
@@ -288,7 +288,7 @@ private final class PhotoFSLibraryObserver: NSObject, PHPhotoLibraryChangeObserv
 	}
 }
 
-func RegisterPhotoFilesystem() {
-	SushitrainRegisterCustomFilesystemType(PhotoFSType, PhotoFS())
+func registerPhotoFilesystem() {
+	SushitrainRegisterCustomFilesystemType(photoFSType, PhotoFS())
 	PHPhotoLibrary.shared().register(PhotoFSLibraryObserver.shared)
 }
