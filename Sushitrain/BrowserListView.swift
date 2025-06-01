@@ -9,11 +9,12 @@ import QuickLook
 
 struct BrowserListView: View {
 	@EnvironmentObject var appState: AppState
-	var folder: SushitrainFolder
-	var prefix: String
-	var hasExtraneousFiles: Bool
-	var files: [SushitrainEntry] = []
-	var subdirectories: [SushitrainEntry] = []
+	let folder: SushitrainFolder
+	let prefix: String
+	let hasExtraneousFiles: Bool
+	let files: [SushitrainEntry]
+	let subdirectories: [SushitrainEntry]
+	let viewStyle: BrowserViewStyle
 
 	var body: some View {
 		List {
@@ -60,8 +61,10 @@ struct BrowserListView: View {
 			Section {
 				ForEach(files, id: \.self) { file in
 					EntryView(
-						entry: file, folder: folder, siblings: files,
-						showThumbnail: self.appState.browserViewStyle == .thumbnailList
+						entry: file,
+						folder: folder,
+						siblings: files,
+						showThumbnail: self.viewStyle == .thumbnailList
 					)
 				}
 			}

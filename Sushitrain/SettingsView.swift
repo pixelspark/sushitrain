@@ -1060,6 +1060,12 @@ struct ViewSettingsView: View {
 			}
 
 			Section {
+				Toggle("Automatically switch to grid view", isOn: appState.$automaticallySwitchViewStyle)
+			} footer: {
+				Text("When a folder contains only images, it will automatically be shown as a grid instead of a list.")
+			}
+
+			Section {
 				Toggle("Hide dotfiles", isOn: appState.$dotFilesHidden)
 			} footer: {
 				Text(

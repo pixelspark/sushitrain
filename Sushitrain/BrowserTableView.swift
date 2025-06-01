@@ -8,18 +8,19 @@ import QuickLook
 @preconcurrency import SushitrainCore
 
 struct BrowserTableView: View {
-	@EnvironmentObject var appState: AppState
-	var folder: SushitrainFolder
-	var files: [SushitrainEntry] = []
-	var subdirectories: [SushitrainEntry] = []
+	let folder: SushitrainFolder
+	let files: [SushitrainEntry]
+	let subdirectories: [SushitrainEntry]
+	let viewStyle: BrowserViewStyle
 
 	@State private var selection = Set<SushitrainEntry.ID>()
 	@State private var openedEntry: (SushitrainEntry, Bool)? = nil
 	@State private var sortOrder = [EntryComparator(order: .forward, sortBy: .name)]
 	@State private var entries: [SushitrainEntry] = []
-	@SceneStorage("BrowserTableViewConfig") private var columnCustomization: TableColumnCustomization<SushitrainEntry>
 
+	@SceneStorage("BrowserTableViewConfig") private var columnCustomization: TableColumnCustomization<SushitrainEntry>
 	@Environment(\.openURL) private var openURL
+	@EnvironmentObject var appState: AppState
 
 	#if os(macOS)
 		@Environment(\.openWindow) private var openWindow
@@ -53,13 +54,14 @@ struct BrowserTableView: View {
 	var body: some View {
 		Table(
 			of: SushitrainEntry.self,
-			selection: self.$selection, sortOrder: $sortOrder,
+			selection: self.$selection,
+			sortOrder: $sortOrder,
 			columnCustomization: $columnCustomization,
 			columns: {
 				// Name and icon
 				TableColumn("Name", sortUsing: EntryComparator(order: .forward, sortBy: .name)) {
 					(entry: SushitrainEntry) in
-					EntryNameView(entry: entry)
+					EntryNameView(entry: entry, viewStyle: self.viewStyle)
 						.environmentObject(self.appState)  // Needed because for some reason it does not propagate
 				}
 				.defaultVisibility(.visible)
@@ -384,11 +386,13 @@ struct MultiItemSelectToggleView: View {
 }
 
 private struct EntryNameView: View {
+	let entry: SushitrainEntry
+	let viewStyle: BrowserViewStyle
+
 	@EnvironmentObject var appState: AppState
-	var entry: SushitrainEntry
 
 	private var showThumbnail: Bool {
-		return self.appState.browserViewStyle == .thumbnailList
+		return self.viewStyle == .thumbnailList
 	}
 
 	var body: some View {

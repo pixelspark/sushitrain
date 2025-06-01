@@ -272,6 +272,7 @@ extension SushitrainEntry {
 	var isVideo: Bool {
 		return self.mimeType().starts(with: "video/")
 	}
+
 	var isAudio: Bool {
 		return self.mimeType().starts(with: "audio/")
 	}

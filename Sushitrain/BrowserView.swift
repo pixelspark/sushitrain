@@ -27,10 +27,21 @@ struct BrowserView: View {
 	@State private var showSearch = false
 	@State private var error: Error? = nil
 
+	@State private var viewStyle: BrowserViewStyle? = nil
+
 	#if os(macOS)
 		@State private var showIgnores = false
 		@State private var showStatusPopover = false
 	#endif
+
+	private func currentViewStyle() -> Binding<BrowserViewStyle> {
+		return Binding(
+			get: { self.viewStyle ?? appState.defaultBrowserViewStyle },
+			set: {
+				self.viewStyle = $0
+				appState.defaultBrowserViewStyle = $0
+			})
+	}
 
 	private var folderName: String {
 		if prefix.isEmpty {
@@ -45,8 +56,12 @@ struct BrowserView: View {
 
 	var body: some View {
 		BrowserItemsView(
-			folder: folder, prefix: prefix, searchText: $searchText,
-			showSettings: $showSettings
+			folder: folder,
+			prefix: prefix,
+			// Note: this binding does *not* set appState.defaultBrowserViewStyle, because this one is primarily set programmatically
+			viewStyle: Binding(get: { self.viewStyle }, set: { self.viewStyle = $0 }),
+			searchText: $searchText,
+			showSettings: $showSettings,
 		)
 
 		#if os(iOS)
@@ -106,7 +121,7 @@ struct BrowserView: View {
 				}
 
 				ToolbarItemGroup(placement: .status) {
-					Picker("View as", selection: appState.$browserViewStyle) {
+					Picker("View as", selection: self.currentViewStyle()) {
 						Image(systemName: "list.bullet").tag(BrowserViewStyle.list)
 							.accessibilityLabel(Text("List"))
 						Image(systemName: "checklist.unchecked").tag(
@@ -246,10 +261,8 @@ struct BrowserView: View {
 	@ViewBuilder private func folderMenu() -> some View {
 		Menu {
 			#if os(iOS)
-				BrowserViewStylePickerView(
-					viewStyle: appState.$browserViewStyle
-				)
-				.pickerStyle(.inline)
+				BrowserViewStylePickerView(viewStyle: self.currentViewStyle())
+					.pickerStyle(.inline)
 
 				Toggle(
 					"Search here...",
@@ -424,6 +437,8 @@ private struct BrowserItemsView: View {
 	@EnvironmentObject var appState: AppState
 	var folder: SushitrainFolder
 	var prefix: String
+	@Binding var viewStyle: BrowserViewStyle?
+
 	@Binding var searchText: String
 	@Binding var showSettings: Bool
 
@@ -436,95 +451,15 @@ private struct BrowserItemsView: View {
 	@Environment(\.isSearching) private var isSearching
 
 	var body: some View {
-		let isEmpty = subdirectories.isEmpty && files.isEmpty
-
 		Group {
 			if self.folder.exists() {
 				if !isSearching {
-					switch self.appState.browserViewStyle {
+					switch self.viewStyle ?? appState.defaultBrowserViewStyle {
 					case .grid:
-						VStack {
-							ScrollView {
-								HStack {
-									#if os(iOS)
-										FolderStatusView(folder: folder).padding(.all, 10)
-									#endif
+						self.gridView()
 
-									Spacer()
-
-									Slider(
-										value: Binding(
-											get: {
-												return Double(appState.browserGridColumns)
-											},
-											set: { nv in
-												appState.browserGridColumns = Int(nv)
-											}
-										),
-										in: 1.0...10.0, step: 1.0
-									)
-									.frame(minWidth: 50, maxWidth: 150)
-									.padding(.horizontal, 20)
-									.padding(.vertical, 15)
-								}
-
-								if hasExtraneousFiles {
-									NavigationLink(destination: {
-										ExtraFilesView(folder: self.folder)
-									}) {
-										Label(
-											"This folder has new files",
-											systemImage:
-												"exclamationmark.triangle.fill"
-										).foregroundColor(.orange)
-									}
-									.frame(maxWidth: .infinity)
-								}
-
-								GridFilesView(
-									prefix: self.prefix,
-									files: files,
-									subdirectories: subdirectories, folder: folder
-								)
-							}
-						}
 					case .list, .thumbnailList:
-						#if os(macOS)
-							VStack {
-								// Show extraneous files banner when necessary
-								if hasExtraneousFiles {
-									HStack(alignment: .center) {
-										Label(
-											"This folder has new files",
-											systemImage:
-												"exclamationmark.triangle.fill"
-										).foregroundColor(.orange)
-
-										Spacer()
-
-										NavigationLink(destination: {
-											ExtraFilesView(folder: self.folder)
-										}) {
-											Text("Review...")
-										}
-									}
-									.padding(
-										EdgeInsets(
-											top: 10.0, leading: 10.0,
-											bottom: 5.0, trailing: 10.0))
-								}
-
-								BrowserTableView(
-									folder: folder,
-									files: files,
-									subdirectories: subdirectories)
-							}
-						#else
-							BrowserListView(
-								folder: folder, prefix: prefix,
-								hasExtraneousFiles: hasExtraneousFiles, files: files,
-								subdirectories: subdirectories)
-						#endif
+						self.listView()
 					}
 				}
 				else {
@@ -536,59 +471,12 @@ private struct BrowserItemsView: View {
 					)
 				}
 			}
+			else {
+				EmptyView()
+			}
 		}
 		.overlay {
-			if !folder.exists() {
-				ContentUnavailableView(
-					"Folder removed", systemImage: "trash",
-					description: Text("This folder was removed."))
-			}
-			else if isLoading {
-				if isEmpty && showSpinner {
-					ProgressView()
-				}
-				// Load the rest while already showing a part of the results
-			}
-			else if isEmpty {
-				if self.prefix == "" {
-					if self.folder.isPaused() {
-						ContentUnavailableView(
-							"Synchronization disabled", systemImage: "pause.fill",
-							description: Text(
-								"Synchronization has been disabled for this folder. Enable it in folder settings to access files."
-							)
-						).onTapGesture {
-							showSettings = true
-						}
-					}
-					else if self.folder.connectedPeerCount() == 0 {
-						ContentUnavailableView(
-							"Not connected", systemImage: "network.slash",
-							description: Text(
-								"Share this folder with other devices to start synchronizing files."
-							)
-						).onTapGesture {
-							showSettings = true
-						}
-					}
-					else {
-						ContentUnavailableView(
-							"There are currently no files in this folder.",
-							systemImage: "questionmark.folder",
-							description: Text(
-								"If this is unexpected, ensure that the other devices have accepted syncing this folder with your device."
-							)
-						).onTapGesture {
-							showSettings = true
-						}
-					}
-				}
-				else {
-					ContentUnavailableView(
-						"There are currently no files in this folder.",
-						systemImage: "questionmark.folder")
-				}
-			}
+			self.overlayView()
 		}
 		.refreshable {
 			await self.rescan()
@@ -616,6 +504,157 @@ private struct BrowserItemsView: View {
 		.onChange(of: appState.eventCounter) {
 			Task {
 				await self.updateExtraneousFiles()
+			}
+		}
+	}
+
+	private var isEmpty: Bool {
+		return subdirectories.isEmpty && files.isEmpty
+	}
+
+	@ViewBuilder private func gridView() -> some View {
+		VStack {
+			ScrollView {
+				HStack {
+					#if os(iOS)
+						FolderStatusView(folder: folder).padding(.all, 10)
+					#endif
+
+					Spacer()
+
+					Slider(
+						value: Binding(
+							get: {
+								return Double(appState.browserGridColumns)
+							},
+							set: { nv in
+								appState.browserGridColumns = Int(nv)
+							}
+						),
+						in: 1.0...10.0, step: 1.0
+					)
+					.frame(minWidth: 50, maxWidth: 150)
+					.padding(.horizontal, 20)
+					.padding(.vertical, 15)
+				}
+
+				if hasExtraneousFiles {
+					NavigationLink(destination: {
+						ExtraFilesView(folder: self.folder)
+					}) {
+						Label(
+							"This folder has new files",
+							systemImage:
+								"exclamationmark.triangle.fill"
+						).foregroundColor(.orange)
+					}
+					.frame(maxWidth: .infinity)
+				}
+
+				GridFilesView(
+					prefix: self.prefix,
+					files: files,
+					subdirectories: subdirectories, folder: folder
+				)
+			}
+		}
+	}
+
+	@ViewBuilder private func listView() -> some View {
+		#if os(macOS)
+			VStack {
+				// Show extraneous files banner when necessary
+				if hasExtraneousFiles {
+					HStack(alignment: .center) {
+						Label(
+							"This folder has new files",
+							systemImage:
+								"exclamationmark.triangle.fill"
+						).foregroundColor(.orange)
+
+						Spacer()
+
+						NavigationLink(destination: {
+							ExtraFilesView(folder: self.folder)
+						}) {
+							Text("Review...")
+						}
+					}
+					.padding(
+						EdgeInsets(
+							top: 10.0, leading: 10.0,
+							bottom: 5.0, trailing: 10.0))
+				}
+
+				BrowserTableView(
+					folder: folder,
+					files: files,
+					subdirectories: subdirectories,
+					viewStyle: viewStyle ?? appState.defaultBrowserViewStyle
+				)
+			}
+		#else
+			BrowserListView(
+				folder: folder,
+				prefix: prefix,
+				hasExtraneousFiles: hasExtraneousFiles,
+				files: files,
+				subdirectories: subdirectories,
+				viewStyle: viewStyle ?? appState.defaultBrowserViewStyle
+			)
+		#endif
+	}
+
+	@ViewBuilder private func overlayView() -> some View {
+		if !folder.exists() {
+			ContentUnavailableView(
+				"Folder removed", systemImage: "trash",
+				description: Text("This folder was removed."))
+		}
+		else if isLoading {
+			if isEmpty && showSpinner {
+				ProgressView()
+			}
+			// Load the rest while already showing a part of the results
+		}
+		else if isEmpty {
+			if self.prefix == "" {
+				if self.folder.isPaused() {
+					ContentUnavailableView(
+						"Synchronization disabled", systemImage: "pause.fill",
+						description: Text(
+							"Synchronization has been disabled for this folder. Enable it in folder settings to access files."
+						)
+					).onTapGesture {
+						showSettings = true
+					}
+				}
+				else if self.folder.connectedPeerCount() == 0 {
+					ContentUnavailableView(
+						"Not connected", systemImage: "network.slash",
+						description: Text(
+							"Share this folder with other devices to start synchronizing files."
+						)
+					).onTapGesture {
+						showSettings = true
+					}
+				}
+				else {
+					ContentUnavailableView(
+						"There are currently no files in this folder.",
+						systemImage: "questionmark.folder",
+						description: Text(
+							"If this is unexpected, ensure that the other devices have accepted syncing this folder with your device."
+						)
+					).onTapGesture {
+						showSettings = true
+					}
+				}
+			}
+			else {
+				ContentUnavailableView(
+					"There are currently no files in this folder.",
+					systemImage: "questionmark.folder")
 			}
 		}
 	}
@@ -674,10 +713,37 @@ private struct BrowserItemsView: View {
 			return []
 		}.value
 
+		self.autoSelectViewStyle()
+
 		await self.updateExtraneousFiles()
 
 		self.isLoading = false
 		loadingSpinnerTask.cancel()
+	}
+
+	private func autoSelectViewStyle() {
+		// These files are ignored when deciding whether to switch to a grid view or not
+		let extensionsIgnored = Set([".aae", ".ds_store", ".db", ".gitignore", ".stignore", ".ini"])
+
+		if self.viewStyle == nil {
+			if appState.automaticallySwitchViewStyle {
+				// Check if we only have thumbnailable files; if so, switch to thumbnail mode
+				let dotFilesHidden = appState.dotFilesHidden
+				let filtered = self.files.filter({
+					!extensionsIgnored.contains($0.extension().lowercased()) && (!dotFilesHidden || !$0.fileName().starts(with: "."))
+				})
+
+				if !filtered.isEmpty && filtered.allSatisfy({ $0.canThumbnail && ($0.isImage || $0.isVideo) }) {
+					self.viewStyle = .grid
+				}
+				else {
+					self.viewStyle = .thumbnailList
+				}
+			}
+			else {
+				self.viewStyle = appState.defaultBrowserViewStyle
+			}
+		}
 	}
 
 	private func updateExtraneousFiles() async {

@@ -3006,6 +3006,40 @@
         }
       }
     },
+    "Automatically switch to grid view" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisch zur Gitteransicht wechseln"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambiar automáticamente a vista de cuadrícula"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passa automaticamente alla vista a griglia"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisch overschakelen naar rasterweergave"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоматично перемкнути на вигляд сітки"
+          }
+        }
+      }
+    },
     "Back-up new photos" : {
       "localizations" : {
         "de" : {
@@ -21692,6 +21726,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ласкаво просимо до Synctrain!"
+          }
+        }
+      }
+    },
+    "When a folder contains only images, it will automatically be shown as a grid instead of a list." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn ein Ordner nur Bilder enthält, wird er automatisch als Raster statt als Liste angezeigt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando una carpeta contiene solo imágenes, se mostrará automáticamente como cuadrícula en lugar de lista."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando una cartella contiene solo immagini, verrà visualizzata automaticamente come griglia anziché come elenco."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer een map alleen afbeeldingen bevat, wordt deze automatisch als raster weergegeven in plaats van als lijst."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли папка містить лише зображення, вона автоматично відображатиметься у вигляді сітки, а не списку."
           }
         }
       }

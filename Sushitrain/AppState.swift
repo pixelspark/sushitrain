@@ -66,7 +66,7 @@ enum FolderMetric: String {
 	@AppStorage("watchdogIntervalHours") var watchdogIntervalHours: Int = 2 * 24  // 2 days
 	@AppStorage("streamingLimitMbitsPerSec") var streamingLimitMbitsPerSec: Int = 0
 	@AppStorage("maxBytesForPreview") var maxBytesForPreview: Int = 2 * 1024 * 1024  // 2 MiB
-	@AppStorage("browserViewStyle") var browserViewStyle: BrowserViewStyle = .list
+	@AppStorage("browserViewStyle") var defaultBrowserViewStyle: BrowserViewStyle = .list
 	@AppStorage("browserGridColumns") var browserGridColumns: Int = 3
 	@AppStorage("loggingEnabled") var loggingEnabled: Bool = false
 	@AppStorage("dotFilesHidden") var dotFilesHidden: Bool = true
@@ -79,6 +79,7 @@ enum FolderMetric: String {
 	@AppStorage("cacheThumbnailsToFolderID") var cacheThumbnailsToFolderID: String = ""
 	@AppStorage("showThumbnailsInSearchResults") var showThumbnailsInSearchResults: Bool = true
 	@AppStorage("enableSwipeFilesInPreview") var enableSwipeFilesInPreview: Bool = true
+	@AppStorage("automaticallySwitchViewStyle") var automaticallySwitchViewStyle: Bool = true
 
 	// Whether to ignore certain files by default when scanning for extraneous files (i.e. .DS_Store)
 	@AppStorage("ignoreExtraneousDefaultFiles") var ignoreExtraneousDefaultFiles: Bool = true
