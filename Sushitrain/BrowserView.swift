@@ -61,7 +61,7 @@ struct BrowserView: View {
 			// Note: this binding does *not* set appState.defaultBrowserViewStyle, because this one is primarily set programmatically
 			viewStyle: Binding(get: { self.viewStyle }, set: { self.viewStyle = $0 }),
 			searchText: $searchText,
-			showSettings: $showSettings,
+			showSettings: $showSettings
 		)
 
 		#if os(iOS)
