@@ -18,6 +18,8 @@ enum PhotoBackupFolderStructure: String, Codable {
 	case byType = "byType"
 	case byDate = "byDate"
 	case byDateAndType = "byDateAndType"
+	case byDateComponent = "byDateComponent"
+	case byDateComponentAndType = "byDateComponentAndType"
 	case singleFolder = "singleFolder"
 	case singleFolderDatePrefixed = "singleFolderDatePrefixed"
 
@@ -25,6 +27,8 @@ enum PhotoBackupFolderStructure: String, Codable {
 		switch self {
 		case .byDate: return String(localized: "2024-08-11/IMG_2020.HEIC")
 		case .byDateAndType: return String(localized: "2024-08-11/Video/IMG_2020.MOV")
+		case .byDateComponent: return String(localized: "2024/08/11/IMG_2020.HEIC")
+		case .byDateComponentAndType: return String(localized: "2024/08/11/Video/IMG_2020.MOV")
 		case .byType: return String(localized: "Video/IMG_2020.MOV")
 		case .singleFolder: return String(localized: "IMG_2020.MOV")
 		case .singleFolderDatePrefixed: return String(localized: "2024-08-11_IMG_2020.MOV")
@@ -237,6 +241,7 @@ enum PhotoSyncProgress {
 					// Create containing directory
 					let assetDirectoryPath = asset.directoryPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
 					let dirInFolder = folderURL.appending(path: assetDirectoryPath.pathInFolder, directoryHint: .isDirectory)
+					Log.info("assetDirectoryPath \(assetDirectoryPath) \(dirInFolder)")
 					try FileManager.default.createDirectory(at: dirInFolder, withIntermediateDirectories: true)
 
 					let inFolderPath = asset.pathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
@@ -539,11 +544,18 @@ extension PHAsset {
 		guard let result = primaryResource else { return "file" }
 		return result.originalFilename.replacingOccurrences(of: "/", with: "_")
 	}
+	
+	fileprivate func directoryPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath) -> EntryPath {
+		var path = subdirectoryPath
+		for c in self.subdirectoriesInFolder(structure: structure) {
+			path = path.appending(c, isDirectory: true)
+		}
+		return path
+	}
 
-	fileprivate func directoryPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath) -> EntryPath
-	{
-		var inFolderURL = subdirectoryPath
-
+	func subdirectoriesInFolder(structure: PhotoBackupFolderStructure) -> [String] {
+		var components: [String] = []
+		
 		switch structure {
 		case .byDate, .byDateAndType:
 			if let creationDate = self.creationDate {
@@ -552,21 +564,35 @@ extension PHAsset {
 				let dateFormatter = DateFormatter()
 				dateFormatter.dateFormat = "yyyy-MM-dd"
 				let dateString = dateFormatter.string(from: creationDate)
-				inFolderURL = inFolderURL.appending(dateString, isDirectory: true)
+				components.append(dateString)
 			}
+			
+		case .byDateComponent, .byDateComponentAndType:
+			if let creationDate = self.creationDate {
+				// FIXME: this uses the currently set local timezone. When moving between timezones, asset's creation
+				// day may be +/- one day, which leads to the asset being saved twice.
+				let dateComponents = ["yyyy", "MM", "dd"]
+				let dateFormatter = DateFormatter()
+				for dateComponent in dateComponents {
+					dateFormatter.dateFormat = dateComponent
+					let dateString = dateFormatter.string(from: creationDate)
+					components.append(dateString)
+				}
+			}
+			
 		case .singleFolder, .byType, .singleFolderDatePrefixed: break
 		}
 
 		// Postfix media type
 		switch structure {
-		case .byDateAndType, .byType:
+		case .byDateAndType, .byType, .byDateComponentAndType:
 			if self.mediaType == .video {
-				inFolderURL = inFolderURL.appending("Video", isDirectory: true)
+				components.append("Video")
 			}
-		case .byDate, .singleFolder, .singleFolderDatePrefixed: break
+		case .byDate, .singleFolder, .singleFolderDatePrefixed, .byDateComponent: break
 		}
 
-		return inFolderURL
+		return components
 	}
 
 	fileprivate func livePhotoDirectoryPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath)
@@ -574,9 +600,9 @@ extension PHAsset {
 	{
 		var path = self.directoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath)
 		switch structure {
-		case .byDateAndType, .byType:
+		case .byDateAndType, .byType, .byDateComponentAndType:
 			path = path.appending("Live", isDirectory: true)
-		case .byDate, .singleFolder, .singleFolderDatePrefixed: break
+		case .byDate, .singleFolder, .singleFolderDatePrefixed, .byDateComponent: break
 		}
 		return path
 	}
@@ -588,9 +614,9 @@ extension PHAsset {
 			.appending(fileName, isDirectory: false)
 	}
 
-	fileprivate func fileNameInFolder(structure: PhotoBackupFolderStructure) -> String {
+	func fileNameInFolder(structure: PhotoBackupFolderStructure) -> String {
 		switch structure {
-		case .byDate, .byDateAndType, .singleFolder, .byType: return self.originalFilename
+		case .byDate, .byDateAndType, .byDateComponent, .byDateComponentAndType, .singleFolder, .byType: return self.originalFilename
 
 		case .singleFolderDatePrefixed:
 			if let creationDate = self.creationDate {

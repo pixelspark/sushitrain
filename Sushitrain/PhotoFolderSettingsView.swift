@@ -208,6 +208,16 @@ private struct PhotoFolderAlbumSettingsView: View {
 				} label: {
 					Text("To subdirectory")
 				}
+				
+				PhotoFolderStructureView(folderStructure: Binding(get: {
+					self.config.folderStructure ?? PhotoBackupFolderStructure.singleFolder
+				}, set: {
+					self.config.folderStructure = $0
+				}))
+				
+				Text("Example file location in folder: ")
+				+ Text("\(dirName)/\((self.config.folderStructure ?? PhotoBackupFolderStructure.singleFolder).examplePath)")
+					.monospaced()
 			}
 		}
 		#if os(macOS)

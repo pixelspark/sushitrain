@@ -65,8 +65,13 @@ private class CustomFSEntry: NSObject, SushitrainCustomFileEntryProtocol {
 	}
 }
 
+private protocol CustomFSDirectory {
+	func getOrCreateSubdirectory(_ name: String) -> CustomFSDirectory
+	func place(_ entry: CustomFSEntry)
+}
+
 private class StaticCustomFSDirectory: CustomFSEntry {
-	let children: [CustomFSEntry]
+	var children: [CustomFSEntry]
 	let modTime: Date
 
 	init(_ name: String, children: [CustomFSEntry]) {
@@ -89,6 +94,29 @@ private class StaticCustomFSDirectory: CustomFSEntry {
 
 	override func modifiedTime() -> Int64 {
 		return Int64(self.modTime.timeIntervalSince1970)
+	}
+}
+
+extension StaticCustomFSDirectory: CustomFSDirectory {
+	func getOrCreateSubdirectory(_ name: String) -> CustomFSDirectory {
+		if let subDir = children.first(where: { $0.name() == name }) {
+			if let subDir = subDir as? CustomFSDirectory {
+				return subDir
+			}
+			else {
+				fatalError("Expected a subdirectory, but found something else")
+			}
+		}
+		else {
+			// Create
+			let subDir = StaticCustomFSDirectory(name, children: [])
+			self.children.append(subDir)
+			return subDir
+		}
+	}
+	
+	func place(_ entry: CustomFSEntry) {
+		self.children.append(entry)
 	}
 }
 
@@ -156,6 +184,7 @@ private class PhotoFSAssetEntry: CustomFSEntry {
 	}
 }
 
+// File system entry (directory) that represents a single album from the system photo library.
 private class PhotoFSAlbumEntry: CustomFSEntry {
 	private var children: [CustomFSEntry]? = nil
 	private let config: PhotoFSAlbumConfiguration
@@ -193,22 +222,25 @@ private class PhotoFSAlbumEntry: CustomFSEntry {
 				throw PhotoFSError.albumNotFound
 			}
 
+			// Faux directory used to give folderStructure.place a CustomFSDirectory interface for the root directory
+			let fauxRoot = StaticCustomFSDirectory("", children: [])
+			let structure = self.config.folderStructure ?? .singleFolder
+			
+			// Enumerate relevant assets
 			let assets = PHAsset.fetchAssets(in: album, options: nil)
-			var children: [CustomFSEntry] = []
-
 			assets.enumerateObjects { asset, index, stop in
 				if asset.mediaType == .image {
-					children.append(PhotoFSAssetEntry(asset.originalFilename, asset: asset))
+					structure.place(asset: asset, root: fauxRoot)
 				}
 			}
 
-			children.sort { a, b in
+			self.lastUpdate = Date()
+			var childrenList = fauxRoot.children
+			Log.info("Enumerated album \(self.config.albumID): \(childrenList.count) assets")
+			childrenList.sort { a, b in
 				return a.name() < b.name()
 			}
-
-			self.lastUpdate = Date()
-			Log.info("Enumerated album \(self.config.albumID): \(children.count) assets")
-			self.children = children
+			self.children = childrenList
 		}
 	}
 
@@ -225,6 +257,7 @@ private class PhotoFSAlbumEntry: CustomFSEntry {
 
 struct PhotoFSAlbumConfiguration: Codable, Equatable {
 	var albumID: String = ""
+	var folderStructure: PhotoBackupFolderStructure? = nil // Needs to be optional because older versions did not have this
 
 	var isValid: Bool {
 		return !self.albumID.isEmpty
@@ -233,6 +266,20 @@ struct PhotoFSAlbumConfiguration: Codable, Equatable {
 
 struct PhotoFSConfiguration: Codable, Equatable {
 	var folders: [String: PhotoFSAlbumConfiguration] = [:]
+}
+
+extension PhotoBackupFolderStructure {
+	fileprivate func place(asset: PHAsset, root: CustomFSDirectory) {
+		let translatedFileName = asset.fileNameInFolder(structure: self)
+		let subdirs = asset.subdirectoriesInFolder(structure: self)
+		
+		var dir = root
+		for dirName in subdirs {
+			dir = dir.getOrCreateSubdirectory(dirName)
+		}
+		
+		dir.place(PhotoFSAssetEntry(translatedFileName, asset: asset))
+	}
 }
 
 extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
@@ -246,16 +293,8 @@ extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 		if let d = uri.data(using: .utf8) {
 			config = (try? JSONDecoder().decode(PhotoFSConfiguration.self, from: d)) ?? config
 		}
-
-		var albumFolders: [CustomFSEntry] = []
-		for (folderName, albumConfig) in config.folders {
-			if !folderName.isEmpty && folderName != ".stfolder" && folderName != ".stignore" {
-				let folderNameClean = folderName.replacingOccurrences(of: "/", with: "_")
-				albumFolders.append(try PhotoFSAlbumEntry(folderNameClean, config: albumConfig))
-			}
-		}
-
-		let fs = StaticCustomFSDirectory(
+		
+		let folderRoot = StaticCustomFSDirectory(
 			"",
 			children: [
 				// Folder marker (needs to be present for Syncthing to know the folder is healthy
@@ -267,10 +306,35 @@ extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 
 				// Ignore file (empty for now)
 				StaticCustomFSEntry(".stignore", contents: "# EMPTY ON PURPOSE\n".data(using: .ascii)!),
-
-				// Albums (one directory for each)
-			] + albumFolders)
-		return fs
+			])
+		
+		// Go over all configured albums and place them at the right locations in the entry tree
+		for (folderPath, albumConfig) in config.folders {
+			if folderPath.isEmpty {
+				// Must have a path (can't place at root)
+				Log.warn("Can't place folder album at root")
+				continue
+			}
+			
+			var subdirs = folderPath.split(separator: "/")
+			let first = subdirs.first!
+			if first.lowercased().starts(with: ".st") {
+				// Can't place anything in .stfolder or over .stignore
+				Log.warn("Can't place folder album over reserved subdirectory name: \(folderPath) \(first)")
+				continue
+			}
+			
+			var dir: CustomFSDirectory = folderRoot
+			let lastDirName = String(subdirs.removeLast())
+			for subdir in subdirs {
+				dir = dir.getOrCreateSubdirectory(String(subdir))
+			}
+			
+			let albumDirectory = try PhotoFSAlbumEntry(lastDirName, config: albumConfig)
+			dir.place(albumDirectory)
+		}
+		
+		return folderRoot
 	}
 }
 

@@ -160,18 +160,14 @@ struct PhotoSettingsView: View {
 				} label: {
 					Text("Path in folder")
 				}
-				Picker("Folder structure", selection: $photoBackup.folderStructure) {
-					Text("By date").tag(PhotoBackupFolderStructure.byDate)
-					Text("By type").tag(PhotoBackupFolderStructure.byType)
-					Text("By date and type").tag(PhotoBackupFolderStructure.byDateAndType)
-					Text("Single folder").tag(PhotoBackupFolderStructure.singleFolder)
-					Text("Single folder with dates").tag(
-						PhotoBackupFolderStructure.singleFolderDatePrefixed)
-				}
-				.pickerStyle(.menu).disabled(photoBackup.isSynchronizing)
+				
+				PhotoFolderStructureView(folderStructure: photoBackup.$folderStructure)
+					.disabled(photoBackup.isSynchronizing)
+				
 				Text("Example file location in folder: ")
 					+ Text("\(photoBackup.subDirectoryPath)/\(photoBackup.folderStructure.examplePath)")
 					.monospaced()
+				
 			} footer: {
 				Text(
 					"When the folder structure is changed, photos that were already saved will be saved again in their new location."
@@ -288,4 +284,22 @@ struct PhotoSettingsView: View {
 			}
 		}
 	#endif
+}
+
+struct PhotoFolderStructureView: View {
+	@Binding var folderStructure: PhotoBackupFolderStructure
+	
+	var body: some View {
+		Picker("Folder structure", selection: $folderStructure) {
+			Text("By date").tag(PhotoBackupFolderStructure.byDate)
+			Text("By date (tree)").tag(PhotoBackupFolderStructure.byDateComponent)
+			Text("By type").tag(PhotoBackupFolderStructure.byType)
+			Text("By date (tree) and type").tag(PhotoBackupFolderStructure.byDateComponentAndType)
+			Text("By date and type").tag(PhotoBackupFolderStructure.byDateAndType)
+			Text("Single folder").tag(PhotoBackupFolderStructure.singleFolder)
+			Text("Single folder with dates").tag(
+				PhotoBackupFolderStructure.singleFolderDatePrefixed)
+		}
+		.pickerStyle(.menu)
+	}
 }

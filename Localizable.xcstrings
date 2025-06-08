@@ -1034,6 +1034,74 @@
         }
       }
     },
+    "2024/08/11/IMG_2020.HEIC" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024/08/11/IMG_2020.HEIC"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024/08/11/IMG_2020.HEIC"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024/08/11/IMG_2020.HEIC"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024/08/11/IMG_2020.HEIC"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024/08/11/IMG_2020.HEIC"
+          }
+        }
+      }
+    },
+    "2024/08/11/Video/IMG_2020.MOV" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024/08/11/Video/IMG_2020.MOV"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024/08/11/Video/IMG_2020.MOV"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024/08/11/Video/IMG_2020.MOV"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024/08/11/Video/IMG_2020.MOV"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024/08/11/Відео/IMG_2020.MOV"
+          }
+        }
+      }
+    },
     "22000" : {
       "localizations" : {
         "de" : {
@@ -3478,6 +3546,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "За датою"
+          }
+        }
+      }
+    },
+    "By date (tree)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach Datum (Baum)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por fecha (árbol)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per data (albero)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op datum (boom)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За датою (дерево)"
+          }
+        }
+      }
+    },
+    "By date (tree) and type" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach Datum (Baumstruktur) und Typ"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por fecha (en árbol) y tipo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per data (ad albero) e tipo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op datum (boomstructuur) en type"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За датою (деревоподібно) та типом"
           }
         }
       }
