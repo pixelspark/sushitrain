@@ -1238,6 +1238,40 @@
         }
       }
     },
+    "Access to this page was denied" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zugriff auf diese Seite wurde verweigert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acceso a esta página denegado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accesso a questa pagina negato"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toegang tot deze pagina is geweigerd"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступ до цієї сторінки заборонено"
+          }
+        }
+      }
+    },
     "Access token" : {
       "localizations" : {
         "de" : {
@@ -2560,6 +2594,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сталася помилка"
+          }
+        }
+      }
+    },
+    "An error occured on the server (%lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Fehler ist auf dem Server aufgetreten (%lld)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se produjo un error en el servidor (%lld)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si è verificato un errore sul server (%lld)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er is een fout opgetreden op de server (%lld)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сталася помилка на сервері (%lld)"
           }
         }
       }
@@ -3988,6 +4056,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Не вдалося відобразити попередній перегляд для цього типу файлу."
+          }
+        }
+      }
+    },
+    "Cannot show this page" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kann diese Seite nicht anzeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede mostrar esta página"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile mostrare questa pagina"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kan deze pagina niet weergeven"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдається відобразити цю сторінку"
           }
         }
       }
@@ -9882,6 +9984,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "HTTP"
+          }
+        }
+      }
+    },
+    "HTTP error %lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTTP-Fehler %lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error HTTP %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Errore HTTP %lld"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTTP-fout %lld"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTTP-помилка %lld"
           }
         }
       }
@@ -20370,6 +20506,40 @@
         }
       }
     },
+    "This page could not be found" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Seite konnte nicht gefunden werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta página no se pudo encontrar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa pagina non è stata trovata"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze pagina kon niet worden gevonden"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цю сторінку не вдалося знайти"
+          }
+        }
+      }
+    },
     "This subdirectory and all its contents are fully available on" : {
       "localizations" : {
         "de" : {
@@ -20570,6 +20740,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Час (секунди)"
+          }
+        }
+      }
+    },
+    "To access this page you need to log in" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um auf diese Seite zuzugreifen, müssen Sie sich anmelden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para acceder a esta página, debe iniciar sesión."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per accedere a questa pagina devi effettuare il login."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "U moet inloggen om deze pagina te openen."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Щоб отримати доступ до цієї сторінки, вам потрібно увійти в систему."
           }
         }
       }
@@ -21828,6 +22032,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Слідкуйте за змінами"
+          }
+        }
+      }
+    },
+    "Web page" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Webseite"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Página web"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pagina web"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Webpagina"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вебсторінка"
           }
         }
       }

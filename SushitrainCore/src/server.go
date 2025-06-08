@@ -28,7 +28,6 @@ type StreamingServerDelegate interface {
 type StreamingServer struct {
 	listener                    net.Listener
 	client                      *Client
-	ctx                         context.Context
 	publicKey                   ed25519.PublicKey
 	privateKey                  ed25519.PrivateKey
 	MaxMbitsPerSecondsStreaming int64
@@ -222,147 +221,32 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 			return
 		}
 
-		w.Header().Add("Accept-range", "bytes")
-
 		// Set MIME type
 		ext := filepath.Ext(path)
 		mime := MIMETypeForExtension(ext)
 		w.Header().Add("Content-type", mime)
 
-		// Disable caching
-		w.Header().Add("Cache-Control", "no-cache, no-store, must-revalidate")
-		w.Header().Add("Pragma", "no-cache")
-		w.Header().Add("Expires", "0")
+		startTime := time.Now()
+		var totalBytesSent int64 = 0
 
-		// Is this a ranged request?
-		requestedRange := r.Header.Get("Range")
-		if len(requestedRange) > 0 {
-			// Send just the blocks requested
-			parsedRanges, err := http_range.ParseRange(requestedRange, info.Size)
-			if err != nil {
-				w.WriteHeader(500)
-				w.Write([]byte(err.Error()))
-				return
+		// Send file contents to the client
+		serveEntry(w, r, folder, stEntry, info, m, func(bytesSent int64, bytesRequested int64) {
+			if server.Delegate != nil {
+				go server.Delegate.OnStreamChunk(folder, path, int64(bytesSent), bytesRequested)
 			}
+			totalBytesSent += bytesSent
 
-			if len(parsedRanges) > 1 {
-				Logger.Warnln("Multipart ranges not yet supported", requestedRange)
-				w.WriteHeader(500)
-				return
-			}
+			// Throttle the stream to a specific average Mbit/s to prevent streaming video from being donwloaded
+			// too quickly, wasting precious mobile data
+			if server.MaxMbitsPerSecondsStreaming > 0 {
+				blockFetchDurationMs := time.Since(startTime).Milliseconds()
+				blockFetchShouldHaveTakenMs := totalBytesSent * 8 / server.MaxMbitsPerSecondsStreaming / 1000
 
-			mp := newMiniPuller(r.Context())
-
-			blockSize := int64(info.BlockSize())
-			for _, rng := range parsedRanges {
-				// Range cannot be longer than actual file
-				if rng.Start+rng.Length > info.Size {
-					Logger.Warnln("Requested range ", rng, " is larger than file; shrinking range to length=", max(0, info.Size-rng.Start))
-					rng.Length = max(0, info.Size-rng.Start)
-				}
-
-				// Do we have this file ourselves?
-				// FIXME: this will lead to re-opening the file for each block, persist the file handle and 'ReadAt' from it directly.
-				if buffer, err := stEntry.FetchLocal(rng.Start, rng.Length); err == nil {
-					Logger.Debugln("We have this block locally; writing ", len(buffer), " bytes")
-					w.Write(buffer)
-					continue
-				}
-
-				startBlock := rng.Start / int64(blockSize)
-				blockCount := ceilDiv(rng.Length, blockSize)
-
-				// If we start halfway the first block, we need to fetch another one at the end to make up for it
-				offsetInStartBlock := rng.Start % int64(blockSize)
-				if offsetInStartBlock > 0 {
-					blockCount += 1
-				}
-				rangeHeader := fmt.Sprintf("bytes %d-%d/%d", rng.Start, rng.Length+rng.Start-1, info.Size)
-				lengthHeader := fmt.Sprintf("%d", rng.Length)
-				Logger.Infoln("Range: ", rng, "start block=", startBlock, "block count=", blockCount, "block size=", blockSize, "range header=", rangeHeader, "length header=", lengthHeader)
-				w.Header().Add("Content-Range", rangeHeader)
-				w.Header().Add("Content-length", lengthHeader)
-				w.WriteHeader(206) // partial content
-
-				bytesSent := int64(0)
-
-				for blockIndex := startBlock; blockIndex < startBlock+blockCount; blockIndex++ {
-					blockStartTime := time.Now()
-					if int(blockIndex) > len(info.Blocks)-1 {
-						break
-					}
-
-					// Fetch block
-					block := info.Blocks[blockIndex]
-					buf, err := mp.downloadBock(m, folder, int(blockIndex), info, block)
-					if err != nil {
-						Logger.Warnln("error downloading block #", blockIndex, " of ", len(info.Blocks), ": ", err)
-						return
-					}
-
-					bufStart := int64(0)
-					bufEnd := int64(len(buf))
-
-					if block.Offset < rng.Start {
-						bufStart = rng.Start - block.Offset
-					}
-
-					blockEnd := (block.Offset + int64(block.Size))
-					rangeEnd := (rng.Length + rng.Start)
-					if blockEnd > rangeEnd {
-						bufEnd = rangeEnd - block.Offset
-					}
-					if bufEnd < 0 {
-						break
-					}
-
-					// Write buffer
-					Logger.Infoln("Sending block #", blockIndex, bufStart, bufEnd, len(buf), "bytes=", bufEnd-bufStart, "range=", rng)
-					w.Write(buf[bufStart:bufEnd])
-					bytesSent += (bufEnd - bufStart)
-					if server.Delegate != nil {
-						go server.Delegate.OnStreamChunk(folder, path, int64(bytesSent), rng.Length)
-					}
-
-					// Throttle the stream to a specific average Mbit/s to prevent streaming video from being donwloaded
-					// too quickly, wasting precious mobile data
-					if server.MaxMbitsPerSecondsStreaming > 0 {
-						blockFetchDurationMs := time.Since(blockStartTime).Milliseconds()
-						blockFetchShouldHaveTakenMs := int64(block.Size) * 8 / server.MaxMbitsPerSecondsStreaming / 1000
-
-						if blockFetchDurationMs < blockFetchShouldHaveTakenMs {
-							time.Sleep(time.Duration(blockFetchShouldHaveTakenMs-blockFetchDurationMs) * time.Millisecond)
-						}
-					}
-				}
-
-				if rng.Length != bytesSent {
-					Logger.Warnln("Sent a different number of bytes than promised! range=", rng, "; promised ", lengthHeader, "sent", bytesSent)
+				if blockFetchDurationMs < blockFetchShouldHaveTakenMs {
+					time.Sleep(time.Duration(blockFetchShouldHaveTakenMs-blockFetchDurationMs) * time.Millisecond)
 				}
 			}
-		} else {
-			// Send all blocks (unthrottled)
-			w.Header().Add("Content-length", fmt.Sprintf("%d", info.Size))
-			w.WriteHeader(200)
-
-			// Do we have this file ourselves?
-			if buffer, err := stEntry.FetchLocal(0, info.Size); err == nil {
-				Logger.Debugln("We have this file completely locally; writing ", len(buffer), " bytes")
-				w.Write(buffer)
-			} else {
-				fetchedBytes := int64(0)
-				mp := newMiniPuller(r.Context())
-
-				for blockNo, block := range info.Blocks {
-					buf, err := mp.downloadBock(m, folder, blockNo, info, block)
-					if err != nil {
-						return
-					}
-					fetchedBytes += int64(block.Size)
-					w.Write(buf)
-				}
-			}
-		}
+		})
 	}))
 
 	if err := server.Listen(); err != nil {
@@ -370,4 +254,133 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 	}
 
 	return &server, nil
+}
+
+type serveCallback func(bytesSent int64, bytesRequested int64)
+
+func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *Entry, info protocol.FileInfo, m *syncthing.Internals, callback serveCallback) {
+	w.Header().Add("Accept-range", "bytes")
+
+	// Disable caching
+	w.Header().Add("Cache-Control", "no-cache, no-store, must-revalidate")
+	w.Header().Add("Pragma", "no-cache")
+	w.Header().Add("Expires", "0")
+
+	// Is this a ranged request?
+	requestedRange := r.Header.Get("Range")
+	if len(requestedRange) > 0 {
+		// Send just the blocks requested
+		parsedRanges, err := http_range.ParseRange(requestedRange, info.Size)
+		if err != nil {
+			w.WriteHeader(500)
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		if len(parsedRanges) > 1 {
+			Logger.Warnln("Multipart ranges not yet supported", requestedRange)
+			w.WriteHeader(500)
+			return
+		}
+
+		mp := newMiniPuller(r.Context())
+
+		blockSize := int64(info.BlockSize())
+		for _, rng := range parsedRanges {
+			// Range cannot be longer than actual file
+			if rng.Start+rng.Length > info.Size {
+				Logger.Warnln("Requested range ", rng, " is larger than file; shrinking range to length=", max(0, info.Size-rng.Start))
+				rng.Length = max(0, info.Size-rng.Start)
+			}
+
+			// Do we have this file ourselves?
+			// FIXME: this will lead to re-opening the file for each block, persist the file handle and 'ReadAt' from it directly.
+			if buffer, err := entry.FetchLocal(rng.Start, rng.Length); err == nil {
+				Logger.Debugln("We have this block locally; writing ", len(buffer), " bytes")
+				w.Write(buffer)
+				continue
+			}
+
+			startBlock := rng.Start / int64(blockSize)
+			blockCount := ceilDiv(rng.Length, blockSize)
+
+			// If we start halfway the first block, we need to fetch another one at the end to make up for it
+			offsetInStartBlock := rng.Start % int64(blockSize)
+			if offsetInStartBlock > 0 {
+				blockCount += 1
+			}
+			rangeHeader := fmt.Sprintf("bytes %d-%d/%d", rng.Start, rng.Length+rng.Start-1, info.Size)
+			lengthHeader := fmt.Sprintf("%d", rng.Length)
+			Logger.Infoln("Range: ", rng, "start block=", startBlock, "block count=", blockCount, "block size=", blockSize, "range header=", rangeHeader, "length header=", lengthHeader)
+			w.Header().Add("Content-Range", rangeHeader)
+			w.Header().Add("Content-length", lengthHeader)
+			w.WriteHeader(206) // partial content
+
+			bytesSent := int64(0)
+
+			for blockIndex := startBlock; blockIndex < startBlock+blockCount; blockIndex++ {
+				if int(blockIndex) > len(info.Blocks)-1 {
+					break
+				}
+
+				// Fetch block
+				block := info.Blocks[blockIndex]
+				buf, err := mp.downloadBock(m, folderID, int(blockIndex), info, block)
+				if err != nil {
+					Logger.Warnln("error downloading block #", blockIndex, " of ", len(info.Blocks), ": ", err)
+					return
+				}
+
+				bufStart := int64(0)
+				bufEnd := int64(len(buf))
+
+				if block.Offset < rng.Start {
+					bufStart = rng.Start - block.Offset
+				}
+
+				blockEnd := (block.Offset + int64(block.Size))
+				rangeEnd := (rng.Length + rng.Start)
+				if blockEnd > rangeEnd {
+					bufEnd = rangeEnd - block.Offset
+				}
+				if bufEnd < 0 {
+					break
+				}
+
+				// Write buffer
+				Logger.Infoln("Sending block #", blockIndex, bufStart, bufEnd, len(buf), "bytes=", bufEnd-bufStart, "range=", rng)
+				w.Write(buf[bufStart:bufEnd])
+				bytesSent += (bufEnd - bufStart)
+				if callback != nil {
+					callback(bytesSent, rng.Length)
+				}
+			}
+
+			if rng.Length != bytesSent {
+				Logger.Warnln("Sent a different number of bytes than promised! range=", rng, "; promised ", lengthHeader, "sent", bytesSent)
+			}
+		}
+	} else {
+		// Send all blocks (unthrottled)
+		w.Header().Add("Content-length", fmt.Sprintf("%d", info.Size))
+		w.WriteHeader(200)
+
+		// Do we have this file ourselves?
+		if buffer, err := entry.FetchLocal(0, info.Size); err == nil {
+			Logger.Debugln("We have this file completely locally; writing ", len(buffer), " bytes")
+			w.Write(buffer)
+		} else {
+			fetchedBytes := int64(0)
+			mp := newMiniPuller(r.Context())
+
+			for blockNo, block := range info.Blocks {
+				buf, err := mp.downloadBock(m, folderID, blockNo, info, block)
+				if err != nil {
+					return
+				}
+				fetchedBytes += int64(block.Size)
+				w.Write(buf)
+			}
+		}
+	}
 }

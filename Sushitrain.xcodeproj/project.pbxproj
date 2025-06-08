@@ -20,6 +20,7 @@
 		65361E6A2D18360F00BCC52C /* FileViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65361E692D18360800BCC52C /* FileViewerView.swift */; };
 		6539EB6B2DD132EF00C35617 /* FolderStatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6539EB6A2DD132EC00C35617 /* FolderStatisticsView.swift */; };
 		654272982C7BC77000F2CEF8 /* FileQuickLookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654272972C7BC77000F2CEF8 /* FileQuickLookView.swift */; };
+		654A7E602DF5966C008DF794 /* BrowserWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654A7E5F2DF59669008DF794 /* BrowserWebView.swift */; };
 		6550DFE82D6A645300D8DCC9 /* EncryptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6550DFE72D6A644E00D8DCC9 /* EncryptionView.swift */; };
 		6551053A2D7CB0A700F96814 /* BrowserTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655105392D7CB0A300F96814 /* BrowserTableView.swift */; };
 		6551053C2D7D8F8E00F96814 /* BrowserListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6551053B2D7D8F8A00F96814 /* BrowserListView.swift */; };
@@ -98,6 +99,7 @@
 		65361E692D18360800BCC52C /* FileViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewerView.swift; sourceTree = "<group>"; };
 		6539EB6A2DD132EC00C35617 /* FolderStatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderStatisticsView.swift; sourceTree = "<group>"; };
 		654272972C7BC77000F2CEF8 /* FileQuickLookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileQuickLookView.swift; sourceTree = "<group>"; };
+		654A7E5F2DF59669008DF794 /* BrowserWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserWebView.swift; sourceTree = "<group>"; };
 		6550DFE72D6A644E00D8DCC9 /* EncryptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionView.swift; sourceTree = "<group>"; };
 		655105392D7CB0A300F96814 /* BrowserTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserTableView.swift; sourceTree = "<group>"; };
 		6551053B2D7D8F8A00F96814 /* BrowserListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserListView.swift; sourceTree = "<group>"; };
@@ -177,6 +179,7 @@
 		65AE11FB2C39EE0E00E721D4 /* Sushitrain */ = {
 			isa = PBXGroup;
 			children = (
+				654A7E5F2DF59669008DF794 /* BrowserWebView.swift */,
 				65BBF8442C4BFB9300EC59C4 /* AboutView.swift */,
 				65AE12662C3B04A100E721D4 /* AddDeviceView.swift */,
 				65AE126E2C3B14CC00E721D4 /* AddFolderView.swift */,
@@ -371,6 +374,7 @@
 				6505643F2CA98D22009FFFB9 /* ThumbnailView.swift in Sources */,
 				6551053C2D7D8F8E00F96814 /* BrowserListView.swift in Sources */,
 				6550DFE82D6A645300D8DCC9 /* EncryptionView.swift in Sources */,
+				654A7E602DF5966C008DF794 /* BrowserWebView.swift in Sources */,
 				650615872C3B3676002B6EE6 /* BrowserView.swift in Sources */,
 				659C0C0F2DD8AC63006E8CC0 /* PhotoFolderSettingsView.swift in Sources */,
 				65AE11FF2C39EE0E00E721D4 /* ContentView.swift in Sources */,

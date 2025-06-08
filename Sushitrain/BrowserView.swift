@@ -11,6 +11,7 @@ enum BrowserViewStyle: String {
 	case grid = "grid"
 	case list = "list"
 	case thumbnailList = "thumbnailList"
+	case web = "web"
 }
 
 struct BrowserView: View {
@@ -26,6 +27,7 @@ struct BrowserView: View {
 	@State private var folderIsSelective = false
 	@State private var showSearch = false
 	@State private var error: Error? = nil
+	@State private var webViewAvailable = false
 
 	@State private var viewStyle: BrowserViewStyle? = nil
 
@@ -124,12 +126,16 @@ struct BrowserView: View {
 					Picker("View as", selection: self.currentViewStyle()) {
 						Image(systemName: "list.bullet").tag(BrowserViewStyle.list)
 							.accessibilityLabel(Text("List"))
-						Image(systemName: "checklist.unchecked").tag(
-							BrowserViewStyle.thumbnailList
-						)
-						.accessibilityLabel(Text("List with previews"))
+						Image(systemName: "checklist.unchecked").tag(BrowserViewStyle.thumbnailList)
+							.accessibilityLabel(Text("List with previews"))
 						Image(systemName: "square.grid.2x2").tag(BrowserViewStyle.grid)
 							.accessibilityLabel(Text("Grid"))
+						
+						if webViewAvailable {
+							Image(systemName: "doc.text.image")
+								.tag(BrowserViewStyle.web)
+								.accessibilityLabel(Text("Web page"))
+						}
 					}
 					.pickerStyle(.segmented)
 				}
@@ -212,9 +218,7 @@ struct BrowserView: View {
 			}
 		#endif
 		.task {
-			self.folderExists = folder.exists()
-			self.updateLocalURL()
-			self.folderIsSelective = folder.isSelective()
+			self.update()
 		}
 		#if os(macOS)
 			.contextMenu {
@@ -257,11 +261,25 @@ struct BrowserView: View {
 				dismissButton: .default(Text("OK")))
 		}
 	}
+	
+	private func update() {
+		self.folderExists = folder.exists()
+		self.updateLocalURL()
+		self.folderIsSelective = folder.isSelective()
+		
+		// Check for presence of index.html to enable web view
+		if let entry = try? folder.getFileInformation(self.prefix + "index.html"), !entry.isDirectory() && !entry.isDeleted() {
+			self.webViewAvailable = true
+		}
+		else {
+			self.webViewAvailable = false
+		}
+	}
 
 	@ViewBuilder private func folderMenu() -> some View {
 		Menu {
 			#if os(iOS)
-				BrowserViewStylePickerView(viewStyle: self.currentViewStyle())
+			BrowserViewStylePickerView(webViewAvailable: self.webViewAvailable, viewStyle: self.currentViewStyle())
 					.pickerStyle(.inline)
 
 				Toggle(
@@ -460,6 +478,9 @@ private struct BrowserItemsView: View {
 
 					case .list, .thumbnailList:
 						self.listView()
+						
+					case .web:
+						BrowserWebView(folderID: folder.folderID, path: self.prefix)
 					}
 				}
 				else {
@@ -727,17 +748,23 @@ private struct BrowserItemsView: View {
 
 		if self.viewStyle == nil {
 			if appState.automaticallySwitchViewStyle {
-				// Check if we only have thumbnailable files; if so, switch to thumbnail mode
-				let dotFilesHidden = appState.dotFilesHidden
-				let filtered = self.files.filter({
-					!extensionsIgnored.contains($0.extension().lowercased()) && (!dotFilesHidden || !$0.fileName().starts(with: "."))
-				})
-
-				if !filtered.isEmpty && filtered.allSatisfy({ $0.canThumbnail && ($0.isImage || $0.isVideo) }) {
-					self.viewStyle = .grid
+				// Do we have an index.html? If so switch to web view
+				if self.files.contains(where: { $0.fileName() == "index.html" }) {
+					self.viewStyle = .web
 				}
 				else {
-					self.viewStyle = .thumbnailList
+					// Check if we only have thumbnailable files; if so, switch to thumbnail mode
+					let dotFilesHidden = appState.dotFilesHidden
+					let filtered = self.files.filter({
+						!extensionsIgnored.contains($0.extension().lowercased()) && (!dotFilesHidden || !$0.fileName().starts(with: "."))
+					})
+					
+					if !filtered.isEmpty && filtered.allSatisfy({ $0.canThumbnail && ($0.isImage || $0.isVideo) }) {
+						self.viewStyle = .grid
+					}
+					else {
+						self.viewStyle = .thumbnailList
+					}
 				}
 			}
 			else {
@@ -804,6 +831,7 @@ struct ItemSelectToggleView: View {
 }
 
 private struct BrowserViewStylePickerView: View {
+	let webViewAvailable: Bool
 	@Binding var viewStyle: BrowserViewStyle
 
 	var body: some View {
@@ -820,6 +848,13 @@ private struct BrowserViewStylePickerView: View {
 				Image(systemName: "square.grid.2x2")
 				Text("Grid with previews")
 			}.tag(BrowserViewStyle.grid)
+			
+			if webViewAvailable {
+				HStack {
+					Image(systemName: "doc.text.image")
+					Text("Web page")
+				}.tag(BrowserViewStyle.web)
+			}
 		}
 		.pickerStyle(.inline)
 	}

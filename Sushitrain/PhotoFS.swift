@@ -21,7 +21,7 @@ enum PhotoFSError: LocalizedError {
 	case invalidURI
 	case assetUnavailable
 
-	var errorDescription: String {
+	var errorDescription: String? {
 		switch self {
 		case .albumNotFound:
 			return String(localized: "album not found")
