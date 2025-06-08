@@ -120,8 +120,14 @@ struct BookmarkManager {
 
 	private var accessing: [String: Accessor] = [:]
 
-	enum BookmarkManagerError: Error {
+	enum BookmarkManagerError: LocalizedError {
 		case cannotAccess
+
+		var errorDescription: String? {
+			switch self {
+			case .cannotAccess: return String(localized: "The folder cannot be accessed")
+			}
+		}
 	}
 
 	class Accessor {
