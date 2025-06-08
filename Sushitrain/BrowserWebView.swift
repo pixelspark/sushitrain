@@ -21,9 +21,15 @@ struct BrowserWebView: View {
 		ZStack {
 			if let err = self.error {
 				ContentUnavailableView("Cannot show this page", systemImage: "exclamationmark.triangle.fill", description: Text(err.localizedDescription))
+					.onTapGesture {
+						if self.ready {
+							self.error = nil
+						}
+					}
 			}
 			else if let s = self.server, ready {
 				WebView(url: URL(string: s.url())!, isOpaque: true, isLoading: .constant(false), error: $error)
+					.background(.white)
 			}
 			else {
 				ProgressView()
