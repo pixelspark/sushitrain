@@ -9,10 +9,10 @@ import SushitrainCore
 
 struct TotalStatisticsView: View {
 	@EnvironmentObject var appState: AppState
+	@State private var stats: SushitrainFolderStats? = nil
 
 	var body: some View {
 		let formatter = ByteCountFormatter()
-		let stats: SushitrainFolderStats? = try? self.appState.client.statistics()
 
 		Form {
 			if let stats = stats {
@@ -32,6 +32,13 @@ struct TotalStatisticsView: View {
 					}
 				}
 			}
+		}
+		.task {
+			if self.appState.startupState != .started {
+				self.stats = nil
+				return
+			}
+			self.stats = try? self.appState.client.statistics()
 		}
 		.navigationTitle("Statistics")
 		#if os(iOS)
@@ -888,41 +895,43 @@ private struct BandwidthSettingsView: View {
 
 		var body: some View {
 			TabView(selection: $selection) {
-				Tab(
-					value: "general",
-					content: {
-						GeneralSettingsView(hideInDock: $hideInDock)
-					},
-					label: {
-						Label("General", systemImage: "app.badge.checkmark.fill")
-					})
+				if appState.startupState == .started {
+					Tab(
+						value: "general",
+						content: {
+							GeneralSettingsView(hideInDock: $hideInDock)
+						},
+						label: {
+							Label("General", systemImage: "app.badge.checkmark.fill")
+						})
 
-				Tab(
-					value: "bandwidth",
-					content: {
-						BandwidthSettingsView()
-					},
-					label: {
-						Label("Bandwidth", systemImage: "tachometer")
-					})
+					Tab(
+						value: "bandwidth",
+						content: {
+							BandwidthSettingsView()
+						},
+						label: {
+							Label("Bandwidth", systemImage: "tachometer")
+						})
 
-				Tab(
-					value: "photo",
-					content: {
-						PhotoSettingsView(photoBackup: appState.photoBackup)
-					},
-					label: {
-						Label("Photo back-up", systemImage: "photo")
-					})
+					Tab(
+						value: "photo",
+						content: {
+							PhotoSettingsView(photoBackup: appState.photoBackup)
+						},
+						label: {
+							Label("Photo back-up", systemImage: "photo")
+						})
 
-				Tab(
-					value: "advanced",
-					content: {
-						AdvancedSettingsView()
-					},
-					label: {
-						Label("Advanced", systemImage: "gear")
-					})
+					Tab(
+						value: "advanced",
+						content: {
+							AdvancedSettingsView()
+						},
+						label: {
+							Label("Advanced", systemImage: "gear")
+						})
+				}
 			}
 			.frame(minWidth: 500, minHeight: 450)
 			.windowResizeBehavior(.automatic)

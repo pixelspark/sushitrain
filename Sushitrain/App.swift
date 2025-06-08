@@ -19,7 +19,7 @@ class SushitrainDelegate: NSObject {
 
 @main
 struct SushitrainApp: App {
-	fileprivate var appState: AppState
+	@State fileprivate var appState: AppState
 	fileprivate var delegate: SushitrainDelegate?
 	private let qaService = QuickActionService.shared
 
@@ -46,7 +46,7 @@ struct SushitrainApp: App {
 		registerPhotoFilesystem()
 
 		let client = SushitrainNewClient(configPath, documentsPath, enableLogging)!
-		
+
 		// Optionally clear v1 and/or v2 index
 		let clearV1Index = UserDefaults.standard.bool(forKey: "clearV1Index")
 		let clearV2Index = UserDefaults.standard.bool(forKey: "clearV2Index")
@@ -179,7 +179,7 @@ struct SushitrainApp: App {
 			}
 
 			WindowGroup(id: "preview", for: Preview.self) { [appState] preview in
-				if case .started = appState.startupState {
+				if appState.startupState == .started {
 					if let p = preview.wrappedValue {
 						PreviewWindow(preview: p)
 							.environmentObject(appState)
@@ -225,31 +225,29 @@ struct SushitrainApp: App {
 		#if os(macOS)
 			// About window
 			Window("About Synctrain", id: "about") {
-				AboutView()
+				AboutView().environmentObject(appState)
 			}
 			.windowResizability(.contentSize)
 
-			MenuBarExtraView(hideInDock: $hideInDock, appState: appState)
+			MenuBarExtraView(hideInDock: $hideInDock)
+				.environmentObject(appState)
 
 			Settings {
-				if case .started = appState.startupState {
-					NavigationStack {
-						TabbedSettingsView(hideInDock: $hideInDock)
-					}.environmentObject(appState)
-				}
+				NavigationStack {
+					TabbedSettingsView(hideInDock: $hideInDock)
+				}.environmentObject(appState)
 			}
 			.windowResizability(.contentSize)
 
 			Window("Statistics", id: "stats") {
-				if case .started = appState.startupState {
-					TotalStatisticsView(appState: appState)
-						.frame(maxWidth: 320)
-				}
+				TotalStatisticsView()
+					.environmentObject(appState)
+					.frame(minWidth: 320, maxWidth: 320, minHeight: 320)
 			}
 			.windowResizability(.contentSize)
 
 			Window("Synctrain", id: "singleMain") {
-				if case .started = appState.startupState {
+				if appState.startupState == .started {
 					MainView().environmentObject(appState)
 				}
 			}
@@ -319,20 +317,18 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 #if os(macOS)
 	struct MenuBarExtraView: Scene {
 		@Binding var hideInDock: Bool
-		@EnvironmentObject var appState: AppState
 		@Environment(\.openWindow) private var openWindow
+		@EnvironmentObject private var appState: AppState
 
 		var body: some Scene {
 			Window("Settings", id: "appSettings") {
-				if case .started = appState.startupState {
-					NavigationStack {
-						TabbedSettingsView(hideInDock: $hideInDock).environmentObject(appState)
-					}
+				NavigationStack {
+					TabbedSettingsView(hideInDock: $hideInDock)
 				}
 			}
 
 			MenuBarExtra("Synctrain", systemImage: self.menuIcon, isInserted: $hideInDock) {
-				if case .started = appState.startupState {
+				if appState.startupState == .started {
 					OverallStatusView()
 
 					Button("Open file browser...") {
@@ -433,7 +429,7 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 		}
 
 		private var menuIcon: String {
-			if case .started = appState.startupState {
+			if appState.startupState == .started {
 				if appState.client.connectedPeerCount() > 0 {
 					if appState.client.isDownloading() || appState.client.isUploading() {
 						return "folder.fill.badge.gearshape"
