@@ -164,14 +164,44 @@ enum AppStartupState: Equatable {
 		DispatchQueue.global(qos: .userInitiated).async {
 			do {
 				// This one opens the database, migrates stuff, etc. and may take a while
-				Log.info("Starting the client...")
-				try client.start(resetDeltas)
+				Log.info("Loading the client...")
+				try client.load(resetDeltas)
 				if resetDeltas {
 					UserDefaults.standard.setValue(false, forKey: "resetDeltas")
 				}
+				Log.info("Client loaded")
+
+				// Resolve bookmarks
+				let folderIDs = client.folders()?.asArray() ?? []
+				Log.info("Folder IDs: \(folderIDs.joined(separator: " "))")
+				for folderID in folderIDs {
+					do {
+						if let bm = try BookmarkManager.shared.resolveBookmark(folderID: folderID) {
+							Log.info("We have a bookmark for folder \(folderID): \(bm)")
+							if let folder = client.folder(withID: folderID) {
+								try folder.setPath(bm.path(percentEncoded: false))
+							}
+							else {
+								Log.warn(
+									"Cannot obtain folder configuration for \(folderID) for setting bookmark; skipping"
+								)
+							}
+						}
+					}
+					catch {
+						Log.warn("Error restoring bookmark for \(folderID): \(error.localizedDescription)")
+					}
+				}
+
+				// Showtime!
+				Log.info("Starting client...")
+				try client.start()
 				Log.info("Client started")
 
 				DispatchQueue.main.async {
+					// Other housekeeping
+					FolderSettingsManager.shared.removeSettingsForFoldersNotIn(Set(folderIDs))
+
 					// Check to see if we have migrated
 					self.isMigratedToNewDatabase = !client.hasOldDatabase()
 					Log.info("Performing app migrations...")
@@ -184,8 +214,8 @@ enum AppStartupState: Equatable {
 						await self.updateBadge()
 					}
 					self.protectFiles()
-					Log.info("Ready to go")
 					self.startupState = .started
+					Log.info("Ready to go")
 				}
 			}
 			catch let error {

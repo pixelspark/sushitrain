@@ -80,30 +80,6 @@ struct SushitrainApp: App {
 		client.delegate = self.delegate
 		client.server?.delegate = self.delegate
 
-		// Resolve bookmarks
-		let folderIDs = client.folders()?.asArray() ?? []
-		for folderID in folderIDs {
-			do {
-				if let bm = try BookmarkManager.shared.resolveBookmark(folderID: folderID) {
-					Log.info("We have a bookmark for folder \(folderID): \(bm)")
-					if let folder = client.folder(withID: folderID) {
-						try folder.setPath(bm.path(percentEncoded: false))
-					}
-					else {
-						Log.warn(
-							"Cannot obtain folder configuration for \(folderID) for setting bookmark; skipping"
-						)
-					}
-				}
-			}
-			catch {
-				Log.warn("Error restoring bookmark for \(folderID): \(error.localizedDescription)")
-			}
-		}
-
-		// Other housekeeping
-		FolderSettingsManager.shared.removeSettingsForFoldersNotIn(Set(folderIDs))
-
 		// Start Syncthing node in the background
 		#if os(macOS)
 			let hideInDock = self.hideInDock

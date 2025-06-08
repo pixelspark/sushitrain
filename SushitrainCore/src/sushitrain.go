@@ -483,9 +483,9 @@ func (clt *Client) HasOldDatabase() bool {
 	return true
 }
 
-// This method loads and migrates the Syncthing database, then starts up an instance. It also starts the streaming web
+// This method loads and migrates the Syncthing database. It also starts the streaming web
 // server. This method can take a while to complete and should only ever be called once.
-func (clt *Client) Start(resetDeltaIdxs bool) error {
+func (clt *Client) Load(resetDeltaIdxs bool) error {
 	clt.mutex.Lock()
 	defer clt.mutex.Unlock()
 
@@ -551,10 +551,20 @@ func (clt *Client) Start(resetDeltaIdxs bool) error {
 	}
 	clt.app = app
 
-	server, err := NewServer(app, clt.ctx)
+	return nil
+}
+
+func (clt *Client) Start() error {
+	if clt.app == nil {
+		return errors.New("call Client.Load first")
+	}
+
+	// Set up streaming server
+	server, err := NewServer(clt.app, clt.ctx)
 	if err != nil {
 		return err
 	}
+	server.client = clt
 	clt.Server = server
 
 	// Subscribe to events
