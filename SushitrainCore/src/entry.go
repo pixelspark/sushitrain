@@ -146,7 +146,7 @@ func (entry *Entry) FetchLocal(start int64, length int64) ([]byte, error) {
 		return nil, errors.New("invalid folder")
 	}
 
-	ffs := fc.Filesystem(nil)
+	ffs := fc.Filesystem()
 	_, err := ffs.Stat(entry.info.FileName())
 	if err == nil {
 		file, err := ffs.Open(entry.info.FileName())
