@@ -244,6 +244,10 @@ struct StartView: View {
 	@State private var showNoPeersEnabledWarning = false
 	@State private var peers: [SushitrainPeer]? = nil
 
+	@State private var inaccessibleExternalFolders: [SushitrainFolder] = []
+	@State private var foldersWithIssues: [SushitrainFolder] = []
+	@State private var fixingInaccessibleExternalFolder: SushitrainFolder? = nil
+
 	var body: some View {
 		Form {
 			Section {
@@ -337,8 +341,39 @@ struct StartView: View {
 				}
 			}
 
-			if !appState.foldersWithExtraFiles.isEmpty {
+			if !appState.foldersWithExtraFiles.isEmpty || !foldersWithIssues.isEmpty || !inaccessibleExternalFolders.isEmpty {
 				Section("Folders that need your attention") {
+					// External folders that have become inaccessible
+					ForEach(inaccessibleExternalFolders, id: \.folderID) { folder in
+						Button(action: {
+							self.fixingInaccessibleExternalFolder = folder
+						}) {
+							Label(
+								"Folder '\(folder.displayName)' is not accessible anymore",
+								systemImage: "xmark.app"
+							)
+							.foregroundStyle(.red)
+						}
+						#if os(macOS)
+							.buttonStyle(.link)
+						#endif
+					}
+
+					// Folders with other configuration issues
+					ForEach(foldersWithIssues, id: \.folderID) { folder in
+						NavigationLink(destination: {
+							FolderView(folder: folder)
+						}) {
+							let issue = folder.issue ?? String(localized: "unknown error")
+							Label(
+								"Folder '\(folder.displayName)' has an issue: \(issue)",
+								systemImage: "exclamationmark.triangle.fill"
+							)
+							.foregroundStyle(.red)
+						}
+					}
+
+					// Folders with extra files
 					ForEach(appState.foldersWithExtraFiles, id: \.self) { folderID in
 						if let folder = appState.client.folder(withID: folderID) {
 							NavigationLink(destination: {
@@ -388,7 +423,32 @@ struct StartView: View {
 				WaitView(isPresented: $showWaitScreen)
 			}
 		#endif
+		.sheet(
+			isPresented: Binding(
+				get: { self.fixingInaccessibleExternalFolder != nil },
+				set: { self.fixingInaccessibleExternalFolder = $0 ? self.fixingInaccessibleExternalFolder : nil })
+		) {
+			if let fe = self.fixingInaccessibleExternalFolder {
+				NavigationStack {
+					ExternalFolderInaccessibleView(folder: fe)
+						.navigationTitle(fe.displayName)
+						.frame(minHeight: 300)
+						.toolbar {
+							ToolbarItem(
+								placement: .cancellationAction,
+								content: {
+									Button("Close") {
+										self.fixingInaccessibleExternalFolder = nil
+									}
+								})
+						}
+				}
+			}
+		}
 		.task {
+			self.updateFoldersWithIssues()
+
+			// Check to see if there are peers connected
 			showNoPeersEnabledWarning = false
 			let p = self.appState.peers()
 			self.peers = p
@@ -401,6 +461,39 @@ struct StartView: View {
 			catch {
 				// Ignored
 			}
+		}
+		.onChange(of: appState.eventCounter) { _, _ in
+			Task {
+				self.updateFoldersWithIssues()
+			}
+		}
+	}
+
+	private func updateFoldersWithIssues() {
+		let folders = self.appState.folders()
+
+		// Find external folders that have become inaccessible
+		self.inaccessibleExternalFolders = folders.filter { folder in
+			if folder.isPaused() {
+				return false
+			}
+
+			return folder.isExternal == true && !folder.isPhotoFolder
+				&& !BookmarkManager.shared.hasBookmarkFor(folderID: folder.folderID)
+		}
+
+		// Find folders with other issues
+		self.foldersWithIssues = folders.filter { folder in
+			if folder.isPaused() {
+				return false
+			}
+			var error: NSError? = nil
+			let state = folder.state(&error)
+			if !SushitrainFolder.knownGoodStates.contains(state) {
+				// Do not list inaccessible external folders twice
+				return !self.inaccessibleExternalFolders.contains(where: { $0.folderID == folder.folderID })
+			}
+			return false
 		}
 	}
 }

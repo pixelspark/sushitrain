@@ -60,6 +60,19 @@ extension SushitrainDate {
 }
 
 extension SushitrainFolder {
+	static let knownGoodStates = Set([
+		"idle", "syncing", "scanning", "sync-preparing", "cleaning", "sync-waiting", "scan-waiting", "clean-waiting",
+	])
+
+	var issue: String? {
+		var error: NSError? = nil
+		let s = self.state(&error)
+		if error == nil {
+			return s
+		}
+		return nil
+	}
+
 	var isIdle: Bool {
 		var error: NSError? = nil
 		let s = self.state(&error)

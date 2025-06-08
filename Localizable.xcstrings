@@ -8174,6 +8174,46 @@
         }
       }
     },
+    "Folder '%@' has an issue: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner '%@' hat ein Problem: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Folder '%1$@' has an issue: %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La carpeta '%@' tiene un problema: %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cartella '%@' ha un problema: %@"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map '%@' heeft een probleem: %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Папка '%@' має проблему: %@"
+          }
+        }
+      }
+    },
     "Folder '%@' has extra files" : {
       "localizations" : {
         "de" : {
@@ -8204,6 +8244,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Папка '%@' містить додаткові файли"
+          }
+        }
+      }
+    },
+    "Folder '%@' is not accessible anymore" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner '%@' ist nicht mehr zugänglich"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La carpeta '%@' ya no es accesible"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cartella '%@' non è più accessibile"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map '%@' is niet meer toegankelijk"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Папка '%@' більше не доступна"
           }
         }
       }
@@ -10426,6 +10500,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Недоступна зовнішня папка"
+          }
+        }
+      }
+    },
+    "Inaccessible folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unzugänglicher Ordner"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carpeta inaccesible"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartella inaccessibile"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niet-toegankelijke map"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Недоступна папка"
           }
         }
       }
@@ -13826,6 +13934,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Повторно скопіювати всі фотографії"
+          }
+        }
+      }
+    },
+    "Re-link folder..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner erneut verknüpfen..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volver a enlazar carpeta..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ricollega cartella..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map opnieuw koppelen..."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Знову зв'язати папку..."
           }
         }
       }
@@ -18420,6 +18562,40 @@
         }
       }
     },
+    "Synctrain cannot access this folder anymore. Please click the button below to re-select the folder on your system. This should re-grant Synctrain access to the folder." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain kann nicht mehr auf diesen Ordner zugreifen. Bitte klicken Sie auf die Schaltfläche unten, um den Ordner auf Ihrem System neu auszuwählen. Dadurch sollte Synctrain erneut Zugriff auf den Ordner erhalten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain ya no puede acceder a esta carpeta. Haz clic en el botón de abajo para volver a seleccionar la carpeta en tu sistema. Esto debería otorgar de nuevo a Synctrain acceso a la carpeta."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain non può più accedere a questa cartella. Fare clic sul pulsante qui sotto per selezionare nuovamente la cartella sul sistema. Questo dovrebbe ridare a Synctrain l'accesso alla cartella."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain heeft geen toegang meer tot deze map. Klik op de knop hieronder om de map opnieuw op uw systeem te selecteren. Dit zou Synctrain opnieuw toegang tot de map moeten verlenen."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain більше не може отримати доступ до цієї папки. Натисніть кнопку нижче, щоб заново вибрати папку на вашій системі. Це має знову надати Synctrain доступ до папки."
+          }
+        }
+      }
+    },
     "Synctrain cannot access your photo library right now" : {
       "localizations" : {
         "de" : {
@@ -19032,6 +19208,40 @@
         }
       }
     },
+    "The folder cannot be accessed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Ordner kann nicht geöffnet werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La carpeta no se puede acceder"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cartella non può essere aperta"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De map kan niet worden geopend"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Папку неможливо відкрити"
+          }
+        }
+      }
+    },
     "The folder for which to retrieve the directory" : {
       "localizations" : {
         "de" : {
@@ -19062,6 +19272,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Папка, для якої потрібно отримати каталог"
+          }
+        }
+      }
+    },
+    "The folder is accessible." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Ordner ist zugänglich."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La carpeta es accesible."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cartella è accessibile."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De map is toegankelijk."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Папка доступна."
           }
         }
       }
@@ -21114,6 +21358,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Некодовані посилання для спільного доступу"
+          }
+        }
+      }
+    },
+    "unknown error" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unbekannter Fehler"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "error desconocido"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "errore sconosciuto"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "onbekende fout"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "невідома помилка"
           }
         }
       }

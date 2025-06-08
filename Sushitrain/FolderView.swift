@@ -397,8 +397,10 @@ private struct ExternalFolderSectionView: View {
 
 						// Attempt to create a new bookmark
 						do {
+							try? self.folder.setPaused(true)
 							try BookmarkManager.shared.saveBookmark(folderID: self.folder.folderID, url: url)
 							try folder.setPath(url.path(percentEncoded: false))
+							try? self.folder.setPaused(false)
 						}
 						catch {
 							self.errorText = String(localized: "Could not re-link folder: \(error.localizedDescription)")
@@ -429,6 +431,110 @@ private struct ExternalFolderSectionView: View {
 	}
 
 	private func tryFixBookmark() {
+		// Pause the folder
+		try? self.folder.setPaused(true)
+
+		if BookmarkManager.shared.hasBookmarkFor(folderID: self.folder.folderID) {
+			Log.info("We already have a bookmark for folder \(self.folder.folderID)")
+		}
+
+		if let u = self.folder.localNativeURL {
+			do {
+				try BookmarkManager.shared.saveBookmark(folderID: self.folder.folderID, url: u)
+			}
+			catch {
+				Log.warn("while attempting bookmark recreation: \(error.localizedDescription)")
+			}
+		}
+
+		// Do we have a bookmark now?
+		if BookmarkManager.shared.hasBookmarkFor(folderID: self.folder.folderID) {
+			Log.info("We now have a bookmark for folder \(self.folder.folderID)")
+			return
+		}
+
+		self.showPathSelector = true
+	}
+}
+
+struct ExternalFolderInaccessibleView: View {
+	@EnvironmentObject var appState: AppState
+
+	var folder: SushitrainFolder
+	@State private var showPathSelector: Bool = false
+	@State private var errorText: String? = nil
+
+	var body: some View {
+		let isAccessible = BookmarkManager.shared.hasBookmarkFor(folderID: folder.folderID)
+
+		if isAccessible {
+			ContentUnavailableView(
+				"External folder",
+				systemImage: "app.badge.checkmark",
+				description: Text("The folder is accessible.")
+			)
+		}
+		else {
+			ContentUnavailableView(
+				label: {
+					Label("Inaccessible folder", systemImage: "xmark.app")
+				},
+				description: {
+					Text(
+						"Synctrain cannot access this folder anymore. Please click the button below to re-select the folder on your system. This should re-grant Synctrain access to the folder."
+					)
+				},
+				actions: {
+					Button("Re-link folder...", systemImage: "link") {
+						self.tryFixBookmark()
+					}
+				}
+			)
+			// Folder selector for fixing external folders
+			.fileImporter(
+				isPresented: $showPathSelector, allowedContentTypes: [.folder],
+				onCompletion: { result in
+					switch result {
+					case .success(let url):
+						if appState.isInsideDocumentsFolder(url) {
+							// Check if the folder path is or is inside our regular folder path - that is not allowed
+							self.errorText = String(
+								localized:
+									"The folder you have selected is inside the app folder. Only folders outside the app folder can be selected."
+							)
+							return
+						}
+
+						// Attempt to create a new bookmark
+						do {
+							try? self.folder.setPaused(true)
+							try BookmarkManager.shared.saveBookmark(folderID: self.folder.folderID, url: url)
+							try folder.setPath(url.path(percentEncoded: false))
+							try? self.folder.setPaused(false)
+						}
+						catch {
+							self.errorText = String(localized: "Could not re-link folder: \(error.localizedDescription)")
+							return
+						}
+
+					case .failure(let e):
+						Log.warn("Failed to select folder: \(e.localizedDescription)")
+					}
+				}
+			)
+			.alert(
+				isPresented: .constant(self.errorText != nil),
+				content: {
+					Alert(title: Text("Could not relink folder"), message: Text(errorText ?? ""), dismissButton: .default(Text("OK")))
+				}
+			)
+		}
+	}
+
+	private func tryFixBookmark() {
+		// Pause the folder
+		try? self.folder.setPaused(true)
+
 		if BookmarkManager.shared.hasBookmarkFor(folderID: self.folder.folderID) {
 			Log.info("We already have a bookmark for folder \(self.folder.folderID)")
 		}
