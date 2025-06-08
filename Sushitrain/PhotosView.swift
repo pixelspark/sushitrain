@@ -160,14 +160,14 @@ struct PhotoSettingsView: View {
 				} label: {
 					Text("Path in folder")
 				}
-				
+
 				PhotoFolderStructureView(folderStructure: photoBackup.$folderStructure)
 					.disabled(photoBackup.isSynchronizing)
-				
+
 				Text("Example file location in folder: ")
 					+ Text("\(photoBackup.subDirectoryPath)/\(photoBackup.folderStructure.examplePath)")
 					.monospaced()
-				
+
 			} footer: {
 				Text(
 					"When the folder structure is changed, photos that were already saved will be saved again in their new location."
@@ -288,7 +288,7 @@ struct PhotoSettingsView: View {
 
 struct PhotoFolderStructureView: View {
 	@Binding var folderStructure: PhotoBackupFolderStructure
-	
+
 	var body: some View {
 		Picker("Folder structure", selection: $folderStructure) {
 			Text("By date").tag(PhotoBackupFolderStructure.byDate)

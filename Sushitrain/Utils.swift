@@ -733,32 +733,32 @@ extension SushitrainCompletion: @unchecked @retroactive Sendable {}
 
 struct HTTPError: LocalizedError {
 	let statusCode: Int
-	
+
 	var errorDescription: String? {
 		switch self.statusCode {
 		case 404:
 			return String(localized: "This page could not be found")
-			
+
 		case 401:
 			return String(localized: "To access this page you need to log in")
-			
+
 		case 403:
 			return String(localized: "Access to this page was denied")
-			
+
 		case 500...599:
 			return String(localized: "An error occured on the server (\(statusCode)")
-			
+
 		default:
 			return String(localized: "HTTP error \(statusCode)")
 		}
-		
+
 	}
 }
 
 struct WebView: UIViewRepresentable {
 	let url: URL
 	@State var isOpaque: Bool = false
-	
+
 	@Binding var isLoading: Bool
 	@Binding var error: Error?
 

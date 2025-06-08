@@ -544,8 +544,9 @@ extension PHAsset {
 		guard let result = primaryResource else { return "file" }
 		return result.originalFilename.replacingOccurrences(of: "/", with: "_")
 	}
-	
-	fileprivate func directoryPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath) -> EntryPath {
+
+	fileprivate func directoryPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath) -> EntryPath
+	{
 		var path = subdirectoryPath
 		for c in self.subdirectoriesInFolder(structure: structure) {
 			path = path.appending(c, isDirectory: true)
@@ -555,7 +556,7 @@ extension PHAsset {
 
 	func subdirectoriesInFolder(structure: PhotoBackupFolderStructure) -> [String] {
 		var components: [String] = []
-		
+
 		switch structure {
 		case .byDate, .byDateAndType:
 			if let creationDate = self.creationDate {
@@ -566,7 +567,7 @@ extension PHAsset {
 				let dateString = dateFormatter.string(from: creationDate)
 				components.append(dateString)
 			}
-			
+
 		case .byDateComponent, .byDateComponentAndType:
 			if let creationDate = self.creationDate {
 				// FIXME: this uses the currently set local timezone. When moving between timezones, asset's creation
@@ -579,7 +580,7 @@ extension PHAsset {
 					components.append(dateString)
 				}
 			}
-			
+
 		case .singleFolder, .byType, .singleFolderDatePrefixed: break
 		}
 
@@ -616,7 +617,8 @@ extension PHAsset {
 
 	func fileNameInFolder(structure: PhotoBackupFolderStructure) -> String {
 		switch structure {
-		case .byDate, .byDateAndType, .byDateComponent, .byDateComponentAndType, .singleFolder, .byType: return self.originalFilename
+		case .byDate, .byDateAndType, .byDateComponent, .byDateComponentAndType, .singleFolder, .byType:
+			return self.originalFilename
 
 		case .singleFolderDatePrefixed:
 			if let creationDate = self.creationDate {

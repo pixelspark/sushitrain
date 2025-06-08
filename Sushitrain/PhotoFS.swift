@@ -114,7 +114,7 @@ extension StaticCustomFSDirectory: CustomFSDirectory {
 			return subDir
 		}
 	}
-	
+
 	func place(_ entry: CustomFSEntry) {
 		self.children.append(entry)
 	}
@@ -225,7 +225,7 @@ private class PhotoFSAlbumEntry: CustomFSEntry {
 			// Faux directory used to give folderStructure.place a CustomFSDirectory interface for the root directory
 			let fauxRoot = StaticCustomFSDirectory("", children: [])
 			let structure = self.config.folderStructure ?? .singleFolder
-			
+
 			// Enumerate relevant assets
 			let assets = PHAsset.fetchAssets(in: album, options: nil)
 			assets.enumerateObjects { asset, index, stop in
@@ -257,7 +257,7 @@ private class PhotoFSAlbumEntry: CustomFSEntry {
 
 struct PhotoFSAlbumConfiguration: Codable, Equatable {
 	var albumID: String = ""
-	var folderStructure: PhotoBackupFolderStructure? = nil // Needs to be optional because older versions did not have this
+	var folderStructure: PhotoBackupFolderStructure? = nil  // Needs to be optional because older versions did not have this
 
 	var isValid: Bool {
 		return !self.albumID.isEmpty
@@ -272,12 +272,12 @@ extension PhotoBackupFolderStructure {
 	fileprivate func place(asset: PHAsset, root: CustomFSDirectory) {
 		let translatedFileName = asset.fileNameInFolder(structure: self)
 		let subdirs = asset.subdirectoriesInFolder(structure: self)
-		
+
 		var dir = root
 		for dirName in subdirs {
 			dir = dir.getOrCreateSubdirectory(dirName)
 		}
-		
+
 		dir.place(PhotoFSAssetEntry(translatedFileName, asset: asset))
 	}
 }
@@ -293,7 +293,7 @@ extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 		if let d = uri.data(using: .utf8) {
 			config = (try? JSONDecoder().decode(PhotoFSConfiguration.self, from: d)) ?? config
 		}
-		
+
 		let folderRoot = StaticCustomFSDirectory(
 			"",
 			children: [
@@ -307,7 +307,7 @@ extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 				// Ignore file (empty for now)
 				StaticCustomFSEntry(".stignore", contents: "# EMPTY ON PURPOSE\n".data(using: .ascii)!),
 			])
-		
+
 		// Go over all configured albums and place them at the right locations in the entry tree
 		for (folderPath, albumConfig) in config.folders {
 			if folderPath.isEmpty {
@@ -315,7 +315,7 @@ extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 				Log.warn("Can't place folder album at root")
 				continue
 			}
-			
+
 			var subdirs = folderPath.split(separator: "/")
 			let first = subdirs.first!
 			if first.lowercased().starts(with: ".st") {
@@ -323,17 +323,17 @@ extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 				Log.warn("Can't place folder album over reserved subdirectory name: \(folderPath) \(first)")
 				continue
 			}
-			
+
 			var dir: CustomFSDirectory = folderRoot
 			let lastDirName = String(subdirs.removeLast())
 			for subdir in subdirs {
 				dir = dir.getOrCreateSubdirectory(String(subdir))
 			}
-			
+
 			let albumDirectory = try PhotoFSAlbumEntry(lastDirName, config: albumConfig)
 			dir.place(albumDirectory)
 		}
-		
+
 		return folderRoot
 	}
 }

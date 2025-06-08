@@ -130,7 +130,7 @@ struct BrowserView: View {
 							.accessibilityLabel(Text("List with previews"))
 						Image(systemName: "square.grid.2x2").tag(BrowserViewStyle.grid)
 							.accessibilityLabel(Text("Grid"))
-						
+
 						if webViewAvailable {
 							Image(systemName: "doc.text.image")
 								.tag(BrowserViewStyle.web)
@@ -261,14 +261,15 @@ struct BrowserView: View {
 				dismissButton: .default(Text("OK")))
 		}
 	}
-	
+
 	private func update() {
 		self.folderExists = folder.exists()
 		self.updateLocalURL()
 		self.folderIsSelective = folder.isSelective()
-		
+
 		// Check for presence of index.html to enable web view
-		if let entry = try? folder.getFileInformation(self.prefix + "index.html"), !entry.isDirectory() && !entry.isDeleted() {
+		if let entry = try? folder.getFileInformation(self.prefix + "index.html"), !entry.isDirectory() && !entry.isDeleted()
+		{
 			self.webViewAvailable = true
 		}
 		else {
@@ -279,7 +280,7 @@ struct BrowserView: View {
 	@ViewBuilder private func folderMenu() -> some View {
 		Menu {
 			#if os(iOS)
-			BrowserViewStylePickerView(webViewAvailable: self.webViewAvailable, viewStyle: self.currentViewStyle())
+				BrowserViewStylePickerView(webViewAvailable: self.webViewAvailable, viewStyle: self.currentViewStyle())
 					.pickerStyle(.inline)
 
 				Toggle(
@@ -478,7 +479,7 @@ private struct BrowserItemsView: View {
 
 					case .list, .thumbnailList:
 						self.listView()
-						
+
 					case .web:
 						BrowserWebView(folderID: folder.folderID, path: self.prefix)
 					}
@@ -758,7 +759,7 @@ private struct BrowserItemsView: View {
 					let filtered = self.files.filter({
 						!extensionsIgnored.contains($0.extension().lowercased()) && (!dotFilesHidden || !$0.fileName().starts(with: "."))
 					})
-					
+
 					if !filtered.isEmpty && filtered.allSatisfy({ $0.canThumbnail && ($0.isImage || $0.isVideo) }) {
 						self.viewStyle = .grid
 					}
@@ -848,7 +849,7 @@ private struct BrowserViewStylePickerView: View {
 				Image(systemName: "square.grid.2x2")
 				Text("Grid with previews")
 			}.tag(BrowserViewStyle.grid)
-			
+
 			if webViewAvailable {
 				HStack {
 					Image(systemName: "doc.text.image")
