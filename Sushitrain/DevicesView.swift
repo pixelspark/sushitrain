@@ -406,7 +406,7 @@ struct DevicesView: View {
 		var viewStyle: GridViewStyle
 		@State private var isShared: Bool = false
 		@State private var isSharedEncrypted: Bool = false
-		@State private var isLoading: Bool = true
+		@State private var loadingTask: Task<(), Error>? = nil
 		@State private var showEditEncryptionPassword = false
 		@State private var completion: SushitrainCompletion? = nil
 
@@ -416,7 +416,7 @@ struct DevicesView: View {
 				case .simple: EmptyView()  // Not reached
 				case .sharing:
 					Toggle(isOn: Binding(get: { return isShared }, set: { nv in self.share(nv) })) { EmptyView() }.disabled(
-						self.isLoading)
+						self.loadingTask != nil)
 
 					Image(systemName: "lock").help("An encrypted version of the folder is shared with this device.").opacity(
 						isSharedEncrypted ? 1 : 0)
@@ -442,34 +442,59 @@ struct DevicesView: View {
 						}
 					}
 				}
-			}.contextMenu { Button(action: { self.showEditEncryptionPassword = true }) { Text("Show info...") } }
-				.task {
-					self.update()
-				}.onChange(of: viewStyle, initial: false) { _, _ in self.update() }.sheet(isPresented: $showEditEncryptionPassword)
-			{
+			}
+			.contextMenu {
+				Button(action: { self.showEditEncryptionPassword = true }) {
+					Text("Show info...")
+				}
+			}
+			.task {
+				self.update()
+			}
+			.onChange(of: viewStyle, initial: false) { _, _ in
+				self.update()
+			}
+			.sheet(isPresented: $showEditEncryptionPassword) {
 				NavigationStack {
 					ShareFolderWithDeviceDetailsView(folder: self.folder, deviceID: .constant(device.deviceID()))
 				}
 			}
-				.onChange(of: appState.eventCounter) {
+			.onChange(of: appState.eventCounter) {
+				if self.loadingTask == nil {
 					self.update()
 				}
+			}
+			.onDisappear {
+				self.loadingTask?.cancel()
+				self.loadingTask = nil
+			}
 		}
 
 		private func update() {
-			self.isLoading = true
 			let devID = self.device.deviceID()
-			Task {
+			let folder = self.folder
+			let viewStyle = self.viewStyle
+			
+			if let t = self.loadingTask {
+				t.cancel()
+				self.loadingTask = nil
+			}
+			
+			self.loadingTask = Task.detached(priority: .userInitiated) {
+				dispatchPrecondition(condition: .notOnQueue(.main))
 				let sharedWithDeviceIDs = folder.sharedWithDeviceIDs()?.asArray() ?? []
 				let sharedEncrypted = folder.sharedEncryptedWithDeviceIDs()?.asArray() ?? []
-				let completion = self.viewStyle == .sharing ? nil : try? self.folder.completion(forDevice: devID)
+				if Task.isCancelled {
+					return
+				}
+				let completion = viewStyle == .sharing ? nil : try? folder.completion(forDevice: devID)
 
 				Task { @MainActor in
 					withAnimation {
 						self.isShared = sharedWithDeviceIDs.contains(self.device.deviceID())
 						self.isSharedEncrypted = sharedEncrypted.contains(device.deviceID())
 						self.completion = completion
-						self.isLoading = false
+						self.loadingTask = nil
 					}
 				}
 			}
