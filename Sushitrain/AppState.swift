@@ -166,7 +166,7 @@ enum AppStartupState: Equatable {
 
 		do {
 			// Load the client
-			try await Task(priority: .userInitiated) {
+			try await Task.detached(priority: .userInitiated) {
 				// This one opens the database, migrates stuff, etc. and may take a while
 				Log.info("Loading the client...")
 				try client.load(resetDeltas)
@@ -178,7 +178,6 @@ enum AppStartupState: Equatable {
 
 			// Resolve bookmarks
 			let folderIDs = client.folders()?.asArray() ?? []
-			Log.info("Folder IDs: \(folderIDs.joined(separator: " "))")
 			for folderID in folderIDs {
 				do {
 					if let bm = try BookmarkManager.shared.resolveBookmark(folderID: folderID) {
@@ -199,7 +198,7 @@ enum AppStartupState: Equatable {
 			}
 
 			// Start the client
-			try await Task(priority: .userInitiated) {
+			try await Task.detached(priority: .userInitiated) {
 				// Showtime!
 				Log.info("Starting client...")
 				try client.start()
