@@ -14,7 +14,7 @@ struct AboutView: View {
 	var body: some View {
 		Form {
 			Section {
-				Text("Synctrain is © 2024, Tommy van der Vorst")
+				Text("Synctrain is © 2024-2025, Tommy van der Vorst")
 				Link(
 					"End User License Agreement",
 					destination: URL(
