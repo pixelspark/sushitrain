@@ -45,7 +45,7 @@ struct BrowserListView: View {
 					}.contextMenu(
 						ContextMenu(menuItems: {
 							if let file = try? folder.getFileInformation(self.prefix + fileName) {
-								NavigationLink(destination: FileView(file: file, showPath: false)) {
+								NavigationLink(destination: FileView(file: file, showPath: false, siblings: nil)) {
 									Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
 								}
 
@@ -139,7 +139,7 @@ struct EntryView: View {
 							destination: BrowserView(folder: targetFolder, prefix: targetEntry.path() + "/")
 						) { self.entryView(entry: entry) }.contextMenu {
 							NavigationLink(
-								destination: FileView(file: targetEntry, showPath: self.folder == nil, siblings: [])
+								destination: FileView(file: targetEntry, showPath: self.folder == nil, siblings: nil)
 							) { Label(targetEntry.fileName(), systemImage: targetEntry.systemImage) }
 							NavigationLink(
 								destination: FileView(file: entry, showPath: self.folder == nil, siblings: siblings)
@@ -153,7 +153,7 @@ struct EntryView: View {
 						self.entryView(entry: targetEntry)
 					}.contextMenu {
 						NavigationLink(
-							destination: FileView(file: targetEntry, showPath: self.folder == nil, siblings: [])
+							destination: FileView(file: targetEntry, showPath: self.folder == nil, siblings: nil)
 						) { Label(targetEntry.fileName(), systemImage: targetEntry.systemImage) }
 						NavigationLink(
 							destination: FileView(file: entry, showPath: self.folder == nil, siblings: siblings)

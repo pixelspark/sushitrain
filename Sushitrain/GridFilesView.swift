@@ -50,7 +50,7 @@ struct GridFilesView: View {
 							if let file = try? folder.getFileInformation(
 								self.prefix + fileName)
 							{
-								NavigationLink(destination: FileView(file: file)) {
+								NavigationLink(destination: FileView(file: file, showPath: false, siblings: nil)) {
 									Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
 								}
 								ItemSelectToggleView(file: file)

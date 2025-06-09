@@ -33,7 +33,8 @@ struct SelectiveFolderView: View {
 							let item = selectedPaths[itemIndex]
 							if st.isEmpty || item.lowercased().contains(st) {
 								SelectiveFileView(
-									path: item, folder: folder,
+									path: item,
+									folder: folder,
 									deselect: {
 										self.deselectIndexes(
 											IndexSet([itemIndex]))
@@ -358,13 +359,16 @@ private struct SelectiveFileView: View {
 						.contextMenu {
 							NavigationLink(
 								destination: FileView(
-									file: file)
+									file: file,
+									showPath: false,
+									siblings: nil
+								)
 							) {
 								Label("Show info", systemImage: file.systemImage)
 							}
 						}
 					#else
-						NavigationLink(destination: FileView(file: file)) {
+						NavigationLink(destination: FileView(file: file, showPath: false, siblings: nil)) {
 							Label(path, systemImage: file.systemImage)
 						}
 					#endif

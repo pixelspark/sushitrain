@@ -15,7 +15,7 @@ struct ChangesView: View {
 			ForEach(appState.lastChanges, id: \.id) { change in
 				if let folder = appState.client.folder(withID: change.folderID) {
 					if let entry = try? folder.getFileInformation(change.path), !entry.isDeleted() {
-						NavigationLink(destination: FileView(file: entry, showPath: true, siblings: [])) {
+						NavigationLink(destination: FileView(file: entry, showPath: true, siblings: nil)) {
 							self.changeDetails(change: change, folder: folder)
 						}
 					}

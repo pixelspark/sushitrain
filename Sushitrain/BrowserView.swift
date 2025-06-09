@@ -223,7 +223,7 @@ struct BrowserView: View {
 		#if os(macOS)
 			.contextMenu {
 				if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
-					NavigationLink(destination: FileView(file: entry)) {
+					NavigationLink(destination: FileView(file: entry, showPath: false, siblings: nil)) {
 						Label("Subdirectory properties...", systemImage: entry.systemImage)
 					}
 
@@ -292,7 +292,7 @@ struct BrowserView: View {
 
 			if folderExists && !self.prefix.isEmpty {
 				if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
-					NavigationLink(destination: FileView(file: entry)) {
+					NavigationLink(destination: FileView(file: entry, showPath: false, siblings: nil)) {
 						Label("Subdirectory properties...", systemImage: "folder.badge.gearshape")
 					}
 

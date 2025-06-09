@@ -210,7 +210,7 @@ private struct DatabaseMaintenanceView: View {
 	@State private var hasMigratedLegacyDatabase = false
 	@State private var hasLegacyDatabase = false
 	@State private var performingDatabaseMaintenance = false
-	
+
 	var body: some View {
 		Form {
 			Section {
@@ -224,7 +224,7 @@ private struct DatabaseMaintenanceView: View {
 						Text("v2")
 					}
 				}
-				
+
 				if appState.migratedToV2At > 0.0 {
 					LabeledContent("Upgraded at") {
 						Text(
@@ -232,7 +232,7 @@ private struct DatabaseMaintenanceView: View {
 					}
 				}
 			}
-			
+
 			if hasLegacyDatabase {
 				Section {
 					Button("Restart app to remove v1 database") {
@@ -242,14 +242,13 @@ private struct DatabaseMaintenanceView: View {
 					#if os(macOS)
 						.buttonStyle(.link)
 					#endif
-				}
-				footer: {
+				} footer: {
 					Text(
 						"A legacy database is still present. If the app is functioning correctly, it is safe to manually delete this database. In order to do this, the app needs to be restarted."
 					)
 				}.disabled(performingDatabaseMaintenance)
 			}
-			
+
 			if hasMigratedLegacyDatabase {
 				Section {
 					Button("Remove v1 database back-up") {
@@ -258,8 +257,7 @@ private struct DatabaseMaintenanceView: View {
 					#if os(macOS)
 						.buttonStyle(.link)
 					#endif
-				}
-				footer: {
+				} footer: {
 					Text(
 						"After a database upgrade, a copy of the old version is retained for a while. This copy may take up a significant amount of storage space. If everything is working as expected, it is safe to remove this back-up."
 					)
@@ -267,7 +265,7 @@ private struct DatabaseMaintenanceView: View {
 			}
 		}
 		#if os(macOS)
-		.formStyle(.grouped)
+			.formStyle(.grouped)
 		#endif
 		.task {
 			self.updateDatabaseInfo()
@@ -277,7 +275,7 @@ private struct DatabaseMaintenanceView: View {
 			.navigationBarTitleDisplayMode(.inline)
 		#endif
 	}
-	
+
 	private func updateDatabaseInfo() {
 		self.hasLegacyDatabase = appState.client.hasLegacyDatabase()
 		self.hasMigratedLegacyDatabase = appState.client.hasMigratedLegacyDatabase()
@@ -300,7 +298,6 @@ private struct DatabaseMaintenanceView: View {
 		}
 	}
 }
-
 
 struct AdvancedSettingsView: View {
 	@EnvironmentObject var appState: AppState
@@ -620,38 +617,38 @@ struct AdvancedSettingsView: View {
 						self.showDatabaseMaintenance = true
 					}
 				}.buttonStyle(.link)
-				.sheet(isPresented: $showDatabaseMaintenance) {
-					NavigationStack {
-						DatabaseMaintenanceView()
-							.toolbar(content: {
-								ToolbarItem(
-									placement: .confirmationAction,
-									content: {
-										Button("Close") {
-											showDatabaseMaintenance = false
-										}
-									})
-							})
+					.sheet(isPresented: $showDatabaseMaintenance) {
+						NavigationStack {
+							DatabaseMaintenanceView()
+								.toolbar(content: {
+									ToolbarItem(
+										placement: .confirmationAction,
+										content: {
+											Button("Close") {
+												showDatabaseMaintenance = false
+											}
+										})
+								})
+						}
 					}
-				}
-			
+
 				Section {
 					Button("Configuration settings") {
 						self.showConfigurationSettings = true
 					}
 				}.buttonStyle(.link)
-				.sheet(isPresented: $showConfigurationSettings) {
-					ConfigurationSettingsView()
-					.toolbar(content: {
-						ToolbarItem(
-							placement: .confirmationAction,
-							content: {
-								Button("Close") {
-									showConfigurationSettings = false
-								}
+					.sheet(isPresented: $showConfigurationSettings) {
+						ConfigurationSettingsView()
+							.toolbar(content: {
+								ToolbarItem(
+									placement: .confirmationAction,
+									content: {
+										Button("Close") {
+											showConfigurationSettings = false
+										}
+									})
 							})
-					})
-				}
+					}
 			#else
 				NavigationLink(destination: DatabaseMaintenanceView()) {
 					Text("Database maintenance")

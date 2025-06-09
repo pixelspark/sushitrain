@@ -202,7 +202,7 @@ struct BrowserTableView: View {
 			if oe.isSymlink() {
 				if !honorTapToPreview {
 					// Just show symlink properties
-					FileView(file: oe, siblings: self.entries)
+					FileView(file: oe, showPath: false, siblings: self.entries)
 				}
 				else if let targetEntry = try? oe.symlinkTargetEntry() {
 					// Symlink to a directory
@@ -223,7 +223,7 @@ struct BrowserTableView: View {
 							.navigationTitle(targetEntry.fileName())
 						}
 						else {
-							FileView(file: targetEntry, siblings: self.entries)
+							FileView(file: targetEntry, showPath: false, siblings: self.entries)
 						}
 					}
 				}
@@ -237,7 +237,7 @@ struct BrowserTableView: View {
 					BrowserView(folder: folder, prefix: oe.path() + "/")
 				}
 				else {
-					FileView(file: oe, siblings: self.entries)
+					FileView(file: oe, showPath: false, siblings: self.entries)
 				}
 			}
 			else {
@@ -251,7 +251,7 @@ struct BrowserTableView: View {
 					.navigationTitle(oe.fileName())
 				}
 				else {
-					FileView(file: oe, siblings: self.entries)
+					FileView(file: oe, showPath: false, siblings: self.entries)
 				}
 			}
 		}

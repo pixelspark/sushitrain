@@ -9,12 +9,12 @@ import QuickLook
 import AVKit
 
 struct FileView: View {
-	@EnvironmentObject var appState: AppState
-	private var showPath = false
-	private var siblings: [SushitrainEntry]? = nil
-	private var folder: SushitrainFolder
+	private static let formatter = ByteCountFormatter()
 
-	@State private var file: SushitrainEntry
+	@State var file: SushitrainEntry
+	let showPath: Bool
+	let siblings: [SushitrainEntry]?
+
 	@State private var localItemURL: URL? = nil
 	@State private var showFullScreenViewer = false
 	@State private var showSheetViewer = false
@@ -25,9 +25,10 @@ struct FileView: View {
 	@State private var availabilityError: Error? = nil
 	@State private var showEncryptionSheet: Bool = false
 	@State private var conflictingEntries: [SushitrainEntry]? = nil
+	@State private var openWithAppURL: URL? = nil
+	@State private var localPath: String? = nil
 
-	private static let formatter = ByteCountFormatter()
-
+	@EnvironmentObject var appState: AppState
 	@Environment(\.dismiss) private var dismiss
 
 	#if os(macOS)
@@ -35,16 +36,13 @@ struct FileView: View {
 		@Environment(\.openWindow) private var openWindow
 	#endif
 
-	init(file: SushitrainEntry, showPath: Bool = false, siblings: [SushitrainEntry]? = nil) {
-		self.file = file
-		self.showPath = showPath
-		self.siblings = siblings
-		self.folder = file.folder!
-	}
-
 	var localIsOnlyCopy: Bool {
 		return file.isLocallyPresent()
 			&& (self.fullyAvailableOnDevices == nil || (self.fullyAvailableOnDevices ?? []).isEmpty)
+	}
+
+	private var folder: SushitrainFolder {
+		return self.file.folder!
 	}
 
 	var body: some View {
@@ -52,9 +50,6 @@ struct FileView: View {
 			ContentUnavailableView("File was deleted", systemImage: "trash", description: Text("This file was deleted."))
 		}
 		else {
-			var error: NSError? = nil
-			let localPath = file.isLocallyPresent() ? file.localNativePath(&error) : nil
-
 			Form {
 				// Symbolic link: show link target
 				if file.isSymlink() { Section("Link destination") { Text(file.symlinkTarget()) } }
@@ -221,7 +216,7 @@ struct FileView: View {
 					if file.isSelected() {
 						// Selective sync uses copy in working dir
 						if file.isLocallyPresent() {
-							if error == nil, let localPathActual = localPath {
+							if let localPathActual = localPath {
 								Section {
 									Button("View file", systemImage: "eye", action: { localItemURL = URL(fileURLWithPath: localPathActual) })
 										#if os(macOS)
@@ -230,7 +225,7 @@ struct FileView: View {
 
 									#if os(macOS)
 
-										if let appURL = NSWorkspace.shared.urlForApplication(toOpen: URL(fileURLWithPath: localPathActual)) {
+										if let appURL = openWithAppURL {
 											Button("Open with '\(appURL.lastPathComponent)'", systemImage: "app.badge") {
 												NSWorkspace.shared.open(URL(fileURLWithPath: localPathActual))
 											}.buttonStyle(.link)
@@ -444,6 +439,16 @@ struct FileView: View {
 
 				Task {
 					let fileEntry = self.file
+					Log.info("FileView onChange")
+
+					// Obtain local paths
+					var error: NSError? = nil
+					self.localPath = file.isLocallyPresent() ? file.localNativePath(&error) : nil
+					if let localPathActual = self.localPath {
+						self.openWithAppURL =
+							error == nil ? NSWorkspace.shared.urlForApplication(toOpen: URL(fileURLWithPath: localPathActual)) : nil
+					}
+
 					do {
 						self.fullyAvailableOnDevices = nil
 						self.availabilityError = nil
@@ -600,7 +605,8 @@ struct FileSharingLinksView: View {
 						}
 					}.buttonStyle(.link)
 				#endif
-			}.task { await self.update() }.onChange(of: entry) { Task { await self.update() } }
+			}.task { await self.update() }
+				.onChange(of: entry) { Task { await self.update() } }
 		}
 	}
 }
