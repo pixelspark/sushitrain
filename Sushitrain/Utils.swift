@@ -760,7 +760,7 @@ struct HTTPError: LocalizedError {
 			return String(localized: "Access to this page was denied")
 
 		case 500...599:
-			return String(localized: "An error occured on the server (\(statusCode)")
+			return String(localized: "An error occured on the server (\(statusCode))")
 
 		default:
 			return String(localized: "HTTP error \(statusCode)")

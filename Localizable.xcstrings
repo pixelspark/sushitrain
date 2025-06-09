@@ -1136,6 +1136,40 @@
         }
       }
     },
+    "A legacy database is still present. If the app is functioning correctly, it is safe to manually delete this database. In order to do this, the app needs to be restarted." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Legacy-Datenbank ist noch vorhanden. Wenn die App korrekt funktioniert, kann diese Datenbank manuell gelöscht werden. Dazu muss die App neu gestartet werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todavía está presente una base de datos heredada. Si la app está funcionando correctamente, es seguro eliminar manualmente esta base de datos. Para hacer esto, es necesario reiniciar la app."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "È ancora presente un database legacy. Se l'app funziona correttamente, è sicuro eliminare manualmente questo database. Per fare ciò, è necessario riavviare l'app."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een legacy-database is nog steeds aanwezig. Indien de app correct functioneert, is het veilig om deze database handmatig te verwijderen. Hiervoor moet de app opnieuw worden gestart."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Залишається спадкова база даних. Якщо застосунок працює правильно, цю базу даних можна безпечно видалити вручну. Для цього необхідно перезапустити застосунок."
+          }
+        }
+      }
+    },
     "About Synctrain" : {
       "localizations" : {
         "de" : {
@@ -2122,6 +2156,40 @@
         }
       }
     },
+    "After a database upgrade, a copy of the old version is retained for a while. This copy may take up a significant amount of storage space. If everything is working as expected, it is safe to remove this back-up." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach einem Datenbank-Upgrade wird eine Kopie der alten Version für eine Weile beibehalten. Diese Kopie kann einen erheblichen Teil des Speicherplatzes einnehmen. Wenn alles wie erwartet funktioniert, kann diese Sicherung sicher entfernt werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Después de una actualización de la base de datos, se conserva una copia de la versión anterior por un tiempo. Esta copia puede ocupar una cantidad significativa de espacio de almacenamiento. Si todo funciona como se espera, es seguro eliminar esta copia de seguridad."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dopo un aggiornamento del database, viene mantenuta per un po' una copia della vecchia versione. Questa copia può occupare una quantità significativa di spazio di archiviazione. Se tutto funziona come previsto, è sicuro rimuovere questo backup."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na een database-upgrade wordt er een kopie van de oude versie voor een tijdje bewaard. Deze kopie kan een aanzienlijke hoeveelheid opslagruimte in beslag nemen. Als alles naar verwachting werkt, is het veilig om deze back-up te verwijderen."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Після оновлення бази даних копія старої версії зберігається деякий час. Ця копія може займати значний обсяг пам'яті. Якщо все працює так, як очікується, цей резервний екземпляр можна безпечно видалити."
+          }
+        }
+      }
+    },
     "After restarting the app, the app will write a log file in the application folder, which you can then share with the developers." : {
       "localizations" : {
         "de" : {
@@ -2598,7 +2666,7 @@
         }
       }
     },
-    "An error occured on the server (%lld" : {
+    "An error occured on the server (%lld)" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2627,7 +2695,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сталася помилка на сервері (%lld)"
+            "value" : "На сервері сталася помилка (%lld)"
           }
         }
       }
@@ -5382,6 +5450,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Налаштування користувача збережено"
+          }
+        }
+      }
+    },
+    "Database maintenance" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datenbankwartung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantenimiento de base de datos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manutenzione del database"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Database-onderhoud"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обслуговування бази даних"
+          }
+        }
+      }
+    },
+    "Database type" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datenbanktyp"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipo de base de datos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipo di database"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Databasetype"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тип бази даних"
           }
         }
       }
@@ -14856,6 +14992,40 @@
         }
       }
     },
+    "Remove v1 database back-up" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "v1-Datenbank-Backup entfernen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar la copia de seguridad de la base de datos v1"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi backup del database v1"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder back-up van v1 database"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видалити резервну копію бази даних v1"
+          }
+        }
+      }
+    },
     "Removing originals" : {
       "localizations" : {
         "de" : {
@@ -15056,6 +15226,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Пересканувати підкаталог"
+          }
+        }
+      }
+    },
+    "Restart app to remove v1 database" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App neu starten, um die v1-Datenbank zu entfernen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reinicie la aplicación para eliminar la base de datos v1"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riavvia l'app per rimuovere il database v1"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herstart de app om de v1-database te verwijderen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перезапустіть додаток, щоб видалити базу даних v1"
           }
         }
       }
@@ -21600,6 +21804,40 @@
         }
       }
     },
+    "Upgraded at" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktualisiert am"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualizado el"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiornato il"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bijgewerkt op"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оновлено о"
+          }
+        }
+      }
+    },
     "Upgrading the database. This may take a few minutes, depending on how many files you have. Please do not close the app until this is finished." : {
       "localizations" : {
         "de" : {
@@ -21834,6 +22072,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Використовувати пароль для пристрою"
+          }
+        }
+      }
+    },
+    "v1" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "v1"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "v1"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "v1"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "v1"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "v1"
+          }
+        }
+      }
+    },
+    "v2" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "v2"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "v2"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "v2"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "v2"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "v2"
           }
         }
       }

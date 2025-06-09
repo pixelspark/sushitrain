@@ -205,6 +205,103 @@ struct TotalStatisticsView: View {
 	}
 #endif
 
+private struct DatabaseMaintenanceView: View {
+	@EnvironmentObject var appState: AppState
+	@State private var hasMigratedLegacyDatabase = false
+	@State private var hasLegacyDatabase = false
+	@State private var performingDatabaseMaintenance = false
+	
+	var body: some View {
+		Form {
+			Section {
+				LabeledContent("Database type") {
+					if hasLegacyDatabase {
+						// This shouldn't happen because either the migration fails or the app runs, but if it does happen
+						// we want to know (and therefore indicate it in the UI).
+						Text("v1").foregroundStyle(.red)
+					}
+					else {
+						Text("v2")
+					}
+				}
+				
+				if appState.migratedToV2At > 0.0 {
+					LabeledContent("Upgraded at") {
+						Text(
+							Date(timeIntervalSinceReferenceDate: appState.migratedToV2At).formatted(date: .abbreviated, time: .shortened))
+					}
+				}
+			}
+			
+			if hasLegacyDatabase {
+				Section {
+					Button("Restart app to remove v1 database") {
+						UserDefaults.standard.set(true, forKey: "clearV1Index")
+						exit(0)
+					}
+					#if os(macOS)
+						.buttonStyle(.link)
+					#endif
+				}
+				footer: {
+					Text(
+						"A legacy database is still present. If the app is functioning correctly, it is safe to manually delete this database. In order to do this, the app needs to be restarted."
+					)
+				}.disabled(performingDatabaseMaintenance)
+			}
+			
+			if hasMigratedLegacyDatabase {
+				Section {
+					Button("Remove v1 database back-up") {
+						self.clearMigratedLegacyDatabase()
+					}
+					#if os(macOS)
+						.buttonStyle(.link)
+					#endif
+				}
+				footer: {
+					Text(
+						"After a database upgrade, a copy of the old version is retained for a while. This copy may take up a significant amount of storage space. If everything is working as expected, it is safe to remove this back-up."
+					)
+				}.disabled(performingDatabaseMaintenance)
+			}
+		}
+		#if os(macOS)
+		.formStyle(.grouped)
+		#endif
+		.task {
+			self.updateDatabaseInfo()
+		}
+		.navigationTitle("Database maintenance")
+		#if os(iOS)
+			.navigationBarTitleDisplayMode(.inline)
+		#endif
+	}
+	
+	private func updateDatabaseInfo() {
+		self.hasLegacyDatabase = appState.client.hasLegacyDatabase()
+		self.hasMigratedLegacyDatabase = appState.client.hasMigratedLegacyDatabase()
+	}
+
+	private func clearMigratedLegacyDatabase() {
+		if self.performingDatabaseMaintenance {
+			return
+		}
+		Task {
+			self.performingDatabaseMaintenance = true
+			do {
+				try appState.client.clearMigratedLegacyDatabase()
+			}
+			catch {
+				print("Cannot clear migrated V1 index: \(error.localizedDescription)")
+			}
+			self.updateDatabaseInfo()
+			self.performingDatabaseMaintenance = false
+		}
+	}
+}
+
+
 struct AdvancedSettingsView: View {
 	@EnvironmentObject var appState: AppState
 	@State private var diskCacheSizeBytes: UInt? = nil
@@ -214,6 +311,7 @@ struct AdvancedSettingsView: View {
 
 	#if os(macOS)
 		@State private var showConfigurationSettings = false
+		@State private var showDatabaseMaintenance = false
 	#endif
 
 	var body: some View {
@@ -518,26 +616,48 @@ struct AdvancedSettingsView: View {
 
 			#if os(macOS)
 				Section {
+					Button("Database maintenance") {
+						self.showDatabaseMaintenance = true
+					}
+				}.buttonStyle(.link)
+				.sheet(isPresented: $showDatabaseMaintenance) {
+					NavigationStack {
+						DatabaseMaintenanceView()
+							.toolbar(content: {
+								ToolbarItem(
+									placement: .confirmationAction,
+									content: {
+										Button("Close") {
+											showDatabaseMaintenance = false
+										}
+									})
+							})
+					}
+				}
+			
+				Section {
 					Button("Configuration settings") {
 						self.showConfigurationSettings = true
 					}
 				}.buttonStyle(.link)
+				.sheet(isPresented: $showConfigurationSettings) {
+					ConfigurationSettingsView()
+					.toolbar(content: {
+						ToolbarItem(
+							placement: .confirmationAction,
+							content: {
+								Button("Close") {
+									showConfigurationSettings = false
+								}
+							})
+					})
+				}
+			#else
+				NavigationLink(destination: DatabaseMaintenanceView()) {
+					Text("Database maintenance")
+				}
 			#endif
 		}
-		#if os(macOS)
-			.sheet(isPresented: $showConfigurationSettings) {
-				ConfigurationSettingsView()
-				.toolbar(content: {
-					ToolbarItem(
-						placement: .confirmationAction,
-						content: {
-							Button("Close") {
-								showConfigurationSettings = false
-							}
-						})
-				})
-			}
-		#endif
 		.task {
 			do {
 				self.diskCacheSizeBytes = try await ImageCache.shared.diskCacheSizeBytes()

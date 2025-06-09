@@ -88,6 +88,7 @@ enum AppStartupState: Equatable {
 	@AppStorage("showThumbnailsInSearchResults") var showThumbnailsInSearchResults: Bool = true
 	@AppStorage("enableSwipeFilesInPreview") var enableSwipeFilesInPreview: Bool = true
 	@AppStorage("automaticallySwitchViewStyle") var automaticallySwitchViewStyle: Bool = true
+	@AppStorage("migratedToV2At") var migratedToV2At: Double = 0.0
 
 	// Whether to ignore certain files by default when scanning for extraneous files (i.e. .DS_Store)
 	@AppStorage("ignoreExtraneousDefaultFiles") var ignoreExtraneousDefaultFiles: Bool = true
@@ -100,6 +101,8 @@ enum AppStartupState: Equatable {
 		".DS_Store", "Thumbs.db", "desktop.ini", ".Trashes", ".Spotlight-V100",
 		".DocumentRevisions-V100", ".TemporaryItems", "$RECYCLE.BIN", "@eaDir",
 	]
+
+	static let removeMigratedV1DatabaseAfterSeconds: TimeInterval = 7 * 86400.0  // 7 days
 
 	var photoBackup = PhotoBackup()
 
@@ -148,12 +151,12 @@ enum AppStartupState: Equatable {
 		}
 	}
 
-	@MainActor func start() {
+	@MainActor func start() async {
 		if self.startupState != .notStarted {
 			assertionFailure("cannot start again")
 		}
 
-		self.isMigratedToNewDatabase = !client.hasOldDatabase()
+		self.isMigratedToNewDatabase = !client.hasLegacyDatabase()
 
 		let client = self.client
 		let resetDeltas = UserDefaults.standard.bool(forKey: "resetDeltas")
@@ -161,8 +164,9 @@ enum AppStartupState: Equatable {
 			Log.info("Reset deltas requested from settings")
 		}
 
-		DispatchQueue.global(qos: .userInitiated).async {
-			do {
+		do {
+			// Load the client
+			try await Task(priority: .userInitiated) {
 				// This one opens the database, migrates stuff, etc. and may take a while
 				Log.info("Loading the client...")
 				try client.load(resetDeltas)
@@ -170,65 +174,64 @@ enum AppStartupState: Equatable {
 					UserDefaults.standard.setValue(false, forKey: "resetDeltas")
 				}
 				Log.info("Client loaded")
+			}.value
 
-				// Resolve bookmarks
-				let folderIDs = client.folders()?.asArray() ?? []
-				Log.info("Folder IDs: \(folderIDs.joined(separator: " "))")
-				for folderID in folderIDs {
-					do {
-						if let bm = try BookmarkManager.shared.resolveBookmark(folderID: folderID) {
-							Log.info("We have a bookmark for folder \(folderID): \(bm)")
-							if let folder = client.folder(withID: folderID) {
-								try folder.setPath(bm.path(percentEncoded: false))
-							}
-							else {
-								Log.warn(
-									"Cannot obtain folder configuration for \(folderID) for setting bookmark; skipping"
-								)
-							}
+			// Resolve bookmarks
+			let folderIDs = client.folders()?.asArray() ?? []
+			Log.info("Folder IDs: \(folderIDs.joined(separator: " "))")
+			for folderID in folderIDs {
+				do {
+					if let bm = try BookmarkManager.shared.resolveBookmark(folderID: folderID) {
+						Log.info("We have a bookmark for folder \(folderID): \(bm)")
+						if let folder = client.folder(withID: folderID) {
+							try folder.setPath(bm.path(percentEncoded: false))
+						}
+						else {
+							Log.warn(
+								"Cannot obtain folder configuration for \(folderID) for setting bookmark; skipping"
+							)
 						}
 					}
-					catch {
-						Log.warn("Error restoring bookmark for \(folderID): \(error.localizedDescription)")
-					}
 				}
+				catch {
+					Log.warn("Error restoring bookmark for \(folderID): \(error.localizedDescription)")
+				}
+			}
 
+			// Start the client
+			try await Task(priority: .userInitiated) {
 				// Showtime!
 				Log.info("Starting client...")
 				try client.start()
 				Log.info("Client started")
+			}.value
 
-				DispatchQueue.main.async {
-					// Other housekeeping
-					FolderSettingsManager.shared.removeSettingsForFoldersNotIn(Set(folderIDs))
+			// Other housekeeping
+			FolderSettingsManager.shared.removeSettingsForFoldersNotIn(Set(folderIDs))
 
-					// Check to see if we have migrated
-					self.isMigratedToNewDatabase = !client.hasOldDatabase()
-					Log.info("Performing app migrations...")
-					self.performMigrations()
+			// Check to see if we have migrated
+			self.isMigratedToNewDatabase = !client.hasLegacyDatabase()
+			Log.info("Performing app migrations...")
+			self.performMigrations()
 
-					Log.info("Configuring the user interface...")
-					self.applySettings()
-					self.update()
-					Task {
-						await self.updateBadge()
-					}
-					self.protectFiles()
-					self.startupState = .started
-					Log.info("Ready to go")
-				}
+			Log.info("Configuring the user interface...")
+			self.applySettings()
+			self.update()
+			Task {
+				await self.updateBadge()
 			}
-			catch let error {
-				Log.warn("Could not start: \(error.localizedDescription)")
+			self.protectFiles()
+			self.startupState = .started
+			Log.info("Ready to go")
+		}
+		catch let error {
+			Log.warn("Could not start: \(error.localizedDescription)")
 
-				DispatchQueue.main.async {
-					self.startupState = .error(error.localizedDescription)
+			self.startupState = .error(error.localizedDescription)
 
-					#if os(macOS)
-						self.alert(message: error.localizedDescription)
-					#endif
-				}
-			}
+			#if os(macOS)
+				self.alert(message: error.localizedDescription)
+			#endif
 		}
 	}
 
@@ -390,6 +393,28 @@ enum AppStartupState: Equatable {
 			#endif
 		}
 		UserDefaults.standard.set(currentBuild, forKey: "lastRunBuild")
+
+		// See if we should remove the old index
+		if client.hasLegacyDatabase() {
+			// This shouldn't happen...
+			self.migratedToV2At = -1.0
+		}
+		else {
+			if self.migratedToV2At.isZero || self.migratedToV2At < 0 {
+				self.migratedToV2At = Date().timeIntervalSinceReferenceDate
+			}
+
+			let migratedAgo = Date.timeIntervalSinceReferenceDate - self.migratedToV2At
+			Log.info(
+				"Migrated to v2 since \(self.migratedToV2At), which is \(migratedAgo)s ago, hasMigratedLegacyDatabase=\(client.hasMigratedLegacyDatabase())"
+			)
+			if self.client.hasMigratedLegacyDatabase() && migratedAgo > Self.removeMigratedV1DatabaseAfterSeconds {
+				Log.info("Removing migrated legacy database")
+				Task {
+					try? self.client.clearMigratedLegacyDatabase()
+				}
+			}
+		}
 	}
 
 	@MainActor

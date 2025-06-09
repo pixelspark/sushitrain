@@ -475,8 +475,16 @@ func (clt *Client) IsDownloading() bool {
 	return false
 }
 
-func (clt *Client) HasOldDatabase() bool {
+func (clt *Client) HasLegacyDatabase() bool {
 	if _, err := os.Lstat(locations.Get(locations.LegacyDatabase)); err != nil {
+		// No old database
+		return false
+	}
+	return true
+}
+
+func (clt *Client) HasMigratedLegacyDatabase() bool {
+	if _, err := os.Lstat(clt.migratedLegacyDatabasePath()); err != nil {
 		// No old database
 		return false
 	}
@@ -1391,13 +1399,23 @@ func ShortDeviceID(devID string) string {
 	return did.Short().String()
 }
 
-func (c *Client) ClearV1Index() error {
+func (c *Client) migratedLegacyDatabasePath() string {
+	return locations.Get(locations.LegacyDatabase) + "-migrated"
+}
+
+func (c *Client) ClearMigratedLegacyDatabase() error {
+	dbPath := c.migratedLegacyDatabasePath()
+	Logger.Warnf("Removing v1 index at %s", dbPath)
+	return os.RemoveAll(dbPath)
+}
+
+func (c *Client) ClearLegacyDatabase() error {
 	dbPath := locations.Get(locations.LegacyDatabase)
 	Logger.Warnf("Removing v1 index at %s", dbPath)
 	return os.RemoveAll(dbPath)
 }
 
-func (c *Client) ClearV2Index() error {
+func (c *Client) ClearDatabase() error {
 	dbPath := locations.Get(locations.Database)
 	Logger.Warnf("Removing v2 index at %s", dbPath)
 	return os.RemoveAll(dbPath)

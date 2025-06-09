@@ -53,7 +53,7 @@ struct SushitrainApp: App {
 		if clearV1Index {
 			Log.info("Deleting v1 index...")
 			do {
-				try client.clearV1Index()
+				try client.clearLegacyDatabase()
 				UserDefaults.standard.setValue(false, forKey: "clearV1Index")
 			}
 			catch {
@@ -63,7 +63,7 @@ struct SushitrainApp: App {
 		if clearV2Index {
 			Log.info("Deleting v2 index...")
 			do {
-				try client.clearV2Index()
+				try client.clearDatabase()
 				UserDefaults.standard.setValue(false, forKey: "clearV2Index")
 			}
 			catch {
@@ -85,7 +85,9 @@ struct SushitrainApp: App {
 			let hideInDock = self.hideInDock
 		#endif
 
-		appState.start()
+		Task {
+			await appState.start()
+		}
 
 		#if os(macOS)
 			DispatchQueue.main.async {
