@@ -5080,6 +5080,40 @@
         }
       }
     },
+    "Could not determine file availability: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateiverfügbarkeit konnte nicht bestimmt werden: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo determinar la disponibilidad del archivo: %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile determinare la disponibilità del file: %@"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kon de beschikbaarheid van het bestand niet bepalen: %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося визначити доступність файлу: %@"
+          }
+        }
+      }
+    },
     "Could not download file" : {
       "localizations" : {
         "de" : {
@@ -18864,41 +18898,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Synctrain є © 2024-2025, Tommy van der Vorst"
-          }
-        }
-      }
-    },
-    "Synctrain is © 2024, Tommy van der Vorst" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain ist © 2024, Tommy van der Vorst"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain es © 2024, Tommy van der Vorst"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain è © 2024, Tommy van der Vorst"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain is © 2024, Tommy van der Vorst 🇳🇱"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain є © 2024, Томмі ван дер Ворст"
           }
         }
       }
