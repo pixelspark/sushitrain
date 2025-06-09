@@ -4,14 +4,11 @@ go 1.23.0
 
 toolchain go1.24.0
 
-replace github.com/syncthing/syncthing => /Users/tommy/Repos/syncthing
-
 replace github.com/gobwas/glob v0.2.3 => github.com/calmh/glob v0.0.0-20220615080505-1d823af5017b
 
 require (
 	github.com/gotd/contrib v0.21.0
 	github.com/miscreant/miscreant.go v0.0.0-20200214223636-26d376326b75
-	github.com/syncthing/syncthing v2.0.0-beta.3+incompatible
 )
 
 require (
@@ -21,6 +18,7 @@ require (
 	github.com/calmh/xdr v1.2.0 // indirect
 	github.com/ccding/go-stun v0.1.5 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/coreos/go-semver v0.3.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/ebitengine/purego v0.8.3 // indirect
@@ -41,6 +39,7 @@ require (
 	github.com/lufia/plan9stats v0.0.0-20250317134145-8bc96cf8fc35 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-sqlite3 v1.14.28 // indirect
+	github.com/maxbrunsfeld/counterfeiter/v6 v6.11.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/onsi/ginkgo/v2 v2.23.4 // indirect
@@ -58,6 +57,7 @@ require (
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/syncthing/notify v0.0.0-20250528144937-c7027d4f7465 // indirect
+	github.com/syncthing/syncthing v1.30.0-rc.1.0.20250609054801-8afc9855f2e0 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/thejerf/suture/v4 v4.0.6 // indirect
 	github.com/tklauser/go-sysconf v0.3.15 // indirect
@@ -82,4 +82,5 @@ require (
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.9.1 // indirect
 	modernc.org/sqlite v1.37.0 // indirect
+	sigs.k8s.io/yaml v1.4.0 // indirect
 )
