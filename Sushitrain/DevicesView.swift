@@ -449,10 +449,12 @@ struct DevicesView: View {
 				}
 			}
 			.task {
-				self.update()
+				await self.update()
 			}
 			.onChange(of: viewStyle, initial: false) { _, _ in
-				self.update()
+				Task {
+					await self.update()
+				}
 			}
 			.sheet(isPresented: $showEditEncryptionPassword) {
 				NavigationStack {
@@ -460,8 +462,11 @@ struct DevicesView: View {
 				}
 			}
 			.onChange(of: appState.eventCounter) {
-				if self.loadingTask == nil {
-					self.update()
+				// Update on app events, but only the cheap updates, or while we're not already loading
+				if self.loadingTask == nil || self.viewStyle == .simple || self.viewStyle == .sharing {
+					Task {
+						await self.update()
+					}
 				}
 			}
 			.onDisappear {
@@ -470,7 +475,7 @@ struct DevicesView: View {
 			}
 		}
 
-		private func update() {
+		private func update() async {
 			let devID = self.device.deviceID()
 			let folder = self.folder
 			let viewStyle = self.viewStyle
@@ -498,6 +503,8 @@ struct DevicesView: View {
 					}
 				}
 			}
+			try? await self.loadingTask!.value
+			self.loadingTask = nil
 		}
 
 		private func share(_ shared: Bool) {
@@ -507,7 +514,9 @@ struct DevicesView: View {
 				}
 				else {
 					try folder.share(withDevice: device.deviceID(), toggle: shared, encryptionPassword: "")
-					self.update()
+					Task {
+						await self.update()
+					}
 				}
 			}
 			catch let error { Log.warn("Error sharing folder: " + error.localizedDescription) }
