@@ -444,10 +444,12 @@ struct FileView: View {
 					// Obtain local paths
 					var error: NSError? = nil
 					self.localPath = file.isLocallyPresent() ? file.localNativePath(&error) : nil
-					if let localPathActual = self.localPath {
-						self.openWithAppURL =
-							error == nil ? NSWorkspace.shared.urlForApplication(toOpen: URL(fileURLWithPath: localPathActual)) : nil
-					}
+					#if os(macOS)
+						if let localPathActual = self.localPath {
+							self.openWithAppURL =
+								error == nil ? NSWorkspace.shared.urlForApplication(toOpen: URL(fileURLWithPath: localPathActual)) : nil
+						}
+					#endif
 
 					do {
 						self.fullyAvailableOnDevices = nil
