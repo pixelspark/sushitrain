@@ -184,7 +184,6 @@ struct SearchResultsView: View, SearchViewDelegate {
 										.controlSize(.mini)
 										.frame(maxHeight: 10)
 									#endif
-								Spacer()
 							}
 
 							// Search options
@@ -194,16 +193,16 @@ struct SearchResultsView: View, SearchViewDelegate {
 				}
 			}
 
-			if results.isEmpty {
+			if searchText.isEmpty {
+				ContentUnavailableView(
+					"Search for files", systemImage: "magnifyingglass",
+					description: Text(
+						"Enter a text to search for in the search field above to search."
+					))
+			}
+			else if results.isEmpty {
 				if searchCount > 0 {
 					ProgressView()
-				}
-				else if searchText.isEmpty {
-					ContentUnavailableView(
-						"Search for files", systemImage: "magnifyingglass",
-						description: Text(
-							"Enter a text to search for in the search field above to search."
-						))
 				}
 				else {
 					ContentUnavailableView(
