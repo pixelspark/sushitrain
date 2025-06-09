@@ -181,7 +181,6 @@
 		65AE11FB2C39EE0E00E721D4 /* Sushitrain */ = {
 			isa = PBXGroup;
 			children = (
-				654A7E5F2DF59669008DF794 /* BrowserWebView.swift */,
 				65BBF8442C4BFB9300EC59C4 /* AboutView.swift */,
 				65AE12662C3B04A100E721D4 /* AddDeviceView.swift */,
 				65AE126E2C3B14CC00E721D4 /* AddFolderView.swift */,
@@ -193,6 +192,7 @@
 				6551053B2D7D8F8A00F96814 /* BrowserListView.swift */,
 				655105392D7CB0A300F96814 /* BrowserTableView.swift */,
 				650615862C3B3676002B6EE6 /* BrowserView.swift */,
+				654A7E5F2DF59669008DF794 /* BrowserWebView.swift */,
 				6575B3DE2C6012480057686E /* ChangesView.swift */,
 				65AE11FE2C39EE0E00E721D4 /* ContentView.swift */,
 				65C9E1472C3F2FEF00EDCE6C /* DevicesView.swift */,
