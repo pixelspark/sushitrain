@@ -105,9 +105,9 @@ struct EntryView: View {
 			if self.showThumbnail {
 				// Thubmnail view shows thumbnail image next to the file name
 				HStack(alignment: .center, spacing: 9.0) {
-					ThumbnailView(file: entry, appState: appState, showFileName: false, showErrorMessages: false).frame(
-						width: 60, height: 40
-					).cornerRadius(6.0).help(entry.fileName())
+					ThumbnailView(file: entry, appState: appState, showFileName: false, showErrorMessages: false)
+						.frame(width: 60, height: 40)
+						.cornerRadius(6.0).help(entry.fileName())
 
 					// The entry name (grey when not locally present)
 					Text(entry.fileName()).multilineTextAlignment(.leading).foregroundStyle(
@@ -161,9 +161,8 @@ struct EntryView: View {
 					} preview: {
 						NavigationStack {  // to force the image to take up all available space
 							VStack {
-								ThumbnailView(file: targetEntry, appState: appState, showFileName: false, showErrorMessages: false).frame(
-									minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity
-								)
+								ThumbnailView(file: targetEntry, appState: appState, showFileName: false, showErrorMessages: false)
+									.frame(minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
 							}
 						}
 					}
@@ -313,9 +312,8 @@ struct FileEntryLink<Content: View>: View {
 		} preview: {
 			NavigationStack {  // to force the image to take up all available space
 				VStack {
-					ThumbnailView(file: entry, appState: appState, showFileName: false, showErrorMessages: false).frame(
-						minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity
-					)
+					ThumbnailView(file: entry, appState: appState, showFileName: false, showErrorMessages: false)
+						.frame(minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
 				}
 			}
 		}

@@ -14,9 +14,42 @@ struct ThumbnailView: View {
 	@State var showPreview = false
 	var showFileName: Bool
 	var showErrorMessages: Bool
+	var onTap: (() -> Void)?
 
 	private var imageCache: ImageCache {
 		return ImageCache.forFolder(file.folder)
+	}
+
+	private var thumbnailView: some View {
+		ThumbnailImage(
+			entry: file,
+			content: { phase in
+				switch phase {
+				case .empty:
+					HStack(
+						alignment: .center,
+						content: {
+							ProgressView().controlSize(.small)
+						})
+
+				case .success(let image):
+					image.resizable().scaledToFill()
+
+				case .failure(_):
+					if self.showErrorMessages {
+						Text("The file is currently not available for preview.")
+							.padding(10)
+					}
+					else {
+						self.iconAndTextBody
+					}
+
+				@unknown default:
+					EmptyView()
+				}
+			}
+		)
+		.frame(maxWidth: .infinity, maxHeight: 200)
 	}
 
 	var body: some View {
@@ -26,35 +59,15 @@ struct ThumbnailView: View {
 				|| file.size() <= appState.maxBytesForPreview
 				|| (appState.previewVideos && file.isVideo)
 			{
-				ThumbnailImage(
-					entry: file,
-					content: { phase in
-						switch phase {
-						case .empty:
-							HStack(
-								alignment: .center,
-								content: {
-									ProgressView().controlSize(.small)
-								})
-
-						case .success(let image):
-							image.resizable().scaledToFill()
-
-						case .failure(_):
-							if self.showErrorMessages {
-								Text("The file is currently not available for preview.")
-									.padding(10)
-							}
-							else {
-								self.iconAndTextBody
-							}
-
-						@unknown default:
-							EmptyView()
+				if let onTap = self.onTap {
+					self.thumbnailView
+						.onTapGesture {
+							self.onTap?()
 						}
-					}
-				)
-				.frame(maxWidth: .infinity, maxHeight: 200)
+				}
+				else {
+					self.thumbnailView
+				}
 			}
 			else {
 				if self.showErrorMessages {

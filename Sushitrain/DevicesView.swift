@@ -479,12 +479,12 @@ struct DevicesView: View {
 			let devID = self.device.deviceID()
 			let folder = self.folder
 			let viewStyle = self.viewStyle
-			
+
 			if let t = self.loadingTask {
 				t.cancel()
 				self.loadingTask = nil
 			}
-			
+
 			self.loadingTask = Task.detached(priority: .userInitiated) {
 				dispatchPrecondition(condition: .notOnQueue(.main))
 				let sharedWithDeviceIDs = folder.sharedWithDeviceIDs()?.asArray() ?? []
