@@ -393,7 +393,7 @@ enum AppStartupState: Equatable {
 			#endif
 		}
 		UserDefaults.standard.set(currentBuild, forKey: "lastRunBuild")
-		
+
 		// Fix up invalid settings
 		if self.defaultBrowserViewStyle == .web {
 			self.defaultBrowserViewStyle = .thumbnailList

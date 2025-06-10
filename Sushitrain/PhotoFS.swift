@@ -257,7 +257,9 @@ private class PhotoFSAlbumEntry: CustomFSEntry {
 
 struct PhotoFSAlbumConfiguration: Codable, Equatable {
 	var albumID: String = ""
-	var folderStructure: PhotoBackupFolderStructure? = nil  // Needs to be optional because older versions did not have this
+
+	// Needs to be optional because older versions did not have this field
+	var folderStructure: PhotoBackupFolderStructure? = nil
 
 	var isValid: Bool {
 		return !self.albumID.isEmpty
