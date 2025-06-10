@@ -28,7 +28,6 @@ struct BrowserView: View {
 	@State private var showSearch = false
 	@State private var error: Error? = nil
 	@State private var webViewAvailable = false
-
 	@State private var viewStyle: BrowserViewStyle? = nil
 
 	#if os(macOS)
@@ -41,7 +40,9 @@ struct BrowserView: View {
 			get: { self.viewStyle ?? appState.defaultBrowserViewStyle },
 			set: {
 				self.viewStyle = $0
-				appState.defaultBrowserViewStyle = $0
+				if $0 != .web {
+					appState.defaultBrowserViewStyle = $0
+				}
 			})
 	}
 
@@ -61,7 +62,7 @@ struct BrowserView: View {
 			folder: folder,
 			prefix: prefix,
 			// Note: this binding does *not* set appState.defaultBrowserViewStyle, because this one is primarily set programmatically
-			viewStyle: Binding(get: { self.viewStyle }, set: { self.viewStyle = $0 }),
+			viewStyle: $viewStyle,
 			searchText: $searchText,
 			showSettings: $showSettings
 		)

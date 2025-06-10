@@ -316,14 +316,20 @@ struct ThumbnailImage<Content>: View where Content: View {
 
 			if self.diskCacheEnabled {
 				let url = self.pathFor(cacheKey: cacheKey)
-				if FileManager.default.fileExists(atPath: url.path) {
+				if FileManager.default.fileExists(atPath: url.path(percentEncoded: false)) {
 					#if os(iOS)
-						if let img = UIImage(contentsOfFile: url.path()) {
+						if let img = UIImage(contentsOfFile: url.path(percentEncoded: false)) {
 							return Image(uiImage: img)
 						}
+						else {
+							Log.warn("Cached thumbnail exists but failed to load: for \(cacheKey) at \(url.path(percentEncoded: false))")
+						}
 					#elseif os(macOS)
-						if let img = NSImage(byReferencingFile: url.path()), img.isValid {
+						if let img = NSImage(byReferencingFile: url.path(percentEncoded: false)), img.isValid {
 							return Image(nsImage: img)
+						}
+						else {
+							Log.warn("Cached thumbnail exists but failed to load: for \(cacheKey) at \(url.path(percentEncoded: false))")
 						}
 					#endif
 				}

@@ -370,6 +370,7 @@ enum AppStartupState: Equatable {
 
 	// Perform several changes we need to do between versions
 	private func performMigrations() {
+		// Perform build-specific migrations
 		let lastRunBuild = UserDefaults.standard.integer(forKey: "lastRunBuild")
 		let currentBuild = Int(Bundle.main.buildVersionNumber ?? "0") ?? 0
 		Log.info("Migrations: current build is \(currentBuild), last run build \(lastRunBuild)")
@@ -392,6 +393,11 @@ enum AppStartupState: Equatable {
 			#endif
 		}
 		UserDefaults.standard.set(currentBuild, forKey: "lastRunBuild")
+		
+		// Fix up invalid settings
+		if self.defaultBrowserViewStyle == .web {
+			self.defaultBrowserViewStyle = .thumbnailList
+		}
 
 		// See if we should remove the old index
 		if client.hasLegacyDatabase() {
