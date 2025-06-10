@@ -167,6 +167,7 @@ private struct FileViewerContentView: View {
 					let url = file.localNativeFileURL ?? URL(string: self.file.onDemandURL())!
 					ZStack {
 						WebView(url: url, isLoading: self.$loading, error: self.$error)
+							.id(url)
 							#if os(iOS)
 								.backgroundStyle(.black)
 								.background(.black)

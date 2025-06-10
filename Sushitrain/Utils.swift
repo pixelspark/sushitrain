@@ -835,10 +835,12 @@ struct WebView: UIViewRepresentable {
 		}
 
 		func updateUIView(_ webView: WKWebView, context: Context) {
-			if webView.url != url {
-				let request = URLRequest(url: url)
-				webView.load(request)
-			}
+			// This sometimes 'resets' the URL to the initial URL when the user has navigated.
+			// A better solution is to use .id(initialURL) on the WebView
+			// if webView.url != url {
+			// let request = URLRequest(url: url)
+			// webView.load(request)
+			// }
 		}
 	#endif
 
@@ -857,10 +859,12 @@ struct WebView: UIViewRepresentable {
 		}
 
 		func updateNSView(_ webView: WKWebView, context: Context) {
-			if webView.url != url {
-				let request = URLRequest(url: url)
-				webView.load(request)
-			}
+			// This sometimes 'resets' the URL to the initial URL when the user has navigated.
+			// A better solution is to use .id(initialURL) on the WebView
+			// if webView.url != url {
+			//	let request = URLRequest(url: url)
+			//	webView.load(request)
+			// }
 		}
 	#endif
 }

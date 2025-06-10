@@ -32,6 +32,7 @@ struct BrowserWebView: View {
 			else if let s = self.server, ready {
 				WebView(url: URL(string: s.url())!, isOpaque: true, isLoading: .constant(false), error: $error)
 					.background(.white)
+					.id(s.url())
 			}
 			else {
 				ProgressView()
