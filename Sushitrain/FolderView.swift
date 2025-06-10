@@ -892,22 +892,13 @@ struct ShareWithDeviceToggleView: View {
 private struct FolderThumbnailSettingsView: View {
 	@EnvironmentObject var appState: AppState
 	let folder: SushitrainFolder
+
 	@State private var showGenerateThumbnails = false
 	@State private var showGenerateThumbnailsConfirm = false
 	@State private var showClearThumbnailsConfirm = false
 	@State private var diskCacheSizeBytes: UInt? = nil
 	@State private var deletingFromSharedCache = false
-
-	private var settings: ThumbnailGeneration {
-		get {
-			return FolderSettingsManager.shared.settingsFor(folderID: folder.folderID).thumbnailGeneration
-		}
-		set {
-			FolderSettingsManager.shared.mutateSettingsFor(folderID: folder.folderID) { fs in
-				fs.thumbnailGeneration = newValue
-			}
-		}
-	}
+	@State private var settings = ThumbnailGeneration.disabled
 
 	private var insidePathBinding: Binding<String> {
 		return Binding(
@@ -966,21 +957,9 @@ private struct FolderThumbnailSettingsView: View {
 	}
 
 	var body: some View {
-		let settings = self.settings
-
-		let settingsBinding = Binding(
-			get: {
-				return FolderSettingsManager.shared.settingsFor(folderID: folder.folderID).thumbnailGeneration
-			},
-			set: { newSettings in
-				FolderSettingsManager.shared.mutateSettingsFor(folderID: folder.folderID) { fs in
-					fs.thumbnailGeneration = newSettings
-				}
-			})
-
 		Form {
 			Section {
-				Picker("Thumbnails", selection: settingsBinding) {
+				Picker("Thumbnails", selection: $settings) {
 					Text("Do not cache").tag(ThumbnailGeneration.disabled)
 					Text("Use app-wide cache").tag(ThumbnailGeneration.global)
 					Text("Cache inside folder").tag(insideChoice)
@@ -1017,21 +996,23 @@ private struct FolderThumbnailSettingsView: View {
 				}
 			}
 
-			Section {
-				Button("Generate thumbnails", systemImage: "photo.stack") {
-					self.showGenerateThumbnailsConfirm = true
-				}
-				.disabled(settings == .disabled || settings == .global && !appState.cacheThumbnailsToDisk)
-				#if os(macOS)
-					.buttonStyle(.link)
-				#endif
-				.confirmationDialog(
-					"Generating thumbnails may take a while and could use a lot of data. It is advisable to connect to a Wi-Fi network before proceeding. Are you sure you want to continue?",
-					isPresented: $showGenerateThumbnailsConfirm, titleVisibility: .visible
-				) {
-					Button("Generate thumbnails") {
-						self.showGenerateThumbnails = true
-						self.diskCacheSizeBytes = nil
+			if settings != .disabled {
+				Section {
+					Button("Generate thumbnails", systemImage: "photo.stack") {
+						self.showGenerateThumbnailsConfirm = true
+					}
+					.disabled(settings == .disabled || settings == .global && !appState.cacheThumbnailsToDisk)
+					#if os(macOS)
+						.buttonStyle(.link)
+					#endif
+					.confirmationDialog(
+						"Generating thumbnails may take a while and could use a lot of data. It is advisable to connect to a Wi-Fi network before proceeding. Are you sure you want to continue?",
+						isPresented: $showGenerateThumbnailsConfirm, titleVisibility: .visible
+					) {
+						Button("Generate thumbnails") {
+							self.showGenerateThumbnails = true
+							self.diskCacheSizeBytes = nil
+						}
 					}
 				}
 			}
@@ -1110,6 +1091,14 @@ private struct FolderThumbnailSettingsView: View {
 		#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)
 		#endif
+		.onChange(of: settings, initial: false) { _, nv in
+			FolderSettingsManager.shared.mutateSettingsFor(folderID: folder.folderID) { fs in
+				fs.thumbnailGeneration = nv
+			}
+		}
+		.onAppear {
+			self.settings = FolderSettingsManager.shared.settingsFor(folderID: folder.folderID).thumbnailGeneration
+		}
 		.task {
 			await Task.detached {
 				await self.updateSize()
