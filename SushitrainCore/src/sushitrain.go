@@ -752,35 +752,26 @@ func (clt *Client) PeerWithShortID(shortID string) *Peer {
 	return nil
 }
 
-func (clt *Client) SuspendPeers() (*ListOfStrings, error) {
-	suspended := make([]string, 0)
-	clt.changeConfiguration(func(cfg *config.Configuration) {
-		for _, dc := range clt.config.DeviceList() {
-			if !dc.Paused {
-				dc.Paused = true
-				cfg.SetDevice(dc)
-				suspended = append(suspended, dc.DeviceID.String())
-			}
-		}
-	})
-	Logger.Infoln("Suspended devices", suspended)
-	return List(suspended), nil
-}
-
-func (clt *Client) Unsuspend(peers *ListOfStrings) error {
+// This function sets all the listed device to the desired pause state, and all other devices to the opposite state.
+func (clt *Client) SetDevicesPaused(peers *ListOfStrings, pause bool) error {
 	ids := peers.data
-	Logger.Infoln("Unsuspend IDs", ids)
+	Logger.Debugln("SetDevicesPaused", pause, ids)
 
 	clt.changeConfiguration(func(cfg *config.Configuration) {
 		for _, dc := range clt.config.DeviceList() {
-			Logger.Infoln("Unsuspend?", dc.Paused, dc.DeviceID.String())
-			if dc.Paused && slices.ContainsFunc(ids, func(v string) bool {
+			listed := slices.ContainsFunc(ids, func(v string) bool {
 				did, err := protocol.DeviceIDFromString(v)
 				return err == nil && dc.DeviceID.Equals(did)
-			}) {
-				dc.Paused = false
+			})
+
+			shouldPause := listed
+			if !pause {
+				shouldPause = !shouldPause
+			}
+			Logger.Debugln("Set paused from:", dc.Paused, " to:", shouldPause, dc.DeviceID.String())
+			if dc.Paused != shouldPause {
+				dc.Paused = shouldPause
 				cfg.SetDevice(dc)
-				Logger.Infoln("Unsuspend", dc.DeviceID.String())
 			}
 		}
 	})

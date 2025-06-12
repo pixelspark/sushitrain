@@ -94,8 +94,9 @@ struct DeviceView: View {
 					Toggle(
 						"Enabled",
 						isOn: Binding(
-							get: { !device.isPaused() },
-							set: { active in try? device.setPaused(!active) }))
+							get: { !appState.isDevicePausedByUser(device) },
+							set: { active in appState.setDevice(device, pausedByUser: !active) }
+						))
 				} header: {
 					Text("Device settings")
 				} footer: {

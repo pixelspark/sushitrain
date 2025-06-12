@@ -51,6 +51,17 @@ enum AppStartupState: Equatable {
 	private let documentsDirectory: URL
 	private let configDirectory: URL
 
+	var photoBackup = PhotoBackup()
+
+	var changePublisher = PassthroughSubject<Void, Never>()
+	private var changeCancellable: AnyCancellable? = nil
+
+	#if os(iOS)
+		var backgroundManager: BackgroundManager!
+		private var lingerManager: LingerManager!
+		private(set) var isSuspended = false
+	#endif
+
 	@Published var localDeviceID: String = ""
 	@Published var eventCounter: Int = 0
 	@Published var discoveredDevices: [String: [String]] = [:]
@@ -89,6 +100,7 @@ enum AppStartupState: Equatable {
 	@AppStorage("enableSwipeFilesInPreview") var enableSwipeFilesInPreview: Bool = true
 	@AppStorage("automaticallySwitchViewStyle") var automaticallySwitchViewStyle: Bool = true
 	@AppStorage("migratedToV2At") var migratedToV2At: Double = 0.0
+	@AppStorage("userPausedDevices") var userPausedDevices = Set<String>()
 
 	// Whether to ignore certain files by default when scanning for extraneous files (i.e. .DS_Store)
 	@AppStorage("ignoreExtraneousDefaultFiles") var ignoreExtraneousDefaultFiles: Bool = true
@@ -101,34 +113,7 @@ enum AppStartupState: Equatable {
 		".DS_Store", "Thumbs.db", "desktop.ini", ".Trashes", ".Spotlight-V100",
 		".DocumentRevisions-V100", ".TemporaryItems", "$RECYCLE.BIN", "@eaDir",
 	]
-
 	static let removeMigratedV1DatabaseAfterSeconds: TimeInterval = 7 * 86400.0  // 7 days
-
-	var photoBackup = PhotoBackup()
-
-	var changePublisher = PassthroughSubject<Void, Never>()
-	private var changeCancellable: AnyCancellable? = nil
-
-	#if os(iOS)
-		// The IDs of the peers that were suspended when the app last entered background, and should be re-enabled when the
-		// app enters the foreground state.
-		var suspendedPeerIds: [String] {
-			get {
-				return UserDefaults.standard.array(forKey: "suspendedPeerIds") as? [String] ?? []
-			}
-			set(newValue) {
-				UserDefaults.standard.set(newValue, forKey: "suspendedPeerIds")
-			}
-		}
-
-		var backgroundManager: BackgroundManager!
-		private var lingerManager: LingerManager!
-
-		var isSuspended: Bool {
-			return !self.suspendedPeerIds.isEmpty
-		}
-	#endif
-
 	static let maxChanges = 25
 
 	init(client: SushitrainClient, documentsDirectory: URL, configDirectory: URL) {
@@ -422,12 +407,19 @@ enum AppStartupState: Equatable {
 		}
 	}
 
-	@MainActor
+	func isDevicePausedByUser(_ device: SushitrainPeer) -> Bool {
+		return self.userPausedDevices.contains(device.id)
+	}
+
+	func setDevice(_ device: SushitrainPeer, pausedByUser: Bool) {
+		self.userPausedDevices.toggle(device.id, pausedByUser)
+		self.updateDeviceSuspension()
+	}
+
 	func peerIDs() -> [String] {
 		return self.client.peers()?.asArray() ?? []
 	}
 
-	@MainActor
 	func peers() -> [SushitrainPeer] {
 		let peerIDs = self.client.peers()!.asArray()
 
@@ -468,35 +460,23 @@ enum AppStartupState: Equatable {
 	}
 
 	#if os(iOS)
-		func suspend(_ suspend: Bool) {
+		func suspend(_ suspended: Bool) {
+			self.isSuspended = suspended
+			self.updateDeviceSuspension()
+		}
+
+		func updateDeviceSuspension() {
 			do {
-				if suspend {
-					if !self.suspendedPeerIds.isEmpty {
-						Log.warn(
-							"Suspending, but there are still suspended peers, this should not happen (working around it anyway)"
-						)
-					}
-					let suspendedPeers = try self.client.suspendPeers()
-					var suspendedIds = suspendedPeers.asArray()
-					suspendedIds.append(contentsOf: self.suspendedPeerIds)
-					self.suspendedPeerIds = suspendedIds
+				if self.isSuspended {
+					try self.client.setDevicesPaused(SushitrainListOfStrings.from(Array()), pause: false)
 				}
 				else {
-					if self.suspendedPeerIds.isEmpty {
-						Log.info("No peers to unsuspend")
-					}
-					else {
-						Log.info(
-							"Requesting unsuspend of devices:"
-								+ self.suspendedPeerIds.debugDescription)
-						try self.client.unsuspend(
-							SushitrainListOfStrings.from(self.suspendedPeerIds))
-						self.suspendedPeerIds = []
-					}
+					let devicesEnabled = Set(self.client.peers()!.asArray()).subtracting(self.userPausedDevices)
+					try self.client.setDevicesPaused(SushitrainListOfStrings.from(Array(devicesEnabled)), pause: false)
 				}
 			}
 			catch {
-				Log.warn("Could not suspend \(suspend): \(error.localizedDescription)")
+				Log.warn("Failed to update device suspension (isSuspended=\(self.isSuspended): \(error.localizedDescription)")
 			}
 		}
 	#endif
