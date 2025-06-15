@@ -702,7 +702,7 @@ private struct BrowserItemsView: View {
 		let prefix = self.prefix
 		let dotFilesHidden = self.appState.dotFilesHidden
 
-		subdirectories = await Task.detached {
+		let newSubdirectories: [SushitrainEntry] = await Task.detached {
 			if !folder.exists() {
 				return []
 			}
@@ -722,7 +722,7 @@ private struct BrowserItemsView: View {
 			return []
 		}.value
 
-		files = await Task.detached {
+		let newFiles: [SushitrainEntry] = await Task.detached {
 			if !folder.exists() {
 				return []
 			}
@@ -736,12 +736,21 @@ private struct BrowserItemsView: View {
 			return []
 		}.value
 
-		self.autoSelectViewStyle()
-
 		await self.updateExtraneousFiles()
-
+		self.autoSelectViewStyle()
 		self.isLoading = false
 		loadingSpinnerTask.cancel()
+
+		if self.files.isEmpty && self.subdirectories.isEmpty {
+			self.files = newFiles
+			self.subdirectories = newSubdirectories
+		}
+		else {
+			withAnimation {
+				self.files = newFiles
+				self.subdirectories = newSubdirectories
+			}
+		}
 	}
 
 	private func autoSelectViewStyle() {

@@ -42,7 +42,7 @@ struct GridFilesView: View {
 					NavigationLink(
 						destination: BrowserView(folder: folder, prefix: "\(self.prefix)\(fileName)/")
 					) {
-						GridItemView(size: geo.size.width, file: subDirEntry)
+						GridItemView(size: geo.size.width, file: subDirEntry).id(subDirEntry.id)
 					}
 					.buttonStyle(PlainButtonStyle())
 					.contextMenu(
