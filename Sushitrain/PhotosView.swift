@@ -42,7 +42,7 @@ struct PhotoBackupButton: View {
 		}
 		else {
 			Button("Back-up new photos", systemImage: "photo.badge.arrow.down.fill") {
-				photoBackup.synchronize(appState: self.appState, fullExport: false, isInBackground: false)
+				photoBackup.backup(appState: self.appState, fullExport: false, isInBackground: false)
 			}
 			#if os(macOS)
 				.buttonStyle(.link)
@@ -221,7 +221,7 @@ struct PhotoSettingsView: View {
 
 			Section {
 				Button("Re-copy all photos", systemImage: "photo.badge.arrow.down.fill") {
-					photoBackup.synchronize(appState: self.appState, fullExport: true, isInBackground: false)
+					photoBackup.backup(appState: self.appState, fullExport: true, isInBackground: false)
 				}
 				.disabled(photoBackup.isSynchronizing || !photoBackup.isReady)
 				#if os(macOS)

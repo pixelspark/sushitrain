@@ -134,25 +134,18 @@ enum PhotoSyncProgress {
 		self.photoBackupTask = nil
 	}
 
-	@MainActor func synchronize(appState: AppState, fullExport: Bool, isInBackground: Bool) {
+	@MainActor func backup(appState: AppState, fullExport: Bool, isInBackground: Bool) {
 		if !self.isReady { return }
-
 		if self.selectedAlbumID.isEmpty { return }
-
-		let selectedAlbumID = self.selectedAlbumID
-		let selectedFolderID = self.selectedFolderID
-		let savedAlbumID = self.savedAlbumID
-		let categories = self.categories
-		let purgeEnabled = self.purgeEnabled
-		let purgeCutoffDate = Date.now - Double.maximum(Double(self.purgeAfterDays), 0.0) * 86400.0
-
 		if self.photoBackupTask != nil { return }
 		self.isSynchronizing = true
 
+		let selectedAlbumID = self.selectedAlbumID
+		let selectedFolderID = self.selectedFolderID
+		let categories = self.categories
+
 		// Start the actual synchronization task
 		self.photoBackupTask = Task.detached(priority: .background) {
-			var cancellingError: Error? = nil
-
 			DispatchQueue.main.async { self.progress = .starting }
 
 			defer {
@@ -210,330 +203,355 @@ enum PhotoSyncProgress {
 				DispatchQueue.main.async { self.progress = .finished(error: String(localized: "Could not find selected album")) }
 				return
 			}
-			let isSelective = folder.isSelective()
-			let myShortDeviceID = await appState.client.shortDeviceID()
 
-			let assets = PHAsset.fetchAssets(in: album, options: nil)
+			try await self.backupAlbum(
+				appState: appState,
+				album: album,
+				folder: folder,
+				folderURL: folderURL,
+				subDirectoryPath: subDirectoryPath,
+				fullExport: fullExport,
+				categories: categories,
+				isInBackground: isInBackground
+			)
+		}
+	}
 
-			let count = assets.count
-			DispatchQueue.main.async { self.progress = .exportingPhotos(index: 0, total: count, current: nil) }
+	private nonisolated func backupAlbum(
+		appState: AppState,
+		album: PHAssetCollection,
+		folder: SushitrainFolder,
+		folderURL: URL,
+		subDirectoryPath: EntryPath,
+		fullExport: Bool,
+		categories: Set<PhotoSyncCategories>,
+		isInBackground: Bool
+	) async throws {
+		var cancellingError: Error? = nil
+		let assets = PHAsset.fetchAssets(in: album, options: nil)
+		let count = assets.count
+		DispatchQueue.main.async { self.progress = .exportingPhotos(index: 0, total: count, current: nil) }
 
-			var videosToExport: [(PHAsset, URL, EntryPath)] = []
-			var livePhotosToExport: [(PHAsset, URL, EntryPath)] = []
-			var selectPaths: [EntryPath] = []
-			var originalsToPurge: [PHAsset] = []
-			var assetsSavedSuccessfully: [PHAsset] = []
-			let structure = await self.folderStructure
+		var videosToExport: [(PHAsset, URL, EntryPath)] = []
+		var livePhotosToExport: [(PHAsset, URL, EntryPath)] = []
+		var selectPaths: [EntryPath] = []
+		var originalsToPurge: [PHAsset] = []
+		var assetsSavedSuccessfully: [PHAsset] = []
+		let structure = await self.folderStructure
+		let purgeCutoffDate = await Date.now - Double.maximum(Double(self.purgeAfterDays), 0.0) * 86400.0
+		let isSelective = folder.isSelective()
+		let myShortDeviceID = await appState.client.shortDeviceID()
+		let purgeEnabled = await self.purgeEnabled
 
-			assets.enumerateObjects { asset, index, stop in
-				if Task.isCancelled {
-					stop.pointee = true
-					return
-				}
-
-				do {
-					Log.info("Asset: \(asset.originalFilename) \(asset.localIdentifier)")
-
-					DispatchQueue.main.async {
-						self.progress = .exportingPhotos(index: index, total: count, current: asset.originalFilename)
-					}
-
-					// Create containing directory
-					let assetDirectoryPath = asset.directoryPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
-					let dirInFolder = folderURL.appending(path: assetDirectoryPath.pathInFolder, directoryHint: .isDirectory)
-					Log.info("assetDirectoryPath \(assetDirectoryPath) \(dirInFolder)")
-					try FileManager.default.createDirectory(at: dirInFolder, withIntermediateDirectories: true)
-
-					let inFolderPath = asset.pathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
-					Log.info("- \(inFolderPath) \(dirInFolder) \(subDirectoryPath)")
-
-					// Check if this photo was saved or deleted before
-					if purgeEnabled || !fullExport {
-						if let entry = try? folder.getFileInformation(inFolderPath.pathInFolder) {
-							// If purging is enabled, check if we should remove the photo from the source
-							if purgeEnabled {
-								if let mTime = entry.modifiedAt(), mTime.date() < purgeCutoffDate {
-									let lastModifiedByShortDeviceID = entry.modifiedByShortDeviceID()
-									if lastModifiedByShortDeviceID == myShortDeviceID {
-										// The photo is already saved and was last modified by this device; we can delete from source
-										Log.info("Purge entry: \(inFolderPath) \(mTime.date()) \(lastModifiedByShortDeviceID)")
-										originalsToPurge.append(asset)
-									}
-									else {
-										// The photo already exists but it was not last modified by us; do not delete from source
-									}
-								}
-								else {
-									// Could not fetch modified date or modified too recently; do not delete from source
-								}
-							}
-
-							// If the photo was saved then deleted, do not try to save again (unless we are in full export)
-							if !fullExport {
-								if entry.isDeleted() {
-									Log.info("Entry at \(inFolderPath) was deleted, not saving again")
-								}
-								else {
-									Log.info("Entry at \(inFolderPath) exists, not saving again")
-								}
-								return
-							}
-						}
-					}
-
-					// Save asset if it doesn't exist already locally
-					let fileURL = folderURL.appending(path: inFolderPath.pathInFolder, directoryHint: .notDirectory)
-					if !FileManager.default.fileExists(atPath: fileURL.path) || fullExport {
-						// If a video: queue video export session
-						if asset.mediaType == .video {
-							if categories.contains(.video) {
-								Log.info("Requesting video export session for \(asset.originalFilename)")
-								videosToExport.append((asset, fileURL, inFolderPath))
-							}
-						}
-						else {
-							if categories.contains(.photo) {
-								// Save image
-								let options = PHImageRequestOptions()
-								options.isSynchronous = true
-								options.resizeMode = .none
-								options.deliveryMode = .highQualityFormat
-								options.isNetworkAccessAllowed = true
-								options.allowSecondaryDegradedImage = false
-								options.version = .current
-
-								PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
-									if let data = data {
-										do {
-											try data.write(to: fileURL)
-
-											// Set file creation and modified date to photo creation date. The modified date is what is synced
-											if let cd = asset.creationDate {
-												try FileManager.default.setAttributes(
-													[FileAttributeKey.creationDate: cd, FileAttributeKey.modificationDate: cd],
-													ofItemAtPath: fileURL.path(percentEncoded: false))
-											}
-
-											assetsSavedSuccessfully.append(asset)
-											selectPaths.append(inFolderPath)
-										}
-										catch { cancellingError = error }
-									}
-								}
-							}
-						}
-					}
-
-					// If the image is a live photo, queue the live photo for saving as well
-					if asset.mediaType == .image && asset.mediaSubtypes.contains(.photoLive) && categories.contains(.livePhoto) {
-						let liveInFolderPath = asset.livePhotoPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
-						let liveDirectoryURL = folderURL.appending(
-							path: asset.livePhotoDirectoryPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
-								.pathInFolder,
-							directoryHint: .isDirectory)
-						try FileManager.default.createDirectory(at: liveDirectoryURL, withIntermediateDirectories: true)
-						let liveFileURL = folderURL.appending(path: liveInFolderPath.pathInFolder, directoryHint: .notDirectory)
-						Log.info("Found live photo \(asset.originalFilename) \(liveInFolderPath)")
-
-						if !FileManager.default.fileExists(atPath: liveFileURL.path) {
-							livePhotosToExport.append((asset, liveFileURL, liveInFolderPath))
-						}
-					}
-				}
-				catch {
-					cancellingError = error
-					stop.pointee = true
-				}
-			}
-
-			// Report error
-			if let ce = cancellingError {
-				DispatchQueue.main.async { self.progress = .finished(error: ce.localizedDescription) }
+		// Enumerate assets in this album and export them (or queue them for export)
+		assets.enumerateObjects { asset, index, stop in
+			if Task.isCancelled {
+				stop.pointee = true
 				return
 			}
 
-			// Select paths a first time for photos (video export may take too long)
-			if isSelective {
-				Log.info("Selecting paths (photos only)")
-				#if os(iOS)
-					Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining))")
-				#endif
+			do {
+				Log.info("Asset: \(asset.originalFilename) \(asset.localIdentifier)")
 
-				DispatchQueue.main.async { self.progress = .selecting }
-
-				let stList = SushitrainNewListOfStrings()!
-				for path in selectPaths {
-					stList.append(path.pathInFolder)
+				DispatchQueue.main.async {
+					self.progress = .exportingPhotos(index: index, total: count, current: asset.originalFilename)
 				}
-				try? folder.setLocalPathsExplicitlySelected(stList)
-			}
 
-			// Export videos
-			if categories.contains(.video) {
-				let videoCount = videosToExport.count
-				Log.info("Starting video exports for \(videoCount) videos")
-				#if os(iOS)
-					Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining)")
-				#endif
+				// Create containing directory
+				let assetDirectoryPath = asset.directoryPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
+				let dirInFolder = folderURL.appending(path: assetDirectoryPath.pathInFolder, directoryHint: .isDirectory)
+				Log.info("assetDirectoryPath \(assetDirectoryPath) \(dirInFolder)")
+				try FileManager.default.createDirectory(at: dirInFolder, withIntermediateDirectories: true)
 
-				DispatchQueue.main.async { self.progress = .exportingVideos(index: 0, total: videoCount, current: nil) }
+				let inFolderPath = asset.pathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
+				Log.info("- \(inFolderPath) \(dirInFolder) \(subDirectoryPath)")
 
-				for (idx, (asset, fileURL, selectPath)) in videosToExport.enumerated() {
-					if Task.isCancelled { break }
-
-					DispatchQueue.main.async { self.progress = .exportingVideos(index: idx, total: videoCount, current: nil) }
-
-					_ = await withCheckedContinuation { resolve in
-						Log.info("Exporting video \(asset.originalFilename)")
-						let options = PHVideoRequestOptions()
-						options.deliveryMode = .highQualityFormat
-
-						PHImageManager.default().requestExportSession(
-							forVideo: asset, options: options, exportPreset: AVAssetExportPresetPassthrough
-						) { exportSession, info in
-							if let es = exportSession {
-								es.outputURL = fileURL
-								es.outputFileType = .mov
-								es.shouldOptimizeForNetworkUse = false
-
-								es.exportAsynchronously {
-									Log.info("Done exporting video \(asset.originalFilename)")
-									resolve.resume(returning: true)
-								}
-							}
-						}
-					}
-
-					if let cd = asset.creationDate {
-						try FileManager.default.setAttributes(
-							[FileAttributeKey.creationDate: cd, FileAttributeKey.modificationDate: cd],
-							ofItemAtPath: fileURL.path(percentEncoded: false))
-					}
-
-					selectPaths.append(selectPath)
-					assetsSavedSuccessfully.append(asset)
-				}
-			}
-
-			// Export live photos
-			if categories.contains(.livePhoto) {
-				Log.info("Exporting live photos")
-				#if os(iOS)
-					Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining))")
-				#endif
-
-				let liveCount = livePhotosToExport.count
-				DispatchQueue.main.async { self.progress = .exportingLivePhotos(index: 0, total: liveCount, current: nil) }
-				for (idx, (asset, destURL, selectPath)) in livePhotosToExport.enumerated() {
-					if Task.isCancelled { break }
-					Log.info("Exporting live photo \(asset.originalFilename) \(selectPath)")
-
-					await withCheckedContinuation { resolve in
-						// Export live photo
-						let options = PHLivePhotoRequestOptions()
-						options.deliveryMode = .highQualityFormat
-						var found = false
-						PHImageManager.default().requestLivePhoto(
-							for: asset, targetSize: CGSize(width: 1920, height: 1080), contentMode: PHImageContentMode.default,
-							options: options
-						) { livePhoto, info in
-							if found {
-								// The callback can be called twice
-								return
-							}
-							found = true
-
-							guard let livePhoto = livePhoto else {
-								Log.warn("Did not receive live photo for \(asset.originalFilename)")
-								resolve.resume()
-								return
-							}
-							let assetResources = PHAssetResource.assetResources(for: livePhoto)
-							guard let videoResource = assetResources.first(where: { $0.type == .pairedVideo }) else {
-								Log.warn("Could not find paired video resource for \(asset.originalFilename) \(assetResources)")
-								resolve.resume()
-								return
-							}
-
-							PHAssetResourceManager.default().writeData(for: videoResource, toFile: destURL, options: nil) { error in
-								if let error = error {
-									Log.warn("Failed to save \(destURL): \(error.localizedDescription)")
+				// Check if this photo was saved or deleted before
+				if purgeEnabled || !fullExport {
+					if let entry = try? folder.getFileInformation(inFolderPath.pathInFolder) {
+						// If purging is enabled, check if we should remove the photo from the source
+						if purgeEnabled {
+							if let mTime = entry.modifiedAt(), mTime.date() < purgeCutoffDate {
+								let lastModifiedByShortDeviceID = entry.modifiedByShortDeviceID()
+								if lastModifiedByShortDeviceID == myShortDeviceID {
+									// The photo is already saved and was last modified by this device; we can delete from source
+									Log.info("Purge entry: \(inFolderPath) \(mTime.date()) \(lastModifiedByShortDeviceID)")
+									originalsToPurge.append(asset)
 								}
 								else {
-									selectPaths.append(selectPath)
-									assetsSavedSuccessfully.append(asset)
+									// The photo already exists but it was not last modified by us; do not delete from source
 								}
-								resolve.resume()
+							}
+							else {
+								// Could not fetch modified date or modified too recently; do not delete from source
+							}
+						}
+
+						// If the photo was saved then deleted, do not try to save again (unless we are in full export)
+						if !fullExport {
+							if entry.isDeleted() {
+								Log.info("Entry at \(inFolderPath) was deleted, not saving again")
+							}
+							else {
+								Log.info("Entry at \(inFolderPath) exists, not saving again")
+							}
+							return
+						}
+					}
+				}
+
+				// Save asset if it doesn't exist already locally
+				let fileURL = folderURL.appending(path: inFolderPath.pathInFolder, directoryHint: .notDirectory)
+				if !FileManager.default.fileExists(atPath: fileURL.path) || fullExport {
+					// If a video: queue video export session
+					if asset.mediaType == .video {
+						if categories.contains(.video) {
+							Log.info("Requesting video export session for \(asset.originalFilename)")
+							videosToExport.append((asset, fileURL, inFolderPath))
+						}
+					}
+					else {
+						if categories.contains(.photo) {
+							// Save image
+							let options = PHImageRequestOptions()
+							options.isSynchronous = true
+							options.resizeMode = .none
+							options.deliveryMode = .highQualityFormat
+							options.isNetworkAccessAllowed = true
+							options.allowSecondaryDegradedImage = false
+							options.version = .current
+
+							PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
+								if let data = data {
+									do {
+										try data.write(to: fileURL)
+
+										// Set file creation and modified date to photo creation date. The modified date is what is synced
+										if let cd = asset.creationDate {
+											try FileManager.default.setAttributes(
+												[FileAttributeKey.creationDate: cd, FileAttributeKey.modificationDate: cd],
+												ofItemAtPath: fileURL.path(percentEncoded: false))
+										}
+
+										assetsSavedSuccessfully.append(asset)
+										selectPaths.append(inFolderPath)
+									}
+									catch { cancellingError = error }
+								}
 							}
 						}
 					}
-
-					if let cd = asset.creationDate {
-						try FileManager.default.setAttributes(
-							[FileAttributeKey.creationDate: cd, FileAttributeKey.modificationDate: cd],
-							ofItemAtPath: destURL.path(percentEncoded: false))
-					}
-
-					DispatchQueue.main.async { self.progress = .exportingLivePhotos(index: idx, total: liveCount, current: nil) }
 				}
-			}
 
-			// Select paths
-			if isSelective {
-				Log.info("Selecting paths")
-				#if os(iOS)
-					Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining))")
-				#endif
+				// If the image is a live photo, queue the live photo for saving as well
+				if asset.mediaType == .image && asset.mediaSubtypes.contains(.photoLive) && categories.contains(.livePhoto) {
+					let liveInFolderPath = asset.livePhotoPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
+					let liveDirectoryURL = folderURL.appending(
+						path: asset.livePhotoDirectoryPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
+							.pathInFolder,
+						directoryHint: .isDirectory)
+					try FileManager.default.createDirectory(at: liveDirectoryURL, withIntermediateDirectories: true)
+					let liveFileURL = folderURL.appending(path: liveInFolderPath.pathInFolder, directoryHint: .notDirectory)
+					Log.info("Found live photo \(asset.originalFilename) \(liveInFolderPath)")
 
-				DispatchQueue.main.async { self.progress = .selecting }
-
-				let stList = SushitrainNewListOfStrings()!
-				for path in selectPaths {
-					stList.append(path.pathInFolder)
-				}
-				try? folder.setLocalPathsExplicitlySelected(stList)
-			}
-
-			// Tag saved items
-			if !savedAlbumID.isEmpty && !assetsSavedSuccessfully.isEmpty {
-				Log.info("Tagging \(assetsSavedSuccessfully.count) saved items")
-				if let savedAlbum = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [savedAlbumID], options: nil)
-					.firstObject
-				{
-					let assets = PHAsset.fetchAssets(
-						withLocalIdentifiers: assetsSavedSuccessfully.map { $0.localIdentifier }, options: nil)
-					try? await PHPhotoLibrary.shared().performChanges {
-						if let phac = PHAssetCollectionChangeRequest(for: savedAlbum) {
-							phac.addAssets(assets)
-						}
-						else {
-							Log.warn("Cannot add asset, PHAssetCollectionChangeRequest is nil!")
-						}
+					if !FileManager.default.fileExists(atPath: liveFileURL.path) {
+						livePhotosToExport.append((asset, liveFileURL, liveInFolderPath))
 					}
 				}
 			}
-
-			// Purge
-			if !isInBackground && purgeEnabled && !originalsToPurge.isEmpty {
-				Log.info("Purge \(originalsToPurge.count) originals")
-				DispatchQueue.main.async { self.progress = .purging }
-				let assets = PHAsset.fetchAssets(withLocalIdentifiers: originalsToPurge.map { $0.localIdentifier }, options: nil)
-
-				// this could fail in the background
-				try? await PHPhotoLibrary.shared().performChanges { PHAssetChangeRequest.deleteAssets(assets) }
+			catch {
+				cancellingError = error
+				stop.pointee = true
 			}
+		}
 
-			// Write 'last completed' date
-			let completedDate = Date.now.timeIntervalSinceReferenceDate
-			DispatchQueue.main.async { self.lastCompletedDate = completedDate }
+		// Report error
+		if let ce = cancellingError {
+			DispatchQueue.main.async { self.progress = .finished(error: ce.localizedDescription) }
+			return
+		}
 
-			DispatchQueue.main.async { self.progress = .finished(error: nil) }
-			Log.info("Photo back-up done")
-
+		// Select paths a first time for photos (video export may take too long)
+		if isSelective {
+			Log.info("Selecting paths (photos only)")
 			#if os(iOS)
 				Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining))")
 			#endif
+
+			DispatchQueue.main.async { self.progress = .selecting }
+
+			let stList = SushitrainNewListOfStrings()!
+			for path in selectPaths {
+				stList.append(path.pathInFolder)
+			}
+			try? folder.setLocalPathsExplicitlySelected(stList)
 		}
+
+		// Export videos
+		if categories.contains(.video) {
+			let videoCount = videosToExport.count
+			Log.info("Starting video exports for \(videoCount) videos")
+			#if os(iOS)
+				Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining)")
+			#endif
+
+			DispatchQueue.main.async { self.progress = .exportingVideos(index: 0, total: videoCount, current: nil) }
+
+			for (idx, (asset, fileURL, selectPath)) in videosToExport.enumerated() {
+				if Task.isCancelled { break }
+
+				DispatchQueue.main.async { self.progress = .exportingVideos(index: idx, total: videoCount, current: nil) }
+
+				_ = await withCheckedContinuation { resolve in
+					Log.info("Exporting video \(asset.originalFilename)")
+					let options = PHVideoRequestOptions()
+					options.deliveryMode = .highQualityFormat
+
+					PHImageManager.default().requestExportSession(
+						forVideo: asset, options: options, exportPreset: AVAssetExportPresetPassthrough
+					) { exportSession, info in
+						if let es = exportSession {
+							es.outputURL = fileURL
+							es.outputFileType = .mov
+							es.shouldOptimizeForNetworkUse = false
+
+							es.exportAsynchronously {
+								Log.info("Done exporting video \(asset.originalFilename)")
+								resolve.resume(returning: true)
+							}
+						}
+					}
+				}
+
+				if let cd = asset.creationDate {
+					try FileManager.default.setAttributes(
+						[FileAttributeKey.creationDate: cd, FileAttributeKey.modificationDate: cd],
+						ofItemAtPath: fileURL.path(percentEncoded: false))
+				}
+
+				selectPaths.append(selectPath)
+				assetsSavedSuccessfully.append(asset)
+			}
+		}
+
+		// Export live photos
+		if categories.contains(.livePhoto) {
+			Log.info("Exporting live photos")
+			#if os(iOS)
+				Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining))")
+			#endif
+
+			let liveCount = livePhotosToExport.count
+			DispatchQueue.main.async { self.progress = .exportingLivePhotos(index: 0, total: liveCount, current: nil) }
+			for (idx, (asset, destURL, selectPath)) in livePhotosToExport.enumerated() {
+				if Task.isCancelled { break }
+				Log.info("Exporting live photo \(asset.originalFilename) \(selectPath)")
+
+				await withCheckedContinuation { resolve in
+					// Export live photo
+					let options = PHLivePhotoRequestOptions()
+					options.deliveryMode = .highQualityFormat
+					var found = false
+					PHImageManager.default().requestLivePhoto(
+						for: asset, targetSize: CGSize(width: 1920, height: 1080), contentMode: PHImageContentMode.default,
+						options: options
+					) { livePhoto, info in
+						if found {
+							// The callback can be called twice
+							return
+						}
+						found = true
+
+						guard let livePhoto = livePhoto else {
+							Log.warn("Did not receive live photo for \(asset.originalFilename)")
+							resolve.resume()
+							return
+						}
+						let assetResources = PHAssetResource.assetResources(for: livePhoto)
+						guard let videoResource = assetResources.first(where: { $0.type == .pairedVideo }) else {
+							Log.warn("Could not find paired video resource for \(asset.originalFilename) \(assetResources)")
+							resolve.resume()
+							return
+						}
+
+						PHAssetResourceManager.default().writeData(for: videoResource, toFile: destURL, options: nil) { error in
+							if let error = error {
+								Log.warn("Failed to save \(destURL): \(error.localizedDescription)")
+							}
+							else {
+								selectPaths.append(selectPath)
+								assetsSavedSuccessfully.append(asset)
+							}
+							resolve.resume()
+						}
+					}
+				}
+
+				if let cd = asset.creationDate {
+					try FileManager.default.setAttributes(
+						[FileAttributeKey.creationDate: cd, FileAttributeKey.modificationDate: cd],
+						ofItemAtPath: destURL.path(percentEncoded: false))
+				}
+
+				DispatchQueue.main.async { self.progress = .exportingLivePhotos(index: idx, total: liveCount, current: nil) }
+			}
+		}
+
+		// Select paths
+		if isSelective {
+			Log.info("Selecting paths")
+			#if os(iOS)
+				Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining))")
+			#endif
+
+			DispatchQueue.main.async { self.progress = .selecting }
+
+			let stList = SushitrainNewListOfStrings()!
+			for path in selectPaths {
+				stList.append(path.pathInFolder)
+			}
+			try? folder.setLocalPathsExplicitlySelected(stList)
+		}
+
+		// Tag saved items
+		if await !savedAlbumID.isEmpty && !assetsSavedSuccessfully.isEmpty {
+			Log.info("Tagging \(assetsSavedSuccessfully.count) saved items")
+			if let savedAlbum = await PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [savedAlbumID], options: nil)
+				.firstObject
+			{
+				let assets = PHAsset.fetchAssets(
+					withLocalIdentifiers: assetsSavedSuccessfully.map { $0.localIdentifier }, options: nil)
+				try? await PHPhotoLibrary.shared().performChanges {
+					if let phac = PHAssetCollectionChangeRequest(for: savedAlbum) {
+						phac.addAssets(assets)
+					}
+					else {
+						Log.warn("Cannot add asset, PHAssetCollectionChangeRequest is nil!")
+					}
+				}
+			}
+		}
+
+		// Purge
+		if !isInBackground && purgeEnabled && !originalsToPurge.isEmpty {
+			Log.info("Purge \(originalsToPurge.count) originals")
+			DispatchQueue.main.async { self.progress = .purging }
+			let assets = PHAsset.fetchAssets(withLocalIdentifiers: originalsToPurge.map { $0.localIdentifier }, options: nil)
+
+			// this could fail in the background
+			try? await PHPhotoLibrary.shared().performChanges { PHAssetChangeRequest.deleteAssets(assets) }
+		}
+
+		// Write 'last completed' date
+		let completedDate = Date.now.timeIntervalSinceReferenceDate
+		DispatchQueue.main.async { self.lastCompletedDate = completedDate }
+
+		DispatchQueue.main.async { self.progress = .finished(error: nil) }
+		Log.info("Photo back-up done")
+
+		#if os(iOS)
+			Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining))")
+		#endif
 	}
 }
 

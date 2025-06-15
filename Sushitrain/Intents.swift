@@ -13,7 +13,7 @@ struct SynchronizePhotosIntent: AppIntent {
 	@Dependency private var appState: AppState
 
 	func perform() async throws -> some IntentResult {
-		await appState.photoBackup.synchronize(appState: appState, fullExport: false, isInBackground: true)
+		await appState.photoBackup.backup(appState: appState, fullExport: false, isInBackground: true)
 		return .result()
 	}
 }
