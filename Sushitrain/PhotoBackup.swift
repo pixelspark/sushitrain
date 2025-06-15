@@ -261,7 +261,6 @@ enum PhotoSyncProgress {
 									}
 									else {
 										// The photo already exists but it was not last modified by us; do not delete from source
-
 									}
 								}
 								else {
@@ -351,6 +350,22 @@ enum PhotoSyncProgress {
 			if let ce = cancellingError {
 				DispatchQueue.main.async { self.progress = .finished(error: ce.localizedDescription) }
 				return
+			}
+
+			// Select paths a first time for photos (video export may take too long)
+			if isSelective {
+				Log.info("Selecting paths (photos only)")
+				#if os(iOS)
+					Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining))")
+				#endif
+
+				DispatchQueue.main.async { self.progress = .selecting }
+
+				let stList = SushitrainNewListOfStrings()!
+				for path in selectPaths {
+					stList.append(path.pathInFolder)
+				}
+				try? folder.setLocalPathsExplicitlySelected(stList)
 			}
 
 			// Export videos
