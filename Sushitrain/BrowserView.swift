@@ -737,18 +737,19 @@ private struct BrowserItemsView: View {
 		}.value
 
 		await self.updateExtraneousFiles()
-		self.autoSelectViewStyle()
 		self.isLoading = false
 		loadingSpinnerTask.cancel()
 
 		if self.files.isEmpty && self.subdirectories.isEmpty {
 			self.files = newFiles
 			self.subdirectories = newSubdirectories
+			self.autoSelectViewStyle()
 		}
 		else {
 			withAnimation {
 				self.files = newFiles
 				self.subdirectories = newSubdirectories
+				self.autoSelectViewStyle()
 			}
 		}
 	}
