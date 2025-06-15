@@ -47,6 +47,7 @@ struct DeviceView: View {
 	@EnvironmentObject var appState: AppState
 	@Environment(\.dismiss) private var dismiss
 	@State var changedDeviceName: String? = nil
+	@State var folders: [SushitrainFolder] = []
 
 	var body: some View {
 		Form {
@@ -137,7 +138,6 @@ struct DeviceView: View {
 					Label("Addresses", systemImage: "envelope.front")
 				}
 
-				let folders = appState.folders()
 				Section("Shared folders") {
 					ForEach(folders, id: \.self.folderID) { (folder: SushitrainFolder) in
 						ShareWithDeviceToggleView(peer: self.device, folder: folder, showFolderName: true)
@@ -187,5 +187,12 @@ struct DeviceView: View {
 			.formStyle(.grouped)
 		#endif
 		.navigationTitle(!device.exists() || device.name().isEmpty ? device.deviceID() : device.name())
+		.task {
+			self.update()
+		}
+	}
+
+	private func update() {
+		self.folders = appState.folders().sorted()
 	}
 }

@@ -243,6 +243,7 @@ struct StartView: View {
 	@State private var addFolderID = ""
 	@State private var showNoPeersEnabledWarning = false
 	@State private var peers: [SushitrainPeer]? = nil
+	@State private var folders: [SushitrainFolder]? = nil
 
 	@State private var inaccessibleExternalFolders: [SushitrainFolder] = []
 	@State private var foldersWithIssues: [SushitrainFolder] = []
@@ -321,7 +322,7 @@ struct StartView: View {
 				}
 			}
 
-			if self.appState.folders().count == 0 {
+			if let f = folders, f.isEmpty {
 				Section("Getting started") {
 					VStack(alignment: .leading, spacing: 5) {
 						Label("Add your first folder", systemImage: "folder.badge.plus").bold()
@@ -451,6 +452,7 @@ struct StartView: View {
 			showNoPeersEnabledWarning = false
 			let p = self.appState.peers()
 			self.peers = p
+			self.folders = self.appState.folders().sorted()
 			await self.appState.updateBadge()  // Updates extraneous files list
 			do {
 				try await Task.sleep(nanoseconds: 3 * 1_000_000_000)  // 3 seconds

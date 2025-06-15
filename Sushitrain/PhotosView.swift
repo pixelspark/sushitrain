@@ -57,6 +57,7 @@ struct PhotoSettingsView: View {
 	@State private var authorizationStatus: PHAuthorizationStatus = .notDetermined
 	@State private var albumPickerShown = false
 	@ObservedObject var photoBackup: PhotoBackup
+	@State private var folders: [SushitrainFolder] = []
 
 	var body: some View {
 		let albums = self.authorizationStatus == .authorized ? self.loadAlbums() : []
@@ -95,7 +96,7 @@ struct PhotoSettingsView: View {
 				if authorizationStatus == .authorized {
 					Picker("To folder", selection: $photoBackup.selectedFolderID) {
 						Text("(No folder selected)").tag("")
-						ForEach(appState.folders().sorted(), id: \.self.folderID) { option in
+						ForEach(folders, id: \.self.folderID) { option in
 							Text(option.displayName).tag(option.folderID)
 						}
 					}
@@ -250,6 +251,7 @@ struct PhotoSettingsView: View {
 		#endif
 		.task {
 			authorizationStatus = PHPhotoLibrary.authorizationStatus()
+			self.folders = appState.folders().sorted()
 		}
 	}
 

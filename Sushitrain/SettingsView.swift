@@ -305,6 +305,7 @@ struct AdvancedSettingsView: View {
 	@State private var showListeningAddresses = false
 	@State private var showDiscoveryAddresses = false
 	@State private var showSTUNAddresses = false
+	@State private var folders: [SushitrainFolder] = []
 
 	#if os(macOS)
 		@State private var showConfigurationSettings = false
@@ -544,7 +545,6 @@ struct AdvancedSettingsView: View {
 
 				// Select thumbnail folder
 				Picker("Cache location", selection: appState.$cacheThumbnailsToFolderID) {
-					let folders = appState.folders()
 					Text("On this device").tag("")
 					ForEach(folders, id: \.folderID) { folder in
 						Text(folder.displayName).tag(folder.folderID)
@@ -658,6 +658,7 @@ struct AdvancedSettingsView: View {
 		.task {
 			do {
 				self.diskCacheSizeBytes = try await ImageCache.shared.diskCacheSizeBytes()
+				self.folders = appState.folders().sorted()
 			}
 			catch {
 				Log.warn("Could not determine thumbnail cache size: \(error.localizedDescription)")
@@ -801,7 +802,9 @@ struct AdvancedSettingsView: View {
 
 				let backgroundSyncs = appState.backgroundManager.backgroundSyncRuns
 				if !backgroundSyncs.isEmpty {
-					Section("During the last 24 hours (\(durationFormatter.string(from: self.totalBackgroundSyncTime24Hours) ?? "0s"))") {
+					Section(
+						"During the last 24 hours (\(durationFormatter.string(from: self.totalBackgroundSyncTime24Hours) ?? "0s"))"
+					) {
 						ForEach(backgroundSyncs, id: \.started) { (log: BackgroundSyncRun) in
 							Text(log.asString)
 						}
@@ -831,7 +834,7 @@ struct AdvancedSettingsView: View {
 					Alert(title: Text("Background synchronization"), message: Text(alertMessage))
 				})
 		}
-		
+
 		private var totalBackgroundSyncTime24Hours: TimeInterval {
 			var totalDuration: TimeInterval = 0.0
 			appState.backgroundManager.backgroundSyncRuns.forEach {

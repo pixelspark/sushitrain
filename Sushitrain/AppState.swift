@@ -467,7 +467,7 @@ enum AppStartupState: Equatable {
 			self.updateDeviceSuspension()
 		}
 	#endif
-	
+
 	func updateDeviceSuspension() {
 		do {
 			// On iOS, all devices are paused when the app is suspended (and unpaused when we get back to the foreground)
@@ -478,7 +478,7 @@ enum AppStartupState: Equatable {
 					return
 				}
 			#endif
-			
+
 			// On macOS and when the app is in the foreground, we unpause any device that is not explicitly suspended
 			// by the user
 			let devicesEnabled = Set(self.client.peers()!.asArray()).subtracting(self.userPausedDevices)
