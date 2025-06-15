@@ -182,6 +182,8 @@ enum AppStartupState: Equatable {
 				}
 			}
 
+			self.updateDeviceSuspension()
+
 			// Start the client
 			try await Task.detached(priority: .userInitiated) {
 				// Showtime!

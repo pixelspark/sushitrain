@@ -314,9 +314,8 @@ struct StartView: View {
 						.foregroundStyle(.orange)
 					}
 					.onTapGesture {
-						for peer in peers ?? [] {
-							try? peer.setPaused(false)
-						}
+						self.appState.userPausedDevices.removeAll()
+						self.appState.updateDeviceSuspension()
 						showNoPeersEnabledWarning = false
 					}
 				}
