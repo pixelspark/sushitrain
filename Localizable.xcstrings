@@ -6611,6 +6611,7 @@
       }
     },
     "During the last 24 hours" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -6640,6 +6641,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Протягом останніх 24 годин"
+          }
+        }
+      }
+    },
+    "During the last 24 hours (%@)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In den letzten 24 Stunden (%@)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durante las últimas 24 horas (%@)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durante le ultime 24 ore (%@)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tijdens de laatste 24 uur (%@)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Протягом останніх 24 годин (%@)"
           }
         }
       }

@@ -801,7 +801,7 @@ struct AdvancedSettingsView: View {
 
 				let backgroundSyncs = appState.backgroundManager.backgroundSyncRuns
 				if !backgroundSyncs.isEmpty {
-					Section("During the last 24 hours") {
+					Section("During the last 24 hours (\(durationFormatter.string(from: self.totalBackgroundSyncTime24Hours) ?? "0s"))") {
 						ForEach(backgroundSyncs, id: \.started) { (log: BackgroundSyncRun) in
 							Text(log.asString)
 						}
@@ -830,6 +830,16 @@ struct AdvancedSettingsView: View {
 				content: {
 					Alert(title: Text("Background synchronization"), message: Text(alertMessage))
 				})
+		}
+		
+		private var totalBackgroundSyncTime24Hours: TimeInterval {
+			var totalDuration: TimeInterval = 0.0
+			appState.backgroundManager.backgroundSyncRuns.forEach {
+				if let ended = $0.ended {
+					totalDuration += ended.timeIntervalSince($0.started)
+				}
+			}
+			return totalDuration
 		}
 
 		private func updateNotificationStatus() {
