@@ -466,22 +466,32 @@ enum AppStartupState: Equatable {
 			self.isSuspended = suspended
 			self.updateDeviceSuspension()
 		}
-
-		func updateDeviceSuspension() {
-			do {
+	#endif
+	
+	func updateDeviceSuspension() {
+		do {
+			// On iOS, all devices are paused when the app is suspended (and unpaused when we get back to the foreground)
+			// This is a trick to force Syncthing to start connecting immediately when we are foregrounded
+			#if os(iOS)
 				if self.isSuspended {
 					try self.client.setDevicesPaused(SushitrainListOfStrings.from(Array()), pause: false)
+					return
 				}
-				else {
-					let devicesEnabled = Set(self.client.peers()!.asArray()).subtracting(self.userPausedDevices)
-					try self.client.setDevicesPaused(SushitrainListOfStrings.from(Array(devicesEnabled)), pause: false)
-				}
-			}
-			catch {
-				Log.warn("Failed to update device suspension (isSuspended=\(self.isSuspended): \(error.localizedDescription)")
-			}
+			#endif
+			
+			// On macOS and when the app is in the foreground, we unpause any device that is not explicitly suspended
+			// by the user
+			let devicesEnabled = Set(self.client.peers()!.asArray()).subtracting(self.userPausedDevices)
+			try self.client.setDevicesPaused(SushitrainListOfStrings.from(Array(devicesEnabled)), pause: false)
 		}
-	#endif
+		catch {
+			#if os(iOS)
+				Log.warn("Failed to update device suspension (isSuspended=\(self.isSuspended): \(error.localizedDescription)")
+			#else
+				Log.warn("Failed to update device suspension: \(error.localizedDescription)")
+			#endif
+		}
+	}
 
 	func awake() {
 		#if os(iOS)
