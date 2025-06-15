@@ -8,13 +8,12 @@ import SwiftUI
 
 struct ThumbnailView: View {
 	var file: SushitrainEntry
-
-	// For some reason, environment object is not available in peek/pop on long press on iOS, so pass appState as member
-	@ObservedObject var appState: AppState
-	@State var showPreview = false
+	let appState: AppState  // Don't need to observe appState
 	var showFileName: Bool
 	var showErrorMessages: Bool
 	var onTap: (() -> Void)?
+
+	@State private var showPreview = false
 
 	private var imageCache: ImageCache {
 		return ImageCache.forFolder(file.folder)
