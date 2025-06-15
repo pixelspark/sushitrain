@@ -62,7 +62,7 @@ struct ThumbnailView: View {
 				if let onTap = self.onTap {
 					self.thumbnailView
 						.onTapGesture {
-							self.onTap?()
+							onTap()
 						}
 				}
 				else {
