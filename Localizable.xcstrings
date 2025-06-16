@@ -20614,6 +20614,40 @@
         }
       }
     },
+    "This file is not fully available on any connected device" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Datei ist auf keinem verbundenen Gerät vollständig verfügbar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este archivo no está completamente disponible en ningún dispositivo conectado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo file non è completamente disponibile su nessun dispositivo connesso"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dit bestand is op geen van de verbonden apparaten volledig beschikbaar"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цей файл не повністю доступний на жодному підключеному пристрої"
+          }
+        }
+      }
+    },
     "This file is only available on this device." : {
       "localizations" : {
         "de" : {
@@ -20644,40 +20678,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Цей файл доступний лише на цьому пристрої."
-          }
-        }
-      }
-    },
-    "This file it not fully available on any connected device" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Diese Datei ist auf keinem verbundenen Gerät vollständig verfügbar."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Este archivo no está completamente disponible en ningún dispositivo conectado."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Questo file non è completamente disponibile su nessun dispositivo connesso."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dit bestand is op geen van de verbonden apparaten (volledig) aanwezig."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Цей файл не повністю доступний на жодному з підключених пристроїв"
           }
         }
       }

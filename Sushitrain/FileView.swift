@@ -138,7 +138,7 @@ struct FileView: View {
 					if let availability = self.fullyAvailableOnDevices {
 						if availability.isEmpty && self.folder.connectedPeerCount() > 0 {
 							Label(
-								"This file it not fully available on any connected device",
+								"This file is not fully available on any connected device",
 								systemImage: "externaldrive.trianglebadge.exclamationmark"
 							).foregroundStyle(.orange)
 						}
