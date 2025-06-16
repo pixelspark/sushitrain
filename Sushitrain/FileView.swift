@@ -146,7 +146,8 @@ struct FileView: View {
 					else {
 						if let err = self.availabilityError {
 							Label(
-								"Could not determine file availability: \(err)", systemImage: "externaldrive.trianglebadge.exclamationmark"
+								"Could not determine file availability: \(err.localizedDescription)",
+								systemImage: "externaldrive.trianglebadge.exclamationmark"
 							).foregroundStyle(.orange)
 						}
 						else {

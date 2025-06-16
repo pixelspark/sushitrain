@@ -447,50 +447,56 @@ enum PhotoSyncProgress {
 				if Task.isCancelled { break }
 				Log.info("Exporting live photo \(asset.originalFilename) \(selectPath)")
 
-				await withCheckedContinuation { resolve in
-					// Export live photo
-					let options = PHLivePhotoRequestOptions()
-					options.deliveryMode = .highQualityFormat
-					var found = false
-					PHImageManager.default().requestLivePhoto(
-						for: asset, targetSize: CGSize(width: 1920, height: 1080), contentMode: PHImageContentMode.default,
-						options: options
-					) { livePhoto, info in
-						if found {
-							// The callback can be called twice
-							return
-						}
-						found = true
-
-						guard let livePhoto = livePhoto else {
-							Log.warn("Did not receive live photo for \(asset.originalFilename)")
-							resolve.resume()
-							return
-						}
-						let assetResources = PHAssetResource.assetResources(for: livePhoto)
-						guard let videoResource = assetResources.first(where: { $0.type == .pairedVideo }) else {
-							Log.warn("Could not find paired video resource for \(asset.originalFilename) \(assetResources)")
-							resolve.resume()
-							return
-						}
-
-						PHAssetResourceManager.default().writeData(for: videoResource, toFile: destURL, options: nil) { error in
-							if let error = error {
-								Log.warn("Failed to save \(destURL): \(error.localizedDescription)")
+				do {
+					try await withCheckedThrowingContinuation { resolve in
+						// Export live photo
+						let options = PHLivePhotoRequestOptions()
+						options.deliveryMode = .highQualityFormat
+						var found = false
+						PHImageManager.default().requestLivePhoto(
+							for: asset, targetSize: CGSize(width: 1920, height: 1080), contentMode: PHImageContentMode.default,
+							options: options
+						) { livePhoto, info in
+							if found {
+								// The callback can be called twice
+								return
 							}
-							else {
-								selectPaths.append(selectPath)
-								assetsSavedSuccessfully.append(asset)
+							found = true
+
+							guard let livePhoto = livePhoto else {
+								Log.warn("Did not receive live photo for \(asset.originalFilename)")
+								resolve.resume()
+								return
 							}
-							resolve.resume()
+							let assetResources = PHAssetResource.assetResources(for: livePhoto)
+							guard let videoResource = assetResources.first(where: { $0.type == .pairedVideo }) else {
+								Log.warn("Could not find paired video resource for \(asset.originalFilename) \(assetResources)")
+								resolve.resume()
+								return
+							}
+
+							PHAssetResourceManager.default().writeData(for: videoResource, toFile: destURL, options: nil) { error in
+								if let error = error {
+									resolve.resume(throwing: error)
+								}
+								else {
+									resolve.resume()
+								}
+							}
 						}
 					}
-				}
 
-				if let cd = asset.creationDate {
-					try FileManager.default.setAttributes(
-						[FileAttributeKey.creationDate: cd, FileAttributeKey.modificationDate: cd],
-						ofItemAtPath: destURL.path(percentEncoded: false))
+					selectPaths.append(selectPath)
+					assetsSavedSuccessfully.append(asset)
+
+					if let cd = asset.creationDate {
+						try FileManager.default.setAttributes(
+							[FileAttributeKey.creationDate: cd, FileAttributeKey.modificationDate: cd],
+							ofItemAtPath: destURL.path(percentEncoded: false))
+					}
+				}
+				catch {
+					Log.warn("Failed to save \(destURL): \(error.localizedDescription)")
 				}
 
 				DispatchQueue.main.async { self.progress = .exportingLivePhotos(index: idx, total: liveCount, current: nil) }
