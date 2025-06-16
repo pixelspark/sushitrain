@@ -120,6 +120,7 @@ struct FoldersSections: View {
 	@State private var showingAddFolderPopup = false
 	@State private var pendingFolderIds: [String] = []
 	@State private var addFolderID = ""
+	@State private var addFolderIDReadOnly = false
 	@State private var addFolderShareDefault = false
 	@State private var folders: [SushitrainFolder] = []
 	@State private var showFolderProperties: SushitrainFolder? = nil
@@ -168,6 +169,7 @@ struct FoldersSections: View {
 						action: {
 							addFolderID = folderID
 							addFolderShareDefault = true
+							addFolderIDReadOnly = true
 							showingAddFolderPopup = true
 						}
 					)
@@ -183,6 +185,7 @@ struct FoldersSections: View {
 				"Add folder...", systemImage: "plus",
 				action: {
 					addFolderID = ""
+					addFolderIDReadOnly = false
 					addFolderShareDefault = false
 					showingAddFolderPopup = true
 				}
@@ -194,7 +197,11 @@ struct FoldersSections: View {
 		.sheet(
 			isPresented: $showingAddFolderPopup,
 			content: {
-				AddFolderView(folderID: $addFolderID, shareWithPendingPeersByDefault: addFolderShareDefault)
+				AddFolderView(
+					folderID: $addFolderID,
+					shareWithPendingPeersByDefault: addFolderShareDefault,
+					folderIDReadOnly: addFolderIDReadOnly
+				)
 			}
 		)
 		.task {

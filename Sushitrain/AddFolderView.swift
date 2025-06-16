@@ -9,6 +9,7 @@ import SushitrainCore
 struct AddFolderView: View {
 	@Binding var folderID: String
 	var shareWithPendingPeersByDefault: Bool = false
+	var folderIDReadOnly: Bool = false
 
 	@EnvironmentObject var appState: AppState
 
@@ -38,6 +39,7 @@ struct AddFolderView: View {
 				Section(header: Text("Folder ID")) {
 					TextField("", text: $folderID, prompt: Text("XXXX-XXXX"))
 						.focused($idFieldFocus)
+						.disabled(self.folderIDReadOnly)
 						#if os(iOS)
 							.textInputAutocapitalization(.never)
 							.autocorrectionDisabled()
@@ -58,14 +60,17 @@ struct AddFolderView: View {
 						.buttonStyle(.link)
 					#endif
 
-					Button(action: {
-						self.isPhotoFolder = true
-					}) {
-						Label("Photo folder", systemImage: self.isPhotoFolder ? "checkmark" : "")
+					// Only allow creation of photo folders for non-discovered folders
+					if !folderIDReadOnly {
+						Button(action: {
+							self.isPhotoFolder = true
+						}) {
+							Label("Photo folder", systemImage: self.isPhotoFolder ? "checkmark" : "")
+						}
+						#if os(macOS)
+							.buttonStyle(.link)
+						#endif
 					}
-					#if os(macOS)
-						.buttonStyle(.link)
-					#endif
 
 					Button(action: {
 						self.showPathSelector = true
