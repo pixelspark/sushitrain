@@ -177,58 +177,78 @@ private struct OverallDownloadProgressView: View {
 
 struct OverallStatusView: View {
 	@EnvironmentObject var appState: AppState
-
-	private var peerStatusText: String {
-		return "\(self.appState.client.connectedPeerCount())/\(self.appState.peers().count - 1)"
-	}
+	@State private var peerStatusText = ""
 
 	private var isConnected: Bool {
 		return self.appState.client.connectedPeerCount() > 0
 	}
 
 	var body: some View {
-		if self.isConnected {
-			let isDownloading = self.appState.client.isDownloading()
-			let isUploading = self.appState.client.isUploading()
-			if isDownloading || isUploading {
-				if isDownloading {
-					OverallDownloadProgressView()
-				}
+		ZStack {
+			if self.isConnected {
+				let isDownloading = self.appState.client.isDownloading()
+				let isUploading = self.appState.client.isUploading()
+				if isDownloading || isUploading {
+					if isDownloading {
+						OverallDownloadProgressView()
+					}
 
-				// Uploads
-				if isUploading {
-					let progress = self.appState.client.getTotalUploadProgress()
-
-					NavigationLink(destination: UploadView()) {
-						if let progress = progress {
-							ProgressView(value: progress.percentage, total: 1.0) {
-								Label(
-									"Sending \(progress.filesTotal) files...",
-									systemImage: "arrow.up"
-								)
-								.foregroundStyle(.green)
-								.symbolEffect(.pulse, value: progress.percentage)
-								.badge("\(Int(progress.percentage * 100))%")
-								.frame(maxWidth: .infinity)
-							}.tint(.green)
-						}
-						else {
-							Label("Sending files...", systemImage: "arrow.up")
-								.foregroundStyle(.green)
-								.badge(self.peerStatusText)
-								.frame(maxWidth: .infinity)
+					// Uploads
+					if isUploading {
+						NavigationLink(destination: UploadView()) {
+							OverallUploadStatusView()
 						}
 					}
 				}
+				else {
+					Label("Connected", systemImage: "checkmark.circle.fill").foregroundStyle(.green).badge(
+						Text(self.peerStatusText))
+				}
 			}
 			else {
-				Label("Connected", systemImage: "checkmark.circle.fill").foregroundStyle(.green).badge(
-					Text(self.peerStatusText))
+				Label("Not connected", systemImage: "network.slash").badge(Text(self.peerStatusText))
+					.foregroundColor(.gray)
 			}
 		}
-		else {
-			Label("Not connected", systemImage: "network.slash").badge(Text(self.peerStatusText))
-				.foregroundColor(.gray)
+		.task {
+			self.update()
+		}
+	}
+
+	private func update() {
+		self.peerStatusText = "\(self.appState.client.connectedPeerCount())/\(self.appState.peers().count - 1)"
+	}
+}
+
+private struct OverallUploadStatusView: View {
+	@EnvironmentObject var appState: AppState
+
+	@State private var progress: SushitrainProgress? = nil
+
+	var body: some View {
+		ZStack {
+			if let progress = progress {
+				ProgressView(value: progress.percentage, total: 1.0) {
+					Label(
+						"Sending \(progress.filesTotal) files...",
+						systemImage: "arrow.up"
+					)
+					.foregroundStyle(.green)
+					.symbolEffect(.pulse, value: progress.percentage)
+					.badge("\(Int(progress.percentage * 100))%")
+					.frame(maxWidth: .infinity)
+				}.tint(.green)
+			}
+			else {
+				Label("Sending files...", systemImage: "arrow.up")
+					.foregroundStyle(.green)
+					.frame(maxWidth: .infinity)
+			}
+		}.task {
+			let client = appState.client
+			self.progress = await Task.detached {
+				return client.getTotalUploadProgress()
+			}.value
 		}
 	}
 }

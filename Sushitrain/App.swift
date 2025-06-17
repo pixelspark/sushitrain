@@ -298,6 +298,8 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 		@Environment(\.openWindow) private var openWindow
 		@EnvironmentObject private var appState: AppState
 
+		@State private var folders: [SushitrainFolder] = []
+
 		var body: some Scene {
 			Window("Settings", id: "appSettings") {
 				NavigationStack {
@@ -308,6 +310,9 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 			MenuBarExtra("Synctrain", systemImage: self.menuIcon, isInserted: $hideInDock) {
 				if appState.startupState == .started {
 					OverallStatusView()
+						.task {
+							self.update()
+						}
 
 					Button("Open file browser...") {
 						openWindow(id: "singleMain")
@@ -316,47 +321,11 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 
 					// List of folders
 					if appState.menuFolderAction != .hide {
-						let folders = appState.folders().filter { $0.isHidden == false }.sorted()
 						if !folders.isEmpty {
 							Divider()
 							ForEach(folders, id: \.folderID) { fld in
 								Button("\(fld.displayName)") {
-									switch appState.menuFolderAction {
-									case .hide:
-										break  // Should not be reached
-
-									case .finder:
-										if let lnu = fld.localNativeURL {
-											openURLInSystemFilesApp(url: lnu)
-										}
-										else {
-											openWindow(
-												id: "folder",
-												value: fld.folderID)
-											NSApplication.shared.activate()
-										}
-
-									case .browser:
-										openWindow(id: "folder", value: fld.folderID)
-										NSApplication.shared.activate()
-
-									case .finderExceptSelective:
-										if fld.isSelective() {
-											openWindow(
-												id: "folder",
-												value: fld.folderID)
-											NSApplication.shared.activate()
-										}
-										else if let lnu = fld.localNativeURL {
-											openURLInSystemFilesApp(url: lnu)
-										}
-										else {
-											openWindow(
-												id: "folder",
-												value: fld.folderID)
-											NSApplication.shared.activate()
-										}
-									}
+									self.openFolder(fld)
 								}
 							}
 						}
@@ -404,6 +373,49 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 					NSApplication.shared.terminate(nil)
 				}
 			}
+		}
+
+		private func openFolder(_ fld: SushitrainFolder) {
+			switch appState.menuFolderAction {
+			case .hide:
+				break  // Should not be reached
+
+			case .finder:
+				if let lnu = fld.localNativeURL {
+					openURLInSystemFilesApp(url: lnu)
+				}
+				else {
+					openWindow(
+						id: "folder",
+						value: fld.folderID)
+					NSApplication.shared.activate()
+				}
+
+			case .browser:
+				openWindow(id: "folder", value: fld.folderID)
+				NSApplication.shared.activate()
+
+			case .finderExceptSelective:
+				if fld.isSelective() {
+					openWindow(
+						id: "folder",
+						value: fld.folderID)
+					NSApplication.shared.activate()
+				}
+				else if let lnu = fld.localNativeURL {
+					openURLInSystemFilesApp(url: lnu)
+				}
+				else {
+					openWindow(
+						id: "folder",
+						value: fld.folderID)
+					NSApplication.shared.activate()
+				}
+			}
+		}
+
+		private func update() {
+			self.folders = appState.folders().filter { $0.isHidden == false }.sorted()
 		}
 
 		private var menuIcon: String {
