@@ -358,6 +358,24 @@ struct DevicesView: View {
 			}.sheet(isPresented: $showingAddDevicePopup) {
 				AddDeviceView(suggestedDeviceID: $addingDeviceID)
 			}
+			.onAppear {
+				Task {
+					self.update()
+				}
+			}
+			.onChange(of: appState.eventCounter) { _, _ in
+				Task {
+					self.update()
+				}
+			}
+			// Update device list when add device popup is hidden again
+			.onChange(of: showingAddDevicePopup) { _, nv in
+				if !nv {
+					Task {
+						self.update()
+					}
+				}
+			}
 		}
 
 		@ViewBuilder private func nextView() -> some View {

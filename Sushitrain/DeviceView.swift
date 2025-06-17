@@ -182,6 +182,9 @@ struct DeviceView: View {
 					#endif
 				}
 			}
+			else {
+				ContentUnavailableView("Unknown device", systemImage: "externaldrive.badge.questionmark")
+			}
 		}
 		#if os(macOS)
 			.formStyle(.grouped)
