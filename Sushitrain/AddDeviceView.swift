@@ -8,7 +8,7 @@ import SushitrainCore
 import VisionKit
 
 struct AddDeviceView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@Binding var suggestedDeviceID: String
 	@State var deviceID = ""
 	@State private var showHelpAfterAdding = false

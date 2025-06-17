@@ -20,7 +20,7 @@ struct BrowserTableView: View {
 
 	@SceneStorage("BrowserTableViewConfig") private var columnCustomization: TableColumnCustomization<SushitrainEntry>
 	@Environment(\.openURL) private var openURL
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 
 	#if os(macOS)
 		@Environment(\.openWindow) private var openWindow
@@ -62,7 +62,7 @@ struct BrowserTableView: View {
 				TableColumn("Name", sortUsing: EntryComparator(order: .forward, sortBy: .name)) {
 					(entry: SushitrainEntry) in
 					EntryNameView(entry: entry, viewStyle: self.viewStyle)
-						.environmentObject(self.appState)  // Needed because for some reason it does not propagate
+						.environment(self.appState)  // Needed because for some reason it does not propagate
 				}
 				.defaultVisibility(.visible)
 				.customizationID("name")
@@ -213,7 +213,7 @@ struct BrowserTableView: View {
 					}
 					else {
 						// Symlink to file
-						if honorTapToPreview && appState.tapFileToPreview {
+						if honorTapToPreview && appState.userSettings.tapFileToPreview {
 							FileViewerView(
 								file: targetEntry,
 								siblings: entries,
@@ -242,7 +242,7 @@ struct BrowserTableView: View {
 			}
 			else {
 				// Only on iOS
-				if honorTapToPreview && appState.tapFileToPreview {
+				if honorTapToPreview && appState.userSettings.tapFileToPreview {
 					FileViewerView(
 						file: oe, siblings: entries,
 						inSheet: false,
@@ -273,7 +273,7 @@ struct BrowserTableView: View {
 
 				#if os(macOS)
 					// Tap to preview on macOS opens a new window
-					if appState.tapFileToPreview {
+					if appState.userSettings.tapFileToPreview {
 						if oe.canPreview {
 							openWindow(
 								id: "preview",
@@ -302,7 +302,7 @@ struct BrowserTableView: View {
 }
 
 struct MultiItemSelectToggleView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	let files: [SushitrainEntry]
 
 	private var isAvailable: Bool {
@@ -389,7 +389,7 @@ private struct EntryNameView: View {
 	let entry: SushitrainEntry
 	let viewStyle: BrowserViewStyle
 
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 
 	private var showThumbnail: Bool {
 		return self.viewStyle == .thumbnailList

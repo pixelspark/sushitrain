@@ -100,7 +100,7 @@ import BackgroundTasks
 			}
 
 			// Start background sync on long and short sync task
-			if appState.longBackgroundSyncEnabled || appState.shortBackgroundSyncEnabled {
+			if appState.userSettings.longBackgroundSyncEnabled || appState.userSettings.shortBackgroundSyncEnabled {
 				Log.info(
 					"Start background sync, time remaining = \(UIApplication.shared.backgroundTimeRemaining)"
 				)
@@ -209,7 +209,7 @@ import BackgroundTasks
 		}
 
 		private func notifyUserOfBackgroundSyncCompletion(start: Date, end: Date) {
-			if self.appState.notifyWhenBackgroundSyncCompletes {
+			if self.appState.userSettings.notifyWhenBackgroundSyncCompletes {
 				let duration = Int(end.timeIntervalSince(start))
 				let content = UNMutableNotificationContent()
 				content.title = String(localized: "Background synchronization completed")
@@ -229,7 +229,7 @@ import BackgroundTasks
 		func scheduleBackgroundSync() -> Bool {
 			var success = true
 
-			if appState.longBackgroundSyncEnabled {
+			if appState.userSettings.longBackgroundSyncEnabled {
 				let longRequest = BGProcessingTaskRequest(identifier: Self.longBackgroundSyncID)
 
 				// No earlier than within 15 minutes
@@ -249,7 +249,7 @@ import BackgroundTasks
 				}
 			}
 
-			if appState.shortBackgroundSyncEnabled {
+			if appState.userSettings.shortBackgroundSyncEnabled {
 				let shortRequest = BGAppRefreshTaskRequest(identifier: Self.shortBackgroundSyncID)
 				// No earlier than within 15 minutes
 				shortRequest.earliestBeginDate = Date(timeIntervalSinceNow: 30 * 60)
@@ -277,12 +277,12 @@ import BackgroundTasks
 			])
 
 			let appState = self.appState
-			var interval: TimeInterval = TimeInterval(appState.watchdogIntervalHours * 60 * 60)  // seconds
+			var interval: TimeInterval = TimeInterval(appState.userSettings.watchdogIntervalHours * 60 * 60)  // seconds
 			if interval < 60.0 {
 				interval = 60.0 * 60.0  // one hour minimum
 			}
 
-			if appState.watchdogNotificationEnabled {
+			if appState.userSettings.watchdogNotificationEnabled {
 				notificationCenter.getNotificationSettings { @MainActor settings in
 					let status = settings.authorizationStatus
 					if status == .authorized || status == .provisional {

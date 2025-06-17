@@ -8,7 +8,7 @@ import SwiftUI
 import SushitrainCore
 
 private struct NeededFilesView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	var folder: SushitrainFolder
 	var device: SushitrainPeer?
 
@@ -102,7 +102,7 @@ private struct NeededFilesView: View {
 }
 
 struct FolderStatisticsView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	var folder: SushitrainFolder
 
 	private var possiblePeers: [String: SushitrainPeer] {

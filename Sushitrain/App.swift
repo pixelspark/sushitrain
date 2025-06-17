@@ -153,14 +153,14 @@ struct SushitrainApp: App {
 			WindowGroup(id: "folder", for: String.self) { [appState] folderID in
 				MainView(
 					route: folderID.wrappedValue == nil ? .start : .folder(folderID: folderID.wrappedValue)
-				).environmentObject(appState)
+				).environment(appState)
 			}
 
 			WindowGroup(id: "preview", for: Preview.self) { [appState] preview in
 				if appState.startupState == .started {
 					if let p = preview.wrappedValue {
 						PreviewWindow(preview: p)
-							.environmentObject(appState)
+							.environment(appState)
 					}
 				}
 			}
@@ -168,7 +168,8 @@ struct SushitrainApp: App {
 		#endif
 
 		WindowGroup(id: "main") { [appState] in
-			MainView().environmentObject(appState)
+			MainView()
+				.environment(appState)
 		}
 		#if os(macOS)
 			.onChange(of: hideInDock, initial: true) { _ov, nv in
@@ -203,30 +204,30 @@ struct SushitrainApp: App {
 		#if os(macOS)
 			// About window
 			Window("About Synctrain", id: "about") {
-				AboutView().environmentObject(appState)
+				AboutView().environment(appState)
 			}
 			.windowResizability(.contentSize)
 
 			MenuBarExtraView(hideInDock: $hideInDock)
-				.environmentObject(appState)
+				.environment(appState)
 
 			Settings {
 				NavigationStack {
 					TabbedSettingsView(hideInDock: $hideInDock)
-				}.environmentObject(appState)
+				}.environment(appState)
 			}
 			.windowResizability(.contentSize)
 
 			Window("Statistics", id: "stats") {
 				TotalStatisticsView()
-					.environmentObject(appState)
+					.environment(appState)
 					.frame(minWidth: 320, maxWidth: 320, minHeight: 320)
 			}
 			.windowResizability(.contentSize)
 
 			Window("Synctrain", id: "singleMain") {
 				if appState.startupState == .started {
-					MainView().environmentObject(appState)
+					MainView().environment(appState)
 				}
 			}
 			.windowResizability(.contentSize)
@@ -296,7 +297,7 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 	struct MenuBarExtraView: Scene {
 		@Binding var hideInDock: Bool
 		@Environment(\.openWindow) private var openWindow
-		@EnvironmentObject private var appState: AppState
+		@Environment(AppState.self) private var appState
 
 		@State private var folders: [SushitrainFolder] = []
 
@@ -320,7 +321,7 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 					}
 
 					// List of folders
-					if appState.menuFolderAction != .hide {
+					if appState.userSettings.menuFolderAction != .hide {
 						if !folders.isEmpty {
 							Divider()
 							ForEach(folders, id: \.folderID) { fld in
@@ -376,7 +377,7 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 		}
 
 		private func openFolder(_ fld: SushitrainFolder) {
-			switch appState.menuFolderAction {
+			switch appState.userSettings.menuFolderAction {
 			case .hide:
 				break  // Should not be reached
 

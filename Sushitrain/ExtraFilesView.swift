@@ -10,7 +10,7 @@ import QuickLook
 
 struct ExtraFilesView: View {
 	var folder: SushitrainFolder
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@State private var extraFiles: [String] = []
 	@Environment(\.dismiss) private var dismiss
 	@State private var verdicts: [String: Bool] = [:]

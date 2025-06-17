@@ -22,7 +22,7 @@ struct PhotoBackupProgressView: View {
 }
 
 struct PhotoBackupButton: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@ObservedObject var photoBackup: PhotoBackup
 
 	var body: some View {
@@ -52,8 +52,8 @@ struct PhotoBackupButton: View {
 	}
 }
 
-struct PhotoSettingsView: View {
-	@EnvironmentObject var appState: AppState
+struct PhotoBackupSettingsView: View {
+	@Environment(AppState.self) private var appState
 	@State private var authorizationStatus: PHAuthorizationStatus = .notDetermined
 	@State private var albumPickerShown = false
 	@ObservedObject var photoBackup: PhotoBackup

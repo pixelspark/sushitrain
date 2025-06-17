@@ -8,7 +8,7 @@ import SwiftUI
 import SushitrainCore
 
 struct SelectiveFolderView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	var folder: SushitrainFolder
 	@State private var showError = false
 	@State private var errorText = ""
@@ -306,7 +306,7 @@ struct SelectiveFolderView: View {
 }
 
 private struct SelectiveFileView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	let path: String
 	let folder: SushitrainFolder
 	let deselect: () -> Void

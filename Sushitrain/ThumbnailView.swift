@@ -55,8 +55,8 @@ struct ThumbnailView: View {
 		if file.canThumbnail {
 			let isLocallyPresent = file.isLocallyPresent()
 			if isLocallyPresent || showPreview || self.imageCache[file.cacheKey] != nil
-				|| file.size() <= appState.maxBytesForPreview
-				|| (appState.previewVideos && file.isVideo)
+				|| file.size() <= appState.userSettings.maxBytesForPreview
+				|| (appState.userSettings.previewVideos && file.isVideo)
 			{
 				if let onTap = self.onTap {
 					self.thumbnailView

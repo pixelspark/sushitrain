@@ -155,7 +155,7 @@ private struct PhotoFolderAlbumSettingsView: View {
 	@Binding var config: PhotoFSAlbumConfiguration
 	@Binding var dirName: String
 
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@State private var authorizationStatus: PHAuthorizationStatus = .notDetermined
 	@State private var albumPickerShown = false
 

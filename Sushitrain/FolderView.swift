@@ -8,7 +8,7 @@ import SwiftUI
 import SushitrainCore
 
 struct ShareFolderWithDeviceDetailsView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@Environment(\.dismiss) private var dismiss
 	var folder: SushitrainFolder
 	@Binding var deviceID: String
@@ -195,7 +195,7 @@ struct FolderStatusDescription {
 }
 
 struct FolderStatusView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	var folder: SushitrainFolder
 
 	var body: some View {
@@ -213,8 +213,7 @@ struct FolderStatusView: View {
 						total: 1.0
 					) {
 						Label(
-							"Synchronizing...",
-							systemImage: "bolt.horizontal.circle"
+							"Synchronizing...", systemImage: "bolt.horizontal.circle"
 						)
 						.foregroundStyle(.orange)
 						.badge(Text(remainingText))
@@ -252,7 +251,7 @@ struct FolderStatusView: View {
 }
 
 struct FolderSyncTypePicker: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@State private var changeProhibited = true
 	var folder: SushitrainFolder
 
@@ -300,7 +299,7 @@ struct FolderSyncTypePicker: View {
 }
 
 struct FolderDirectionPicker: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	var folder: SushitrainFolder
 	@State private var changeProhibited: Bool = true
 
@@ -359,7 +358,7 @@ private struct PhotoFolderSectionView: View {
 }
 
 private struct ExternalFolderSectionView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	var folder: SushitrainFolder
 	@State private var showPathSelector: Bool = false
 	@State private var errorText: String? = nil
@@ -458,7 +457,7 @@ private struct ExternalFolderSectionView: View {
 }
 
 struct ExternalFolderInaccessibleView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 
 	var folder: SushitrainFolder
 	@State private var showPathSelector: Bool = false
@@ -590,7 +589,7 @@ struct FolderView: View {
 	}
 
 	var folder: SushitrainFolder
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@Environment(\.dismiss) private var dismiss
 	@State private var isWorking = false
 	@State private var showAlert: ShowAlert? = nil
@@ -811,7 +810,7 @@ struct FolderView: View {
 }
 
 struct ShareWithDeviceToggleView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	let peer: SushitrainPeer
 	let folder: SushitrainFolder
 	let showFolderName: Bool
@@ -890,7 +889,7 @@ struct ShareWithDeviceToggleView: View {
 }
 
 private struct FolderThumbnailSettingsView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	let folder: SushitrainFolder
 
 	@State private var showGenerateThumbnails = false
@@ -1001,7 +1000,7 @@ private struct FolderThumbnailSettingsView: View {
 					Button("Generate thumbnails", systemImage: "photo.stack") {
 						self.showGenerateThumbnailsConfirm = true
 					}
-					.disabled(settings == .disabled || settings == .global && !appState.cacheThumbnailsToDisk)
+					.disabled(settings == .disabled || settings == .global && !appState.userSettings.cacheThumbnailsToDisk)
 					#if os(macOS)
 						.buttonStyle(.link)
 					#endif
@@ -1053,7 +1052,7 @@ private struct FolderThumbnailSettingsView: View {
 				}
 			}
 
-			if appState.cacheThumbnailsToDisk {
+			if appState.userSettings.cacheThumbnailsToDisk {
 				Section {
 					Button("Remove thumbnails from app-wide cache", systemImage: "eraser.line.dashed.fill") {
 						deletingFromSharedCache = true
@@ -1153,7 +1152,7 @@ private struct FolderThumbnailSettingsView: View {
 }
 
 private struct FolderGenerateThumbnailsView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@Binding var isShown: Bool
 	let folder: SushitrainFolder
 	@State private var error: String? = nil
@@ -1258,7 +1257,7 @@ private struct FolderGenerateThumbnailsView: View {
 		let forceCachingLocalFiles: Bool
 		switch tg {
 		case .global:
-			forceCachingLocalFiles = !appState.cacheThumbnailsToFolderID.isEmpty
+			forceCachingLocalFiles = !appState.userSettings.cacheThumbnailsToFolderID.isEmpty
 		case .disabled:
 			forceCachingLocalFiles = false
 		case .deviceLocal:
@@ -1311,7 +1310,7 @@ private struct FolderGenerateThumbnailsView: View {
 }
 
 private struct AdvancedFolderSettingsView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	let folder: SushitrainFolder
 
 	var body: some View {

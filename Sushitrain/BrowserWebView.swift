@@ -8,7 +8,7 @@ import QuickLook
 @preconcurrency import SushitrainCore
 
 struct BrowserWebView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 
 	let folderID: String
 	var path: String

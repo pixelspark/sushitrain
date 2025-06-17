@@ -20,7 +20,7 @@ import SwiftUI
 	// A floating preview window (that can be 'detached' from the file preview sheet
 	struct PreviewWindow: View {
 		let preview: Preview
-		@EnvironmentObject var appState: AppState
+		@Environment(AppState.self) private var appState
 
 		@State private var entry: SushitrainEntry? = nil
 		@State private var siblings: [SushitrainEntry] = []
@@ -59,7 +59,7 @@ import SwiftUI
 					let parentPath = e.parentPath()
 					self.siblings = try folder.listEntries(
 						prefix: parentPath, directories: false,
-						hideDotFiles: appState.dotFilesHidden)
+						hideDotFiles: appState.userSettings.dotFilesHidden)
 					self.entry = e
 				}
 			}

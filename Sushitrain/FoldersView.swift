@@ -13,7 +13,7 @@ enum Route: Hashable, Equatable {
 }
 
 private struct FolderMetricView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	let metric: FolderMetric
 	let folder: SushitrainFolder
 	@State private var stats: SushitrainFolderStats? = nil
@@ -115,7 +115,7 @@ private struct FolderMetricView: View {
 }
 
 struct FoldersSections: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 
 	@State private var showingAddFolderPopup = false
 	@State private var pendingFolderIds: [String] = []
@@ -128,7 +128,7 @@ struct FoldersSections: View {
 	var body: some View {
 		Section("Folders") {
 			ForEach(folders, id: \.self.folderID) { (folder: SushitrainFolder) in
-				if !appState.hideHiddenFolders || folder.isHidden == false {
+				if !appState.userSettings.hideHiddenFolders || folder.isHidden == false {
 					NavigationLink(value: Route.folder(folderID: folder.folderID)) {
 						if folder.isPaused() {
 							Label(folder.displayName, systemImage: folder.systemImage)
@@ -140,7 +140,7 @@ struct FoldersSections: View {
 								if !folder.isPhotoFolder {
 									Spacer()
 									FolderMetricView(
-										metric: self.appState.viewMetric, folder: folder
+										metric: self.appState.userSettings.viewMetric, folder: folder
 									)
 								}
 							}
@@ -224,7 +224,7 @@ struct FoldersSections: View {
 }
 
 struct FoldersView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 
 	var body: some View {
 		List {
@@ -264,7 +264,7 @@ struct FoldersView: View {
 			ToolbarItem {
 				Menu(
 					content: {
-						FolderMetricPickerView()
+						FolderMetricPickerView(userSettings: appState.userSettings)
 					},
 					label: { Image(systemName: "ellipsis.circle").accessibilityLabel(Text("Menu")) }
 				)
@@ -274,10 +274,10 @@ struct FoldersView: View {
 }
 
 struct FolderMetricPickerView: View {
-	@EnvironmentObject var appState: AppState
+	@ObservedObject var userSettings: AppUserSettings
 
 	var body: some View {
-		Picker("Show metric", selection: self.appState.$viewMetric) {
+		Picker("Show metric", selection: self.userSettings.$viewMetric) {
 			HStack {
 				Text("None")
 			}.tag(FolderMetric.none)
@@ -309,7 +309,7 @@ struct FolderMetricPickerView: View {
 		}
 		.pickerStyle(.inline)
 
-		Toggle(isOn: appState.$hideHiddenFolders) {
+		Toggle(isOn: userSettings.$hideHiddenFolders) {
 			Label("Hide hidden folders", systemImage: "eye.slash")
 		}
 	}

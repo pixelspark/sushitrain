@@ -7,7 +7,7 @@ import SwiftUI
 import SushitrainCore
 
 struct DevicesView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 
 	var body: some View {
 		#if os(macOS)
@@ -21,7 +21,7 @@ struct DevicesView: View {
 
 #if os(iOS)
 	private struct DevicesListView: View {
-		@EnvironmentObject var appState: AppState
+		@Environment(AppState.self) private var appState
 		@State private var showingAddDevicePopup = false
 		@State private var addingDeviceID: String = ""
 		@State private var discoveredNewDevices: [String] = []
@@ -130,7 +130,7 @@ struct DevicesView: View {
 			case discoveredDevice(String)
 		}
 
-		@EnvironmentObject var appState: AppState
+		@Environment(AppState.self) private var appState
 
 		@State private var loading = true
 		@State private var peers: [SushitrainPeer] = []
@@ -161,7 +161,7 @@ struct DevicesView: View {
 								TableColumn(peer.displayName) { folder in
 									DevicesGridCellView(device: peer, folder: folder, viewStyle: viewStyle)
 										// Needed because for some reason SwiftUI doesn't propagate environment inside TableColumn
-										.environmentObject(self.appState)
+										.environment(self.appState)
 								}.width(ideal: 50).alignment(.center)
 							}
 						}
@@ -199,12 +199,12 @@ struct DevicesView: View {
 											IdenticonView(deviceID: peer.deviceID())
 												.padding(5)
 												// Needed because for some reason SwiftUI doesn't propagate environment inside TableColumn
-												.environmentObject(self.appState)
+												.environment(self.appState)
 										case .discoveredDevice(let s):
 											IdenticonView(deviceID: s)
 												.padding(5)
 												// Needed because for some reason SwiftUI doesn't propagate environment inside TableColumn
-												.environmentObject(self.appState)
+												.environment(self.appState)
 										}
 									}.width(min: 25, ideal: 25, max: 125).defaultVisibility(.hidden).customizationID("fingerprint")
 
@@ -418,7 +418,7 @@ struct DevicesView: View {
 	}
 
 	private struct DevicesGridCellView: View {
-		@EnvironmentObject var appState: AppState
+		@Environment(AppState.self) private var appState
 		var device: SushitrainPeer
 		var folder: SushitrainFolder
 		var viewStyle: GridViewStyle

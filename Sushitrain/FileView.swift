@@ -28,7 +28,7 @@ struct FileView: View {
 	@State private var openWithAppURL: URL? = nil
 	@State private var localPath: String? = nil
 
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@Environment(\.dismiss) private var dismiss
 
 	#if os(macOS)
@@ -523,7 +523,7 @@ struct FileView: View {
 }
 
 private struct DownloadProgressView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	let file: SushitrainEntry
 	let folder: SushitrainFolder
 

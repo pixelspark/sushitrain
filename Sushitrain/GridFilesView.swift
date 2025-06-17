@@ -7,7 +7,7 @@ import SwiftUI
 @preconcurrency import SushitrainCore
 
 private struct GridItemView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	let size: Double
 	let file: SushitrainEntry
 
@@ -25,14 +25,15 @@ private struct GridItemView: View {
 }
 
 struct GridFilesView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	var prefix: String
 	var files: [SushitrainEntry]
 	var subdirectories: [SushitrainEntry]
 	var folder: SushitrainFolder
 
 	var body: some View {
-		let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 1.0), count: appState.browserGridColumns)
+		let gridColumns = Array(
+			repeating: GridItem(.flexible(), spacing: 1.0), count: appState.userSettings.browserGridColumns)
 
 		LazyVGrid(columns: gridColumns, spacing: 1.0) {
 			// List subdirectories

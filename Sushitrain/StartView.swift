@@ -8,7 +8,7 @@ import SwiftUI
 
 #if os(iOS)
 	private struct WaitView: View {
-		@EnvironmentObject var appState: AppState
+		@Environment(AppState.self) private var appState
 		@Binding var isPresented: Bool
 
 		@State private var position: CGPoint = .zero
@@ -92,7 +92,7 @@ import SwiftUI
 #endif
 
 private struct OverallDownloadProgressView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@State private var lastProgress: (Date, SushitrainProgress)? = nil
 	@State private var progress: (Date, SushitrainProgress)? = nil
 	@State private var showSpeeds: Bool = false
@@ -176,7 +176,7 @@ private struct OverallDownloadProgressView: View {
 }
 
 struct OverallStatusView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@State private var peerStatusText = ""
 
 	private var isConnected: Bool {
@@ -213,6 +213,11 @@ struct OverallStatusView: View {
 		.task {
 			self.update()
 		}
+		.onChange(of: appState.eventCounter) { _, _ in
+			Task {
+				self.update()
+			}
+		}
 	}
 
 	private func update() {
@@ -221,7 +226,7 @@ struct OverallStatusView: View {
 }
 
 private struct OverallUploadStatusView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 
 	@State private var progress: SushitrainProgress? = nil
 
@@ -254,7 +259,7 @@ private struct OverallUploadStatusView: View {
 }
 
 struct StartView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@Binding var route: Route?
 	@State private var qrCodeShown = false
 	@State private var showWaitScreen: Bool = false
@@ -335,7 +340,7 @@ struct StartView: View {
 						.foregroundStyle(.orange)
 					}
 					.onTapGesture {
-						self.appState.userPausedDevices.removeAll()
+						self.appState.userSettings.userPausedDevices.removeAll()
 						self.appState.updateDeviceSuspension()
 						showNoPeersEnabledWarning = false
 					}
@@ -432,7 +437,7 @@ struct StartView: View {
 		#if os(iOS)
 			.toolbar {
 				ToolbarItem {
-					NavigationLink(destination: SettingsView()) {
+					NavigationLink(destination: SettingsView(userSettings: appState.userSettings)) {
 						Image(systemName: "gear").accessibilityLabel("Settings")
 					}
 				}

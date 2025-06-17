@@ -240,7 +240,7 @@ private struct AddressView: View {
 }
 
 struct AddressesView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@Binding var addresses: [String]
 	@State var editingAddresses: [String]
 	var addressType: AddressType

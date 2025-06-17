@@ -8,7 +8,7 @@ import SwiftUI
 
 struct EncryptionView: View {
 	let entry: SushitrainEntry
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 
 	@Environment(\.dismiss) private var dismiss
 
@@ -116,7 +116,7 @@ struct EncryptionView: View {
 struct DecryptedFilePathsView: View {
 	let folder: SushitrainFolder
 	let path: String
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@State private var decryptedPaths: [String] = []
 
 	private var passwords: [String] {
@@ -155,7 +155,7 @@ struct DecryptedFilePathsView: View {
 								entry: entry,
 								folder: self.folder,
 								siblings: [],
-								showThumbnail: appState.showThumbnailsInSearchResults)
+								showThumbnail: appState.userSettings.showThumbnailsInSearchResults)
 						}
 					}
 				}

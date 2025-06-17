@@ -8,7 +8,7 @@ import SwiftUI
 @preconcurrency import SushitrainCore
 
 struct ChangesView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 
 	var body: some View {
 		List {

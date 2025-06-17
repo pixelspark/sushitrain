@@ -9,7 +9,7 @@ import QuickLook
 import AVKit
 
 struct FileViewerView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@State var file: SushitrainEntry
 	let siblings: [SushitrainEntry]?
 	let inSheet: Bool
@@ -42,7 +42,7 @@ struct FileViewerView: View {
 						DragGesture(minimumDistance: 70, coordinateSpace: .global).onEnded {
 							value in
 							// Only act on swipe gestures when enabled
-							if !appState.enableSwipeFilesInPreview {
+							if !appState.userSettings.enableSwipeFilesInPreview {
 								return
 							}
 
@@ -142,7 +142,7 @@ struct FileViewerView: View {
 }
 
 private struct FileViewerContentView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	var file: SushitrainEntry
 	@Binding var isShown: Bool
 	@State private var error: (any Error)? = nil
@@ -193,7 +193,7 @@ private struct FileViewerContentView: View {
 }
 
 private struct FileMediaPlayer: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	var file: SushitrainEntry
 	@Binding var visible: Bool
 

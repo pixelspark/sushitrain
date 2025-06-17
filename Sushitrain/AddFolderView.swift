@@ -11,7 +11,7 @@ struct AddFolderView: View {
 	var shareWithPendingPeersByDefault: Bool = false
 	var folderIDReadOnly: Bool = false
 
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 
 	@Environment(\.dismiss) private var dismiss
 	@FocusState private var idFieldFocus: Bool

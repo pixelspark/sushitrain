@@ -8,7 +8,7 @@ import SwiftUI
 import SushitrainCore
 
 struct TotalStatisticsView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@State private var stats: SushitrainFolderStats? = nil
 
 	var body: some View {
@@ -54,7 +54,7 @@ struct TotalStatisticsView: View {
 	private struct ExportButtonView: View {
 		@State private var error: Error? = nil
 		@State private var showSuccess: Bool = false
-		@EnvironmentObject var appState: AppState
+		@Environment(AppState.self) private var appState
 
 		var body: some View {
 			Button("Export configuration file") {
@@ -94,7 +94,7 @@ struct TotalStatisticsView: View {
 
 #if os(macOS)
 	struct ConfigurationSettingsView: View {
-		@EnvironmentObject var appState: AppState
+		@Environment(AppState.self) private var appState
 		@State private var showHomeDirectorySelector = false
 		@State private var currentPath: URL? = nil
 		@State private var showRestartAlert: Bool = false
@@ -206,7 +206,7 @@ struct TotalStatisticsView: View {
 #endif
 
 private struct DatabaseMaintenanceView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@State private var hasMigratedLegacyDatabase = false
 	@State private var hasLegacyDatabase = false
 	@State private var performingDatabaseMaintenance = false
@@ -225,10 +225,11 @@ private struct DatabaseMaintenanceView: View {
 					}
 				}
 
-				if appState.migratedToV2At > 0.0 {
+				if appState.userSettings.migratedToV2At > 0.0 {
 					LabeledContent("Upgraded at") {
 						Text(
-							Date(timeIntervalSinceReferenceDate: appState.migratedToV2At).formatted(date: .abbreviated, time: .shortened))
+							Date(timeIntervalSinceReferenceDate: appState.userSettings.migratedToV2At).formatted(
+								date: .abbreviated, time: .shortened))
 					}
 				}
 			}
@@ -300,7 +301,8 @@ private struct DatabaseMaintenanceView: View {
 }
 
 struct AdvancedSettingsView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
+	@ObservedObject var userSettings: AppUserSettings
 	@State private var diskCacheSizeBytes: UInt? = nil
 	@State private var showListeningAddresses = false
 	@State private var showDiscoveryAddresses = false
@@ -531,7 +533,7 @@ struct AdvancedSettingsView: View {
 			}
 
 			Section {
-				Toggle("Ignore certain system files", isOn: appState.$ignoreExtraneousDefaultFiles)
+				Toggle("Ignore certain system files", isOn: userSettings.$ignoreExtraneousDefaultFiles)
 			} header: {
 				Text("System files")
 			} footer: {
@@ -541,24 +543,24 @@ struct AdvancedSettingsView: View {
 			}
 
 			Section {
-				Toggle("Cache thumbnails on disk", isOn: appState.$cacheThumbnailsToDisk)
+				Toggle("Cache thumbnails on disk", isOn: userSettings.$cacheThumbnailsToDisk)
 
 				// Select thumbnail folder
-				Picker("Cache location", selection: appState.$cacheThumbnailsToFolderID) {
+				Picker("Cache location", selection: userSettings.$cacheThumbnailsToFolderID) {
 					Text("On this device").tag("")
 					ForEach(folders, id: \.folderID) { folder in
 						Text(folder.displayName).tag(folder.folderID)
 					}
 					if !folders.contains(where: {
-						$0.folderID == appState.cacheThumbnailsToFolderID
+						$0.folderID == userSettings.cacheThumbnailsToFolderID
 					}) {
-						Text(appState.cacheThumbnailsToFolderID).disabled(true)
+						Text(userSettings.cacheThumbnailsToFolderID).disabled(true)
 					}
 				}
-				.pickerStyle(.menu).disabled(!appState.cacheThumbnailsToDisk)
+				.pickerStyle(.menu).disabled(!userSettings.cacheThumbnailsToDisk)
 
 				// Clear thumbnail cache button
-				if appState.cacheThumbnailsToFolderID == "" {
+				if userSettings.cacheThumbnailsToFolderID == "" {
 					Button("Clear thumbnail cache") {
 						ImageCache.shared.clear()
 						self.diskCacheSizeBytes = nil
@@ -571,11 +573,11 @@ struct AdvancedSettingsView: View {
 			}
 
 			Section {
-				Toggle("Enable debug logging", isOn: appState.$loggingEnabled)
+				Toggle("Enable debug logging", isOn: userSettings.$loggingEnabled)
 			} header: {
 				Text("Logging")
 			} footer: {
-				if appState.loggingEnabled {
+				if appState.userSettings.loggingEnabled {
 					if appState.isLogging {
 						Text(
 							"The app is logging to a file in the application folder, which you can share with the developers."
@@ -690,7 +692,7 @@ struct AdvancedSettingsView: View {
 				)
 		}
 
-		if appState.cacheThumbnailsToFolderID == "" {
+		if appState.userSettings.cacheThumbnailsToFolderID == "" {
 			text =
 				text + Text(" ")
 				+ Text(
@@ -704,13 +706,16 @@ struct AdvancedSettingsView: View {
 
 #if os(iOS)
 	struct BackgroundSettingsView: View {
-		@EnvironmentObject var appState: AppState
-		let durationFormatter = DateComponentsFormatter()
+		@Environment(AppState.self) private var appState
+		@ObservedObject var userSettings: AppUserSettings
+
+		private let durationFormatter = DateComponentsFormatter()
 		@State private var alertShown = false
 		@State private var alertMessage = ""
 		@State private var authorizationStatus: UNAuthorizationStatus = .notDetermined
 
-		init() {
+		init(userSettings: AppUserSettings) {
+			self.userSettings = userSettings
 			durationFormatter.allowedUnits = [.day, .hour, .minute]
 			durationFormatter.unitsStyle = .abbreviated
 		}
@@ -718,9 +723,9 @@ struct AdvancedSettingsView: View {
 		var body: some View {
 			Form {
 				Section {
-					Toggle("While charging (long)", isOn: appState.$longBackgroundSyncEnabled)
-					Toggle("While on battery (short)", isOn: appState.$shortBackgroundSyncEnabled)
-					Toggle("Briefly after leaving app", isOn: appState.$lingeringEnabled)
+					Toggle("While charging (long)", isOn: userSettings.$longBackgroundSyncEnabled)
+					Toggle("While on battery (short)", isOn: userSettings.$shortBackgroundSyncEnabled)
+					Toggle("Briefly after leaving app", isOn: userSettings.$lingeringEnabled)
 				} header: {
 					Text("Background synchronization")
 				} footer: {
@@ -739,11 +744,11 @@ struct AdvancedSettingsView: View {
 					else {
 						Toggle(
 							"When background synchronization completes",
-							isOn: appState.$notifyWhenBackgroundSyncCompletes
+							isOn: userSettings.$notifyWhenBackgroundSyncCompletes
 						)
 						.disabled(
-							(!appState.longBackgroundSyncEnabled
-								&& !appState.shortBackgroundSyncEnabled)
+							(!userSettings.longBackgroundSyncEnabled
+								&& !userSettings.shortBackgroundSyncEnabled)
 								|| (authorizationStatus != .authorized
 									&& authorizationStatus != .provisional)
 						)
@@ -756,20 +761,20 @@ struct AdvancedSettingsView: View {
 					if self.authorizationStatus != .notDetermined {
 						Toggle(
 							"When last synchronization happened long ago",
-							isOn: appState.$watchdogNotificationEnabled
+							isOn: userSettings.$watchdogNotificationEnabled
 						)
 						.disabled(
 							authorizationStatus != .authorized
 								&& authorizationStatus != .provisional
 						)
-						.onChange(of: appState.watchdogNotificationEnabled) {
+						.onChange(of: userSettings.watchdogNotificationEnabled) {
 							self.updateNotificationStatus()
 						}
 
-						if appState.watchdogNotificationEnabled {
+						if userSettings.watchdogNotificationEnabled {
 							Stepper(
-								"After \(appState.watchdogIntervalHours) hours",
-								value: appState.$watchdogIntervalHours, in: 1...(24 * 7)
+								"After \(userSettings.watchdogIntervalHours) hours",
+								value: userSettings.$watchdogIntervalHours, in: 1...(24 * 7)
 							)
 						}
 					}
@@ -854,7 +859,20 @@ struct AdvancedSettingsView: View {
 #endif
 
 private struct BandwidthSettingsView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
+	@ObservedObject var userSettings: AppUserSettings
+
+	@State private var downLimitMbitsPerSec: Int = 0
+	@State private var upLimitMbitsPerSec: Int = 0
+
+	private func update() {
+		self.downLimitMbitsPerSec = appState.client.getBandwidthLimitDownMbitsPerSec()
+		self.upLimitMbitsPerSec = appState.client.getBandwidthLimitUpMbitsPerSec()
+	}
+
+	private func save() {
+		try! appState.client.setBandwidthLimitsMbitsPerSec(downLimitMbitsPerSec, up: upLimitMbitsPerSec)
+	}
 
 	var body: some View {
 		Form {
@@ -864,37 +882,15 @@ private struct BandwidthSettingsView: View {
 					"Limit receiving bandwidth",
 					isOn: Binding(
 						get: {
-							return appState.client.getBandwidthLimitDownMbitsPerSec() > 0
+							return self.downLimitMbitsPerSec > 0
 						},
-						set: { nv in
-							if nv {
-								try! appState.client.setBandwidthLimitsMbitsPerSec(
-									10,
-									up: appState.client
-										.getBandwidthLimitUpMbitsPerSec())
-							}
-							else {
-								try! appState.client.setBandwidthLimitsMbitsPerSec(
-									0,
-									up: appState.client
-										.getBandwidthLimitUpMbitsPerSec())
-							}
-						}))
+						set: { self.downLimitMbitsPerSec = $0 ? 10 : 0 }
+					))
 
-				if appState.client.getBandwidthLimitDownMbitsPerSec() > 0 {
+				if downLimitMbitsPerSec > 0 {
 					Stepper(
-						"\(appState.client.getBandwidthLimitDownMbitsPerSec()) Mbit/s",
-						value: Binding(
-							get: {
-								return appState.client
-									.getBandwidthLimitDownMbitsPerSec()
-							},
-							set: { nv in
-								try! appState.client.setBandwidthLimitsMbitsPerSec(
-									nv,
-									up: appState.client
-										.getBandwidthLimitUpMbitsPerSec())
-							}), in: 1...100)
+						"\(downLimitMbitsPerSec) Mbit/s",
+						value: $downLimitMbitsPerSec, in: 1...100)
 				}
 
 				// Global up
@@ -902,42 +898,19 @@ private struct BandwidthSettingsView: View {
 					"Limit sending bandwidth",
 					isOn: Binding(
 						get: {
-							return appState.client.getBandwidthLimitUpMbitsPerSec() > 0
+							return self.upLimitMbitsPerSec > 0
 						},
-						set: { nv in
-							if nv {
-								try! appState.client.setBandwidthLimitsMbitsPerSec(
-									appState.client
-										.getBandwidthLimitDownMbitsPerSec(),
-									up: 10)
-							}
-							else {
-								try! appState.client.setBandwidthLimitsMbitsPerSec(
-									appState.client
-										.getBandwidthLimitDownMbitsPerSec(),
-									up: 0)
-							}
-						}))
+						set: { self.upLimitMbitsPerSec = $0 ? 10 : 0 }
+					))
 
-				if appState.client.getBandwidthLimitUpMbitsPerSec() > 0 {
+				if upLimitMbitsPerSec > 0 {
 					Stepper(
-						"\(appState.client.getBandwidthLimitUpMbitsPerSec()) Mbit/s",
-						value: Binding(
-							get: {
-								return appState.client.getBandwidthLimitUpMbitsPerSec()
-							},
-							set: { nv in
-								try! appState.client.setBandwidthLimitsMbitsPerSec(
-									appState.client
-										.getBandwidthLimitDownMbitsPerSec(),
-									up: nv)
-							}), in: 1...100)
+						"\(upLimitMbitsPerSec) Mbit/s",
+						value: $upLimitMbitsPerSec, in: 1...100)
 				}
 
 				// LAN bandwidth limit
-				if appState.client.getBandwidthLimitUpMbitsPerSec() > 0
-					|| appState.client.getBandwidthLimitDownMbitsPerSec() > 0
-				{
+				if upLimitMbitsPerSec > 0 || downLimitMbitsPerSec > 0 {
 					Toggle(
 						"Also limit in local networks",
 						isOn: Binding(
@@ -948,6 +921,11 @@ private struct BandwidthSettingsView: View {
 								try? appState.client.setBandwidthLimitedInLAN(nv)
 							}))
 				}
+			}.task {
+				self.update()
+			}
+			.onChange(of: [self.downLimitMbitsPerSec, self.upLimitMbitsPerSec]) { _, _ in
+				self.save()
 			}
 
 			Section("Limit streaming") {
@@ -955,21 +933,21 @@ private struct BandwidthSettingsView: View {
 					"Limit streaming bandwidth",
 					isOn: Binding(
 						get: {
-							appState.streamingLimitMbitsPerSec > 0
+							userSettings.streamingLimitMbitsPerSec > 0
 						},
 						set: { nv in
 							if nv {
-								appState.streamingLimitMbitsPerSec = 15
+								userSettings.streamingLimitMbitsPerSec = 15
 							}
 							else {
-								appState.streamingLimitMbitsPerSec = 0
+								userSettings.streamingLimitMbitsPerSec = 0
 							}
 						}))
 
-				if appState.streamingLimitMbitsPerSec > 0 {
+				if userSettings.streamingLimitMbitsPerSec > 0 {
 					Stepper(
-						"\(appState.streamingLimitMbitsPerSec) Mbit/s",
-						value: appState.$streamingLimitMbitsPerSec, in: 1...100)
+						"\(userSettings.streamingLimitMbitsPerSec) Mbit/s",
+						value: userSettings.$streamingLimitMbitsPerSec, in: 1...100)
 				}
 			}
 
@@ -979,32 +957,32 @@ private struct BandwidthSettingsView: View {
 					"Show image previews",
 					isOn: Binding(
 						get: {
-							return appState.maxBytesForPreview > 0
+							return userSettings.maxBytesForPreview > 0
 						},
 						set: { nv in
 							if nv {
-								appState.maxBytesForPreview = 3 * 1024 * 1024  // 3 MiB
+								userSettings.maxBytesForPreview = 3 * 1024 * 1024  // 3 MiB
 							}
 							else {
-								appState.maxBytesForPreview = 0
+								userSettings.maxBytesForPreview = 0
 							}
 						}))
 
-				if appState.maxBytesForPreview > 0 {
+				if userSettings.maxBytesForPreview > 0 {
 					Stepper(
-						"\(appState.maxBytesForPreview / 1024 / 1024) MB",
+						"\(userSettings.maxBytesForPreview / 1024 / 1024) MB",
 						value: Binding(
 							get: {
-								appState.maxBytesForPreview / 1024 / 1024
+								userSettings.maxBytesForPreview / 1024 / 1024
 							},
 							set: { nv in
-								appState.maxBytesForPreview = nv * 1024 * 1024
+								userSettings.maxBytesForPreview = nv * 1024 * 1024
 							}), in: 1...100)
 				}
 			}
 
 			Section {
-				Toggle("Show video previews", isOn: appState.$previewVideos)
+				Toggle("Show video previews", isOn: userSettings.$previewVideos)
 			}
 		}
 		.navigationTitle("Bandwidth limitations")
@@ -1019,7 +997,7 @@ private struct BandwidthSettingsView: View {
 
 #if os(macOS)
 	struct TabbedSettingsView: View {
-		@EnvironmentObject var appState: AppState
+		@Environment(AppState.self) private var appState
 		@Binding var hideInDock: Bool
 		@State private var selection: String = "general"
 
@@ -1029,7 +1007,7 @@ private struct BandwidthSettingsView: View {
 					Tab(
 						value: "general",
 						content: {
-							GeneralSettingsView(hideInDock: $hideInDock)
+							GeneralSettingsView(userSettings: appState.userSettings, hideInDock: $hideInDock)
 						},
 						label: {
 							Label("General", systemImage: "app.badge.checkmark.fill")
@@ -1038,7 +1016,7 @@ private struct BandwidthSettingsView: View {
 					Tab(
 						value: "bandwidth",
 						content: {
-							BandwidthSettingsView()
+							BandwidthSettingsView(userSettings: appState.userSettings)
 						},
 						label: {
 							Label("Bandwidth", systemImage: "tachometer")
@@ -1047,7 +1025,7 @@ private struct BandwidthSettingsView: View {
 					Tab(
 						value: "photo",
 						content: {
-							PhotoSettingsView(photoBackup: appState.photoBackup)
+							PhotoBackupSettingsView(photoBackup: appState.photoBackup)
 						},
 						label: {
 							Label("Photo back-up", systemImage: "photo")
@@ -1056,7 +1034,7 @@ private struct BandwidthSettingsView: View {
 					Tab(
 						value: "advanced",
 						content: {
-							AdvancedSettingsView()
+							AdvancedSettingsView(userSettings: appState.userSettings)
 						},
 						label: {
 							Label("Advanced", systemImage: "gear")
@@ -1070,7 +1048,8 @@ private struct BandwidthSettingsView: View {
 	}
 
 	struct GeneralSettingsView: View {
-		@EnvironmentObject var appState: AppState
+		@Environment(AppState.self) private var appState
+		@ObservedObject var userSettings: AppUserSettings
 		@Binding var hideInDock: Bool
 
 		var body: some View {
@@ -1095,7 +1074,7 @@ private struct BandwidthSettingsView: View {
 				}
 
 				Section {
-					Picker("Folder access from menu", selection: appState.$menuFolderAction) {
+					Picker("Folder access from menu", selection: userSettings.$menuFolderAction) {
 						Text("Do not show folders").tag(MenuFolderAction.hide)
 						Text("Open in Finder").tag(MenuFolderAction.finder)
 						Text("Open in the app").tag(MenuFolderAction.browser)
@@ -1105,7 +1084,7 @@ private struct BandwidthSettingsView: View {
 				}
 
 				Section("View settings") {
-					ViewSettingsView()
+					ViewSettingsView(userSettings: appState.userSettings)
 				}
 			}
 		}
@@ -1114,10 +1093,11 @@ private struct BandwidthSettingsView: View {
 
 #if os(iOS)
 	struct SettingsView: View {
-		@EnvironmentObject var appState: AppState
+		@Environment(AppState.self) private var appState
+		@ObservedObject var userSettings: AppUserSettings
 
 		var limitsEnabled: Bool {
-			return self.appState.streamingLimitMbitsPerSec > 0
+			return self.appState.userSettings.streamingLimitMbitsPerSec > 0
 				|| self.appState.client.getBandwidthLimitUpMbitsPerSec() > 0
 				|| self.appState.client.getBandwidthLimitDownMbitsPerSec() > 0
 		}
@@ -1143,29 +1123,27 @@ private struct BandwidthSettingsView: View {
 
 				Section {
 					NavigationLink("View settings") {
-						ViewSettingsView()
+						ViewSettingsView(userSettings: userSettings)
 					}
 
-					NavigationLink(destination: BandwidthSettingsView()) {
+					NavigationLink(destination: BandwidthSettingsView(userSettings: userSettings)) {
 						Text("Bandwidth limitations").badge(limitsEnabled ? "On" : "Off")
 					}
 
 					#if os(iOS)
-						NavigationLink(destination: BackgroundSettingsView()) {
+						NavigationLink(destination: BackgroundSettingsView(userSettings: userSettings)) {
 							Text("Background synchronization").badge(
-								appState.longBackgroundSyncEnabled
-									|| appState.shortBackgroundSyncEnabled
-									? "On" : "Off")
+								userSettings.longBackgroundSyncEnabled || userSettings.shortBackgroundSyncEnabled ? "On" : "Off")
 						}
 					#endif
 
-					NavigationLink(destination: PhotoSettingsView(photoBackup: appState.photoBackup)) {
+					NavigationLink(destination: PhotoBackupSettingsView(photoBackup: appState.photoBackup)) {
 						Text("Photo back-up")
 							.badge(appState.photoBackup.isReady && appState.photoBackup.enableBackgroundCopy ? "On" : "Off")
 					}
 
 					NavigationLink("Advanced settings") {
-						AdvancedSettingsView()
+						AdvancedSettingsView(userSettings: userSettings)
 					}
 				}
 
@@ -1190,22 +1168,22 @@ private struct BandwidthSettingsView: View {
 #endif
 
 struct ViewSettingsView: View {
-	@EnvironmentObject var appState: AppState
+	@ObservedObject var userSettings: AppUserSettings
 
 	var body: some View {
 		Form {
 			Section {
-				Toggle("Preview files on tap", isOn: appState.$tapFileToPreview)
+				Toggle("Preview files on tap", isOn: userSettings.$tapFileToPreview)
 			}
 
 			Section {
-				Toggle("Automatically switch to grid view", isOn: appState.$automaticallySwitchViewStyle)
+				Toggle("Automatically switch to grid view", isOn: userSettings.$automaticallySwitchViewStyle)
 			} footer: {
 				Text("When a folder contains only images, it will automatically be shown as a grid instead of a list.")
 			}
 
 			Section {
-				Toggle("Hide dotfiles", isOn: appState.$dotFilesHidden)
+				Toggle("Hide dotfiles", isOn: userSettings.$dotFilesHidden)
 			} footer: {
 				Text(
 					"When enabled, files and directories whose name start with a dot will not be shown when browsing a folder. These files and directories will remain visible in search results."
@@ -1216,7 +1194,7 @@ struct ViewSettingsView: View {
 				Section {
 					Toggle(
 						"Swipe between files when viewing",
-						isOn: appState.$enableSwipeFilesInPreview)
+						isOn: userSettings.$enableSwipeFilesInPreview)
 				}
 			#endif
 		}

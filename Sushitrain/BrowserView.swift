@@ -15,7 +15,7 @@ enum BrowserViewStyle: String {
 }
 
 struct BrowserView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	var folder: SushitrainFolder
 	var prefix: String
 
@@ -37,11 +37,11 @@ struct BrowserView: View {
 
 	private func currentViewStyle() -> Binding<BrowserViewStyle> {
 		return Binding(
-			get: { self.viewStyle ?? appState.defaultBrowserViewStyle },
+			get: { self.viewStyle ?? appState.userSettings.defaultBrowserViewStyle },
 			set: {
 				self.viewStyle = $0
 				if $0 != .web {
-					appState.defaultBrowserViewStyle = $0
+					appState.userSettings.defaultBrowserViewStyle = $0
 				}
 			})
 	}
@@ -116,6 +116,7 @@ struct BrowserView: View {
 						.accessibilityLabel(fsd.text)
 						.popover(isPresented: $showStatusPopover, arrowEdge: .bottom) {
 							FolderStatusView(folder: folder)
+								.id(appState.eventCounter)  // Update for each event
 								.padding()
 								.frame(minWidth: 120)
 						}
@@ -454,7 +455,7 @@ struct BrowserView: View {
 }
 
 private struct BrowserItemsView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	var folder: SushitrainFolder
 	var prefix: String
 	@Binding var viewStyle: BrowserViewStyle?
@@ -474,7 +475,7 @@ private struct BrowserItemsView: View {
 		Group {
 			if self.folder.exists() {
 				if !isSearching {
-					switch self.viewStyle ?? appState.defaultBrowserViewStyle {
+					switch self.viewStyle ?? appState.userSettings.defaultBrowserViewStyle {
 					case .grid:
 						self.gridView()
 
@@ -488,6 +489,7 @@ private struct BrowserItemsView: View {
 				else {
 					// Search
 					SearchResultsView(
+						userSettings: appState.userSettings,
 						searchText: $searchText,
 						folderID: .constant(self.folder.folderID),
 						prefix: Binding(get: { prefix }, set: { _ in () })
@@ -540,7 +542,9 @@ private struct BrowserItemsView: View {
 			ScrollView {
 				HStack {
 					#if os(iOS)
-						FolderStatusView(folder: folder).padding(.all, 10)
+						FolderStatusView(folder: folder)
+							.id(appState.eventCounter)  // Update for each event
+							.padding(.all, 10)
 					#endif
 
 					Spacer()
@@ -548,10 +552,10 @@ private struct BrowserItemsView: View {
 					Slider(
 						value: Binding(
 							get: {
-								return Double(appState.browserGridColumns)
+								return Double(appState.userSettings.browserGridColumns)
 							},
 							set: { nv in
-								appState.browserGridColumns = Int(nv)
+								appState.userSettings.browserGridColumns = Int(nv)
 							}
 						),
 						in: 1.0...10.0, step: 1.0
@@ -613,7 +617,7 @@ private struct BrowserItemsView: View {
 					folder: folder,
 					files: files,
 					subdirectories: subdirectories,
-					viewStyle: viewStyle ?? appState.defaultBrowserViewStyle
+					viewStyle: viewStyle ?? appState.userSettings.defaultBrowserViewStyle
 				)
 			}
 		#else
@@ -623,7 +627,7 @@ private struct BrowserItemsView: View {
 				hasExtraneousFiles: hasExtraneousFiles,
 				files: files,
 				subdirectories: subdirectories,
-				viewStyle: viewStyle ?? appState.defaultBrowserViewStyle
+				viewStyle: viewStyle ?? appState.userSettings.defaultBrowserViewStyle
 			)
 		#endif
 	}
@@ -700,7 +704,7 @@ private struct BrowserItemsView: View {
 
 		let folder = self.folder
 		let prefix = self.prefix
-		let dotFilesHidden = self.appState.dotFilesHidden
+		let dotFilesHidden = self.appState.userSettings.dotFilesHidden
 
 		let newSubdirectories: [SushitrainEntry] = await Task.detached {
 			if !folder.exists() {
@@ -759,14 +763,14 @@ private struct BrowserItemsView: View {
 		let extensionsIgnored = Set([".aae", ".ds_store", ".db", ".gitignore", ".stignore", ".ini"])
 
 		if self.viewStyle == nil {
-			if appState.automaticallySwitchViewStyle {
+			if appState.userSettings.automaticallySwitchViewStyle {
 				// Do we have an index.html? If so switch to web view
 				if self.files.contains(where: { $0.fileName() == "index.html" }) {
 					self.viewStyle = .web
 				}
 				else {
 					// Check if we only have thumbnailable files; if so, switch to thumbnail mode
-					let dotFilesHidden = appState.dotFilesHidden
+					let dotFilesHidden = appState.userSettings.dotFilesHidden
 					let filtered = self.files.filter({
 						!extensionsIgnored.contains($0.extension().lowercased()) && (!dotFilesHidden || !$0.fileName().starts(with: "."))
 					})
@@ -780,7 +784,7 @@ private struct BrowserItemsView: View {
 				}
 			}
 			else {
-				self.viewStyle = appState.defaultBrowserViewStyle
+				self.viewStyle = appState.userSettings.defaultBrowserViewStyle
 			}
 		}
 	}
@@ -817,7 +821,7 @@ extension SushitrainFolder {
 }
 
 struct ItemSelectToggleView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	let file: SushitrainEntry
 
 	var body: some View {

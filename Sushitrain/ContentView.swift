@@ -8,7 +8,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct MainView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@State var route: Route? = .start
 
 	var body: some View {
@@ -29,7 +29,7 @@ struct MainView: View {
 private struct ContentView: View {
 	private static let currentOnboardingVersion = 1
 
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@AppStorage("onboardingVersionShown") var onboardingVersionShown = 0
 	@Environment(\.scenePhase) var scenePhase
 	@Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -50,7 +50,7 @@ private struct ContentView: View {
 				StartOrSearchView(route: $route)
 			}
 			.tabItem {
-				Label("Start", systemImage: self.appState.systemImage)
+				Label("Start", systemImage: self.appState.syncState.systemImage)
 			}.tag(Route.start)
 
 			// Folders
@@ -90,7 +90,7 @@ private struct ContentView: View {
 					if horizontalSizeClass != .compact {
 						Section {
 							NavigationLink(value: Route.start) {
-								Label("Start", systemImage: self.appState.systemImage)
+								Label("Start", systemImage: self.appState.syncState.systemImage)
 							}
 
 							NavigationLink(value: Route.devices) {
@@ -103,7 +103,7 @@ private struct ContentView: View {
 				}
 				#if os(macOS)
 					.contextMenu {
-						FolderMetricPickerView()
+						FolderMetricPickerView(userSettings: appState.userSettings)
 					}
 				#endif
 				#if os(iOS)
@@ -259,7 +259,7 @@ private struct ContentView: View {
 }
 
 private struct LoadingView: View {
-	@ObservedObject var appState: AppState
+	@State var appState: AppState
 
 	var body: some View {
 		VStack(spacing: 10) {
@@ -288,14 +288,14 @@ private struct LoadingView: View {
 }
 
 private struct StartOrSearchView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@Binding var route: Route?
 	@State private var searchText: String = ""
 	@FocusState private var isSearchFieldFocused
 
 	// This is needed because isSearching is not available from the parent view
 	struct InnerView: View {
-		@EnvironmentObject var appState: AppState
+		@Environment(AppState.self) private var appState
 		@Binding var route: Route?
 		@Binding var searchText: String
 		@Environment(\.isSearching) private var isSearching
@@ -303,6 +303,7 @@ private struct StartOrSearchView: View {
 		var body: some View {
 			if isSearching {
 				SearchResultsView(
+					userSettings: appState.userSettings,
 					searchText: $searchText,
 					folderID: .constant(""),
 					prefix: .constant("")

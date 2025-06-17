@@ -97,7 +97,7 @@ struct IdenticonView: View {
 }
 
 struct DeviceIDView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	let device: SushitrainPeer
 	@State private var qrCodeShown = false
 	@State private var localAddressesShown = false
@@ -170,7 +170,7 @@ struct DeviceIDView: View {
 }
 
 private struct ResolvedAddressesView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 
 	var body: some View {
 		List {

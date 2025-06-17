@@ -8,7 +8,7 @@ import QuickLook
 @preconcurrency import SushitrainCore
 
 struct BrowserListView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	let folder: SushitrainFolder
 	let prefix: String
 	let hasExtraneousFiles: Bool
@@ -20,6 +20,7 @@ struct BrowserListView: View {
 		List {
 			Section {
 				FolderStatusView(folder: folder)
+					.id(appState.eventCounter)  // Update for each event
 
 				if hasExtraneousFiles {
 					NavigationLink(destination: { ExtraFilesView(folder: self.folder) }) {
@@ -92,7 +93,7 @@ struct BrowserListView: View {
 }
 
 struct EntryView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	let entry: SushitrainEntry
 	let folder: SushitrainFolder?
 	let siblings: [SushitrainEntry]
@@ -220,7 +221,7 @@ struct FileEntryLink<Content: View>: View {
 
 	private var inner: some View {
 		Group {
-			if canPreview && honorTapToPreview && appState.tapFileToPreview {
+			if canPreview && honorTapToPreview && appState.userSettings.tapFileToPreview {
 				Button(action: { self.previewFile() }) { self.content() }
 					#if os(macOS)
 						.buttonStyle(.link)
@@ -260,14 +261,14 @@ struct FileEntryLink<Content: View>: View {
 					destination: FileView(file: entry, showPath: self.inFolder == nil, siblings: siblings)
 				) { Label(entry.fileName(), systemImage: entry.systemImage) }
 			#else
-				if appState.tapFileToPreview {
+				if appState.userSettings.tapFileToPreview {
 					NavigationLink(
 						destination: FileView(file: entry, showPath: self.inFolder == nil, siblings: siblings)
 					) { Label("Show info", systemImage: entry.systemImage) }
 				}
 			#endif
 
-			if !appState.tapFileToPreview {
+			if !appState.userSettings.tapFileToPreview {
 				Button("Show preview", systemImage: "doc.text.magnifyingglass") { self.previewFile() }.disabled(!canPreview)
 			}
 

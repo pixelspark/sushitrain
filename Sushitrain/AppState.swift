@@ -46,38 +46,7 @@ enum AppStartupState: Equatable {
 	case started
 }
 
-@MainActor class AppState: ObservableObject {
-	var client: SushitrainClient
-	private let documentsDirectory: URL
-	private let configDirectory: URL
-
-	var photoBackup = PhotoBackup()
-
-	var changePublisher = PassthroughSubject<Void, Never>()
-	private var changeCancellable: AnyCancellable? = nil
-
-	#if os(iOS)
-		var backgroundManager: BackgroundManager!
-		private var lingerManager: LingerManager!
-		private(set) var isSuspended = false
-	#endif
-
-	@Published var localDeviceID: String = ""
-	@Published var eventCounter: Int = 0
-	@Published var discoveredDevices: [String: [String]] = [:]
-	@Published var resolvedListenAddresses = Set<String>()
-	@Published var launchedAt = Date.now
-	@Published var streamingProgress: StreamingProgress? = nil
-	@Published var lastChanges: [SushitrainChange] = []
-	@Published var isLogging: Bool = false
-	@Published var foldersWithExtraFiles: [String] = []
-	@Published var startupState: AppStartupState = .notStarted
-	@Published var isMigratedToNewDatabase: Bool = false
-
-	#if os(iOS)
-		@Published var currentAction: QuickAction? = nil
-	#endif
-
+@MainActor class AppUserSettings: ObservableObject {
 	@AppStorage("backgroundSyncEnabled") var longBackgroundSyncEnabled: Bool = true
 	@AppStorage("shortBackgroundSyncEnabled") var shortBackgroundSyncEnabled: Bool = false
 	@AppStorage("notifyWhenBackgroundSyncCompletes") var notifyWhenBackgroundSyncCompletes: Bool = false
@@ -107,6 +76,62 @@ enum AppStartupState: Equatable {
 
 	#if os(macOS)
 		@AppStorage("menuFolderAction") var menuFolderAction: MenuFolderAction = .finderExceptSelective
+	#endif
+}
+
+struct SyncState {
+	let isDownloading: Bool
+	let isUploading: Bool
+	let connectedPeerCount: Int
+
+	var systemImage: String {
+		if isDownloading && isUploading {
+			return "arrow.up.arrow.down.circle.fill"
+		}
+		else if isDownloading {
+			return "arrow.down.circle.fill"
+		}
+		else if isUploading {
+			return "arrow.up.circle.fill"
+		}
+		else if connectedPeerCount > 0 {
+			return "checkmark.circle.fill"
+		}
+		return "network.slash"
+	}
+}
+
+@Observable @MainActor class AppState {
+	@ObservationIgnored var client: SushitrainClient
+	@ObservationIgnored var photoBackup = PhotoBackup()
+	@ObservationIgnored var changePublisher = PassthroughSubject<Void, Never>()
+
+	var userSettings = AppUserSettings()
+	private let documentsDirectory: URL
+	private let configDirectory: URL
+	private var changeCancellable: AnyCancellable? = nil
+
+	#if os(iOS)
+		@ObservationIgnored var backgroundManager: BackgroundManager!
+		private var lingerManager: LingerManager!
+		private(set) var isSuspended = false
+	#endif
+
+	var localDeviceID: String = ""
+	var eventCounter: Int = 0
+	var discoveredDevices: [String: [String]] = [:]
+	var resolvedListenAddresses = Set<String>()
+	var launchedAt = Date.now
+	var streamingProgress: StreamingProgress? = nil
+	var lastChanges: [SushitrainChange] = []
+	var isLogging: Bool = false
+	var foldersWithExtraFiles: [String] = []
+	var startupState: AppStartupState = .notStarted
+	var isMigratedToNewDatabase: Bool = false
+	var syncState: SyncState = SyncState(isDownloading: false, isUploading: false, connectedPeerCount: 0)
+
+	#if os(iOS)
+		var currentAction: QuickAction? = nil
 	#endif
 
 	static private var defaultIgnoredExtraneousFiles = [
@@ -242,9 +267,9 @@ enum AppStartupState: Equatable {
 	}
 
 	func applySettings() {
-		ImageCache.shared.diskCacheEnabled = self.cacheThumbnailsToDisk
-		if !self.cacheThumbnailsToFolderID.isEmpty,
-			let folder = self.client.folder(withID: self.cacheThumbnailsToFolderID)
+		ImageCache.shared.diskCacheEnabled = self.userSettings.cacheThumbnailsToDisk
+		if !self.userSettings.cacheThumbnailsToFolderID.isEmpty,
+			let folder = self.client.folder(withID: self.userSettings.cacheThumbnailsToFolderID)
 		{
 			// Check if we have this folder
 			ImageCache.shared.customCacheDirectory = folder.localNativeURL
@@ -256,11 +281,11 @@ enum AppStartupState: Equatable {
 			"Apply settings: image cache enabled \(ImageCache.shared.diskCacheEnabled) dir: \(ImageCache.shared.customCacheDirectory.debugDescription)"
 		)
 
-		self.client.server?.maxMbitsPerSecondsStreaming = Int64(self.streamingLimitMbitsPerSec)
-		Log.info("Apply settings: streaming limit=\(self.streamingLimitMbitsPerSec) mbits/s")
+		self.client.server?.maxMbitsPerSecondsStreaming = Int64(self.userSettings.streamingLimitMbitsPerSec)
+		Log.info("Apply settings: streaming limit=\(self.userSettings.streamingLimitMbitsPerSec) mbits/s")
 
 		do {
-			if self.ignoreExtraneousDefaultFiles {
+			if self.userSettings.ignoreExtraneousDefaultFiles {
 				let json = try JSONEncoder().encode(Self.defaultIgnoredExtraneousFiles)
 				try self.client.setExtraneousIgnoredJSON(json)
 				Log.info("Applied setting: default ignore extraneous files \(json)")
@@ -333,15 +358,16 @@ enum AppStartupState: Equatable {
 		#endif
 	}
 
-	@MainActor
 	func update() {
-		let devID = self.client.deviceID()
-		DispatchQueue.main.async {
-			self.localDeviceID = devID
+		self.localDeviceID = self.client.deviceID()
+		self.syncState = SyncState(
+			isDownloading: self.client.isDownloading(),
+			isUploading: self.client.isUploading(),
+			connectedPeerCount: self.client.connectedPeerCount()
+		)
 
-			Task {
-				await self.updateBadge()
-			}
+		Task {
+			await self.updateBadge()
 		}
 	}
 
@@ -382,23 +408,23 @@ enum AppStartupState: Equatable {
 		UserDefaults.standard.set(currentBuild, forKey: "lastRunBuild")
 
 		// Fix up invalid settings
-		if self.defaultBrowserViewStyle == .web {
-			self.defaultBrowserViewStyle = .thumbnailList
+		if self.userSettings.defaultBrowserViewStyle == .web {
+			self.userSettings.defaultBrowserViewStyle = .thumbnailList
 		}
 
 		// See if we should remove the old index
 		if client.hasLegacyDatabase() {
 			// This shouldn't happen...
-			self.migratedToV2At = -1.0
+			self.userSettings.migratedToV2At = -1.0
 		}
 		else {
-			if self.migratedToV2At.isZero || self.migratedToV2At < 0 {
-				self.migratedToV2At = Date().timeIntervalSinceReferenceDate
+			if self.userSettings.migratedToV2At.isZero || self.userSettings.migratedToV2At < 0 {
+				self.userSettings.migratedToV2At = Date().timeIntervalSinceReferenceDate
 			}
 
-			let migratedAgo = Date.timeIntervalSinceReferenceDate - self.migratedToV2At
+			let migratedAgo = Date.timeIntervalSinceReferenceDate - self.userSettings.migratedToV2At
 			Log.info(
-				"Migrated to v2 since \(self.migratedToV2At), which is \(migratedAgo)s ago, hasMigratedLegacyDatabase=\(client.hasMigratedLegacyDatabase())"
+				"Migrated to v2 since \(self.userSettings.migratedToV2At), which is \(migratedAgo)s ago, hasMigratedLegacyDatabase=\(client.hasMigratedLegacyDatabase())"
 			)
 			if self.client.hasMigratedLegacyDatabase() && migratedAgo > Self.removeMigratedV1DatabaseAfterSeconds {
 				Log.info("Removing migrated legacy database")
@@ -410,11 +436,11 @@ enum AppStartupState: Equatable {
 	}
 
 	func isDevicePausedByUser(_ device: SushitrainPeer) -> Bool {
-		return self.userPausedDevices.contains(device.id)
+		return self.userSettings.userPausedDevices.contains(device.id)
 	}
 
 	func setDevice(_ device: SushitrainPeer, pausedByUser: Bool) {
-		self.userPausedDevices.toggle(device.id, pausedByUser)
+		self.userSettings.userPausedDevices.toggle(device.id, pausedByUser)
 		self.updateDeviceSuspension()
 	}
 
@@ -481,7 +507,7 @@ enum AppStartupState: Equatable {
 
 			// On macOS and when the app is in the foreground, we unpause any device that is not explicitly suspended
 			// by the user
-			let devicesEnabled = Set(self.client.peers()!.asArray()).subtracting(self.userPausedDevices)
+			let devicesEnabled = Set(self.client.peers()!.asArray()).subtracting(self.userSettings.userPausedDevices)
 			try self.client.setDevicesPaused(SushitrainListOfStrings.from(Array(devicesEnabled)), pause: false)
 		}
 		catch {
@@ -510,7 +536,7 @@ enum AppStartupState: Equatable {
 		#if os(iOS)
 			QuickActionService.provideActions()
 
-			if self.lingeringEnabled {
+			if userSettings.lingeringEnabled {
 				Log.info("Background time remaining: \(UIApplication.shared.backgroundTimeRemaining)")
 				self.lingerManager.lingerThenSuspend()
 				Log.info(
@@ -530,7 +556,7 @@ enum AppStartupState: Equatable {
 	}
 
 	func onScenePhaseChange(from oldPhase: ScenePhase, to newPhase: ScenePhase) {
-		Log.info("Phase change from \(oldPhase) to \(newPhase) lingeringEnabled=\(self.lingeringEnabled)")
+		Log.info("Phase change from \(oldPhase) to \(newPhase) lingeringEnabled=\(self.userSettings.lingeringEnabled)")
 
 		switch newPhase {
 		case .background:
@@ -561,24 +587,6 @@ enum AppStartupState: Equatable {
 	func isInsideDocumentsFolder(_ url: URL) -> Bool {
 		return url.resolvingSymlinksInPath().path(percentEncoded: false)
 			.hasPrefix(documentsDirectory.resolvingSymlinksInPath().path(percentEncoded: false))
-	}
-
-	var systemImage: String {
-		let isDownloading = self.client.isDownloading()
-		let isUploading = self.client.isUploading()
-		if isDownloading && isUploading {
-			return "arrow.up.arrow.down.circle.fill"
-		}
-		else if isDownloading {
-			return "arrow.down.circle.fill"
-		}
-		else if isUploading {
-			return "arrow.up.circle.fill"
-		}
-		else if self.client.connectedPeerCount() > 0 {
-			return "checkmark.circle.fill"
-		}
-		return "network.slash"
 	}
 
 	static func requestNotificationPermissionIfNecessary() {

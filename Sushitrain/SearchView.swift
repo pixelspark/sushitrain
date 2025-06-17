@@ -51,7 +51,7 @@ class SearchOperation: NSObject, ObservableObject, SushitrainSearchResultDelegat
 }
 
 struct SearchView: View {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@State private var searchText = ""
 	@FocusState private var isSearchFieldFocused
 	var prefix: String = ""
@@ -60,6 +60,7 @@ struct SearchView: View {
 
 	private var view: some View {
 		SearchResultsView(
+			userSettings: appState.userSettings,
 			searchText: $searchText,
 			folderID: .constant(self.folder?.folderID ?? ""),
 			prefix: .constant(self.prefix)
@@ -102,7 +103,8 @@ struct SearchView: View {
 }
 
 struct SearchResultsView: View, SearchViewDelegate {
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
+	@ObservedObject var userSettings: AppUserSettings
 	@Binding var searchText: String
 	@Binding var folderID: String
 	@Binding var prefix: String
@@ -154,11 +156,13 @@ struct SearchResultsView: View, SearchViewDelegate {
 				if !results.isEmpty {
 					Section {
 						ForEach(results, id: \.self) { (item: SushitrainEntry) in
-							if showHiddenFolderEntries || self.folderID != ""
-								|| !(item.folder?.isHidden ?? false)
-							{
+							if showHiddenFolderEntries || self.folderID != "" || !(item.folder?.isHidden ?? false) {
 								EntryView(
-									entry: item, folder: nil, siblings: results, showThumbnail: self.appState.showThumbnailsInSearchResults)
+									entry: item,
+									folder: nil,
+									siblings: results,
+									showThumbnail: self.appState.userSettings.showThumbnailsInSearchResults
+								)
 							}
 						}
 
@@ -235,7 +239,7 @@ struct SearchResultsView: View, SearchViewDelegate {
 					)
 				}
 
-				Toggle("Show thumbnails", isOn: appState.$showThumbnailsInSearchResults)
+				Toggle("Show thumbnails", isOn: userSettings.$showThumbnailsInSearchResults)
 			},
 			label: {
 				Image(systemName: "ellipsis.circle").accessibilityLabel(

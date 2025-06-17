@@ -8,7 +8,7 @@ import SushitrainCore
 
 private struct DeviceAddressesView: View {
 	var device: SushitrainPeer
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@State private var addresses: [String] = []
 	@State private var error: String? = nil
 
@@ -44,7 +44,7 @@ private struct DeviceAddressesView: View {
 
 struct DeviceView: View {
 	var device: SushitrainPeer
-	@EnvironmentObject var appState: AppState
+	@Environment(AppState.self) private var appState
 	@Environment(\.dismiss) private var dismiss
 	@State var changedDeviceName: String? = nil
 	@State var folders: [SushitrainFolder] = []
