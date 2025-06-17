@@ -99,7 +99,7 @@ private struct ContentView: View {
 						}
 					}
 
-					FoldersSections()
+					FoldersSections(userSettings: appState.userSettings)
 				}
 				#if os(macOS)
 					.contextMenu {

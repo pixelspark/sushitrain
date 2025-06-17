@@ -116,6 +116,7 @@ private struct FolderMetricView: View {
 
 struct FoldersSections: View {
 	@Environment(AppState.self) private var appState
+	@ObservedObject var userSettings: AppUserSettings
 
 	@State private var showingAddFolderPopup = false
 	@State private var pendingFolderIds: [String] = []
@@ -128,7 +129,7 @@ struct FoldersSections: View {
 	var body: some View {
 		Section("Folders") {
 			ForEach(folders, id: \.self.folderID) { (folder: SushitrainFolder) in
-				if !appState.userSettings.hideHiddenFolders || folder.isHidden == false {
+				if !userSettings.hideHiddenFolders || folder.isHidden == false {
 					NavigationLink(value: Route.folder(folderID: folder.folderID)) {
 						if folder.isPaused() {
 							Label(folder.displayName, systemImage: folder.systemImage)
@@ -140,7 +141,7 @@ struct FoldersSections: View {
 								if !folder.isPhotoFolder {
 									Spacer()
 									FolderMetricView(
-										metric: self.appState.userSettings.viewMetric, folder: folder
+										metric: self.userSettings.viewMetric, folder: folder
 									)
 								}
 							}
@@ -228,7 +229,7 @@ struct FoldersView: View {
 
 	var body: some View {
 		List {
-			FoldersSections()
+			FoldersSections(userSettings: appState.userSettings)
 		}
 		.navigationTitle("Folders")
 		.navigationDestination(
