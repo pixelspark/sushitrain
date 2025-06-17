@@ -251,7 +251,7 @@ struct PhotoSettingsView: View {
 		#endif
 		.task {
 			authorizationStatus = PHPhotoLibrary.authorizationStatus()
-			self.folders = appState.folders().sorted()
+			self.folders = appState.folders().filter({ $0.isRegularFolder }).sorted()
 		}
 	}
 
