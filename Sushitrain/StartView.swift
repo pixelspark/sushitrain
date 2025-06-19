@@ -95,7 +95,6 @@ private struct OverallDownloadProgressView: View {
 	@Environment(AppState.self) private var appState
 	@State private var lastProgress: (Date, SushitrainProgress)? = nil
 	@State private var progress: (Date, SushitrainProgress)? = nil
-	@State private var showSpeeds: Bool = false
 
 	var body: some View {
 		Group {
@@ -118,9 +117,6 @@ private struct OverallDownloadProgressView: View {
 					}
 				}
 				.tint(.green)
-				.onTapGesture {
-					showSpeeds = !showSpeeds
-				}
 			}
 			else {
 				Label("Receiving files...", systemImage: "arrow.down")
@@ -139,7 +135,7 @@ private struct OverallDownloadProgressView: View {
 
 	@ViewBuilder private var speeds: some View {
 		// Download speed
-		if let (date, progress) = progress, let (lastDate, lastProgress) = self.lastProgress, showSpeeds {
+		if let (date, progress) = progress, let (lastDate, lastProgress) = self.lastProgress {
 			HStack {
 				let diffBytes = progress.bytesDone - lastProgress.bytesDone
 				let diffTime = date.timeIntervalSince(lastDate)
@@ -190,7 +186,9 @@ struct OverallStatusView: View {
 				let isUploading = self.appState.client.isUploading()
 				if isDownloading || isUploading {
 					if isDownloading {
-						OverallDownloadProgressView()
+						NavigationLink(destination: DownloadsView()) {
+							OverallDownloadProgressView()
+						}
 					}
 
 					// Uploads

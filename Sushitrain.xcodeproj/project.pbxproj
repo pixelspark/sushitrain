@@ -30,6 +30,7 @@
 		657603F12D045D0B00B36D78 /* QuickActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657603F02D045D0900B36D78 /* QuickActions.swift */; };
 		6586863D2CE892130023B1DA /* IgnoresView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6586863C2CE892100023B1DA /* IgnoresView.swift */; };
 		658A29F02CA821950061D1D5 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 658A29EF2CA821950061D1D5 /* AVKit.framework */; };
+		6596E2422E04ABD70069B31C /* DownloadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6596E2412E04ABD50069B31C /* DownloadsView.swift */; };
 		659C0C0D2DD87791006E8CC0 /* PhotoFS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659C0C0C2DD8778F006E8CC0 /* PhotoFS.swift */; };
 		659C0C0F2DD8AC63006E8CC0 /* PhotoFolderSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659C0C0E2DD8AC5F006E8CC0 /* PhotoFolderSettingsView.swift */; };
 		65A3D2222CCEEEA600117501 /* ThumbnailImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A3D2212CCEEEA200117501 /* ThumbnailImage.swift */; };
@@ -110,6 +111,7 @@
 		657603F02D045D0900B36D78 /* QuickActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActions.swift; sourceTree = "<group>"; };
 		6586863C2CE892100023B1DA /* IgnoresView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IgnoresView.swift; sourceTree = "<group>"; };
 		658A29EF2CA821950061D1D5 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
+		6596E2412E04ABD50069B31C /* DownloadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadsView.swift; sourceTree = "<group>"; };
 		659C0C0C2DD8778F006E8CC0 /* PhotoFS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoFS.swift; sourceTree = "<group>"; };
 		659C0C0E2DD8AC5F006E8CC0 /* PhotoFolderSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoFolderSettingsView.swift; sourceTree = "<group>"; };
 		65A3D2212CCEEEA200117501 /* ThumbnailImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailImage.swift; sourceTree = "<group>"; };
@@ -197,6 +199,7 @@
 				65AE11FE2C39EE0E00E721D4 /* ContentView.swift */,
 				65C9E1472C3F2FEF00EDCE6C /* DevicesView.swift */,
 				65AE126A2C3B066F00E721D4 /* DeviceView.swift */,
+				6596E2412E04ABD50069B31C /* DownloadsView.swift */,
 				6550DFE72D6A644E00D8DCC9 /* EncryptionView.swift */,
 				65AF4C082D4FA46400A77899 /* ExternalSharing.swift */,
 				65AF4C0A2D4FA58600A77899 /* ExternalSharingView.swift */,
@@ -375,6 +378,7 @@
 				657603EF2D0457B400B36D78 /* Intents.swift in Sources */,
 				654272982C7BC77000F2CEF8 /* FileQuickLookView.swift in Sources */,
 				6510F19E2DAA52CF003E4D3C /* FolderSettings.swift in Sources */,
+				6596E2422E04ABD70069B31C /* DownloadsView.swift in Sources */,
 				6505643F2CA98D22009FFFB9 /* ThumbnailView.swift in Sources */,
 				6551053C2D7D8F8E00F96814 /* BrowserListView.swift in Sources */,
 				6550DFE82D6A645300D8DCC9 /* EncryptionView.swift in Sources */,

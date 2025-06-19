@@ -463,6 +463,22 @@ func (clt *Client) GetLastPeerAddress(deviceID string) string {
 	return ""
 }
 
+func (clt *Client) DownloadingFolders() *ListOfStrings {
+	clt.mutex.Lock()
+	defer clt.mutex.Unlock()
+	return List(KeysOf(clt.downloadProgress))
+}
+
+func (clt *Client) DownloadingPathsForFolder(folderID string) *ListOfStrings {
+	clt.mutex.Lock()
+	defer clt.mutex.Unlock()
+
+	if paths, ok := clt.downloadProgress[folderID]; ok {
+		return List(KeysOf(paths))
+	}
+	return &ListOfStrings{}
+}
+
 func (clt *Client) IsDownloading() bool {
 	clt.mutex.Lock()
 	defer clt.mutex.Unlock()
