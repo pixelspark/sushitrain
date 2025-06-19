@@ -8,11 +8,11 @@ import SwiftUI
 
 struct ThumbnailView: View {
 	var file: SushitrainEntry
-	let appState: AppState  // Don't need to observe appState
 	var showFileName: Bool
 	var showErrorMessages: Bool
 	var onTap: (() -> Void)?
 
+	@Environment(AppState.self) private var appState
 	@State private var showPreview = false
 
 	private var imageCache: ImageCache {

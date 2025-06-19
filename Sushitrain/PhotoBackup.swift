@@ -166,9 +166,11 @@ enum PhotoSyncProgress {
 				DispatchQueue.main.async { self.progress = .finished(error: String(localized: "Selected folder does not exist")) }
 				return
 			}
-			
+
 			if !folder.isSuitablePhotoBackupDestination {
-				DispatchQueue.main.async { self.progress = .finished(error: String(localized: "The selected folder cannot be used to save photos to")) }
+				DispatchQueue.main.async {
+					self.progress = .finished(error: String(localized: "The selected folder cannot be used to save photos to"))
+				}
 				return
 			}
 

@@ -82,10 +82,10 @@ struct FileView: View {
 							isOn: Binding(
 								get: { file.isExplicitlySelected() || file.isSelected() }, set: { s in try? file.setExplicitlySelected(s) })
 						).disabled(
-							!folder.isIdleOrSyncing // We're doing something weird
-							|| (file.isSelected() && !isExplicitlySelected) // Selected implicitly by parent
-							|| (isExplicitlySelected && localIsOnlyCopy) // We have the only copy
-							|| (file.isSelected() && !file.isLocallyPresent()) // File is selected but is not local, we are probably still downloading it
+							!folder.isIdleOrSyncing  // We're doing something weird
+								|| (file.isSelected() && !isExplicitlySelected)  // Selected implicitly by parent
+								|| (isExplicitlySelected && localIsOnlyCopy)  // We have the only copy
+								|| (file.isSelected() && !file.isLocallyPresent())  // File is selected but is not local, we are probably still downloading it
 						)
 					}
 				} footer: {
@@ -180,7 +180,6 @@ struct FileView: View {
 						Section {
 							ThumbnailView(
 								file: file,
-								appState: appState,
 								showFileName: false,
 								showErrorMessages: true,
 								onTap: {
@@ -540,7 +539,7 @@ private struct DownloadProgressView: View {
 
 	@State private var lastProgress: (Date, SushitrainProgress)? = nil
 	@State private var progress: (Date, SushitrainProgress)? = nil
-	
+
 	private var durationFormatter: DateComponentsFormatter {
 		let d = DateComponentsFormatter()
 		d.allowedUnits = [.day, .hour, .minute]

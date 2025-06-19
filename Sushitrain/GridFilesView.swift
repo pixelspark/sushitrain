@@ -18,7 +18,7 @@ private struct GridItemView: View {
 				.backgroundStyle(Color.primary)
 				.opacity(0.05)
 
-			ThumbnailView(file: file, appState: appState, showFileName: true, showErrorMessages: false)
+			ThumbnailView(file: file, showFileName: true, showErrorMessages: false)
 				.frame(width: size, height: size)
 		}
 	}
