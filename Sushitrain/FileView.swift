@@ -82,8 +82,11 @@ struct FileView: View {
 							isOn: Binding(
 								get: { file.isExplicitlySelected() || file.isSelected() }, set: { s in try? file.setExplicitlySelected(s) })
 						).disabled(
-							!folder.isIdleOrSyncing || (file.isSelected() && !isExplicitlySelected)
-								|| (isExplicitlySelected && localIsOnlyCopy))
+							!folder.isIdleOrSyncing // We're doing something weird
+							|| (file.isSelected() && !isExplicitlySelected) // Selected implicitly by parent
+							|| (isExplicitlySelected && localIsOnlyCopy) // We have the only copy
+							|| (file.isSelected() && !file.isLocallyPresent()) // File is selected but is not local, we are probably still downloading it
+						)
 					}
 				} footer: {
 					if !file.isSymlink() && self.folder.isSelective() && (file.isSelected() && !file.isExplicitlySelected()) {
@@ -311,7 +314,8 @@ struct FileView: View {
 							#if os(macOS)
 								.buttonStyle(.link)
 							#endif
-							.foregroundColor(.red).confirmationDialog(
+							.foregroundColor(.red)
+							.confirmationDialog(
 								self.localIsOnlyCopy
 									? "Are you sure you want to remove this file from all devices? The local copy of this file is the only one currently available on any device. This will remove the last copy. It will not be possible to recover the file after removing it."
 									: "Are you sure you want to remove this file from all devices?", isPresented: $showRemoveConfirmation,
@@ -410,43 +414,50 @@ struct FileView: View {
 						).labelStyle(.iconOnly).disabled(localPath == nil)
 					}
 				#endif
-			}.sheet(isPresented: $showEncryptionSheet) { EncryptionView(entry: self.file) }.onAppear {
+			}.sheet(isPresented: $showEncryptionSheet) {
+				EncryptionView(entry: self.file)
+			}.onAppear {
 				selfIndex = self.siblings?.firstIndex(of: file)
 			}.onChange(of: file, initial: true) { _, _ in
-				Task {
-					await updateConflicts()
+				self.fullyAvailableOnDevices = nil
+				self.update()
+			}.onChange(of: appState.eventCounter) { _, _ in
+				self.update()
+			}
+		}
+	}
+
+	private func update() {
+		Task {
+			await updateConflicts()
+		}
+
+		Task {
+			let fileEntry = self.file
+
+			// Obtain local paths
+			var error: NSError? = nil
+			self.localPath = file.isLocallyPresent() ? file.localNativePath(&error) : nil
+			#if os(macOS)
+				if let localPathActual = self.localPath {
+					self.openWithAppURL =
+						error == nil ? NSWorkspace.shared.urlForApplication(toOpen: URL(fileURLWithPath: localPathActual)) : nil
 				}
+			#endif
 
-				Task {
-					let fileEntry = self.file
-					Log.info("FileView onChange")
+			do {
+				self.availabilityError = nil
+				let availability = try await Task.detached { [fileEntry] in return (try fileEntry.peersWithFullCopy()).asArray() }
+					.value
 
-					// Obtain local paths
-					var error: NSError? = nil
-					self.localPath = file.isLocallyPresent() ? file.localNativePath(&error) : nil
-					#if os(macOS)
-						if let localPathActual = self.localPath {
-							self.openWithAppURL =
-								error == nil ? NSWorkspace.shared.urlForApplication(toOpen: URL(fileURLWithPath: localPathActual)) : nil
-						}
-					#endif
-
-					do {
-						self.fullyAvailableOnDevices = nil
-						self.availabilityError = nil
-						let availability = try await Task.detached { [fileEntry] in return (try fileEntry.peersWithFullCopy()).asArray() }
-							.value
-
-						self.fullyAvailableOnDevices = availability.flatMap { devID in
-							if let p = self.appState.client.peer(withID: devID) { return [p] }
-							return []
-						}
-					}
-					catch {
-						self.availabilityError = error
-						self.fullyAvailableOnDevices = nil
-					}
+				self.fullyAvailableOnDevices = availability.flatMap { devID in
+					if let p = self.appState.client.peer(withID: devID) { return [p] }
+					return []
 				}
+			}
+			catch {
+				self.availabilityError = error
+				self.fullyAvailableOnDevices = nil
 			}
 		}
 	}
