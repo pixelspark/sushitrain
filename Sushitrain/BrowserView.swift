@@ -744,7 +744,8 @@ private struct BrowserItemsView: View {
 		self.isLoading = false
 		loadingSpinnerTask.cancel()
 
-		if self.files.isEmpty && self.subdirectories.isEmpty {
+		// Just update without animation when we are empty or not a grid
+		if (self.files.isEmpty && self.subdirectories.isEmpty) || self.viewStyle != .grid {
 			self.files = newFiles
 			self.subdirectories = newSubdirectories
 			self.autoSelectViewStyle()
