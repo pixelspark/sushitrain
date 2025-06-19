@@ -384,7 +384,13 @@ enum PhotoSyncProgress {
 			for path in selectPaths {
 				stList.append(path.pathInFolder)
 			}
-			try? folder.setLocalPathsExplicitlySelected(stList)
+			
+			do {
+				try folder.setLocalPathsExplicitlySelected(stList)
+			}
+			catch {
+				Log.warn("Could not select files: \(error.localizedDescription)")
+			}
 		}
 
 		// Export videos
@@ -420,13 +426,22 @@ enum PhotoSyncProgress {
 								resolve.resume(returning: true)
 							}
 						}
+						else {
+							Log.info("Could not start export setting for \(asset.originalFilename): \(String(describing: info))")
+							resolve.resume(returning: false)
+						}
 					}
 				}
 
 				if let cd = asset.creationDate {
-					try FileManager.default.setAttributes(
-						[FileAttributeKey.creationDate: cd, FileAttributeKey.modificationDate: cd],
-						ofItemAtPath: fileURL.path(percentEncoded: false))
+					do {
+						try FileManager.default.setAttributes(
+							[FileAttributeKey.creationDate: cd, FileAttributeKey.modificationDate: cd],
+							ofItemAtPath: fileURL.path(percentEncoded: false))
+					}
+					catch {
+						Log.warn("Could not set creation time of file: \(fileURL) \(error.localizedDescription)")
+					}
 				}
 
 				selectPaths.append(selectPath)
@@ -516,7 +531,13 @@ enum PhotoSyncProgress {
 			for path in selectPaths {
 				stList.append(path.pathInFolder)
 			}
-			try? folder.setLocalPathsExplicitlySelected(stList)
+			
+			do {
+				try folder.setLocalPathsExplicitlySelected(stList)
+			}
+			catch {
+				Log.warn("Could not select files: \(error.localizedDescription)")
+			}
 		}
 
 		// Tag saved items
@@ -550,9 +571,10 @@ enum PhotoSyncProgress {
 
 		// Write 'last completed' date
 		let completedDate = Date.now.timeIntervalSinceReferenceDate
-		DispatchQueue.main.async { self.lastCompletedDate = completedDate }
-
-		DispatchQueue.main.async { self.progress = .finished(error: nil) }
+		DispatchQueue.main.async {
+			self.lastCompletedDate = completedDate
+			self.progress = .finished(error: nil)
+		}
 		Log.info("Photo back-up done")
 
 		#if os(iOS)
