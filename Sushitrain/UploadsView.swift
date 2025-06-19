@@ -6,7 +6,7 @@
 import SwiftUI
 @preconcurrency import SushitrainCore
 
-struct UploadView: View {
+struct UploadsView: View {
 	@Environment(AppState.self) private var appState
 
 	var body: some View {

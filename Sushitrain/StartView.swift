@@ -195,7 +195,7 @@ struct OverallStatusView: View {
 
 					// Uploads
 					if isUploading {
-						NavigationLink(destination: UploadView()) {
+						NavigationLink(destination: UploadsView()) {
 							OverallUploadStatusView()
 						}
 					}
