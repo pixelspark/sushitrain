@@ -529,6 +529,13 @@ private struct DownloadProgressView: View {
 
 	@State private var lastProgress: (Date, SushitrainProgress)? = nil
 	@State private var progress: (Date, SushitrainProgress)? = nil
+	
+	private var durationFormatter: DateComponentsFormatter {
+		let d = DateComponentsFormatter()
+		d.allowedUnits = [.day, .hour, .minute]
+		d.unitsStyle = .abbreviated
+		return d
+	}
 
 	var body: some View {
 		Group {
@@ -552,8 +559,8 @@ private struct DownloadProgressView: View {
 								Text("\(formatter.string(fromByteCount: speed))/s").foregroundStyle(.green)
 
 								if speed > 0 {
-									let secondsToGo = (progress.bytesTotal - progress.bytesDone) / speed
-									Text("\(secondsToGo) seconds").foregroundStyle(.green)
+									let secondsToGo = TimeInterval((progress.bytesTotal - progress.bytesDone) / speed)
+									Text(durationFormatter.string(from: secondsToGo) ?? "").foregroundStyle(.green)
 								}
 							}
 						}
