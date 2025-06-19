@@ -166,6 +166,11 @@ enum PhotoSyncProgress {
 				DispatchQueue.main.async { self.progress = .finished(error: String(localized: "Selected folder does not exist")) }
 				return
 			}
+			
+			if !folder.isSuitablePhotoBackupDestination {
+				DispatchQueue.main.async { self.progress = .finished(error: String(localized: "The selected folder cannot be used to save photos to")) }
+				return
+			}
 
 			// Let iOS know we are about to do some background stuff
 			#if os(iOS)
@@ -716,5 +721,12 @@ private struct EntryPath {
 	// Absolute path, not starting with a leading '/' (as accepted by SushitrainEntry.getFileInformation).
 	var pathInFolder: String {
 		return self.url.path(percentEncoded: false).withoutStartingSlash
+	}
+}
+
+extension SushitrainFolder {
+	// Whether this folder can be used as a photo backup destination folder
+	var isSuitablePhotoBackupDestination: Bool {
+		return self.isRegularFolder && self.folderType() != SushitrainFolderTypeReceiveOnly && self.exists()
 	}
 }

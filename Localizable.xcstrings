@@ -19854,6 +19854,40 @@
         }
       }
     },
+    "The selected folder cannot be used to save photos to" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der ausgewählte Ordner kann nicht zum Speichern von Fotos verwendet werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La carpeta seleccionada no se puede usar para guardar fotos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cartella selezionata non può essere utilizzata per salvare le foto"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De geselecteerde map kan niet worden gebruikt om foto's op te slaan"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вибрану папку не можна використовувати для збереження фото"
+          }
+        }
+      }
+    },
     "The source code of this application is available under the Mozilla Public License 2.0." : {
       "localizations" : {
         "de" : {
