@@ -384,7 +384,7 @@ enum PhotoSyncProgress {
 			for path in selectPaths {
 				stList.append(path.pathInFolder)
 			}
-			
+
 			do {
 				try folder.setLocalPathsExplicitlySelected(stList)
 			}
@@ -531,7 +531,7 @@ enum PhotoSyncProgress {
 			for path in selectPaths {
 				stList.append(path.pathInFolder)
 			}
-			
+
 			do {
 				try folder.setLocalPathsExplicitlySelected(stList)
 			}
