@@ -184,7 +184,7 @@ struct OverallStatusView: View {
 	}
 
 	var body: some View {
-		ZStack {
+		Group {
 			if self.isConnected {
 				let isDownloading = self.appState.client.isDownloading()
 				let isUploading = self.appState.client.isUploading()
