@@ -507,8 +507,10 @@ struct SyncState {
 
 			// On macOS and when the app is in the foreground, we unpause any device that is not explicitly suspended
 			// by the user
-			let devicesEnabled = Set(self.client.peers()!.asArray()).subtracting(self.userSettings.userPausedDevices)
-			try self.client.setDevicesPaused(SushitrainListOfStrings.from(Array(devicesEnabled)), pause: false)
+			if let peers = self.client.peers() {
+				let devicesEnabled = Set(peers.asArray()).subtracting(self.userSettings.userPausedDevices)
+				try self.client.setDevicesPaused(SushitrainListOfStrings.from(Array(devicesEnabled)), pause: false)
+			}
 		}
 		catch {
 			#if os(iOS)
