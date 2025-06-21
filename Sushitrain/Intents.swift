@@ -13,7 +13,10 @@ struct SynchronizePhotosIntent: AppIntent {
 	@Dependency private var appState: AppState
 
 	func perform() async throws -> some IntentResult {
-		await appState.photoBackup.backup(appState: appState, fullExport: false, isInBackground: true)
+		await appState.awake()
+		let backupTask = await appState.photoBackup.backup(appState: appState, fullExport: false, isInBackground: true)
+		try await backupTask?.value
+		await appState.sleep()
 		return .result()
 	}
 }
