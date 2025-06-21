@@ -134,10 +134,11 @@ enum PhotoSyncProgress {
 		self.photoBackupTask = nil
 	}
 
-	@MainActor func backup(appState: AppState, fullExport: Bool, isInBackground: Bool) {
-		if !self.isReady { return }
-		if self.selectedAlbumID.isEmpty { return }
-		if self.photoBackupTask != nil { return }
+	@discardableResult
+	@MainActor func backup(appState: AppState, fullExport: Bool, isInBackground: Bool) -> Task<(), Error>? {
+		if !self.isReady { return nil }
+		if self.selectedAlbumID.isEmpty { return nil }
+		if self.photoBackupTask != nil { return nil }
 		self.isSynchronizing = true
 
 		let selectedAlbumID = self.selectedAlbumID
@@ -222,6 +223,7 @@ enum PhotoSyncProgress {
 				isInBackground: isInBackground
 			)
 		}
+		return self.photoBackupTask
 	}
 
 	private nonisolated func backupAlbum(
@@ -332,6 +334,7 @@ enum PhotoSyncProgress {
 								if let data = data {
 									do {
 										try data.write(to: fileURL)
+										selectPaths.append(inFolderPath)
 
 										// Set file creation and modified date to photo creation date. The modified date is what is synced
 										if let cd = asset.creationDate {
@@ -341,7 +344,6 @@ enum PhotoSyncProgress {
 										}
 
 										assetsSavedSuccessfully.append(asset)
-										selectPaths.append(inFolderPath)
 									}
 									catch { cancellingError = error }
 								}
@@ -372,12 +374,6 @@ enum PhotoSyncProgress {
 			}
 		}
 
-		// Report error
-		if let ce = cancellingError {
-			DispatchQueue.main.async { self.progress = .finished(error: ce.localizedDescription) }
-			return
-		}
-
 		// Select paths a first time for photos (video export may take too long)
 		if isSelective {
 			Log.info("Selecting paths (photos only)")
@@ -398,6 +394,12 @@ enum PhotoSyncProgress {
 			catch {
 				Log.warn("Could not select files: \(error.localizedDescription)")
 			}
+		}
+		
+		// Report error
+		if let ce = cancellingError {
+			DispatchQueue.main.async { self.progress = .finished(error: ce.localizedDescription) }
+			return
 		}
 
 		// Export videos
