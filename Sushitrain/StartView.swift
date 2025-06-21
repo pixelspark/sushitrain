@@ -469,27 +469,31 @@ struct StartView: View {
 			}
 		}
 		.task {
-			self.updateFoldersWithIssues()
-
-			// Check to see if there are peers connected
-			showNoPeersEnabledWarning = false
-			let p = self.appState.peers()
-			self.peers = p
-			self.folders = self.appState.folders().sorted()
-			await self.appState.updateBadge()  // Updates extraneous files list
-			do {
-				try await Task.sleep(nanoseconds: 3 * 1_000_000_000)  // 3 seconds
-				let enabledPeerCount = p.count { !$0.isPaused() && !$0.isSelf() }
-				showNoPeersEnabledWarning = p.count > 1 && enabledPeerCount == 0
-			}
-			catch {
-				// Ignored
-			}
+			await self.update()
 		}
 		.onChange(of: appState.eventCounter) { _, _ in
 			Task {
-				self.updateFoldersWithIssues()
+				await self.update()
 			}
+		}
+	}
+
+	private func update() async {
+		self.updateFoldersWithIssues()
+
+		// Check to see if there are peers connected
+		showNoPeersEnabledWarning = false
+		let p = self.appState.peers()
+		self.peers = p
+		self.folders = self.appState.folders().sorted()
+		await self.appState.updateBadge()  // Updates extraneous files list
+		do {
+			try await Task.sleep(nanoseconds: 3 * 1_000_000_000)  // 3 seconds
+			let enabledPeerCount = p.count { !$0.isPaused() && !$0.isSelf() }
+			showNoPeersEnabledWarning = p.count > 1 && enabledPeerCount == 0
+		}
+		catch {
+			// Ignored
 		}
 	}
 
