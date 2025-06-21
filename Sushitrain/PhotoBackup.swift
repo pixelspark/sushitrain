@@ -395,7 +395,7 @@ enum PhotoSyncProgress {
 				Log.warn("Could not select files: \(error.localizedDescription)")
 			}
 		}
-		
+
 		// Report error
 		if let ce = cancellingError {
 			DispatchQueue.main.async { self.progress = .finished(error: ce.localizedDescription) }
