@@ -99,24 +99,26 @@ private struct OverallDownloadProgressView: View {
 	var body: some View {
 		Group {
 			if let (date, progress) = progress {
-				ProgressView(value: progress.percentage, total: 1.0) {
-					VStack {
-						HStack {
-							Label(
-								"Receiving \(progress.filesTotal) files...",
-								systemImage: "arrow.down"
-							)
-							.foregroundStyle(.green)
-							.symbolEffect(.pulse, value: date)
-							.badge("\(Int(progress.percentage * 100))%")
-							.frame(maxWidth: .infinity)
-							Spacer()
-						}
+				NavigationLink(destination: DownloadsView()) {
+					ProgressView(value: progress.percentage, total: 1.0) {
+						VStack {
+							HStack {
+								Label(
+									"Receiving \(progress.filesTotal) files...",
+									systemImage: "arrow.down"
+								)
+								.foregroundStyle(.green)
+								.symbolEffect(.pulse, value: date)
+								.badge("\(Int(progress.percentage * 100))%")
+								.frame(maxWidth: .infinity)
+								Spacer()
+							}
 
-						self.speeds
+							self.speeds
+						}
 					}
+					.tint(.green)
 				}
-				.tint(.green)
 			}
 			else {
 				Label("Receiving files...", systemImage: "arrow.down")
@@ -186,9 +188,7 @@ struct OverallStatusView: View {
 				let isUploading = self.appState.client.isUploading()
 				if isDownloading || isUploading {
 					if isDownloading {
-						NavigationLink(destination: DownloadsView()) {
-							OverallDownloadProgressView()
-						}
+						OverallDownloadProgressView()
 					}
 
 					// Uploads
