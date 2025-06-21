@@ -479,10 +479,10 @@ struct StartView: View {
 	}
 
 	private func update() async {
+		showNoPeersEnabledWarning = false
 		self.updateFoldersWithIssues()
 
 		// Check to see if there are peers connected
-		showNoPeersEnabledWarning = false
 		let p = self.appState.peers()
 		self.peers = p
 		self.folders = self.appState.folders().sorted()
