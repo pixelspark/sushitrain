@@ -14,7 +14,7 @@ struct MainView: View {
 	var body: some View {
 		switch appState.startupState {
 		case .notStarted:
-			LoadingView(appState: appState)
+			LoadingMainView(appState: appState)
 		case .error(let e):
 			ContentUnavailableView("Cannot start the app", systemImage: "exclamationmark.triangle.fill", description: Text(e))
 		case .started:
@@ -255,6 +255,52 @@ private struct ContentView: View {
 			// Go straight on to request notification permissions
 			AppState.requestNotificationPermissionIfNecessary()
 		}
+	}
+}
+
+private struct LoadingMainView: View {
+	@State var appState: AppState
+
+	var body: some View {
+		#if os(iOS)
+			// Skeleton of the actual app structure, to make the app launch feel faster
+			TabView {
+				NavigationStack {
+					LoadingView(appState: appState)
+				}
+				.tabItem {
+					Label("Start", systemImage: "ellipsis.circle.fill")
+				}
+
+				NavigationStack {
+					EmptyView()
+				}
+				.tabItem {
+					Label("Folders", systemImage: "folder.fill")
+				}.disabled(true)
+
+				NavigationStack {
+					EmptyView()
+				}
+				.tabItem {
+					Label("Devices", systemImage: "externaldrive.fill")
+				}.disabled(true)
+			}
+		#else
+			NavigationSplitView(
+				sidebar: {
+					EmptyView()
+				},
+				detail: {
+					NavigationStack {
+						LoadingView(appState: appState)
+							.navigationTitle("Start")
+							.searchable(text: .constant(""))
+					}
+				}
+			)
+			.navigationSplitViewStyle(.balanced)
+		#endif
 	}
 }
 
