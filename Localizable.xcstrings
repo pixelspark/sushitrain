@@ -22858,6 +22858,40 @@
         }
       }
     },
+    "What do I do now?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Was soll ich jetzt tun?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Qué hago ahora?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cosa devo fare adesso?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wat moet ik nu doen?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Що мені робити далі?"
+          }
+        }
+      }
+    },
     "When a folder contains only images, it will automatically be shown as a grid instead of a list." : {
       "localizations" : {
         "de" : {

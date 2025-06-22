@@ -10,13 +10,21 @@ import UniformTypeIdentifiers
 struct MainView: View {
 	@Environment(AppState.self) private var appState
 	@State var route: Route? = .start
+	@Environment(\.openURL) private var openURL
 
 	var body: some View {
 		switch appState.startupState {
 		case .notStarted:
 			LoadingMainView(appState: appState)
 		case .error(let e):
-			ContentUnavailableView("Cannot start the app", systemImage: "exclamationmark.triangle.fill", description: Text(e))
+			ContentUnavailableView {
+				Label("Cannot start the app", systemImage: "exclamationmark.triangle.fill")
+			} description: {
+				Text(e)
+				Button("What do I do now?") {
+					openURL(URL(string: "https://t-shaped.nl/synctrain-support#cannot-start")!)
+				}
+			}
 		case .started:
 			ContentView(route: route)
 				#if os(iOS)
