@@ -842,9 +842,9 @@ struct AdvancedSettingsView: View {
 
 		private var totalBackgroundSyncTime24Hours: TimeInterval {
 			var totalDuration: TimeInterval = 0.0
-			appState.backgroundManager.backgroundSyncRuns.forEach {
-				if let ended = $0.ended {
-					totalDuration += ended.timeIntervalSince($0.started)
+			for run in appState.backgroundManager.backgroundSyncRuns {
+				if let ended = run.ended {
+					totalDuration += ended.timeIntervalSince(run.started)
 				}
 			}
 			return totalDuration

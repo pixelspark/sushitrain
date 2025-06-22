@@ -77,15 +77,22 @@ struct FileView: View {
 
 					if self.folder.isSelective() && !file.isSymlink() {
 						let isExplicitlySelected = file.isExplicitlySelected()
+
 						Toggle(
 							"Synchronize with this device", systemImage: "pin",
 							isOn: Binding(
-								get: { file.isExplicitlySelected() || file.isSelected() }, set: { s in try? file.setExplicitlySelected(s) })
+								get: { file.isExplicitlySelected() || file.isSelected() },
+								set: { s in try? file.setExplicitlySelected(s) }
+							)
 						).disabled(
-							!folder.isIdleOrSyncing  // We're doing something weird
-								|| (file.isSelected() && !isExplicitlySelected)  // Selected implicitly by parent
-								|| (isExplicitlySelected && localIsOnlyCopy)  // We have the only copy
-								|| (file.isSelected() && !file.isLocallyPresent())  // File is selected but is not local, we are probably still downloading it
+							// We're doing something weird
+							!folder.isIdleOrSyncing
+								// Selected implicitly by parent
+								|| (file.isSelected() && !isExplicitlySelected)
+								// We have the only copy
+								|| (isExplicitlySelected && localIsOnlyCopy)
+								// File is selected but is not local, we are probably still downloading it
+								|| (file.isSelected() && !file.isLocallyPresent())
 						)
 					}
 				} footer: {
