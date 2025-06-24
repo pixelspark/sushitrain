@@ -6372,6 +6372,40 @@
         }
       }
     },
+    "Do not save photos older than six months" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speichern Sie keine Fotos, die älter als sechs Monate sind"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No guardes fotos de más de seis meses"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non salvare foto più vecchie di sei mesi"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sla geen foto's op die ouder zijn dan zes maanden"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не зберігати фотографії, старіші ніж шість місяців"
+          }
+        }
+      }
+    },
     "Do not show folders" : {
       "localizations" : {
         "de" : {
@@ -10466,6 +10500,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Якщо це несподіванка, переконайтеся, що інші пристрої погодилися синхронізувати цю папку з вашим пристроєм."
+          }
+        }
+      }
+    },
+    "If you delete photos from the folder, this will be remembered for six months, so they will not be saved to the folder again during this time. Enable this setting to prevent these photos from being exported again after six months." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn Sie Fotos aus dem Ordner löschen, wird dies für sechs Monate gespeichert, sodass sie in dieser Zeit nicht erneut in den Ordner gespeichert werden. Aktivieren Sie diese Einstellung, um zu verhindern, dass diese Fotos nach sechs Monaten erneut exportiert werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si eliminas fotos de la carpeta, esto se recordará durante seis meses, por lo que no se guardarán nuevamente en la carpeta durante este tiempo. Activa esta configuración para evitar que estas fotos se exporten nuevamente después de seis meses."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se elimini foto dalla cartella, questo verrà ricordato per sei mesi, in modo che non vengano salvate nuovamente nella cartella durante questo periodo. Abilita questa impostazione per evitare che queste foto vengano esportate di nuovo dopo sei mesi."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als je foto's uit de map verwijdert, wordt dit zes maanden lang onthouden, zodat ze in deze periode niet opnieuw in de map worden opgeslagen. Schakel deze instelling in om te voorkomen dat deze foto's na zes maanden opnieuw worden geëxporteerd."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Якщо ви видалите фотографії з папки, це буде запам'ятовано на шість місяців, тому вони не будуть знову збережені в папці протягом цього часу. Увімкніть це налаштування, щоб запобігти повторному експорту цих фотографій через шість місяців."
           }
         }
       }

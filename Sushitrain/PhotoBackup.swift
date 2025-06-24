@@ -111,6 +111,7 @@ enum PhotoSyncProgress {
 	@AppStorage("photoSyncPurgeAfterDays") var purgeAfterDays = 7
 	@AppStorage("PhotoBackupFolderStructure") var folderStructure = PhotoBackupFolderStructure.byDateAndType
 	@AppStorage("photoSyncSubdirectoryPath") var subDirectoryPath = ""
+	@AppStorage("photoSyncMaxAgeDays") var maxAgeDays = 6 * 30 // The maximum age for assets to be considered for export
 
 	@Published var isSynchronizing = false
 	@Published var progress: PhotoSyncProgress = .finished(error: nil)
@@ -251,6 +252,7 @@ enum PhotoSyncProgress {
 		let isSelective = folder.isSelective()
 		let myShortDeviceID = await appState.client.shortDeviceID()
 		let purgeEnabled = await self.purgeEnabled
+		let maxAgeInterval = TimeInterval(Double(await self.maxAgeDays) * 86400.0)
 
 		// Enumerate assets in this album and export them (or queue them for export)
 		assets.enumerateObjects { asset, index, stop in
@@ -261,6 +263,11 @@ enum PhotoSyncProgress {
 
 			do {
 				Log.info("Asset: \(asset.originalFilename) \(asset.localIdentifier)")
+				
+				if let cd = asset.creationDate, maxAgeInterval > 0 && Date.now.timeIntervalSince(cd) > maxAgeInterval {
+					// Skip, file is too old
+					return
+				}
 
 				DispatchQueue.main.async {
 					self.progress = .exportingPhotos(index: index, total: count, current: asset.originalFilename)

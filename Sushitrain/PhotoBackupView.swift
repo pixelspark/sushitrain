@@ -213,6 +213,16 @@ struct PhotoBackupSettingsView: View {
 					}
 				#endif
 			}.disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
+			
+			Section {
+				Toggle("Do not save photos older than six months", isOn: Binding(get: {
+					photoBackup.maxAgeDays > 0
+				}, set: {
+					photoBackup.maxAgeDays = $0 ? 180 : 0
+				}))
+			} footer: {
+				Text("If you delete photos from the folder, this will be remembered for six months, so they will not be saved to the folder again during this time. Enable this setting to prevent these photos from being exported again after six months.")
+			}.disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
 
 			Section {
 				PhotoBackupButton(photoBackup: photoBackup)
