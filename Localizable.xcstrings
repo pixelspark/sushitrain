@@ -20364,36 +20364,36 @@
         }
       }
     },
-    "There is little to no free storage space left on this device. To prevent issues, synchronization is temporarily disabled. To resume synchronization, free up space on the device by removing files, and/or by unselecting files for synchronization in selectively synced folders." : {
+    "There is little to no free storage space left on this device. To prevent issues, synchronization is temporarily disabled. To resume synchronization, free up space on the device by removing files, and/or by unselecting files for synchronization in selectively synced folders. If there is space available, restart the app and the device." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Es ist kaum oder gar kein freier Speicherplatz mehr auf diesem Gerät vorhanden. Um Probleme zu vermeiden, wird die Synchronisation vorübergehend deaktiviert. Um die Synchronisation fortzusetzen, schaffen Sie Speicherplatz auf dem Gerät frei, indem Sie Dateien entfernen und/oder Dateien in selektiv synchronisierten Ordnern für die Synchronisation abwählen."
+            "value" : "Auf diesem Gerät steht kaum noch freier Speicherplatz zur Verfügung. Um Probleme zu vermeiden, wurde die Synchronisierung vorübergehend deaktiviert. Um die Synchronisierung fortzusetzen, schaffen Sie Speicherplatz auf dem Gerät, indem Sie Dateien entfernen und/oder Dateien für die Synchronisierung in selektiv synchronisierten Ordnern abwählen. Wenn Speicherplatz verfügbar ist, starten Sie die App und das Gerät neu."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Queda poco o ningún espacio de almacenamiento libre en este dispositivo. Para evitar problemas, la sincronización se ha desactivado temporalmente. Para reanudar la sincronización, libera espacio en el dispositivo eliminando archivos y/o desmarcando archivos para sincronización en carpetas sincronizadas selectivamente."
+            "value" : "Queda poco o ningún espacio de almacenamiento libre en este dispositivo. Para evitar problemas, la sincronización se ha desactivado temporalmente. Para reanudar la sincronización, libera espacio en el dispositivo eliminando archivos y/o deseleccionando archivos para la sincronización en carpetas sincronizadas selectivamente. Si hay espacio disponible, reinicia la aplicación y el dispositivo."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "C'è poco o nessuno spazio di archiviazione libero su questo dispositivo. Per evitare problemi, la sincronizzazione è temporaneamente disabilitata. Per riprendere la sincronizzazione, libera spazio sul dispositivo rimuovendo file e/o deselezionando i file per la sincronizzazione nelle cartelle sincronizzate selettivamente."
+            "value" : "C'è poco o nessun spazio di archiviazione libero su questo dispositivo. Per evitare problemi, la sincronizzazione è temporaneamente disabilitata. Per riprendere la sincronizzazione, libera spazio sul dispositivo eliminando file e/o deselezionando file per la sincronizzazione nelle cartelle sincronizzate selettivamente. Se c'è spazio disponibile, riavvia l'app e il dispositivo."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Er is weinig tot geen vrije opslagruimte meer op dit apparaat. Om problemen te voorkomen, is synchronisatie tijdelijk uitgeschakeld. Om synchronisatie te hervatten, maak ruimte vrij op het apparaat door bestanden te verwijderen en/of bestanden in selectief gesynchroniseerde mappen te deselecteren voor synchronisatie."
+            "value" : "Er is weinig tot geen vrije opslagruimte meer op dit apparaat. Om problemen te voorkomen, is synchronisatie tijdelijk uitgeschakeld. Om de synchronisatie te hervatten, maak opslagruimte vrij op het apparaat door bestanden te verwijderen en/of door bestanden te deselecteren voor synchronisatie in selectief gesynchroniseerde mappen. Als er ruimte beschikbaar is, start dan de app en het apparaat opnieuw op."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "На цьому пристрої мало або зовсім немає вільного місця для зберігання. Щоб уникнути проблем, синхронізація тимчасово відключена. Щоб відновити синхронізацію, звільніть місце на пристрої, видаливши файли, та/або зніміть вибір файлів для синхронізації у вибірково синхронізованих папках."
+            "value" : "На цьому пристрої залишилося мало або взагалі немає вільного місця для зберігання. Щоб уникнути проблем, синхронізація тимчасово відключена. Щоб відновити синхронізацію, звільніть місце на пристрої, видаливши файли та/або скасувавши вибір файлів для синхронізації в вибірково синхронізованих папках. Якщо є вільний простір, перезапустіть додаток та пристрій."
           }
         }
       }
