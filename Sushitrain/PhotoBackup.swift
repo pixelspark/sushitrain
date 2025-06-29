@@ -280,12 +280,9 @@ enum PhotoSyncProgress {
 					self.progress = .exportingPhotos(index: index, total: count, current: asset.originalFilename)
 				}
 
-				// Create containing directory
+				// Determine target directory path
 				let assetDirectoryPath = asset.directoryPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
 				let dirInFolder = folderURL.appending(path: assetDirectoryPath.pathInFolder, directoryHint: .isDirectory)
-				Log.info("assetDirectoryPath \(assetDirectoryPath) \(dirInFolder)")
-				try FileManager.default.createDirectory(at: dirInFolder, withIntermediateDirectories: true)
-
 				let inFolderPath = asset.pathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
 				Log.info("- \(inFolderPath) \(dirInFolder) \(subDirectoryPath)")
 
@@ -322,6 +319,9 @@ enum PhotoSyncProgress {
 						}
 					}
 				}
+
+				// Create containing directory
+				try FileManager.default.createDirectory(at: dirInFolder, withIntermediateDirectories: true)
 
 				// Save asset if it doesn't exist already locally
 				let fileURL = folderURL.appending(path: inFolderPath.pathInFolder, directoryHint: .notDirectory)
