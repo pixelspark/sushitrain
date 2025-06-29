@@ -191,6 +191,13 @@ enum PhotoSyncProgress {
 				Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining))")
 			#endif
 
+			// Pause the folder while backing up so we can change selection state
+			let folderWasPaused = folder.isPaused()
+			try folder.setPaused(true)
+			defer {
+				try? folder.setPaused(folderWasPaused)
+			}
+
 			// Get local path for destination folder
 			var err: NSError? = nil
 			let folderPath = folder.localNativePath(&err)
