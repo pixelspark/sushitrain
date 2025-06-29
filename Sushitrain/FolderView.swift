@@ -123,7 +123,7 @@ struct FolderStatusDescription {
 					let status = folder.state(&error)
 
 					switch status {
-					case "idle":
+					case "idle", "sync-waiting", "scan-waiting", "clean-waiting":
 						if !isSelective {
 							(self.text, self.systemImage, self.color) = (String(localized: "Synchronized"), "checkmark.circle.fill", .green)
 							self.badge = peerStatusText
@@ -150,17 +150,6 @@ struct FolderStatusDescription {
 						(self.text, self.systemImage, self.color) = (
 							String(localized: "Cleaning up..."), "bolt.horizontal.circle", .orange
 						)
-
-					case "sync-waiting":
-						(self.text, self.systemImage, self.color) = (
-							String(localized: "Waiting to synchronize..."), "ellipsis.circle", .gray
-						)
-
-					case "scan-waiting":
-						(self.text, self.systemImage, self.color) = (String(localized: "Waiting to scan..."), "ellipsis.circle", .gray)
-
-					case "clean-waiting":
-						(self.text, self.systemImage, self.color) = (String(localized: "Waiting to clean..."), "ellipsis.circle", .gray)
 
 					case "error":
 						(self.text, self.systemImage, self.color) = (String(localized: "Error"), "exclamationmark.triangle.fill", .red)
