@@ -1053,11 +1053,11 @@ func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
 			return err
 		}
 	}
-	if state != "idle" && state != "syncing" {
+	if state != "idle" && state != "syncing" && state != "" { // The empty state is what we get when the folder is paused
 		if lowDiskSpace || !fld.IsDiskSpaceSufficient() {
 			lowDiskSpace = true
 		} else {
-			return errors.New("cannot change explicit selection state when not idle or syncing")
+			return errors.New("cannot change explicit selection state when not idle or syncing (state is '" + state + "')")
 		}
 	}
 
