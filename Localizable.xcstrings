@@ -5250,6 +5250,40 @@
         }
       }
     },
+    "Current" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktuell"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actual"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Corrente"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Huidig"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поточний"
+          }
+        }
+      }
+    },
     "Current addresses" : {
       "localizations" : {
         "de" : {
@@ -9752,6 +9786,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Глобальні сервери анонсів..."
+          }
+        }
+      }
+    },
+    "GMT" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UTC"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UTC"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UTC"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UTC"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UTC"
           }
         }
       }
@@ -19378,6 +19446,74 @@
         }
       }
     },
+    "The dates in the file names/paths will always be in the '%@' timezone. If a photo was taken in a different time zone and close to midnight, the day may differ. Changing this setting may cause photos to be saved once again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Datumsangaben in den Dateinamen/-pfaden werden immer in der '%@' Zeitzone sein. Wenn ein Foto in einer anderen Zeitzone und nahe Mitternacht aufgenommen wurde, kann der Tag abweichen. Eine Änderung dieser Einstellung kann dazu führen, dass Fotos erneut gespeichert werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las fechas en los nombres/rutas de los archivos siempre estarán en la zona horaria '%@'. Si una foto fue tomada en una zona horaria diferente y cerca de la medianoche, el día puede variar. Cambiar esta configuración puede causar que las fotos se guarden nuevamente."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le date nei nomi/percorsi dei file saranno sempre nel fuso orario '%@'. Se una foto è stata scattata in un fuso orario diverso e vicino a mezzanotte, il giorno potrebbe variare. Cambiare questa impostazione potrebbe causare il salvataggio delle foto nuovamente."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De data in de bestandsnamen/-paden zijn altijd in de '%@'-tijdzone. Als een foto is gemaakt in een andere tijdzone en rond middernacht kan de dag afwijken. Het wijzigen van deze instelling kan ertoe leiden dat foto's opnieuw worden opgeslagen."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дати в назвах/шляхах файлів завжди будуть у часовій зоні '%@'. Якщо фотографія була зроблена в іншій часовій зоні та близько опівночі, день може відрізнятися. Зміна цього налаштування може призвести до повторного збереження фотографій."
+          }
+        }
+      }
+    },
+    "The dates in the file names/paths will be in the configured time zone of your device at the time the back-up is made. This may cause items to be exported more than once when you move between time zones. Changing this setting may cause photos to be saved once again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Daten in den Dateinamen/-pfaden werden zum Zeitpunkt der Sicherung in der konfigurierten Zeitzone Ihres Geräts gespeichert. Dies kann dazu führen, dass Elemente mehrmals exportiert werden, wenn Sie zwischen Zeitzonen wechseln. Durch Ändern dieser Einstellung kann es vorkommen, dass Fotos erneut gespeichert werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las fechas en los nombres/rutas de los archivos estarán en la zona horaria configurada de su dispositivo en el momento en que se realice la copia de seguridad. Esto puede hacer que los elementos se exporten más de una vez al cambiar de zonas horarias. Cambiar esta configuración puede hacer que las fotos se guarden nuevamente."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le date nei nomi/percorsi dei file saranno nel fuso orario configurato del tuo dispositivo al momento in cui viene eseguito il backup. Ciò potrebbe causare l'esportazione degli elementi più di una volta quando si cambiano i fusi orari. Cambiando questa impostazione, le foto potrebbero essere salvate nuovamente."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De datums in de bestandsnamen/-paden zullen in de ingestelde tijdzone van uw apparaat zijn op het moment dat de back-up wordt gemaakt. Dit kan ervoor zorgen dat items meer dan eens worden geëxporteerd wanneer u tussen tijdzones beweegt. Het wijzigen van deze instelling kan ervoor zorgen dat foto's opnieuw worden opgeslagen."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дати у назвах/шляхах файлів будуть у налаштованому часовому поясі вашого пристрою на момент виконання резервного копіювання. Це може спричинити експорт елементів більше ніж один раз при переміщенні між часовими поясами. Зміна цього налаштування може призвести до того, що фото буде збережено знову."
+          }
+        }
+      }
+    },
     "The device has been added" : {
       "localizations" : {
         "de" : {
@@ -22310,6 +22446,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Використовувати пароль для пристрою"
+          }
+        }
+      }
+    },
+    "Use time zone" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeitzone verwenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usar zona horaria"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa il fuso orario"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebruik tijdzone"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Використовуйте часовий пояс"
           }
         }
       }

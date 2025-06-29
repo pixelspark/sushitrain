@@ -230,7 +230,7 @@ private class PhotoFSAlbumEntry: CustomFSEntry {
 			let assets = PHAsset.fetchAssets(in: album, options: nil)
 			assets.enumerateObjects { asset, index, stop in
 				if asset.mediaType == .image {
-					structure.place(asset: asset, root: fauxRoot)
+					structure.place(asset: asset, root: fauxRoot, timeZone: self.config.timeZone ?? .current)
 				}
 			}
 
@@ -261,6 +261,8 @@ struct PhotoFSAlbumConfiguration: Codable, Equatable {
 	// Needs to be optional because older versions did not have this field
 	var folderStructure: PhotoBackupFolderStructure? = nil
 
+	var timeZone: PhotoBackupTimeZone? = nil
+
 	var isValid: Bool {
 		return !self.albumID.isEmpty
 	}
@@ -271,9 +273,9 @@ struct PhotoFSConfiguration: Codable, Equatable {
 }
 
 extension PhotoBackupFolderStructure {
-	fileprivate func place(asset: PHAsset, root: CustomFSDirectory) {
+	fileprivate func place(asset: PHAsset, root: CustomFSDirectory, timeZone: PhotoBackupTimeZone) {
 		let translatedFileName = asset.fileNameInFolder(structure: self)
-		let subdirs = asset.subdirectoriesInFolder(structure: self)
+		let subdirs = asset.subdirectoriesInFolder(structure: self, timeZone: timeZone)
 
 		var dir = root
 		for dirName in subdirs {

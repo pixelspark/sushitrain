@@ -175,6 +175,15 @@ struct PhotoBackupSettingsView: View {
 				)
 			}
 
+			if photoBackup.folderStructure.usesTimeZone {
+				Section {
+					PhotoBackupTimeZoneView(timeZone: photoBackup.$timeZone)
+						.disabled(photoBackup.isSynchronizing)
+				} footer: {
+					PhotoBackupTimeZoneExplainerView(timeZone: photoBackup.timeZone)
+				}
+			}
+
 			Section {
 				Picker("Add to album", selection: $photoBackup.savedAlbumID) {
 					Text("None").tag("")
@@ -319,5 +328,36 @@ struct PhotoFolderStructureView: View {
 				PhotoBackupFolderStructure.singleFolderDatePrefixed)
 		}
 		.pickerStyle(.menu)
+	}
+}
+
+struct PhotoBackupTimeZoneView: View {
+	@Binding var timeZone: PhotoBackupTimeZone
+	@State var localTimeZone = TimeZone.current
+
+	var body: some View {
+		Picker("Use time zone", selection: $timeZone) {
+			Text("Current").tag(PhotoBackupTimeZone.current)
+			Text("GMT").tag(PhotoBackupTimeZone.specific(timeZone: TimeZone.gmt.identifier))
+			Text(localTimeZone.description).tag(PhotoBackupTimeZone.specific(timeZone: localTimeZone.identifier))
+		}
+		.pickerStyle(.menu)
+	}
+}
+
+struct PhotoBackupTimeZoneExplainerView: View {
+	let timeZone: PhotoBackupTimeZone
+
+	var body: some View {
+		switch timeZone {
+		case .specific(timeZone: let tz):
+			Text(
+				"The dates in the file names/paths will always be in the '\(tz)' timezone. If a photo was taken in a different time zone and close to midnight, the day may differ. Changing this setting may cause photos to be saved once again."
+			)
+		case .current:
+			Text(
+				"The dates in the file names/paths will be in the configured time zone of your device at the time the back-up is made. This may cause items to be exported more than once when you move between time zones. Changing this setting may cause photos to be saved once again."
+			)
+		}
 	}
 }

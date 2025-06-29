@@ -222,6 +222,23 @@ private struct PhotoFolderAlbumSettingsView: View {
 					+ Text("\(dirName)/\((self.config.folderStructure ?? PhotoBackupFolderStructure.singleFolder).examplePath)")
 					.monospaced()
 			}
+
+			if self.config.folderStructure?.usesTimeZone ?? false {
+				Section {
+					PhotoBackupTimeZoneView(
+						timeZone: Binding(
+							get: {
+								self.config.timeZone ?? PhotoBackupTimeZone.current
+							},
+							set: {
+								self.config.timeZone = $0
+							}))
+				} footer: {
+					if let tz = self.config.timeZone {
+						PhotoBackupTimeZoneExplainerView(timeZone: tz)
+					}
+				}
+			}
 		}
 		#if os(macOS)
 			.formStyle(.grouped)

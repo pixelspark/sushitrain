@@ -14,6 +14,29 @@ enum PhotoSyncCategories: String, Codable {
 	case video = "video"
 }
 
+enum PhotoBackupTimeZone: RawRepresentable, Codable, Equatable, Hashable {
+	typealias RawValue = String
+
+	case current  // Use the current timezone when exporting. Photos may be exported twice if you switch timezones
+	case specific(timeZone: String)  // Use a specific timezone. Photos may be exported with a day that differs from the day the photo was taken
+
+	init(rawValue: String) {
+		if rawValue == "current" {
+			self = .current
+		}
+		else {
+			self = .specific(timeZone: rawValue)
+		}
+	}
+
+	var rawValue: String {
+		switch self {
+		case .current: return "current"
+		case .specific(timeZone: let s): return s
+		}
+	}
+}
+
 enum PhotoBackupFolderStructure: String, Codable {
 	case byType = "byType"
 	case byDate = "byDate"
@@ -32,6 +55,13 @@ enum PhotoBackupFolderStructure: String, Codable {
 		case .byType: return String(localized: "Video/IMG_2020.MOV")
 		case .singleFolder: return String(localized: "IMG_2020.MOV")
 		case .singleFolderDatePrefixed: return String(localized: "2024-08-11_IMG_2020.MOV")
+		}
+	}
+
+	var usesTimeZone: Bool {
+		switch self {
+		case .byDate, .byDateAndType, .byDateComponent, .byDateComponentAndType, .singleFolderDatePrefixed: return true
+		case .byType, .singleFolder: return false
 		}
 	}
 }
@@ -112,6 +142,7 @@ enum PhotoSyncProgress {
 	@AppStorage("PhotoBackupFolderStructure") var folderStructure = PhotoBackupFolderStructure.byDateAndType
 	@AppStorage("photoSyncSubdirectoryPath") var subDirectoryPath = ""
 	@AppStorage("photoSyncMaxAgeDays") var maxAgeDays = 6 * 30  // The maximum age for assets to be considered for export
+	@AppStorage("photoBackupTimeZone") var timeZone: PhotoBackupTimeZone = .current
 
 	@Published var isSynchronizing = false
 	@Published var progress: PhotoSyncProgress = .finished(error: nil)
@@ -260,6 +291,7 @@ enum PhotoSyncProgress {
 		let myShortDeviceID = await appState.client.shortDeviceID()
 		let purgeEnabled = await self.purgeEnabled
 		let maxAgeInterval = TimeInterval(Double(await self.maxAgeDays) * 86400.0)
+		let timeZone = await self.timeZone
 
 		// Enumerate assets in this album and export them (or queue them for export)
 		assets.enumerateObjects { asset, index, stop in
@@ -281,9 +313,10 @@ enum PhotoSyncProgress {
 				}
 
 				// Determine target directory path
-				let assetDirectoryPath = asset.directoryPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
+				let assetDirectoryPath = asset.directoryPathInFolder(
+					structure: structure, subdirectoryPath: subDirectoryPath, timeZone: timeZone)
 				let dirInFolder = folderURL.appending(path: assetDirectoryPath.pathInFolder, directoryHint: .isDirectory)
-				let inFolderPath = asset.pathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
+				let inFolderPath = asset.pathInFolder(structure: structure, subdirectoryPath: subDirectoryPath, timeZone: timeZone)
 				Log.info("- \(inFolderPath) \(dirInFolder) \(subDirectoryPath)")
 
 				// Check if this photo was saved or deleted before
@@ -368,10 +401,13 @@ enum PhotoSyncProgress {
 
 				// If the image is a live photo, queue the live photo for saving as well
 				if asset.mediaType == .image && asset.mediaSubtypes.contains(.photoLive) && categories.contains(.livePhoto) {
-					let liveInFolderPath = asset.livePhotoPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
+					let liveInFolderPath = asset.livePhotoPathInFolder(
+						structure: structure, subdirectoryPath: subDirectoryPath, timeZone: timeZone)
 					let liveDirectoryURL = folderURL.appending(
-						path: asset.livePhotoDirectoryPathInFolder(structure: structure, subdirectoryPath: subDirectoryPath)
-							.pathInFolder,
+						path: asset.livePhotoDirectoryPathInFolder(
+							structure: structure, subdirectoryPath: subDirectoryPath, timeZone: timeZone
+						)
+						.pathInFolder,
 						directoryHint: .isDirectory)
 					try FileManager.default.createDirectory(at: liveDirectoryURL, withIntermediateDirectories: true)
 					let liveFileURL = folderURL.appending(path: liveInFolderPath.pathInFolder, directoryHint: .notDirectory)
@@ -629,16 +665,28 @@ extension PHAsset {
 		return result.originalFilename.replacingOccurrences(of: "/", with: "_")
 	}
 
-	fileprivate func directoryPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath) -> EntryPath
-	{
+	fileprivate func directoryPathInFolder(
+		structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath, timeZone: PhotoBackupTimeZone
+	) -> EntryPath {
 		var path = subdirectoryPath
-		for c in self.subdirectoriesInFolder(structure: structure) {
+		for c in self.subdirectoriesInFolder(structure: structure, timeZone: timeZone) {
 			path = path.appending(c, isDirectory: true)
 		}
 		return path
 	}
 
-	func subdirectoriesInFolder(structure: PhotoBackupFolderStructure) -> [String] {
+	func dateFormatter(timeZone: PhotoBackupTimeZone) -> DateFormatter {
+		let df = DateFormatter()
+		switch timeZone {
+		case .current:
+			df.timeZone = .current
+		case .specific(let tz):
+			df.timeZone = TimeZone(identifier: tz)
+		}
+		return df
+	}
+
+	func subdirectoriesInFolder(structure: PhotoBackupFolderStructure, timeZone: PhotoBackupTimeZone) -> [String] {
 		var components: [String] = []
 
 		switch structure {
@@ -646,7 +694,7 @@ extension PHAsset {
 			if let creationDate = self.creationDate {
 				// FIXME: this uses the currently set local timezone. When moving between timezones, asset's creation
 				// day may be +/- one day, which leads to the asset being saved twice.
-				let dateFormatter = DateFormatter()
+				let dateFormatter = self.dateFormatter(timeZone: timeZone)
 				dateFormatter.dateFormat = "yyyy-MM-dd"
 				let dateString = dateFormatter.string(from: creationDate)
 				components.append(dateString)
@@ -657,7 +705,7 @@ extension PHAsset {
 				// FIXME: this uses the currently set local timezone. When moving between timezones, asset's creation
 				// day may be +/- one day, which leads to the asset being saved twice.
 				let dateComponents = ["yyyy", "MM", "dd"]
-				let dateFormatter = DateFormatter()
+				let dateFormatter = self.dateFormatter(timeZone: timeZone)
 				for dateComponent in dateComponents {
 					dateFormatter.dateFormat = dateComponent
 					let dateString = dateFormatter.string(from: creationDate)
@@ -680,10 +728,12 @@ extension PHAsset {
 		return components
 	}
 
-	fileprivate func livePhotoDirectoryPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath)
+	fileprivate func livePhotoDirectoryPathInFolder(
+		structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath, timeZone: PhotoBackupTimeZone
+	)
 		-> EntryPath
 	{
-		var path = self.directoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath)
+		var path = self.directoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath, timeZone: timeZone)
 		switch structure {
 		case .byDateAndType, .byType, .byDateComponentAndType:
 			path = path.appending("Live", isDirectory: true)
@@ -692,11 +742,14 @@ extension PHAsset {
 		return path
 	}
 
-	fileprivate func livePhotoPathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath) -> EntryPath
-	{
+	fileprivate func livePhotoPathInFolder(
+		structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath, timeZone: PhotoBackupTimeZone
+	) -> EntryPath {
 		let fileName = self.fileNameInFolder(structure: structure) + ".MOV"
-		return self.livePhotoDirectoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath)
-			.appending(fileName, isDirectory: false)
+		return self.livePhotoDirectoryPathInFolder(
+			structure: structure, subdirectoryPath: subdirectoryPath, timeZone: timeZone
+		)
+		.appending(fileName, isDirectory: false)
 	}
 
 	func fileNameInFolder(structure: PhotoBackupFolderStructure) -> String {
@@ -715,8 +768,10 @@ extension PHAsset {
 		}
 	}
 
-	fileprivate func pathInFolder(structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath) -> EntryPath {
-		return self.directoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath)
+	fileprivate func pathInFolder(
+		structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath, timeZone: PhotoBackupTimeZone
+	) -> EntryPath {
+		return self.directoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath, timeZone: timeZone)
 			.appending(self.fileNameInFolder(structure: structure), isDirectory: false)
 	}
 }
