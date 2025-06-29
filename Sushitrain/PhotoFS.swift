@@ -230,7 +230,8 @@ private class PhotoFSAlbumEntry: CustomFSEntry {
 			let assets = PHAsset.fetchAssets(in: album, options: nil)
 			assets.enumerateObjects { asset, index, stop in
 				if asset.mediaType == .image {
-					structure.place(asset: asset, root: fauxRoot, timeZone: self.config.timeZone ?? .current)
+					structure.place(
+						asset: asset, root: fauxRoot, timeZone: self.config.timeZone ?? .specific(timeZone: TimeZone.gmt.identifier))
 				}
 			}
 
