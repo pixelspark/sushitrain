@@ -111,7 +111,7 @@ enum PhotoSyncProgress {
 	@AppStorage("photoSyncPurgeAfterDays") var purgeAfterDays = 7
 	@AppStorage("PhotoBackupFolderStructure") var folderStructure = PhotoBackupFolderStructure.byDateAndType
 	@AppStorage("photoSyncSubdirectoryPath") var subDirectoryPath = ""
-	@AppStorage("photoSyncMaxAgeDays") var maxAgeDays = 6 * 30 // The maximum age for assets to be considered for export
+	@AppStorage("photoSyncMaxAgeDays") var maxAgeDays = 6 * 30  // The maximum age for assets to be considered for export
 
 	@Published var isSynchronizing = false
 	@Published var progress: PhotoSyncProgress = .finished(error: nil)
@@ -270,7 +270,7 @@ enum PhotoSyncProgress {
 
 			do {
 				Log.info("Asset: \(asset.originalFilename) \(asset.localIdentifier)")
-				
+
 				if let cd = asset.creationDate, maxAgeInterval > 0 && Date.now.timeIntervalSince(cd) > maxAgeInterval {
 					// Skip, file is too old
 					return
