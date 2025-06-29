@@ -9795,31 +9795,31 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "UTC"
+            "value" : "GMT"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "UTC"
+            "value" : "GMT"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "UTC"
+            "value" : "GMT"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "UTC"
+            "value" : "GMT"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "UTC"
+            "value" : "GMT"
           }
         }
       }
