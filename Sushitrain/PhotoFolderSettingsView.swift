@@ -239,6 +239,18 @@ private struct PhotoFolderAlbumSettingsView: View {
 					}
 				}
 			}
+
+			Section {
+				Toggle("Photos", isOn: .constant(true)).disabled(true)
+				Toggle("Live photos", isOn: .constant(false)).disabled(true)
+				Toggle("Videos", isOn: .constant(false)).disabled(true)
+			} header: {
+				Text("Save the following media types")
+			} footer: {
+				Text(
+					"Photo folders can only synchronize photos in the current version of the app. To save videos and/or live photos, use the photo back-up function, available in the settings screen."
+				)
+			}
 		}
 		#if os(macOS)
 			.formStyle(.grouped)

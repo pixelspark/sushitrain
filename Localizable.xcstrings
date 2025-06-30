@@ -13700,6 +13700,40 @@
         }
       }
     },
+    "Photo folders can only synchronize photos in the current version of the app. To save videos and/or live photos, use the photo back-up function, available in the settings screen." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotoalben können in der aktuellen Version der App nur Fotos synchronisieren. Um Videos und/oder Live-Fotos zu speichern, verwenden Sie die Foto-Backup-Funktion, die im Einstellungsbildschirm verfügbar ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las carpetas de fotos solo pueden sincronizar fotos en la versión actual de la aplicación. Para guardar videos y/o fotos en vivo, utiliza la función de copia de seguridad de fotos, disponible en la pantalla de configuración."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le cartelle di foto possono sincronizzare solo foto nella versione corrente dell'app. Per salvare video e/o foto live, utilizza la funzione di backup foto disponibile nella schermata delle impostazioni."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotomappen kunnen in de huidige versie van de app alleen foto's synchroniseren. Om video's en/of livefoto's op te slaan, kun je de fotoback-upfunctie gebruiken, beschikbaar in het instellingenmenu."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Папки з фотографіями можуть синхронізувати лише фотографії в поточній версії додатка. Щоб зберегти відео та/або живі фотографії, скористайтеся функцією резервного копіювання фото, доступною в екрані налаштувань."
+          }
+        }
+      }
+    },
     "Photos" : {
       "localizations" : {
         "de" : {
