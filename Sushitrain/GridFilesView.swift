@@ -7,7 +7,6 @@ import SwiftUI
 @preconcurrency import SushitrainCore
 
 private struct GridItemView: View {
-	@Environment(AppState.self) private var appState
 	let size: Double
 	let file: SushitrainEntry
 
@@ -64,7 +63,7 @@ struct GridFilesView: View {
 			}
 
 			// List files
-			ForEach(files, id: \.self) { file in
+			ForEach(files, id: \.self.id) { file in
 				GeometryReader { geo in
 					FileEntryLink(
 						appState: appState,

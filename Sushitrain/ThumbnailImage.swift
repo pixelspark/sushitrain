@@ -132,7 +132,7 @@ private enum ThumbnailImageError: Error {
 
 struct ThumbnailImage<Content>: View where Content: View {
 	private let entry: SushitrainEntry
-	private let content: (AsyncImagePhase) -> Content
+	@ViewBuilder var content: (AsyncImagePhase) -> Content
 
 	@State private var phase: AsyncImagePhase = .empty
 
