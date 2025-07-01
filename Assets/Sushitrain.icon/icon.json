@@ -4,7 +4,7 @@
   },
   "groups" : [
     {
-      "blur-material" : 0.5,
+      "blur-material" : 1,
       "layers" : [
         {
           "fill-specializations" : [
@@ -178,12 +178,12 @@
       },
       "shadow" : {
         "kind" : "layer-color",
-        "opacity" : 0.34
+        "opacity" : 0.17
       },
       "specular" : true,
       "translucency" : {
         "enabled" : true,
-        "value" : 1
+        "value" : 0.78
       }
     }
   ],
