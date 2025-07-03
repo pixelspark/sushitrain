@@ -169,13 +169,19 @@ private class PhotoFSAssetEntry: CustomFSEntry {
 		options.version = .current
 
 		var exported: Data? = nil
+		let start = Date()
 		PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, info in
-			if let info = info, let errorMessage = info[PHImageErrorKey] {
-				Log.warn("Could not export asset \(self.asset.localIdentifier): \(errorMessage) \(info)")
+			if let inICloud = info?[PHImageResultIsInCloudKey] as? NSNumber, inICloud.boolValue {
+				Log.warn("Asset is in iCloud and therefore ignored: '\(self.asset.localIdentifier)'")
+			}
+			else if let info = info, let errorMessage = info[PHImageErrorKey] {
+				Log.warn("Could not export asset '\(self.asset.localIdentifier)': \(errorMessage) \(info)")
 			}
 			exported = data
 		}
-		Log.info("Exported asset \(asset.localIdentifier) \(self.modifiedTime()) bytes=\(exported?.count ?? -1)")
+		let duration = Date().timeIntervalSince(start)
+		Log.info(
+			"Exported asset \(asset.localIdentifier) \(self.modifiedTime()) bytes=\(exported?.count ?? -1) duration=\(duration)")
 
 		if let exported = exported {
 			return exported

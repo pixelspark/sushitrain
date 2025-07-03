@@ -377,7 +377,7 @@ enum PhotoSyncProgress {
 							options.allowSecondaryDegradedImage = false
 							options.version = .current
 
-							PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
+							PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, info in
 								if let data = data {
 									do {
 										try data.write(to: fileURL)
@@ -392,7 +392,18 @@ enum PhotoSyncProgress {
 
 										assetsSavedSuccessfully.append(asset)
 									}
-									catch { cancellingError = error }
+									catch {
+										Log.warn("Image data request failed: \(error.localizedDescription) ")
+										cancellingError = error
+									}
+								}
+								else {
+									if let inICloud = info?[PHImageResultIsInCloudKey] as? NSNumber, inICloud.boolValue {
+										Log.warn("Asset is in iCloud and therefore ignored")
+									}
+									else if let error = info?[PHImageErrorKey] as? NSError {
+										Log.warn("Image data request failed: PHImageError \(error.localizedDescription) ")
+									}
 								}
 							}
 						}
