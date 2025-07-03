@@ -63,6 +63,10 @@ private class CustomFSEntry: NSObject, SushitrainCustomFileEntryProtocol {
 	func modifiedTime() -> Int64 {
 		return 0
 	}
+	
+	func bytes(_ ret: UnsafeMutablePointer<Int>?) throws {
+		throw CustomFSError.notAFile
+	}
 }
 
 private protocol CustomFSDirectory {
@@ -145,6 +149,7 @@ private class StaticCustomFSEntry: CustomFSEntry {
 
 private class PhotoFSAssetEntry: CustomFSEntry {
 	let asset: PHAsset
+	private var cachedSize: Int? = nil
 
 	init(_ name: String, asset: PHAsset) {
 		self.asset = asset
@@ -157,6 +162,16 @@ private class PhotoFSAssetEntry: CustomFSEntry {
 
 	override func isDir() -> Bool {
 		return false
+	}
+	
+	override func bytes(_ ret: UnsafeMutablePointer<Int>?) throws {
+		if let s = self.cachedSize {
+			ret?.pointee = s
+			return
+		}
+		let d = try self.data()
+		self.cachedSize = d.count
+		ret?.pointee = self.cachedSize!
 	}
 
 	override func data() throws -> Data {

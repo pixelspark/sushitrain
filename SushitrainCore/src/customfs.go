@@ -44,6 +44,7 @@ type CustomFileEntry interface {
 	IsDir() bool
 	Data() ([]byte, error)
 	ModifiedTime() int64
+	Bytes() (int, error)
 }
 
 type CustomFilesystemType interface {
@@ -420,12 +421,11 @@ func (p *customFileWrapper) Size() int64 {
 		return 0
 	}
 
-	data, err := p.file.Data()
+	size, err := p.file.Bytes()
 	if err != nil {
 		return -1
 	}
-
-	return int64(len(data))
+	return int64(size)
 }
 
 func (p *customFileWrapper) Sys() interface{} {
