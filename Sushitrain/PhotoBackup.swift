@@ -373,7 +373,7 @@ enum PhotoSyncProgress {
 							options.isSynchronous = true
 							options.resizeMode = .none
 							options.deliveryMode = .highQualityFormat
-							options.isNetworkAccessAllowed = true
+							options.isNetworkAccessAllowed = false
 							options.allowSecondaryDegradedImage = false
 							options.version = .current
 
