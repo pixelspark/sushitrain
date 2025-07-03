@@ -9,6 +9,8 @@ import Photos
 let photoFSType: String = "sushitrain.photos.v1"
 
 private class PhotoFS: NSObject {
+	private let cacheLock = DispatchSemaphore(value: 1)
+	private var cachedRoots: [String: StaticCustomFSDirectory] = [:]
 }
 
 enum CustomFSError: Error {
@@ -309,9 +311,21 @@ extension PhotoBackupFolderStructure {
 }
 
 extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
+	
 	func root(_ uri: String?) throws -> any SushitrainCustomFileEntryProtocol {
 		guard let uri = uri else {
 			throw PhotoFSError.invalidURI
+		}
+		
+		// See if we have a root cached for this URI
+		do {
+			self.cacheLock.wait()
+			defer {
+				self.cacheLock.signal()
+			}
+			if let r = self.cachedRoots[uri] {
+				return r
+			}
 		}
 
 		// Attempt to decode URI as JSON containing a configuration struct
@@ -358,6 +372,15 @@ extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 
 			let albumDirectory = try PhotoFSAlbumEntry(lastDirName, config: albumConfig)
 			dir.place(albumDirectory)
+		}
+		
+		// Cache root
+		do {
+			self.cacheLock.wait()
+			defer {
+				self.cacheLock.signal()
+			}
+			self.cachedRoots[uri] = folderRoot
 		}
 
 		return folderRoot
