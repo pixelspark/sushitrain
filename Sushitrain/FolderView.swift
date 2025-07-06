@@ -806,13 +806,9 @@ struct ShareWithDeviceToggleView: View {
 
 	@State private var editEncryptionPasswordDeviceID = ""
 	@State private var showEditEncryptionPassword = false
-
-	private var isShared: Bool {
-		if let swid = folder.sharedWithDeviceIDs() {
-			return swid.asArray().contains(peer.deviceID())
-		}
-		return false
-	}
+	@State private var isShared: Bool? = nil
+	@State private var isPending: Bool = false
+	@State private var isSharedEncrypted: Bool = false
 
 	private func share(_ shared: Bool) {
 		do {
@@ -827,36 +823,30 @@ struct ShareWithDeviceToggleView: View {
 		catch let error {
 			Log.warn("Error sharing folder: " + error.localizedDescription)
 		}
-	}
-
-	private var isPending: Bool {
-		let pendingPeerIDs = Set(
-			(try? appState.client.devicesPendingFolder(self.folder.folderID))?.asArray() ?? [])
-		return pendingPeerIDs.contains(self.peer.deviceID())
-	}
-
-	private var isSharedEncrypted: Bool {
-		let sharedEncrypted = folder.sharedEncryptedWithDeviceIDs()?.asArray() ?? []
-		return sharedEncrypted.contains(peer.deviceID())
+		Task {
+			self.update()
+		}
 	}
 
 	var body: some View {
 		HStack {
-			let isShared = Binding(
+			let isSharedBinding = Binding(
 				get: {
-					return self.isShared
+					return self.isShared ?? false
 				},
 				set: { nv in
 					share(nv)
 				})
 
 			if showFolderName {
-				Toggle(folder.displayName, systemImage: "folder.fill", isOn: isShared)
+				Toggle(folder.displayName, systemImage: "folder.fill", isOn: isSharedBinding)
 					.bold(isPending)
+					.disabled(self.isShared == nil)
 			}
 			else {
-				Toggle(peer.displayName, systemImage: peer.systemImage, isOn: isShared)
+				Toggle(peer.displayName, systemImage: peer.systemImage, isOn: isSharedBinding)
 					.bold(isPending)
+					.disabled(self.isShared == nil)
 			}
 
 			Button(
@@ -865,7 +855,7 @@ struct ShareWithDeviceToggleView: View {
 					editEncryptionPasswordDeviceID = peer.deviceID()
 					showEditEncryptionPassword = true
 				}
-			).labelStyle(.iconOnly)
+			).labelStyle(.iconOnly).disabled(self.isShared == nil)
 		}
 		.sheet(isPresented: $showEditEncryptionPassword) {
 			NavigationStack {
@@ -874,6 +864,30 @@ struct ShareWithDeviceToggleView: View {
 					deviceID: $editEncryptionPasswordDeviceID)
 			}
 		}
+		.onChange(of: showEditEncryptionPassword) { _, nv in
+			if !nv {
+				self.update()
+			}
+		}
+		.task {
+			self.update()
+		}
+	}
+
+	private func update() {
+		if let swid = folder.sharedWithDeviceIDs() {
+			self.isShared = swid.asArray().contains(peer.deviceID())
+		}
+		else {
+			self.isShared = nil
+		}
+
+		let sharedEncrypted = folder.sharedEncryptedWithDeviceIDs()?.asArray() ?? []
+		self.isSharedEncrypted = sharedEncrypted.contains(peer.deviceID())
+
+		let pendingPeerIDs = Set(
+			(try? appState.client.devicesPendingFolder(self.folder.folderID))?.asArray() ?? [])
+		self.isPending = pendingPeerIDs.contains(self.peer.deviceID())
 	}
 }
 
