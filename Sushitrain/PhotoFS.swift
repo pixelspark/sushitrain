@@ -65,7 +65,7 @@ private class CustomFSEntry: NSObject, SushitrainCustomFileEntryProtocol {
 	func modifiedTime() -> Int64 {
 		return 0
 	}
-	
+
 	func bytes(_ ret: UnsafeMutablePointer<Int>?) throws {
 		throw CustomFSError.notAFile
 	}
@@ -165,7 +165,7 @@ private class PhotoFSAssetEntry: CustomFSEntry {
 	override func isDir() -> Bool {
 		return false
 	}
-	
+
 	override func bytes(_ ret: UnsafeMutablePointer<Int>?) throws {
 		if let s = self.cachedSize {
 			ret?.pointee = s
@@ -311,12 +311,12 @@ extension PhotoBackupFolderStructure {
 }
 
 extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
-	
+
 	func root(_ uri: String?) throws -> any SushitrainCustomFileEntryProtocol {
 		guard let uri = uri else {
 			throw PhotoFSError.invalidURI
 		}
-		
+
 		// See if we have a root cached for this URI
 		do {
 			self.cacheLock.wait()
@@ -373,7 +373,7 @@ extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 			let albumDirectory = try PhotoFSAlbumEntry(lastDirName, config: albumConfig)
 			dir.place(albumDirectory)
 		}
-		
+
 		// Cache root
 		do {
 			self.cacheLock.wait()
