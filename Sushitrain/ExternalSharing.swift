@@ -30,7 +30,7 @@ enum ExternalSharingType: Equatable, Hashable, Codable {
 		case .unencrypted(let e):
 			return !entry.isDeleted()
 				&& e.hasURLForFile(path: entry.path(), isDirectory: entry.isDirectory())
-		case .encrypted(let e): return !entry.isDeleted() && e.hasURLForFile
+		case .encrypted(let e): return !entry.isDeleted() && !entry.isDirectory() && e.hasURLForFile
 		}
 	}
 }

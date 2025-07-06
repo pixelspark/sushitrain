@@ -157,10 +157,10 @@ struct BrowserTableView: View {
 									self.copy(oe)
 								}.disabled(!oe.isLocallyPresent())
 							#endif
+						}
 
-							if oe.hasExternalSharingURL {
-								FileSharingLinksView(entry: oe, sync: true)
-							}
+						if oe.hasExternalSharingURL {
+							FileSharingLinksView(entry: oe, sync: true)
 						}
 
 						// Show file in Finder

@@ -54,6 +54,8 @@ struct GridFilesView: View {
 									Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
 								}
 								ItemSelectToggleView(file: file)
+
+								if file.hasExternalSharingURL { FileSharingLinksView(entry: file, sync: true) }
 							}
 						}))
 				}
