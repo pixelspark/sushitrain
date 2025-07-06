@@ -297,15 +297,7 @@ struct StartView: View {
 			// Disk space warning
 			if !appState.client.isDiskSpaceSufficient() {
 				Section {
-					VStack(alignment: .leading, spacing: 5) {
-						Label("Insufficient storage space", systemImage: "externaldrive.fill.badge.exclamationmark")
-							.bold()
-							.foregroundStyle(.red)
-						Text(
-							"There is little to no free storage space left on this device. To prevent issues, synchronization is temporarily disabled. To resume synchronization, free up space on the device by removing files, and/or by unselecting files for synchronization in selectively synced folders. If there is space available, restart the app and the device."
-						)
-						.foregroundStyle(.red)
-					}
+					DiskSpaceWarningView()
 				}
 			}
 
@@ -523,5 +515,36 @@ struct StartView: View {
 			}
 			return false
 		}
+	}
+}
+
+private struct DiskSpaceWarningView: View {
+	@State private var diskSpaceFree: Int64? = nil
+	@State private var formatter = ByteCountFormatter()
+
+	var body: some View {
+		VStack(alignment: .leading, spacing: 5) {
+			Label("Insufficient storage space", systemImage: "externaldrive.fill.badge.exclamationmark")
+				.bold()
+				.foregroundStyle(.red)
+			if let b = diskSpaceFree {
+				Text("There is only \(formatter.string(fromByteCount: b)) of free storage space left on this device.")
+					.foregroundStyle(.red)
+			}
+			else {
+				Text("There is little to no free storage space left on this device.")
+					.foregroundStyle(.red)
+			}
+			Text(
+				"To prevent issues, synchronization is temporarily disabled. To resume synchronization, free up space on the device by removing files, and/or by unselecting files for synchronization in selectively synced folders. If there is space available, empty the trash can, restart the app and the device."
+			)
+			.foregroundStyle(.red)
+		}.task {
+			self.update()
+		}
+	}
+
+	private func update() {
+		self.diskSpaceFree = Int64(SushitrainGetFreeDiskSpaceMegaBytes()) * 1024 * 1024
 	}
 }

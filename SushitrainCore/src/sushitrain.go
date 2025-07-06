@@ -1427,3 +1427,12 @@ func (c *Client) ClearDatabase() error {
 	Logger.Warnf("Removing v2 index at %s", dbPath)
 	return os.RemoveAll(dbPath)
 }
+
+/** Returns the free disk space on the volume where the database is stored */
+func GetFreeDiskSpaceMegaBytes() int {
+	dbPath := locations.Get(locations.Database)
+	if usage, err := fs.NewFilesystem(fs.FilesystemTypeBasic, dbPath).Usage("."); err == nil {
+		return int(usage.Free / 1024 / 1024)
+	}
+	return 0
+}
