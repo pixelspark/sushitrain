@@ -318,14 +318,22 @@ struct PhotoFolderStructureView: View {
 
 	var body: some View {
 		Picker("Folder structure", selection: $folderStructure) {
-			Text("By date").tag(PhotoBackupFolderStructure.byDate)
-			Text("By date (tree)").tag(PhotoBackupFolderStructure.byDateComponent)
-			Text("By type").tag(PhotoBackupFolderStructure.byType)
-			Text("By date (tree) and type").tag(PhotoBackupFolderStructure.byDateComponentAndType)
-			Text("By date and type").tag(PhotoBackupFolderStructure.byDateAndType)
 			Text("Single folder").tag(PhotoBackupFolderStructure.singleFolder)
-			Text("Single folder with dates").tag(
+			Text("Single folder (date in file name)").tag(
 				PhotoBackupFolderStructure.singleFolderDatePrefixed)
+			Divider()
+
+			Text("Type").tag(PhotoBackupFolderStructure.byType)
+			Text("Date").tag(PhotoBackupFolderStructure.byDate)
+			Text("Date/Type").tag(PhotoBackupFolderStructure.byDateAndType)
+			Divider()
+
+			Text("Year").tag(PhotoBackupFolderStructure.byYear)
+			Text("Year/Type").tag(PhotoBackupFolderStructure.byYearAndType)
+			Text("Year/Month").tag(PhotoBackupFolderStructure.byYearMonth)
+			Text("Year/Month/Type").tag(PhotoBackupFolderStructure.byYearMonthAndType)
+			Text("Year/Month/Day").tag(PhotoBackupFolderStructure.byDateComponent)
+			Text("Year/Month/Day/Type").tag(PhotoBackupFolderStructure.byDateComponentAndType)
 		}
 		.pickerStyle(.menu)
 	}

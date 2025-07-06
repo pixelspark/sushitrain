@@ -43,6 +43,10 @@ enum PhotoBackupFolderStructure: String, Codable {
 	case byDateAndType = "byDateAndType"
 	case byDateComponent = "byDateComponent"
 	case byDateComponentAndType = "byDateComponentAndType"
+	case byYear = "byYear"
+	case byYearAndType = "byYearAndType"
+	case byYearMonth = "byYearMonth"
+	case byYearMonthAndType = "byYearMonthAndType"
 	case singleFolder = "singleFolder"
 	case singleFolderDatePrefixed = "singleFolderDatePrefixed"
 
@@ -52,6 +56,10 @@ enum PhotoBackupFolderStructure: String, Codable {
 		case .byDateAndType: return String(localized: "2024-08-11/Video/IMG_2020.MOV")
 		case .byDateComponent: return String(localized: "2024/08/11/IMG_2020.HEIC")
 		case .byDateComponentAndType: return String(localized: "2024/08/11/Video/IMG_2020.MOV")
+		case .byYear: return String(localized: "2024/IMG_2020.MOV")
+		case .byYearAndType: return String(localized: "2024/Video/IMG_2020.MOV")
+		case .byYearMonth: return String(localized: "2024/08/IMG_2020.HEIC")
+		case .byYearMonthAndType: return String(localized: "2024/08/Video/IMG_2020.MOV")
 		case .byType: return String(localized: "Video/IMG_2020.MOV")
 		case .singleFolder: return String(localized: "IMG_2020.MOV")
 		case .singleFolderDatePrefixed: return String(localized: "2024-08-11_IMG_2020.MOV")
@@ -60,8 +68,26 @@ enum PhotoBackupFolderStructure: String, Codable {
 
 	var usesTimeZone: Bool {
 		switch self {
-		case .byDate, .byDateAndType, .byDateComponent, .byDateComponentAndType, .singleFolderDatePrefixed: return true
+		case .byDate, .byDateAndType, .byDateComponent, .byDateComponentAndType, .singleFolderDatePrefixed,
+			.byYear, .byYearMonth, .byYearAndType, .byYearMonthAndType:
+			return true
 		case .byType, .singleFolder: return false
+		}
+	}
+
+	var dateComponentsForPath: [String] {
+		switch self {
+		case .byDateComponent, .byDateComponentAndType:
+			return ["yyyy", "MM", "dd"]
+
+		case .byYear, .byYearAndType:
+			return ["yyyy"]
+
+		case .byYearMonth, .byYearMonthAndType:
+			return ["yyyy", "MM"]
+
+		case .byType, .singleFolder, .byDate, .byDateAndType, .singleFolderDatePrefixed:
+			return []
 		}
 	}
 }
@@ -703,19 +729,15 @@ extension PHAsset {
 		switch structure {
 		case .byDate, .byDateAndType:
 			if let creationDate = self.creationDate {
-				// FIXME: this uses the currently set local timezone. When moving between timezones, asset's creation
-				// day may be +/- one day, which leads to the asset being saved twice.
 				let dateFormatter = self.dateFormatter(timeZone: timeZone)
 				dateFormatter.dateFormat = "yyyy-MM-dd"
 				let dateString = dateFormatter.string(from: creationDate)
 				components.append(dateString)
 			}
 
-		case .byDateComponent, .byDateComponentAndType:
+		case .byDateComponent, .byDateComponentAndType, .byYear, .byYearMonth, .byYearAndType, .byYearMonthAndType:
 			if let creationDate = self.creationDate {
-				// FIXME: this uses the currently set local timezone. When moving between timezones, asset's creation
-				// day may be +/- one day, which leads to the asset being saved twice.
-				let dateComponents = ["yyyy", "MM", "dd"]
+				let dateComponents = structure.dateComponentsForPath
 				let dateFormatter = self.dateFormatter(timeZone: timeZone)
 				for dateComponent in dateComponents {
 					dateFormatter.dateFormat = dateComponent
@@ -729,11 +751,11 @@ extension PHAsset {
 
 		// Postfix media type
 		switch structure {
-		case .byDateAndType, .byType, .byDateComponentAndType:
+		case .byDateAndType, .byType, .byDateComponentAndType, .byYearAndType, .byYearMonthAndType:
 			if self.mediaType == .video {
 				components.append("Video")
 			}
-		case .byDate, .singleFolder, .singleFolderDatePrefixed, .byDateComponent: break
+		case .byDate, .singleFolder, .singleFolderDatePrefixed, .byDateComponent, .byYear, .byYearMonth: break
 		}
 
 		return components
@@ -746,9 +768,9 @@ extension PHAsset {
 	{
 		var path = self.directoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath, timeZone: timeZone)
 		switch structure {
-		case .byDateAndType, .byType, .byDateComponentAndType:
+		case .byDateAndType, .byType, .byDateComponentAndType, .byYearAndType, .byYearMonthAndType:
 			path = path.appending("Live", isDirectory: true)
-		case .byDate, .singleFolder, .singleFolderDatePrefixed, .byDateComponent: break
+		case .byDate, .singleFolder, .singleFolderDatePrefixed, .byDateComponent, .byYear, .byYearMonth: break
 		}
 		return path
 	}
@@ -765,7 +787,8 @@ extension PHAsset {
 
 	func fileNameInFolder(structure: PhotoBackupFolderStructure) -> String {
 		switch structure {
-		case .byDate, .byDateAndType, .byDateComponent, .byDateComponentAndType, .singleFolder, .byType:
+		case .byDate, .byDateAndType, .byDateComponent, .byDateComponentAndType, .singleFolder, .byType, .byYear,
+			.byYearMonth, .byYearAndType, .byYearMonthAndType:
 			return self.originalFilename
 
 		case .singleFolderDatePrefixed:
