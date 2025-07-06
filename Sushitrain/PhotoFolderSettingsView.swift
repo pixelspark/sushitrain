@@ -64,12 +64,16 @@ struct PhotoFolderConfigurationView: View {
 			List {
 				let folderPairs = Array(config.folders)
 				ForEach(folderPairs, id: \.key) { folderName, albumConfig in
-					Label(folderName, systemImage: "folder.fill").onTapGesture {
+					Button(folderName, systemImage: "folder.fill") {
 						editingAlbumConfig = albumConfig
 						editingOldDirName = folderName
 						editingDirName = folderName
 						editingAlbum = true
 					}
+					#if os(macOS)
+						.buttonStyle(.link)
+						.padding(3.0)
+					#endif
 				}
 				.onDelete { idxs in
 					Task {
@@ -105,6 +109,7 @@ struct PhotoFolderConfigurationView: View {
 					editingDirName = ""
 				}
 				#if os(macOS)
+					.padding(3.0)
 					.buttonStyle(.link)
 				#endif
 				.sheet(isPresented: $addingNewAlbum) {
