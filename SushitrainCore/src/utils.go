@@ -128,6 +128,7 @@ var mimesByExtension = map[string]string{
 	".ogv":    "video/ogg",
 	".ogx":    "application/ogg",
 	".opus":   "audio/ogg",
+	".org":    "text/plain",
 	".otf":    "font/otf",
 	".png":    "image/png",
 	".pdf":    "application/pdf",
