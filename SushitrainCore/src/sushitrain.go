@@ -1489,10 +1489,12 @@ func (m *Measurements) actuallyMeasure() {
 			// Make a faux request. This is expected to return a 'generic error' but we are not actually interested in the
 			// requested block anyway, just in the time it takes to respond.
 			_, _ = m.client.app.Internals.DownloadBlock(pingContext, device.DeviceID, "__fake_folder", "__fake_file_name_for_ping", 0, protocol.BlockInfo{}, false)
-			duration := time.Since(start)
-			latencies[device.DeviceID.String()] = Measurement{
-				latency: duration.Seconds(),
-				when:    time.Now(),
+			if pingContext.Err() == nil {
+				duration := time.Since(start)
+				latencies[device.DeviceID.String()] = Measurement{
+					latency: duration.Seconds(),
+					when:    time.Now(),
+				}
 			}
 		}
 	}
