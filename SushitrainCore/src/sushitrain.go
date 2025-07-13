@@ -247,7 +247,7 @@ func (clt *Client) handleEvent(evt events.Event) {
 			data := evt.Data.(map[string]interface{})
 			devID := data["device"].(string)
 			addresses := data["addrs"].([]string)
-			clt.Delegate.OnDeviceDiscovered(devID, &ListOfStrings{data: addresses})
+			go clt.Delegate.OnDeviceDiscovered(devID, &ListOfStrings{data: addresses})
 		}
 
 	case events.FolderRejected:
@@ -262,7 +262,7 @@ func (clt *Client) handleEvent(evt events.Event) {
 		folderTransferring := (state == model.FolderSyncing.String() || state == model.FolderSyncWaiting.String() || state == model.FolderSyncPreparing.String())
 		clt.foldersDownloading[folder] = folderTransferring
 		if !clt.IgnoreEvents && clt.Delegate != nil {
-			clt.Delegate.OnEvent(evt.Type.String())
+			go clt.Delegate.OnEvent(evt.Type.String())
 		}
 
 	case events.ListenAddressesChanged:
@@ -286,7 +286,7 @@ func (clt *Client) handleEvent(evt events.Event) {
 			for _, addrs := range clt.ResolvedListenAddresses {
 				currentResolved = append(currentResolved, addrs...)
 			}
-			clt.Delegate.OnListenAddressesChanged(List(currentResolved))
+			go clt.Delegate.OnListenAddressesChanged(List(currentResolved))
 		}
 
 	case events.DeviceConnected:
@@ -296,7 +296,7 @@ func (clt *Client) handleEvent(evt events.Event) {
 		clt.connectedDeviceAddresses[devID] = address
 
 		if !clt.IgnoreEvents && clt.Delegate != nil {
-			clt.Delegate.OnEvent(evt.Type.String())
+			go clt.Delegate.OnEvent(evt.Type.String())
 		}
 
 	case events.LocalChangeDetected, events.RemoteChangeDetected:
@@ -307,27 +307,27 @@ func (clt *Client) handleEvent(evt events.Event) {
 		}
 
 		if !clt.IgnoreEvents && clt.Delegate != nil {
-			clt.Delegate.OnChange(&Change{
+			go clt.Delegate.OnChange(&Change{
 				FolderID: data["folder"],
 				ShortID:  modifiedBy,
 				Action:   data["action"],
 				Path:     data["path"],
 				Time:     &Date{time: evt.Time},
 			})
-			clt.Delegate.OnEvent(evt.Type.String())
+			go clt.Delegate.OnEvent(evt.Type.String())
 		}
 
 	case events.LocalIndexUpdated, events.DeviceDisconnected, events.ConfigSaved,
 		events.ClusterConfigReceived, events.FolderResumed, events.FolderPaused:
 		// Just deliver the event
 		if !clt.IgnoreEvents && clt.Delegate != nil {
-			clt.Delegate.OnEvent(evt.Type.String())
+			go clt.Delegate.OnEvent(evt.Type.String())
 		}
 
 	case events.DownloadProgress:
 		clt.downloadProgress = evt.Data.(map[string]map[string]*model.PullerProgress)
 		if !clt.IgnoreEvents && clt.Delegate != nil {
-			clt.Delegate.OnEvent(evt.Type.String())
+			go clt.Delegate.OnEvent(evt.Type.String())
 		}
 
 	case events.RemoteDownloadProgress:
@@ -346,7 +346,7 @@ func (clt *Client) handleEvent(evt events.Event) {
 		clt.uploadProgress[peerID][folderID] = state
 
 		if !clt.IgnoreEvents && clt.Delegate != nil {
-			clt.Delegate.OnEvent(evt.Type.String())
+			go clt.Delegate.OnEvent(evt.Type.String())
 		}
 
 	case events.ItemFinished, events.ItemStarted:
