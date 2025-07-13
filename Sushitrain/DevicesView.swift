@@ -203,6 +203,7 @@ struct LatencyView: View {
 		@State private var addingDeviceID: String = ""
 		@State private var discoveredNewDevices: [String] = []
 		@State private var confirmDeleteSelection = false
+		@State private var measurements: [String: Double] = [:]
 
 		@SceneStorage("DeviceTableViewConfig") private var columnCustomization: TableColumnCustomization<DevicesGridRow>
 
@@ -327,6 +328,21 @@ struct LatencyView: View {
 											case .discoveredDevice(_): EmptyView()
 											}
 										}.width(min: 50, ideal: 50, max: 50).alignment(.center).defaultVisibility(.hidden).customizationID("enabled")
+
+										// Latency
+										TableColumn("Latency") { (row: DevicesGridRow) in
+											switch row {
+											case .connectedDevice(let device):
+												if let latency = self.measurements[device.deviceID()], !latency.isNaN {
+													HStack {
+														LatencyView(latency: latency)
+														Spacer()
+														Text("\(Int(latency * 1000.0)) ms")
+													}
+												}
+											case .discoveredDevice(_): EmptyView()
+											}
+										}.width(min: 70, ideal: 70, max: 70).alignment(.numeric).defaultVisibility(.hidden).customizationID("latency")
 
 										// Introducer
 										TableColumn("Introducer") { (row: DevicesGridRow) in
@@ -464,6 +480,16 @@ struct LatencyView: View {
 			}
 		}
 
+		private func updateMeasurements() {
+			// Measurements
+			self.measurements = [:]
+			if let m = appState.client.measurements {
+				for device in self.peers {
+					self.measurements[device.deviceID()] = m.latency(for: device.deviceID())
+				}
+			}
+		}
+
 		private func update() {
 			self.loading = true
 			self.peers = appState.peers().filter({ x in !x.isSelf() }).sorted()
@@ -473,6 +499,7 @@ struct LatencyView: View {
 			self.discoveredNewDevices = Array(appState.discoveredDevices.keys).filter({ d in !peerIDs.contains(d) })
 
 			self.loading = false
+			self.updateMeasurements()
 		}
 	}
 
