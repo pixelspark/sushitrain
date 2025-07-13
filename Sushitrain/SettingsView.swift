@@ -658,13 +658,7 @@ struct AdvancedSettingsView: View {
 			#endif
 		}
 		.task {
-			do {
-				self.diskCacheSizeBytes = try await ImageCache.shared.diskCacheSizeBytes()
-				self.folders = appState.folders().sorted()
-			}
-			catch {
-				Log.warn("Could not determine thumbnail cache size: \(error.localizedDescription)")
-			}
+			self.update()
 		}
 		.onDisappear {
 			appState.applySettings()
@@ -676,6 +670,18 @@ struct AdvancedSettingsView: View {
 		#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)
 		#endif
+	}
+
+	private func update() {
+		self.folders = appState.folders().sorted()
+		Task {
+			do {
+				self.diskCacheSizeBytes = try await ImageCache.shared.diskCacheSizeBytes()
+			}
+			catch {
+				Log.warn("Could not determine thumbnail cache size: \(error.localizedDescription)")
+			}
+		}
 	}
 
 	private var cacheText: Text {
