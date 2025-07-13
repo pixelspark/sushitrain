@@ -567,7 +567,9 @@ struct SyncState {
 
 		#if os(iOS)
 			self.lingerManager.cancelLingering()
-			try? self.client.setReconnectIntervalS(1)
+			Task.detached {
+				try? await self.client.setReconnectIntervalS(1)
+			}
 			self.suspend(false)
 			Task {
 				await self.backgroundManager.rescheduleWatchdogNotification()
