@@ -197,8 +197,11 @@ private class PhotoFSAssetEntry: CustomFSEntry {
 			exported = data
 		}
 		let duration = Date().timeIntervalSince(start)
-		Log.info(
-			"Exported asset \(asset.localIdentifier) \(self.modifiedTime()) bytes=\(exported?.count ?? -1) duration=\(duration)")
+		if duration > 1.0 {
+			Log.warn(
+				"Slow asset export: \(asset.localIdentifier) \(self.modifiedTime()) bytes=\(exported?.count ?? -1) duration=\(duration)"
+			)
+		}
 
 		if let exported = exported {
 			return exported
