@@ -330,9 +330,11 @@ struct StartView: View {
 						.foregroundStyle(.orange)
 					}
 					.onTapGesture {
-						self.appState.userSettings.userPausedDevices.removeAll()
-						self.appState.updateDeviceSuspension()
-						showNoPeersEnabledWarning = false
+						Task {
+							self.appState.userSettings.userPausedDevices.removeAll()
+							await self.appState.updateDeviceSuspension()
+							showNoPeersEnabledWarning = false
+						}
 					}
 				}
 			}

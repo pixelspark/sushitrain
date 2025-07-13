@@ -94,7 +94,7 @@ import BackgroundTasks
 				while appState.startupState != .started {
 					if case .error(let msg) = appState.startupState {
 						Log.info("Error in app startup: \(msg); exiting background task")
-						self.endBackgroundTask()
+						await self.endBackgroundTask()
 						return
 					}
 
@@ -104,7 +104,7 @@ import BackgroundTasks
 					// iOS seems to start expiring us at 5 seconds before the end
 					if remaining <= Self.backgroundTimeReserve {
 						Log.info("End of our background stint is nearing, not waiting any longer")
-						self.endBackgroundTask()
+						await self.endBackgroundTask()
 						return
 					}
 
@@ -114,7 +114,7 @@ import BackgroundTasks
 			}
 			catch {
 				Log.warn("Caught error while waiting for client startup: \(error.localizedDescription), ending background task")
-				self.endBackgroundTask()
+				await self.endBackgroundTask()
 				return
 			}
 
@@ -135,28 +135,30 @@ import BackgroundTasks
 				Log.info(
 					"Start background sync, time remaining = \(UIApplication.shared.backgroundTimeRemaining)"
 				)
-				self.appState.suspend(false)
+				await self.appState.suspend(false)
 				currentRun = BackgroundSyncRun(started: start, ended: nil)
 				self.lastBackgroundSyncRun = currentRun
 
 				expireTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { t in
-					DispatchQueue.main.async {
+					Task { @MainActor in
 						let remaining = UIApplication.shared.backgroundTimeRemaining
 						Log.info("Check background time remaining: \(remaining)")
 						// iOS seems to start expiring us at 5 seconds before the end
 						if remaining <= Self.backgroundTimeReserve {
 							Log.info("End of our background stint is nearing")
-							self.endBackgroundTask()
+							await self.endBackgroundTask()
 						}
 					}
 				}
 
 				// Run to expiration
 				task.expirationHandler = {
-					Log.warn(
-						"Background task expired (this should not happen because our timer should have expired the task first; perhaps iOS changed its mind?) Remaining = \(UIApplication.shared.backgroundTimeRemaining)"
-					)
-					self.endBackgroundTask()
+					Task { @MainActor in
+						Log.warn(
+							"Background task expired (this should not happen because our timer should have expired the task first; perhaps iOS changed its mind?) Remaining = \(UIApplication.shared.backgroundTimeRemaining)"
+						)
+						await self.endBackgroundTask()
+					}
 				}
 			}
 			else {
@@ -205,7 +207,7 @@ import BackgroundTasks
 			}
 		}
 
-		private func endBackgroundTask() {
+		private func endBackgroundTask() async {
 			Log.info(
 				"endBackgroundTask: expireTimer=\(expireTimer != nil), run = \(currentRun != nil) task = \(currentBackgroundTask != nil), isEndingBackgroundTask = \(isEndingBackgroundTask)"
 			)
@@ -220,7 +222,7 @@ import BackgroundTasks
 				self.appState.photoBackup.cancel()
 
 				Log.info("Suspending peers")
-				self.appState.suspend(true)
+				await self.appState.suspend(true)
 
 				Log.info("Setting task completed")
 				task.setTaskCompleted(success: true)

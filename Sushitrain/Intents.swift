@@ -34,11 +34,15 @@ struct SynchronizeIntent: AppIntent {
 	@MainActor
 	func perform() async throws -> some IntentResult {
 		if self.time > 0 {
-			appState.awake()
-			defer {
-				appState.sleep()
+			await appState.awake()
+			do {
+				try await Task.sleep(for: .seconds(self.time))
 			}
-			try await Task.sleep(for: .seconds(self.time))
+			catch {
+				await appState.sleep()
+				throw error
+			}
+			await appState.sleep()
 		}
 		return .result()
 	}
@@ -728,51 +732,55 @@ struct DownloadFilesIntent: AppIntent {
 	@MainActor
 	func perform() async throws -> some ReturnsValue<[IntentFile]> {
 		// Reconnect to peers
-		appState.awake()
-		defer {
-			appState.sleep()
-		}
-
-		// Time until which we can wait for peers to connect
-		let deadline = Date.now.addingTimeInterval(Double(maxWaitingTime))
-
-		// Collect all the files
-		var files: [IntentFile] = []
-		for file in self.files {
-			if file.file.isDirectory() || file.file.isDeleted() || file.file.isSymlink() {
-				continue
-			}
-
-			if let fu = file.file.localNativeFileURL {
-				files.append(IntentFile(fileURL: fu))
-			}
-			else {
-				// Wait for at least one peer to connect
-				var firstTimeWaiting = false
-				while maxWaitingTime <= 0 || deadline > Date.now {
-					let peersNeeded = try file.file.peersWithFullCopy().asArray()
-					if peersNeeded.isEmpty {
-						if !firstTimeWaiting {
-							Log.info("Waiting for a peer to connect...")
-							firstTimeWaiting = true
-						}
-						try await Task.sleep(for: .milliseconds(200))
-					}
-					else {
-						break
-					}
+		await appState.awake()
+		
+		do {
+			// Time until which we can wait for peers to connect
+			let deadline = Date.now.addingTimeInterval(Double(maxWaitingTime))
+			
+			// Collect all the files
+			var files: [IntentFile] = []
+			for file in self.files {
+				if file.file.isDirectory() || file.file.isDeleted() || file.file.isSymlink() {
+					continue
 				}
-
-				let odu = URL(string: file.file.onDemandURL())!
-				let (localURL, _) = try await URLSession.shared.download(from: odu)
-				files.append(
-					IntentFile(
-						fileURL: localURL, filename: file.file.fileName(),
-						type: UTType(mimeType: file.file.mimeType())))
+				
+				if let fu = file.file.localNativeFileURL {
+					files.append(IntentFile(fileURL: fu))
+				}
+				else {
+					// Wait for at least one peer to connect
+					var firstTimeWaiting = false
+					while maxWaitingTime <= 0 || deadline > Date.now {
+						let peersNeeded = try file.file.peersWithFullCopy().asArray()
+						if peersNeeded.isEmpty {
+							if !firstTimeWaiting {
+								Log.info("Waiting for a peer to connect...")
+								firstTimeWaiting = true
+							}
+							try await Task.sleep(for: .milliseconds(200))
+						}
+						else {
+							break
+						}
+					}
+					
+					let odu = URL(string: file.file.onDemandURL())!
+					let (localURL, _) = try await URLSession.shared.download(from: odu)
+					files.append(
+						IntentFile(
+							fileURL: localURL, filename: file.file.fileName(),
+							type: UTType(mimeType: file.file.mimeType())))
+				}
 			}
+			
+			await appState.sleep()
+			return .result(value: files)
 		}
-
-		return .result(value: files)
+		catch {
+			await appState.sleep()
+			throw error
+		}
 	}
 }
 

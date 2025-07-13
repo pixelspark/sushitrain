@@ -210,7 +210,7 @@ struct SyncState {
 				}
 			}
 
-			self.updateDeviceSuspension()
+			await self.updateDeviceSuspension()
 
 			// Start the client
 			try await Task.detached(priority: .userInitiated) {
@@ -482,7 +482,9 @@ struct SyncState {
 
 	func setDevice(_ device: SushitrainPeer, pausedByUser: Bool) {
 		self.userSettings.userPausedDevices.toggle(device.id, pausedByUser)
-		self.updateDeviceSuspension()
+		Task {
+			await self.updateDeviceSuspension()
+		}
 	}
 
 	func peerIDs() -> [String] {
@@ -529,13 +531,13 @@ struct SyncState {
 	}
 
 	#if os(iOS)
-		func suspend(_ suspended: Bool) {
+		func suspend(_ suspended: Bool) async {
 			self.isSuspended = suspended
-			self.updateDeviceSuspension()
+			await self.updateDeviceSuspension()
 		}
 	#endif
 
-	func updateDeviceSuspension() {
+	func updateDeviceSuspension() async {
 		do {
 			// On iOS, all devices are paused when the app is suspended (and unpaused when we get back to the foreground)
 			// This is a trick to force Syncthing to start connecting immediately when we are foregrounded
@@ -562,7 +564,7 @@ struct SyncState {
 		}
 	}
 
-	func awake() {
+	func awake() async {
 		self.startNetworkMonitor()
 
 		#if os(iOS)
@@ -570,7 +572,7 @@ struct SyncState {
 			Task.detached {
 				try? await self.client.setReconnectIntervalS(1)
 			}
-			self.suspend(false)
+			await self.suspend(false)
 			Task {
 				await self.backgroundManager.rescheduleWatchdogNotification()
 			}
@@ -579,7 +581,7 @@ struct SyncState {
 		#endif
 	}
 
-	func sleep() {
+	func sleep() async {
 		self.stopNetworkMonitor()
 
 		#if os(iOS)
@@ -587,13 +589,13 @@ struct SyncState {
 
 			if userSettings.lingeringEnabled {
 				Log.info("Background time remaining: \(UIApplication.shared.backgroundTimeRemaining)")
-				self.lingerManager.lingerThenSuspend()
+				await self.lingerManager.lingerThenSuspend()
 				Log.info(
 					"Background time remaining (2): \(UIApplication.shared.backgroundTimeRemaining)"
 				)
 			}
 			else {
-				self.suspend(true)
+				await self.suspend(true)
 			}
 			try? self.client.setReconnectIntervalS(60)
 			self.client.ignoreEvents = true
@@ -609,7 +611,9 @@ struct SyncState {
 
 		switch newPhase {
 		case .background:
-			self.sleep()
+			Task {
+				await self.sleep()
+			}
 			break
 
 		case .inactive:
@@ -625,7 +629,9 @@ struct SyncState {
 			break
 
 		case .active:
-			self.awake()
+			Task {
+				await self.awake()
+			}
 			break
 
 		@unknown default:
@@ -677,22 +683,22 @@ struct SyncState {
 			self.wantsSuspendAfterLinger = false
 		}
 
-		private func afterLingering() {
+		private func afterLingering() async {
 			Log.info("After lingering: suspend=\(self.wantsSuspendAfterLinger)")
 			if self.wantsSuspendAfterLinger {
 				self.wantsSuspendAfterLinger = false
-				self.appState.suspend(true)
+				await self.appState.suspend(true)
 			}
 			self.cancelLingering()
 		}
 
-		func lingerThenSuspend() {
+		func lingerThenSuspend() async {
 			Log.info("Linger then suspend")
 
 			if self.appState.isSuspended {
 				// Already suspended?
 				Log.info("Already suspended (suspended peer list is not empty), not lingering")
-				self.afterLingering()
+				await self.afterLingering()
 			}
 
 			self.wantsSuspendAfterLinger = true
@@ -701,7 +707,9 @@ struct SyncState {
 					withName: "Short-term connection persistence",
 					expirationHandler: {
 						Log.info("Suspend after expiration of linger time")
-						self.afterLingering()
+						Task {
+							await self.afterLingering()
+						}
 					})
 				Log.info(
 					"Lingering before suspend: \(UIApplication.shared.backgroundTimeRemaining) remaining"
@@ -714,16 +722,16 @@ struct SyncState {
 			let minimumLingerTime: TimeInterval = 1.0  // Don't bother if we get less than one second
 			if lingerTime < minimumLingerTime {
 				Log.info("Lingering time allotted by the system is too short, suspending immediately")
-				return afterLingering()
+				return await afterLingering()
 			}
 
 			if self.lingerTimer?.isValid != true {
 				Log.info("Start lingering timer for \(lingerTime)")
 				self.lingerTimer = Timer.scheduledTimer(withTimeInterval: lingerTime, repeats: false) {
 					_ in
-					DispatchQueue.main.async {
+					Task { @MainActor in
 						Log.info("Suspend after linger")
-						self.afterLingering()
+						await self.afterLingering()
 					}
 				}
 			}
