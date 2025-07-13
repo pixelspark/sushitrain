@@ -88,6 +88,37 @@ import BackgroundTasks
 			DispatchQueue.main.async {
 				_ = self.scheduleBackgroundSync()
 			}
+
+			// Wait for app startup
+			do {
+				while appState.startupState != .started {
+					if case .error(let msg) = appState.startupState {
+						Log.info("Error in app startup: \(msg); exiting background task")
+						self.endBackgroundTask()
+						return
+					}
+
+					let remaining = UIApplication.shared.backgroundTimeRemaining
+					Log.info("Waiting for client startup... \(remaining) remaining")
+
+					// iOS seems to start expiring us at 5 seconds before the end
+					if remaining <= Self.backgroundTimeReserve {
+						Log.info("End of our background stint is nearing, not waiting any longer")
+						self.endBackgroundTask()
+						return
+					}
+
+					// Just give it some time
+					try await Task.sleep(for: .milliseconds(100))
+				}
+			}
+			catch {
+				Log.warn("Caught error while waiting for client startup: \(error.localizedDescription), ending background task")
+				self.endBackgroundTask()
+				return
+			}
+
+			// Feed the watchdog
 			Log.info("Rescheduling watchdog")
 			await self.rescheduleWatchdogNotification()
 
