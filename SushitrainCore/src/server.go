@@ -10,13 +10,16 @@ import (
 	"crypto/ed25519"
 	"errors"
 	"fmt"
+	"math"
 	"net"
 	"net/http"
 	"net/url"
 	"path/filepath"
+	"slices"
 	"time"
 
 	"github.com/gotd/contrib/http_range"
+	"github.com/syncthing/syncthing/lib/model"
 	"github.com/syncthing/syncthing/lib/protocol"
 	"github.com/syncthing/syncthing/lib/syncthing"
 )
@@ -105,8 +108,9 @@ func (srv *StreamingServer) Listen() error {
 }
 
 type miniPuller struct {
-	experiences map[protocol.DeviceID]bool
-	context     context.Context
+	measurements *Measurements
+	experiences  map[protocol.DeviceID]bool
+	context      context.Context
 }
 
 func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, blockIndex int, file protocol.FileInfo, block protocol.BlockInfo) ([]byte, error) {
@@ -120,9 +124,33 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 
 	Logger.Infoln("Download block #", blockIndex, ":", len(availables), "available peers, experiences:", mp.experiences)
 
+	// Sort availables by latency
+	slices.SortFunc(availables, func(a model.Availability, b model.Availability) int {
+		latencyA := mp.measurements.LatencyFor(a.ID.String())
+		latencyB := mp.measurements.LatencyFor(b.ID.String())
+		if math.IsNaN(latencyA) && math.IsNaN(latencyB) {
+			return 0
+		} else if math.IsNaN(latencyA) {
+			return 1 // a > b
+		} else if math.IsNaN(latencyB) {
+			return -1 // b > a
+		} else if latencyA > latencyB {
+			return 1
+		} else if latencyB > latencyA {
+			return -1
+		} else {
+			return 0
+		}
+	})
+
 	// Attempt to download the block from an available and 'known good' peers first
 	for _, available := range availables {
 		if exp, ok := mp.experiences[available.ID]; ok && exp {
+			// Skip devices we're not connected to
+			if !m.IsConnectedTo(available.ID) {
+				continue
+			}
+
 			buf, err := m.DownloadBlock(mp.context, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
 			// Remember our experience with this peer for next time
 			mp.experiences[available.ID] = err == nil || err == context.Canceled
@@ -137,6 +165,11 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 	// Failed to download from a good peer, let's try the peers we don't have any experience with
 	for _, available := range availables {
 		if _, ok := mp.experiences[available.ID]; !ok {
+			// Skip devices we're not connected to
+			if !m.IsConnectedTo(available.ID) {
+				continue
+			}
+
 			buf, err := m.DownloadBlock(mp.context, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
 			// Remember our experience with this peer for next time
 			mp.experiences[available.ID] = err == nil || err == context.Canceled
@@ -151,6 +184,11 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 	// Failed to download from a good or unknown peer, let's try the 'bad' peers once again
 	for _, available := range availables {
 		if exp, ok := mp.experiences[available.ID]; ok && !exp {
+			// Skip devices we're not connected to
+			if !m.IsConnectedTo(available.ID) {
+				continue
+			}
+
 			buf, err := m.DownloadBlock(mp.context, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
 			// Remember our experience with this peer for next time
 			mp.experiences[available.ID] = err == nil || err == context.Canceled
@@ -165,14 +203,15 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 	return nil, errors.New("no peer to download this block from")
 }
 
-func newMiniPuller(ctx context.Context) *miniPuller {
+func newMiniPuller(ctx context.Context, measurements *Measurements) *miniPuller {
 	return &miniPuller{
-		experiences: map[protocol.DeviceID]bool{},
-		context:     ctx,
+		experiences:  map[protocol.DeviceID]bool{},
+		context:      ctx,
+		measurements: measurements,
 	}
 }
 
-func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error) {
+func NewServer(app *syncthing.App, measurements *Measurements, ctx context.Context) (*StreamingServer, error) {
 	// Generate a private key to sign URLs with
 	publicKey, privateKey, err := ed25519.GenerateKey(nil)
 	if err != nil {
@@ -230,7 +269,7 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 		var totalBytesSent int64 = 0
 
 		// Send file contents to the client
-		serveEntry(w, r, folder, stEntry, info, m, func(bytesSent int64, bytesRequested int64) {
+		serveEntry(w, r, folder, stEntry, info, m, measurements, func(bytesSent int64, bytesRequested int64) {
 			if server.Delegate != nil {
 				go server.Delegate.OnStreamChunk(folder, path, int64(bytesSent), bytesRequested)
 			}
@@ -258,7 +297,7 @@ func NewServer(app *syncthing.App, ctx context.Context) (*StreamingServer, error
 
 type serveCallback func(bytesSent int64, bytesRequested int64)
 
-func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *Entry, info protocol.FileInfo, m *syncthing.Internals, callback serveCallback) {
+func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *Entry, info protocol.FileInfo, m *syncthing.Internals, measurements *Measurements, callback serveCallback) {
 	w.Header().Add("Accept-range", "bytes")
 
 	// Disable caching
@@ -283,7 +322,7 @@ func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *
 			return
 		}
 
-		mp := newMiniPuller(r.Context())
+		mp := newMiniPuller(r.Context(), measurements)
 
 		blockSize := int64(info.BlockSize())
 		for _, rng := range parsedRanges {
@@ -371,7 +410,7 @@ func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *
 			w.Write(buffer)
 		} else {
 			fetchedBytes := int64(0)
-			mp := newMiniPuller(r.Context())
+			mp := newMiniPuller(r.Context(), measurements)
 
 			for blockNo, block := range info.Blocks {
 				buf, err := mp.downloadBock(m, folderID, blockNo, info, block)

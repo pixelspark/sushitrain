@@ -7,6 +7,7 @@ import SwiftUI
 import SushitrainCore
 import Combine
 import UserNotifications
+import Network
 
 struct StreamingProgress: Hashable, Equatable {
 	var folder: String
@@ -105,6 +106,8 @@ struct SyncState {
 	@ObservationIgnored var client: SushitrainClient
 	@ObservationIgnored var photoBackup = PhotoBackup()
 	@ObservationIgnored var changePublisher = PassthroughSubject<Void, Never>()
+	@ObservationIgnored var pathMonitor: NWPathMonitor? = nil
+	@ObservationIgnored var pingTimer: Timer? = nil
 
 	var userSettings = AppUserSettings()
 	private let documentsDirectory: URL
@@ -232,6 +235,7 @@ struct SyncState {
 				await self.updateBadge()
 			}
 			self.protectFiles()
+			self.startNetworkMonitor()
 			self.startupState = .started
 			Log.info("Ready to go")
 		}
@@ -243,6 +247,43 @@ struct SyncState {
 			#if os(macOS)
 				self.alert(message: error.localizedDescription)
 			#endif
+		}
+	}
+
+	@MainActor private func stopNetworkMonitor() {
+		if let pm = self.pathMonitor {
+			pm.cancel()
+			self.pathMonitor = nil
+		}
+		if let t = self.pingTimer {
+			t.invalidate()
+			self.pingTimer = nil
+		}
+	}
+
+	@MainActor private func startNetworkMonitor() {
+		self.stopNetworkMonitor()
+
+		let pm = NWPathMonitor()
+		pm.pathUpdateHandler = { [weak client] path in
+			DispatchQueue.main.async {
+				Log.info("Network path change: \(path)")
+			}
+			if let measurement = client?.measurements {
+				Task.detached {
+					measurement.measure()
+				}
+			}
+		}
+		pm.start(queue: .main)
+		self.pathMonitor = pm
+
+		self.pingTimer = Timer.scheduledTimer(withTimeInterval: 50, repeats: true) { [weak client] timer in
+			if let measurement = client?.measurements {
+				Task.detached {
+					measurement.measure()
+				}
+			}
 		}
 	}
 
@@ -522,6 +563,8 @@ struct SyncState {
 	}
 
 	func awake() {
+		self.startNetworkMonitor()
+
 		#if os(iOS)
 			self.lingerManager.cancelLingering()
 			try? self.client.setReconnectIntervalS(1)
@@ -535,6 +578,8 @@ struct SyncState {
 	}
 
 	func sleep() {
+		self.stopNetworkMonitor()
+
 		#if os(iOS)
 			QuickActionService.provideActions()
 

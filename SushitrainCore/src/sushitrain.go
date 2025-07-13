@@ -13,6 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"iter"
+	"math"
 	"net/url"
 	"os"
 	"path"
@@ -54,6 +55,7 @@ type Client struct {
 	ResolvedListenAddresses  map[string][]string
 	mutex                    sync.Mutex
 	extraneousIgnored        []string
+	Measurements             *Measurements
 }
 
 type Change struct {
@@ -62,6 +64,20 @@ type Change struct {
 	Action   string
 	ShortID  string
 	Time     *Date
+}
+
+const measurementStaleAfterDurationSeconds = 60.0
+
+type Measurement struct {
+	latency float64
+	when    time.Time
+}
+
+type Measurements struct {
+	mutex        sync.Mutex
+	measurements map[string]Measurement
+	client       *Client
+	isMeasuring  bool
 }
 
 type ClientDelegate interface {
@@ -180,6 +196,7 @@ func NewClient(configPath string, filesPath string, saveLog bool) *Client {
 		uploadProgress:             make(map[string]map[string]map[string]int),
 		ResolvedListenAddresses:    make(map[string][]string),
 		extraneousIgnored:          make([]string, 0),
+		Measurements:               nil,
 	}
 }
 
@@ -583,8 +600,10 @@ func (clt *Client) Start() error {
 		return errors.New("call Client.Load first")
 	}
 
+	clt.Measurements = NewMeasurements(clt)
+
 	// Set up streaming server
-	server, err := NewServer(clt.app, clt.ctx)
+	server, err := NewServer(clt.app, clt.Measurements, clt.ctx)
 	if err != nil {
 		return err
 	}
@@ -1435,4 +1454,69 @@ func GetFreeDiskSpaceMegaBytes() int {
 		return int(usage.Free / 1024 / 1024)
 	}
 	return 0
+}
+
+func NewMeasurements(clt *Client) *Measurements {
+	return &Measurements{
+		client:       clt,
+		measurements: make(map[string]Measurement, 0),
+		mutex:        sync.Mutex{},
+		isMeasuring:  false,
+	}
+}
+
+func (m *Measurements) LatencyFor(deviceID string) float64 {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	if measurement, ok := m.measurements[deviceID]; ok {
+		if time.Since(measurement.when) > (measurementStaleAfterDurationSeconds * time.Second) {
+			return math.NaN()
+		}
+		return measurement.latency
+	}
+	return math.NaN()
+}
+
+func (m *Measurements) actuallyMeasure() {
+	ctx := context.Background()
+	devices := m.client.config.DeviceList()
+	latencies := make(map[string]Measurement, 0)
+	for _, device := range devices {
+		if m.client.app.Internals.IsConnectedTo(device.DeviceID) {
+			start := time.Now()
+			pingContext, _ := context.WithTimeout(ctx, time.Second*1)
+
+			// Make a faux request. This is expected to return a 'generic error' but we are not actually interested in the
+			// requested block anyway, just in the time it takes to respond.
+			_, _ = m.client.app.Internals.DownloadBlock(pingContext, device.DeviceID, "__fake_folder", "__fake_file_name_for_ping", 0, protocol.BlockInfo{}, false)
+			duration := time.Since(start)
+			latencies[device.DeviceID.String()] = Measurement{
+				latency: duration.Seconds(),
+				when:    time.Now(),
+			}
+		}
+	}
+
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	m.measurements = latencies
+}
+
+func (m *Measurements) Measure() {
+	m.mutex.Lock()
+	wasMeasuring := m.isMeasuring
+	if !wasMeasuring {
+		m.isMeasuring = true
+	}
+	m.mutex.Unlock()
+
+	if wasMeasuring {
+		return
+	}
+
+	m.actuallyMeasure()
+
+	m.mutex.Lock()
+	m.isMeasuring = false
+	m.mutex.Unlock()
 }

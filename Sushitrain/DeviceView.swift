@@ -168,6 +168,20 @@ struct DeviceView: View {
 					}
 				}
 
+				if device.isConnected() {
+					if let latency = appState.client.measurements?.latency(for: device.deviceID()), !latency.isNaN {
+						Section {
+							LabeledContent("Latency") {
+								HStack {
+									Spacer()
+									Text("\(Int(latency * 1000)) ms")
+									LatencyView(latency: latency)
+								}
+							}
+						}
+					}
+				}
+
 				Section {
 					Button(
 						"Unlink device", systemImage: "trash", role: .destructive,

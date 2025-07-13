@@ -135,7 +135,7 @@ func (srv *FolderServer) handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Actually send the file
-	serveEntry(w, r, srv.folderID, stEntry, info, srv.client.app.Internals, nil)
+	serveEntry(w, r, srv.folderID, stEntry, info, srv.client.app.Internals, srv.client.Measurements, nil)
 }
 
 func (srv *FolderServer) port() int {

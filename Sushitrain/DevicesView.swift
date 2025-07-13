@@ -19,6 +19,32 @@ struct DevicesView: View {
 	}
 }
 
+struct LatencyView: View {
+	let latency: Double
+
+	var body: some View {
+		if !latency.isNaN {
+			Image(systemName: "cellularbars", variableValue: self.quality).foregroundStyle(.green)
+		}
+		else {
+			EmptyView()
+		}
+	}
+
+	private var quality: Double {
+		if latency < 0 {
+			return 0.0
+		}
+
+		// log(10)/log(5) = 1
+		// log(625)/log(5) = 4
+		// l = 0..=1
+		let ms = max(min(self.latency * 1000.0, 1000.0), 5.0)
+		let l = ((log(ms) / log(5.0)) - 1.0) / 3.0
+		return min(1.0, max(1.0 - l, 0.0))
+	}
+}
+
 #if os(iOS)
 	private struct DevicesListView: View {
 		@Environment(AppState.self) private var appState
@@ -27,6 +53,7 @@ struct DevicesView: View {
 		@State private var discoveredNewDevices: [String] = []
 		@State private var peers: [SushitrainPeer] = []
 		@State private var loading = true
+		@State private var measurements: [String: Double] = [:]
 
 		var body: some View {
 			List {
@@ -50,11 +77,20 @@ struct DevicesView: View {
 					else {
 						ForEach(peers) { peer in
 							NavigationLink(destination: DeviceView(device: peer)) {
-								if peer.isPaused() {
-									Label(peer.displayName, systemImage: "externaldrive.fill").foregroundStyle(.gray)
-								}
-								else {
-									Label(peer.displayName, systemImage: peer.systemImage)
+								HStack {
+									if peer.isPaused() {
+										Label(peer.displayName, systemImage: "externaldrive.fill").foregroundStyle(.gray)
+									}
+									else {
+										Label(peer.displayName, systemImage: peer.systemImage)
+									}
+
+									Spacer()
+									if peer.isConnected() {
+										if let latency = self.measurements[peer.deviceID()], !latency.isNaN {
+											LatencyView(latency: latency)
+										}
+									}
 								}
 							}
 						}.onDelete(perform: { indexSet in
@@ -94,12 +130,35 @@ struct DevicesView: View {
 			#endif
 			.sheet(isPresented: $showingAddDevicePopup) {
 				AddDeviceView(suggestedDeviceID: $addingDeviceID)
-			}.task { self.update() }.onChange(of: appState.eventCounter) { self.update() }
+			}.task {
+				self.update()
+			}.onChange(of: appState.eventCounter) {
+				self.update()
+			}
+			.onAppear {
+				// Measure latencies
+				let measurements = appState.client.measurements
+				Task.detached {
+					measurements?.measure()
+					await self.updateMeasurements()
+				}
+			}
+		}
+
+		private func updateMeasurements() {
+			// Measurements
+			self.measurements = [:]
+			if let m = appState.client.measurements {
+				for device in self.peers {
+					self.measurements[device.deviceID()] = m.latency(for: device.deviceID())
+				}
+			}
 		}
 
 		private func update() {
 			self.loading = true
 			self.peers = appState.peers().filter({ x in !x.isSelf() }).sorted()
+			self.updateMeasurements()
 
 			// Discovered peers
 			let peerIDs = peers.map { $0.deviceID() }
