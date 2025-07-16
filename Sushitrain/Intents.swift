@@ -7,12 +7,48 @@
 @preconcurrency import SushitrainCore
 import UniformTypeIdentifiers
 
+private enum IntentHandlingError: LocalizedError {
+	case appStartupFailed(String)
+
+	var errorDescription: String? {
+		switch self {
+		case .appStartupFailed(let msg):
+			return String(
+				localized: "Could not start the app: \(msg)"
+			)
+		}
+	}
+}
+
+extension AppState {
+	fileprivate func waitForAppStarted() async throws {
+		// Wait for app startup
+		do {
+			while self.startupState != .started {
+				if case .error(let msg) = self.startupState {
+					Log.info("Error in app startup: \(msg); abort intent task")
+					throw IntentHandlingError.appStartupFailed(msg)
+				}
+
+				// Just give it some time
+				Log.info("Waiting for client startup...")
+				try await Task.sleep(for: .milliseconds(100))
+			}
+		}
+		catch {
+			Log.warn("Caught error while waiting for client startup: \(error.localizedDescription), ending background task")
+			throw error
+		}
+	}
+}
+
 struct SynchronizePhotosIntent: AppIntent {
 	static let title: LocalizedStringResource = "Back-up new photos"
 
 	@Dependency private var appState: AppState
 
 	func perform() async throws -> some IntentResult {
+		try await appState.waitForAppStarted()
 		await appState.awake()
 		let backupTask = await appState.photoBackup.backup(appState: appState, fullExport: false, isInBackground: true)
 		try await backupTask?.value
@@ -34,6 +70,7 @@ struct SynchronizeIntent: AppIntent {
 	@MainActor
 	func perform() async throws -> some IntentResult {
 		if self.time > 0 {
+			try await appState.waitForAppStarted()
 			await appState.awake()
 			do {
 				try await Task.sleep(for: .seconds(self.time))
@@ -121,6 +158,8 @@ struct FileEntityQuery: EntityQuery, EntityPropertyQuery {
 			throw FileEntityQueryError.modeNotSupported
 		}
 
+		try await appState.waitForAppStarted()
+
 		// Map query to search parameters
 		for c in comparators {
 			switch c {
@@ -169,6 +208,7 @@ struct FileEntityQuery: EntityQuery, EntityPropertyQuery {
 	}
 
 	func entities(for identifiers: [DeviceEntity.ID]) async throws -> [FileEntity] {
+		try await appState.waitForAppStarted()
 		let client = await appState.client
 		return identifiers.compactMap { urlString in
 			if let url = URLComponents(string: urlString) {
@@ -342,18 +382,21 @@ struct FolderEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntityQuery 
 	@Dependency private var appState: AppState
 
 	func entities(for identifiers: [FolderEntity.ID]) async throws -> [FolderEntity] {
+		try await appState.waitForAppStarted()
 		return await appState.folders().filter { identifiers.contains($0.folderID) }.map {
 			FolderEntity(folder: $0)
 		}
 	}
 
 	func suggestedEntities() async throws -> [FolderEntity] {
+		try await appState.waitForAppStarted()
 		return await appState.folders().map {
 			FolderEntity(folder: $0)
 		}
 	}
 
 	func entities(matching string: String) async throws -> [FolderEntity] {
+		try await appState.waitForAppStarted()
 		return await appState.folders().filter { $0.displayName.contains(string) }.map {
 			FolderEntity(folder: $0)
 		}
@@ -370,18 +413,21 @@ struct DeviceEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntityQuery 
 	@Dependency private var appState: AppState
 
 	func entities(for identifiers: [DeviceEntity.ID]) async throws -> [DeviceEntity] {
+		try await appState.waitForAppStarted()
 		return await appState.peers().filter { !$0.isSelf() && identifiers.contains($0.id) }.map {
 			DeviceEntity(peer: $0)
 		}
 	}
 
 	func suggestedEntities() async throws -> [DeviceEntity] {
+		try await appState.waitForAppStarted()
 		return await appState.peers().filter { !$0.isSelf() }.map {
 			DeviceEntity(peer: $0)
 		}
 	}
 
 	func entities(matching string: String) async throws -> [DeviceEntity] {
+		try await appState.waitForAppStarted()
 		return await appState.peers().filter { !$0.isSelf() && $0.displayName.contains(string) }.map {
 			DeviceEntity(peer: $0)
 		}
@@ -398,6 +444,7 @@ struct GetExtraneousFilesIntent: AppIntent {
 
 	@MainActor
 	func perform() async throws -> some ReturnsValue<[IntentFile]> {
+		try await appState.waitForAppStarted()
 		let files = try folderEntity.folder.extraneousFiles().asArray()
 		let folderPath = folderEntity.folder.localNativeURL!
 		return .result(
@@ -418,6 +465,7 @@ struct GetNeededFilesIntent: AppIntent {
 
 	@MainActor
 	func perform() async throws -> some ReturnsValue<[IntentFile]> {
+		try await appState.waitForAppStarted()
 		let files = (try folderEntity.folder.filesNeeded()).asArray()
 		let folderPath = folderEntity.folder.localNativeURL!
 		return .result(
@@ -441,6 +489,7 @@ struct GetRemoteNeededFilesIntent: AppIntent {
 
 	@MainActor
 	func perform() async throws -> some ReturnsValue<[IntentFile]> {
+		try await appState.waitForAppStarted()
 		let files = (try folderEntity.folder.filesNeeded(by: deviceEntity.deviceID)).asArray()
 		let folderPath = folderEntity.folder.localNativeURL!
 		return .result(
@@ -464,6 +513,7 @@ struct RescanIntent: AppIntent {
 
 	@MainActor
 	func perform() async throws -> some IntentResult {
+		try await appState.waitForAppStarted()
 		if let sub = self.subdirectory {
 			try folderEntity.folder.rescanSubdirectory(sub)
 		}
@@ -487,6 +537,7 @@ struct RemoveEmptySubdirectoriesIntent: AppIntent {
 
 	@MainActor
 	func perform() async throws -> some IntentResult {
+		try await appState.waitForAppStarted()
 		try folderEntity.folder.removeSuperfluousSubdirectories()
 		try folderEntity.folder.removeSuperfluousSelectionEntries()
 		return .result()
@@ -524,6 +575,7 @@ struct UnselectSynchronizedFilesIntent: AppIntent {
 			throw Errors.invalidQuorum
 		}
 
+		try await appState.waitForAppStarted()
 		let folder = folderEntity.folder
 		var selectedPaths = Set(try folder.selectedPaths(true).asArray())
 
@@ -608,6 +660,7 @@ struct ConfigureFolderIntent: AppIntent {
 
 	@MainActor
 	func perform() async throws -> some IntentResult {
+		try await appState.waitForAppStarted()
 		for f in self.folderEntities {
 			switch self.enable {
 			case .enabled:
@@ -646,6 +699,7 @@ struct GetFolderIntent: AppIntent {
 
 	@MainActor
 	func perform() async throws -> some ReturnsValue<IntentFile> {
+		try await appState.waitForAppStarted()
 		if let url = self.folderEntity.folder.localNativeURL {
 			return .result(value: IntentFile(fileURL: url))
 		}
@@ -687,6 +741,7 @@ struct ConfigureDeviceIntent: AppIntent {
 
 	@MainActor
 	func perform() async throws -> some IntentResult {
+		try await appState.waitForAppStarted()
 		for f in self.deviceEntities {
 			// TODO: check if this works correctly with device suspension
 			switch self.enable {
@@ -731,20 +786,21 @@ struct DownloadFilesIntent: AppIntent {
 
 	@MainActor
 	func perform() async throws -> some ReturnsValue<[IntentFile]> {
+		try await appState.waitForAppStarted()
 		// Reconnect to peers
 		await appState.awake()
-		
+
 		do {
 			// Time until which we can wait for peers to connect
 			let deadline = Date.now.addingTimeInterval(Double(maxWaitingTime))
-			
+
 			// Collect all the files
 			var files: [IntentFile] = []
 			for file in self.files {
 				if file.file.isDirectory() || file.file.isDeleted() || file.file.isSymlink() {
 					continue
 				}
-				
+
 				if let fu = file.file.localNativeFileURL {
 					files.append(IntentFile(fileURL: fu))
 				}
@@ -764,7 +820,7 @@ struct DownloadFilesIntent: AppIntent {
 							break
 						}
 					}
-					
+
 					let odu = URL(string: file.file.onDemandURL())!
 					let (localURL, _) = try await URLSession.shared.download(from: odu)
 					files.append(
@@ -773,7 +829,7 @@ struct DownloadFilesIntent: AppIntent {
 							type: UTType(mimeType: file.file.mimeType())))
 				}
 			}
-			
+
 			await appState.sleep()
 			return .result(value: files)
 		}
