@@ -85,6 +85,7 @@ type ClientDelegate interface {
 	OnDeviceDiscovered(deviceID string, addresses *ListOfStrings)
 	OnListenAddressesChanged(addresses *ListOfStrings)
 	OnChange(change *Change)
+	OnMeasurementsUpdated()
 }
 
 var (
@@ -1502,6 +1503,9 @@ func (m *Measurements) actuallyMeasure() {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	m.measurements = latencies
+	if m.client.Delegate != nil {
+		m.client.Delegate.OnMeasurementsUpdated()
+	}
 }
 
 func (m *Measurements) Measure() {

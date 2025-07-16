@@ -275,6 +275,14 @@ extension SushitrainDelegate: SushitrainClientDelegateProtocol {
 			}
 		}
 	}
+
+	func onMeasurementsUpdated() {
+		// For now just trigger an event update
+		let appState = self.appState
+		DispatchQueue.main.async {
+			appState.changePublisher.send()
+		}
+	}
 }
 
 extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
