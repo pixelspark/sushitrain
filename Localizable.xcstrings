@@ -19548,6 +19548,40 @@
         }
       }
     },
+    "The app needs to be opened in the foreground at least once to upgrade the database." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die App muss mindestens einmal im Vordergrund geöffnet werden, um die Datenbank zu aktualisieren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La app debe abrirse en primer plano al menos una vez para actualizar la base de datos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'app deve essere aperta in primo piano almeno una volta per aggiornare il database."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De app moet ten minste één keer op de voorgrond worden geopend om de database bij te werken."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Додаток потрібно відкрити в активному режимі хоча б один раз, щоб оновити базу даних."
+          }
+        }
+      }
+    },
     "The configuration file has been saved in the application folder." : {
       "localizations" : {
         "de" : {

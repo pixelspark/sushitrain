@@ -171,6 +171,16 @@ struct SyncState {
 
 		self.isMigratedToNewDatabase = !client.hasLegacyDatabase()
 
+		// If we are not migrated and we are in the background, bail out. We want to migrate in the foreground only
+		if !self.isMigratedToNewDatabase && UIApplication.shared.applicationState == .background {
+			Log.warn(
+				"The app is started in the background but it still has a legacy database. Please open it in the foreground to upgrade the database."
+			)
+			self.startupState = .error(
+				String(localized: "The app needs to be opened in the foreground at least once to upgrade the database."))
+			return
+		}
+
 		let client = self.client
 		let resetDeltas = UserDefaults.standard.bool(forKey: "resetDeltas")
 		if resetDeltas {
