@@ -16,6 +16,7 @@ private struct FolderMetricView: View {
 	@Environment(AppState.self) private var appState
 	let metric: FolderMetric
 	let folder: SushitrainFolder
+	@ObservationIgnored let bytesFormatter = ByteCountFormatter()
 	@State private var stats: SushitrainFolderStats? = nil
 
 	var body: some View {
@@ -55,22 +56,20 @@ private struct FolderMetricView: View {
 				return Text("")
 
 			case .localSize:
-				let formatter = ByteCountFormatter()
 				if let cnt = stats.local?.bytes {
 					if cnt <= 0 {
 						return Text("-")
 					}
-					return Text(formatter.string(fromByteCount: cnt))
+					return Text(bytesFormatter.string(fromByteCount: cnt))
 				}
 				return Text("")
 
 			case .globalSize:
-				let formatter = ByteCountFormatter()
 				if let cnt = stats.global?.bytes {
 					if cnt <= 0 {
 						return Text("-")
 					}
-					return Text(formatter.string(fromByteCount: cnt))
+					return Text(bytesFormatter.string(fromByteCount: cnt))
 				}
 				return Text("")
 
