@@ -271,6 +271,7 @@ struct StartView: View {
 	@State private var inaccessibleExternalFolders: [SushitrainFolder] = []
 	@State private var foldersWithIssues: [SushitrainFolder] = []
 	@State private var fixingInaccessibleExternalFolder: SushitrainFolder? = nil
+	@State private var isDiskSpaceSufficient = true
 
 	var body: some View {
 		Form {
@@ -295,7 +296,7 @@ struct StartView: View {
 			}
 
 			// Disk space warning
-			if !appState.client.isDiskSpaceSufficient() {
+			if !isDiskSpaceSufficient {
 				Section {
 					DiskSpaceWarningView()
 				}
@@ -480,6 +481,9 @@ struct StartView: View {
 		let p = self.appState.peers()
 		self.peers = p
 		self.folders = self.appState.folders().sorted()
+		
+		isDiskSpaceSufficient = appState.client.isDiskSpaceSufficient()
+		
 		await self.appState.updateBadge()  // Updates extraneous files list
 		do {
 			try await Task.sleep(nanoseconds: 3 * 1_000_000_000)  // 3 seconds
