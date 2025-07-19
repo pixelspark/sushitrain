@@ -658,7 +658,7 @@ struct AdvancedSettingsView: View {
 			#endif
 		}
 		.task {
-			self.update()
+			await self.update()
 		}
 		.onDisappear {
 			appState.applySettings()
@@ -672,8 +672,8 @@ struct AdvancedSettingsView: View {
 		#endif
 	}
 
-	private func update() {
-		self.folders = appState.folders().sorted()
+	private func update() async {
+		self.folders = await appState.folders().sorted()
 		Task {
 			do {
 				self.diskCacheSizeBytes = try await ImageCache.shared.diskCacheSizeBytes()

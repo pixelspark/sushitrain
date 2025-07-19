@@ -276,7 +276,7 @@ struct PhotoBackupSettingsView: View {
 		#endif
 		.task {
 			authorizationStatus = PHPhotoLibrary.authorizationStatus()
-			self.folders = appState.folders().filter({ $0.isSuitablePhotoBackupDestination }).sorted()
+			self.folders = await appState.folders().filter({ $0.isSuitablePhotoBackupDestination }).sorted()
 		}
 	}
 

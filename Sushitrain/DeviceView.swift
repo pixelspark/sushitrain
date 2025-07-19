@@ -205,11 +205,11 @@ struct DeviceView: View {
 		#endif
 		.navigationTitle(!device.exists() || device.name().isEmpty ? device.deviceID() : device.name())
 		.task {
-			self.update()
+			await self.update()
 		}
 	}
 
-	private func update() {
-		self.folders = appState.folders().sorted()
+	private func update() async {
+		self.folders = await appState.folders().sorted()
 	}
 }

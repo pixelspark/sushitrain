@@ -205,15 +205,17 @@ struct FoldersSections: View {
 			}
 		)
 		.task {
-			self.update()
+			await self.update()
 		}
 		.onChange(of: appState.eventCounter) {
-			self.update()
+			Task {
+				await self.update()
+			}
 		}
 	}
 
-	private func update() {
-		folders = appState.folders().sorted()
+	private func update() async {
+		folders = await appState.folders().sorted()
 
 		let addedFolders = Set(folders.map({ f in f.folderID }))
 		self.pendingFolderIds = ((try? self.appState.client.pendingFolderIDs())?.asArray() ?? []).filter({

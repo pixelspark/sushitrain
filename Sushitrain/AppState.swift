@@ -356,7 +356,7 @@ struct SyncState {
 
 	private func updateExtraneousFiles() async {
 		// List folders that have extra files
-		let folders = self.folders()
+		let folders = await self.folders()
 		self.foldersWithExtraFiles = await
 			(Task.detached {
 				var myFoldersWithExtraFiles: [String] = []
@@ -380,7 +380,6 @@ struct SyncState {
 		return !self.client.isDownloading() && !self.client.isUploading() && !self.photoBackup.isSynchronizing
 	}
 
-	@MainActor
 	func alert(message: String) {
 		Self.modalAlert(message: message)
 	}
@@ -424,11 +423,12 @@ struct SyncState {
 		}
 	}
 
-	func folders() -> [SushitrainFolder] {
-		let folderIDs = self.client.folders()?.asArray() ?? []
+	nonisolated func folders() async -> [SushitrainFolder] {
+		let client = await self.client
+		let folderIDs = client.folders()?.asArray() ?? []
 		var folderInfos: [SushitrainFolder] = []
 		for fid in folderIDs {
-			let folderInfo = self.client.folder(withID: fid)!
+			let folderInfo = client.folder(withID: fid)!
 			folderInfos.append(folderInfo)
 		}
 		return folderInfos

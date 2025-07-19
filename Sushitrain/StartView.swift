@@ -475,12 +475,12 @@ struct StartView: View {
 
 	private func update() async {
 		showNoPeersEnabledWarning = false
-		self.updateFoldersWithIssues()
+		await self.updateFoldersWithIssues()
 
 		// Check to see if there are peers connected
 		let p = self.appState.peers()
 		self.peers = p
-		self.folders = self.appState.folders().sorted()
+		self.folders = await self.appState.folders().sorted()
 
 		isDiskSpaceSufficient = appState.client.isDiskSpaceSufficient()
 
@@ -495,8 +495,8 @@ struct StartView: View {
 		}
 	}
 
-	private func updateFoldersWithIssues() {
-		let folders = self.appState.folders()
+	private func updateFoldersWithIssues() async {
+		let folders = await self.appState.folders()
 
 		// Find external folders that have become inaccessible
 		self.inaccessibleExternalFolders = folders.filter { folder in
