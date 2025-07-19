@@ -124,10 +124,6 @@ struct SearchResultsView: View, SearchViewDelegate {
 	}
 
 	func setStatus(searching: Bool, from: SearchOperation) {
-		if from !== self.searchOperation {
-			// Old search operation
-			return
-		}
 		self.searchCount += (searching ? 1 : -1)
 	}
 
@@ -264,29 +260,33 @@ struct SearchResultsView: View, SearchViewDelegate {
 
 		let sr = SearchOperation(delegate: self)
 		self.searchOperation = sr
+		sr.view.setStatus(searching: true, from: sr)
+
 		self.results = []
 		let text = self.searchText
 		let appState = self.appState
 		let prefix = self.prefix
 		let folderID = self.folderID
 
-		if !text.isEmpty {
-			let client = appState.client
-			DispatchQueue.global(qos: .userInitiated).async {
+		let client = appState.client
+		DispatchQueue.global(qos: .userInitiated).async {
+			if !text.isEmpty {
 				do {
-					DispatchQueue.main.async {
-						sr.view.setStatus(searching: true, from: sr)
-					}
 					try client.search(
-						text, delegate: sr, maxResults: SearchOperation.maxResultCount,
-						folderID: folderID, prefix: prefix)
-					DispatchQueue.main.async {
-						sr.view.setStatus(searching: false, from: sr)
-					}
+						text,
+						delegate: sr,
+						maxResults: SearchOperation.maxResultCount,
+						folderID: folderID,
+						prefix: prefix
+					)
 				}
 				catch let error {
 					Log.info("Error searching: " + error.localizedDescription)
 				}
+			}
+
+			DispatchQueue.main.async {
+				sr.view.setStatus(searching: false, from: sr)
 			}
 		}
 	}
