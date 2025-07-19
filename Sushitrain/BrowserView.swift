@@ -468,12 +468,14 @@ private struct BrowserItemsView: View {
 	@State private var hasExtraneousFiles = false
 	@State private var isLoading = true
 	@State private var showSpinner = false
+	@State private var folderExists = false
+	@State private var folderIsPaused = false
 
 	@Environment(\.isSearching) private var isSearching
 
 	var body: some View {
-		Group {
-			if self.folder.exists() {
+		ZStack {
+			if folderExists {
 				if !isSearching {
 					switch self.viewStyle ?? appState.userSettings.defaultBrowserViewStyle {
 					case .grid:
@@ -633,20 +635,20 @@ private struct BrowserItemsView: View {
 	}
 
 	@ViewBuilder private func overlayView() -> some View {
-		if !folder.exists() {
-			ContentUnavailableView(
-				"Folder removed", systemImage: "trash",
-				description: Text("This folder was removed."))
-		}
-		else if isLoading {
+		if isLoading {
 			if isEmpty && showSpinner {
 				ProgressView()
 			}
 			// Load the rest while already showing a part of the results
 		}
+		else if !folderExists {
+			ContentUnavailableView(
+				"Folder removed", systemImage: "trash",
+				description: Text("This folder was removed."))
+		}
 		else if isEmpty {
 			if self.prefix == "" {
-				if self.folder.isPaused() {
+				if folderIsPaused {
 					ContentUnavailableView(
 						"Synchronization disabled", systemImage: "pause.fill",
 						description: Text(
@@ -705,8 +707,11 @@ private struct BrowserItemsView: View {
 		let folder = self.folder
 		let prefix = self.prefix
 		let dotFilesHidden = self.appState.userSettings.dotFilesHidden
+		
+		let folderExists = folder.exists()
 
 		let newSubdirectories: [SushitrainEntry] = await Task.detached {
+			dispatchPrecondition(condition: .notOnQueue(.main))
 			if !folder.exists() {
 				return []
 			}
@@ -727,6 +732,7 @@ private struct BrowserItemsView: View {
 		}.value
 
 		let newFiles: [SushitrainEntry] = await Task.detached {
+			dispatchPrecondition(condition: .notOnQueue(.main))
 			if !folder.exists() {
 				return []
 			}
@@ -740,23 +746,29 @@ private struct BrowserItemsView: View {
 			return []
 		}.value
 
-		await self.updateExtraneousFiles()
 		self.isLoading = false
 		loadingSpinnerTask.cancel()
+		let folderIsPaused = folder.isPaused()
 
 		// Just update without animation when we are empty or not a grid
 		if (self.files.isEmpty && self.subdirectories.isEmpty) || self.viewStyle != .grid {
+			self.folderExists = folderExists
 			self.files = newFiles
 			self.subdirectories = newSubdirectories
+			self.folderIsPaused = folderIsPaused
 			self.autoSelectViewStyle()
 		}
 		else {
 			withAnimation {
+				self.folderExists = folderExists
 				self.files = newFiles
 				self.subdirectories = newSubdirectories
+				self.folderIsPaused = folderIsPaused
 				self.autoSelectViewStyle()
 			}
 		}
+		
+		await self.updateExtraneousFiles()
 	}
 
 	private func autoSelectViewStyle() {
@@ -793,6 +805,7 @@ private struct BrowserItemsView: View {
 	private func updateExtraneousFiles() async {
 		if self.folder.isIdle {
 			hasExtraneousFiles = await Task.detached {
+				dispatchPrecondition(condition: .notOnQueue(.main))
 				var hasExtra: ObjCBool = false
 				do {
 					try folder.hasExtraneousFiles(&hasExtra)
