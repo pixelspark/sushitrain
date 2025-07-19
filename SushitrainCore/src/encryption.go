@@ -109,8 +109,12 @@ func (entry *Entry) EncryptedFilePath(folderPassword string) string {
 	return slashify(base32Hex.EncodeToString(enc))
 }
 
-func (folder *Folder) DecryptedFilePath(encryptedPath string, folderPassword string) (string, error) {
-	return decryptName(encryptedPath, folder.folderKey(folderPassword))
+func (folder *Folder) DecryptedFilePath(encryptedPath string, folderPassword string) string {
+	path, err := decryptName(encryptedPath, folder.folderKey(folderPassword))
+	if err != nil {
+		return ""
+	}
+	return path
 }
 
 func (entry *Entry) FileKeyBase32(password string) string {

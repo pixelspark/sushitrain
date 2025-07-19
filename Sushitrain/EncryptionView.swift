@@ -134,10 +134,8 @@ struct DecryptedFilePathsView: View {
 		let passwords = self.passwords
 		self.decryptedPaths = await Task.detached {
 			return passwords.compactMap { pw in
-				var error: NSError? = nil
-				let decryptedPath = self.folder.decryptedFilePath(
-					path, folderPassword: pw, error: &error)
-				if error == nil && !decryptedPath.isEmpty {
+				let decryptedPath = self.folder.decryptedFilePath(path, folderPassword: pw)
+				if !decryptedPath.isEmpty {
 					return decryptedPath
 				}
 				return nil
