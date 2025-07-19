@@ -481,9 +481,9 @@ struct StartView: View {
 		let p = self.appState.peers()
 		self.peers = p
 		self.folders = self.appState.folders().sorted()
-		
+
 		isDiskSpaceSufficient = appState.client.isDiskSpaceSufficient()
-		
+
 		await self.appState.updateBadge()  // Updates extraneous files list
 		do {
 			try await Task.sleep(nanoseconds: 3 * 1_000_000_000)  // 3 seconds

@@ -707,7 +707,7 @@ private struct BrowserItemsView: View {
 		let folder = self.folder
 		let prefix = self.prefix
 		let dotFilesHidden = self.appState.userSettings.dotFilesHidden
-		
+
 		let folderExists = folder.exists()
 
 		let newSubdirectories: [SushitrainEntry] = await Task.detached {
@@ -767,7 +767,7 @@ private struct BrowserItemsView: View {
 				self.autoSelectViewStyle()
 			}
 		}
-		
+
 		await self.updateExtraneousFiles()
 	}
 
