@@ -355,8 +355,7 @@ struct FileView: View {
 			// Sheet viewer
 			.sheet(isPresented: $showSheetViewer) {
 				FileViewerView(file: file, siblings: siblings, inSheet: true, isShown: $showSheetViewer)
-					#if os(
-						macOS)
+					#if os(macOS)
 						.presentationSizing(.fitted).frame(minWidth: 640, minHeight: 480)
 					#endif
 			}
