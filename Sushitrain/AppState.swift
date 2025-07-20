@@ -47,6 +47,14 @@ enum AppStartupState: Equatable {
 	case started
 }
 
+class SushitrainDelegate: NSObject {
+	fileprivate var appState: AppState
+
+	required init(appState: AppState) {
+		self.appState = appState
+	}
+}
+
 @MainActor class AppUserSettings: ObservableObject {
 	@AppStorage("backgroundSyncEnabled") var longBackgroundSyncEnabled: Bool = true
 	@AppStorage("shortBackgroundSyncEnabled") var shortBackgroundSyncEnabled: Bool = false
@@ -103,13 +111,28 @@ struct SyncState {
 }
 
 @Observable @MainActor class AppState {
-	@ObservationIgnored var client: SushitrainClient
+	@ObservationIgnored nonisolated let client: SushitrainClient
 	@ObservationIgnored var photoBackup = PhotoBackup()
 	@ObservationIgnored var changePublisher = PassthroughSubject<Void, Never>()
 	@ObservationIgnored var pathMonitor: NWPathMonitor? = nil
 	@ObservationIgnored var pingTimer: Timer? = nil
 
-	var userSettings = AppUserSettings()
+	var isLogging: Bool = false
+
+	private(set) var userSettings = AppUserSettings()
+	private(set) var localDeviceID: String = ""
+	private(set) var eventCounter: Int = 0
+	private(set) var foldersWithExtraFiles: [String] = []
+	private(set) var startupState: AppStartupState = .notStarted
+	private(set) var isMigratedToNewDatabase: Bool = false
+	private(set) var syncState: SyncState = SyncState(isDownloading: false, isUploading: false, connectedPeerCount: 0)
+	private(set) var launchedAt = Date.now
+
+	fileprivate(set) var discoveredDevices: [String: [String]] = [:]
+	fileprivate(set) var resolvedListenAddresses = Set<String>()
+	fileprivate(set) var streamingProgress: StreamingProgress? = nil
+	fileprivate(set) var lastChanges: [SushitrainChange] = []
+
 	private let documentsDirectory: URL
 	private let configDirectory: URL
 	private var changeCancellable: AnyCancellable? = nil
@@ -118,22 +141,6 @@ struct SyncState {
 		@ObservationIgnored var backgroundManager: BackgroundManager!
 		private var lingerManager: LingerManager!
 		private(set) var isSuspended = false
-	#endif
-
-	var localDeviceID: String = ""
-	var eventCounter: Int = 0
-	var discoveredDevices: [String: [String]] = [:]
-	var resolvedListenAddresses = Set<String>()
-	var launchedAt = Date.now
-	var streamingProgress: StreamingProgress? = nil
-	var lastChanges: [SushitrainChange] = []
-	var isLogging: Bool = false
-	var foldersWithExtraFiles: [String] = []
-	var startupState: AppStartupState = .notStarted
-	var isMigratedToNewDatabase: Bool = false
-	var syncState: SyncState = SyncState(isDownloading: false, isUploading: false, connectedPeerCount: 0)
-
-	#if os(iOS)
 		var currentAction: QuickAction? = nil
 	#endif
 
@@ -426,7 +433,7 @@ struct SyncState {
 	}
 
 	nonisolated func folders() async -> [SushitrainFolder] {
-		let client = await self.client
+		let client = self.client
 		let folderIDs = client.folders()?.asArray() ?? []
 		var folderInfos: [SushitrainFolder] = []
 		for fid in folderIDs {
@@ -502,7 +509,7 @@ struct SyncState {
 	}
 
 	nonisolated func peers() async -> [SushitrainPeer] {
-		let client = await self.client
+		let client = self.client
 		let peerIDs = client.peers()!.asArray()
 
 		var peers: [SushitrainPeer] = []
@@ -533,7 +540,7 @@ struct SyncState {
 	}
 
 	private nonisolated func rebindServer() async {
-		let client = await self.client
+		let client = self.client
 		Log.info("(Re-)activate streaming server")
 		do {
 			try client.server?.listen()
@@ -552,7 +559,7 @@ struct SyncState {
 
 	nonisolated func updateDeviceSuspension() async {
 		do {
-			let client = await self.client
+			let client = self.client
 			// On iOS, all devices are paused when the app is suspended (and unpaused when we get back to the foreground)
 			// This is a trick to force Syncthing to start connecting immediately when we are foregrounded
 			#if os(iOS)
@@ -564,7 +571,7 @@ struct SyncState {
 
 			// On macOS and when the app is in the foreground, we unpause any device that is not explicitly suspended
 			// by the user
-			if let peers = await self.client.peers() {
+			if let peers = self.client.peers() {
 				let devicesEnabled = Set(peers.asArray()).subtracting(await self.userSettings.userPausedDevices)
 				try client.setDevicesPaused(SushitrainListOfStrings.from(Array(devicesEnabled)), pause: false)
 			}
@@ -585,7 +592,7 @@ struct SyncState {
 			self.lingerManager.cancelLingering()
 			Task.detached {
 				dispatchPrecondition(condition: .notOnQueue(.main))
-				try? await self.client.setReconnectIntervalS(1)
+				try? self.client.setReconnectIntervalS(1)
 				await self.suspend(false)
 				await self.backgroundManager.rescheduleWatchdogNotification()
 				await self.rebindServer()
@@ -751,3 +758,69 @@ struct SyncState {
 		}
 	}
 #endif
+
+extension SushitrainDelegate: SushitrainClientDelegateProtocol {
+	func onChange(_ change: SushitrainChange?) {
+		if let change = change {
+			let appState = self.appState
+			DispatchQueue.main.async {
+				// For example: 25 > 25, 100 > 25
+				if appState.lastChanges.count > AppState.maxChanges - 1 {
+					// Remove excess elements at the top
+					// For example: 25 - 25 + 1 = 1, 100 - 25 + 1 = 76
+					appState.lastChanges.removeFirst(
+						appState.lastChanges.count - AppState.maxChanges + 1)
+				}
+				appState.lastChanges.append(change)
+			}
+		}
+	}
+
+	func onEvent(_ event: String?) {
+		let appState = self.appState
+		DispatchQueue.main.async {
+			appState.changePublisher.send()
+		}
+	}
+
+	func onListenAddressesChanged(_ addresses: SushitrainListOfStrings?) {
+		let appState = self.appState
+		let addressSet = Set(addresses?.asArray() ?? [])
+		DispatchQueue.main.async {
+			appState.resolvedListenAddresses = addressSet
+		}
+	}
+
+	func onDeviceDiscovered(_ deviceID: String?, addresses: SushitrainListOfStrings?) {
+		let appState = self.appState
+		if let deviceID = deviceID, let addresses = addresses?.asArray() {
+			DispatchQueue.main.async {
+				appState.discoveredDevices[deviceID] = addresses
+			}
+		}
+	}
+
+	func onMeasurementsUpdated() {
+		// For now just trigger an event update
+		let appState = self.appState
+		DispatchQueue.main.async {
+			appState.changePublisher.send()
+		}
+	}
+}
+
+extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
+	func onStreamChunk(_ folder: String?, path: String?, bytesSent: Int64, bytesTotal: Int64) {
+		if let folder = folder, let path = path {
+			let appState = self.appState
+			DispatchQueue.main.async {
+				appState.streamingProgress = StreamingProgress(
+					folder: folder,
+					path: path,
+					bytesSent: bytesSent,
+					bytesTotal: bytesTotal
+				)
+			}
+		}
+	}
+}

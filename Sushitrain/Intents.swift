@@ -182,7 +182,7 @@ struct FileEntityQuery: EntityQuery, EntityPropertyQuery {
 		}
 
 		// Perform search
-		let client = await appState.client
+		let client = appState.client
 		let results = ResultsCollector()
 		try client.search(
 			searchTerm, delegate: results, maxResults: limit ?? -1, folderID: folder?.folderID,
@@ -209,7 +209,7 @@ struct FileEntityQuery: EntityQuery, EntityPropertyQuery {
 
 	func entities(for identifiers: [DeviceEntity.ID]) async throws -> [FileEntity] {
 		try await appState.waitForAppStarted()
-		let client = await appState.client
+		let client = appState.client
 		return identifiers.compactMap { urlString in
 			if let url = URLComponents(string: urlString) {
 				if let folder = client.folder(withID: url.host), folder.exists() {

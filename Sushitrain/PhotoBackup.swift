@@ -214,7 +214,7 @@ enum PhotoSyncProgress {
 				}
 			}
 
-			guard let folder = await appState.client.folder(withID: selectedFolderID) else {
+			guard let folder = appState.client.folder(withID: selectedFolderID) else {
 				DispatchQueue.main.async {
 					self.progress = .finished(error: String(localized: "Cannot find selected folder with ID '\(selectedFolderID)'"))
 				}
@@ -314,7 +314,7 @@ enum PhotoSyncProgress {
 		let structure = await self.folderStructure
 		let purgeCutoffDate = await Date.now - Double.maximum(Double(self.purgeAfterDays), 0.0) * 86400.0
 		let isSelective = folder.isSelective()
-		let myShortDeviceID = await appState.client.shortDeviceID()
+		let myShortDeviceID = appState.client.shortDeviceID()
 		let purgeEnabled = await self.purgeEnabled
 		let maxAgeInterval = TimeInterval(Double(await self.maxAgeDays) * 86400.0)
 		let timeZone = await self.timeZone

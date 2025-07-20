@@ -9,14 +9,6 @@ import BackgroundTasks
 import Combine
 import AppIntents
 
-class SushitrainDelegate: NSObject {
-	fileprivate var appState: AppState
-
-	required init(appState: AppState) {
-		self.appState = appState
-	}
-}
-
 @main
 struct SushitrainApp: App {
 	@State fileprivate var appState: AppState
@@ -232,72 +224,6 @@ struct SushitrainApp: App {
 			}
 			.windowResizability(.contentSize)
 		#endif
-	}
-}
-
-extension SushitrainDelegate: SushitrainClientDelegateProtocol {
-	func onChange(_ change: SushitrainChange?) {
-		if let change = change {
-			let appState = self.appState
-			DispatchQueue.main.async {
-				// For example: 25 > 25, 100 > 25
-				if appState.lastChanges.count > AppState.maxChanges - 1 {
-					// Remove excess elements at the top
-					// For example: 25 - 25 + 1 = 1, 100 - 25 + 1 = 76
-					appState.lastChanges.removeFirst(
-						appState.lastChanges.count - AppState.maxChanges + 1)
-				}
-				appState.lastChanges.append(change)
-			}
-		}
-	}
-
-	func onEvent(_ event: String?) {
-		let appState = self.appState
-		DispatchQueue.main.async {
-			appState.changePublisher.send()
-		}
-	}
-
-	func onListenAddressesChanged(_ addresses: SushitrainListOfStrings?) {
-		let appState = self.appState
-		let addressSet = Set(addresses?.asArray() ?? [])
-		DispatchQueue.main.async {
-			appState.resolvedListenAddresses = addressSet
-		}
-	}
-
-	func onDeviceDiscovered(_ deviceID: String?, addresses: SushitrainListOfStrings?) {
-		let appState = self.appState
-		if let deviceID = deviceID, let addresses = addresses?.asArray() {
-			DispatchQueue.main.async {
-				appState.discoveredDevices[deviceID] = addresses
-			}
-		}
-	}
-
-	func onMeasurementsUpdated() {
-		// For now just trigger an event update
-		let appState = self.appState
-		DispatchQueue.main.async {
-			appState.changePublisher.send()
-		}
-	}
-}
-
-extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
-	func onStreamChunk(_ folder: String?, path: String?, bytesSent: Int64, bytesTotal: Int64) {
-		if let folder = folder, let path = path {
-			let appState = self.appState
-			DispatchQueue.main.async {
-				appState.streamingProgress = StreamingProgress(
-					folder: folder,
-					path: path,
-					bytesSent: bytesSent,
-					bytesTotal: bytesTotal
-				)
-			}
-		}
 	}
 }
 
