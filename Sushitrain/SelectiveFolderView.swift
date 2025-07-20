@@ -22,10 +22,16 @@ struct SelectiveFolderView: View {
 	@State private var showConfirmClearSelectionSoft = false
 	@State private var listSelection = Set<String>()
 
-	@Environment(\.editMode) private var editMode
+	#if os(iOS)
+		@Environment(\.editMode) private var editMode
+	#endif
 
 	private var inEditMode: Bool {
-		editMode?.wrappedValue.isEditing ?? false
+		#if os(macOS)
+			return false
+		#else
+			return editMode?.wrappedValue.isEditing ?? false
+		#endif
 	}
 
 	var body: some View {
@@ -83,9 +89,11 @@ struct SelectiveFolderView: View {
 			}
 		}
 		.toolbar {
-			ToolbarItem {
-				EditButton()
-			}
+			#if os(iOS)
+				ToolbarItem {
+					EditButton()
+				}
+			#endif
 
 			ToolbarItem(placement: .primaryAction) {
 				Menu {
