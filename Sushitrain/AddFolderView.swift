@@ -156,10 +156,12 @@ struct AddFolderView: View {
 				idFieldFocus = true
 			}
 			.task {
-				self.update()
+				await self.update()
 			}
 			.onChange(of: folderID, initial: false) { _, _ in
-				self.update()
+				Task {
+					await self.update()
+				}
 			}
 			.toolbar(content: {
 				ToolbarItem(
@@ -233,8 +235,8 @@ struct AddFolderView: View {
 		}
 	}
 
-	private func update() {
-		self.possiblePeers = appState.peers().sorted().filter({ d in !d.isSelf() })
+	private func update() async {
+		self.possiblePeers = await appState.peers().sorted().filter({ d in !d.isSelf() })
 		self.pendingPeers = (try? appState.client.devicesPendingFolder(self.folderID))?.asArray() ?? []
 		if self.shareWithPendingPeersByDefault && sharedWith.isEmpty {
 			sharedWith = Set(pendingPeers)

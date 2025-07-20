@@ -104,14 +104,15 @@ private struct NeededFilesView: View {
 struct FolderStatisticsView: View {
 	@Environment(AppState.self) private var appState
 	var folder: SushitrainFolder
+	@State private var possiblePeers: [String: SushitrainPeer] = [:]
 
-	private var possiblePeers: [String: SushitrainPeer] {
-		let peers = appState.peers().filter({ d in !d.isSelf() })
+	private func update() async {
+		let peers = await appState.peers().filter({ d in !d.isSelf() })
 		var dict: [String: SushitrainPeer] = [:]
 		for peer in peers {
 			dict[peer.deviceID()] = peer
 		}
-		return dict
+		self.possiblePeers = dict
 	}
 
 	var body: some View {
@@ -185,6 +186,9 @@ struct FolderStatisticsView: View {
 					}
 				}
 			}
+		}
+		.task {
+			await self.update()
 		}
 		#if os(macOS)
 			.formStyle(.grouped)

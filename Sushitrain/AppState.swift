@@ -499,16 +499,13 @@ struct SyncState {
 		}
 	}
 
-	func peerIDs() -> [String] {
-		return self.client.peers()?.asArray() ?? []
-	}
-
-	func peers() -> [SushitrainPeer] {
-		let peerIDs = self.client.peers()!.asArray()
+	nonisolated func peers() async -> [SushitrainPeer] {
+		let client = await self.client
+		let peerIDs = client.peers()!.asArray()
 
 		var peers: [SushitrainPeer] = []
 		for peerID in peerIDs {
-			let peerInfo = self.client.peer(withID: peerID)!
+			let peerInfo = client.peer(withID: peerID)!
 			peers.append(peerInfo)
 		}
 		return peers
@@ -517,6 +514,7 @@ struct SyncState {
 	func updateBadge() async {
 		await self.updateExtraneousFiles()
 		let numExtra = self.foldersWithExtraFiles.count
+
 		#if os(iOS)
 			DispatchQueue.main.async {
 				UNUserNotificationCenter.current().setBadgeCount(numExtra)

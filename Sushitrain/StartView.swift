@@ -95,6 +95,7 @@ private struct OverallDownloadProgressView: View {
 	@Environment(AppState.self) private var appState
 	@State private var lastProgress: (Date, SushitrainProgress)? = nil
 	@State private var progress: (Date, SushitrainProgress)? = nil
+	@State private var peerStatusText: String = ""
 
 	var body: some View {
 		Group {
@@ -128,10 +129,12 @@ private struct OverallDownloadProgressView: View {
 			}
 		}
 		.task {
-			self.updateProgress()
+			await self.updateProgress()
 		}
 		.onChange(of: self.appState.eventCounter) {
-			self.updateProgress()
+			Task {
+				await self.updateProgress()
+			}
 		}
 	}
 
@@ -158,11 +161,9 @@ private struct OverallDownloadProgressView: View {
 		}
 	}
 
-	private var peerStatusText: String {
-		return "\(self.appState.client.connectedPeerCount())/\(self.appState.peers().count - 1)"
-	}
+	private func updateProgress() async {
+		self.peerStatusText = "\(self.appState.client.connectedPeerCount())/\(await self.appState.peers().count - 1)"
 
-	private func updateProgress() {
 		self.lastProgress = self.progress
 		if let p = self.appState.client.getTotalDownloadProgress() {
 			self.progress = (Date.now, p)
@@ -175,17 +176,14 @@ private struct OverallDownloadProgressView: View {
 
 struct OverallStatusView: View {
 	@Environment(AppState.self) private var appState
-	@State private var peerStatusText = ""
-
-	private var isConnected: Bool {
-		return self.appState.client.connectedPeerCount() > 0
-	}
+	@State private var connectedPeerCount = 0
+	@State private var peerCount = 0
+	@State private var isDownloading = false
+	@State private var isUploading = false
 
 	var body: some View {
 		Group {
-			if self.isConnected {
-				let isDownloading = self.appState.client.isDownloading()
-				let isUploading = self.appState.client.isUploading()
+			if self.connectedPeerCount > 0 {
 				if isDownloading || isUploading {
 					if isDownloading {
 						OverallDownloadProgressView()
@@ -199,27 +197,38 @@ struct OverallStatusView: View {
 					}
 				}
 				else {
-					Label("Connected", systemImage: "checkmark.circle.fill").foregroundStyle(.green).badge(
-						Text(self.peerStatusText))
+					Label("Connected", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+						.badge(Text(peerStatusText))
 				}
 			}
 			else {
-				Label("Not connected", systemImage: "network.slash").badge(Text(self.peerStatusText))
+				Label("Not connected", systemImage: "network.slash")
+					.badge(Text(self.peerStatusText))
 					.foregroundColor(.gray)
 			}
 		}
 		.task {
-			self.update()
+			await self.update()
 		}
 		.onChange(of: appState.eventCounter) { _, _ in
 			Task {
-				self.update()
+				await self.update()
 			}
 		}
 	}
 
-	private func update() {
-		self.peerStatusText = "\(self.appState.client.connectedPeerCount())/\(self.appState.peers().count - 1)"
+	private var peerStatusText: String {
+		if peerCount > 0 {
+			return "\(connectedPeerCount)/\(peerCount - 1)"
+		}
+		return ""
+	}
+
+	private func update() async {
+		self.isDownloading = self.appState.client.isDownloading()
+		self.isUploading = self.appState.client.isUploading()
+		self.connectedPeerCount = self.appState.client.connectedPeerCount()
+		self.peerCount = await self.appState.peers().count
 	}
 }
 
@@ -248,11 +257,15 @@ private struct OverallUploadStatusView: View {
 					.frame(maxWidth: .infinity)
 			}
 		}.task {
-			let client = appState.client
-			self.progress = await Task.detached {
-				return client.getTotalUploadProgress()
-			}.value
+			await self.update()
 		}
+	}
+
+	private func update() async {
+		let client = appState.client
+		self.progress = await Task.detached {
+			return client.getTotalUploadProgress()
+		}.value
 	}
 }
 
@@ -478,7 +491,7 @@ struct StartView: View {
 		await self.updateFoldersWithIssues()
 
 		// Check to see if there are peers connected
-		let p = self.appState.peers()
+		let p = await self.appState.peers()
 		self.peers = p
 		self.folders = await self.appState.folders().sorted()
 

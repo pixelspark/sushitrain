@@ -131,9 +131,11 @@ struct LatencyView: View {
 			.sheet(isPresented: $showingAddDevicePopup) {
 				AddDeviceView(suggestedDeviceID: $addingDeviceID)
 			}.task {
-				self.update()
+				await self.update()
 			}.onChange(of: appState.eventCounter) {
-				self.update()
+				Task {
+					await self.update()
+				}
 			}
 			.onAppear {
 				// Measure latencies
@@ -155,9 +157,9 @@ struct LatencyView: View {
 			}
 		}
 
-		private func update() {
+		private func update() async {
 			self.loading = true
-			self.peers = appState.peers().filter({ x in !x.isSelf() }).sorted()
+			self.peers = await appState.peers().filter({ x in !x.isSelf() }).sorted()
 			self.updateMeasurements()
 
 			// Discovered peers

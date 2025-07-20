@@ -10,16 +10,23 @@ import SushitrainCore
 struct ShareFolderWithDeviceDetailsView: View {
 	@Environment(AppState.self) private var appState
 	@Environment(\.dismiss) private var dismiss
-	var folder: SushitrainFolder
+
+	let folder: SushitrainFolder
 	@Binding var deviceID: String
-	@State var newPassword: String = ""
+
+	@State private var newPassword: String = ""
 	@FocusState private var passwordFieldFocus: Bool
 	@State private var error: String? = nil
+	@State private var device: SushitrainPeer? = nil
+
+	private func update() async {
+		self.device = appState.client.peer(withID: deviceID)
+	}
 
 	var body: some View {
 		NavigationStack {
 			Form {
-				if let device = appState.client.peer(withID: deviceID) {
+				if let device = device {
 					Section("Share with device") {
 						DeviceIDView(device: device)
 					}
@@ -42,6 +49,9 @@ struct ShareFolderWithDeviceDetailsView: View {
 							.fixedSize(horizontal: false, vertical: true)
 					}
 				}
+			}
+			.task {
+				await self.update()
 			}
 			#if os(macOS)
 				.formStyle(.grouped)
@@ -584,6 +594,7 @@ struct FolderView: View {
 	@State private var showAlert: ShowAlert? = nil
 	@State private var showConfirmable: ConfirmableAction = .none
 	@State private var advancedExpanded = false
+	@State private var possiblePeers: [SushitrainPeer] = []
 
 	private enum ShowAlert: Identifiable {
 		case error(String)
@@ -597,8 +608,8 @@ struct FolderView: View {
 		}
 	}
 
-	var possiblePeers: [SushitrainPeer] {
-		return appState.peers().sorted().filter({ d in !d.isSelf() })
+	func update() async {
+		self.possiblePeers = await appState.peers().sorted().filter({ d in !d.isSelf() })
 	}
 
 	var body: some View {
@@ -666,6 +677,9 @@ struct FolderView: View {
 			.navigationBarTitleDisplayMode(.inline)
 		#endif
 		.navigationTitle(folder.displayName)
+		.task {
+			await self.update()
+		}
 		.alert(item: $showAlert) { alert in
 			switch alert {
 			case .error(let err):

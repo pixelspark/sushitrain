@@ -48,6 +48,7 @@ struct DeviceView: View {
 	@Environment(\.dismiss) private var dismiss
 	@State var changedDeviceName: String? = nil
 	@State var folders: [SushitrainFolder] = []
+	@State private var lastAddress: String = ""
 
 	var body: some View {
 		Form {
@@ -144,7 +145,6 @@ struct DeviceView: View {
 					}
 				}
 
-				let lastAddress = self.appState.client.getLastPeerAddress(self.device.deviceID())
 				if !lastAddress.isEmpty {
 					Section("Current addresses") {
 						Label(lastAddress, systemImage: "network").contextMenu {
@@ -211,5 +211,6 @@ struct DeviceView: View {
 
 	private func update() async {
 		self.folders = await appState.folders().sorted()
+		self.lastAddress = self.appState.client.getLastPeerAddress(self.device.deviceID())
 	}
 }
