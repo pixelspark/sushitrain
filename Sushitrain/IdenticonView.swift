@@ -229,7 +229,7 @@ private struct QRView: View {
 				else {
 					ProgressView()
 				}
-				
+
 				Text(self.text).monospaced().contextMenu {
 					Button(action: {
 						#if os(iOS)
@@ -240,7 +240,7 @@ private struct QRView: View {
 							let pasteboard = NSPasteboard.general
 							pasteboard.clearContents()
 							pasteboard.prepareForNewContents()
-						pasteboard.setString(self.text, forType: .string)
+							pasteboard.setString(self.text, forType: .string)
 						#endif
 					}) {
 						Text("Copy to clipboard")
