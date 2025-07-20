@@ -256,16 +256,17 @@ func (clt *Client) Stop() {
 }
 
 func (clt *Client) handleEvent(evt events.Event) {
-	clt.mutex.Lock()
-	defer clt.mutex.Unlock()
-
 	switch evt.Type {
 	case events.DeviceDiscovered:
+		clt.mutex.Lock()
 		if !clt.IgnoreEvents && clt.Delegate != nil {
 			data := evt.Data.(map[string]interface{})
 			devID := data["device"].(string)
 			addresses := data["addrs"].([]string)
-			go clt.Delegate.OnDeviceDiscovered(devID, &ListOfStrings{data: addresses})
+			clt.mutex.Unlock()
+			clt.Delegate.OnDeviceDiscovered(devID, &ListOfStrings{data: addresses})
+		} else {
+			clt.mutex.Unlock()
 		}
 
 	case events.FolderRejected:
@@ -278,12 +279,18 @@ func (clt *Client) handleEvent(evt events.Event) {
 		folder := data["folder"].(string)
 		state := data["to"].(string)
 		folderTransferring := (state == model.FolderSyncing.String() || state == model.FolderSyncWaiting.String() || state == model.FolderSyncPreparing.String())
+
+		clt.mutex.Lock()
 		clt.foldersDownloading[folder] = folderTransferring
 		if !clt.IgnoreEvents && clt.Delegate != nil {
-			go clt.Delegate.OnEvent(evt.Type.String())
+			clt.mutex.Unlock()
+			clt.Delegate.OnEvent(evt.Type.String())
+		} else {
+			clt.mutex.Unlock()
 		}
 
 	case events.ListenAddressesChanged:
+		clt.mutex.Lock()
 		if !clt.IgnoreEvents && clt.Delegate != nil {
 			addrs := make([]string, 0)
 			data := evt.Data.(map[string]interface{})
@@ -304,17 +311,25 @@ func (clt *Client) handleEvent(evt events.Event) {
 			for _, addrs := range clt.ResolvedListenAddresses {
 				currentResolved = append(currentResolved, addrs...)
 			}
-			go clt.Delegate.OnListenAddressesChanged(List(currentResolved))
+			clt.mutex.Unlock()
+			clt.Delegate.OnListenAddressesChanged(List(currentResolved))
+		} else {
+			clt.mutex.Unlock()
 		}
 
 	case events.DeviceConnected:
 		data := evt.Data.(map[string]string)
 		devID := data["id"]
 		address := data["addr"]
+
+		clt.mutex.Lock()
 		clt.connectedDeviceAddresses[devID] = address
 
 		if !clt.IgnoreEvents && clt.Delegate != nil {
-			go clt.Delegate.OnEvent(evt.Type.String())
+			clt.mutex.Unlock()
+			clt.Delegate.OnEvent(evt.Type.String())
+		} else {
+			clt.mutex.Unlock()
 		}
 
 	case events.LocalChangeDetected, events.RemoteChangeDetected:
@@ -324,6 +339,7 @@ func (clt *Client) handleEvent(evt events.Event) {
 			modifiedBy = clt.DeviceID()
 		}
 
+		clt.mutex.Lock()
 		if !clt.IgnoreEvents && clt.Delegate != nil {
 			go clt.Delegate.OnChange(&Change{
 				FolderID: data["folder"],
@@ -332,20 +348,31 @@ func (clt *Client) handleEvent(evt events.Event) {
 				Path:     data["path"],
 				Time:     &Date{time: evt.Time},
 			})
-			go clt.Delegate.OnEvent(evt.Type.String())
+			clt.mutex.Unlock()
+			clt.Delegate.OnEvent(evt.Type.String())
+		} else {
+			clt.mutex.Unlock()
 		}
 
 	case events.LocalIndexUpdated, events.DeviceDisconnected, events.ConfigSaved,
 		events.ClusterConfigReceived, events.FolderResumed, events.FolderPaused:
 		// Just deliver the event
+		clt.mutex.Lock()
 		if !clt.IgnoreEvents && clt.Delegate != nil {
-			go clt.Delegate.OnEvent(evt.Type.String())
+			clt.mutex.Unlock()
+			clt.Delegate.OnEvent(evt.Type.String())
+		} else {
+			clt.mutex.Unlock()
 		}
 
 	case events.DownloadProgress:
+		clt.mutex.Lock()
 		clt.downloadProgress = evt.Data.(map[string]map[string]*model.PullerProgress)
 		if !clt.IgnoreEvents && clt.Delegate != nil {
-			go clt.Delegate.OnEvent(evt.Type.String())
+			clt.mutex.Unlock()
+			clt.Delegate.OnEvent(evt.Type.String())
+		} else {
+			clt.mutex.Unlock()
 		}
 
 	case events.RemoteDownloadProgress:
@@ -353,6 +380,8 @@ func (clt *Client) handleEvent(evt events.Event) {
 		peerID := peerData["device"].(string)
 		folderID := peerData["folder"].(string)
 		state := peerData["state"].(map[string]int) // path: number of blocks downloaded
+
+		clt.mutex.Lock()
 		if _, ok := clt.uploadProgress[peerID]; !ok {
 			clt.uploadProgress[peerID] = make(map[string]map[string]int)
 		}
@@ -364,7 +393,10 @@ func (clt *Client) handleEvent(evt events.Event) {
 		clt.uploadProgress[peerID][folderID] = state
 
 		if !clt.IgnoreEvents && clt.Delegate != nil {
-			go clt.Delegate.OnEvent(evt.Type.String())
+			clt.mutex.Unlock()
+			clt.Delegate.OnEvent(evt.Type.String())
+		} else {
+			clt.mutex.Unlock()
 		}
 
 	case events.ItemFinished, events.ItemStarted:
