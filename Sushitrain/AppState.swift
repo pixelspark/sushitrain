@@ -283,6 +283,7 @@ struct SyncState {
 			}
 			if let measurement = client?.measurements {
 				Task.detached {
+					dispatchPrecondition(condition: .notOnQueue(.main))
 					measurement.measure()
 				}
 			}
@@ -293,6 +294,7 @@ struct SyncState {
 		self.pingTimer = Timer.scheduledTimer(withTimeInterval: 50, repeats: true) { [weak client] timer in
 			if let measurement = client?.measurements {
 				Task.detached {
+					dispatchPrecondition(condition: .notOnQueue(.main))
 					measurement.measure()
 				}
 			}
@@ -530,10 +532,11 @@ struct SyncState {
 		#endif
 	}
 
-	private func rebindServer() {
+	private nonisolated func rebindServer() async {
+		let client = await self.client
 		Log.info("(Re-)activate streaming server")
 		do {
-			try self.client.server?.listen()
+			try client.server?.listen()
 		}
 		catch let error {
 			Log.warn("Error activating streaming server: " + error.localizedDescription)
@@ -547,27 +550,28 @@ struct SyncState {
 		}
 	#endif
 
-	func updateDeviceSuspension() async {
+	nonisolated func updateDeviceSuspension() async {
 		do {
+			let client = await self.client
 			// On iOS, all devices are paused when the app is suspended (and unpaused when we get back to the foreground)
 			// This is a trick to force Syncthing to start connecting immediately when we are foregrounded
 			#if os(iOS)
-				if self.isSuspended {
-					try self.client.setDevicesPaused(SushitrainListOfStrings.from(Array()), pause: false)
+				if await self.isSuspended {
+					try client.setDevicesPaused(SushitrainListOfStrings.from(Array()), pause: false)
 					return
 				}
 			#endif
 
 			// On macOS and when the app is in the foreground, we unpause any device that is not explicitly suspended
 			// by the user
-			if let peers = self.client.peers() {
-				let devicesEnabled = Set(peers.asArray()).subtracting(self.userSettings.userPausedDevices)
-				try self.client.setDevicesPaused(SushitrainListOfStrings.from(Array(devicesEnabled)), pause: false)
+			if let peers = await self.client.peers() {
+				let devicesEnabled = Set(peers.asArray()).subtracting(await self.userSettings.userPausedDevices)
+				try client.setDevicesPaused(SushitrainListOfStrings.from(Array(devicesEnabled)), pause: false)
 			}
 		}
 		catch {
 			#if os(iOS)
-				Log.warn("Failed to update device suspension (isSuspended=\(self.isSuspended): \(error.localizedDescription)")
+				Log.warn("Failed to update device suspension (isSuspended=\(await self.isSuspended): \(error.localizedDescription)")
 			#else
 				Log.warn("Failed to update device suspension: \(error.localizedDescription)")
 			#endif
@@ -580,13 +584,12 @@ struct SyncState {
 		#if os(iOS)
 			self.lingerManager.cancelLingering()
 			Task.detached {
+				dispatchPrecondition(condition: .notOnQueue(.main))
 				try? await self.client.setReconnectIntervalS(1)
-			}
-			await self.suspend(false)
-			Task {
+				await self.suspend(false)
 				await self.backgroundManager.rescheduleWatchdogNotification()
+				await self.rebindServer()
 			}
-			self.rebindServer()
 			self.client.ignoreEvents = false
 		#endif
 	}
