@@ -170,9 +170,9 @@ enum PhotoSyncProgress {
 	@AppStorage("photoSyncMaxAgeDays") var maxAgeDays = 6 * 30  // The maximum age for assets to be considered for export
 	@AppStorage("photoBackupTimeZone") var timeZone: PhotoBackupTimeZone = .current
 
-	@Published var isSynchronizing = false
-	@Published var progress: PhotoSyncProgress = .finished(error: nil)
-	@Published var photoBackupTask: Task<(), Error>? = nil
+	@Published private(set) var isSynchronizing = false
+	@Published private(set) var progress: PhotoSyncProgress = .finished(error: nil)
+	@Published private(set) var photoBackupTask: Task<(), Error>? = nil
 
 	var selectedAlbumTitle: String? {
 		if !self.selectedAlbumID.isEmpty {

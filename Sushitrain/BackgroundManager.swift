@@ -126,8 +126,7 @@ import BackgroundTasks
 			var photoBackupTask: Task<(), Error>? = nil
 			if self.appState.photoBackup.enableBackgroundCopy {
 				Log.info("Start photo backup task")
-				self.appState.photoBackup.backup(appState: self.appState, fullExport: false, isInBackground: true)
-				photoBackupTask = self.appState.photoBackup.photoBackupTask
+				photoBackupTask = self.appState.photoBackup.backup(appState: self.appState, fullExport: false, isInBackground: true)
 			}
 
 			// Start background sync on long and short sync task
