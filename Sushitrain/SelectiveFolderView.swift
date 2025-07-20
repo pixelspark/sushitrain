@@ -13,7 +13,7 @@ struct SelectiveFolderView: View {
 	@State private var showError = false
 	@State private var errorText = ""
 	@State private var searchString = ""
-	@State private var isLoading = true
+	@State private var isLoading = false
 	@State private var isClearing = false
 	@State private var selectedPaths: [String] = []
 	@State private var showConfirmClearSelectionHard = false
@@ -36,14 +36,17 @@ struct SelectiveFolderView: View {
 									path: item,
 									folder: folder,
 									deselect: {
-										self.deselectIndexes(
-											IndexSet([itemIndex]))
+										Task {
+											await self.deselectIndexes(IndexSet([itemIndex]))
+										}
 									}
 								)
 								.swipeActions(allowsFullSwipe: false) {
 									// Unselect button
 									Button(role: .destructive) {
-										self.deselectIndexes(IndexSet([itemIndex]))
+										Task {
+											await self.deselectIndexes(IndexSet([itemIndex]))
+										}
 									} label: {
 										Label("Do not synchronize with this device", systemImage: "pin.slash")
 									}
@@ -152,15 +155,22 @@ struct SelectiveFolderView: View {
 
 		.searchable(text: $searchString, prompt: "Search files by name...")
 		.task {
-			Task { @MainActor in
+			Task {
 				await self.update()
 			}
+		}
+		.onChange(of: appState.eventCounter) {
+			// Doesn't really need to do anything, just re-render the view (it relies on folder.isIdleOrSyncing which
+			// cannot be observed directly for changes)
 		}
 	}
 
 	private func removeUnsynchronizedEmpty() {
 		Task {
 			do {
+				if isClearing {
+					return
+				}
 				self.isClearing = true
 				try await Task.detached {
 					try folder.removeSuperfluousSubdirectories()
@@ -176,7 +186,6 @@ struct SelectiveFolderView: View {
 		}
 	}
 
-	@MainActor
 	private func clearSelectionSoft() {
 		if isClearing {
 			return
@@ -200,7 +209,6 @@ struct SelectiveFolderView: View {
 		}
 	}
 
-	@MainActor
 	private func clearSelectionHard() {
 		if isClearing {
 			return
@@ -244,6 +252,10 @@ struct SelectiveFolderView: View {
 	}
 
 	private func update() async {
+		if self.isLoading {
+			return
+		}
+
 		do {
 			self.isLoading = true
 			let folder = self.folder
@@ -259,11 +271,11 @@ struct SelectiveFolderView: View {
 		self.isLoading = false
 	}
 
-	private func deselectSearchResults(includingLastCopy: Bool) async throws {
-		let st = searchString.lowercased()
+	private nonisolated func deselectSearchResults(includingLastCopy: Bool) async throws {
+		let st = await self.searchString.lowercased()
 
 		var paths = Set(
-			self.selectedPaths.filter { item in
+			await self.selectedPaths.filter { item in
 				return st.isEmpty || item.lowercased().contains(st)
 			})
 
@@ -282,25 +294,34 @@ struct SelectiveFolderView: View {
 		let verdicts = paths.reduce(into: [:]) { dict, p in
 			dict[p] = false
 		}
+
 		let json = try JSONEncoder().encode(verdicts)
 		try folder.setExplicitlySelectedJSON(json)
+
 		Task { @MainActor in
 			await self.update()
 		}
 	}
 
-	private func deselectIndexes(_ pathIndexes: IndexSet) {
+	private func deselectIndexes(_ pathIndexes: IndexSet) async {
 		do {
 			let verdicts = pathIndexes.map({ idx in selectedPaths[idx] }).reduce(into: [:]) { dict, p in
 				dict[p] = false
 			}
 			let json = try JSONEncoder().encode(verdicts)
-			try folder.setExplicitlySelectedJSON(json)
+
+			try await Task.detached {
+				try folder.setExplicitlySelectedJSON(json)
+			}.value
 
 			selectedPaths.remove(atOffsets: pathIndexes)
 		}
 		catch {
 			Log.warn("Could not deselect: \(error.localizedDescription)")
+		}
+
+		Task { @MainActor in
+			await self.update()
 		}
 	}
 }
