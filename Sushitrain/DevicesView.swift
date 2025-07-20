@@ -408,7 +408,11 @@ struct LatencyView: View {
 							destination: { self.nextView() })
 					}
 				}
-			}.task { self.update() }.toolbar {
+			}
+			.task {
+				await self.update()
+			}
+			.toolbar {
 				ToolbarItemGroup(placement: .primaryAction) {
 					Menu {
 						Picker("Show details", selection: $viewStyle) {
@@ -437,19 +441,19 @@ struct LatencyView: View {
 			}
 			.onAppear {
 				Task {
-					self.update()
+					await self.update()
 				}
 			}
 			.onChange(of: appState.eventCounter) { _, _ in
 				Task {
-					self.update()
+					await self.update()
 				}
 			}
 			// Update device list when add device popup is hidden again
 			.onChange(of: showingAddDevicePopup) { _, nv in
 				if !nv {
 					Task {
-						self.update()
+						await self.update()
 					}
 				}
 			}
@@ -465,9 +469,15 @@ struct LatencyView: View {
 		}
 
 		private func unlinkSelectedDevices() {
-			for peer in self.peers { if self.selectedPeers.contains(peer.id) { try? peer.remove() } }
+			for peer in self.peers {
+				if self.selectedPeers.contains(peer.id) {
+					try? peer.remove()
+				}
+			}
 
-			self.update()
+			Task {
+				await self.update()
+			}
 		}
 
 		private func doubleClick(_ items: Set<DevicesGridRow.ID>) {
@@ -492,10 +502,10 @@ struct LatencyView: View {
 			}
 		}
 
-		private func update() {
+		private func update() async {
 			self.loading = true
-			self.peers = appState.peers().filter({ x in !x.isSelf() }).sorted()
-			self.folders = appState.folders().sorted()
+			self.peers = await appState.peers().filter({ x in !x.isSelf() }).sorted()
+			self.folders = await appState.folders().sorted()
 
 			let peerIDs = peers.map { $0.deviceID() }
 			self.discoveredNewDevices = Array(appState.discoveredDevices.keys).filter({ d in !peerIDs.contains(d) })

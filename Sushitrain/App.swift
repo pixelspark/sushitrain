@@ -320,7 +320,7 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 				if appState.startupState == .started {
 					OverallStatusView()
 						.task {
-							self.update()
+							await self.update()
 						}
 
 					Button("Open file browser...") {
@@ -423,8 +423,8 @@ extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 			}
 		}
 
-		private func update() {
-			self.folders = appState.folders().filter { $0.isHidden == false }.sorted()
+		private func update() async {
+			self.folders = await appState.folders().filter { $0.isHidden == false }.sorted()
 		}
 
 		private var menuIcon: String {
