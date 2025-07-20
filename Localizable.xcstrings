@@ -8140,6 +8140,40 @@
         }
       }
     },
+    "Files in '%@' kept on this device" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien in '%@' auf diesem Gerät gespeichert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivos en '%@' mantenidos en este dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File in '%@' mantenuti su questo dispositivo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestanden in '%@' bewaard op dit apparaat"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файли в '%@' збережено на цьому пристрої"
+          }
+        }
+      }
+    },
     "Files kept on device" : {
       "localizations" : {
         "de" : {
@@ -8170,6 +8204,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Файли зберігаються на пристрої"
+          }
+        }
+      }
+    },
+    "Files kept on this device" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien auf diesem Gerät gespeichert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivos guardados en este dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File conservati su questo dispositivo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestanden bewaard op dit apparaat"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файли збережено на цьому пристрої"
           }
         }
       }

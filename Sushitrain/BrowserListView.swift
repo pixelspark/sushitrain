@@ -52,6 +52,10 @@ struct BrowserListView: View {
 
 								ItemSelectToggleView(file: file)
 
+								NavigationLink(destination: SelectiveFolderView(folder: folder, prefix: "\(self.prefix)\(fileName)/")) {
+									Label("Files kept on this device", systemImage: "pin")
+								}
+
 								if file.hasExternalSharingURL { FileSharingLinksView(entry: file, sync: true) }
 							}
 						}))

@@ -230,6 +230,10 @@ struct BrowserView: View {
 					}
 
 					ItemSelectToggleView(file: entry)
+
+					NavigationLink(destination: SelectiveFolderView(folder: folder, prefix: self.prefix)) {
+						Label("Files kept on this device", systemImage: "pin")
+					}
 				}
 			}
 			.onDrop(
@@ -331,7 +335,7 @@ struct BrowserView: View {
 				}
 
 				if folderIsSelective && folder.isRegularFolder {
-					NavigationLink(destination: SelectiveFolderView(folder: folder)) {
+					NavigationLink(destination: SelectiveFolderView(folder: folder, prefix: "")) {
 						Label("Files kept on this device...", systemImage: "pin")
 					}
 				}

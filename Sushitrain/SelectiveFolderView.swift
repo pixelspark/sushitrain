@@ -10,6 +10,7 @@ import SushitrainCore
 struct SelectiveFolderView: View {
 	@Environment(AppState.self) private var appState
 	var folder: SushitrainFolder
+	let prefix: String
 
 	@State private var showError = false
 	@State private var errorText = ""
@@ -35,7 +36,7 @@ struct SelectiveFolderView: View {
 			else if !selectedPaths.isEmpty {
 				List(selection: $listSelection) {
 					let st = searchString.lowercased()
-					Section("Files kept on device") {
+					Section(self.prefix.isEmpty ? "Files kept on device" : "Files in '\(self.prefix)' kept on this device") {
 						ForEach(Array(selectedPaths.enumerated()), id: \.element) { itemIndex, item in
 							let item = selectedPaths[itemIndex]
 							if st.isEmpty || item.lowercased().contains(st) {
@@ -100,7 +101,7 @@ struct SelectiveFolderView: View {
 							"Remove the files shown in the list from this device, but do not remove them from other devices. If a file is not available on at least one other device, it will not be removed."
 						)
 
-						if !inEditMode {
+						if !inEditMode && self.prefix.isEmpty {
 							Button(
 								"All files including those not available elsewhere",
 								systemImage: "pin.slash",
@@ -112,10 +113,12 @@ struct SelectiveFolderView: View {
 								"Remove the files shown in the list from this device, but do not remove them from other devices. If the file is not available on another device it will be permanently removed."
 							)
 
-							Divider()
+							if self.prefix.isEmpty {
+								Divider()
 
-							Button("Remove unsynchronized empty subdirectories", systemImage: "eraser") {
-								self.removeUnsynchronizedEmpty()
+								Button("Remove unsynchronized empty subdirectories", systemImage: "eraser") {
+									self.removeUnsynchronizedEmpty()
+								}
 							}
 						}
 					}
@@ -281,7 +284,9 @@ struct SelectiveFolderView: View {
 			self.isLoading = true
 			let folder = self.folder
 			self.selectedPaths = try await Task.detached {
-				try folder.selectedPaths(true).asArray().sorted()
+				try folder.selectedPaths(true).asArray().filter {
+					$0.starts(with: self.prefix)
+				}.sorted()
 			}.value
 		}
 		catch {
