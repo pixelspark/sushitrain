@@ -10,6 +10,7 @@ import SushitrainCore
 struct SelectiveFolderView: View {
 	@Environment(AppState.self) private var appState
 	var folder: SushitrainFolder
+
 	@State private var showError = false
 	@State private var errorText = ""
 	@State private var searchString = ""
@@ -18,6 +19,13 @@ struct SelectiveFolderView: View {
 	@State private var selectedPaths: [String] = []
 	@State private var showConfirmClearSelectionHard = false
 	@State private var showConfirmClearSelectionSoft = false
+	@State private var listSelection = Set<String>()
+
+	@Environment(\.editMode) private var editMode
+
+	private var inEditMode: Bool {
+		editMode?.wrappedValue.isEditing ?? false
+	}
 
 	var body: some View {
 		ZStack {
@@ -25,11 +33,10 @@ struct SelectiveFolderView: View {
 				ProgressView()
 			}
 			else if !selectedPaths.isEmpty {
-				List {
+				List(selection: $listSelection) {
 					let st = searchString.lowercased()
 					Section("Files kept on device") {
-						ForEach(Array(selectedPaths.enumerated()), id: \.element) {
-							itemIndex, item in
+						ForEach(Array(selectedPaths.enumerated()), id: \.element) { itemIndex, item in
 							let item = selectedPaths[itemIndex]
 							if st.isEmpty || item.lowercased().contains(st) {
 								SelectiveFileView(
@@ -41,6 +48,7 @@ struct SelectiveFolderView: View {
 										}
 									}
 								)
+								.tag(item)
 								.swipeActions(allowsFullSwipe: false) {
 									// Unselect button
 									Button(role: .destructive) {
@@ -74,9 +82,13 @@ struct SelectiveFolderView: View {
 			}
 		}
 		.toolbar {
+			ToolbarItem {
+				EditButton()
+			}
+
 			ToolbarItem(placement: .primaryAction) {
 				Menu {
-					Section("Remove files from this device") {
+					Section(inEditMode ? "Remove selected files from this device" : "Remove files from this device") {
 						Button(
 							"All files that are available on other devices",
 							systemImage: "pin.slash",
@@ -88,21 +100,23 @@ struct SelectiveFolderView: View {
 							"Remove the files shown in the list from this device, but do not remove them from other devices. If a file is not available on at least one other device, it will not be removed."
 						)
 
-						Button(
-							"All files including those not available elsewhere",
-							systemImage: "pin.slash",
-							action: {
-								showConfirmClearSelectionHard = true
+						if !inEditMode {
+							Button(
+								"All files including those not available elsewhere",
+								systemImage: "pin.slash",
+								action: {
+									showConfirmClearSelectionHard = true
+								}
+							)
+							.help(
+								"Remove the files shown in the list from this device, but do not remove them from other devices. If the file is not available on another device it will be permanently removed."
+							)
+
+							Divider()
+
+							Button("Remove unsynchronized empty subdirectories", systemImage: "eraser") {
+								self.removeUnsynchronizedEmpty()
 							}
-						)
-						.help(
-							"Remove the files shown in the list from this device, but do not remove them from other devices. If the file is not available on another device it will be permanently removed."
-						)
-
-						Divider()
-
-						Button("Remove unsynchronized empty subdirectories", systemImage: "eraser") {
-							self.removeUnsynchronizedEmpty()
 						}
 					}
 				} label: {
@@ -115,7 +129,9 @@ struct SelectiveFolderView: View {
 				return Alert(
 					title: Text("Free up space"),
 					message: Text(
-						"This will remove all locally stored copies of files in this folder. Any files that are not also present on another device will not be removed. Are you sure yu want to continue?"
+						inEditMode
+							? "This will remove the local copy of the selected files in this folder. Any files that are not also present on another device will not be removed. Are you sure yu want to continue?"
+							: "This will remove all locally stored copies of files in this folder. Any files that are not also present on another device will not be removed. Are you sure yu want to continue?"
 					),
 					primaryButton: .destructive(Text("Remove files")) {
 						showConfirmClearSelectionSoft = false
@@ -152,7 +168,6 @@ struct SelectiveFolderView: View {
 		#if os(macOS)
 			.navigationTitle("Files kept on this device in '\(self.folder.displayName)'")
 		#endif
-
 		.searchable(text: $searchString, prompt: "Search files by name...")
 		.task {
 			Task {
@@ -191,10 +206,16 @@ struct SelectiveFolderView: View {
 			return
 		}
 		isClearing = true
+		let inEditMode = self.inEditMode
 
 		Task.detached {
 			do {
-				try await self.deselectSearchResults(includingLastCopy: false)
+				if inEditMode {
+					try await self.deselectListSelection(includingLastCopy: false)
+				}
+				else {
+					try await self.deselectSearchResults(includingLastCopy: false)
+				}
 			}
 			catch let error {
 				DispatchQueue.main.async {
@@ -274,11 +295,20 @@ struct SelectiveFolderView: View {
 	private nonisolated func deselectSearchResults(includingLastCopy: Bool) async throws {
 		let st = await self.searchString.lowercased()
 
-		var paths = Set(
+		let paths = Set(
 			await self.selectedPaths.filter { item in
 				return st.isEmpty || item.lowercased().contains(st)
 			})
 
+		try await self.deselect(paths: paths, includingLastCopy: includingLastCopy)
+	}
+
+	private nonisolated func deselectListSelection(includingLastCopy: Bool) async throws {
+		try await self.deselect(paths: self.listSelection, includingLastCopy: includingLastCopy)
+	}
+
+	private nonisolated func deselect(paths: Set<String>, includingLastCopy: Bool) async throws {
+		var paths = paths
 		// If we should not delete if our copy is the only one available, check availability for each file first
 		if !includingLastCopy {
 			for path in paths {

@@ -15162,6 +15162,40 @@
         }
       }
     },
+    "Remove selected files from this device" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgewählte Dateien von diesem Gerät entfernen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar archivos seleccionados de este dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi i file selezionati da questo dispositivo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder geselecteerde bestanden van dit apparaat"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видалити вибрані файли з цього пристрою"
+          }
+        }
+      }
+    },
     "Remove the file from all devices" : {
       "localizations" : {
         "de" : {
@@ -21664,6 +21698,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Це видалить усі локально збережені копії файлів у цій теці. Файли, які не присутні на іншому пристрої, не будуть видалені. Ви впевнені, що хочете продовжити?"
+          }
+        }
+      }
+    },
+    "This will remove the local copy of the selected files in this folder. Any files that are not also present on another device will not be removed. Are you sure yu want to continue?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dadurch wird die lokale Kopie der ausgewählten Dateien in diesem Ordner entfernt. Dateien, die nicht auch auf einem anderen Gerät vorhanden sind, werden nicht entfernt. Sind Sie sicher, dass Sie fortfahren möchten?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esto eliminará la copia local de los archivos seleccionados en esta carpeta. Los archivos que no estén presentes en otro dispositivo no se eliminarán. ¿Estás seguro de que quieres continuar?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo rimuoverà la copia locale dei file selezionati in questa cartella. I file che non sono presenti su un altro dispositivo non verranno rimossi. Sei sicuro di voler continuare?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiermee wordt de lokale kopie van de geselecteerde bestanden in deze map verwijderd. Bestanden die niet ook op een ander apparaat aanwezig zijn, worden niet verwijderd. Weet je zeker dat je wilt doorgaan?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Це видалить локальну копію вибраних файлів у цій папці. Файли, які не присутні на іншому пристрої, не будуть видалені. Ви впевнені, що хочете продовжити?"
           }
         }
       }
