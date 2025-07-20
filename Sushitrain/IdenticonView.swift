@@ -214,19 +214,39 @@ private struct QRView: View {
 
 	var body: some View {
 		ZStack {
-			if let image = image {
-				#if os(iOS)
-					Image(uiImage: image)
-						.resizable()
-						.frame(width: 200, height: 200)
-				#elseif os(macOS)
-					Image(nsImage: image)
-						.resizable()
-						.frame(width: 200, height: 200)
-				#endif
-			}
-			else {
-				ProgressView()
+			VStack(alignment: .center, spacing: 10.0) {
+				if let image = image {
+					#if os(iOS)
+						Image(uiImage: image)
+							.resizable()
+							.frame(width: 200, height: 200)
+					#elseif os(macOS)
+						Image(nsImage: image)
+							.resizable()
+							.frame(width: 200, height: 200)
+					#endif
+				}
+				else {
+					ProgressView()
+				}
+				
+				Text(self.text).monospaced().contextMenu {
+					Button(action: {
+						#if os(iOS)
+							UIPasteboard.general.string = self.text
+						#endif
+
+						#if os(macOS)
+							let pasteboard = NSPasteboard.general
+							pasteboard.clearContents()
+							pasteboard.prepareForNewContents()
+						pasteboard.setString(self.text, forType: .string)
+						#endif
+					}) {
+						Text("Copy to clipboard")
+						Image(systemName: "doc.on.doc")
+					}
+				}
 			}
 		}
 		.navigationTitle("Device ID")
