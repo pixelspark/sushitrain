@@ -13972,6 +13972,40 @@
         }
       }
     },
+    "Photo folders can only be send-only and cannot be selectively synchronized." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotoordner können nur send-only sein und können nicht selektiv synchronisiert werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las carpetas de fotos solo pueden ser de solo envío y no se pueden sincronizar selectivamente."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le cartelle di foto possono essere solo di sola invio e non possono essere sincronizzate selettivamente."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotomappen kunnen alleen als 'alleen verzenden' worden ingesteld, en kunnen niet selectief gesynchroniseerd worden."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Папки з фотографіями можуть бути лише для відправки і не можуть бути синхронізовані вибірково."
+          }
+        }
+      }
+    },
     "Photo folders can only synchronize photos in the current version of the app. To save videos and/or live photos, use the photo back-up function, available in the settings screen." : {
       "localizations" : {
         "de" : {

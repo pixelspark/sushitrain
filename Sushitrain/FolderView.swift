@@ -638,7 +638,7 @@ struct FolderView: View {
 					ExternalFolderSectionView(folder: folder)
 				}
 
-				Section("Folder settings") {
+				Section {
 					Text("Folder ID").badge(Text(folder.folderID))
 
 					LabeledContent {
@@ -653,13 +653,23 @@ struct FolderView: View {
 					}
 
 					FolderDirectionPicker(folder: folder).disabled(isPhotoFolder)
-					FolderSyncTypePicker(folder: folder).disabled(isPhotoFolder)
 
+					FolderSyncTypePicker(folder: folder).disabled(isPhotoFolder)
+				} header: {
+					Text("Folder settings")
+				} footer: {
+					if isPhotoFolder {
+						Text("Photo folders can only be send-only and cannot be selectively synchronized.")
+					}
+				}
+
+				Section {
 					Toggle(
 						"Synchronize",
 						isOn: Binding(
 							get: { !folder.isPaused() },
-							set: { active in try? folder.setPaused(!active) }))
+							set: { active in try? folder.setPaused(!active) })
+					)
 				}
 
 				if folder.isPhotoFolder {
