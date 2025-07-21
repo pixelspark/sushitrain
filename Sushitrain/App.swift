@@ -17,6 +17,8 @@ struct SushitrainApp: App {
 
 	#if os(iOS)
 		@UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+		@State private var memoryWarningPublisher = NotificationCenter.default.publisher(
+			for: UIApplication.didReceiveMemoryWarningNotification)
 	#endif
 
 	#if os(macOS)
@@ -140,6 +142,11 @@ struct SushitrainApp: App {
 		return configDirectory
 	}
 
+	private func onReceiveMemoryWarning() {
+		Log.info("Received memory pressure warning")
+		ImageCache.clearMemoryCache()
+	}
+
 	var body: some Scene {
 		#if os(macOS)
 			WindowGroup(id: "folder", for: String.self) { [appState] folderID in
@@ -162,6 +169,11 @@ struct SushitrainApp: App {
 		WindowGroup(id: "main") { [appState] in
 			MainView()
 				.environment(appState)
+				#if os(iOS)
+					.onReceive(memoryWarningPublisher) { _ in
+						self.onReceiveMemoryWarning()
+					}
+				#endif
 		}
 		#if os(macOS)
 			.onChange(of: hideInDock, initial: true) { _ov, nv in

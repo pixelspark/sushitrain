@@ -253,6 +253,14 @@ struct ThumbnailImage<Content>: View where Content: View {
 			.appendingPathComponent("\(fileName).jpg", isDirectory: false)
 	}
 
+	// Clears in-memory image caches
+	static func clearMemoryCache() {
+		self.shared.cache.removeAll()
+		for (_, cache) in self.byFolder {
+			cache.cache.removeAll()
+		}
+	}
+
 	func clear() {
 		do {
 			self.cache.removeAll()
