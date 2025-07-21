@@ -6270,6 +6270,40 @@
         }
       }
     },
+    "Disabling 'watch for changes' for this folder may resolve the issue." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Deaktivieren von 'änderungen überwachen' für diesen Ordner kann das Problem beheben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactivar 'monitorear cambios' para esta carpeta puede resolver el problema."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disabilitare 'controlla le modifiche' per questa cartella potrebbe risolvere il problema."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het uitschakelen van 'wijzigingen volgen' voor deze map kan het probleem oplossen."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вимкнення «cлідкуйте за змінами» для цієї папки може вирішити проблему."
+          }
+        }
+      }
+    },
     "Discovered devices" : {
       "localizations" : {
         "de" : {
@@ -9162,6 +9196,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Папка для видалення порожніх незсинхронізованих підкаталогів. Папка має бути вибірково синхронізована."
+          }
+        }
+      }
+    },
+    "Folder too large for watching" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner zu groß zum Überwachen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carpeta demasiado grande para supervisar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartella troppo grande per il monitoraggio"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map te groot om te bewaken"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Папка занадто велика для стеження"
           }
         }
       }

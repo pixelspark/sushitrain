@@ -103,9 +103,11 @@ struct FolderStatusDescription {
 	var systemImage: String
 	var color: Color
 	var badge: String
+	var additionalText: String?
 
 	init(_ folder: SushitrainFolder) {
 		self.badge = ""
+		self.additionalText = nil
 		if !folder.exists() {
 			(self.text, self.systemImage, self.color) = (String(localized: "Folder does not exist"), "trash", .red)
 		}
@@ -163,6 +165,7 @@ struct FolderStatusDescription {
 
 					case "error":
 						(self.text, self.systemImage, self.color) = (String(localized: "Error"), "exclamationmark.triangle.fill", .red)
+						self.additionalText = error?.localizedDescription
 
 					default:
 						if !folder.isDiskSpaceSufficient() {
@@ -170,10 +173,18 @@ struct FolderStatusDescription {
 								String(localized: "Insufficient free storage space"), "exclamationmark.triangle.fill", .red
 							)
 						}
+						// Error message is "fcntl /private/...: too many open files"
+						else if folder.isWatcherEnabled() && status.contains("too many open files") {
+							(self.text, self.systemImage, self.color) = (
+								String(localized: "Folder too large for watching"), "exclamationmark.triangle.fill", .red
+							)
+							self.additionalText = String(localized: "Disabling 'watch for changes' for this folder may resolve the issue.")
+						}
 						else {
 							(self.text, self.systemImage, self.color) = (
 								String(localized: "Unknown state"), "exclamationmark.triangle.fill", .red
 							)
+							self.additionalText = error?.localizedDescription
 						}
 					}
 				}
@@ -230,8 +241,10 @@ struct FolderStatusView: View {
 			self.statusLabel()
 		}
 
-		if let error = error, folder.isDiskSpaceSufficient() {
-			Text(error.localizedDescription).foregroundStyle(.red)
+		let folderStatus = FolderStatusDescription(folder)
+
+		if let txt = folderStatus.additionalText {
+			Text(txt).foregroundStyle(.red)
 		}
 	}
 
