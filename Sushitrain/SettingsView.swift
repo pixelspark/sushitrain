@@ -308,6 +308,7 @@ struct AdvancedSettingsView: View {
 	@State private var showDiscoveryAddresses = false
 	@State private var showSTUNAddresses = false
 	@State private var folders: [SushitrainFolder] = []
+	@State private var confirmClearThumbnailCache = false
 
 	#if os(macOS)
 		@State private var showConfigurationSettings = false
@@ -562,8 +563,16 @@ struct AdvancedSettingsView: View {
 				// Clear thumbnail cache button
 				if userSettings.cacheThumbnailsToFolderID == "" {
 					Button("Clear thumbnail cache") {
-						ImageCache.shared.clear()
-						self.diskCacheSizeBytes = nil
+						confirmClearThumbnailCache = true
+
+					}.confirmationDialog(
+						"Are you sure you want to clear the thumbnail cache?",
+						isPresented: $confirmClearThumbnailCache, titleVisibility: .visible
+					) {
+						Button("Clear thumbnail cache", role: .destructive) {
+							ImageCache.shared.clear()
+							self.diskCacheSizeBytes = nil
+						}
 					}
 				}
 			} header: {

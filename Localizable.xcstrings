@@ -3142,6 +3142,40 @@
         }
       }
     },
+    "Are you sure you want to clear the thumbnail cache?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Möchten Sie den Vorschaubild-Cache wirklich löschen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Está seguro de que desea borrar la caché de miniaturas?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sei sicuro di voler cancellare la cache delle miniature?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weet je zeker dat je de miniatuurcache wilt wissen?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ви впевнені, що хочете очистити кеш ескізів?"
+          }
+        }
+      }
+    },
     "Are you sure you want to remove this file from all devices?" : {
       "localizations" : {
         "de" : {
