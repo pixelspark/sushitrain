@@ -26,7 +26,7 @@ struct PhotoBackupButton: View {
 	@ObservedObject var photoBackup: PhotoBackup
 
 	var body: some View {
-		if case .finished(error: let e) = photoBackup.progress, let e = e {
+		if case .error(let e) = photoBackup.progress {
 			Text(e).foregroundStyle(.red)
 		}
 
@@ -52,6 +52,39 @@ struct PhotoBackupButton: View {
 	}
 }
 
+struct PhotoBackupStatusView: View {
+	@ObservedObject var photoBackup: PhotoBackup
+
+	var body: some View {
+		VStack(alignment: .leading) {
+			if !photoBackup.isSynchronizing {
+				if photoBackup.lastCompletedDate > 0.0 {
+					let lastDate = Date(timeIntervalSinceReferenceDate: photoBackup.lastCompletedDate)
+					Text("Last completed on \(lastDate.formatted(date: .abbreviated, time: .shortened)).")
+				}
+
+				if case .finished(savedAssets: let sa, purgedAssets: let pa) = photoBackup.progress {
+					if let sa = sa, let pa = pa {
+						Text("Saved \(sa), purged \(pa) items.")
+					}
+					else if let sa = sa {
+						Text("Saved \(sa) new items.")
+					}
+					else if let pa = pa {
+						Text("Saved no new items, purged \(pa) items.")
+					}
+					else {
+						Text("There were no new items to be saved.")
+					}
+				}
+				else if case .error(let e) = photoBackup.progress {
+					Text(e)
+				}
+			}
+		}
+	}
+}
+
 struct PhotoBackupSettingsView: View {
 	@Environment(AppState.self) private var appState
 	@State private var authorizationStatus: PHAuthorizationStatus = .notDetermined
@@ -72,7 +105,9 @@ struct PhotoBackupSettingsView: View {
 								album.localIdentifier)
 						}
 					}
-					.pickerStyle(.menu).disabled(photoBackup.isSynchronizing)
+					.pickerStyle(.menu)
+					.disabled(photoBackup.isSynchronizing)
+					.onChange(of: photoBackup.selectedAlbumID) { _, _ in photoBackup.resetLastSuccessfulChangeToken() }
 				}
 				else if authorizationStatus == .denied || authorizationStatus == .restricted {
 					Text("Synctrain cannot access your photo library right now")
@@ -100,8 +135,9 @@ struct PhotoBackupSettingsView: View {
 							Text(option.displayName).tag(option.folderID)
 						}
 					}
-					.pickerStyle(.menu).disabled(
-						photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
+					.pickerStyle(.menu)
+					.disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
+					.onChange(of: photoBackup.selectedFolderID) { _, _ in photoBackup.resetLastSuccessfulChangeToken() }
 				}
 			} header: {
 				Text("Copy photos")
@@ -130,7 +166,10 @@ struct PhotoBackupSettingsView: View {
 						set: { s in
 							photoBackup.categories.toggle(.photo, s)
 						})
-				).disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
+				)
+				.disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
+				.onChange(of: photoBackup.categories) { _, _ in photoBackup.resetLastSuccessfulChangeToken() }
+
 				Toggle(
 					"Live photos",
 					isOn: Binding(
@@ -139,6 +178,7 @@ struct PhotoBackupSettingsView: View {
 							photoBackup.categories.toggle(.livePhoto, s)
 						})
 				).disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
+
 				Toggle(
 					"Videos",
 					isOn: Binding(
@@ -158,12 +198,14 @@ struct PhotoBackupSettingsView: View {
 							.autocorrectionDisabled()
 							.autocapitalization(.none)
 						#endif
+						.onChange(of: photoBackup.subDirectoryPath) { _, _ in photoBackup.resetLastSuccessfulChangeToken() }
 				} label: {
 					Text("Path in folder")
 				}
 
 				PhotoFolderStructureView(folderStructure: photoBackup.$folderStructure)
 					.disabled(photoBackup.isSynchronizing)
+					.onChange(of: photoBackup.folderStructure) { _, _ in photoBackup.resetLastSuccessfulChangeToken() }
 
 				Text("Example file location in folder: ")
 					+ Text("\(photoBackup.subDirectoryPath)/\(photoBackup.folderStructure.examplePath)")
@@ -179,6 +221,7 @@ struct PhotoBackupSettingsView: View {
 				Section {
 					PhotoBackupTimeZoneView(timeZone: photoBackup.$timeZone)
 						.disabled(photoBackup.isSynchronizing)
+						.onChange(of: photoBackup.timeZone) { _, _ in photoBackup.resetLastSuccessfulChangeToken() }
 				} footer: {
 					PhotoBackupTimeZoneExplainerView(timeZone: photoBackup.timeZone)
 				}
@@ -194,7 +237,9 @@ struct PhotoBackupSettingsView: View {
 				.pickerStyle(.menu)
 				.disabled(
 					photoBackup.isSynchronizing || self.authorizationStatus != .authorized
-						|| photoBackup.selectedAlbumID.isEmpty)
+						|| photoBackup.selectedAlbumID.isEmpty
+				)
+				.onChange(of: photoBackup.savedAlbumID) { _, _ in photoBackup.resetLastSuccessfulChangeToken() }
 			} header: {
 				Text("After saving")
 			} footer: {
@@ -207,6 +252,8 @@ struct PhotoBackupSettingsView: View {
 
 			Section {
 				Toggle("Remove saved photos from source", isOn: photoBackup.$purgeEnabled)
+					.onChange(of: photoBackup.purgeEnabled) { _, _ in photoBackup.resetLastSuccessfulChangeToken() }
+
 				if photoBackup.purgeEnabled {
 					Stepper(
 						photoBackup.purgeAfterDays <= 0

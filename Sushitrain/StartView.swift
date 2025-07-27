@@ -432,9 +432,10 @@ struct StartView: View {
 			if appState.photoBackup.isReady {
 				Section {
 					PhotoBackupButton(photoBackup: appState.photoBackup)
+				} footer: {
+					PhotoBackupStatusView(photoBackup: appState.photoBackup)
 				}
 			}
-
 		}
 		#if os(macOS)
 			.formStyle(.grouped)

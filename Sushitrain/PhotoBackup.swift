@@ -93,16 +93,19 @@ enum PhotoBackupFolderStructure: String, Codable {
 }
 
 enum PhotoSyncProgress {
+	case notStarted
 	case starting
 	case exportingPhotos(index: Int, total: Int, current: String?)
 	case exportingVideos(index: Int, total: Int, current: String?)
 	case exportingLivePhotos(index: Int, total: Int, current: String?)
 	case selecting
 	case purging
-	case finished(error: String?)
+	case error(String)
+	case finished(savedAssets: Int?, purgedAssets: Int?)
 
 	var stepProgress: Float {
 		switch self {
+		case .notStarted: return 1.0
 		case .starting: return 0.0
 
 		case .exportingPhotos(let index, let total, current: _):
@@ -116,38 +119,39 @@ enum PhotoSyncProgress {
 			return 1.0
 		case .selecting: return 0.0
 		case .purging: return 0.0
-		case .finished(error: _): return 1.0
+		case .finished(savedAssets: _): return 1.0
+		case .error(_): return 1.0
 		}
 	}
 
 	var badgeText: String {
 		switch self {
-
+		case .notStarted: return ""
 		case .starting: return ""
 		case .exportingPhotos(let index, let total, current: _): return String(localized: "\(index+1) of \(total)")
 		case .exportingVideos(let index, let total, current: _): return String(localized: "\(index+1) of \(total)")
 		case .exportingLivePhotos(let index, let total, current: _): return String(localized: "\(index+1) of \(total)")
 		case .purging: return ""
 		case .selecting: return ""
-		case .finished(error: _): return ""
+		case .error(_): return ""
+		case .finished(_, _): return ""
 		}
 	}
 
 	var localizedDescription: String {
 		switch self {
+		case .notStarted: return String(localized: "Not started")
 		case .starting: return String(localized: "Preparing to save photos and videos")
 		case .exportingPhotos(index: _, total: _, current: _): return String(localized: "Saving photos")
 		case .exportingVideos(index: _, total: _, current: _): return String(localized: "Saving videos")
 		case .exportingLivePhotos(index: _, total: _, current: _): return String(localized: "Saving live photos")
 		case .purging: return String(localized: "Removing originals")
 		case .selecting: return String(localized: "Selecting files to be synchronized")
-		case .finished(let error):
-			if let e = error {
-				return String(localized: "Failed: \(e)")
-			}
-			else {
-				return String(localized: "Finished")
-			}
+		case .error(let e):
+			return String(localized: "Failed: \(e)")
+
+		case .finished(savedAssets: _):
+			return String(localized: "Finished")
 		}
 	}
 }
@@ -169,9 +173,10 @@ enum PhotoSyncProgress {
 	@AppStorage("photoSyncSubdirectoryPath") var subDirectoryPath = ""
 	@AppStorage("photoSyncMaxAgeDays") var maxAgeDays = 6 * 30  // The maximum age for assets to be considered for export
 	@AppStorage("photoBackupTimeZone") var timeZone: PhotoBackupTimeZone = .current
+	@AppStorage("photoBackupLastSuccessfulChangeToken") var lastSuccessfullChangeTokenData: Data = Data()
 
 	@Published private(set) var isSynchronizing = false
-	@Published private(set) var progress: PhotoSyncProgress = .finished(error: nil)
+	@Published private(set) var progress: PhotoSyncProgress = .notStarted
 	@Published private(set) var photoBackupTask: Task<(), Error>? = nil
 
 	var selectedAlbumTitle: String? {
@@ -214,21 +219,22 @@ enum PhotoSyncProgress {
 				}
 			}
 
+			// Determine destination folder and check if we can use it
 			guard let folder = appState.client.folder(withID: selectedFolderID) else {
 				DispatchQueue.main.async {
-					self.progress = .finished(error: String(localized: "Cannot find selected folder with ID '\(selectedFolderID)'"))
+					self.progress = .error(String(localized: "Cannot find selected folder with ID '\(selectedFolderID)'"))
 				}
 				return
 			}
 
 			if !folder.exists() {
-				DispatchQueue.main.async { self.progress = .finished(error: String(localized: "Selected folder does not exist")) }
+				DispatchQueue.main.async { self.progress = .error(String(localized: "Selected folder does not exist")) }
 				return
 			}
 
 			if !folder.isSuitablePhotoBackupDestination {
 				DispatchQueue.main.async {
-					self.progress = .finished(error: String(localized: "The selected folder cannot be used to save photos to"))
+					self.progress = .error(String(localized: "The selected folder cannot be used to save photos to"))
 				}
 				return
 			}
@@ -248,6 +254,37 @@ enum PhotoSyncProgress {
 				Log.info("Background time remaining: \(await UIApplication.shared.backgroundTimeRemaining))")
 			#endif
 
+			// Check to see if anything changed at all
+			var onlyTheseLocalIdentifiers: Set<String>? = nil
+			let changeToken = PHPhotoLibrary.shared().currentChangeToken
+			Log.info("Current change token: \(changeToken)")
+			if let lastSuccessfulChangeToken = await self.lastSuccessfulChangeToken {
+				Log.info("Last change token: \(lastSuccessfulChangeToken)")
+				if !fullExport {
+					do {
+						let ids = try self.insertedOrUpdatedLocalIdentifiers(since: lastSuccessfulChangeToken, to: changeToken)
+						if ids.isEmpty {
+							// FIXME: we are skipping purge here
+							Log.info("Nothing changed and not a full export, finishing early!")
+							DispatchQueue.main.async {
+								self.progress = .finished(savedAssets: nil, purgedAssets: nil)
+								self.lastCompletedDate = Date.now.timeIntervalSinceReferenceDate
+							}
+							return
+						}
+						onlyTheseLocalIdentifiers = ids
+					}
+					catch PHPhotosError.persistentChangeTokenExpired,
+						PHPhotosError.persistentChangeDetailsUnavailable
+					{
+						Log.warn("Persistent change token expired or details unavailable; resetting the saved change token")
+						DispatchQueue.main.async {
+							self.lastSuccessfulChangeToken = nil
+						}
+					}
+				}
+			}
+
 			// Pause the folder while backing up so we can change selection state
 			let folderWasPaused = folder.isPaused()
 			try folder.setPaused(true)
@@ -259,7 +296,7 @@ enum PhotoSyncProgress {
 			var err: NSError? = nil
 			let folderPath = folder.localNativePath(&err)
 			if let err = err {
-				DispatchQueue.main.async { self.progress = .finished(error: err.localizedDescription) }
+				DispatchQueue.main.async { self.progress = .error(err.localizedDescription) }
 				return
 			}
 
@@ -273,7 +310,7 @@ enum PhotoSyncProgress {
 			let folderURL = URL(fileURLWithPath: folderPath)
 			let fetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [selectedAlbumID], options: nil)
 			guard let album = fetchResult.firstObject else {
-				DispatchQueue.main.async { self.progress = .finished(error: String(localized: "Could not find selected album")) }
+				DispatchQueue.main.async { self.progress = .error(String(localized: "Could not find selected album")) }
 				return
 			}
 
@@ -285,10 +322,60 @@ enum PhotoSyncProgress {
 				subDirectoryPath: subDirectoryPath,
 				fullExport: fullExport,
 				categories: categories,
-				isInBackground: isInBackground
+				isInBackground: isInBackground,
+				onlyTheseLocalIdentifiers: onlyTheseLocalIdentifiers
 			)
+
+			// Save change token
+			DispatchQueue.main.async {
+				self.lastSuccessfulChangeToken = changeToken
+			}
 		}
 		return self.photoBackupTask
+	}
+
+	private nonisolated func insertedOrUpdatedLocalIdentifiers(since: PHPersistentChangeToken, to: PHPersistentChangeToken)
+		throws -> Set<String>
+	{
+		// See if there are changes at all
+		var changedIdentifiers = Set<String>()
+		let changes = try PHPhotoLibrary.shared().fetchPersistentChanges(since: since)
+		for change in changes {
+			let changeDetails = try change.changeDetails(for: .asset)
+			for i in changeDetails.insertedLocalIdentifiers {
+				changedIdentifiers.insert(i)
+			}
+			for i in changeDetails.updatedLocalIdentifiers {
+				changedIdentifiers.insert(i)
+			}
+		}
+
+		return changedIdentifiers
+	}
+
+	private var lastSuccessfulChangeToken: PHPersistentChangeToken? {
+		get {
+			let ltd = self.lastSuccessfullChangeTokenData
+			if ltd.isEmpty {
+				return nil
+			}
+			let nku = try? NSKeyedUnarchiver(forReadingFrom: ltd)
+			return nku?.decodeObject(of: PHPersistentChangeToken.self, forKey: "changeToken")
+		}
+		set {
+			if let nv = newValue {
+				let nka = NSKeyedArchiver(requiringSecureCoding: true)
+				nka.encode(nv, forKey: "changeToken")
+				self.lastSuccessfullChangeTokenData = nka.encodedData
+			}
+			else {
+				self.lastSuccessfullChangeTokenData = Data()
+			}
+		}
+	}
+
+	func resetLastSuccessfulChangeToken() {
+		self.lastSuccessfulChangeToken = nil
 	}
 
 	private nonisolated func backupAlbum(
@@ -299,13 +386,23 @@ enum PhotoSyncProgress {
 		subDirectoryPath: EntryPath,
 		fullExport: Bool,
 		categories: Set<PhotoSyncCategories>,
-		isInBackground: Bool
+		isInBackground: Bool,
+		onlyTheseLocalIdentifiers: Set<String>?
 	) async throws {
+		// Fetch assets to export
 		var cancellingError: Error? = nil
-		let assets = PHAsset.fetchAssets(in: album, options: nil)
+		var options: PHFetchOptions? = nil
+		if let ids = onlyTheseLocalIdentifiers {
+			options = PHFetchOptions()
+			options!.predicate = NSPredicate(format: "localIdentifier IN %@", Array(ids))
+		}
+		let assets = PHAsset.fetchAssets(in: album, options: options)
+
+		// Update the progress to show the number of assets we will be exporting this time
 		let count = assets.count
 		DispatchQueue.main.async { self.progress = .exportingPhotos(index: 0, total: count, current: nil) }
 
+		// Bookkeeping
 		var videosToExport: [(PHAsset, URL, EntryPath)] = []
 		var livePhotosToExport: [(PHAsset, URL, EntryPath)] = []
 		var selectPaths: [EntryPath] = []
@@ -485,7 +582,7 @@ enum PhotoSyncProgress {
 
 		// Report error
 		if let ce = cancellingError {
-			DispatchQueue.main.async { self.progress = .finished(error: ce.localizedDescription) }
+			DispatchQueue.main.async { self.progress = .error(ce.localizedDescription) }
 			return
 		}
 
@@ -656,6 +753,7 @@ enum PhotoSyncProgress {
 		}
 
 		// Purge
+		var purgedAssetCount = 0
 		if !isInBackground && purgeEnabled && !originalsToPurge.isEmpty {
 			Log.info("Purge \(originalsToPurge.count) originals")
 			DispatchQueue.main.async { self.progress = .purging }
@@ -663,13 +761,15 @@ enum PhotoSyncProgress {
 
 			// this could fail in the background
 			try? await PHPhotoLibrary.shared().performChanges { PHAssetChangeRequest.deleteAssets(assets) }
+			purgedAssetCount = assets.count
 		}
 
 		// Write 'last completed' date
+		let purgedAssetCountLet = purgedAssetCount
 		let completedDate = Date.now.timeIntervalSinceReferenceDate
 		DispatchQueue.main.async {
 			self.lastCompletedDate = completedDate
-			self.progress = .finished(error: nil)
+			self.progress = .finished(savedAssets: assets.count, purgedAssets: purgedAssetCountLet)
 		}
 		Log.info("Photo back-up done")
 
