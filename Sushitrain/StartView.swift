@@ -430,11 +430,18 @@ struct StartView: View {
 			}
 
 			if appState.photoBackup.isReady {
-				Section {
-					PhotoBackupButton(photoBackup: appState.photoBackup)
-				} footer: {
-					PhotoBackupStatusView(photoBackup: appState.photoBackup)
-				}
+				#if os(iOS)
+					Section {
+						PhotoBackupButton(photoBackup: appState.photoBackup)
+					} footer: {
+						PhotoBackupStatusView(photoBackup: appState.photoBackup)
+					}
+				#else
+					Section {
+						PhotoBackupButton(photoBackup: appState.photoBackup)
+						PhotoBackupStatusView(photoBackup: appState.photoBackup)
+					}
+				#endif
 			}
 		}
 		#if os(macOS)
