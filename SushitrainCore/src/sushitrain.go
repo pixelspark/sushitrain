@@ -707,6 +707,13 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 					}
 				}
 			}
+
+			// The app currently doesn't do anything with scan progress update events, and enabling progress reports apparently
+			// leads to some extra memory usage (see https://github.com/syncthing/syncthing/pull/10221), so disable it.
+			if folderConfig.ScanProgressIntervalS >= 0 {
+				folderConfig.ScanProgressIntervalS = -1
+				conf.SetFolder(folderConfig)
+			}
 		}
 	})
 
