@@ -314,7 +314,6 @@ extension PhotoBackupFolderStructure {
 }
 
 extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
-
 	func root(_ uri: String?) throws -> any SushitrainCustomFileEntryProtocol {
 		guard let uri = uri else {
 			throw PhotoFSError.invalidURI
@@ -386,6 +385,11 @@ extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 			self.cachedRoots[uri] = folderRoot
 		}
 
+		// Ensure we are registered for photo library notifications
+		Task { @MainActor in
+			PhotoFSLibraryObserver.shared.registerForNotifications()
+		}
+
 		return folderRoot
 	}
 }
@@ -393,8 +397,16 @@ extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 private final class PhotoFSLibraryObserver: NSObject, PHPhotoLibraryChangeObserver, Sendable {
 	nonisolated(unsafe) var changeCounter: Int = 0
 	private let lock = DispatchSemaphore(value: 1)
+	@MainActor private var registeredForNotifications = false
 
 	static let shared = PhotoFSLibraryObserver()
+
+	@MainActor func registerForNotifications() {
+		if !self.registeredForNotifications {
+			self.registeredForNotifications = true
+		}
+		PHPhotoLibrary.shared().register(self)
+	}
 
 	func photoLibraryDidChange(_ changeInstance: PHChange) {
 		Log.info("Photo library did change: \(changeInstance) \(self.changeCounter)")
@@ -406,5 +418,4 @@ private final class PhotoFSLibraryObserver: NSObject, PHPhotoLibraryChangeObserv
 
 func registerPhotoFilesystem() {
 	SushitrainRegisterCustomFilesystemType(photoFSType, PhotoFS())
-	PHPhotoLibrary.shared().register(PhotoFSLibraryObserver.shared)
 }
