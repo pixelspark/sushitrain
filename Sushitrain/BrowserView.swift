@@ -585,9 +585,11 @@ private struct BrowserItemsView: View {
 				}
 
 				GridFilesView(
+					userSettings: appState.userSettings,
 					prefix: self.prefix,
 					files: files,
-					subdirectories: subdirectories, folder: folder
+					subdirectories: subdirectories,
+					folder: folder
 				)
 			}
 		}

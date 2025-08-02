@@ -25,6 +25,9 @@ private struct GridItemView: View {
 
 struct GridFilesView: View {
 	@Environment(AppState.self) private var appState
+
+	@ObservedObject var userSettings: AppUserSettings
+
 	var prefix: String
 	var files: [SushitrainEntry]
 	var subdirectories: [SushitrainEntry]
