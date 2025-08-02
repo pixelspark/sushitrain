@@ -39,7 +39,7 @@ struct FileViewerView: View {
 					)
 					// Swipe up and down for next/previous
 					.simultaneousGesture(
-						DragGesture(minimumDistance: 70, coordinateSpace: .global).onEnded {
+						DragGesture(minimumDistance: 140, coordinateSpace: .global).onEnded {
 							value in
 							// Only act on swipe gestures when enabled
 							if !appState.userSettings.enableSwipeFilesInPreview {
