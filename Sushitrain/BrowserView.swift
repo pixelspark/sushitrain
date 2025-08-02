@@ -544,55 +544,64 @@ private struct BrowserItemsView: View {
 	}
 
 	@ViewBuilder private func gridView() -> some View {
-		VStack {
-			ScrollView {
-				HStack {
-					#if os(iOS)
-						FolderStatusView(folder: folder)
-							.id(appState.eventCounter)  // Update for each event
-							.padding(.all, 10)
-					#endif
+		GridScrollView(
+			userSettings: appState.userSettings,
+			header: {
+				VStack {
+					HStack {
+						#if os(iOS)
+							FolderStatusView(folder: folder)
+								.id(appState.eventCounter)  // Update for each event
+								.padding(.all, 10)
+						#endif
 
-					Spacer()
+						Spacer()
 
-					Slider(
-						value: Binding(
-							get: {
-								return Double(appState.userSettings.browserGridColumns)
-							},
-							set: { nv in
-								appState.userSettings.browserGridColumns = Int(nv)
-							}
-						),
-						in: 1.0...10.0, step: 1.0
-					)
-					.frame(minWidth: 50, maxWidth: 150)
-					.padding(.horizontal, 20)
-					.padding(.vertical, 15)
-				}
-
-				if hasExtraneousFiles {
-					NavigationLink(destination: {
-						ExtraFilesView(folder: self.folder)
-					}) {
-						Label(
-							"This folder has new files",
-							systemImage:
-								"exclamationmark.triangle.fill"
-						).foregroundColor(.orange)
+						#if os(macOS)
+							// You can pinch on macOS using the touch pad, but it is handy to have a slider as well
+							Slider(
+								value: Binding(
+									get: {
+										return Double(appState.userSettings.browserGridColumns)
+									},
+									set: { nv in
+										withAnimation(.spring(response: 0.8)) {
+											appState.userSettings.browserGridColumns = Int(nv)
+										}
+									}
+								),
+								in: 1.0...10.0, step: 1.0
+							)
+							.frame(minWidth: 50, maxWidth: 150)
+							.padding(.horizontal, 20)
+							.padding(.vertical, 15)
+						#endif
 					}
-					.frame(maxWidth: .infinity)
-				}
 
+					if hasExtraneousFiles {
+						NavigationLink(destination: {
+							ExtraFilesView(folder: self.folder)
+						}) {
+							Label(
+								"This folder has new files",
+								systemImage:
+									"exclamationmark.triangle.fill"
+							).foregroundColor(.orange)
+						}
+						.frame(maxWidth: .infinity)
+					}
+				}
+			},
+			content: { columns in
 				GridFilesView(
 					userSettings: appState.userSettings,
 					prefix: self.prefix,
 					files: files,
 					subdirectories: subdirectories,
-					folder: folder
+					folder: folder,
+					columns: columns
 				)
-			}
-		}
+			})
 	}
 
 	@ViewBuilder private func listView() -> some View {

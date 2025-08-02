@@ -23,19 +23,88 @@ private struct GridItemView: View {
 	}
 }
 
+struct GridScrollView<HeaderContent: View, Content: View>: View {
+	let minColumns = 1
+	let maxColumns = 9
+
+	@ObservedObject var userSettings: AppUserSettings
+	let header: () -> HeaderContent
+	let content: (Int) -> Content
+
+	@State private var scrollViewOffset = CGFloat.zero
+	@State var magnifyBy: CGFloat = 1.0
+
+	var body: some View {
+		VStack {
+			GeometryReader { reader in
+				TrackingScrollView(offset: $scrollViewOffset) {
+					self.header()
+
+					self.content(userSettings.browserGridColumns)
+						.scaleEffect(magnifyBy, anchor: .top)
+						#if os(iOS)
+							.offset(x: 0, y: (scrollViewOffset + UIScreen.main.bounds.midY) * (1 - magnifyBy))
+						#else
+							.offset(x: 0, y: (scrollViewOffset + reader.size.height / 2.0) * (1 - magnifyBy))
+						#endif
+				}
+				.highPriorityGesture(magnification)
+				.accessibilityZoomAction { action in
+					switch action.direction {
+					case .zoomIn:
+						userSettings.browserGridColumns -= 1
+
+					case .zoomOut:
+						userSettings.browserGridColumns += 1
+					}
+					userSettings.browserGridColumns = min(maxColumns, max(minColumns, userSettings.browserGridColumns))
+				}
+			}
+		}
+	}
+
+	// Inspired by https://stackoverflow.com/a/73058175, CC-BY-SA 4.0
+	private var magnification: some Gesture {
+		MagnificationGesture()
+			.onChanged { state in
+				if state.isNormal && state > 0.01 {
+					magnifyBy = state
+				}
+			}
+			.onEnded { state in
+				if state.isNormal && state > 0.0 {
+					// Determine the appropriate number of columns
+					let newZoom = Double(userSettings.browserGridColumns) * 1 / state
+					let newColumnCount = min(maxColumns, max(minColumns, Int(newZoom.rounded(.toNearestOrAwayFromZero))))
+
+					withAnimation(.spring(response: 0.8)) {
+						magnifyBy = 1  // reset scaleEffect
+						userSettings.browserGridColumns = newColumnCount
+					}
+				}
+				else {
+					withAnimation(.spring(response: 0.8)) {
+						magnifyBy = 1  // reset scaleEffect
+						userSettings.browserGridColumns = maxColumns
+					}
+				}
+			}
+	}
+}
+
 struct GridFilesView: View {
 	@Environment(AppState.self) private var appState
 
 	@ObservedObject var userSettings: AppUserSettings
-
 	var prefix: String
 	var files: [SushitrainEntry]
 	var subdirectories: [SushitrainEntry]
 	var folder: SushitrainFolder
+	let columns: Int
 
 	var body: some View {
 		let gridColumns = Array(
-			repeating: GridItem(.flexible(), spacing: 1.0), count: appState.userSettings.browserGridColumns)
+			repeating: GridItem(.flexible(), spacing: 1.0), count: self.columns)
 
 		LazyVGrid(columns: gridColumns, spacing: 1.0) {
 			// List subdirectories
@@ -87,5 +156,50 @@ struct GridFilesView: View {
 				.aspectRatio(1, contentMode: .fit)
 			}
 		}
+		.padding(.horizontal, 2)
+	}
+}
+
+private struct ScrollOffsetPreferenceKey: PreferenceKey {
+	typealias Value = [CGFloat]
+	static let defaultValue: [CGFloat] = [0]
+
+	static func reduce(value: inout [CGFloat], nextValue: () -> [CGFloat]) {
+		value.append(contentsOf: nextValue())
+	}
+}
+
+// Scroll view that is able to track the vertical position
+// From iOS 18, this should be replaced with ScrollPosition/.scrollPosition as provided in SwiftUI
+// Inspired by https://github.com/maxnatchanon/trackable-scroll-view
+private struct TrackingScrollView<Content: View>: View {
+	@Binding var offset: CGFloat
+	@ViewBuilder let content: () -> Content
+
+	var body: some View {
+		GeometryReader { outsideReader in
+			ScrollView([.vertical], showsIndicators: true) {
+				ZStack(alignment: .top) {
+					GeometryReader { insideReader in
+						Color.clear
+							.preference(
+								key: ScrollOffsetPreferenceKey.self,
+								value: [
+									self.contentOffset(from: outsideReader, to: insideReader)
+								])
+					}
+					VStack {
+						self.content()
+					}
+				}
+			}
+			.onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+				self.offset = value[0]
+			}
+		}
+	}
+
+	private func contentOffset(from outsideReader: GeometryProxy, to insideReader: GeometryProxy) -> CGFloat {
+		return outsideReader.frame(in: .global).minY - insideReader.frame(in: .global).minY
 	}
 }
