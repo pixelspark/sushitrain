@@ -319,7 +319,7 @@ extension SushitrainEntry {
 	]
 
 	var canThumbnail: Bool {
-		if self.isSymlink() || self.isDirectory() {
+		if self.isSymlink() || self.isDirectory() || self.isArchive() {
 			return false
 		}
 

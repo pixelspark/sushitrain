@@ -27,6 +27,7 @@ struct FileView: View {
 	@State private var conflictingEntries: [SushitrainEntry]? = nil
 	@State private var openWithAppURL: URL? = nil
 	@State private var localPath: String? = nil
+	@State private var showArchive: Bool = false
 
 	@Environment(AppState.self) private var appState
 	@Environment(\.dismiss) private var dismiss
@@ -176,12 +177,6 @@ struct FileView: View {
 				}
 
 				if !file.isDirectory() && !file.isSymlink() {
-					#if os(macOS)
-						let openInSafariButton = Button(
-							"Open in Safari", systemImage: "safari", action: { if let u = URL(string: file.onDemandURL()) { openURL(u) } }
-						).buttonStyle(.link).disabled(folder.connectedPeerCount() == 0)
-					#endif
-
 					// Image preview
 					if file.canThumbnail && !showFullScreenViewer {
 						Section {
@@ -202,105 +197,19 @@ struct FileView: View {
 						}
 					}
 
-					if file.isSelected() {
-						// Selective sync uses copy in working dir
-						if file.isLocallyPresent() {
-							if let localPathActual = localPath {
-								Section {
-									Button("View file", systemImage: "eye", action: { localItemURL = URL(fileURLWithPath: localPathActual) })
-										#if os(macOS)
-											.buttonStyle(.link)
-										#endif
+					self.viewButtons()
 
-									#if os(macOS)
-
-										if let appURL = openWithAppURL {
-											Button("Open with '\(appURL.lastPathComponent)'", systemImage: "app.badge") {
-												NSWorkspace.shared.open(URL(fileURLWithPath: localPathActual))
-											}.buttonStyle(.link)
-										}
-									#endif
-
-									ShareLink("Share file", item: URL(fileURLWithPath: localPathActual))
-										#if os(macOS)
-											.buttonStyle(.link)
-										#endif
-
-									#if os(iOS)
-										// On macOS, this button is in the toolbar; on iOS there is not enough horizontal space
-										Button(
-											openInFilesAppLabel, systemImage: "arrow.up.forward.app",
-											action: { openURLInSystemFilesApp(url: URL(fileURLWithPath: localPathActual)) }
-										).disabled(localPath == nil)
-									#endif
-								}
-							}
-						}
-						else {
-							// Waiting for sync
-							Section { DownloadProgressView(file: file, folder: folder) }
-						}
-					}
-					else {
-						let streamButton = Button(
-							"Stream", systemImage: file.isVideo ? "tv" : "music.note",
-							action: {
-								if file.isVideo {
-									showFullScreenViewer = true
-								}
-								else if file.isAudio {
-									showSheetViewer = true
-								}
-							}
-						).disabled(folder.connectedPeerCount() == 0)
-							#if os(macOS)
-								.buttonStyle(.link)
-							#endif
-
-						let quickViewButton = Button(
-							"View file", systemImage: "arrow.down.circle",
-							action: {
-								if file.isWebPreviewable {
-									showSheetViewer = true
-								}
-								else {
-									showDownloader = true
-								}
-							}
-						).disabled(folder.connectedPeerCount() == 0)
-							#if os(macOS)
-								.buttonStyle(.link)
-							#endif
-
+					// Zip
+					if file.isArchive() {
 						Section {
-							if file.isMedia {
-								// Stream button
-								#if os(macOS)
-									HStack {
-										streamButton
-										quickViewButton
-										openInSafariButton
-									}
-								#else
-									streamButton
-									quickViewButton
-								#endif
-							}
-							else {
-								#if os(macOS)
-									HStack {
-										quickViewButton
-										openInSafariButton
-									}
-								#else
-									quickViewButton
-								#endif
-							}
+							self.zipButton()
 						}
 					}
 
 					// Sharing
-					Section { FileSharingLinksView(entry: file, sync: false) }
+					Section {
+						FileSharingLinksView(entry: file, sync: false)
+					}
 
 					// Devices that have this file
 					if let availability = self.fullyAvailableOnDevices {
@@ -374,20 +283,15 @@ struct FileView: View {
 				}
 			#endif
 
-			.sheet(
-				isPresented: $showDownloader,
-				content: {
-					NavigationStack {
-						FileQuickLookView(file: file)
-							#if os(iOS)
-								.navigationBarTitleDisplayMode(.inline)
-							#endif
-							.toolbar(content: {
-								ToolbarItem(placement: .cancellationAction, content: { Button("Cancel") { showDownloader = false } })
-							})
-					}
-				}
-			).toolbar {
+			.sheet(isPresented: $showArchive) {
+				self.zipSheet()
+			}
+
+			.sheet(isPresented: $showDownloader) {
+				self.downloaderSheet()
+			}
+
+			.toolbar {
 				// Next/previous buttons
 				if let selfIndex = selfIndex, let siblings = siblings {
 					ToolbarItemGroup(placement: .navigation) {
@@ -419,15 +323,175 @@ struct FileView: View {
 						).labelStyle(.iconOnly).disabled(localPath == nil)
 					}
 				#endif
-			}.sheet(isPresented: $showEncryptionSheet) {
+			}
+
+			.sheet(isPresented: $showEncryptionSheet) {
 				EncryptionView(entry: self.file)
-			}.onAppear {
+			}
+
+			.onAppear {
 				selfIndex = self.siblings?.firstIndex(of: file)
-			}.onChange(of: file, initial: true) { _, _ in
+			}
+
+			.onChange(of: file, initial: true) { _, _ in
 				self.fullyAvailableOnDevices = nil
 				self.update()
-			}.onChange(of: appState.eventCounter) { _, _ in
+			}
+
+			.onChange(of: appState.eventCounter) { _, _ in
 				self.update()
+			}
+		}
+	}
+
+	@ViewBuilder private func zipButton() -> some View {
+		Button("Explore archive contents", systemImage: "doc.zipper") {
+			self.showArchive = true
+		}
+		#if os(macOS)
+			.buttonStyle(.link)
+		#endif
+	}
+
+	@ViewBuilder private func zipSheet() -> some View {
+		NavigationStack {
+			if let ar = file.archive() {
+				ZipView(archive: ar, prefix: "")
+					.navigationTitle(file.fileName())
+					.toolbar {
+						ToolbarItem(
+							placement: .cancellationAction,
+							content: {
+								Button("Close") {
+									showArchive = false
+								}
+							})
+					}
+			}
+			else {
+				EmptyView()
+			}
+		}
+	}
+
+	@ViewBuilder private func downloaderSheet() -> some View {
+		NavigationStack {
+			FileQuickLookView(file: file)
+				#if os(iOS)
+					.navigationBarTitleDisplayMode(.inline)
+				#endif
+				.toolbar(content: {
+					ToolbarItem(placement: .cancellationAction, content: { Button("Cancel") { showDownloader = false } })
+				})
+		}
+	}
+
+	@ViewBuilder private func viewButtons() -> some View {
+		#if os(macOS)
+			let openInSafariButton = Button(
+				"Open in Safari", systemImage: "safari", action: { if let u = URL(string: file.onDemandURL()) { openURL(u) } }
+			).buttonStyle(.link).disabled(folder.connectedPeerCount() == 0)
+		#endif
+
+		if file.isSelected() {
+			// Selective sync uses copy in working dir
+			if file.isLocallyPresent() {
+				if let localPathActual = localPath {
+					Section {
+						Button("View file", systemImage: "eye", action: { localItemURL = URL(fileURLWithPath: localPathActual) })
+							#if os(macOS)
+								.buttonStyle(.link)
+							#endif
+
+						#if os(macOS)
+
+							if let appURL = openWithAppURL {
+								Button("Open with '\(appURL.lastPathComponent)'", systemImage: "app.badge") {
+									NSWorkspace.shared.open(URL(fileURLWithPath: localPathActual))
+								}.buttonStyle(.link)
+							}
+						#endif
+
+						ShareLink("Share file", item: URL(fileURLWithPath: localPathActual))
+							#if os(macOS)
+								.buttonStyle(.link)
+							#endif
+
+						#if os(iOS)
+							// On macOS, this button is in the toolbar; on iOS there is not enough horizontal space
+							Button(
+								openInFilesAppLabel, systemImage: "arrow.up.forward.app",
+								action: { openURLInSystemFilesApp(url: URL(fileURLWithPath: localPathActual)) }
+							).disabled(localPath == nil)
+						#endif
+					}
+				}
+			}
+			else {
+				// Waiting for sync
+				Section { DownloadProgressView(file: file, folder: folder) }
+			}
+		}
+		else {
+			let streamButton = Button(
+				"Stream", systemImage: file.isVideo ? "tv" : "music.note",
+				action: {
+					if file.isVideo {
+						showFullScreenViewer = true
+					}
+					else if file.isAudio {
+						showSheetViewer = true
+					}
+				}
+			).disabled(folder.connectedPeerCount() == 0)
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
+
+			let quickViewButton = Button(
+				"View file", systemImage: "arrow.down.circle",
+				action: {
+					if file.isWebPreviewable {
+						showSheetViewer = true
+					}
+					else {
+						showDownloader = true
+					}
+				}
+			).disabled(folder.connectedPeerCount() == 0)
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
+
+			if !file.isArchive() {
+				Section {
+					if file.isMedia {
+						// Stream button
+						#if os(macOS)
+							HStack {
+								streamButton
+								quickViewButton
+								openInSafariButton
+							}
+						#else
+							streamButton
+							quickViewButton
+						#endif
+					}
+					else {
+						#if os(macOS)
+							HStack {
+								quickViewButton
+								openInSafariButton
+							}
+						#else
+							quickViewButton
+						#endif
+					}
+				}
+			}
+			else {
+				EmptyView()
 			}
 		}
 	}
