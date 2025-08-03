@@ -953,3 +953,11 @@ func writeTextToPasteboard(_ text: String) {
 		pasteboard.setString(text, forType: .string)
 	#endif
 }
+
+// Run a possibly blocking task in the background (for calls into Go code)
+func goTask(_ block: @Sendable @escaping () async throws -> Void) async throws {
+	try await Task.detached {
+		dispatchPrecondition(condition: .notOnQueue(.main))
+		try await block()
+	}.value
+}

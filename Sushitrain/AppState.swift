@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 import SwiftUI
-import SushitrainCore
+@preconcurrency import SushitrainCore
 import Combine
 import UserNotifications
 import Network
@@ -619,6 +619,12 @@ struct SyncState {
 			}
 			try? self.client.setReconnectIntervalS(60)
 			self.client.ignoreEvents = true
+
+			Task {
+				try? await goTask {
+					SushitrainClearBlockCache()
+				}
+			}
 		#endif
 
 		Task {

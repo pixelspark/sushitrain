@@ -145,6 +145,12 @@ struct SushitrainApp: App {
 	private func onReceiveMemoryWarning() {
 		Log.info("Received memory pressure warning")
 		ImageCache.clearMemoryCache()
+
+		Task {
+			try? await goTask {
+				SushitrainClearBlockCache()
+			}
+		}
 	}
 
 	var body: some Scene {

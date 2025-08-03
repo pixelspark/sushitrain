@@ -8,18 +8,14 @@ package sushitrain
 import (
 	"context"
 	"crypto/ed25519"
-	"errors"
 	"fmt"
-	"math"
 	"net"
 	"net/http"
 	"net/url"
 	"path/filepath"
-	"slices"
 	"time"
 
 	"github.com/gotd/contrib/http_range"
-	"github.com/syncthing/syncthing/lib/model"
 	"github.com/syncthing/syncthing/lib/protocol"
 	"github.com/syncthing/syncthing/lib/syncthing"
 )
@@ -105,110 +101,6 @@ func (srv *StreamingServer) Listen() error {
 	srv.listener = listener
 	Logger.Infoln("HTTP service listening on port", srv.port())
 	return nil
-}
-
-type miniPuller struct {
-	measurements *Measurements
-	experiences  map[protocol.DeviceID]bool
-	context      context.Context
-}
-
-func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, blockIndex int, file protocol.FileInfo, block protocol.BlockInfo) ([]byte, error) {
-	availables, err := m.BlockAvailability(folderID, file, block)
-	if err != nil {
-		return nil, err
-	}
-	if len(availables) < 1 {
-		return nil, errors.New("no peer available")
-	}
-
-	Logger.Infoln("Download block #", blockIndex, ":", len(availables), "available peers, experiences:", mp.experiences)
-
-	// Sort availables by latency
-	slices.SortFunc(availables, func(a model.Availability, b model.Availability) int {
-		latencyA := mp.measurements.LatencyFor(a.ID.String())
-		latencyB := mp.measurements.LatencyFor(b.ID.String())
-		if math.IsNaN(latencyA) && math.IsNaN(latencyB) {
-			return 0
-		} else if math.IsNaN(latencyA) {
-			return 1 // a > b
-		} else if math.IsNaN(latencyB) {
-			return -1 // b > a
-		} else if latencyA > latencyB {
-			return 1
-		} else if latencyB > latencyA {
-			return -1
-		} else {
-			return 0
-		}
-	})
-
-	// Attempt to download the block from an available and 'known good' peers first
-	for _, available := range availables {
-		if exp, ok := mp.experiences[available.ID]; ok && exp {
-			// Skip devices we're not connected to
-			if !m.IsConnectedTo(available.ID) {
-				continue
-			}
-
-			buf, err := m.DownloadBlock(mp.context, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
-			// Remember our experience with this peer for next time
-			mp.experiences[available.ID] = err == nil || err == context.Canceled
-			if err == nil {
-				return buf, nil
-			} else {
-				Logger.Infoln("good peer", available.ID, "error:", err, "buffer size=", len(buf))
-			}
-		}
-	}
-
-	// Failed to download from a good peer, let's try the peers we don't have any experience with
-	for _, available := range availables {
-		if _, ok := mp.experiences[available.ID]; !ok {
-			// Skip devices we're not connected to
-			if !m.IsConnectedTo(available.ID) {
-				continue
-			}
-
-			buf, err := m.DownloadBlock(mp.context, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
-			// Remember our experience with this peer for next time
-			mp.experiences[available.ID] = err == nil || err == context.Canceled
-			if err == nil {
-				return buf, nil
-			} else {
-				Logger.Infoln("unknown peer", available.ID, "error:", err, "buffer size=", len(buf))
-			}
-		}
-	}
-
-	// Failed to download from a good or unknown peer, let's try the 'bad' peers once again
-	for _, available := range availables {
-		if exp, ok := mp.experiences[available.ID]; ok && !exp {
-			// Skip devices we're not connected to
-			if !m.IsConnectedTo(available.ID) {
-				continue
-			}
-
-			buf, err := m.DownloadBlock(mp.context, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
-			// Remember our experience with this peer for next time
-			mp.experiences[available.ID] = err == nil || err == context.Canceled
-			if err == nil {
-				return buf, nil
-			} else {
-				Logger.Infoln("bad peer", available.ID, "error:", err, "buffer size=", len(buf))
-			}
-		}
-	}
-
-	return nil, errors.New("no peer to download this block from")
-}
-
-func newMiniPuller(ctx context.Context, measurements *Measurements) *miniPuller {
-	return &miniPuller{
-		experiences:  map[protocol.DeviceID]bool{},
-		context:      ctx,
-		measurements: measurements,
-	}
 }
 
 func NewServer(app *syncthing.App, measurements *Measurements, ctx context.Context) (*StreamingServer, error) {
