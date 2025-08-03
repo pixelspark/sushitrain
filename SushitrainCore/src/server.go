@@ -46,7 +46,7 @@ func (srv *StreamingServer) port() int {
 	return srv.listener.Addr().(*net.TCPAddr).Port
 }
 
-func (srv *StreamingServer) URLFor(folder string, path string) string {
+func (srv *StreamingServer) urlFor(folder string, path string) string {
 	url := url.URL{
 		Scheme: "http",
 		Host:   fmt.Sprintf("localhost:%d", srv.port()),
@@ -127,6 +127,7 @@ func NewServer(app *syncthing.App, measurements *Measurements, ctx context.Conte
 
 		folder := r.URL.Query().Get("folder")
 		path := r.URL.Query().Get("path")
+
 		Logger.Infoln("Request", r.Method, folder, path)
 		stFolder := server.client.FolderWithID(folder)
 		if stFolder == nil {
@@ -160,8 +161,7 @@ func NewServer(app *syncthing.App, measurements *Measurements, ctx context.Conte
 		startTime := time.Now()
 		var totalBytesSent int64 = 0
 
-		// Send file contents to the client
-		serveEntry(w, r, folder, stEntry, info, m, measurements, func(bytesSent int64, bytesRequested int64) {
+		callback := func(bytesSent int64, bytesRequested int64) {
 			if server.Delegate != nil {
 				go server.Delegate.OnStreamChunk(folder, path, int64(bytesSent), bytesRequested)
 			}
@@ -177,7 +177,10 @@ func NewServer(app *syncthing.App, measurements *Measurements, ctx context.Conte
 					time.Sleep(time.Duration(blockFetchShouldHaveTakenMs-blockFetchDurationMs) * time.Millisecond)
 				}
 			}
-		})
+		}
+
+		// Send file contents to the client
+		serveEntry(w, r, folder, stEntry, info, m, measurements, callback)
 	}))
 
 	if err := server.Listen(); err != nil {

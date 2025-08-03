@@ -376,7 +376,7 @@ struct FileView: View {
 
 	@ViewBuilder private func downloaderSheet() -> some View {
 		NavigationStack {
-			FileQuickLookView(file: file)
+			FileQuickLookView(file: file, dismissAfterClose: true)
 				#if os(iOS)
 					.navigationBarTitleDisplayMode(.inline)
 				#endif

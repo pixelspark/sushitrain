@@ -27,6 +27,20 @@ type Entry struct {
 	info   protocol.FileInfo
 }
 
+type DownloadDelegate interface {
+	OnError(error string)
+	OnFinished(path string)
+	OnProgress(fraction float64)
+	IsCancelled() bool
+}
+
+type Downloadable interface {
+	Download(toPath string, delegate DownloadDelegate)
+	FileName() string
+}
+
+var _ Downloadable = &Entry{}
+
 func (entry *Entry) Path() string {
 	return entry.info.FileName()
 }
@@ -366,13 +380,6 @@ func (entry *Entry) availabilityPerDevice() (map[protocol.DeviceID]int, int, err
 	return deviceStatus, len(info.Blocks), nil
 }
 
-type DownloadDelegate interface {
-	OnError(error string)
-	OnFinished(path string)
-	OnProgress(fraction float64)
-	IsCancelled() bool
-}
-
 /** Download this file to the specific location (should be outside the synced folder!) **/
 func (entry *Entry) Download(toPath string, delegate DownloadDelegate) {
 	go func() {
@@ -442,7 +449,7 @@ func (entry *Entry) OnDemandURL() string {
 		return ""
 	}
 
-	return server.URLFor(entry.Folder.FolderID, entry.info.FileName())
+	return server.urlFor(entry.Folder.FolderID, entry.info.FileName())
 }
 
 func (entry *Entry) Extension() string {

@@ -49,7 +49,10 @@ private class DownloadOperation: NSObject, ObservableObject, SushitrainDownloadD
 
 struct FileQuickLookView: View {
 	@Environment(AppState.self) private var appState
-	@State var file: SushitrainEntry
+
+	let file: SushitrainDownloadableProtocol
+	let dismissAfterClose: Bool
+
 	@StateObject private var downloadOperation: DownloadOperation = DownloadOperation()
 	@State private var quicklookHidden = false
 	@State private var filePath: URL? = nil
@@ -85,7 +88,9 @@ struct FileQuickLookView: View {
 				set: { p in
 					if p == nil {
 						quicklookHidden = true
-						dismiss()
+						if dismissAfterClose {
+							dismiss()
+						}
 					}
 				})
 		)

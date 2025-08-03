@@ -8,14 +8,33 @@ package sushitrain
 import (
 	"archive/zip"
 	"context"
+	"errors"
+	"io"
+	"os"
 	"strings"
 	"sync"
 )
+
+type ArchiveFile interface {
+	Downloadable
+	AsDownloadable() Downloadable
+	Size() int64
+}
+
+type archiveFileInternal interface {
+	reader() (io.Reader, error)
+}
 
 type Archive interface {
 	Files(prefix string) (*ListOfStrings, error)
 	IsDirectory(path string) bool
 	Name() string
+	File(path string) (ArchiveFile, error)
+}
+
+type entryArchiveFile struct {
+	archive *entryArchive
+	file    *zip.File
 }
 
 type entryArchive struct {
@@ -66,6 +85,23 @@ func (ea *entryArchive) Files(prefix string) (*ListOfStrings, error) {
 	return List(matches), nil
 }
 
+func (ea *entryArchive) File(path string) (ArchiveFile, error) {
+	files, err := ea.allFiles()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, fi := range files {
+		if fi.Name == path {
+			return &entryArchiveFile{
+				file:    fi,
+				archive: ea,
+			}, nil
+		}
+	}
+	return nil, errors.New("file not found in archive")
+}
+
 func (ea *entryArchive) IsDirectory(path string) bool {
 	// Paths that end in a slash are directories
 	return len(path) > 0 && path[len(path)-1:] == "/"
@@ -96,4 +132,52 @@ func (ea *entryArchive) ReadAt(p []byte, off int64) (n int, err error) {
 
 	xn, err := ea.puller.downloadRange(ea.entry.Folder.client.app.Internals, ea.entry.Folder.FolderID, ea.entry.info, p, off)
 	return int(xn), err
+}
+
+func (ea *entryArchiveFile) FileName() string {
+	ps := strings.Split(ea.file.Name, "/")
+	return ps[len(ps)-1]
+}
+
+func (ea *entryArchiveFile) Download(toPath string, delegate DownloadDelegate) {
+	go func() {
+		// Create file to download to
+		outFile, err := os.Create(toPath)
+		if err != nil {
+			delegate.OnError("could not open file for downloading to: " + err.Error())
+			return
+		}
+		// close fi on exit and check for its returned error
+		defer func() {
+			if err := outFile.Close(); err != nil {
+				panic(err)
+			}
+		}()
+
+		delegate.OnProgress(0.0)
+
+		reader, err := ea.reader()
+		if err != nil {
+			delegate.OnError("could not open file for downloading to: " + err.Error())
+			return
+		}
+		_, err = io.Copy(outFile, reader)
+		if err != nil {
+			delegate.OnError("could not open file for downloading to: " + err.Error())
+			return
+		}
+		delegate.OnFinished(toPath)
+	}()
+}
+
+func (ea *entryArchiveFile) Size() int64 {
+	return ea.file.FileInfo().Size()
+}
+
+func (ea *entryArchiveFile) reader() (io.Reader, error) {
+	return ea.file.Open()
+}
+
+func (ea *entryArchiveFile) AsDownloadable() Downloadable {
+	return ea
 }
