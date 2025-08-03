@@ -289,9 +289,10 @@ struct SyncState {
 				Log.info("Network path change: \(path)")
 			}
 			if let measurement = client?.measurements {
-				Task.detached {
-					dispatchPrecondition(condition: .notOnQueue(.main))
-					measurement.measure()
+				Task {
+					try? await goTask {
+						measurement.measure()
+					}
 				}
 			}
 		}
@@ -300,9 +301,10 @@ struct SyncState {
 
 		self.pingTimer = Timer.scheduledTimer(withTimeInterval: 50, repeats: true) { [weak client] timer in
 			if let measurement = client?.measurements {
-				Task.detached {
-					dispatchPrecondition(condition: .notOnQueue(.main))
-					measurement.measure()
+				Task {
+					try? await goTask {
+						measurement.measure()
+					}
 				}
 			}
 		}

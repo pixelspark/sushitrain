@@ -741,6 +741,8 @@ extension SushitrainFolderStats: @unchecked @retroactive Sendable {}
 extension SushitrainEntry: @unchecked @retroactive Sendable {}
 extension SushitrainCompletion: @unchecked @retroactive Sendable {}
 extension SushitrainPeer: @unchecked @retroactive Sendable {}
+extension SushitrainArchive: @unchecked @retroactive Sendable {}
+extension SushitrainMeasurement: @unchecked @retroactive Sendable {}
 
 #if os(macOS)
 	typealias UIViewRepresentable = NSViewRepresentable
