@@ -49,11 +49,21 @@ async function main() {
       }
       const locs = stringData.localizations;
       const untranslatedLocales = LOCALES.filter((loc) => {
-        return (
-          !(loc in locs) ||
+        if (!loc in locs) {
+          return true;
+        }
+
+        if ("variations" in locs[loc]) {
+          return false; // Leave variations alone for now
+        }
+
+        if (
           !locs[loc].stringUnit ||
           !locs[loc].stringUnit.state === "translated"
-        );
+        ) {
+          return true;
+        }
+        return false;
       });
       if (untranslatedLocales.length > 0) {
         const res = await fetch(OPENAI_URL, {
