@@ -49,11 +49,15 @@ async function main() {
       }
       const locs = stringData.localizations;
       const untranslatedLocales = LOCALES.filter((loc) => {
-        if (!loc in locs) {
+        if (!loc in locs || typeof locs[loc] !== "object") {
           return true;
         }
 
-        if ("variations" in locs[loc]) {
+        if (
+          locs[loc] !== null &&
+          typeof locs[loc] === "object" &&
+          "variations" in locs[loc]
+        ) {
           return false; // Leave variations alone for now
         }
 
