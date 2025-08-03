@@ -149,6 +149,7 @@ struct SushitrainApp: App {
 		Task {
 			try? await goTask {
 				SushitrainClearBlockCache()
+				SushitrainTriggerGC()
 			}
 		}
 	}

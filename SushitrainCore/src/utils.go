@@ -7,6 +7,7 @@ package sushitrain
 
 import (
 	"mime"
+	"runtime"
 	"strings"
 
 	"github.com/syncthing/syncthing/lib/logger"
@@ -204,4 +205,8 @@ func (fcts *FolderCounts) add(other *FolderCounts) {
 	fcts.Bytes += other.Bytes
 	fcts.Files += other.Files
 	fcts.Directories += other.Directories
+}
+
+func TriggerGC() {
+	runtime.GC()
 }
