@@ -13,6 +13,8 @@ import (
 	"os"
 	"strings"
 	"sync"
+
+	"golang.org/x/exp/maps"
 )
 
 type ArchiveFile interface {
@@ -63,26 +65,43 @@ func (ea *entryArchive) Name() string {
 }
 
 func (ea *entryArchive) Files(prefix string) (*ListOfStrings, error) {
+	if len(prefix) > 0 && prefix[(len(prefix)-1):] != "/" {
+		return nil, errors.New("prefix must end in a slash")
+	}
+
 	files, err := ea.allFiles()
 	if err != nil {
 		return nil, err
 	}
 
-	matches := make([]string, 0)
+	matches := map[string]struct{}{}
 	for _, file := range files {
 		if strings.HasPrefix(file.Name, prefix) {
-			// Just one level
 			if len(file.Name) < len(prefix)+1 {
 				continue
 			}
 
+			// Just one level
 			if strings.Contains(file.Name[len(prefix):len(file.Name)-1], "/") {
+				// In some archives, 'a/b/c.ext' appears without separate entries for 'a/' and 'a/b/'
+				// Therefore, do add the 'a/' to the list here in case we see 'a/b/c.ext'.
+				// If 'a/' has its own entry, it will be double (but we fix that by using a set)
+				suffix := file.Name[len(prefix):]
+				suffixParts := strings.Split(suffix, "/")
+				if len(suffixParts) > 0 && len(suffixParts[0]) > 0 {
+					var subDirPath = suffixParts[0] + "/"
+					if prefix != "" {
+						// When filled the prefix ends in '/'
+						subDirPath = prefix + subDirPath
+					}
+					matches[subDirPath] = struct{}{}
+				}
 				continue
 			}
-			matches = append(matches, file.Name)
+			matches[file.Name] = struct{}{}
 		}
 	}
-	return List(matches), nil
+	return List(maps.Keys(matches)), nil
 }
 
 func (ea *entryArchive) File(path string) (ArchiveFile, error) {
