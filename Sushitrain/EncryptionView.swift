@@ -53,23 +53,20 @@ struct EncryptionView: View {
 					}
 				}
 
-				if !self.folderPassword.isEmpty {
-					Section("Encrypted file path") {
-						Text(self.fileEncryptedPath).monospaced()
+				Section("Encrypted file path") {
+					Text(self.folderPassword.isEmpty ? "" : self.fileEncryptedPath).monospaced()
 
-						Button("Copy", systemImage: "document.on.document") {
-							writeTextToPasteboard(self.fileEncryptedPath)
-						}
-						#if os(macOS)
-							.buttonStyle(.link)
-						#endif
+					Button("Copy", systemImage: "document.on.document") {
+						writeTextToPasteboard(self.fileEncryptedPath)
 					}
+					.disabled(self.folderPassword.isEmpty)
+					#if os(macOS)
+						.buttonStyle(.link)
+					#endif
+				}
 
-					if !self.fileKey.isEmpty {
-						Section("File encryption key") {
-							Text(self.fileKey).monospaced()
-						}
-					}
+				Section("File encryption key") {
+					Text(self.folderPassword.isEmpty || self.fileKey.isEmpty ? "" : self.fileKey).monospaced()
 				}
 			}
 			.task {
