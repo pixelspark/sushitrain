@@ -61,25 +61,33 @@ struct FileQuickLookView: View {
 
 	var body: some View {
 		ZStack {
-			if let error = downloadOperation.error {
-				ContentUnavailableView(
-					"Could not download file", systemImage: "exclamationmark.triangle",
-					description: Text(error))
-			}
-			else if downloadOperation.downloadedFileURL != nil {
-				ContentUnavailableView(
-					"Downloaded", systemImage: "checkmark.circle",
-					description: Text("Tap here to view the downloaded file")
-				).onTapGesture {
-					quicklookHidden = false
+			HStack {
+				Spacer()
+				VStack {
+					Spacer()
+					if let error = downloadOperation.error {
+						ContentUnavailableView(
+							"Could not download file", systemImage: "exclamationmark.triangle",
+							description: Text(error))
+					}
+					else if downloadOperation.downloadedFileURL != nil {
+						ContentUnavailableView(
+							"Downloaded", systemImage: "checkmark.circle",
+							description: Text("Tap here to view the downloaded file")
+						).onTapGesture {
+							quicklookHidden = false
+						}
+					}
+					else {
+						ContentUnavailableView {
+							ProgressView(value: downloadOperation.progressFraction, total: 1.0)
+						} description: {
+							Text("Downloading file...")
+						}
+					}
+					Spacer()
 				}
-			}
-			else {
-				ContentUnavailableView {
-					ProgressView(value: downloadOperation.progressFraction, total: 1.0)
-				} description: {
-					Text("Downloading file...")
-				}
+				Spacer()
 			}
 		}
 		.quickLookPreview(
