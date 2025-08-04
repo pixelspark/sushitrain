@@ -69,7 +69,6 @@ func (mp *miniPuller) downloadRange(m *syncthing.Internals, folderID string, fil
 			break
 		}
 
-		Logger.Infoln("Copy dest[", written, ":] <- buf[", bufStart, ",", bufEnd, "]")
 		copy(dest[written:], buf[bufStart:bufEnd])
 		written += bufEnd - bufStart
 	}

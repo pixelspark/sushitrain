@@ -180,7 +180,14 @@ func (ea *entryArchiveFile) Download(toPath string, delegate DownloadDelegate) {
 			delegate.OnError("could not open file for downloading to: " + err.Error())
 			return
 		}
-		_, err = io.Copy(outFile, reader)
+
+		cReader := cancelableReader{
+			reader:     reader,
+			delegate:   delegate,
+			totalBytes: ea.file.UncompressedSize64,
+			readBytes:  0,
+		}
+		_, err = io.Copy(outFile, &cReader)
 		if err != nil {
 			delegate.OnError("could not open file for downloading to: " + err.Error())
 			return
@@ -199,4 +206,23 @@ func (ea *entryArchiveFile) reader() (io.Reader, error) {
 
 func (ea *entryArchiveFile) AsDownloadable() Downloadable {
 	return ea
+}
+
+type cancelableReader struct {
+	reader     io.Reader
+	delegate   DownloadDelegate
+	totalBytes uint64
+	readBytes  uint64
+}
+
+func (c *cancelableReader) Read(p []byte) (n int, err error) {
+	if c.delegate.IsCancelled() {
+		return 0, errors.New("cancelled")
+	}
+	n, err = c.reader.Read(p)
+	if err == nil {
+		c.readBytes += uint64(n)
+		c.delegate.OnProgress(float64(c.readBytes) / float64(c.totalBytes))
+	}
+	return n, err
 }
