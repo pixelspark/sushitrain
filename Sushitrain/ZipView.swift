@@ -66,7 +66,7 @@ struct ZipView: View {
 				TableColumn("File") { file in
 					if archive.isDirectory(file.name) {
 						let fileName = String(file.name.trimmingPrefix(self.prefix))
-						Label(fileName.withoutEndingSlash, systemImage: "folder.fill")
+						Label(fileName.withoutEndingSlash, systemImage: "folder")
 					}
 					else {
 						let fileName = String(file.name.trimmingPrefix(self.prefix))
@@ -124,7 +124,17 @@ struct ZipView: View {
 		do {
 			let fs = (try ar.files(self.prefix)).asArray()
 			DispatchQueue.main.async {
-				self.files = fs.sorted().map { ZipFileName(name: $0) }
+				self.files = fs.sorted(by: { a, b in
+					if a.hasSuffix("/") && !b.hasSuffix("/") {
+						return true
+					}
+					if b.hasSuffix("/") && !a.hasSuffix("/") {
+						return false
+					}
+					return a < b
+				}).map {
+					ZipFileName(name: $0)
+				}
 			}
 		}
 		catch {
