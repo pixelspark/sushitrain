@@ -11,6 +11,7 @@ import (
 	"github.com/syncthing/syncthing/lib/model"
 	"github.com/syncthing/syncthing/lib/protocol"
 	"github.com/syncthing/syncthing/lib/syncthing"
+	"golang.org/x/exp/slog"
 )
 
 // Global cache of downloaded blocks. Block hash -> block data
@@ -24,7 +25,7 @@ type miniPuller struct {
 }
 
 func ClearBlockCache() {
-	Logger.Infoln("Purging blocks cache", blockCache.Len())
+	slog.Info("Purging blocks cache", "entries", blockCache.Len())
 	blockCache.Purge()
 }
 
@@ -49,7 +50,7 @@ func (mp *miniPuller) downloadRange(m *syncthing.Internals, folderID string, fil
 		block := file.Blocks[blockIndex]
 		buf, err := mp.downloadBock(m, folderID, int(blockIndex), file, block)
 		if err != nil {
-			Logger.Warnln("error downloading block #", blockIndex, " of ", len(file.Blocks), ": ", err)
+			slog.Warn("error downloading block", "index", blockIndex, "total", len(file.Blocks), "cause", err)
 			return 0, err
 		}
 
@@ -81,7 +82,7 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 
 	// Do we have this file in the local cache?
 	if cached, ok := blockCache.Get(blockHashString); ok {
-		Logger.Infoln("Cache hit for block ", blockHashString)
+		slog.Info("cache hit for block", "hash", blockHashString)
 		return cached, nil
 	}
 
@@ -93,7 +94,7 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 		return nil, errors.New("no peer available")
 	}
 
-	Logger.Infoln("Download block #", blockIndex, ":", len(availables), "available peers, experiences:", mp.experiences)
+	slog.Info("download block", "index", blockIndex, "availablePeers", len(availables), "experiences", mp.experiences)
 
 	// Sort availables by latency
 	slices.SortFunc(availables, func(a model.Availability, b model.Availability) int {
@@ -129,7 +130,7 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 				blockCache.Add(blockHashString, buf)
 				return buf, nil
 			} else {
-				Logger.Infoln("good peer", available.ID, "error:", err, "buffer size=", len(buf))
+				slog.Info("good peer", "id", available.ID, "error", err, "bufferSize", len(buf))
 			}
 		}
 	}
@@ -149,7 +150,7 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 				blockCache.Add(blockHashString, buf)
 				return buf, nil
 			} else {
-				Logger.Infoln("unknown peer", available.ID, "error:", err, "buffer size=", len(buf))
+				slog.Info("unknown peer", "id", available.ID, "error", err, "bufferSize", len(buf))
 			}
 		}
 	}
@@ -169,7 +170,7 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 				blockCache.Add(blockHashString, buf)
 				return buf, nil
 			} else {
-				Logger.Infoln("bad peer", available.ID, "error:", err, "buffer size=", len(buf))
+				slog.Info("bad peer", "id", available.ID, "error", err, "bufferSize", len(buf))
 			}
 		}
 	}

@@ -33,12 +33,8 @@ struct SushitrainApp: App {
 			for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
 		let documentsPath = documentsDirectory.path(percentEncoded: false)
 		let configPath = configDirectory.path(percentEncoded: false)
-
 		let enableLogging = UserDefaults.standard.bool(forKey: "loggingEnabled")
-		Log.info("Logging enabled: \(enableLogging)")
-
 		registerPhotoFilesystem()
-
 		let client = SushitrainNewClient(configPath, documentsPath, enableLogging)!
 
 		// Optionally clear v1 and/or v2 index

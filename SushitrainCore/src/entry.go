@@ -20,6 +20,7 @@ import (
 	"github.com/syncthing/syncthing/lib/model"
 	"github.com/syncthing/syncthing/lib/osutil"
 	"github.com/syncthing/syncthing/lib/protocol"
+	"golang.org/x/exp/slog"
 )
 
 type Entry struct {
@@ -175,7 +176,6 @@ func (entry *Entry) FetchLocal(start int64, length int64) ([]byte, error) {
 			n, err := file.ReadAt(buffer[read:], start+int64(read))
 			read += int64(n)
 			if err != nil {
-				Logger.Debugln("FetchLocal ReadAt: ", read, " n=", n, " fn=", entry.info.FileName(), " error=", err)
 				return buffer, err
 			}
 			if read == length {
@@ -183,7 +183,6 @@ func (entry *Entry) FetchLocal(start int64, length int64) ([]byte, error) {
 			}
 		}
 	} else {
-		Logger.Debugln("FetchLocal start=", start, " length=", length, " fn=", entry.info.FileName(), " error=", err)
 		return nil, errors.New("file not available")
 	}
 }
@@ -209,7 +208,7 @@ func (entry *Entry) IsLocallyPresent() bool {
 func (entry *Entry) IsSelected() bool {
 	matcher, err := entry.Folder.loadIgnores()
 	if err != nil {
-		Logger.Warnln("error loading ignore matcher", err)
+		slog.Error("error loading ignore matcher", "cause", err)
 		return false
 	}
 

@@ -8,6 +8,7 @@ package sushitrain
 import (
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"path"
 	"path/filepath"
 	"slices"
@@ -50,7 +51,7 @@ func (fld *Folder) folderConfiguration() *config.FolderConfiguration {
 
 func (fld *Folder) RescanSubdirectory(path string) error {
 	go func() {
-		Logger.Infoln("Rescan folder", fld.FolderID, "subdirectory", path)
+		slog.Info("rescan folder", "folderID", fld.FolderID, "subdirectory", path)
 		fld.client.app.Internals.ScanFolderSubdirs(fld.FolderID, []string{path})
 	}()
 	return nil
@@ -58,7 +59,7 @@ func (fld *Folder) RescanSubdirectory(path string) error {
 
 func (fld *Folder) Rescan() error {
 	go func() {
-		Logger.Infoln("Rescan folder", fld.FolderID)
+		slog.Info("rescan", "folder", fld.FolderID)
 		fld.client.app.Internals.ScanFolderSubdirs(fld.FolderID, nil)
 	}()
 	return nil
@@ -691,7 +692,7 @@ func (fld *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 	foundOneError := errors.New("found one")
 	err = ffs.Walk("", func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
-			Logger.Warnln("error walking: ", path, err)
+			slog.Error("walking", "path", path, "error", err)
 			return nil
 		}
 
@@ -818,7 +819,7 @@ func (fld *Folder) RemoveSuperfluousSelectionEntries() error {
 		// Find entry
 		entry, err := fld.GetFileInformation(path)
 		if err != nil || entry == nil {
-			Logger.Infoln("Entry not found for path", path, err)
+			slog.Info("entry not found", "path", path, "cause", err)
 			return false
 		}
 
@@ -826,13 +827,13 @@ func (fld *Folder) RemoveSuperfluousSelectionEntries() error {
 		nativeFilename := osutil.NativeFilename(path)
 		_, err = ffs.Stat(nativeFilename)
 		if err == nil {
-			Logger.Infoln("Entry exists, keeping:", nativeFilename)
+			slog.Info("entry exists, keeping", "nativeFileName", nativeFilename)
 			return true
 		}
 
 		// Only keep files that we can find a global entry for, and never delete if we still have a local entry
 		keep := (err == nil && entry != nil && !entry.IsDeleted()) || (entry != nil && entry.IsLocallyPresent())
-		Logger.Infoln("Keep selected path", path, keep, err, entry != nil && entry.IsDeleted(), entry != nil && entry.IsLocallyPresent())
+		slog.Info("keep selected", "path", path, "keep", keep, "error", err, "isDeleted", entry != nil && entry.IsDeleted(), "isLocallyPresent", entry != nil && entry.IsLocallyPresent())
 		return keep
 	})
 
@@ -861,7 +862,7 @@ func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string, direc
 		return err
 	}
 
-	Logger.Infoln("RemoveRedundantChildren subdirectory at path", path)
+	slog.Info("remove redundant children", "path", path)
 	toDelete := make([]string, 0)
 
 	err = ffs.Walk(path, func(childPath string, info fs.FileInfo, err error) error {
@@ -869,18 +870,18 @@ func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string, direc
 			return err
 		}
 
-		Logger.Infoln("-", childPath)
+		slog.Info("remove redundant children", "childPath", path)
 
 		// Leave internal files alone
 		if fs.IsInternal(childPath) || childPath == ignoreFileName {
-			Logger.Infoln("- Skip, is internal:", childPath)
+			slog.Info("remove redundant children skip, is internal", "childPath", childPath)
 			return nil
 		}
 
 		// Delete items that match the 'extraneous ignore' list (used to ignore .DS_Store and similar)
 		// *also* when directoriesAndAlwaysIgnoredOnly is set!
 		if fld.client.isExtraneousIgnored(filepath.Base(childPath)) {
-			Logger.Infoln("Ignoring always ignored extraneous file:", childPath, filepath.Base(childPath))
+			slog.Info("ignoring always ignored extraneous file", "childPath", childPath, "base", filepath.Base(childPath))
 			toDelete = append(toDelete, childPath)
 			return nil
 		}
@@ -926,7 +927,7 @@ func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string, direc
 	sort.Strings(toDelete)
 	slices.Reverse(toDelete)
 
-	Logger.Infoln("- Delete:", toDelete)
+	slog.Info("delete", "toDelete", toDelete)
 
 	for _, delPath := range toDelete {
 		// Swallow delete errors. Parent directories may have been removed before we get to them
@@ -1018,7 +1019,7 @@ func (fld *Folder) IgnoreLines() (*ListOfStrings, error) {
 }
 
 func (fld *Folder) SetIgnoreLines(lines *ListOfStrings) error {
-	Logger.Infoln("Set ignore lines: ", len(lines.data))
+	slog.Info("set ignore", "lines", len(lines.data))
 	fld.cachedIgnore.matcher = nil // Purge our cache
 
 	state, err := fld.State()
@@ -1039,7 +1040,7 @@ func (fld *Folder) SetIgnoreLines(lines *ListOfStrings) error {
 }
 
 func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
-	Logger.Infoln("Set explicitly selected: ", paths)
+	slog.Info("set explicitly selected", "paths", paths)
 
 	fld.cachedIgnore.matcher = nil // Purge our cache
 	state, err := fld.State()
@@ -1087,7 +1088,6 @@ func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
 	}
 
 	hashBefore := ignores.Hash()
-	Logger.Debugf("Ignore hash before editing:", hashBefore)
 
 	// Edit lines
 	err = selection.SetExplicitlySelected(paths)
@@ -1109,9 +1109,9 @@ func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
 
 	hashAfter := ignores.Hash()
 	if hashAfter == hashBefore {
-		Logger.Warnln("ignore file did not change after edits")
+		slog.Warn("ignore file did not change after edits")
 	}
-	Logger.Debugf("Hash before", hashBefore, "after", hashAfter)
+	slog.Debug("ignore hash", "before", hashBefore, "after", hashAfter)
 
 	for path, selected := range paths {
 		// Delete local file if it is not selected anymore
@@ -1119,10 +1119,10 @@ func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
 			// Check if not still implicitly selected
 			res := ignores.Match(path)
 			if res == ignoreresult.Ignored || res == ignoreresult.IgnoreAndSkip {
-				Logger.Infoln("Deleting local deselected file: " + path)
+				slog.Info("deleting local deselected", "path", path)
 				fld.deleteLocalFileAndRedundantChildren(path)
 			} else {
-				Logger.Infoln("Not deleting local deselected file, it apparently was reselected: "+path, res)
+				slog.Info("not deleting local deselected file, it apparently was reselected", "path", path, "ignoreResult", res)
 			}
 		}
 	}

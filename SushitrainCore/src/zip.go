@@ -144,7 +144,7 @@ func (ea *entryArchive) allFiles() ([]*zip.File, error) {
 // ReadAt implements io.ReaderAt.
 func (ea *entryArchive) ReadAt(p []byte, off int64) (n int, err error) {
 	if buffer, err := ea.entry.FetchLocal(off, int64(len(p))); err == nil {
-		Logger.Debugln("We have this file completely locally; writing ", len(buffer), " bytes")
+		// We have this file completely locally
 		copy(p, buffer)
 		return len(buffer), nil
 	}

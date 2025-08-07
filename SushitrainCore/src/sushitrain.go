@@ -12,7 +12,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"iter"
+	"log"
+	"log/slog"
 	"math"
 	"net/url"
 	"os"
@@ -27,7 +30,6 @@ import (
 	"github.com/syncthing/syncthing/lib/events"
 	"github.com/syncthing/syncthing/lib/fs"
 	"github.com/syncthing/syncthing/lib/locations"
-	"github.com/syncthing/syncthing/lib/logger"
 	"github.com/syncthing/syncthing/lib/model"
 	"github.com/syncthing/syncthing/lib/osutil"
 	"github.com/syncthing/syncthing/lib/protocol"
@@ -105,55 +107,32 @@ func NewClient(configPath string, filesPath string, saveLog bool) *Client {
 	build.Host = "t-shaped.nl"
 	build.User = "sushitrain"
 
-	// Log to file
+	// Set up logging
+	var logOutWriter io.Writer
 	if saveLog {
 		logFilePath := path.Join(filesPath, fmt.Sprintf("%s.log", time.Now().UTC().Format("synctrain-2006-2-1-15-04-05")))
 		logFile, err := os.Create(logFilePath)
 		if err != nil {
 			fmt.Println(err)
 		}
-		writer := bufio.NewWriter(logFile)
-		logger.DefaultLogger.AddHandler(logger.LevelVerbose, func(l logger.LogLevel, msg string) {
-			timeStamp := time.Now().UTC().Format("2006-02-01 15:04:05")
-			var level string
-			switch l {
-			case logger.LevelDebug:
-				level = "DEBUG"
-			case logger.LevelInfo:
-				level = "INFO"
-			case logger.LevelWarn:
-				level = "WARN"
-			case logger.LevelVerbose:
-				level = "VERBO"
-			default:
-				level = "OTHER"
-			}
-
-			_, err := writer.WriteString(fmt.Sprintf("%s\t%s: %s\n", level, timeStamp, msg))
-			if err != nil {
-				return
-			}
-
-			err = writer.Flush()
-			if err != nil {
-				return
-			}
-		})
+		logOutWriter = io.MultiWriter(os.Stdout, bufio.NewWriter(logFile))
+	} else {
+		logOutWriter = os.Stdout
 	}
+	slog.SetDefault(slog.New(newLogHandler(logOutWriter)))
 
 	// Set up default locations
 	locations.SetBaseDir(locations.DataBaseDir, configPath)
 	locations.SetBaseDir(locations.ConfigBaseDir, configPath)
 	locations.SetBaseDir(locations.UserHomeBaseDir, filesPath)
-	Logger.Infof("Database dir: %s\n", configPath)
-	Logger.Infof("Files dir: %s\n", filesPath)
+	slog.Info("paths", "databaseDir", configPath, "filesDir", filesPath)
 
 	// Check for custom user-provided config file
 	isUsingCustomConfiguration := false
 	customConfigFilePath := path.Join(filesPath, ConfigFileName)
 	if info, err := os.Stat(customConfigFilePath); err == nil {
 		if !info.IsDir() {
-			Logger.Infoln("Config XML exists in files dir, using it at", customConfigFilePath)
+			slog.Info("config XML exists in files dir, using it at", "path", customConfigFilePath)
 			locations.Set(locations.ConfigFile, customConfigFilePath)
 			isUsingCustomConfiguration = true
 		}
@@ -166,7 +145,7 @@ func NewClient(configPath string, filesPath string, saveLog bool) *Client {
 		if !keyInfo.IsDir() {
 			if certInfo, err := os.Stat(customCertPath); err == nil {
 				if !certInfo.IsDir() {
-					Logger.Infoln("Found user-provided identity files, using those")
+					slog.Info("found user-provided identity files, using those")
 					locations.Set(locations.CertFile, customCertPath)
 					locations.Set(locations.KeyFile, customKeyPath)
 					isUsingCustomConfiguration = true
@@ -404,7 +383,7 @@ func (clt *Client) handleEvent(evt events.Event) {
 		break
 
 	default:
-		Logger.Debugln("EVENT", evt.Type.String(), evt)
+		slog.Debug("event", "type", evt.Type.String(), "event", evt)
 	}
 }
 
@@ -571,8 +550,8 @@ func (clt *Client) Load(resetDeltaIdxs bool) error {
 	osutil.MaximizeOpenFileLimit()
 
 	// Print final locations
-	Logger.Infof("Config file: %s\n", locations.Get(locations.ConfigFile))
-	Logger.Infof("Cert file: %s key file: %s\n", locations.Get(locations.CertFile), locations.Get(locations.KeyFile))
+	slog.Info("config", "path", locations.Get(locations.ConfigFile))
+	slog.Info("cert", "publicPath", locations.Get(locations.CertFile), "keyPath", locations.Get(locations.KeyFile))
 
 	// Ensure that we have a certificate and key.
 	cert, err := syncthing.LoadOrGenerateCertificate(
@@ -587,7 +566,7 @@ func (clt *Client) Load(resetDeltaIdxs bool) error {
 
 	// Load or create the config
 	devID := protocol.NewDeviceID(cert.Certificate[0])
-	Logger.Infof("Loading config file from %s\n", locations.Get(locations.ConfigFile))
+	slog.Info("loading config file", "path", locations.Get(locations.ConfigFile))
 	config, err := loadOrDefaultConfig(devID, clt.ctx, clt.evLogger, clt.filesPath)
 	if err != nil {
 		clt.cancel()
@@ -598,7 +577,7 @@ func (clt *Client) Load(resetDeltaIdxs bool) error {
 	// Default retention interval taken from Syncthing's CLI default
 	dbDeleteRetentionInterval := time.Duration(4320) * time.Hour
 	if err := syncthing.TryMigrateDatabase(dbDeleteRetentionInterval); err != nil {
-		Logger.Warnln("Failed to migrate legacy database:", err)
+		slog.Warn("failed to migrate legacy database", "cause", err)
 		return err
 	}
 
@@ -606,7 +585,6 @@ func (clt *Client) Load(resetDeltaIdxs bool) error {
 		NoUpgrade:      false,
 		ProfilerAddr:   "",
 		ResetDeltaIdxs: resetDeltaIdxs,
-		Verbose:        false,
 		// Syncthing default is 8h, we'll do 24h as mobile devices are likely on the charger once a day only
 		DBMaintenanceInterval: time.Hour * time.Duration(24),
 	}
@@ -693,15 +671,15 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 		for _, folderConfig := range conf.Folders {
 			standardPath := path.Join(filesPath, folderConfig.ID)
 			if folderConfig.Path != standardPath {
-				Logger.Warnln("Configured folder path differs from expected path:", folderConfig.Path, standardPath)
+				slog.Warn("configured folder path differs from expected path", "configured", folderConfig.Path, "expected", standardPath)
 
 				oldMarkerPath := path.Join(folderConfig.Path, folderConfig.MarkerName)
 				if _, err := os.Stat(oldMarkerPath); errors.Is(err, os.ErrNotExist) {
 					newMarkerPath := path.Join(standardPath, folderConfig.MarkerName)
 					if _, err := os.Stat(newMarkerPath); errors.Is(err, os.ErrNotExist) {
-						Logger.Warnln("Marker does not exist at either old or new location, not changing anything", oldMarkerPath, newMarkerPath)
+						slog.Warn("marker does not exist at either old or new location, not changing anything", "oldMarkerPath", oldMarkerPath, "newMarkerPath", newMarkerPath)
 					} else {
-						Logger.Warnln("Marker does not exist at old location and exists at new location, resetting standard path", oldMarkerPath, newMarkerPath, standardPath)
+						slog.Warn("marker does not exist at old location and exists at new location, resetting standard path", "oldMarkerPath", oldMarkerPath, "newMarkerPath", newMarkerPath, "standardPath", standardPath)
 						folderConfig.Path = standardPath
 						conf.SetFolder(folderConfig)
 					}
@@ -830,7 +808,6 @@ func (clt *Client) PeerWithShortID(shortID string) *Peer {
 // This function sets all the listed device to the desired pause state, and all other devices to the opposite state.
 func (clt *Client) SetDevicesPaused(peers *ListOfStrings, pause bool) error {
 	ids := peers.data
-	Logger.Debugln("SetDevicesPaused", pause, ids)
 
 	clt.changeConfiguration(func(cfg *config.Configuration) {
 		for _, dc := range clt.config.DeviceList() {
@@ -843,7 +820,7 @@ func (clt *Client) SetDevicesPaused(peers *ListOfStrings, pause bool) error {
 			if !pause {
 				shouldPause = !shouldPause
 			}
-			Logger.Debugln("Set paused from:", dc.Paused, " to:", shouldPause, dc.DeviceID.String())
+
 			if dc.Paused != shouldPause {
 				dc.Paused = shouldPause
 				cfg.SetDevice(dc)
@@ -1373,7 +1350,7 @@ func (clt *Client) DevicesPendingFolder(folderID string) (*ListOfStrings, error)
 }
 
 func (clt *Client) SetReconnectIntervalS(secs int) error {
-	Logger.Infoln("Set reconnect interval to", secs)
+	slog.Info("set reconnect interval", "interval", secs)
 	return clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.Options.ReconnectIntervalS = secs
 	})
@@ -1450,11 +1427,11 @@ func Version() string {
 }
 
 func LogInfo(message string) {
-	Logger.Infoln("[App] " + message)
+	slog.Info("[App] " + message)
 }
 
 func LogWarn(message string) {
-	Logger.Warnln("[App] " + message)
+	slog.Warn("[App] " + message)
 }
 
 func ShortDeviceID(devID string) string {
@@ -1471,19 +1448,19 @@ func (c *Client) migratedLegacyDatabasePath() string {
 
 func (c *Client) ClearMigratedLegacyDatabase() error {
 	dbPath := c.migratedLegacyDatabasePath()
-	Logger.Warnf("Removing v1 index at %s", dbPath)
+	slog.Warn("Removing v1 index", "path", dbPath)
 	return os.RemoveAll(dbPath)
 }
 
 func (c *Client) ClearLegacyDatabase() error {
 	dbPath := locations.Get(locations.LegacyDatabase)
-	Logger.Warnf("Removing v1 index at %s", dbPath)
+	slog.Warn("Removing v1 index", "path", dbPath)
 	return os.RemoveAll(dbPath)
 }
 
 func (c *Client) ClearDatabase() error {
 	dbPath := locations.Get(locations.Database)
-	Logger.Warnf("Removing v2 index at %s", dbPath)
+	slog.Warn("Removing v2 index", "path", dbPath)
 	return os.RemoveAll(dbPath)
 }
 
@@ -1564,4 +1541,82 @@ func (m *Measurements) Measure() {
 	m.mutex.Lock()
 	m.isMeasuring = false
 	m.mutex.Unlock()
+}
+
+type stackedHandler struct {
+	handler slog.Handler
+	attrs   []slog.Attr
+}
+
+func (s *stackedHandler) Enabled(ctx context.Context, level slog.Level) bool {
+	return s.handler.Enabled(ctx, level)
+}
+
+func (s *stackedHandler) Handle(ctx context.Context, r slog.Record) error {
+	rec := r.Clone()
+	rec.AddAttrs(s.attrs...)
+	return s.handler.Handle(ctx, rec)
+}
+
+func (s *stackedHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	return &stackedHandler{
+		handler: s.handler,
+		attrs:   append(s.attrs, attrs...),
+	}
+}
+
+func (s *stackedHandler) WithGroup(name string) slog.Handler {
+	return &stackedHandler{
+		handler: s.handler,
+		attrs:   append(s.attrs, slog.String("group", name)),
+	}
+}
+
+var _ slog.Handler = (*stackedHandler)(nil)
+
+type logHandler struct {
+	l *log.Logger
+}
+
+var _ slog.Handler = (*logHandler)(nil)
+
+func (h *logHandler) Enabled(ctx context.Context, level slog.Level) bool {
+	return level == slog.LevelError || level == slog.LevelWarn || level == slog.LevelInfo
+}
+
+func (h *logHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	return &stackedHandler{
+		handler: h,
+		attrs:   attrs,
+	}
+}
+
+func (h *logHandler) WithGroup(name string) slog.Handler {
+	return &stackedHandler{
+		handler: h,
+		attrs:   []slog.Attr{slog.String("group", name)},
+	}
+}
+
+func (h *logHandler) Handle(ctx context.Context, r slog.Record) error {
+	var sb strings.Builder
+	r.Attrs(func(a slog.Attr) bool {
+		sb.WriteString(a.Key)
+		sb.WriteRune('=')
+		sb.WriteString(a.Value.String())
+		sb.WriteRune(' ')
+		return true
+	})
+
+	timeStr := r.Time.Format("[15:05:05.000]")
+	h.l.Println(timeStr, r.Level.String(), r.Message, sb.String())
+	return nil
+}
+
+func newLogHandler(out io.Writer) *logHandler {
+	h := &logHandler{
+		l: log.New(out, "", 0),
+	}
+
+	return h
 }

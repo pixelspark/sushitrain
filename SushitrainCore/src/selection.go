@@ -9,6 +9,8 @@ import (
 	"errors"
 	"slices"
 	"strings"
+
+	"golang.org/x/exp/slog"
 )
 
 type Selection struct {
@@ -50,12 +52,12 @@ func (sel *Selection) Lines() []string {
 func (sel *Selection) SetExplicitlySelected(paths map[string]bool) error {
 	for path, selected := range paths {
 		line := ignoreLineForSelectingPath(path)
-		Logger.Infof("Edit ignore line (%t): %s\n", selected, line)
+		slog.Info("Edit ignore line", "selected", selected, "line", line)
 
 		// Is this entry currently selected explicitly?
 		currentlySelected := slices.Contains(sel.lines, line)
 		if currentlySelected == selected {
-			Logger.Debugln("not changing selecting status for path " + path + ": it is the status quo")
+			// not changing selecting status for path, it is the status quo
 			continue
 		}
 

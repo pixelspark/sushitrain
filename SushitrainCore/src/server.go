@@ -18,6 +18,7 @@ import (
 	"github.com/gotd/contrib/http_range"
 	"github.com/syncthing/syncthing/lib/protocol"
 	"github.com/syncthing/syncthing/lib/syncthing"
+	"golang.org/x/exp/slog"
 )
 
 type StreamingServerDelegate interface {
@@ -99,7 +100,7 @@ func (srv *StreamingServer) Listen() error {
 
 	go http.Serve(listener, srv.mux)
 	srv.listener = listener
-	Logger.Infoln("HTTP service listening on port", srv.port())
+	slog.Info("HTTP service listening", "port", srv.port())
 	return nil
 }
 
@@ -128,7 +129,7 @@ func NewServer(app *syncthing.App, measurements *Measurements, ctx context.Conte
 		folder := r.URL.Query().Get("folder")
 		path := r.URL.Query().Get("path")
 
-		Logger.Infoln("Request", r.Method, folder, path)
+		slog.Info("request", "method", r.Method, "folder", folder, "path", path)
 		stFolder := server.client.FolderWithID(folder)
 		if stFolder == nil {
 			w.WriteHeader(404)
@@ -212,7 +213,7 @@ func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *
 		}
 
 		if len(parsedRanges) > 1 {
-			Logger.Warnln("Multipart ranges not yet supported", requestedRange)
+			slog.Warn("multipart ranges not yet supported", "requestedRange", requestedRange)
 			w.WriteHeader(500)
 			return
 		}
@@ -223,14 +224,13 @@ func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *
 		for _, rng := range parsedRanges {
 			// Range cannot be longer than actual file
 			if rng.Start+rng.Length > info.Size {
-				Logger.Warnln("Requested range ", rng, " is larger than file; shrinking range to length=", max(0, info.Size-rng.Start))
+				slog.Warn("requested range is larger than file; shrinking range", "requestedRange", rng, "newLength", max(0, info.Size-rng.Start))
 				rng.Length = max(0, info.Size-rng.Start)
 			}
 
 			// Do we have this file ourselves?
 			// FIXME: this will lead to re-opening the file for each block, persist the file handle and 'ReadAt' from it directly.
 			if buffer, err := entry.FetchLocal(rng.Start, rng.Length); err == nil {
-				Logger.Debugln("We have this block locally; writing ", len(buffer), " bytes")
 				w.Write(buffer)
 				continue
 			}
@@ -245,7 +245,7 @@ func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *
 			}
 			rangeHeader := fmt.Sprintf("bytes %d-%d/%d", rng.Start, rng.Length+rng.Start-1, info.Size)
 			lengthHeader := fmt.Sprintf("%d", rng.Length)
-			Logger.Infoln("Range: ", rng, "start block=", startBlock, "block count=", blockCount, "block size=", blockSize, "range header=", rangeHeader, "length header=", lengthHeader)
+			slog.Info("range", "range", rng, "startBlock", startBlock, "blockCount", blockCount, "blockSize", blockSize, "rangeHeader", rangeHeader, "lengthHeader", lengthHeader)
 			w.Header().Add("Content-Range", rangeHeader)
 			w.Header().Add("Content-length", lengthHeader)
 			w.WriteHeader(206) // partial content
@@ -261,7 +261,7 @@ func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *
 				block := info.Blocks[blockIndex]
 				buf, err := mp.downloadBock(m, folderID, int(blockIndex), info, block)
 				if err != nil {
-					Logger.Warnln("error downloading block #", blockIndex, " of ", len(info.Blocks), ": ", err)
+					slog.Warn("error downloading block", "blockIndex", blockIndex, "blockCount", len(info.Blocks), "cause", err)
 					return
 				}
 
@@ -282,7 +282,7 @@ func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *
 				}
 
 				// Write buffer
-				Logger.Infoln("Sending block #", blockIndex, bufStart, bufEnd, len(buf), "bytes=", bufEnd-bufStart, "range=", rng)
+				slog.Info("sending block", "blockIndex", blockIndex, "bufStart", bufStart, "bufEnd", bufEnd, "bufLength", len(buf), "bytes", bufEnd-bufStart, "range", rng)
 				w.Write(buf[bufStart:bufEnd])
 				bytesSent += (bufEnd - bufStart)
 				if callback != nil {
@@ -291,7 +291,7 @@ func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *
 			}
 
 			if rng.Length != bytesSent {
-				Logger.Warnln("Sent a different number of bytes than promised! range=", rng, "; promised ", lengthHeader, "sent", bytesSent)
+				slog.Warn("sent a different number of bytes than promised", "range", rng, "promised", lengthHeader, "sent", bytesSent)
 			}
 		}
 	} else {
@@ -301,7 +301,7 @@ func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *
 
 		// Do we have this file ourselves?
 		if buffer, err := entry.FetchLocal(0, info.Size); err == nil {
-			Logger.Debugln("We have this file completely locally; writing ", len(buffer), " bytes")
+			// We have this file completely locally
 			w.Write(buffer)
 		} else {
 			fetchedBytes := int64(0)

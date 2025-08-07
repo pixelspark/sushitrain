@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"net/url"
 	"path/filepath"
+
+	"golang.org/x/exp/slog"
 )
 
 type FolderServer struct {
@@ -50,12 +52,12 @@ func (srv *FolderServer) Listen() error {
 	}))
 
 	srv.listener = listener
-	Logger.Infoln("HTTP folder service listening on port", srv.port())
+	slog.Info("HTTP folder service listening", "port", srv.port())
 	return nil
 }
 
 func (srv *FolderServer) handle(w http.ResponseWriter, r *http.Request) {
-	Logger.Infoln("Folder server " + srv.folderID + " " + srv.subdirectory + " " + r.Method + " " + r.URL.Path)
+	slog.Info("folder server serve", "folderID", srv.folderID, "subdirectory", srv.subdirectory, "method", r.Method, "path", r.URL.Path)
 
 	if r.Method != "GET" && r.Method != "HEAD" {
 		w.WriteHeader(400) // Bad request
@@ -100,7 +102,7 @@ func (srv *FolderServer) handle(w http.ResponseWriter, r *http.Request) {
 	if stEntry.IsDirectory() {
 		// Redirect to path ending in slash so it gets directory treatment
 		w.Header().Add("Location", r.URL.Path+"/")
-		Logger.Infoln("Redirecting " + r.URL.Path + " to " + r.URL.Path + "/")
+		slog.Info("redirecting", "path", r.URL.Path, "to", r.URL.Path+"/")
 		w.WriteHeader(301)
 		return
 	}
