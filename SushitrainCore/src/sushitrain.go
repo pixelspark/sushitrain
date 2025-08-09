@@ -119,7 +119,11 @@ func NewClient(configPath string, filesPath string, saveLog bool) *Client {
 	} else {
 		logOutWriter = os.Stdout
 	}
-	slog.SetDefault(slog.New(newLogHandler(logOutWriter)))
+	minLevel := slog.LevelWarn
+	if saveLog {
+		minLevel = slog.LevelInfo
+	}
+	slog.SetDefault(slog.New(newLogHandler(logOutWriter, minLevel)))
 
 	// Set up default locations
 	locations.SetBaseDir(locations.DataBaseDir, configPath)
@@ -1575,13 +1579,14 @@ func (s *stackedHandler) WithGroup(name string) slog.Handler {
 var _ slog.Handler = (*stackedHandler)(nil)
 
 type logHandler struct {
-	l *log.Logger
+	l        *log.Logger
+	minLevel slog.Level
 }
 
 var _ slog.Handler = (*logHandler)(nil)
 
 func (h *logHandler) Enabled(ctx context.Context, level slog.Level) bool {
-	return level == slog.LevelError || level == slog.LevelWarn || level == slog.LevelInfo
+	return level >= h.minLevel
 }
 
 func (h *logHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
@@ -1613,9 +1618,10 @@ func (h *logHandler) Handle(ctx context.Context, r slog.Record) error {
 	return nil
 }
 
-func newLogHandler(out io.Writer) *logHandler {
+func newLogHandler(out io.Writer, minLevel slog.Level) *logHandler {
 	h := &logHandler{
-		l: log.New(out, "", 0),
+		l:        log.New(out, "", 0),
+		minLevel: minLevel,
 	}
 
 	return h
