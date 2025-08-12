@@ -242,7 +242,6 @@ private struct AddressView: View {
 struct AddressesView: View {
 	@Environment(AppState.self) private var appState
 	@Binding var addresses: [String]
-	@State var editingAddresses: [String]
 	var addressType: AddressType
 
 	var body: some View {
@@ -251,13 +250,13 @@ struct AddressesView: View {
 				Toggle(
 					"Use default addresses",
 					isOn: Binding(
-						get: { return self.editingAddresses.contains(self.addressType.defaultOption) },
+						get: { return self.addresses.contains(self.addressType.defaultOption) },
 						set: { nv in
-							if nv && !self.editingAddresses.contains(self.addressType.defaultOption) {
-								self.editingAddresses.append(self.addressType.defaultOption)
+							if nv && !self.addresses.contains(self.addressType.defaultOption) {
+								self.addresses.append(self.addressType.defaultOption)
 							}
 							else {
-								self.editingAddresses.removeAll { $0 == self.addressType.defaultOption }
+								self.addresses.removeAll { $0 == self.addressType.defaultOption }
 							}
 						}))
 			} footer: {
@@ -273,12 +272,12 @@ struct AddressesView: View {
 			}
 
 			Section("Additional addresses") {
-				ForEach(Array(editingAddresses.enumerated()), id: \.offset) { idx in
+				ForEach(Array(addresses.enumerated()), id: \.offset) { idx in
 					if idx.element != addressType.defaultOption {
 						NavigationLink(
 							destination: AddressView(
 								address: Binding(
-									get: { return editingAddresses[idx.offset] }, set: { nv in editingAddresses[idx.offset] = nv }),
+									get: { return addresses[idx.offset] }, set: { nv in addresses[idx.offset] = nv }),
 								addressType: addressType)
 						) {
 							HStack {
@@ -291,9 +290,9 @@ struct AddressesView: View {
 							}
 						}
 					}
-				}.onDelete(perform: { indexSet in editingAddresses.remove(atOffsets: indexSet) })
+				}.onDelete(perform: { indexSet in addresses.remove(atOffsets: indexSet) })
 
-				Button("Add address") { self.editingAddresses.append(self.addressType.templateAddress) }.deleteDisabled(true)
+				Button("Add address") { self.addresses.append(self.addressType.templateAddress) }.deleteDisabled(true)
 					#if os(
 						macOS)
 						.buttonStyle(.link)
@@ -306,13 +305,10 @@ struct AddressesView: View {
 		#if os(macOS)
 			.formStyle(.grouped)
 		#endif
-		.onDisappear {
-			self.addresses = self.editingAddresses
-		}
 		.toolbar {
 			#if os(iOS)
 				ToolbarItem(placement: .topBarLeading) {
-					if !editingAddresses.isEmpty {
+					if !addresses.isEmpty {
 						EditButton()
 					}
 				}

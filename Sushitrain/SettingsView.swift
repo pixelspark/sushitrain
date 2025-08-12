@@ -332,37 +332,25 @@ struct AdvancedSettingsView: View {
 				Button("Listening addresses...", systemImage: "envelope.front") {
 					showListeningAddresses = true
 				}
-				.sheet(isPresented: $showListeningAddresses) {
-					NavigationStack {
-						AddressesView(
-							addresses: Binding(
-								get: {
-									return self.appState.client.listenAddresses()?.asArray() ?? []
-								},
-								set: { nv in
-									try! self.appState.client.setListenAddresses(SushitrainListOfStrings.from(nv))
-								}),
-							editingAddresses: self.appState.client.listenAddresses()?.asArray() ?? [], addressType: .listening
-						)
-						.navigationTitle("Listening addresses")
-						#if os(iOS)
-							.navigationBarTitleDisplayMode(.inline)
-						#endif
-						.toolbar(content: {
-							ToolbarItem(
-								placement: .confirmationAction,
-								content: {
-									Button("Done") {
-										showListeningAddresses = false
-									}
-								})
-						})
-					}
-				}
 				.disabled(!appState.client.isListening())
 				#if os(macOS)
 					.buttonStyle(.link)
 				#endif
+				.sheet(isPresented: $showListeningAddresses) {
+					NavigationStack {
+						AsyncAddressesView(addressType: .listening)
+							.navigationTitle("Listening addresses")
+							.toolbar(content: {
+								ToolbarItem(
+									placement: .confirmationAction,
+									content: {
+										Button("Done") {
+											showListeningAddresses = false
+										}
+									})
+							})
+					}
+				}
 			} header: {
 				Text("Connectivity")
 			} footer: {
@@ -431,32 +419,17 @@ struct AdvancedSettingsView: View {
 				}
 				.sheet(isPresented: $showDiscoveryAddresses) {
 					NavigationStack {
-						AddressesView(
-							addresses: Binding(
-								get: {
-									return self.appState.client
-										.discoveryAddresses()?.asArray() ?? []
-								},
-								set: { nv in
-									try! self.appState.client.setDiscoveryAddresses(
-										SushitrainListOfStrings.from(nv))
-								}),
-							editingAddresses: self.appState.client.discoveryAddresses()?
-								.asArray() ?? [], addressType: .discovery
-						)
-						.navigationTitle("Global announce servers")
-						#if os(iOS)
-							.navigationBarTitleDisplayMode(.inline)
-						#endif
-						.toolbar(content: {
-							ToolbarItem(
-								placement: .confirmationAction,
-								content: {
-									Button("Done") {
-										showDiscoveryAddresses = false
-									}
-								})
-						})
+						AsyncAddressesView(addressType: .discovery)
+							.navigationTitle("Global announce servers")
+							.toolbar(content: {
+								ToolbarItem(
+									placement: .confirmationAction,
+									content: {
+										Button("Done") {
+											showDiscoveryAddresses = false
+										}
+									})
+							})
 					}
 				}
 				.disabled(!appState.client.isGlobalAnnounceEnabled())
@@ -502,29 +475,17 @@ struct AdvancedSettingsView: View {
 				}
 				.sheet(isPresented: $showSTUNAddresses) {
 					NavigationStack {
-						AddressesView(
-							addresses: Binding(
-								get: {
-									return self.appState.client.stunAddresses()?.asArray() ?? []
-								},
-								set: { nv in
-									try! self.appState.client.setStunAddresses(SushitrainListOfStrings.from(nv))
-								}),
-							editingAddresses: self.appState.client.stunAddresses()?.asArray() ?? [], addressType: .stun
-						)
-						.navigationTitle("STUN servers")
-						#if os(iOS)
-							.navigationBarTitleDisplayMode(.inline)
-						#endif
-						.toolbar(content: {
-							ToolbarItem(
-								placement: .confirmationAction,
-								content: {
-									Button("Done") {
-										showSTUNAddresses = false
-									}
-								})
-						})
+						AsyncAddressesView(addressType: .stun)
+							.navigationTitle("STUN servers")
+							.toolbar(content: {
+								ToolbarItem(
+									placement: .confirmationAction,
+									content: {
+										Button("Done") {
+											showSTUNAddresses = false
+										}
+									})
+							})
 					}
 				}
 				.disabled(!appState.client.isNATEnabled())
@@ -1217,5 +1178,70 @@ struct ViewSettingsView: View {
 		#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)
 		#endif
+	}
+}
+
+private struct AsyncAddressesView: View {
+	@Environment(AppState.self) var appState
+
+	let addressType: AddressType
+
+	@State private var addresses: [String] = []
+
+	var body: some View {
+		AddressesView(
+			addresses: $addresses,
+			addressType: self.addressType
+		)
+		.task {
+			await self.update()
+		}
+		.onChange(of: self.addresses) { _, _ in
+			self.write()
+		}
+		.onDisappear {
+			self.write()
+		}
+		#if os(iOS)
+			.navigationBarTitleDisplayMode(.inline)
+		#endif
+	}
+
+	private func update() async {
+		let client = self.appState.client
+		let addressType = self.addressType
+		self.addresses = await Task.detached {
+			switch addressType {
+			case .discovery:
+				return client.discoveryAddresses()?.asArray() ?? []
+			case .listening:
+				return client.listenAddresses()?.asArray() ?? []
+			case .device:
+				// not supported
+				return []
+			case .stun:
+				return client.stunAddresses()?.asArray() ?? []
+			}
+		}.value
+	}
+
+	private func write() {
+		let addresses = self.addresses
+		let appState = self.appState
+		Task.detached {
+			switch addressType {
+			case .discovery:
+				try appState.client.setDiscoveryAddresses(
+					SushitrainListOfStrings.from(addresses))
+			case .listening:
+				try appState.client.setListenAddresses(SushitrainListOfStrings.from(addresses))
+			case .device:
+				// not supported
+				abort()
+			case .stun:
+				try appState.client.setStunAddresses(
+					SushitrainListOfStrings.from(addresses))
+			}
+		}
 	}
 }

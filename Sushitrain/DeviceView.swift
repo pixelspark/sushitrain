@@ -13,32 +13,38 @@ private struct DeviceAddressesView: View {
 	@State private var error: String? = nil
 
 	var body: some View {
-		AddressesView(
+		AddressesView(addresses: $addresses, addressType: .device)
+			#if os(iOS)
+				.navigationBarTitleDisplayMode(.inline)
+			#endif
+			.navigationTitle("Device addresses")
+			.task {
+				await self.update()
+			}
+			.onDisappear {
+				self.write()
+			}
+			.alert(
+				isPresented: Binding(get: { self.error != nil }, set: { show in self.error = show ? self.error : nil }),
+				content: {
+					Alert(
+						title: Text("Could not change addresses"), message: Text(self.error ?? ""),
+						dismissButton: .default(Text("OK")))
+				})
+	}
 
-			addresses: Binding(
-				get: {
-					return self.device.addresses()?.asArray() ?? []
-				},
-				set: { nv in
-					do {
-						try self.device.setAddresses(SushitrainListOfStrings.from(nv))
-					}
-					catch let e {
-						self.error = e.localizedDescription
-					}
-				}), editingAddresses: self.device.addresses()?.asArray() ?? [], addressType: .device
-		)
-		#if os(iOS)
-			.navigationBarTitleDisplayMode(.inline)
-		#endif
-		.navigationTitle("Device addresses")
-		.alert(
-			isPresented: Binding(get: { self.error != nil }, set: { show in self.error = show ? self.error : nil }),
-			content: {
-				Alert(
-					title: Text("Could not change addresses"), message: Text(self.error ?? ""),
-					dismissButton: .default(Text("OK")))
-			})
+	private func update() async {
+		let device = self.device
+		self.addresses = await Task.detached {
+			return device.addresses()?.asArray() ?? []
+		}.value
+	}
+
+	private func write() {
+		let addresses = self.addresses
+		Task.detached {
+			try! device.setAddresses(SushitrainListOfStrings.from(addresses))
+		}
 	}
 }
 
