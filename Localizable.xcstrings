@@ -21148,6 +21148,40 @@
         }
       }
     },
+    "the folder has no local path" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "der Ordner hat keinen lokalen Pfad"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "la carpeta no tiene una ruta local"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "la cartella non ha un percorso locale"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "de map heeft geen lokaal pad"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "папка не має локального шляху"
+          }
+        }
+      }
+    },
     "The folder is accessible." : {
       "localizations" : {
         "de" : {
@@ -21484,6 +21518,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Кворум має бути позитивним числом."
+          }
+        }
+      }
+    },
+    "The requested action is not supported: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die angeforderte Aktion wird nicht unterstützt: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La acción solicitada no es compatible: %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'azione richiesta non è supportata: %@"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De gevraagde actie wordt niet ondersteund: %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запитувана дія не підтримується: %@"
           }
         }
       }

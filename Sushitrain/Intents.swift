@@ -9,6 +9,7 @@ import UniformTypeIdentifiers
 
 private enum IntentHandlingError: LocalizedError {
 	case appStartupFailed(String)
+	case unsupported(String)
 
 	var errorDescription: String? {
 		switch self {
@@ -16,6 +17,8 @@ private enum IntentHandlingError: LocalizedError {
 			return String(
 				localized: "Could not start the app: \(msg)"
 			)
+		case .unsupported(let msg):
+			return String(localized: "The requested action is not supported: \(msg)")
 		}
 	}
 }
@@ -445,13 +448,23 @@ struct GetExtraneousFilesIntent: AppIntent {
 	@MainActor
 	func perform() async throws -> some ReturnsValue<[IntentFile]> {
 		try await appState.waitForAppStarted()
+		
+		if !folderEntity.folder.isRegularFolder {
+			// Photo folders have no extraneous files
+			return .result(value: [])
+		}
+		
 		let files = try folderEntity.folder.extraneousFiles().asArray()
-		let folderPath = folderEntity.folder.localNativeURL!
-		return .result(
-			value: files.compactMap { path in
-				let fileURL = folderPath.appending(path: path)
-				return IntentFile(fileURL: fileURL)
-			})
+		if let folderPath = folderEntity.folder.localNativeURL {
+			return .result(
+				value: files.compactMap { path in
+					let fileURL = folderPath.appending(path: path)
+					return IntentFile(fileURL: fileURL)
+				})
+		}
+		else {
+			throw IntentHandlingError.unsupported(String(localized: "the folder has no local path"))
+		}
 	}
 }
 
