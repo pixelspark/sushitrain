@@ -65,7 +65,7 @@ class SushitrainDelegate: NSObject {
 	@AppStorage("maxBytesForPreview") var maxBytesForPreview: Int = 2 * 1024 * 1024  // 2 MiB
 	@AppStorage("browserViewStyle") var defaultBrowserViewStyle: BrowserViewStyle = .list
 	@AppStorage("browserGridColumns") var browserGridColumns: Int = 3
-	@AppStorage("loggingEnabled") var loggingEnabled: Bool = false
+	@AppStorage("loggingEnabled") var loggingToFileEnabled: Bool = false
 	@AppStorage("dotFilesHidden") var dotFilesHidden: Bool = true
 	@AppStorage("hideHiddenFolders") var hideHiddenFolders: Bool = false
 	@AppStorage("lingeringEnabled") var lingeringEnabled: Bool = true
@@ -117,7 +117,7 @@ struct SyncState {
 	@ObservationIgnored var pathMonitor: NWPathMonitor? = nil
 	@ObservationIgnored var pingTimer: Timer? = nil
 
-	var isLogging: Bool = false
+	var isLoggingToFile: Bool = false
 
 	private(set) var userSettings = AppUserSettings()
 	private(set) var localDeviceID: String = ""

@@ -33,9 +33,9 @@ struct SushitrainApp: App {
 			for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
 		let documentsPath = documentsDirectory.path(percentEncoded: false)
 		let configPath = configDirectory.path(percentEncoded: false)
-		let enableLogging = UserDefaults.standard.bool(forKey: "loggingEnabled")
+		let enableLoggingToFile = UserDefaults.standard.bool(forKey: "loggingEnabled")
 		registerPhotoFilesystem()
-		let client = SushitrainNewClient(configPath, documentsPath, enableLogging)!
+		let client = SushitrainNewClient(configPath, documentsPath, enableLoggingToFile)!
 
 		// Optionally clear v1 and/or v2 index
 		let clearV1Index = UserDefaults.standard.bool(forKey: "clearV1Index")
@@ -65,7 +65,7 @@ struct SushitrainApp: App {
 		self.appState = appState
 
 		AppDependencyManager.shared.add(dependency: appState)
-		appState.isLogging = enableLogging
+		appState.isLoggingToFile = enableLoggingToFile
 		self.delegate = SushitrainDelegate(appState: appState)
 		client.delegate = self.delegate
 		client.server?.delegate = self.delegate

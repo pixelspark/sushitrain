@@ -543,12 +543,12 @@ struct AdvancedSettingsView: View {
 			}
 
 			Section {
-				Toggle("Enable debug logging", isOn: userSettings.$loggingEnabled)
+				Toggle("Enable debug logging", isOn: userSettings.$loggingToFileEnabled)
 			} header: {
 				Text("Logging")
 			} footer: {
-				if appState.userSettings.loggingEnabled {
-					if appState.isLogging {
+				if appState.userSettings.loggingToFileEnabled {
+					if appState.isLoggingToFile {
 						Text(
 							"The app is logging to a file in the application folder, which you can share with the developers."
 						)
@@ -560,7 +560,7 @@ struct AdvancedSettingsView: View {
 					}
 				}
 				else {
-					if appState.isLogging {
+					if appState.isLoggingToFile {
 						Text("Restart the app to stop logging.")
 					}
 					else {

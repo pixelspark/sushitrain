@@ -448,12 +448,12 @@ struct GetExtraneousFilesIntent: AppIntent {
 	@MainActor
 	func perform() async throws -> some ReturnsValue<[IntentFile]> {
 		try await appState.waitForAppStarted()
-		
+
 		if !folderEntity.folder.isRegularFolder {
 			// Photo folders have no extraneous files
 			return .result(value: [])
 		}
-		
+
 		let files = try folderEntity.folder.extraneousFiles().asArray()
 		if let folderPath = folderEntity.folder.localNativeURL {
 			return .result(
