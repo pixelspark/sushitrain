@@ -21,6 +21,9 @@ private struct DeviceAddressesView: View {
 			.task {
 				await self.update()
 			}
+			.onChange(of: self.addresses) { _, _ in
+				self.write()
+			}
 			.onDisappear {
 				self.write()
 			}
