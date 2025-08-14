@@ -223,7 +223,9 @@ The following items are explicitly _not_ licensed under the abovementioned licen
 author / the respective owners:
 
 - The name 'Sushitrain' and the name 'Synctrain'
-- The logo (everything in [this directory](./Sushitrain/Assets.xcassets/AppIcon.appiconset/)).
+- The syncthing emblem on the logo.
+
+The inital 3D logo was made by Kai Werder (werder.fyi) in 2025 with blender 4.5.1 LTS under the Mozilla Public License 2.0.
 
 Syncthing is a trademark of the Syncthing Foundation. Read more over at [syncthing.net](https://syncthing.net). This project
 is not endorsed by, nor affiliated with, neither Syncthing contributors nor the Syncthing Foundation.
