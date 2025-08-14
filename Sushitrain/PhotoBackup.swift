@@ -46,6 +46,8 @@ enum PhotoBackupFolderStructure: String, Codable {
 	case byYear = "byYear"
 	case byYearAndType = "byYearAndType"
 	case byYearMonth = "byYearMonth"
+	case byYearDashMonth = "byYearDashMonth"
+	case byYearDashMonthAndType = "byYearDashMonthAndType"
 	case byYearMonthAndType = "byYearMonthAndType"
 	case singleFolder = "singleFolder"
 	case singleFolderDatePrefixed = "singleFolderDatePrefixed"
@@ -60,6 +62,8 @@ enum PhotoBackupFolderStructure: String, Codable {
 		case .byYearAndType: return String(localized: "2024/Video/IMG_2020.MOV")
 		case .byYearMonth: return String(localized: "2024/08/IMG_2020.HEIC")
 		case .byYearMonthAndType: return String(localized: "2024/08/Video/IMG_2020.MOV")
+		case .byYearDashMonth: return String(localized: "2024-08/IMG_2020.HEIC")
+		case .byYearDashMonthAndType: return String(localized: "2024-08/Video/IMG_2020.MOV")
 		case .byType: return String(localized: "Video/IMG_2020.MOV")
 		case .singleFolder: return String(localized: "IMG_2020.MOV")
 		case .singleFolderDatePrefixed: return String(localized: "2024-08-11_IMG_2020.MOV")
@@ -69,7 +73,7 @@ enum PhotoBackupFolderStructure: String, Codable {
 	var usesTimeZone: Bool {
 		switch self {
 		case .byDate, .byDateAndType, .byDateComponent, .byDateComponentAndType, .singleFolderDatePrefixed,
-			.byYear, .byYearMonth, .byYearAndType, .byYearMonthAndType:
+			.byYear, .byYearMonth, .byYearAndType, .byYearMonthAndType, .byYearDashMonth, .byYearDashMonthAndType:
 			return true
 		case .byType, .singleFolder: return false
 		}
@@ -85,6 +89,9 @@ enum PhotoBackupFolderStructure: String, Codable {
 
 		case .byYearMonth, .byYearMonthAndType:
 			return ["yyyy", "MM"]
+
+		case .byYearDashMonth, .byYearDashMonthAndType:
+			return ["yyyy-MM"]
 
 		case .byType, .singleFolder, .byDate, .byDateAndType, .singleFolderDatePrefixed:
 			return []
@@ -835,7 +842,8 @@ extension PHAsset {
 				components.append(dateString)
 			}
 
-		case .byDateComponent, .byDateComponentAndType, .byYear, .byYearMonth, .byYearAndType, .byYearMonthAndType:
+		case .byDateComponent, .byDateComponentAndType, .byYear, .byYearMonth, .byYearAndType, .byYearMonthAndType,
+			.byYearDashMonth, .byYearDashMonthAndType:
 			if let creationDate = self.creationDate {
 				let dateComponents = structure.dateComponentsForPath
 				let dateFormatter = self.dateFormatter(timeZone: timeZone)
@@ -851,11 +859,12 @@ extension PHAsset {
 
 		// Postfix media type
 		switch structure {
-		case .byDateAndType, .byType, .byDateComponentAndType, .byYearAndType, .byYearMonthAndType:
+		case .byDateAndType, .byType, .byDateComponentAndType, .byYearAndType, .byYearMonthAndType, .byYearDashMonthAndType:
 			if self.mediaType == .video {
 				components.append("Video")
 			}
-		case .byDate, .singleFolder, .singleFolderDatePrefixed, .byDateComponent, .byYear, .byYearMonth: break
+		case .byDate, .singleFolder, .singleFolderDatePrefixed, .byDateComponent, .byYear, .byYearMonth, .byYearDashMonth:
+			break
 		}
 
 		return components
@@ -868,9 +877,10 @@ extension PHAsset {
 	{
 		var path = self.directoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath, timeZone: timeZone)
 		switch structure {
-		case .byDateAndType, .byType, .byDateComponentAndType, .byYearAndType, .byYearMonthAndType:
+		case .byDateAndType, .byType, .byDateComponentAndType, .byYearAndType, .byYearMonthAndType, .byYearDashMonthAndType:
 			path = path.appending("Live", isDirectory: true)
-		case .byDate, .singleFolder, .singleFolderDatePrefixed, .byDateComponent, .byYear, .byYearMonth: break
+		case .byDate, .singleFolder, .singleFolderDatePrefixed, .byDateComponent, .byYear, .byYearMonth, .byYearDashMonth:
+			break
 		}
 		return path
 	}
@@ -888,7 +898,7 @@ extension PHAsset {
 	func fileNameInFolder(structure: PhotoBackupFolderStructure) -> String {
 		switch structure {
 		case .byDate, .byDateAndType, .byDateComponent, .byDateComponentAndType, .singleFolder, .byType, .byYear,
-			.byYearMonth, .byYearAndType, .byYearMonthAndType:
+			.byYearMonth, .byYearAndType, .byYearMonthAndType, .byYearDashMonth, .byYearDashMonthAndType:
 			return self.originalFilename
 
 		case .singleFolderDatePrefixed:

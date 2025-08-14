@@ -379,6 +379,8 @@ struct PhotoFolderStructureView: View {
 			Text("Year/Type").tag(PhotoBackupFolderStructure.byYearAndType)
 			Text("Year/Month").tag(PhotoBackupFolderStructure.byYearMonth)
 			Text("Year/Month/Type").tag(PhotoBackupFolderStructure.byYearMonthAndType)
+			Text("Year-month").tag(PhotoBackupFolderStructure.byYearDashMonth)
+			Text("Year-month/Type").tag(PhotoBackupFolderStructure.byYearDashMonthAndType)
 			Text("Year/Month/Day").tag(PhotoBackupFolderStructure.byDateComponent)
 			Text("Year/Month/Day/Type").tag(PhotoBackupFolderStructure.byDateComponentAndType)
 		}

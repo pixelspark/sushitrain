@@ -1140,6 +1140,74 @@
         }
       }
     },
+    "2024-08/IMG_2020.HEIC" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08/IMG_2020.HEIC"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08/IMG_2020.HEIC"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08/IMG_2020.HEIC"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08/IMG_2020.HEIC"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08/IMG_2020.HEIC"
+          }
+        }
+      }
+    },
+    "2024-08/Video/IMG_2020.MOV" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08/Video/IMG_2020.MOV"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08/Video/IMG_2020.MOV"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08/Video/IMG_2020.MOV"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08/Video/IMG_2020.MOV"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2024-08/Video/IMG_2020.MOV"
+          }
+        }
+      }
+    },
     "2024/08/11/IMG_2020.HEIC" : {
       "localizations" : {
         "de" : {
@@ -25338,6 +25406,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Рік"
+          }
+        }
+      }
+    },
+    "Year-month" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jahr-Monat"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Año-mes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anno-mese"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jaar-maand"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рік-місяць"
+          }
+        }
+      }
+    },
+    "Year-month/Type" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jahr-Monat/Typ"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Año-mes/Tipo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anno-mese/Tipo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jaar-maand/Type"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рік-місяць/Тип"
           }
         }
       }
