@@ -86,9 +86,9 @@ To use the `main` branch, run `go get -u github.com/syncthing/syncthing@main` in
 
 Edit `go.mod`:
 
-````
+```
 replace github.com/syncthing/syncthing => /local/path/to/syncthing
-````
+```
 
 Then, run `go mod tidy`.
 
@@ -214,16 +214,22 @@ specific need, you may contact the developers to discuss a commercial developmen
 
 ## License
 
-Sushitrain, Synctrain are (C) Tommy van der Vorst (tommy@t-shaped.nl), 2024.
+Sushitrain, Synctrain are (C) Tommy van der Vorst (tommy@t-shaped.nl), 2024-2025.
 
 Except when explicitly noted otherwise, the code in this repository is licensed under the Mozilla Public License 2.0.
 Read the license [here](./LICENSE). Contributors to this repository agree to license their contributions under this license.
+
+The inital [3D logo model](./Assets/Sushitrain%20glass%20icon.blend) was made by [Kai Werder](werder.fyi) in 2025 with
+Blender 4.5.1 LTS, and is distributed under the Mozilla Public License 2.0.
 
 The following items are explicitly _not_ licensed under the abovementioned license. Instead all rights are reserved by the
 author / the respective owners:
 
 - The name 'Sushitrain' and the name 'Synctrain'
-- The logo (everything in [this directory](./Sushitrain/Assets.xcassets/AppIcon.appiconset/)).
+- The final logo files, contained in:
+  - [AppIcon.appiconset](./Sushitrain/Assets.xcassets/AppIcon.appiconset/)
+  - [Sushitrain glass.icon](./Assets/Sushitrain%20glass%20icon.icon/)
+  - [Sushitrain.icon](./Assets/Sushitrain.icon/)
 
 Syncthing is a trademark of the Syncthing Foundation. Read more over at [syncthing.net](https://syncthing.net). This project
 is not endorsed by, nor affiliated with, neither Syncthing contributors nor the Syncthing Foundation.

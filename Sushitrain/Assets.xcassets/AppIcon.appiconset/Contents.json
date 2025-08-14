@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "Icon-iOS-1024.png",
+      "filename" : "Sushitrain-iOS-Default-1024x1024@1x.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "Icon-iOS-Dark-1024.png",
+      "filename" : "Sushitrain-iOS-Dark-1024x1024@1x.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -25,7 +25,7 @@
           "value" : "tinted"
         }
       ],
-      "filename" : "Icon-iOS-Dark-1024 1.png",
+      "filename" : "Sushitrain-iOS-Dark-1024x1024@1x 1.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -56,31 +56,31 @@
       "size" : "128x128"
     },
     {
-      "filename" : "Icon-macOS-256.png",
+      "filename" : "Sushitrain-iOS-Dark-1024x1024@1x 6.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
-      "filename" : "Icon-macOS-256 1.png",
+      "filename" : "Sushitrain-iOS-Dark-1024x1024@1x 5.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
-      "filename" : "Icon-macOS-512.png",
+      "filename" : "Sushitrain-iOS-Dark-1024x1024@1x 4.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
-      "filename" : "Icon-macOS-512 1.png",
+      "filename" : "Sushitrain-iOS-Dark-1024x1024@1x 3.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
-      "filename" : "Icon-macOS-1024.png",
+      "filename" : "Sushitrain-iOS-Dark-1024x1024@1x 2.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"

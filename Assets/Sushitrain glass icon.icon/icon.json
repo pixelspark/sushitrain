@@ -1,0 +1,372 @@
+{
+  "fill-specializations" : [
+    {
+      "value" : {
+        "linear-gradient" : [
+          "extended-gray:1.00000,1.00000",
+          "extended-gray:0.82108,1.00000"
+        ]
+      }
+    },
+    {
+      "appearance" : "light",
+      "value" : {
+        "linear-gradient" : [
+          "extended-gray:0.13828,1.00000",
+          "extended-gray:0.00000,1.00000"
+        ]
+      }
+    }
+  ],
+  "groups" : [
+    {
+      "blend-mode" : "normal",
+      "blur-material" : 0.5,
+      "layers" : [
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "extended-gray:0.51644,1.00000"
+              }
+            },
+            {
+              "appearance" : "light",
+              "value" : {
+                "solid" : "extended-gray:0.33077,1.00000"
+              }
+            },
+            {
+              "appearance" : "tinted",
+              "value" : {
+                "solid" : "gray:0.36110,1.00000"
+              }
+            }
+          ],
+          "image-name" : "Cart emblems chrome.png",
+          "name" : "Cart emblems chrome"
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "display-p3:0.87768,0.88052,0.75613,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "extended-gray:0.16606,1.00000"
+              }
+            }
+          ],
+          "hidden" : false,
+          "image-name" : "Cart frontside wheels masked.png",
+          "name" : "Cart frontside wheels masked"
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "display-p3:0.14425,0.14425,0.14425,1.00000"
+              }
+            },
+            {
+              "appearance" : "light",
+              "value" : {
+                "solid" : "display-p3:0.87768,0.88052,0.75613,1.00000"
+              }
+            }
+          ],
+          "glass" : true,
+          "image-name" : "Cart frontside masked.png",
+          "name" : "Cart frontside masked"
+        }
+      ],
+      "name" : "Cart frontside",
+      "opacity" : 1,
+      "position" : {
+        "scale" : 1.2,
+        "translation-in-points" : [
+          0,
+          50
+        ]
+      },
+      "shadow" : {
+        "kind" : "none",
+        "opacity" : 0.29
+      },
+      "specular" : true,
+      "translucency-specializations" : [
+        {
+          "value" : {
+            "enabled" : true,
+            "value" : 0.94
+          }
+        },
+        {
+          "appearance" : "dark",
+          "value" : {
+            "enabled" : true,
+            "value" : 0.72
+          }
+        }
+      ]
+    },
+    {
+      "blend-mode" : "normal",
+      "blur-material" : 0.22,
+      "hidden" : false,
+      "layers" : [
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "extended-srgb:1.00000,0.58431,0.00000,1.00000"
+              }
+            },
+            {
+              "appearance" : "light",
+              "value" : {
+                "solid" : "display-p3:0.68996,0.44260,0.16510,1.00000"
+              }
+            }
+          ],
+          "glass" : true,
+          "hidden" : false,
+          "image-name" : "First folder.png",
+          "name" : "First folder",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              -0.703125,
+              -0.5546875
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "extended-srgb:1.00000,0.58431,0.00000,1.00000"
+              }
+            },
+            {
+              "appearance" : "light",
+              "value" : {
+                "solid" : "display-p3:0.68996,0.44260,0.16510,1.00000"
+              }
+            }
+          ],
+          "hidden" : false,
+          "image-name" : "First folder.png",
+          "name" : "First folder",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              105.7578125,
+              -44.1171875
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "extended-srgb:1.00000,0.58431,0.00000,1.00000"
+              }
+            },
+            {
+              "appearance" : "light",
+              "value" : {
+                "solid" : "display-p3:0.68996,0.44260,0.16510,1.00000"
+              }
+            }
+          ],
+          "hidden" : false,
+          "image-name" : "First folder.png",
+          "name" : "First folder",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              209.65625,
+              -90.9609375
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "solid" : "display-p3:0.68996,0.44260,0.16510,1.00000"
+          },
+          "hidden" : false,
+          "image-name" : "First folder.png",
+          "name" : "First folder",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              315.4921875,
+              -132.328125
+            ]
+          }
+        }
+      ],
+      "lighting" : "individual",
+      "name" : "Folders",
+      "position" : {
+        "scale" : 1.2,
+        "translation-in-points" : [
+          0,
+          50
+        ]
+      },
+      "shadow-specializations" : [
+        {
+          "value" : {
+            "kind" : "layer-color",
+            "opacity" : 0.16
+          }
+        },
+        {
+          "appearance" : "dark",
+          "value" : {
+            "kind" : "layer-color",
+            "opacity" : 0.72
+          }
+        }
+      ],
+      "specular-specializations" : [
+        {
+          "value" : false
+        },
+        {
+          "appearance" : "dark",
+          "value" : false
+        },
+        {
+          "appearance" : "tinted",
+          "value" : false
+        }
+      ],
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "blur-material" : null,
+      "layers" : [
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "extended-gray:0.00000,1.00000"
+              }
+            },
+            {
+              "appearance" : "light",
+              "value" : {
+                "solid" : "extended-gray:1.00000,1.00000"
+              }
+            }
+          ],
+          "hidden" : false,
+          "image-name" : "Cart backside.png",
+          "name" : "Cart backside"
+        }
+      ],
+      "name" : "Cart backside",
+      "position" : {
+        "scale" : 1.2,
+        "translation-in-points" : [
+          0,
+          50
+        ]
+      },
+      "shadow" : {
+        "kind" : "layer-color",
+        "opacity" : 0
+      },
+      "specular" : false,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.34
+      }
+    },
+    {
+      "blur-material" : 1,
+      "layers" : [
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "extended-gray:0.00000,1.00000"
+              }
+            },
+            {
+              "appearance" : "light",
+              "value" : {
+                "solid" : "extended-gray:0.42267,1.00000"
+              }
+            },
+            {
+              "appearance" : "tinted",
+              "value" : {
+                "solid" : "display-p3:0.17689,0.17689,0.17689,1.00000"
+              }
+            }
+          ],
+          "hidden" : false,
+          "image-name" : "Rails.png",
+          "name" : "Rails",
+          "opacity" : 1
+        }
+      ],
+      "opacity" : 0.57,
+      "position" : {
+        "scale" : 1.2,
+        "translation-in-points" : [
+          0,
+          50
+        ]
+      },
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.46
+      },
+      "specular-specializations" : [
+        {
+          "value" : true
+        },
+        {
+          "appearance" : "dark",
+          "value" : false
+        },
+        {
+          "appearance" : "tinted",
+          "value" : false
+        }
+      ],
+      "translucency-specializations" : [
+        {
+          "value" : {
+            "enabled" : true,
+            "value" : 0.68
+          }
+        },
+        {
+          "appearance" : "dark",
+          "value" : {
+            "enabled" : true,
+            "value" : 0
+          }
+        }
+      ]
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
