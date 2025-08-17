@@ -10,6 +10,16 @@
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 			<key>Title</key>
+			<string>Pause all folders on next start</string>
+			<key>Key</key>
+			<string>pauseAllFolders</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
 			<string>Enable debug logging to file on next start</string>
 			<key>Key</key>
 			<string>loggingEnabled</string>

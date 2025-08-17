@@ -231,6 +231,22 @@ struct SyncState {
 			}
 
 			await self.updateDeviceSuspension()
+			
+			// Do we need to pause all folders?
+			let pauseAllFolders = UserDefaults.standard.bool(forKey: "pauseAllFolders")
+			if pauseAllFolders {
+				Log.info("Pausing all folders at the user's request...")
+				UserDefaults.standard.setValue(false, forKey: "pauseAllFolders")
+				for folder in folderIDs {
+					do {
+						let folder = client.folder(withID: folder)
+						try folder?.setPaused(true)
+					}
+					catch {
+						Log.warn("Failed to delete v1 index: " + error.localizedDescription)
+					}
+				}
+			}
 
 			// Start the client
 			try await Task.detached(priority: .userInitiated) {
