@@ -1529,6 +1529,8 @@ func (m *Measurements) actuallyMeasure() {
 					latency: duration.Seconds(),
 					when:    time.Now(),
 				}
+			} else {
+				slog.Info("ping error", "cause", pingContext.Err())
 			}
 		}
 	}
