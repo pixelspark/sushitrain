@@ -14,6 +14,14 @@ struct AboutView: View {
 	var body: some View {
 		Form {
 			Section {
+				HStack {
+					Spacer()
+					Image("Logo")
+					Spacer()
+				}
+			}.listRowBackground(Color.clear)
+			
+			Section {
 				Text("Synctrain is © 2024-2025, Tommy van der Vorst")
 				Link(
 					"End User License Agreement",
