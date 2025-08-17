@@ -3374,6 +3374,74 @@
         }
       }
     },
+    "Are you sure you want to permanently delete %lld files from this device, and add %lld files for synchronization with other devices?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sind Sie sicher, dass Sie %lld Dateien dauerhaft von diesem Gerät löschen und %lld Dateien zur Synchronisation mit anderen Geräten hinzufügen möchten?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Are you sure you want to permanently delete %1$lld files from this device, and add %2$lld files for synchronization with other devices?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Estás seguro de que deseas eliminar permanentemente %lld archivos de este dispositivo y añadir %lld archivos para la sincronización con otros dispositivos?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sei sicuro di voler eliminare definitivamente %lld file da questo dispositivo e aggiungere %lld file per la sincronizzazione con altri dispositivi?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weet u zeker dat u %#@arg1@  %2$lld bestanden wilt toevoegen voor synchronisatie met andere apparaten?"
+          },
+          "substitutions" : {
+            "arg1" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "één bestand permanent wil verwijderen van dit apparaat, en"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg bestanden permanent wil verwijderen van dit apparaat, en"
+                    }
+                  },
+                  "zero" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : ""
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ви впевнені, що хочете назавжди видалити %lld файлів з цього пристрою та додати %lld файлів для синхронізації з іншими пристроями?"
+          }
+        }
+      }
+    },
     "Are you sure you want to remove this file from all devices?" : {
       "localizations" : {
         "de" : {
@@ -6362,6 +6430,100 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Видалити"
+          }
+        }
+      }
+    },
+    "Delete %lld files, keep %lld files" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Dateien löschen, %lld Dateien behalten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete %1$lld files, keep %2$lld files"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar %lld archivos, mantener %lld archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina %lld file, mantieni %lld file"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder %#@arg1@, bewaar %#@arg2@"
+          },
+          "substitutions" : {
+            "arg1" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "één bestand"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg bestanden"
+                    }
+                  },
+                  "zero" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "geen bestanden"
+                    }
+                  }
+                }
+              }
+            },
+            "arg2" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "één bestand"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg bestanden"
+                    }
+                  },
+                  "zero" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "geen bestanden"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видалити %lld файлів, залишити %lld файлів"
           }
         }
       }

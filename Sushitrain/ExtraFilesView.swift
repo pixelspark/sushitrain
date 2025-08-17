@@ -17,6 +17,7 @@ struct ExtraFilesView: View {
 	@State private var localItemURL: URL? = nil
 	@State private var allVerdict: Bool? = nil
 	@State private var errorMessage: String? = nil
+	@State private var showApplyConfirmation = false
 
 	var body: some View {
 		Group {
@@ -112,8 +113,18 @@ struct ExtraFilesView: View {
 			ToolbarItem(
 				placement: .confirmationAction,
 				content: {
-					Button("Apply") { Task { await self.apply() } }.disabled(
-						!folder.isIdleOrSyncing || verdicts.isEmpty || extraFiles.isEmpty)
+					Button("Apply") {
+						showApplyConfirmation = true
+					}
+					.disabled(!folder.isIdleOrSyncing || verdicts.isEmpty || extraFiles.isEmpty)
+					.confirmationDialog(
+						"Are you sure you want to permanently delete \(deleteCount) files from this device, and add \(keepCount) files for synchronization with other devices?", isPresented: $showApplyConfirmation,
+						titleVisibility: .visible
+					) {
+						Button("Delete \(deleteCount) files, keep \(keepCount) files", role: .destructive) {
+							Task { await self.apply() }
+						}
+					}
 				})
 		}.quickLookPreview(self.$localItemURL).alert(isPresented: Binding.constant(errorMessage != nil)) {
 			Alert(
@@ -121,6 +132,27 @@ struct ExtraFilesView: View {
 				dismissButton: .default(Text("OK")) { errorMessage = nil })
 		}
 	}
+	
+	private var keepCount: Int {
+		var count = 0
+		for (k, i) in self.verdicts {
+			if i {
+				count += 1
+			}
+		}
+		return count
+	}
+	
+	private var deleteCount: Int {
+		var count = 0
+		for (k, i) in self.verdicts {
+			if !i {
+				count += 1
+			}
+		}
+		return count
+	}
+	
 	private func apply() async {
 		do {
 			let json = try JSONEncoder().encode(self.verdicts)
