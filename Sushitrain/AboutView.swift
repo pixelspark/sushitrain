@@ -85,7 +85,7 @@ struct AboutView: View {
 		.sheet(isPresented: $showNotices) {
 			let url = Bundle.main.url(forResource: "notices", withExtension: "html")!
 			NavigationStack {
-				WebView(url: url, isLoading: Binding.constant(false), error: Binding.constant(nil))
+				WebView(url: url, trustFingerprints: [], isLoading: Binding.constant(false), error: Binding.constant(nil))
 					.frame(minHeight: 480)
 					.toolbar {
 						ToolbarItem(

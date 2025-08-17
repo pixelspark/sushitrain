@@ -166,7 +166,7 @@ private struct FileViewerContentView: View {
 				else if file.isWebPreviewable {
 					let url = file.localNativeFileURL ?? URL(string: self.file.onDemandURL())!
 					ZStack {
-						WebView(url: url, isLoading: self.$loading, error: self.$error)
+						WebView(url: url, trustFingerprints: [], isLoading: self.$loading, error: self.$error)
 							.id(url)
 							#if os(iOS)
 								.backgroundStyle(.black)

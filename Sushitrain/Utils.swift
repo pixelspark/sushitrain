@@ -774,6 +774,8 @@ struct HTTPError: LocalizedError {
 
 struct WebView: UIViewRepresentable {
 	let url: URL
+	var trustFingerprints: [Data] = []
+
 	@State var isOpaque: Bool = false
 
 	@Binding var isLoading: Bool
@@ -803,12 +805,40 @@ struct WebView: UIViewRepresentable {
 			return .allow
 		}
 
+		func webView(
+			_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge,
+			completionHandler: @escaping @MainActor (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+		) {
+			// Trust specific (self-signed) certificates if we have fingerprints for them, and they match the server's
+			if let serverTrust = challenge.protectionSpace.serverTrust, !self.parent.trustFingerprints.isEmpty {
+				if let certChain = SecTrustCopyCertificateChain(serverTrust) as? [SecCertificate], certChain.count == 1 {
+					let serverCertSha256Signature = certChain[0].sha256
+					if self.parent.trustFingerprints.contains(where: { $0 == serverCertSha256Signature }) {
+						Log.info("Certificate fingerprint matches: \(certChain[0].sha256.base64EncodedString())")
+						let exceptions = SecTrustCopyExceptions(serverTrust)
+						SecTrustSetExceptions(serverTrust, exceptions)
+						completionHandler(.useCredential, URLCredential(trust: serverTrust))
+						return
+					}
+					else {
+						Log.warn("No match for certificate fingerprint: \(certChain[0].sha256.base64EncodedString())")
+					}
+				}
+				else {
+					Log.warn("Received empty certificate chain")
+				}
+			}
+
+			// Just do the default validation
+			completionHandler(.performDefaultHandling, nil)
+		}
+
 		func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
 			parent.isLoading = false
 		}
 
 		func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: any Error) {
-			Log.warn("WebView navigation failed: \(error.localizedDescription)")
+			Log.warn("WebView navigation failed: \(error.localizedDescription) \(parent.url)")
 			parent.isLoading = false
 			parent.error = error
 		}
@@ -817,7 +847,7 @@ struct WebView: UIViewRepresentable {
 			_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!,
 			withError error: any Error
 		) {
-			Log.warn("WebView provisional navigation failed: \(error.localizedDescription)")
+			Log.warn("WebView provisional navigation failed: \(error.localizedDescription) \(parent.url)")
 			parent.isLoading = false
 			parent.error = error
 		}
@@ -962,4 +992,15 @@ func goTask(_ block: @Sendable @escaping () async throws -> Void) async throws {
 		dispatchPrecondition(condition: .notOnQueue(.main))
 		try await block()
 	}.value
+}
+
+import CommonCrypto
+
+extension SecCertificate {
+	var sha256: Data {
+		var digest = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+		let der = SecCertificateCopyData(self) as Data
+		_ = CC_SHA256(Array(der), CC_LONG(der.count), &digest)
+		return Data(digest)
+	}
 }

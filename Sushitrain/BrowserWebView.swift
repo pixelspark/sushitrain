@@ -16,6 +16,7 @@ struct BrowserWebView: View {
 	@State private var error: Error? = nil
 	@State private var server: SushitrainFolderServer? = nil
 	@State private var ready = false
+	@State private var serverFingerprintSha256: [Data] = []
 
 	var body: some View {
 		ZStack {
@@ -30,9 +31,15 @@ struct BrowserWebView: View {
 				}
 			}
 			else if let s = self.server, ready {
-				WebView(url: URL(string: s.url())!, isOpaque: true, isLoading: .constant(false), error: $error)
-					.background(.white)
-					.id(s.url())
+				WebView(
+					url: URL(string: s.url())!,
+					trustFingerprints: self.serverFingerprintSha256,
+					isOpaque: true,
+					isLoading: .constant(false),
+					error: $error
+				)
+				.background(.white)
+				.id(s.url())
 			}
 			else {
 				ProgressView()
@@ -45,10 +52,18 @@ struct BrowserWebView: View {
 		}
 		.task {
 			self.ready = false
+			if let s = self.server {
+				s.shutdown()
+			}
 			self.server = SushitrainNewFolderServer(appState.client, folderID, path)
+
 			do {
-				try self.server?.listen()
-				self.ready = true
+				if let server = self.server {
+					try server.listen()
+					self.serverFingerprintSha256 = [server.certificateFingerprintSHA256()!]
+					Log.info("Folder server URL: \(server.url())")
+					self.ready = true
+				}
 			}
 			catch {
 				self.error = error

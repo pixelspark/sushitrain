@@ -6,29 +6,107 @@
 package sushitrain
 
 import (
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/sha256"
+	"crypto/tls"
+	"crypto/x509"
+	"crypto/x509/pkix"
 	"fmt"
+	"math/big"
 	"net"
 	"net/http"
 	"net/url"
 	"path/filepath"
+	"time"
 
 	"golang.org/x/exp/slog"
 )
+
+type selfSignedCertificate struct {
+	privateKey     any
+	certificateDer []byte
+}
+
+func newSelfSignedCertificate() (*selfSignedCertificate, error) {
+	priv, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
+	if err != nil {
+		return nil, err
+	}
+
+	notBefore := time.Now()
+	notAfter := notBefore.Add(365 * 24 * time.Hour)
+
+	template := x509.Certificate{
+		SerialNumber: big.NewInt(1),
+		Subject: pkix.Name{
+			Organization: []string{"localhost"},
+		},
+		NotBefore:             notBefore,
+		NotAfter:              notAfter,
+		KeyUsage:              x509.KeyUsageDigitalSignature,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		BasicConstraintsValid: true,
+		IPAddresses:           []net.IP{net.IPv4(127, 0, 0, 1)},
+		DNSNames:              []string{"localhost"},
+	}
+
+	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &priv.PublicKey, priv)
+	if err != nil {
+		return nil, err
+	}
+
+	return &selfSignedCertificate{
+		privateKey:     priv,
+		certificateDer: derBytes,
+	}, nil
+}
+
+func (s *selfSignedCertificate) fingerprintSha256() [32]byte {
+	return sha256.Sum256(s.certificateDer)
+}
+
+func (s *selfSignedCertificate) tlsCertificate() (*tls.Certificate, error) {
+	parsed, err := x509.ParseCertificate(s.certificateDer)
+	if err != nil {
+		return nil, err
+	}
+
+	return &tls.Certificate{
+		Certificate: [][]byte{s.certificateDer},
+		PrivateKey:  s.privateKey,
+		Leaf:        parsed,
+	}, nil
+}
 
 type FolderServer struct {
 	listener     net.Listener
 	client       *Client
 	folderID     string
 	subdirectory string
+	certificate  *selfSignedCertificate
 }
 
 func NewFolderServer(client *Client, folderID string, subdirectory string) *FolderServer {
+	cert, err := newSelfSignedCertificate()
+	if err != nil {
+		slog.Error("could not create self signed certificate", "cause", err)
+		return nil
+	}
+
 	return &FolderServer{
 		folderID:     folderID,
 		subdirectory: subdirectory,
 		listener:     nil,
 		client:       client,
+		certificate:  cert,
 	}
+}
+
+func (srv *FolderServer) CertificateFingerprintSHA256() []byte {
+	fingerprint := srv.certificate.fingerprintSha256()
+	return fingerprint[:]
 }
 
 func (srv *FolderServer) Shutdown() {
@@ -42,8 +120,28 @@ func (srv *FolderServer) Listen() error {
 	// Close existing listener
 	srv.Shutdown()
 
-	listener, err := net.Listen("tcp", ":0")
+	cert, err := srv.certificate.tlsCertificate()
 	if err != nil {
+		slog.Error("could not obtain certificate", "cause", err)
+		return err
+	}
+
+	config := &tls.Config{
+		Certificates:             []tls.Certificate{*cert},
+		MinVersion:               tls.VersionTLS12,
+		CurvePreferences:         []tls.CurveID{tls.CurveP384},
+		PreferServerCipherSuites: true,
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+		},
+	}
+
+	listener, err := tls.Listen("tcp", ":0", config)
+	if err != nil {
+		slog.Error("could not listen", "cause", err)
 		return err
 	}
 
@@ -146,7 +244,7 @@ func (srv *FolderServer) port() int {
 
 func (srv *FolderServer) URL() string {
 	url := url.URL{
-		Scheme: "http",
+		Scheme: "https",
 		Host:   fmt.Sprintf("localhost:%d", srv.port()),
 		Path:   "/",
 	}
