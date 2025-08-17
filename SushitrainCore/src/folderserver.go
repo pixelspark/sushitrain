@@ -86,6 +86,7 @@ type FolderServer struct {
 	folderID     string
 	subdirectory string
 	certificate  *selfSignedCertificate
+	cookieToken  string
 }
 
 func NewFolderServer(client *Client, folderID string, subdirectory string) *FolderServer {
@@ -95,13 +96,27 @@ func NewFolderServer(client *Client, folderID string, subdirectory string) *Fold
 		return nil
 	}
 
+	tokenLength := 64
+	b := make([]byte, tokenLength+2)
+	rand.Read(b)
+	cookieToken := fmt.Sprintf("%x", b)[2 : tokenLength+2]
+
 	return &FolderServer{
 		folderID:     folderID,
 		subdirectory: subdirectory,
 		listener:     nil,
 		client:       client,
 		certificate:  cert,
+		cookieToken:  cookieToken,
 	}
+}
+
+func (srv *FolderServer) CookieValue() string {
+	return srv.cookieToken
+}
+
+func (srv *FolderServer) CookieName() string {
+	return "__sushitrain_folder_server_cookie"
 }
 
 func (srv *FolderServer) CertificateFingerprintSHA256() []byte {
@@ -158,7 +173,19 @@ func (srv *FolderServer) handle(w http.ResponseWriter, r *http.Request) {
 	slog.Info("folder server serve", "folderID", srv.folderID, "subdirectory", srv.subdirectory, "method", r.Method, "path", r.URL.Path)
 
 	if r.Method != "GET" && r.Method != "HEAD" {
-		w.WriteHeader(400) // Bad request
+		http.Error(w, "invalid method", http.StatusBadRequest)
+		return
+	}
+
+	// Check whether the client sent the authentication cookie
+	cookie, err := r.Cookie(srv.CookieName())
+	if err != nil {
+		http.Error(w, "cookie not found", http.StatusBadRequest)
+		return
+	}
+
+	if cookie.Value != srv.CookieValue() {
+		http.Error(w, "invalid cookie", http.StatusUnauthorized)
 		return
 	}
 
@@ -173,8 +200,7 @@ func (srv *FolderServer) handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !filepath.IsLocal(path) {
-		w.WriteHeader(403)
-		w.Write([]byte("requested path is not local"))
+		http.Error(w, "requested path is not local", http.StatusBadRequest)
 		return
 	}
 
@@ -187,8 +213,7 @@ func (srv *FolderServer) handle(w http.ResponseWriter, r *http.Request) {
 	pathInFolder := filepath.Join(srv.subdirectory, path)
 	stEntry, err := stFolder.GetFileInformation(pathInFolder)
 	if err != nil {
-		w.WriteHeader(500)
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -206,7 +231,7 @@ func (srv *FolderServer) handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if stEntry.IsSymlink() {
-		w.WriteHeader(400)
+		http.Error(w, "requested entry is a symlink", http.StatusBadRequest)
 		return
 	}
 
@@ -225,12 +250,11 @@ func (srv *FolderServer) handle(w http.ResponseWriter, r *http.Request) {
 	m := srv.client.app.Internals
 	info, ok, err := m.GlobalFileInfo(srv.folderID, pathInFolder)
 	if err != nil {
-		w.WriteHeader(500)
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	if !ok {
-		w.WriteHeader(404)
+		http.Error(w, "not found", http.StatusNotFound)
 		return
 	}
 

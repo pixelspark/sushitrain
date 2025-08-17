@@ -17,6 +17,7 @@ struct BrowserWebView: View {
 	@State private var server: SushitrainFolderServer? = nil
 	@State private var ready = false
 	@State private var serverFingerprintSha256: [Data] = []
+	@State private var cookies: [HTTPCookie] = []
 
 	var body: some View {
 		ZStack {
@@ -34,6 +35,7 @@ struct BrowserWebView: View {
 				WebView(
 					url: URL(string: s.url())!,
 					trustFingerprints: self.serverFingerprintSha256,
+					cookies: cookies,
 					isOpaque: true,
 					isLoading: .constant(false),
 					error: $error
@@ -61,7 +63,20 @@ struct BrowserWebView: View {
 				if let server = self.server {
 					try server.listen()
 					self.serverFingerprintSha256 = [server.certificateFingerprintSHA256()!]
-					Log.info("Folder server URL: \(server.url())")
+					self.cookies = [
+						// FIXME: the cookie can be read from the webpage itself using document.cookie. While not particularly
+						// problematic, it is probably best to prevent this.
+						HTTPCookie(properties: [
+							.domain: "localhost",
+							.path: "/",
+							.name: server.cookieName(),
+							.sameSitePolicy: "Strict",
+							.value: server.cookieValue(),
+							.secure: "TRUE",
+							.expires: NSDate(timeIntervalSinceNow: 86400 * 365),
+						])!
+					]
+					Log.info("Folder server URL: \(server.url()) cookie=\(self.cookies)")
 					self.ready = true
 				}
 			}

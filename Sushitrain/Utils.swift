@@ -775,6 +775,7 @@ struct HTTPError: LocalizedError {
 struct WebView: UIViewRepresentable {
 	let url: URL
 	var trustFingerprints: [Data] = []
+	var cookies: [HTTPCookie] = []
 
 	@State var isOpaque: Bool = false
 
@@ -857,9 +858,19 @@ struct WebView: UIViewRepresentable {
 		return WebViewCoordinator(self)
 	}
 
+	private var config: WKWebViewConfiguration {
+		let config = WKWebViewConfiguration()
+		config.limitsNavigationsToAppBoundDomains = false
+		for cookie in self.cookies {
+			Log.info("Adding cookie \(cookie)")
+			config.websiteDataStore.httpCookieStore.setCookie(cookie)
+		}
+		return config
+	}
+
 	#if os(iOS)
 		func makeUIView(context: Context) -> WKWebView {
-			let view = WKWebView()
+			let view = WKWebView(frame: .zero, configuration: self.config)
 			view.navigationDelegate = context.coordinator
 			view.isOpaque = self.isOpaque
 			let request = URLRequest(url: url)
@@ -879,9 +890,7 @@ struct WebView: UIViewRepresentable {
 
 	#if os(macOS)
 		func makeNSView(context: Context) -> WKWebView {
-			let config = WKWebViewConfiguration()
-			config.limitsNavigationsToAppBoundDomains = false
-			let view = WKWebView(frame: CGRectZero, configuration: config)
+			let view = WKWebView(frame: CGRectZero, configuration: self.config)
 			view.navigationDelegate = context.coordinator
 			view.setValue(false, forKey: "drawsBackground")
 			view.allowsMagnification = true
