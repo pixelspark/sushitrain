@@ -1,10 +1,18 @@
-# Sushitrain
+<p align="center" width="100%">
+<img src="./Docs/logo.png" />
+</p>
 
-Securely synchronize files on-demand using Syncthing on iOS.
+<p align="center" width="100%">
+<h1 align="center">Sushitrain</h1>
+</p>
+
+<p align="center" width="100%">
+Securely synchronize files on-demand using Syncthing on iOS and macOS.
+</p>
 
 [Download on the App Store](https://apps.apple.com/nl/app/synctrain/id6553985316) | [Test beta versions through TestFlight](https://testflight.apple.com/join/2f54I4CM)
 
-In addition to the very powerful file synchronization features offered by Syncthing, this app has some extra tricks up it
+Sushitrain brings Syncthing to iOS and macOS. In addition to the very powerful file synchronization features offered by Syncthing, this app has some extra tricks up it
 sleeve:
 
 - **Selective file synchronization**: only keep specific files or subdirectories from a larger folder on your device.
@@ -230,6 +238,7 @@ author / the respective owners:
   - [AppIcon.appiconset](./Sushitrain/Assets.xcassets/AppIcon.appiconset/)
   - [Sushitrain glass.icon](./Assets/Sushitrain%20glass%20icon.icon/)
   - [Sushitrain.icon](./Assets/Sushitrain.icon/)
+  - [logo.png](./Docs/logo.png)
 
 Syncthing is a trademark of the Syncthing Foundation. Read more over at [syncthing.net](https://syncthing.net). This project
 is not endorsed by, nor affiliated with, neither Syncthing contributors nor the Syncthing Foundation.
