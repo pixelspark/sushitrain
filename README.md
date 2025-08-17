@@ -58,6 +58,14 @@ Note that XCode will, by default, invoke the aforementioned Makefile for the Go 
 development it may be easier to build the framework by hand to be able to easily see any compiler output (a subsequent make
 invocation from XCode should be rather quick if nothing changed since the manual invocation).
 
+## Debugging
+
+### Logging
+
+By default, the minimum log level for messages sent to stdout is 'WARN'. When logging to file is enabled, the minimum level
+is 'INFO'. For debugging, you can use the environment variable `SUSHITRAIN_MIN_LOG_LEVEL` to override the minimum log level,
+by setting it to either `DEBUG`, `INFO`, `WARN` or `ERROR`. In XCode you can set this through 'Edit scheme'.
+
 ## Formatting
 
 ```bash

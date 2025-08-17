@@ -120,7 +120,20 @@ func NewClient(configPath string, filesPath string, saveLog bool) *Client {
 		logOutWriter = os.Stdout
 	}
 	minLevel := slog.LevelWarn
-	if saveLog {
+	if envMinLevel, present := os.LookupEnv("SUSHITRAIN_MIN_LOG_LEVEL"); present {
+		switch envMinLevel {
+		case "INFO":
+			minLevel = slog.LevelInfo
+		case "WARN":
+			minLevel = slog.LevelWarn
+		case "ERROR":
+			minLevel = slog.LevelError
+		case "DEBUG":
+			minLevel = slog.LevelDebug
+		default:
+			minLevel = slog.LevelInfo
+		}
+	} else if saveLog {
 		minLevel = slog.LevelInfo
 	}
 	slog.SetDefault(slog.New(newLogHandler(logOutWriter, minLevel)))

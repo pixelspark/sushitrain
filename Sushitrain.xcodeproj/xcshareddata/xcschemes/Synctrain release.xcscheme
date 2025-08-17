@@ -53,6 +53,13 @@
             ReferencedContainer = "container:Sushitrain.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "SUSHITRAIN_MIN_LOG_LEVEL"
+            value = "INFO"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
