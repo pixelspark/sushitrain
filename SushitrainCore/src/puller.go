@@ -6,6 +6,7 @@ import (
 	"errors"
 	"math"
 	"slices"
+	"time"
 
 	lru "github.com/hashicorp/golang-lru/v2"
 	"github.com/syncthing/syncthing/lib/model"
@@ -77,6 +78,13 @@ func (mp *miniPuller) downloadRange(m *syncthing.Internals, folderID string, fil
 	return written, nil
 }
 
+const minBytesPerSecond int = 1000 * 500 // Expect at least 62,5 KiB/s, or 500 kbit/s
+
+func (mp *miniPuller) timeoutFor(block *protocol.BlockInfo) time.Duration {
+	// At least one second, but otherwise at most the duration at the minimum expected rate
+	return time.Duration(max(1.0, float32(block.Size)/float32(minBytesPerSecond))) * time.Second
+}
+
 func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, blockIndex int, file protocol.FileInfo, block protocol.BlockInfo) ([]byte, error) {
 	blockHashString := base64.StdEncoding.EncodeToString([]byte(block.Hash))
 
@@ -117,13 +125,20 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 
 	// Attempt to download the block from an available and 'known good' peers first
 	for _, available := range availables {
+		// Check if we were cancelled
+		if err := mp.context.Err(); err != nil {
+			return nil, mp.context.Err()
+		}
+
 		if exp, ok := mp.experiences[available.ID]; ok && exp {
 			// Skip devices we're not connected to
 			if !m.IsConnectedTo(available.ID) {
 				continue
 			}
 
-			buf, err := m.DownloadBlock(mp.context, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
+			downloadBlockCtx, cancelDownloadBlock := context.WithTimeout(mp.context, mp.timeoutFor(&block))
+			defer cancelDownloadBlock()
+			buf, err := m.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
 			// Remember our experience with this peer for next time
 			mp.experiences[available.ID] = err == nil || err == context.Canceled
 			if err == nil {
@@ -137,13 +152,20 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 
 	// Failed to download from a good peer, let's try the peers we don't have any experience with
 	for _, available := range availables {
+		// Check if we were cancelled
+		if err := mp.context.Err(); err != nil {
+			return nil, mp.context.Err()
+		}
+
 		if _, ok := mp.experiences[available.ID]; !ok {
 			// Skip devices we're not connected to
 			if !m.IsConnectedTo(available.ID) {
 				continue
 			}
 
-			buf, err := m.DownloadBlock(mp.context, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
+			downloadBlockCtx, cancelDownloadBlock := context.WithTimeout(mp.context, mp.timeoutFor(&block))
+			defer cancelDownloadBlock()
+			buf, err := m.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
 			// Remember our experience with this peer for next time
 			mp.experiences[available.ID] = err == nil || err == context.Canceled
 			if err == nil {
@@ -157,13 +179,20 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 
 	// Failed to download from a good or unknown peer, let's try the 'bad' peers once again
 	for _, available := range availables {
+		// Check if we were cancelled
+		if err := mp.context.Err(); err != nil {
+			return nil, mp.context.Err()
+		}
+
 		if exp, ok := mp.experiences[available.ID]; ok && !exp {
 			// Skip devices we're not connected to
 			if !m.IsConnectedTo(available.ID) {
 				continue
 			}
 
-			buf, err := m.DownloadBlock(mp.context, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
+			downloadBlockCtx, cancelDownloadBlock := context.WithTimeout(mp.context, mp.timeoutFor(&block))
+			defer cancelDownloadBlock()
+			buf, err := m.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
 			// Remember our experience with this peer for next time
 			mp.experiences[available.ID] = err == nil || err == context.Canceled
 			if err == nil {

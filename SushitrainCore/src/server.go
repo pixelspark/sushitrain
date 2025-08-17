@@ -262,6 +262,9 @@ func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *
 				buf, err := mp.downloadBock(m, folderID, int(blockIndex), info, block)
 				if err != nil {
 					slog.Warn("error downloading block", "blockIndex", blockIndex, "blockCount", len(info.Blocks), "cause", err)
+
+					// We are now sending less content than we promised in the header. The client should reject our response
+					// and try again later.
 					return
 				}
 
