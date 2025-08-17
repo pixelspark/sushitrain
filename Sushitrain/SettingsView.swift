@@ -1157,6 +1157,12 @@ struct ViewSettingsView: View {
 			} footer: {
 				Text("When a folder contains only images, it will automatically be shown as a grid instead of a list.")
 			}
+			
+			Section {
+				Toggle("Automatically display web pages", isOn: userSettings.$automaticallyShowWebpages)
+			} footer: {
+				Text("When a folder contains a file named 'index.html', it will automatically be shown as a web page.")
+			}
 
 			Section {
 				Toggle("Hide dotfiles", isOn: userSettings.$dotFilesHidden)

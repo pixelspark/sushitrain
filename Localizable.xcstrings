@@ -3578,6 +3578,40 @@
         }
       }
     },
+    "Automatically display web pages" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Webseiten automatisch anzeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar automáticamente páginas web"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visualizza automaticamente le pagine web"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Webpagina's automatisch weergeven"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоматично відображати веб-сторінки"
+          }
+        }
+      }
+    },
     "Automatically switch to grid view" : {
       "localizations" : {
         "de" : {
@@ -24726,6 +24760,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Що мені робити далі?"
+          }
+        }
+      }
+    },
+    "When a folder contains a file named 'index.html', it will automatically be shown as a web page." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn ein Ordner eine Datei mit dem Namen 'index.html' enthält, wird diese automatisch als Webseite angezeigt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando una carpeta contiene un archivo llamado 'index.html', se mostrará automáticamente como una página web."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando una cartella contiene un file chiamato 'index.html', verrà automaticamente visualizzato come una pagina web."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer een map een bestand met de naam 'index.html' bevat, wordt deze automatisch als een webpagina weergegeven."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли папка містить файл з назвою 'index.html', він автоматично відобразиться як веб-сторінка."
           }
         }
       }

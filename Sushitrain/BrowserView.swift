@@ -791,24 +791,22 @@ private struct BrowserItemsView: View {
 		let extensionsIgnored = Set([".aae", ".ds_store", ".db", ".gitignore", ".stignore", ".ini"])
 
 		if self.viewStyle == nil {
-			if appState.userSettings.automaticallySwitchViewStyle {
-				// Do we have an index.html? If so switch to web view
-				if self.files.contains(where: { $0.fileName() == "index.html" }) {
-					self.viewStyle = .web
+			// Do we have an index.html? If so switch to web view
+			if appState.userSettings.automaticallyShowWebpages && self.files.contains(where: { $0.fileName() == "index.html" }) {
+				self.viewStyle = .web
+			}
+			else if appState.userSettings.automaticallySwitchViewStyle {
+				// Check if we only have thumbnailable files; if so, switch to thumbnail mode
+				let dotFilesHidden = appState.userSettings.dotFilesHidden
+				let filtered = self.files.filter({
+					!extensionsIgnored.contains($0.extension().lowercased()) && (!dotFilesHidden || !$0.fileName().starts(with: "."))
+				})
+
+				if !filtered.isEmpty && filtered.allSatisfy({ $0.canThumbnail && ($0.isImage || $0.isVideo) }) {
+					self.viewStyle = .grid
 				}
 				else {
-					// Check if we only have thumbnailable files; if so, switch to thumbnail mode
-					let dotFilesHidden = appState.userSettings.dotFilesHidden
-					let filtered = self.files.filter({
-						!extensionsIgnored.contains($0.extension().lowercased()) && (!dotFilesHidden || !$0.fileName().starts(with: "."))
-					})
-
-					if !filtered.isEmpty && filtered.allSatisfy({ $0.canThumbnail && ($0.isImage || $0.isVideo) }) {
-						self.viewStyle = .grid
-					}
-					else {
-						self.viewStyle = .thumbnailList
-					}
+					self.viewStyle = .thumbnailList
 				}
 			}
 			else {

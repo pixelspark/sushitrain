@@ -77,6 +77,7 @@ class SushitrainDelegate: NSObject {
 	@AppStorage("showThumbnailsInSearchResults") var showThumbnailsInSearchResults: Bool = true
 	@AppStorage("enableSwipeFilesInPreview") var enableSwipeFilesInPreview: Bool = true
 	@AppStorage("automaticallySwitchViewStyle") var automaticallySwitchViewStyle: Bool = true
+	@AppStorage("automaticallyShowWebpages") var automaticallyShowWebpages: Bool = true
 	@AppStorage("migratedToV2At") var migratedToV2At: Double = 0.0
 	@AppStorage("userPausedDevices") var userPausedDevices = Set<String>()
 
