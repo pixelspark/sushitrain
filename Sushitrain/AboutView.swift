@@ -29,6 +29,8 @@ struct AboutView: View {
 						string:
 							"https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
 					)!)
+				Link("Frequently asked questions", destination:URL(string:"https://t-shaped.nl/synctrain-support")!)
+				Link("Ask a question", destination:URL(string:"https://github.com/pixelspark/sushitrain/discussions")!)
 			}
 
 			Section("Open source") {
@@ -57,6 +59,10 @@ struct AboutView: View {
 				Link(
 					"Obtain the source code modifications",
 					destination: URL(string: "https://github.com/pixelspark/syncthing/tree/sushi")!)
+			}
+			
+			Section("Logo") {
+				Text("The 3D model for the logo was designed by [Kai Werder](https://werder.fyi) in 2025 with Blender 4.5.1 LTS, and is distributed under the Mozilla Public License 2.0.")
 			}
 
 			Section("Version information") {

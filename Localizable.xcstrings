@@ -3612,6 +3612,40 @@
         }
       }
     },
+    "Ask a question" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stelle eine Frage"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haz una pregunta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fai una domanda"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stel een vraag"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задайте питання"
+          }
+        }
+      }
+    },
     "Associated devices" : {
       "localizations" : {
         "de" : {
@@ -10382,6 +10416,40 @@
         }
       }
     },
+    "Frequently asked questions" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Häufig gestellte Fragen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preguntas frecuentes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Domande frequenti"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veelgestelde vragen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Часті запитання"
+          }
+        }
+      }
+    },
     "From album" : {
       "localizations" : {
         "de" : {
@@ -13274,6 +13342,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Журналювання уповільнює роботу додатка та використовує більше заряду батареї. Увімкніть його тільки у разі виникнення проблем."
+          }
+        }
+      }
+    },
+    "Logo" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logo"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logotipo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logo"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Логотип"
           }
         }
       }
@@ -20898,6 +21000,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "TCP"
+          }
+        }
+      }
+    },
+    "The 3D model for the logo was designed by [Kai Werder](https://werder.fyi) in 2025 with Blender 4.5.1 LTS, and is distributed under the Mozilla Public License 2.0." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das 3D-Modell für das Logo wurde 2025 von [Kai Werder](https://werder.fyi) mit Blender 4.5.1 LTS entworfen und wird unter der Mozilla Public License 2.0 vertrieben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El modelo 3D para el logotipo fue diseñado por [Kai Werder](https://werder.fyi) en 2025 con Blender 4.5.1 LTS, y se distribuye bajo la Mozilla Public License 2.0."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il modello 3D per il logo è stato progettato da [Kai Werder](https://werder.fyi) nel 2025 con Blender 4.5.1 LTS ed è distribuito sotto la Mozilla Public License 2.0."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het 3D-model voor het logo is in 2025 ontworpen door [Kai Werder](https://werder.fyi) met Blender 4.5.1 LTS en wordt gedistribueerd onder de Mozilla Public License 2.0."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3D модель для логотипу була розроблена [Kai Werder](https://werder.fyi) у 2025 році за допомогою Blender 4.5.1 LTS і поширюється згідно з Mozilla Public License 2.0."
           }
         }
       }
