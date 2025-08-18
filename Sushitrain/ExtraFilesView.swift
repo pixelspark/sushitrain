@@ -135,7 +135,7 @@ struct ExtraFilesView: View {
 	
 	private var keepCount: Int {
 		var count = 0
-		for (k, i) in self.verdicts {
+		for (_, i) in self.verdicts {
 			if i {
 				count += 1
 			}
@@ -145,7 +145,7 @@ struct ExtraFilesView: View {
 	
 	private var deleteCount: Int {
 		var count = 0
-		for (k, i) in self.verdicts {
+		for (_, i) in self.verdicts {
 			if !i {
 				count += 1
 			}
