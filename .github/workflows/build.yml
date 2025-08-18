@@ -24,7 +24,7 @@ jobs:
 
       - name: Install iOS platform
         run: |
-          xcodebuild -downloadPlatform iOS -buildVersion 18.2
+          xcodebuild -downloadPlatform iOS -buildVersion 18.6
 
       - name: Check out repository
         uses: actions/checkout@v3
