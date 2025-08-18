@@ -14,12 +14,12 @@ permissions:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-15
     steps:
       - name: Check Xcode version
         run: |
           /usr/bin/xcodebuild -version
-          sudo /usr/bin/xcode-select -switch /Applications/Xcode_16.2.app/Contents/Developer
+          sudo /usr/bin/xcode-select -switch /Applications/Xcode_16.4.app/Contents/Developer
           /usr/bin/xcodebuild -version
 
       - name: Install iOS platform
