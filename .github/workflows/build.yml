@@ -22,6 +22,10 @@ jobs:
           sudo /usr/bin/xcode-select -switch /Applications/Xcode_16.2.app/Contents/Developer
           /usr/bin/xcodebuild -version
 
+      - name: Install iOS platform
+        run: |
+          xcodebuild -downloadPlatform iOS -buildVersion 18.2
+
       - name: Check out repository
         uses: actions/checkout@v3
 
