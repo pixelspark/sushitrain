@@ -1013,3 +1013,94 @@ extension SecCertificate {
 		return Data(digest)
 	}
 }
+
+extension ComparisonResult {
+	var flipped: ComparisonResult {
+		switch self {
+		case .orderedSame: return .orderedSame
+		case .orderedAscending: return .orderedDescending
+		case .orderedDescending: return .orderedAscending
+		}
+	}
+}
+
+struct EntryComparator: SortComparator {
+	typealias Compared = SushitrainEntry
+
+	enum SortBy {
+		case size
+		case name
+		case lastModifiedDate
+		case fileExtension
+	}
+
+	var order: SortOrder
+	var sortBy: SortBy
+
+	private func compareDates(_ lhs: Date?, _ rhs: Date?) -> ComparisonResult {
+		switch (lhs, rhs) {
+		case (nil, nil): return .orderedSame
+		case (nil, _): return .orderedAscending
+		case (_, nil): return .orderedDescending
+		case (let a, let b): return a!.compare(b!)
+		}
+	}
+
+	func compare(_ lhs: SushitrainEntry, _ rhs: SushitrainEntry) -> ComparisonResult {
+		let ascending: ComparisonResult = order == .forward ? .orderedAscending : .orderedDescending
+		let descending: ComparisonResult = order == .forward ? .orderedDescending : .orderedAscending
+
+		switch (lhs.isDirectory(), rhs.isDirectory()) {
+		// Compare directories among themselves
+		case (true, true):
+			switch self.sortBy {
+			case .size:
+				return .orderedSame  // Directories all have zero size
+			case .lastModifiedDate:
+				let r = compareDates(lhs.modifiedAt()?.date(), rhs.modifiedAt()?.date())
+				return order == .forward ? r : r.flipped
+			case .name:
+				return order == .forward
+					? lhs.name().compare(rhs.name(), options: .numeric) : rhs.name().compare(lhs.name(), options: .numeric)
+			case .fileExtension:
+				return order == .forward
+					? lhs.extension().compare(rhs.extension(), options: .numeric)
+					: rhs.extension().compare(lhs.extension(), options: .numeric)
+			}
+
+		// Compare directory with file or vice versa
+		case (true, false): return .orderedAscending  // This doesn't change when order is swapped
+		case (false, true): return .orderedDescending  // This doesn't change when order is swapped
+
+		// Compare entries among themselves
+		case (false, false):
+			switch self.sortBy {
+			case .lastModifiedDate:
+				let r = compareDates(lhs.modifiedAt()?.date(), rhs.modifiedAt()?.date())
+				return order == .forward ? r : r.flipped
+
+			case .name:
+				return order == .forward
+					? lhs.name().compare(rhs.name(), options: .numeric) : rhs.name().compare(lhs.name(), options: .numeric)
+
+			case .fileExtension:
+				return order == .forward
+					? lhs.extension().compare(rhs.extension(), options: .numeric)
+					: rhs.extension().compare(lhs.extension(), options: .numeric)
+
+			case .size:
+				let sa = lhs.size()
+				let sb = rhs.size()
+				if sa == sb {
+					return .orderedSame
+				}
+				else if sa < sb {
+					return ascending
+				}
+				else {
+					return descending
+				}
+			}
+		}
+	}
+}

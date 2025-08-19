@@ -732,7 +732,7 @@ private struct BrowserItemsView: View {
 			}
 			do {
 				var dirNames = try folder.list(prefix, directories: true, recurse: false).asArray()
-					.sorted()
+					.sorted(by: { $0.compare($1, options: .numeric) == .orderedAscending })
 				if dotFilesHidden {
 					dirNames = dirNames.filter({ !$0.starts(with: ".") })
 				}
@@ -752,8 +752,9 @@ private struct BrowserItemsView: View {
 				return []
 			}
 			do {
-				return try folder.listEntries(
-					prefix: self.prefix, directories: false, hideDotFiles: dotFilesHidden)
+				var entries = try folder.listEntries(prefix: self.prefix, directories: false, hideDotFiles: dotFilesHidden)
+				entries.sort(by: { $0.fileName().compare($1.fileName(), options: .numeric) == .orderedAscending })
+				return entries
 			}
 			catch let error {
 				Log.warn("Error listing: \(error.localizedDescription)")

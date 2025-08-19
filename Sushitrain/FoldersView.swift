@@ -215,7 +215,9 @@ struct FoldersSections: View {
 	}
 
 	private func update() async {
-		folders = await appState.folders().sorted()
+		folders = await appState.folders().sorted(by: {
+			$0.displayName.compare($1.displayName, options: .numeric) == .orderedAscending
+		})
 
 		let addedFolders = Set(folders.map({ f in f.folderID }))
 		self.pendingFolderIds = ((try? self.appState.client.pendingFolderIDs())?.asArray() ?? []).filter({
