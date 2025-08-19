@@ -231,7 +231,7 @@ struct SyncState {
 			}
 
 			await self.updateDeviceSuspension()
-			
+
 			// Do we need to pause all folders?
 			let pauseAllFolders = UserDefaults.standard.bool(forKey: "pauseAllFolders")
 			if pauseAllFolders {

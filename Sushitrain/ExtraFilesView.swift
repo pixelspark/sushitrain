@@ -118,7 +118,8 @@ struct ExtraFilesView: View {
 					}
 					.disabled(!folder.isIdleOrSyncing || verdicts.isEmpty || extraFiles.isEmpty)
 					.confirmationDialog(
-						"Are you sure you want to permanently delete \(deleteCount) files from this device, and add \(keepCount) files for synchronization with other devices?", isPresented: $showApplyConfirmation,
+						"Are you sure you want to permanently delete \(deleteCount) files from this device, and add \(keepCount) files for synchronization with other devices?",
+						isPresented: $showApplyConfirmation,
 						titleVisibility: .visible
 					) {
 						Button("Delete \(deleteCount) files, keep \(keepCount) files", role: .destructive) {
@@ -132,7 +133,7 @@ struct ExtraFilesView: View {
 				dismissButton: .default(Text("OK")) { errorMessage = nil })
 		}
 	}
-	
+
 	private var keepCount: Int {
 		var count = 0
 		for (_, i) in self.verdicts {
@@ -142,7 +143,7 @@ struct ExtraFilesView: View {
 		}
 		return count
 	}
-	
+
 	private var deleteCount: Int {
 		var count = 0
 		for (_, i) in self.verdicts {
@@ -152,7 +153,7 @@ struct ExtraFilesView: View {
 		}
 		return count
 	}
-	
+
 	private func apply() async {
 		do {
 			let json = try JSONEncoder().encode(self.verdicts)
