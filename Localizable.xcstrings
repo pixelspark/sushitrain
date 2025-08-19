@@ -259,7 +259,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "（顶级）"
+            "value" : "（顶层）"
           }
         }
       }
@@ -919,7 +919,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld 毫秒"
+            "value" : "%lld ms"
           }
         }
       }
@@ -1389,7 +1389,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "2024-08/视频/IMG_2020.MOV"
+            "value" : "2024-08/Video/IMG_2020.MOV"
           }
         }
       }
@@ -1469,7 +1469,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "2024/08/11/视频/IMG_2020.MOV"
+            "value" : "2024/08/11/Video/IMG_2020.MOV"
           }
         }
       }
@@ -1629,7 +1629,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "2024/视频/IMG_2020.MOV"
+            "value" : "2024/Video/IMG_2020.MOV"
           }
         }
       }
@@ -1749,7 +1749,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "关于Synctrain"
+            "value" : "关于 Synctrain"
           }
         }
       }
@@ -2109,7 +2109,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "添加专辑"
+            "value" : "添加相册"
           }
         }
       }
@@ -2893,7 +2893,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld小时后"
+            "value" : "%lld 小时后"
           }
         }
       }
@@ -3053,7 +3053,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "未找到专辑"
+            "value" : "未找到相册"
           }
         }
       }
@@ -3373,7 +3373,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "允许Synctrain访问照片"
+            "value" : "允许 Synctrain 访问照片"
           }
         }
       }
@@ -12279,7 +12279,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "来自专辑"
+            "value" : "来自相册"
           }
         }
       }
@@ -28939,7 +28939,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "视频/IMG_2020.MOV"
+            "value" : "Video/IMG_2020.MOV"
           }
         }
       }
