@@ -527,6 +527,11 @@ private struct BrowserItemsView: View {
 		.task(id: self.folder.folderStateForUpdating) {
 			await self.reload()
 		}
+		.onChange(of: appState.userSettings.dotFilesHidden) {
+			Task {
+				await self.reload()
+			}
+		}
 		.onChange(of: self.folder.folderStateForUpdating) {
 			Task {
 				await self.reload()

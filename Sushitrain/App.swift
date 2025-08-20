@@ -188,6 +188,10 @@ struct SushitrainApp: App {
 				NSApp.activate(ignoringOtherApps: true)
 			}
 			.commands {
+				CommandGroup(after: .sidebar) {
+					Toggle("Hide dotfiles", isOn: appState.userSettings.$dotFilesHidden)
+				}
+
 				CommandGroup(replacing: CommandGroupPlacement.appInfo) {
 					Button(
 						action: {
