@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
+	"io"
 	"math"
 	"slices"
 	"time"
@@ -23,6 +24,7 @@ type miniPuller struct {
 	measurements *Measurements
 	experiences  map[protocol.DeviceID]bool
 	context      context.Context
+	internals    *syncthing.Internals
 }
 
 func ClearBlockCache() {
@@ -49,7 +51,7 @@ func (mp *miniPuller) downloadRange(m *syncthing.Internals, folderID string, fil
 
 		// Fetch block
 		block := file.Blocks[blockIndex]
-		buf, err := mp.downloadBock(m, folderID, int(blockIndex), file, block)
+		buf, err := mp.downloadBock(folderID, int(blockIndex), file, block)
 		if err != nil {
 			slog.Warn("error downloading block", "index", blockIndex, "total", len(file.Blocks), "cause", err)
 			return 0, err
@@ -85,7 +87,7 @@ func (mp *miniPuller) timeoutFor(block *protocol.BlockInfo) time.Duration {
 	return time.Duration(max(1.0, float32(block.Size)/float32(minBytesPerSecond))) * time.Second
 }
 
-func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, blockIndex int, file protocol.FileInfo, block protocol.BlockInfo) ([]byte, error) {
+func (mp *miniPuller) downloadBock(folderID string, blockIndex int, file protocol.FileInfo, block protocol.BlockInfo) ([]byte, error) {
 	blockHashString := base64.StdEncoding.EncodeToString([]byte(block.Hash))
 
 	// Do we have this file in the local cache?
@@ -94,7 +96,7 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 		return cached, nil
 	}
 
-	availables, err := m.BlockAvailability(folderID, file, block)
+	availables, err := mp.internals.BlockAvailability(folderID, file, block)
 	if err != nil {
 		return nil, err
 	}
@@ -132,13 +134,13 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 
 		if exp, ok := mp.experiences[available.ID]; ok && exp {
 			// Skip devices we're not connected to
-			if !m.IsConnectedTo(available.ID) {
+			if !mp.internals.IsConnectedTo(available.ID) {
 				continue
 			}
 
 			downloadBlockCtx, cancelDownloadBlock := context.WithTimeout(mp.context, mp.timeoutFor(&block))
 			defer cancelDownloadBlock()
-			buf, err := m.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
+			buf, err := mp.internals.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
 			// Remember our experience with this peer for next time
 			mp.experiences[available.ID] = err == nil || err == context.Canceled
 			if err == nil {
@@ -159,13 +161,13 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 
 		if _, ok := mp.experiences[available.ID]; !ok {
 			// Skip devices we're not connected to
-			if !m.IsConnectedTo(available.ID) {
+			if !mp.internals.IsConnectedTo(available.ID) {
 				continue
 			}
 
 			downloadBlockCtx, cancelDownloadBlock := context.WithTimeout(mp.context, mp.timeoutFor(&block))
 			defer cancelDownloadBlock()
-			buf, err := m.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
+			buf, err := mp.internals.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
 			// Remember our experience with this peer for next time
 			mp.experiences[available.ID] = err == nil || err == context.Canceled
 			if err == nil {
@@ -186,13 +188,13 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 
 		if exp, ok := mp.experiences[available.ID]; ok && !exp {
 			// Skip devices we're not connected to
-			if !m.IsConnectedTo(available.ID) {
+			if !mp.internals.IsConnectedTo(available.ID) {
 				continue
 			}
 
 			downloadBlockCtx, cancelDownloadBlock := context.WithTimeout(mp.context, mp.timeoutFor(&block))
 			defer cancelDownloadBlock()
-			buf, err := m.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
+			buf, err := mp.internals.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
 			// Remember our experience with this peer for next time
 			mp.experiences[available.ID] = err == nil || err == context.Canceled
 			if err == nil {
@@ -207,10 +209,25 @@ func (mp *miniPuller) downloadBock(m *syncthing.Internals, folderID string, bloc
 	return nil, errors.New("no peer to download this block from")
 }
 
-func newMiniPuller(ctx context.Context, measurements *Measurements) *miniPuller {
+func newMiniPuller(ctx context.Context, measurements *Measurements, internals *syncthing.Internals) *miniPuller {
 	return &miniPuller{
 		experiences:  map[protocol.DeviceID]bool{},
 		context:      ctx,
 		measurements: measurements,
+		internals:    internals,
 	}
+}
+
+func (mp *miniPuller) DownloadInto(w io.Writer, folderID string, info protocol.FileInfo) error {
+	for blockNo, block := range info.Blocks {
+		buf, err := mp.downloadBock(folderID, blockNo, info, block)
+		if err != nil {
+			return err
+		}
+		_, err = w.Write(buf)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

@@ -218,7 +218,7 @@ func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *
 			return
 		}
 
-		mp := newMiniPuller(r.Context(), measurements)
+		mp := newMiniPuller(r.Context(), measurements, m)
 
 		blockSize := int64(info.BlockSize())
 		for _, rng := range parsedRanges {
@@ -259,7 +259,7 @@ func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *
 
 				// Fetch block
 				block := info.Blocks[blockIndex]
-				buf, err := mp.downloadBock(m, folderID, int(blockIndex), info, block)
+				buf, err := mp.downloadBock(folderID, int(blockIndex), info, block)
 				if err != nil {
 					slog.Warn("error downloading block", "blockIndex", blockIndex, "blockCount", len(info.Blocks), "cause", err)
 
@@ -307,16 +307,11 @@ func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *
 			// We have this file completely locally
 			w.Write(buffer)
 		} else {
-			fetchedBytes := int64(0)
-			mp := newMiniPuller(r.Context(), measurements)
-
-			for blockNo, block := range info.Blocks {
-				buf, err := mp.downloadBock(m, folderID, blockNo, info, block)
-				if err != nil {
-					return
-				}
-				fetchedBytes += int64(block.Size)
-				w.Write(buf)
+			mp := newMiniPuller(r.Context(), measurements, m)
+			err := mp.DownloadInto(w, folderID, info)
+			if err != nil {
+				slog.Error("downloading block", "cause", err)
+				return // Can't write an HTTP header anymore
 			}
 		}
 	}

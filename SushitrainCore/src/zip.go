@@ -54,7 +54,7 @@ func (e *Entry) Archive() Archive {
 	ctx := context.Background()
 	return &entryArchive{
 		entry:  e,
-		puller: newMiniPuller(ctx, e.Folder.client.Measurements),
+		puller: newMiniPuller(ctx, e.Folder.client.Measurements, e.Folder.client.app.Internals),
 		mutex:  sync.Mutex{},
 		files:  nil,
 	}
