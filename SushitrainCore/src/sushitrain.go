@@ -103,7 +103,7 @@ const (
 
 func NewClient(configPath string, filesPath string, saveLog bool) *Client {
 	// Set version info
-	build.Version = "v2.0.2"
+	build.Version = "v2.0.3"
 	build.Host = "t-shaped.nl"
 	build.User = "sushitrain"
 
@@ -593,7 +593,8 @@ func (clt *Client) Load(resetDeltaIdxs bool) error {
 
 	// Default retention interval taken from Syncthing's CLI default
 	dbDeleteRetentionInterval := time.Duration(4320) * time.Hour
-	if err := syncthing.TryMigrateDatabase(dbDeleteRetentionInterval); err != nil {
+	// It really wants to set up a temporary API while migrating...
+	if err := syncthing.TryMigrateDatabase(clt.ctx, dbDeleteRetentionInterval, "127.0.0.1:8384"); err != nil {
 		slog.Warn("failed to migrate legacy database", "cause", err)
 		return err
 	}
