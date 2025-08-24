@@ -122,8 +122,15 @@ struct ExtraFilesView: View {
 						isPresented: $showApplyConfirmation,
 						titleVisibility: .visible
 					) {
-						Button("Delete \(deleteCount) files, keep \(keepCount) files", role: .destructive) {
-							Task { await self.apply() }
+						if deleteCount > 0 {
+							Button("Delete \(deleteCount) files, keep \(keepCount) files", role: .destructive) {
+								Task { await self.apply() }
+							}
+						}
+						else {
+							Button("Keep \(keepCount) files") {
+								Task { await self.apply() }
+							}
 						}
 					}
 				})

@@ -7601,7 +7601,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verwijder %#@arg1@, bewaar %#@arg2@"
+            "value" : "Verwijder %#@arg1@, behoud %#@arg2@"
           },
           "substitutions" : {
             "arg1" : {
@@ -14526,6 +14526,64 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "不受信任"
+          }
+        }
+      }
+    },
+    "Keep %lld files" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Dateien behalten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantener %lld archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantieni %lld file"
+          }
+        },
+        "nl" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Behoud één bestand"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Behoud %lld bestanden"
+                }
+              },
+              "zero" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Behoud geen bestanden"
+                }
+              }
+            }
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Залишити %lld файлів"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保留 %lld 个文件"
           }
         }
       }
