@@ -51,10 +51,9 @@ func (e *Entry) IsArchive() bool {
 }
 
 func (e *Entry) Archive() Archive {
-	ctx := context.Background()
 	return &entryArchive{
 		entry:  e,
-		puller: newMiniPuller(ctx, e.Folder.client.Measurements, e.Folder.client.app.Internals),
+		puller: newMiniPuller(e.Folder.client.Measurements, e.Folder.client.app.Internals),
 		mutex:  sync.Mutex{},
 		files:  nil,
 	}
@@ -149,7 +148,7 @@ func (ea *entryArchive) ReadAt(p []byte, off int64) (n int, err error) {
 		return len(buffer), nil
 	}
 
-	xn, err := ea.puller.downloadRange(ea.entry.Folder.client.app.Internals, ea.entry.Folder.FolderID, ea.entry.info, p, off)
+	xn, err := ea.puller.downloadRange(context.Background(), ea.entry.Folder.client.app.Internals, ea.entry.Folder.FolderID, ea.entry.info, p, off, 1)
 	return int(xn), err
 }
 

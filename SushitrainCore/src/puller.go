@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"slices"
+	"sync"
 	"time"
 
 	lru "github.com/hashicorp/golang-lru/v2"
@@ -22,8 +23,7 @@ var blockCache, _ = lru.New[string, []byte](64)
 
 type miniPuller struct {
 	measurements *Measurements
-	experiences  map[protocol.DeviceID]bool
-	context      context.Context
+	experiences  *experiences
 	internals    *syncthing.Internals
 }
 
@@ -32,7 +32,7 @@ func ClearBlockCache() {
 	blockCache.Purge()
 }
 
-func (mp *miniPuller) downloadRange(m *syncthing.Internals, folderID string, file protocol.FileInfo, dest []byte, offset int64) (n int64, e error) {
+func (mp *miniPuller) downloadRange(ctx context.Context, m *syncthing.Internals, folderID string, file protocol.FileInfo, dest []byte, offset int64, retry int) (n int64, e error) {
 	blockSize := int64(file.BlockSize())
 	startBlock := offset / int64(blockSize)
 	blockCount := min(ceilDiv(int64(len(dest)), blockSize), int64(len(file.Blocks)))
@@ -51,7 +51,7 @@ func (mp *miniPuller) downloadRange(m *syncthing.Internals, folderID string, fil
 
 		// Fetch block
 		block := file.Blocks[blockIndex]
-		buf, err := mp.downloadBock(folderID, int(blockIndex), file, block)
+		buf, err := mp.downloadBlock(ctx, folderID, int(blockIndex), file, retry)
 		if err != nil {
 			slog.Warn("error downloading block", "index", blockIndex, "total", len(file.Blocks), "cause", err)
 			return 0, err
@@ -84,10 +84,29 @@ const minBytesPerSecond int = 1000 * 500 // Expect at least 62,5 KiB/s, or 500 k
 
 func (mp *miniPuller) timeoutFor(block *protocol.BlockInfo) time.Duration {
 	// At least one second, but otherwise at most the duration at the minimum expected rate
-	return time.Duration(max(1.0, float32(block.Size)/float32(minBytesPerSecond))) * time.Second
+	return time.Duration(1000.0*max(1.0, float32(block.Size)/float32(minBytesPerSecond))) * time.Millisecond
 }
 
-func (mp *miniPuller) downloadBock(folderID string, blockIndex int, file protocol.FileInfo, block protocol.BlockInfo) ([]byte, error) {
+type experiences struct {
+	data  map[protocol.DeviceID]bool
+	mutex sync.Mutex
+}
+
+func (exp *experiences) get(device protocol.DeviceID) (wasGood bool, haveExperience bool) {
+	exp.mutex.Lock()
+	defer exp.mutex.Unlock()
+	wasGood, haveExperience = exp.data[device]
+	return
+}
+
+func (exp *experiences) set(device protocol.DeviceID, wasGood bool) {
+	exp.mutex.Lock()
+	defer exp.mutex.Unlock()
+	exp.data[device] = wasGood
+}
+
+func (mp *miniPuller) downloadBlock(ctx context.Context, folderID string, blockIndex int, file protocol.FileInfo, retry int) ([]byte, error) {
+	block := file.Blocks[blockIndex]
 	blockHashString := base64.StdEncoding.EncodeToString([]byte(block.Hash))
 
 	// Do we have this file in the local cache?
@@ -104,7 +123,7 @@ func (mp *miniPuller) downloadBock(folderID string, blockIndex int, file protoco
 		return nil, errors.New("no peer available")
 	}
 
-	slog.Info("download block", "index", blockIndex, "availablePeers", len(availables), "experiences", mp.experiences)
+	slog.Info("download block", "index", blockIndex, "availablePeers", len(availables))
 
 	// Sort availables by latency
 	slices.SortFunc(availables, func(a model.Availability, b model.Availability) int {
@@ -126,108 +145,175 @@ func (mp *miniPuller) downloadBock(folderID string, blockIndex int, file protoco
 	})
 
 	// Attempt to download the block from an available and 'known good' peers first
-	for _, available := range availables {
-		// Check if we were cancelled
-		if err := mp.context.Err(); err != nil {
-			return nil, mp.context.Err()
-		}
+	for attempt := range retry {
+		slog.Debug("downloadBlock", "attempt", attempt, "retry", retry)
 
-		if exp, ok := mp.experiences[available.ID]; ok && exp {
-			// Skip devices we're not connected to
-			if !mp.internals.IsConnectedTo(available.ID) {
-				continue
+		for _, available := range availables {
+			// Check if we were cancelled
+			if err := ctx.Err(); err != nil {
+				return nil, ctx.Err()
 			}
 
-			downloadBlockCtx, cancelDownloadBlock := context.WithTimeout(mp.context, mp.timeoutFor(&block))
-			defer cancelDownloadBlock()
-			buf, err := mp.internals.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
-			// Remember our experience with this peer for next time
-			mp.experiences[available.ID] = err == nil || err == context.Canceled
-			if err == nil {
-				blockCache.Add(blockHashString, buf)
-				return buf, nil
-			} else {
-				slog.Info("good peer", "id", available.ID, "error", err, "bufferSize", len(buf))
+			if exp, ok := mp.experiences.get(available.ID); ok && exp {
+				// Skip devices we're not connected to
+				if !mp.internals.IsConnectedTo(available.ID) {
+					continue
+				}
+
+				downloadBlockCtx, cancelDownloadBlock := context.WithTimeout(ctx, mp.timeoutFor(&block))
+				defer cancelDownloadBlock()
+				slog.Debug("downloadBlock fetch good", "blockIndex", blockIndex, "from", available.ID)
+				buf, err := mp.internals.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
+				// Remember our experience with this peer for next time
+				mp.experiences.set(available.ID, err == nil || err == context.Canceled)
+				if err == nil {
+					blockCache.Add(blockHashString, buf)
+					return buf, nil
+				} else {
+					slog.Info("good peer", "id", available.ID, "error", err, "bufferSize", len(buf))
+				}
 			}
 		}
+
+		// Failed to download from a good peer, let's try the peers we don't have any experience with
+		for _, available := range availables {
+			// Check if we were cancelled
+			if err := ctx.Err(); err != nil {
+				return nil, ctx.Err()
+			}
+
+			if _, ok := mp.experiences.get(available.ID); !ok {
+				// Skip devices we're not connected to
+				if !mp.internals.IsConnectedTo(available.ID) {
+					continue
+				}
+
+				downloadBlockCtx, cancelDownloadBlock := context.WithTimeout(ctx, mp.timeoutFor(&block))
+				defer cancelDownloadBlock()
+				slog.Debug("downloadBlock fetch new", "blockIndex", blockIndex, "from", available.ID)
+				buf, err := mp.internals.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
+				// Remember our experience with this peer for next time
+				mp.experiences.set(available.ID, err == nil || err == context.Canceled)
+				if err == nil {
+					blockCache.Add(blockHashString, buf)
+					return buf, nil
+				} else {
+					slog.Info("unknown peer", "id", available.ID, "error", err, "bufferSize", len(buf))
+				}
+			}
+		}
+
+		// Failed to download from a good or unknown peer, let's try the 'bad' peers once again
+		for _, available := range availables {
+			// Check if we were cancelled
+			if err := ctx.Err(); err != nil {
+				return nil, ctx.Err()
+			}
+
+			if exp, ok := mp.experiences.get(available.ID); ok && !exp {
+				// Skip devices we're not connected to
+				if !mp.internals.IsConnectedTo(available.ID) {
+					continue
+				}
+
+				downloadBlockCtx, cancelDownloadBlock := context.WithTimeout(ctx, mp.timeoutFor(&block))
+				defer cancelDownloadBlock()
+				slog.Debug("downloadBlock fetch bad", "blockIndex", blockIndex, "from", available.ID)
+				buf, err := mp.internals.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
+				// Remember our experience with this peer for next time
+				mp.experiences.set(available.ID, err == nil || err == context.Canceled)
+				if err == nil {
+					blockCache.Add(blockHashString, buf)
+					return buf, nil
+				} else {
+					slog.Info("bad peer", "id", available.ID, "error", err, "bufferSize", len(buf))
+				}
+			}
+		}
+
+		retryTime := time.Duration(700) * time.Millisecond
+		slog.Debug("waiting for retry", "retryTime", retryTime)
+		time.Sleep(retryTime)
 	}
 
-	// Failed to download from a good peer, let's try the peers we don't have any experience with
-	for _, available := range availables {
-		// Check if we were cancelled
-		if err := mp.context.Err(); err != nil {
-			return nil, mp.context.Err()
-		}
-
-		if _, ok := mp.experiences[available.ID]; !ok {
-			// Skip devices we're not connected to
-			if !mp.internals.IsConnectedTo(available.ID) {
-				continue
-			}
-
-			downloadBlockCtx, cancelDownloadBlock := context.WithTimeout(mp.context, mp.timeoutFor(&block))
-			defer cancelDownloadBlock()
-			buf, err := mp.internals.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
-			// Remember our experience with this peer for next time
-			mp.experiences[available.ID] = err == nil || err == context.Canceled
-			if err == nil {
-				blockCache.Add(blockHashString, buf)
-				return buf, nil
-			} else {
-				slog.Info("unknown peer", "id", available.ID, "error", err, "bufferSize", len(buf))
-			}
-		}
-	}
-
-	// Failed to download from a good or unknown peer, let's try the 'bad' peers once again
-	for _, available := range availables {
-		// Check if we were cancelled
-		if err := mp.context.Err(); err != nil {
-			return nil, mp.context.Err()
-		}
-
-		if exp, ok := mp.experiences[available.ID]; ok && !exp {
-			// Skip devices we're not connected to
-			if !mp.internals.IsConnectedTo(available.ID) {
-				continue
-			}
-
-			downloadBlockCtx, cancelDownloadBlock := context.WithTimeout(mp.context, mp.timeoutFor(&block))
-			defer cancelDownloadBlock()
-			buf, err := mp.internals.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
-			// Remember our experience with this peer for next time
-			mp.experiences[available.ID] = err == nil || err == context.Canceled
-			if err == nil {
-				blockCache.Add(blockHashString, buf)
-				return buf, nil
-			} else {
-				slog.Info("bad peer", "id", available.ID, "error", err, "bufferSize", len(buf))
-			}
-		}
-	}
-
+	slog.Info("download block giving up", "retry", retry)
 	return nil, errors.New("no peer to download this block from")
 }
 
-func newMiniPuller(ctx context.Context, measurements *Measurements, internals *syncthing.Internals) *miniPuller {
+func newMiniPuller(measurements *Measurements, internals *syncthing.Internals) *miniPuller {
 	return &miniPuller{
-		experiences:  map[protocol.DeviceID]bool{},
-		context:      ctx,
+		experiences:  newExperiences(),
 		measurements: measurements,
 		internals:    internals,
 	}
 }
 
-func (mp *miniPuller) DownloadInto(w io.Writer, folderID string, info protocol.FileInfo) error {
-	for blockNo, block := range info.Blocks {
-		buf, err := mp.downloadBock(folderID, blockNo, info, block)
-		if err != nil {
+func (mp *miniPuller) downloadInto(ctx context.Context, w io.Writer, folderID string, info protocol.FileInfo) error {
+	var wg sync.WaitGroup
+	parallellism := 2
+	retry := 3
+
+	chans := make([]chan []byte, parallellism)
+	errChan := make(chan error, 1)
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// Spawn `parallellism` goroutines, each will fetch block i + n*parallellism
+	for threadIndex := range parallellism {
+		chans[threadIndex] = make(chan []byte, 1)
+		go func() {
+			wg.Add(1)
+			defer wg.Done()
+
+			var i = threadIndex
+			for i < len(info.Blocks) {
+				// Check if we were cancelled
+				if err := ctx.Err(); err != nil {
+					slog.Debug("download worker cancelled", "index", i, "threadIndex", threadIndex)
+					return
+				}
+
+				slog.Debug("download block", "index", i, "threadIndex", threadIndex)
+				buf, err := mp.downloadBlock(ctx, folderID, i, info, retry)
+				if err != nil {
+					slog.Debug("download block error", "cause", err, "index", i, "threadIndex", threadIndex)
+					errChan <- err
+					return
+				}
+				slog.Debug("done block", "index", i, "threadIndex", threadIndex)
+				// this will block until the  previous block we produced was read
+				chans[threadIndex] <- buf
+				i += parallellism
+			}
+		}()
+	}
+
+	defer wg.Wait()
+
+	// Read the blocks in order
+	for blockNo, _ := range info.Blocks {
+		select {
+		case err := <-errChan:
+			slog.Info("download into error", "cause", err)
+			cancel()
 			return err
-		}
-		_, err = w.Write(buf)
-		if err != nil {
-			return err
+
+		case block := <-chans[blockNo%parallellism]:
+			slog.Debug("download into write", "bytes", len(block))
+			_, err := w.Write(block)
+			if err != nil {
+				slog.Info("download into write error", "cause", err)
+				cancel()
+				return err
+			}
 		}
 	}
+
 	return nil
+}
+
+func newExperiences() *experiences {
+	return &experiences{
+		data: map[protocol.DeviceID]bool{},
+	}
 }

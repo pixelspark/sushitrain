@@ -9,7 +9,7 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
-	"fmt"
+	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -379,6 +379,20 @@ func (entry *Entry) availabilityPerDevice() (map[protocol.DeviceID]int, int, err
 	return deviceStatus, len(info.Blocks), nil
 }
 
+type progressWriter struct {
+	delegate DownloadDelegate
+	out      io.Writer
+	written  int
+	total    int
+}
+
+func (pw *progressWriter) Write(buf []byte) (n int, err error) {
+	n, err = pw.out.Write(buf)
+	pw.written += n
+	pw.delegate.OnProgress(float64(pw.written) / float64(pw.total))
+	return
+}
+
 /** Download this file to the specific location (should be outside the synced folder!) **/
 func (entry *Entry) Download(toPath string, delegate DownloadDelegate) {
 	go func() {
@@ -410,33 +424,17 @@ func (entry *Entry) Download(toPath string, delegate DownloadDelegate) {
 		}()
 
 		delegate.OnProgress(0.0)
-
-		for blockNo, block := range info.Blocks {
-			if delegate.IsCancelled() {
-				return
-			}
-			delegate.OnProgress(float64(block.Offset) / float64(info.Size))
-			av, err := m.BlockAvailability(folderID, info, block)
-			if err != nil {
-				delegate.OnError(fmt.Sprintf("could not fetch availability for block %d: %s", blockNo, err.Error()))
-				return
-			}
-			if len(av) < 1 {
-				delegate.OnError(fmt.Sprintf("Part of the file is not available (block %d)", blockNo))
-				return
-			}
-
-			// Fetch the block
-			buf, err := m.DownloadBlock(context, av[0].ID, folderID, info.Name, int(blockNo), block, false)
-			if err != nil {
-				delegate.OnError(fmt.Sprintf("could not fetch block %d: %s", blockNo, err.Error()))
-				return
-			}
-			_, err = outFile.Write(buf)
-			if err != nil {
-				delegate.OnError(fmt.Sprintf("could not write block %d: %s", blockNo, err.Error()))
-				return
-			}
+		mp := newMiniPuller(entry.Folder.client.Measurements, m)
+		pw := progressWriter{
+			out:      outFile,
+			delegate: delegate,
+			total:    int(info.Size),
+			written:  0,
+		}
+		err = mp.downloadInto(context, &pw, folderID, info)
+		if err != nil {
+			delegate.OnError(err.Error())
+			return
 		}
 		delegate.OnFinished(toPath)
 	}()
