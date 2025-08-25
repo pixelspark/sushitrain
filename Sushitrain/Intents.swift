@@ -368,7 +368,7 @@ struct FolderEntity: AppEntity, Equatable {
 		return lhs.id == rhs.id
 	}
 
-	@Property(title: "Name")
+	@Property(title: "Display name")
 	var name: String
 
 	@Property(title: "URL")
