@@ -408,6 +408,7 @@ struct FolderEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntityQuery 
 
 struct DeviceEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntityQuery {
 	func allEntities() async throws -> [DeviceEntity] {
+		try await appState.waitForAppStarted()
 		return await appState.peers().filter { !$0.isSelf() }.map {
 			DeviceEntity(peer: $0)
 		}
