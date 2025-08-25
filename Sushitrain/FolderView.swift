@@ -608,6 +608,7 @@ struct FolderView: View {
 	@State private var showConfirmable: ConfirmableAction = .none
 	@State private var advancedExpanded = false
 	@State private var possiblePeers: [SushitrainPeer] = []
+	@State private var unsupportedDataProtection = false
 
 	private enum ShowAlert: Identifiable {
 		case error(String)
@@ -623,6 +624,7 @@ struct FolderView: View {
 
 	func update() async {
 		self.possiblePeers = await appState.peers().sorted().filter({ d in !d.isSelf() })
+		self.unsupportedDataProtection = URL(fileURLWithPath: self.folder.path()).hasUnsupportedProtection()
 	}
 
 	var body: some View {
@@ -636,6 +638,15 @@ struct FolderView: View {
 				}
 				else if isExternal == true {
 					ExternalFolderSectionView(folder: folder)
+				}
+
+				if self.unsupportedDataProtection {
+					Section {
+						Label("Limited access", systemImage: "xmark.circle")
+							.foregroundStyle(.red)
+					} footer: {
+						Text("The selected folder is protected, and therefore cannot be accessed while the device is locked.")
+					}
 				}
 
 				Section {

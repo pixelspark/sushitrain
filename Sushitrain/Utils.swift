@@ -1104,3 +1104,31 @@ struct EntryComparator: SortComparator {
 		}
 	}
 }
+
+extension URL {
+	// Checks if the target  has certain data protection mechanisms turned on that may
+	// disallow us from accessing the folder while the device is locked
+	func hasUnsupportedProtection() -> Bool {
+		#if os(iOS)
+			let unsupportedProtection = Set<URLFileProtection>([.complete, .completeWhenUserInactive])
+		#else
+			let unsupportedProtection = Set<URLFileProtection>([.complete])
+		#endif
+
+		do {
+			let rv = try self.resourceValues(forKeys: [.fileProtectionKey])
+			if let fp = rv.fileProtection {
+				Log.info("Data protection setting for \(path) is \(fp)")
+
+				if unsupportedProtection.contains(fp) {
+					Log.warn("Directory has unsupported data protection setting: \(fp) (\(path))")
+					return true
+				}
+			}
+		}
+		catch {
+			Log.warn("Could not obtain file protection status for url \(path): \(error)")
+		}
+		return false
+	}
+}

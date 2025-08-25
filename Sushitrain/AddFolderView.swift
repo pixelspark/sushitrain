@@ -252,7 +252,16 @@ struct AddFolderView: View {
 			}
 			else {
 				if let fp = self.folderPath {
+					// Check data protection class of target directory
+					if fp.hasUnsupportedProtection() {
+						showError = true
+						errorText = String(
+							localized: "The selected folder is protected, and therefore cannot be accessed while the device is locked.")
+						return
+					}
+
 					try BookmarkManager.shared.saveBookmark(folderID: self.folderID, url: fp)
+
 					try appState.client.addFolder(
 						self.folderID, folderPath: fp.path(percentEncoded: false),
 						createAsOnDemand: self.isSelective)

@@ -15228,6 +15228,46 @@
         }
       }
     },
+    "Limited access" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eingeschränkter Zugriff"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acceso limitado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accesso limitato"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beperkte toegang"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обмежений доступ"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "限制访问"
+          }
+        }
+      }
+    },
     "Link destination" : {
       "localizations" : {
         "de" : {
@@ -25906,6 +25946,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "无法将照片保存到选定的文件夹"
+          }
+        }
+      }
+    },
+    "The selected folder is protected, and therefore cannot be accessed while the device is locked." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der ausgewählte Ordner ist geschützt und kann daher nicht zugänglich sein, solange das Gerät gesperrt ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La carpeta seleccionada está protegida y, por lo tanto, no se puede acceder a ella mientras el dispositivo esté bloqueado."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cartella selezionata è protetta e quindi non può essere accessibile mentre il dispositivo è bloccato."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De geselecteerde map is beveiligd, en kan daarom niet door de app worden geopend terwijl het apparaat is vergrendeld."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вибрана папка захищена, і тому до неї неможливо отримати доступ, коли пристрій заблоковано."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所选文件夹受保护，因此在设备锁定时无法访问。"
           }
         }
       }
