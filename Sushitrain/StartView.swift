@@ -315,112 +315,17 @@ struct StartView: View {
 				}
 			}
 
-			// Getting started
+			// Getting started, device issues
 			if let p = peers, p.isEmpty {
-				Section("Getting started") {
-					VStack(alignment: .leading, spacing: 5) {
-						Label("Add your first device", systemImage: "externaldrive.badge.plus")
-							.bold()
-						Text(
-							"To synchronize files, first add a remote device. Either select a device from the list below, or add manually using the device ID."
-						)
-					}.onTapGesture {
-						route = .devices
-					}
-				}
+				self.gettingStartedDevices()
 			}
-			else if showNoPeersEnabledWarning {
-				Section("Devices that need your attention") {
-					VStack(alignment: .leading, spacing: 5) {
-						Label(
-							"All devices are paused",
-							systemImage: "exclamationmark.triangle.fill"
-						)
-						.bold()
-						.foregroundStyle(.orange)
-						Text(
-							"Synchronization is disabled for all associated devices. This may occur after updating or restarting the app. To restart synchronization, re-enable synchronization on the 'devices' page, or tap here to enable all devices."
-						)
-						.foregroundStyle(.orange)
-					}
-					.onTapGesture {
-						Task {
-							self.appState.userSettings.userPausedDevices.removeAll()
-							await self.appState.updateDeviceSuspension()
-							showNoPeersEnabledWarning = false
-						}
-					}
-				}
-			}
+			self.deviceIssuesSection()
 
+			// Getting started, folder issues
 			if let f = folders, f.isEmpty {
-				Section("Getting started") {
-					VStack(alignment: .leading, spacing: 5) {
-						Label("Add your first folder", systemImage: "folder.badge.plus").bold()
-						Text(
-							"To synchronize files, add a folder. Folders that have the same folder ID on multiple devices will be synchronized with eachother."
-						)
-					}
-					.onTapGesture {
-						showAddFolderSheet = true
-					}
-					.sheet(
-						isPresented: $showAddFolderSheet,
-						content: {
-							AddFolderView(folderID: $addFolderID)
-						})
-				}
+				self.gettingStartedFolders()
 			}
-
-			if !appState.foldersWithExtraFiles.isEmpty || !foldersWithIssues.isEmpty || !inaccessibleExternalFolders.isEmpty {
-				Section("Folders that need your attention") {
-					// External folders that have become inaccessible
-					ForEach(inaccessibleExternalFolders, id: \.folderID) { folder in
-						Button(action: {
-							self.fixingInaccessibleExternalFolder = folder
-						}) {
-							Label(
-								"Folder '\(folder.displayName)' is not accessible anymore",
-								systemImage: "xmark.app"
-							)
-							.foregroundStyle(.red)
-						}
-						#if os(macOS)
-							.buttonStyle(.link)
-						#endif
-					}
-
-					// Folders with other configuration issues
-					ForEach(foldersWithIssues, id: \.folderID) { folder in
-						NavigationLink(destination: {
-							FolderView(folder: folder)
-						}) {
-							let issue = folder.issue ?? String(localized: "unknown error")
-							Label(
-								"Folder '\(folder.displayName)' has an issue: \(issue)",
-								systemImage: "exclamationmark.triangle.fill"
-							)
-							.foregroundStyle(.red)
-						}
-					}
-
-					// Folders with extra files
-					ForEach(appState.foldersWithExtraFiles, id: \.self) { folderID in
-						if let folder = appState.client.folder(withID: folderID) {
-							NavigationLink(destination: {
-								ExtraFilesView(folder: folder)
-							}) {
-								Label(
-									"Folder '\(folder.displayName)' has extra files",
-									systemImage: "exclamationmark.triangle.fill"
-								)
-								.foregroundStyle(.orange)
-							}
-						}
-						// Folder may have been recently deleted; in that case it cannot be accessed anymore
-					}
-				}
-			}
+			self.folderIssuesSection()
 
 			Section("Manage files and folders") {
 				NavigationLink(destination: ChangesView()) {
@@ -490,6 +395,120 @@ struct StartView: View {
 		.onChange(of: appState.eventCounter) { _, _ in
 			Task {
 				await self.update()
+			}
+		}
+	}
+	
+	@ViewBuilder private func gettingStartedFolders() -> some View {
+		Section("Getting started") {
+			VStack(alignment: .leading, spacing: 5) {
+				Label("Add your first folder", systemImage: "folder.badge.plus").bold()
+				Text(
+					"To synchronize files, add a folder. Folders that have the same folder ID on multiple devices will be synchronized with eachother."
+				)
+			}
+			.onTapGesture {
+				showAddFolderSheet = true
+			}
+			.sheet(
+				isPresented: $showAddFolderSheet,
+				content: {
+					AddFolderView(folderID: $addFolderID)
+				})
+		}
+	}
+	
+	@ViewBuilder private func gettingStartedDevices() -> some View {
+		Section("Getting started") {
+			VStack(alignment: .leading, spacing: 5) {
+				Label("Add your first device", systemImage: "externaldrive.badge.plus")
+					.bold()
+				Text(
+					"To synchronize files, first add a remote device. Either select a device from the list below, or add manually using the device ID."
+				)
+			}.onTapGesture {
+				route = .devices
+			}
+		}
+	}
+	
+	@ViewBuilder private func deviceIssuesSection() -> some View {
+		if showNoPeersEnabledWarning {
+			Section("Devices that need your attention") {
+				// All devices are disabled
+				if showNoPeersEnabledWarning {
+					VStack(alignment: .leading, spacing: 5) {
+						Label(
+							"All devices are paused",
+							systemImage: "exclamationmark.triangle.fill"
+						)
+						.bold()
+						.foregroundStyle(.orange)
+						Text(
+							"Synchronization is disabled for all associated devices. This may occur after updating or restarting the app. To restart synchronization, re-enable synchronization on the 'devices' page, or tap here to enable all devices."
+						)
+						.foregroundStyle(.orange)
+					}
+					.onTapGesture {
+						Task {
+							self.appState.userSettings.userPausedDevices.removeAll()
+							await self.appState.updateDeviceSuspension()
+							showNoPeersEnabledWarning = false
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	 @ViewBuilder private func folderIssuesSection() -> some View {
+		if !appState.foldersWithExtraFiles.isEmpty || !foldersWithIssues.isEmpty || !inaccessibleExternalFolders.isEmpty {
+			Section("Folders that need your attention") {
+				// External folders that have become inaccessible
+				ForEach(inaccessibleExternalFolders, id: \.folderID) { folder in
+					Button(action: {
+						self.fixingInaccessibleExternalFolder = folder
+					}) {
+						Label(
+							"Folder '\(folder.displayName)' is not accessible anymore",
+							systemImage: "xmark.app"
+						)
+						.foregroundStyle(.red)
+					}
+					#if os(macOS)
+						.buttonStyle(.link)
+					#endif
+				}
+
+				// Folders with other configuration issues
+				ForEach(foldersWithIssues, id: \.folderID) { folder in
+					NavigationLink(destination: {
+						FolderView(folder: folder)
+					}) {
+						let issue = folder.issue ?? String(localized: "unknown error")
+						Label(
+							"Folder '\(folder.displayName)' has an issue: \(issue)",
+							systemImage: "exclamationmark.triangle.fill"
+						)
+						.foregroundStyle(.red)
+					}
+				}
+
+				// Folders with extra files
+				ForEach(appState.foldersWithExtraFiles, id: \.self) { folderID in
+					if let folder = appState.client.folder(withID: folderID) {
+						NavigationLink(destination: {
+							ExtraFilesView(folder: folder)
+						}) {
+							Label(
+								"Folder '\(folder.displayName)' has extra files",
+								systemImage: "exclamationmark.triangle.fill"
+							)
+							.foregroundStyle(.orange)
+						}
+					}
+					// Folder may have been recently deleted; in that case it cannot be accessed anymore
+				}
 			}
 		}
 	}
