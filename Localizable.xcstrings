@@ -27728,6 +27728,46 @@
         }
       }
     },
+    "To connect another device running Synctrain or Syncthing to this device, scan the QR code or copy and paste the device ID below. Verify the device IDs of two connected devices match to ensure the connection is end-to-end encrypted." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um ein anderes Gerät, das Synctrain oder Syncthing benutzt, mit diesem Gerät zu verbinden, scannen Sie den QR-Code oder kopieren und fügen Sie die untenstehende Geräte-ID ein. Überprüfen Sie, ob die Geräte-IDs der beiden verbundenen Geräte übereinstimmen, um sicherzustellen, dass die Verbindung end-to-end verschlüsselt ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para conectar otro dispositivo que ejecuta Synctrain o Syncthing a este dispositivo, escanea el código QR o copia y pega la ID del dispositivo que se encuentra a continuación. Verifica que las ID de los dispositivos conectados coincidan para asegurar que la conexión esté cifrada de extremo a extremo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per collegare un altro dispositivo che esegue Synctrain o Syncthing a questo dispositivo, scansiona il codice QR o copia e incolla l'ID del dispositivo qui sotto. Verifica che gli ID dei dispositivi di due dispositivi connessi corrispondano per garantire che la connessione sia crittografata end-to-end."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om een ander apparaat dat Synctrain of Syncthing gebruikt met dit apparaat te verbinden, scan de QR-code of kopieer en plak de apparaatcode die hieronder wordt weergegeven. Controleer of de apparaatcodes van twee verbonden apparaten overeenkomen om zeker te zijn van end-to-end encryptie."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Щоб підключити інший пристрій із Synctrain або Syncthing до цього пристрою, відскануйте QR-код або скопіюйте та вставте ідентифікатор пристрою нижче. Переконайтеся, що ідентифікатори двох підключених пристроїв співпадають, щоб забезпечити наскрізне шифрування з'єднання."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要将另一台运行 Synctrain 或 Syncthing 的设备连接到此设备，请扫描二维码或复制并粘贴下面的设备 ID。验证两个连接设备的设备 ID 是否匹配，以确保连接是端到端加密的。"
+          }
+        }
+      }
+    },
     "To folder" : {
       "localizations" : {
         "de" : {
