@@ -207,45 +207,64 @@ struct FolderStatusDescription {
 struct FolderStatusView: View {
 	@Environment(AppState.self) private var appState
 	var folder: SushitrainFolder
+	
+	@State private var statistics: SushitrainFolderStats? = nil
+	@State private var status: String? = nil
+	@State private var folderStatusDescription: FolderStatusDescription? = nil
 
 	var body: some View {
-		var error: NSError? = nil
-		let status = folder.state(&error)
-
-		if status == "syncing" && !folder.isSelective() {
-			if let statistics = try? folder.statistics(), statistics.global!.bytes > 0 {
-				let formatter = ByteCountFormatter()
-				if let globalBytes = statistics.global?.bytes, let localBytes = statistics.local?.bytes {
-					let remainingText = formatter.string(fromByteCount: (globalBytes - localBytes))
-
-					ProgressView(
-						value: Double(localBytes) / Double(globalBytes),
-						total: 1.0
-					) {
-						Label(
-							"Synchronizing...", systemImage: "bolt.horizontal.circle"
-						)
-						.foregroundStyle(.orange)
-						.badge(Text(remainingText))
-					}.tint(.orange)
+		ZStack {
+			if let status = status {
+				if status == "syncing" && !folder.isSelective() {
+					if let statistics = self.statistics, statistics.global!.bytes > 0 {
+						let formatter = ByteCountFormatter()
+						if let globalBytes = statistics.global?.bytes, let localBytes = statistics.local?.bytes {
+							let remainingText = formatter.string(fromByteCount: (globalBytes - localBytes))
+							
+							ProgressView(
+								value: Double(localBytes) / Double(globalBytes),
+								total: 1.0
+							) {
+								Label(
+									"Synchronizing...", systemImage: "bolt.horizontal.circle"
+								)
+								.foregroundStyle(.orange)
+								.badge(Text(remainingText))
+							}.tint(.orange)
+						}
+						else {
+							self.statusLabel()
+						}
+					}
+					else {
+						self.statusLabel()
+					}
 				}
 				else {
 					self.statusLabel()
 				}
+				
+				if let folderStatus = self.folderStatusDescription, let txt = folderStatus.additionalText {
+					Text(txt).foregroundStyle(.red)
+				}
 			}
-			else {
-				self.statusLabel()
+		}.task {
+			await Task.detached {
+				await self.update()
+			}.value
+		}
+		.onChange(of: appState.eventCounter) { _, _ in
+			Task.detached {
+				await self.update()
 			}
 		}
-		else {
-			self.statusLabel()
-		}
-
-		let folderStatus = FolderStatusDescription(folder)
-
-		if let txt = folderStatus.additionalText {
-			Text(txt).foregroundStyle(.red)
-		}
+	}
+	
+	private func update() async {
+		var error: NSError? = nil
+		self.status = folder.state(&error)
+		self.statistics = try? folder.statistics()
+		self.folderStatusDescription = FolderStatusDescription(folder)
 	}
 
 	@ViewBuilder private func statusLabel() -> some View {

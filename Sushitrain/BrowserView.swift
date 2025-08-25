@@ -116,7 +116,6 @@ struct BrowserView: View {
 						.accessibilityLabel(fsd.text)
 						.popover(isPresented: $showStatusPopover, arrowEdge: .bottom) {
 							FolderStatusView(folder: folder)
-								.id(appState.eventCounter)  // Update for each event
 								.padding()
 								.frame(minWidth: 120)
 						}
@@ -556,7 +555,6 @@ private struct BrowserItemsView: View {
 					HStack {
 						#if os(iOS)
 							FolderStatusView(folder: folder)
-								.id(appState.eventCounter)  // Update for each event
 								.padding(.all, 10)
 						#endif
 

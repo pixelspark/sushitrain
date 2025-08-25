@@ -140,22 +140,24 @@ private struct OverallDownloadProgressView: View {
 
 	@ViewBuilder private var speeds: some View {
 		// Download speed
-		if let (date, progress) = progress, let (lastDate, lastProgress) = self.lastProgress {
-			HStack {
+		HStack {
+			Spacer()
+			if let (date, progress) = progress, let (lastDate, lastProgress) = self.lastProgress {
 				let diffBytes = progress.bytesDone - lastProgress.bytesDone
 				let diffTime = date.timeIntervalSince(lastDate)
 				let speed = Int64(Double(diffBytes) / Double(diffTime))
 				let formatter = ByteCountFormatter()
 
 				if speed > 0 && diffTime > 0 {
-					Spacer()
 					Text("\(formatter.string(fromByteCount: speed))/s")
 						.foregroundStyle(.green)
-
 					let secondsToGo = Duration(
 						secondsComponent: (progress.bytesTotal - progress.bytesDone) / speed, attosecondsComponent: 0)
 					let secondsToGoFormatted: String = secondsToGo.formatted(.time(pattern: .hourMinuteSecond(padHourToLength: 0)))
 					Text(secondsToGoFormatted).foregroundStyle(.green)
+				}
+				else {
+					Text("(Transfer speed unknown)").foregroundStyle(.gray)
 				}
 			}
 		}

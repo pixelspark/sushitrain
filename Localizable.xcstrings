@@ -264,6 +264,46 @@
         }
       }
     },
+    "(Transfer speed unknown)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Übertragungsgeschwindigkeit unbekannt)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Velocidad de transferencia desconocida)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Velocità di trasferimento sconosciuta)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Overdrachtsnelheid onbekend)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Швидкість передачі невідома)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(传输速度未知)"
+          }
+        }
+      }
+    },
     "%@" : {
       "localizations" : {
         "de" : {

@@ -20,7 +20,6 @@ struct BrowserListView: View {
 		List {
 			Section {
 				FolderStatusView(folder: folder)
-					.id(appState.eventCounter)  // Update for each event
 
 				if hasExtraneousFiles {
 					NavigationLink(destination: { ExtraFilesView(folder: self.folder) }) {
