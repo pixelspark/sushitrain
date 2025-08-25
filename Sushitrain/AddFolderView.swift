@@ -117,9 +117,8 @@ struct AddFolderView: View {
 				if !possiblePeers.isEmpty {
 					Section(header: Text("Share with")) {
 						ForEach(self.possiblePeers, id: \.self.id) { (peer: SushitrainPeer) in
-							let isShared = sharedWith.contains(peer.deviceID())
 							let shared = Binding(
-								get: { return isShared },
+								get: { return sharedWith.contains(peer.deviceID()) },
 								set: { share in
 									if share {
 										sharedWith.insert(peer.deviceID())
@@ -239,7 +238,7 @@ struct AddFolderView: View {
 		self.possiblePeers = await appState.peers().sorted().filter({ d in !d.isSelf() })
 		self.pendingPeers = (try? appState.client.devicesPendingFolder(self.folderID))?.asArray() ?? []
 		if self.shareWithPendingPeersByDefault && sharedWith.isEmpty {
-			sharedWith = Set(pendingPeers)
+			sharedWith = Set(pendingPeers.filter { !(appState.client.peer(withID: $0)?.isUntrusted() ?? false) })
 		}
 	}
 
