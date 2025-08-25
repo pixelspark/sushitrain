@@ -285,6 +285,7 @@ struct StartView: View {
 	@State private var foldersWithIssues: [SushitrainFolder] = []
 	@State private var fixingInaccessibleExternalFolder: SushitrainFolder? = nil
 	@State private var isDiskSpaceSufficient = true
+	@State private var longTimeNotSeenDevices: [SushitrainPeer] = []
 
 	var body: some View {
 		Form {
@@ -398,7 +399,7 @@ struct StartView: View {
 			}
 		}
 	}
-	
+
 	@ViewBuilder private func gettingStartedFolders() -> some View {
 		Section("Getting started") {
 			VStack(alignment: .leading, spacing: 5) {
@@ -417,7 +418,7 @@ struct StartView: View {
 				})
 		}
 	}
-	
+
 	@ViewBuilder private func gettingStartedDevices() -> some View {
 		Section("Getting started") {
 			VStack(alignment: .leading, spacing: 5) {
@@ -431,9 +432,9 @@ struct StartView: View {
 			}
 		}
 	}
-	
+
 	@ViewBuilder private func deviceIssuesSection() -> some View {
-		if showNoPeersEnabledWarning {
+		if showNoPeersEnabledWarning || !longTimeNotSeenDevices.isEmpty {
 			Section("Devices that need your attention") {
 				// All devices are disabled
 				if showNoPeersEnabledWarning {
@@ -457,11 +458,26 @@ struct StartView: View {
 						}
 					}
 				}
+
+				// Devices not seen for a while
+				if !longTimeNotSeenDevices.isEmpty {
+					ForEach(longTimeNotSeenDevices, id: \.id) { device in
+						if let lastSeen = device.lastSeen()?.date() {
+							NavigationLink(destination: DeviceView(device: device)) {
+								Label(
+									"Device '\(device.displayName)' has not connected since \(lastSeen.formatted())",
+									systemImage: "exclamationmark.triangle.fill"
+								)
+								.foregroundStyle(.orange)
+							}
+						}
+					}
+				}
 			}
 		}
 	}
-	
-	 @ViewBuilder private func folderIssuesSection() -> some View {
+
+	@ViewBuilder private func folderIssuesSection() -> some View {
 		if !appState.foldersWithExtraFiles.isEmpty || !foldersWithIssues.isEmpty || !inaccessibleExternalFolders.isEmpty {
 			Section("Folders that need your attention") {
 				// External folders that have become inaccessible
@@ -521,6 +537,12 @@ struct StartView: View {
 		let p = await self.appState.peers()
 		self.peers = p
 		self.folders = await self.appState.folders().sorted()
+		self.longTimeNotSeenDevices = p.filter {
+			if let d = $0.lastSeen()?.date() {
+				return -d.timeIntervalSinceNow > appState.userSettings.longTimeNoSeeInterval
+			}
+			return false
+		}
 
 		isDiskSpaceSufficient = appState.client.isDiskSpaceSufficient()
 

@@ -54,7 +54,10 @@ extension SushitrainPeer {
 }
 
 extension SushitrainDate {
-	public func date() -> Date {
+	public func date() -> Date? {
+		if self.unixMilliseconds() == 0 {
+			return nil
+		}
 		return Date(timeIntervalSince1970: Double(self.unixMilliseconds()) / 1000.0)
 	}
 }
@@ -1057,7 +1060,7 @@ struct EntryComparator: SortComparator {
 			case .size:
 				return .orderedSame  // Directories all have zero size
 			case .lastModifiedDate:
-				let r = compareDates(lhs.modifiedAt()?.date(), rhs.modifiedAt()?.date())
+				let r = compareDates(lhs.modifiedAt()?.date() ?? Date.distantPast, rhs.modifiedAt()?.date() ?? Date.distantPast)
 				return order == .forward ? r : r.flipped
 			case .name:
 				return order == .forward

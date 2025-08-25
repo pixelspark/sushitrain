@@ -454,11 +454,11 @@ enum PhotoSyncProgress {
 					if let entry = try? folder.getFileInformation(inFolderPath.pathInFolder) {
 						// If purging is enabled, check if we should remove the photo from the source
 						if purgeEnabled {
-							if let mTime = entry.modifiedAt(), mTime.date() < purgeCutoffDate {
+							if let mTime = entry.modifiedAt()?.date(), mTime < purgeCutoffDate {
 								let lastModifiedByShortDeviceID = entry.modifiedByShortDeviceID()
 								if lastModifiedByShortDeviceID == myShortDeviceID {
 									// The photo is already saved and was last modified by this device; we can delete from source
-									Log.info("Purge entry: \(inFolderPath) \(mTime.date()) \(lastModifiedByShortDeviceID)")
+									Log.info("Purge entry: \(inFolderPath) \(mTime) \(lastModifiedByShortDeviceID)")
 									originalsToPurge.append(asset)
 								}
 								else {

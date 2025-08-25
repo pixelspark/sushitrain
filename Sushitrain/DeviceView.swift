@@ -69,8 +69,8 @@ struct DeviceView: View {
 					}
 					else {
 						Label("Not connected", systemImage: "xmark.circle")
-						if let lastSeen = device.lastSeen(), !lastSeen.isZero() {
-							Text("Last seen").badge(Text(lastSeen.date().formatted()))
+						if let lastSeen = device.lastSeen()?.date() {
+							Text("Last seen").badge(Text(lastSeen.formatted()))
 						}
 					}
 				}

@@ -29,10 +29,6 @@ type Date struct {
 	time time.Time
 }
 
-func (date *Date) IsZero() bool {
-	return date.time.IsZero()
-}
-
 func (date *Date) UnixMilliseconds() int64 {
 	return date.time.UnixMilli()
 }

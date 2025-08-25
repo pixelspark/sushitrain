@@ -7832,6 +7832,52 @@
         }
       }
     },
+    "Device '%@' has not connected since %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerät '%@' hat sich seit %@ nicht mehr verbunden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Device '%1$@' has not connected since %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El dispositivo '%@' no se ha conectado desde %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il dispositivo '%@' non si è collegato da %@"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apparaat '%@' heeft sinds %@ geen verbinding meer gemaakt"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пристрій «%@» не підключався з %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设备“%@”自%@起未连接"
+          }
+        }
+      }
+    },
     "Device addresses" : {
       "localizations" : {
         "de" : {

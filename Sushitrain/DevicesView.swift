@@ -362,7 +362,9 @@ struct LatencyView: View {
 									TableColumn("Last seen") { (row: DevicesGridRow) in
 										switch row {
 										case .connectedDevice(let device):
-											if let lastSeen = device.lastSeen(), !lastSeen.isZero() { Text(lastSeen.date().formatted()) }
+											if let lastSeen = device.lastSeen()?.date() {
+												Text(lastSeen.formatted())
+											}
 										case .discoveredDevice(_): EmptyView()
 										}
 									}.width(min: 100, ideal: 150).defaultVisibility(.hidden).customizationID("lastSeen")

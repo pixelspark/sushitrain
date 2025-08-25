@@ -81,6 +81,9 @@ class SushitrainDelegate: NSObject {
 	@AppStorage("migratedToV2At") var migratedToV2At: Double = 0.0
 	@AppStorage("userPausedDevices") var userPausedDevices = Set<String>()
 
+	// Number of seconds after which we remind the user that a device hasn't connected in a while
+	@AppStorage("longTimeNoSeeInterval") var longTimeNoSeeInterval = 86400.0 * 2.0  // two days
+
 	// Whether to ignore certain files by default when scanning for extraneous files (i.e. .DS_Store)
 	@AppStorage("ignoreExtraneousDefaultFiles") var ignoreExtraneousDefaultFiles: Bool = true
 

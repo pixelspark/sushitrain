@@ -44,7 +44,7 @@ struct ChangesView: View {
 				}.customizationID("file")
 
 				TableColumn("Changed at") { change in
-					if let dateString = change.change.time?.date().formatted() {
+					if let dateString = change.change.time?.date()?.formatted() {
 						Text(dateString)
 					}
 				}.width(ideal: 100).customizationID("date")
@@ -138,7 +138,7 @@ struct ChangesView: View {
 					.multilineTextAlignment(.leading)
 					.bold()
 
-				if let dateString = change.time?.date().formatted() {
+				if let dateString = change.time?.date()?.formatted() {
 					Text(dateString).dynamicTypeSize(.small)
 						.foregroundColor(.gray)
 				}
