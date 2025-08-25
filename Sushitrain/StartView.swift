@@ -540,6 +540,10 @@ struct StartView: View {
 		self.peers = p
 		self.folders = await self.appState.folders().sorted()
 		self.longTimeNotSeenDevices = p.filter {
+			if $0.isPaused() {
+				return false
+			}
+			
 			if let d = $0.lastSeen()?.date() {
 				return -d.timeIntervalSinceNow > appState.userSettings.longTimeNoSeeInterval
 			}
