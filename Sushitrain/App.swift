@@ -192,6 +192,16 @@ struct SushitrainApp: App {
 					Toggle("Hide dotfiles", isOn: appState.userSettings.$dotFilesHidden)
 				}
 
+				CommandGroup(replacing: CommandGroupPlacement.help) {
+					Button(
+						action: {
+							openWindow(id: "support")
+						},
+						label: {
+							Text("Questions, support & feedback...")
+						})
+				}
+
 				CommandGroup(replacing: CommandGroupPlacement.appInfo) {
 					Button(
 						action: {
@@ -228,6 +238,14 @@ struct SushitrainApp: App {
 			// About window
 			Window("About Synctrain", id: "about") {
 				AboutView().environment(appState)
+			}
+			.windowResizability(.contentSize)
+
+			// Support window
+			Window("Questions, support & feedback", id: "support") {
+				NavigationStack {
+					SupportView()
+				}.environment(appState)
 			}
 			.windowResizability(.contentSize)
 

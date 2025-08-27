@@ -63,6 +63,7 @@
 		65F15BFD2CA03DCE00E13DDD /* SushitrainCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65AE125A2C3AB03E00E721D4 /* SushitrainCore.xcframework */; };
 		65F15C012CA06B2300E13DDD /* UploadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F15C002CA06B2100E13DDD /* UploadsView.swift */; };
 		65F15C032CA1F85E00E13DDD /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F15C022CA1F85D00E13DDD /* SafariView.swift */; };
+		65F7EFF72E5F58B8008A64E0 /* SupportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F7EFF62E5F58B5008A64E0 /* SupportView.swift */; };
 		65F825EC2CAF1E0900564F57 /* AddressesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F825EB2CAF1E0600564F57 /* AddressesView.swift */; };
 /* End PBXBuildFile section */
 
@@ -150,6 +151,7 @@
 		65F15BFB2CA03CBA00E13DDD /* BackgroundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundManager.swift; sourceTree = "<group>"; };
 		65F15C002CA06B2100E13DDD /* UploadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadsView.swift; sourceTree = "<group>"; };
 		65F15C022CA1F85D00E13DDD /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
+		65F7EFF62E5F58B5008A64E0 /* SupportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportView.swift; sourceTree = "<group>"; };
 		65F825EB2CAF1E0600564F57 /* AddressesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressesView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -237,6 +239,7 @@
 				653359C82D8EAF3A005CCA43 /* Settings.bundle */,
 				652763BA2C45C99200250D3C /* SettingsView.swift */,
 				65C9E14B2C3F341F00EDCE6C /* StartView.swift */,
+				65F7EFF62E5F58B5008A64E0 /* SupportView.swift */,
 				65C9E1462C3DB67C00EDCE6C /* Sushitrain.entitlements */,
 				65A3D2212CCEEEA200117501 /* ThumbnailImage.swift */,
 				6505643E2CA98D1F009FFFB9 /* ThumbnailView.swift */,
@@ -387,6 +390,7 @@
 				6510F19E2DAA52CF003E4D3C /* FolderSettings.swift in Sources */,
 				6596E2422E04ABD70069B31C /* DownloadsView.swift in Sources */,
 				6505643F2CA98D22009FFFB9 /* ThumbnailView.swift in Sources */,
+				65F7EFF72E5F58B8008A64E0 /* SupportView.swift in Sources */,
 				6551053C2D7D8F8E00F96814 /* BrowserListView.swift in Sources */,
 				6550DFE82D6A645300D8DCC9 /* EncryptionView.swift in Sources */,
 				654A7E602DF5966C008DF794 /* BrowserWebView.swift in Sources */,

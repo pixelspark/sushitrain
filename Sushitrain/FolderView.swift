@@ -207,7 +207,7 @@ struct FolderStatusDescription {
 struct FolderStatusView: View {
 	@Environment(AppState.self) private var appState
 	var folder: SushitrainFolder
-	
+
 	@State private var statistics: SushitrainFolderStats? = nil
 	@State private var status: String? = nil
 	@State private var folderStatusDescription: FolderStatusDescription? = nil
@@ -220,7 +220,7 @@ struct FolderStatusView: View {
 						let formatter = ByteCountFormatter()
 						if let globalBytes = statistics.global?.bytes, let localBytes = statistics.local?.bytes {
 							let remainingText = formatter.string(fromByteCount: (globalBytes - localBytes))
-							
+
 							ProgressView(
 								value: Double(localBytes) / Double(globalBytes),
 								total: 1.0
@@ -243,7 +243,7 @@ struct FolderStatusView: View {
 				else {
 					self.statusLabel()
 				}
-				
+
 				if let folderStatus = self.folderStatusDescription, let txt = folderStatus.additionalText {
 					Text(txt).foregroundStyle(.red)
 				}
@@ -259,7 +259,7 @@ struct FolderStatusView: View {
 			}
 		}
 	}
-	
+
 	private func update() async {
 		var error: NSError? = nil
 		self.status = folder.state(&error)

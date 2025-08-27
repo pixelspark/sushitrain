@@ -205,101 +205,6 @@ struct TotalStatisticsView: View {
 	}
 #endif
 
-private struct DatabaseMaintenanceView: View {
-	@Environment(AppState.self) private var appState
-	@State private var hasMigratedLegacyDatabase = false
-	@State private var hasLegacyDatabase = false
-	@State private var performingDatabaseMaintenance = false
-
-	var body: some View {
-		Form {
-			Section {
-				LabeledContent("Database type") {
-					if hasLegacyDatabase {
-						// This shouldn't happen because either the migration fails or the app runs, but if it does happen
-						// we want to know (and therefore indicate it in the UI).
-						Text("v1").foregroundStyle(.red)
-					}
-					else {
-						Text("v2")
-					}
-				}
-
-				if appState.userSettings.migratedToV2At > 0.0 {
-					LabeledContent("Upgraded at") {
-						Text(
-							Date(timeIntervalSinceReferenceDate: appState.userSettings.migratedToV2At).formatted(
-								date: .abbreviated, time: .shortened))
-					}
-				}
-			}
-
-			if hasLegacyDatabase {
-				Section {
-					Button("Restart app to remove v1 database") {
-						UserDefaults.standard.set(true, forKey: "clearV1Index")
-						exit(0)
-					}
-					#if os(macOS)
-						.buttonStyle(.link)
-					#endif
-				} footer: {
-					Text(
-						"A legacy database is still present. If the app is functioning correctly, it is safe to manually delete this database. In order to do this, the app needs to be restarted."
-					)
-				}.disabled(performingDatabaseMaintenance)
-			}
-
-			if hasMigratedLegacyDatabase {
-				Section {
-					Button("Remove v1 database back-up") {
-						self.clearMigratedLegacyDatabase()
-					}
-					#if os(macOS)
-						.buttonStyle(.link)
-					#endif
-				} footer: {
-					Text(
-						"After a database upgrade, a copy of the old version is retained for a while. This copy may take up a significant amount of storage space. If everything is working as expected, it is safe to remove this back-up."
-					)
-				}.disabled(performingDatabaseMaintenance)
-			}
-		}
-		#if os(macOS)
-			.formStyle(.grouped)
-		#endif
-		.task {
-			self.updateDatabaseInfo()
-		}
-		.navigationTitle("Database maintenance")
-		#if os(iOS)
-			.navigationBarTitleDisplayMode(.inline)
-		#endif
-	}
-
-	private func updateDatabaseInfo() {
-		self.hasLegacyDatabase = appState.client.hasLegacyDatabase()
-		self.hasMigratedLegacyDatabase = appState.client.hasMigratedLegacyDatabase()
-	}
-
-	private func clearMigratedLegacyDatabase() {
-		if self.performingDatabaseMaintenance {
-			return
-		}
-		Task {
-			self.performingDatabaseMaintenance = true
-			do {
-				try appState.client.clearMigratedLegacyDatabase()
-			}
-			catch {
-				print("Cannot clear migrated V1 index: \(error.localizedDescription)")
-			}
-			self.updateDatabaseInfo()
-			self.performingDatabaseMaintenance = false
-		}
-	}
-}
-
 struct AdvancedSettingsView: View {
 	@Environment(AppState.self) private var appState
 	@ObservedObject var userSettings: AppUserSettings
@@ -312,7 +217,7 @@ struct AdvancedSettingsView: View {
 
 	#if os(macOS)
 		@State private var showConfigurationSettings = false
-		@State private var showDatabaseMaintenance = false
+		@State private var showTroubleshooting = false
 	#endif
 
 	var body: some View {
@@ -542,35 +447,6 @@ struct AdvancedSettingsView: View {
 				self.cacheText
 			}
 
-			Section {
-				Toggle("Enable debug logging", isOn: userSettings.$loggingToFileEnabled)
-			} header: {
-				Text("Logging")
-			} footer: {
-				if appState.userSettings.loggingToFileEnabled {
-					if appState.isLoggingToFile {
-						Text(
-							"The app is logging to a file in the application folder, which you can share with the developers."
-						)
-					}
-					else {
-						Text(
-							"After restarting the app, the app will write a log file in the application folder, which you can then share with the developers."
-						)
-					}
-				}
-				else {
-					if appState.isLoggingToFile {
-						Text("Restart the app to stop logging.")
-					}
-					else {
-						Text(
-							"Logging slows down the app and uses more battery. Only enable it if you are experiencing problems."
-						)
-					}
-				}
-			}
-
 			#if os(iOS)
 				Section {
 					ExportButtonView()
@@ -585,19 +461,19 @@ struct AdvancedSettingsView: View {
 
 			#if os(macOS)
 				Section {
-					Button("Database maintenance") {
-						self.showDatabaseMaintenance = true
+					Button("Troubleshooting") {
+						self.showTroubleshooting = true
 					}
 				}.buttonStyle(.link)
-					.sheet(isPresented: $showDatabaseMaintenance) {
+					.sheet(isPresented: $showTroubleshooting) {
 						NavigationStack {
-							DatabaseMaintenanceView()
+							TroubleshootingView(userSettings: userSettings)
 								.toolbar(content: {
 									ToolbarItem(
 										placement: .confirmationAction,
 										content: {
 											Button("Close") {
-												showDatabaseMaintenance = false
+												showTroubleshooting = false
 											}
 										})
 								})
@@ -622,8 +498,8 @@ struct AdvancedSettingsView: View {
 							})
 					}
 			#else
-				NavigationLink(destination: DatabaseMaintenanceView()) {
-					Text("Database maintenance")
+				NavigationLink(destination: TroubleshootingView(userSettings: userSettings)) {
+					Label("Troubleshooting", systemImage: "book.and.wrench")
 				}
 			#endif
 		}
@@ -1130,8 +1006,14 @@ private struct BandwidthSettingsView: View {
 				}
 
 				Section {
-					NavigationLink("About this app") {
-						AboutView()
+					#if os(iOS)
+						NavigationLink(destination: SupportView()) {
+							Label("Questions, support & feedback", systemImage: "lifepreserver")
+						}
+					#endif
+
+					NavigationLink(destination: AboutView()) {
+						Label("About this app", systemImage: "info.circle")
 					}
 				}
 			}

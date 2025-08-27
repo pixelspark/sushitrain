@@ -543,7 +543,7 @@ struct StartView: View {
 			if $0.isPaused() {
 				return false
 			}
-			
+
 			if let d = $0.lastSeen()?.date() {
 				return -d.timeIntervalSinceNow > appState.userSettings.longTimeNoSeeInterval
 			}

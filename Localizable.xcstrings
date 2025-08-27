@@ -4412,6 +4412,46 @@
         }
       }
     },
+    "Back" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zurück"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atrás"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indietro"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terug"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Назад"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "返回"
+          }
+        }
+      }
+    },
     "Back-up new photos" : {
       "localizations" : {
         "de" : {
@@ -12291,6 +12331,7 @@
       }
     },
     "Frequently asked questions" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -13936,6 +13977,46 @@
         }
       }
     },
+    "If you have a question about Synctrain or are experiencing issues, you may find a solution on our 'frequently asked questions' page." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn Sie eine Frage zu Synctrain haben oder auf Probleme stoßen, finden Sie möglicherweise eine Lösung auf unserer Seite \"Häufig gestellte Fragen\"."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si tienes alguna pregunta sobre Synctrain o estás experimentando problemas, puedes encontrar una solución en nuestra página de 'preguntas frecuentes'."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se hai domande su Synctrain o stai riscontrando problemi, potresti trovare una soluzione nella nostra pagina \"domande frequenti\"."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als je een vraag hebt over Synctrain of problemen ondervindt, kun je mogelijk een oplossing vinden op onze pagina 'veelgestelde vragen'."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Якщо у вас є питання про Synctrain або виникають проблеми, ви можете знайти рішення на нашій сторінці 'часті запитання'."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如果您对Synctrain有疑问或遇到问题，可以在我们的“常见问题”页面找到解决方案。"
+          }
+        }
+      }
+    },
     "If you leave the password empty, files will not be encrypted on the other device, and therefore can be read by anyone who has access to the other device. If you set an encryption password, ensure that all devices that synchronize the same folder with the other device are using the same password." : {
       "localizations" : {
         "de" : {
@@ -13972,6 +14053,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "如果您将密码留空，文件在另一台设备上将不会被加密，因此任何有权访问另一台设备的人都可以读取这些文件。如果您设置加密密码，请确保所有与另一台设备同步相同文件夹的设备均使用相同的密码。"
+          }
+        }
+      }
+    },
+    "If your issue remains unresolved, you may invoke the help of our community through our discussions page. Remember that this app is free software. While we do care deeply about your feedback and want to ensure the app is working correctly, we do not have the resources to provide support with your specific issue or usage of Synctrain. You can greatly increase the chance of fixing your issue by providing detailed descriptions of your issue, your configuration and usage, and what you already did to try and resolve the issue yourself. Please provide as much information as possible, including relevant settings, screenshots and error messages." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn Ihr Problem weiterhin ungelöst bleibt, können Sie die Hilfe unserer Community über unsere Diskussionsseite in Anspruch nehmen. Denken Sie daran, dass diese App kostenlose Software ist. Obwohl uns Ihr Feedback sehr am Herzen liegt und wir sicherstellen möchten, dass die App korrekt funktioniert, haben wir nicht die Ressourcen, um Unterstützung bei Ihrem spezifischen Problem oder der Nutzung von Synctrain zu leisten. Sie können die Chance, Ihr Problem zu beheben, erheblich erhöhen, indem Sie eine detaillierte Beschreibung Ihres Problems, Ihrer Konfiguration und Nutzung sowie Ihrer bisherigen Versuche zur Problemlösung bereitstellen. Bitte geben Sie so viele Informationen wie möglich an, einschließlich relevanter Einstellungen, Screenshots und Fehlermeldungen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si su problema sigue sin resolverse, puede solicitar la ayuda de nuestra comunidad a través de nuestra página de discusión. Recuerde que esta aplicación es software gratuito. Aunque nos importa mucho su opinión y queremos asegurarnos de que la aplicación funcione correctamente, no tenemos los recursos para proporcionar soporte para su problema específico o uso de Synctrain. Puede aumentar considerablemente las posibilidades de solucionar su problema proporcionando descripciones detalladas de su problema, configuración y uso, y lo que ya ha hecho para intentar resolver el problema usted mismo. Por favor, proporcione tanta información como sea posible, incluidas configuraciones relevantes, capturas de pantalla y mensajes de error."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se il tuo problema rimane irrisolto, puoi chiedere aiuto alla nostra comunità tramite la pagina di discussione. Ricorda che questa app è software gratuito. Anche se ci teniamo molto ai tuoi feedback e vogliamo assicurarci che l'app funzioni correttamente, non abbiamo le risorse per fornire supporto per il tuo problema specifico o per l'uso di Synctrain. Puoi aumentare notevolmente le possibilità di risolvere il tuo problema fornendo descrizioni dettagliate del tuo problema, della tua configurazione e del tuo utilizzo e di ciò che hai già fatto per cercare di risolverlo da solo. Fornisci quante più informazioni possibili, incluse impostazioni rilevanti, screenshot e messaggi di errore."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als uw probleem onopgelost blijft, kunt u de hulp van onze gemeenschap inroepen via onze discussiepagina. Vergeet niet dat deze app gratis software is. Hoewel we veel belang hechten aan uw feedback en ervoor willen zorgen dat de app correct werkt, hebben we niet de middelen om ondersteuning te bieden bij uw specifieke probleem of het gebruik van Synctrain. U kunt de kans op het oplossen van uw probleem aanzienlijk vergroten door gedetailleerde beschrijvingen te geven van uw probleem, uw configuratie en gebruik, en wat u al heeft gedaan om het probleem zelf op te lossen. Geef alstublieft zoveel mogelijk informatie, inclusief relevante instellingen, schermafbeeldingen en foutmeldingen."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Якщо ваша проблема залишається невирішеною, ви можете звернутися за допомогою до нашої спільноти через нашу сторінку обговорень. Пам'ятайте, що цей додаток є безкоштовним програмним забезпеченням. Хоча нам дуже важливий ваш зворотний зв'язок і ми хочемо забезпечити правильну роботу додатка, у нас немає ресурсів для надання підтримки з вашою конкретною проблемою чи використанням Synctrain. Ви можете значно підвищити шанс вирішення вашої проблеми, надавши детальний опис вашої проблеми, вашої конфігурації та використання, а також вказати, що ви вже зробили, щоб спробувати вирішити проблему самостійно. Будь ласка, надайте якомога більше інформації, включаючи відповідні налаштування, скріншоти та повідомлення про помилки."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如果您的问题仍未解决，您可以通过讨论页面寻求我们社区的帮助。请记住，这款应用是免费软件。虽然我们非常重视您的反馈并希望确保应用程序正常运行，但我们没有资源为您在使用 Synctrain 时遇到的具体问题提供支持。通过提供有关问题、配置和使用的详细描述，以及您为尝试自行解决问题所做的努力，可以大大提高解决问题的机会。请尽量提供尽可能多的信息，包括相关设置、截图和错误消息。"
           }
         }
       }
@@ -18394,6 +18515,46 @@
         }
       }
     },
+    "Propose an idea" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schlagen Sie eine Idee vor"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Propón una idea"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proponi un'idea"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stel een idee voor"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запропонуйте ідею"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提出一个想法"
+          }
+        }
+      }
+    },
     "Public URL" : {
       "localizations" : {
         "de" : {
@@ -18430,6 +18591,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "公共 URL"
+          }
+        }
+      }
+    },
+    "Questions, support & feedback" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fragen, Unterstützung & Feedback"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preguntas, soporte y comentarios"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Domande, supporto e feedback"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vragen, ondersteuning & feedback"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Питання, підтримка та відгуки"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "问题、支持和反馈"
+          }
+        }
+      }
+    },
+    "Questions, support & feedback..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fragen, Unterstützung & Feedback..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preguntas, soporte y comentarios..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Domande, supporto & feedback..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vragen, ondersteuning & feedback..."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запитання, підтримка та відгуки..."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "问题、支持与反馈..."
           }
         }
       }
@@ -24596,6 +24837,46 @@
         }
       }
     },
+    "Synctrain is based on Syncthing. If you have any questions about Syncthing itself, or are experiencing issues with devices running other versions of Syncthing, you may find helpful answers and discussions on the Syncthing forum." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain basiert auf Syncthing. Wenn Sie Fragen zu Syncthing selbst haben oder Probleme mit Geräten auftreten, die andere Versionen von Syncthing verwenden, finden Sie möglicherweise hilfreiche Antworten und Diskussionen im Syncthing-Forum."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain se basa en Syncthing. Si tienes alguna pregunta sobre Syncthing en sí, o estás experimentando problemas con dispositivos que ejecutan otras versiones de Syncthing, puedes encontrar respuestas útiles y discusiones en el foro de Syncthing."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain si basa su Syncthing. Se hai domande su Syncthing stesso o riscontri problemi con dispositivi che eseguono altre versioni di Syncthing, potresti trovare risposte e discussioni utili nel forum di Syncthing."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain is gebaseerd op Syncthing. Als je vragen hebt over Syncthing zelf, of problemen ondervindt met apparaten die andere versies van Syncthing gebruiken, kun je mogelijk nuttige antwoorden en discussies vinden op het Syncthing-forum."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain базується на Syncthing. Якщо у вас є запитання про сам Syncthing або ви стикаєтеся з проблемами на пристроях, що використовують інші версії Syncthing, ви можете знайти корисні відповіді та обговорення на форумі Syncthing."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain 基于 Syncthing。如果您对 Syncthing 本身有任何疑问，或在运行其他版本 Syncthing 的设备上遇到问题，您可以在 Syncthing 论坛上找到有用的答案和讨论。"
+          }
+        }
+      }
+    },
     "System files" : {
       "localizations" : {
         "de" : {
@@ -27808,6 +28089,46 @@
         }
       }
     },
+    "To diagnose any issue you may be experiencing, you may want to make use of the troubleshooting options provided in this app." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um eventuelle Probleme zu diagnostizieren, die Sie möglicherweise haben, können Sie die in dieser App bereitgestellten Fehlerbehebungsoptionen nutzen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para diagnosticar cualquier problema que puedas estar experimentando, puedes querer hacer uso de las opciones de resolución de problemas proporcionadas en esta app."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per diagnosticare qualsiasi problema che potresti riscontrare, potresti voler utilizzare le opzioni di risoluzione dei problemi fornite in questa app."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om problemen die u ondervindt te diagnosticeren, kunt u gebruik maken van de probleemoplossingsopties die in deze app worden aangeboden."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Щоб діагностувати будь-які проблеми, які ви можете відчувати, ви можете скористатися варіантами усунення неполадок, наданими в цьому додатку."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要诊断您可能遇到的任何问题，您可以利用此应用中提供的故障排除选项。"
+          }
+        }
+      }
+    },
     "To folder" : {
       "localizations" : {
         "de" : {
@@ -28164,6 +28485,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "文件总数"
+          }
+        }
+      }
+    },
+    "Troubleshooting" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fehlerbehebung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solución de problemas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risoluzione dei problemi"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Probleemoplossing"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Усунення несправностей"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "故障排除"
+          }
+        }
+      }
+    },
+    "Troubleshooting options" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fehlerbehebungsoptionen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opciones de solución de problemas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opzioni per la risoluzione dei problemi"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Probleemoplossingsopties"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Параметри усунення несправностей"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "故障排除选项"
           }
         }
       }
@@ -29328,6 +29729,46 @@
         }
       }
     },
+    "View frequently asked questions" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Häufig gestellte Fragen anzeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver preguntas frecuentes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visualizza le domande frequenti"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veelgestelde vragen bekijken"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переглянути поширені запитання"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看常见问题"
+          }
+        }
+      }
+    },
     "View settings" : {
       "localizations" : {
         "de" : {
@@ -29404,6 +29845,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "可见性"
+          }
+        }
+      }
+    },
+    "Visit the Syncthing forum" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Besuchen Sie das Syncthing-Forum"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visita el foro de Syncthing"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visita il forum di Syncthing"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bezoek het Syncthing-forum"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відвідайте форум Syncthing"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "访问Syncthing论坛"
           }
         }
       }
