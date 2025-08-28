@@ -1514,10 +1514,12 @@ func (c *Client) GenerateSupportBundle() ([]byte, error) {
 	infoJson["hasMigratedLegacyDatabase"] = c.HasMigratedLegacyDatabase()
 	infoJson["connectedPeerCount"] = c.ConnectedPeerCount()
 	infoJson["bundleGeneratedAt"] = time.Now().Format(time.RFC3339)
-	jsonData, err := json.Marshal(infoJson)
+	infoJson["redactedConfig"] = c.getRedactedConfigFile()
+	jsonData, err := json.MarshalIndent(infoJson, "", "\t")
 	if err != nil {
 		return nil, err
 	}
+	jsonData = []byte(redactLogLine(string(jsonData)))
 	jsonWriter, err := zipWriter.Create("info.json")
 	if err != nil {
 		return nil, err
@@ -1540,6 +1542,18 @@ func (c *Client) GenerateSupportBundle() ([]byte, error) {
 		return nil, err
 	}
 	return archive.Bytes(), nil
+}
+
+func (c *Client) getRedactedConfigFile() config.Configuration {
+	rawConf := c.config.RawCopy()
+	rawConf.GUI.APIKey = "•••"
+	if rawConf.GUI.Password != "" {
+		rawConf.GUI.Password = "•••"
+	}
+	if rawConf.GUI.User != "" {
+		rawConf.GUI.User = "•••"
+	}
+	return rawConf
 }
 
 /** Returns the free disk space on the volume where the database is stored */
