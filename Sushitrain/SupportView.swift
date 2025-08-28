@@ -8,6 +8,7 @@ import SwiftUI
 
 struct SupportView: View {
 	@Environment(AppState.self) private var appState
+	@State private var supportBundle: URL? = nil
 
 	var body: some View {
 		Form {
@@ -45,6 +46,16 @@ struct SupportView: View {
 				NavigationLink(destination: TroubleshootingView(userSettings: appState.userSettings)) {
 					Label("Troubleshooting options", systemImage: "book.and.wrench")
 				}
+
+				if let s = supportBundle {
+					ShareLink(item: s, subject: Text("Support bundle"), message: Text("Support bundle"), preview: self.sharePreview())
+					{
+						Label("Share information bundle for support", systemImage: "text.page.badge.magnifyingglass")
+					}
+					#if os(macOS)
+						.buttonStyle(.link)
+					#endif
+				}
 			}
 
 			Section {
@@ -62,6 +73,41 @@ struct SupportView: View {
 			.formStyle(.grouped)
 		#endif
 		.navigationTitle("Questions, support & feedback")
+		#if os(iOS)
+			.navigationBarTitleDisplayMode(.inline)
+		#endif
+		.task {
+			Task.detached {
+				await self.generateSupportBundle()
+			}
+		}
+		.onDisappear {
+			if let s = self.supportBundle {
+				try? FileManager.default.removeItem(at: s)
+			}
+		}
+	}
+
+	private func generateSupportBundle() async {
+		if self.supportBundle == nil {
+			do {
+				let data = try self.appState.client.generateSupportBundle()
+				let tempDir = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+				let tempPath = tempDir.appending(
+					component: "Synctrain-support-bundle-\(ProcessInfo().globallyUniqueString).zip")
+				try data.write(to: tempPath)
+				DispatchQueue.main.async {
+					self.supportBundle = tempPath
+				}
+			}
+			catch {
+				Log.warn("cannot write support bundle: \(error.localizedDescription)")
+			}
+		}
+	}
+
+	private func sharePreview() -> SharePreview<Never, Never> {
+		return SharePreview("Support bundle")
 	}
 }
 

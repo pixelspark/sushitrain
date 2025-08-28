@@ -6,7 +6,9 @@
 package sushitrain
 
 import (
+	"archive/zip"
 	"bufio"
+	"bytes"
 	"context"
 	"crypto/tls"
 	"encoding/json"
@@ -14,12 +16,12 @@ import (
 	"fmt"
 	"io"
 	"iter"
-	"log"
 	"log/slog"
 	"math"
 	"net/url"
 	"os"
 	"path"
+	"runtime/pprof"
 	"slices"
 	"strings"
 	"sync"
@@ -58,6 +60,7 @@ type Client struct {
 	mutex                    sync.Mutex
 	extraneousIgnored        []string
 	Measurements             *Measurements
+	logHandler               *logHandler
 }
 
 type Change struct {
@@ -136,7 +139,8 @@ func NewClient(configPath string, filesPath string, saveLog bool) *Client {
 	} else if saveLog {
 		minLevel = slog.LevelInfo
 	}
-	slog.SetDefault(slog.New(newLogHandler(logOutWriter, minLevel)))
+	logHandler := newLogHandler(logOutWriter, minLevel)
+	slog.SetDefault(slog.New(logHandler))
 
 	// Set up default locations
 	locations.SetBaseDir(locations.DataBaseDir, configPath)
@@ -194,6 +198,7 @@ func NewClient(configPath string, filesPath string, saveLog bool) *Client {
 		ResolvedListenAddresses:    make(map[string][]string),
 		extraneousIgnored:          make([]string, 0),
 		Measurements:               nil,
+		logHandler:                 logHandler,
 	}
 }
 
@@ -1482,6 +1487,61 @@ func (c *Client) ClearDatabase() error {
 	return os.RemoveAll(dbPath)
 }
 
+func (c *Client) GenerateSupportBundle() ([]byte, error) {
+	archive := new(bytes.Buffer)
+
+	zipWriter := zip.NewWriter(archive)
+	defer zipWriter.Close() // We might close twice but that's alright
+
+	// Write log tail
+	logTailFileWriter, err := zipWriter.Create("log-tail.txt")
+	if err != nil {
+		return nil, err
+	}
+
+	if err := c.logHandler.tail.write(logTailFileWriter, true); err != nil {
+		return nil, err
+	}
+
+	// Write a general info JSON
+	infoJson := make(map[string]any)
+	infoJson["version"] = build.Version
+	infoJson["shortDeviceID"] = c.ShortDeviceID()
+	infoJson["isUsingCustomConfiguration"] = c.IsUsingCustomConfiguration
+	infoJson["isIgnoringEvents"] = c.IgnoreEvents
+	infoJson["extraneousIGnored"] = c.extraneousIgnored
+	infoJson["hasLegacyDatabase"] = c.HasLegacyDatabase()
+	infoJson["hasMigratedLegacyDatabase"] = c.HasMigratedLegacyDatabase()
+	infoJson["connectedPeerCount"] = c.ConnectedPeerCount()
+	infoJson["bundleGeneratedAt"] = time.Now().Format(time.RFC3339)
+	jsonData, err := json.Marshal(infoJson)
+	if err != nil {
+		return nil, err
+	}
+	jsonWriter, err := zipWriter.Create("info.json")
+	if err != nil {
+		return nil, err
+	}
+	_, err = jsonWriter.Write(jsonData)
+	if err != nil {
+		return nil, err
+	}
+
+	// Goroutine profile
+	if p := pprof.Lookup("goroutine"); p != nil {
+		goroutineWriter, err := zipWriter.Create("goroutines.pprof")
+		if err != nil {
+			return nil, err
+		}
+		_ = p.WriteTo(goroutineWriter, 0)
+	}
+
+	if err = zipWriter.Close(); err != nil {
+		return nil, err
+	}
+	return archive.Bytes(), nil
+}
+
 /** Returns the free disk space on the volume where the database is stored */
 func GetFreeDiskSpaceMegaBytes() int {
 	dbPath := locations.Get(locations.Database)
@@ -1561,84 +1621,4 @@ func (m *Measurements) Measure() {
 	m.mutex.Lock()
 	m.isMeasuring = false
 	m.mutex.Unlock()
-}
-
-type stackedHandler struct {
-	handler slog.Handler
-	attrs   []slog.Attr
-}
-
-func (s *stackedHandler) Enabled(ctx context.Context, level slog.Level) bool {
-	return s.handler.Enabled(ctx, level)
-}
-
-func (s *stackedHandler) Handle(ctx context.Context, r slog.Record) error {
-	rec := r.Clone()
-	rec.AddAttrs(s.attrs...)
-	return s.handler.Handle(ctx, rec)
-}
-
-func (s *stackedHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
-	return &stackedHandler{
-		handler: s.handler,
-		attrs:   append(s.attrs, attrs...),
-	}
-}
-
-func (s *stackedHandler) WithGroup(name string) slog.Handler {
-	return &stackedHandler{
-		handler: s.handler,
-		attrs:   append(s.attrs, slog.String("group", name)),
-	}
-}
-
-var _ slog.Handler = (*stackedHandler)(nil)
-
-type logHandler struct {
-	l        *log.Logger
-	minLevel slog.Level
-}
-
-var _ slog.Handler = (*logHandler)(nil)
-
-func (h *logHandler) Enabled(ctx context.Context, level slog.Level) bool {
-	return level >= h.minLevel
-}
-
-func (h *logHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
-	return &stackedHandler{
-		handler: h,
-		attrs:   attrs,
-	}
-}
-
-func (h *logHandler) WithGroup(name string) slog.Handler {
-	return &stackedHandler{
-		handler: h,
-		attrs:   []slog.Attr{slog.String("group", name)},
-	}
-}
-
-func (h *logHandler) Handle(ctx context.Context, r slog.Record) error {
-	var sb strings.Builder
-	r.Attrs(func(a slog.Attr) bool {
-		sb.WriteString(a.Key)
-		sb.WriteRune('=')
-		sb.WriteString(a.Value.String())
-		sb.WriteRune(' ')
-		return true
-	})
-
-	timeStr := r.Time.Format("[15:05:05.000]")
-	h.l.Println(timeStr, r.Level.String(), r.Message, sb.String())
-	return nil
-}
-
-func newLogHandler(out io.Writer, minLevel slog.Level) *logHandler {
-	h := &logHandler{
-		l:        log.New(out, "", 0),
-		minLevel: minLevel,
-	}
-
-	return h
 }
