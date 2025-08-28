@@ -241,7 +241,7 @@ func (srv *FolderServer) handle(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-type", mime)
 
 	if r.Method == "HEAD" {
-		w.Header().Add("Content-length", string(stEntry.Size()))
+		w.Header().Add("Content-length", fmt.Sprint(stEntry.Size()))
 		w.WriteHeader(204)
 		return
 	}
