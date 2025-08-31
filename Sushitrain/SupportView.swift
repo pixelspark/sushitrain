@@ -96,7 +96,7 @@ extension AppState {
 private struct LogView: View {
 	@Environment(AppState.self) private var appState
 	@State private var lines: String = ""
-	
+
 	var body: some View {
 		ScrollView {
 			Text(self.lines)
@@ -257,7 +257,7 @@ struct SupportView: View {
 					Label("Visit the Syncthing forum", systemImage: "link")
 				}
 			}
-			
+
 			Section {
 				Text(
 					"To diagnose any issue you may be experiencing, you may want to make use of the troubleshooting options provided in this app."
@@ -267,7 +267,7 @@ struct SupportView: View {
 				NavigationLink(destination: TroubleshootingView(userSettings: appState.userSettings)) {
 					Label("Troubleshooting options", systemImage: "book.and.wrench")
 				}
-				
+
 				Button("View log messages", systemImage: "heart.text.clipboard") {
 					showLog = true
 				}.sheet(isPresented: $showLog) {

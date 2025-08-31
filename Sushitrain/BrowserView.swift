@@ -14,13 +14,22 @@ enum BrowserViewStyle: String {
 	case web = "web"
 }
 
+private struct FolderPopoverView: View {
+	let folder: SushitrainFolder
+
+	var body: some View {
+		NavigationStack {
+			FolderStatisticsView(folder: folder).frame(minWidth: 320, minHeight: 420, maxHeight: 400)
+		}
+	}
+}
+
 struct BrowserView: View {
 	@Environment(AppState.self) private var appState
 	var folder: SushitrainFolder
 	var prefix: String
 
 	@State private var showSettings = false
-	@State private var showFolderStatistics = false
 	@State private var searchText = ""
 	@State private var localNativeURL: URL? = nil
 	@State private var folderExists = false
@@ -33,6 +42,10 @@ struct BrowserView: View {
 	#if os(macOS)
 		@State private var showIgnores = false
 		@State private var showStatusPopover = false
+	#endif
+
+	#if os(iOS)
+		@State private var showFolderStatistics = false
 	#endif
 
 	private func currentViewStyle() -> Binding<BrowserViewStyle> {
@@ -115,9 +128,7 @@ struct BrowserView: View {
 						.foregroundStyle(fsd.color)
 						.accessibilityLabel(fsd.text)
 						.popover(isPresented: $showStatusPopover, arrowEdge: .bottom) {
-							FolderStatusView(folder: folder)
-								.padding()
-								.frame(minWidth: 120)
+							FolderPopoverView(folder: folder)
 						}
 						Text(folderName).font(.headline)
 					}
@@ -171,9 +182,10 @@ struct BrowserView: View {
 				self.folderMenu()
 			}
 		}
-		.sheet(isPresented: $showFolderStatistics) {
-			NavigationStack {
-				FolderStatisticsView(folder: folder)
+		#if os(iOS)
+			.sheet(isPresented: $showFolderStatistics) {
+				NavigationStack {
+					FolderStatisticsView(folder: folder)
 					.toolbar(content: {
 						ToolbarItem(
 							placement: .confirmationAction,
@@ -183,8 +195,9 @@ struct BrowserView: View {
 								}
 							})
 					})
+				}
 			}
-		}
+		#endif
 		.sheet(isPresented: $showSettings) {
 			NavigationStack {
 				FolderView(folder: self.folder)
@@ -329,9 +342,11 @@ struct BrowserView: View {
 					}
 				#endif
 
-				Button("Folder statistics...", systemImage: "scalemass") {
-					showFolderStatistics = true
-				}
+				#if os(iOS)
+					Button("Folder statistics...", systemImage: "scalemass") {
+						showFolderStatistics = true
+					}
+				#endif
 
 				if folderIsSelective && folder.isRegularFolder {
 					NavigationLink(destination: SelectiveFolderView(folder: folder, prefix: "")) {
@@ -473,6 +488,7 @@ private struct BrowserItemsView: View {
 	@State private var showSpinner = false
 	@State private var folderExists = false
 	@State private var folderIsPaused = false
+	@State private var showStatistics = false
 
 	@Environment(\.isSearching) private var isSearching
 
@@ -554,8 +570,18 @@ private struct BrowserItemsView: View {
 				VStack {
 					HStack {
 						#if os(iOS)
-							FolderStatusView(folder: folder)
-								.padding(.all, 10)
+							Button(action: {
+								showStatistics = true
+							}) {
+								FolderStatusView(folder: folder).padding(.horizontal, 10).padding(.vertical, 15)
+							}.sheet(isPresented: $showStatistics) {
+								NavigationStack {
+									FolderStatisticsView(folder: folder)
+										.toolbar {
+											ToolbarItem(placement: .confirmationAction) { Button("Done") { showStatistics = false } }
+										}
+								}
+							}
 						#endif
 
 						Spacer()

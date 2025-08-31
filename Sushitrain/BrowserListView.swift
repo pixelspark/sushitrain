@@ -16,10 +16,23 @@ struct BrowserListView: View {
 	let subdirectories: [SushitrainEntry]
 	let viewStyle: BrowserViewStyle
 
+	@State private var showStatistics = false
+
 	var body: some View {
 		List {
 			Section {
-				FolderStatusView(folder: folder)
+				Button(action: {
+					showStatistics = true
+				}) {
+					FolderStatusView(folder: folder)
+				}.sheet(isPresented: $showStatistics) {
+					NavigationStack {
+						FolderStatisticsView(folder: folder)
+							.toolbar {
+								ToolbarItem(placement: .confirmationAction) { Button("Done") { showStatistics = false } }
+							}
+					}
+				}
 
 				if hasExtraneousFiles {
 					NavigationLink(destination: { ExtraFilesView(folder: self.folder) }) {
