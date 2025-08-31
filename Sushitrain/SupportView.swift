@@ -29,7 +29,7 @@ private struct AppSupportBundle: Encodable {
 			}
 			else if let n = v as? Int {
 				self = .int(n)
-			}			
+			}
 			else if let b = v as? [Any] {
 				self = .list(b.map(PrefValue.init))
 			}
@@ -124,7 +124,7 @@ private struct SupportBundleView: View {
 	@Environment(AppState.self) private var appState
 	@State private var writingSupportBundle: Bool = false
 	@State private var supportBundle: URL? = nil
-	
+
 	#if os(macOS)
 		@State private var showSaveSupportBundle: Bool = false
 	#endif

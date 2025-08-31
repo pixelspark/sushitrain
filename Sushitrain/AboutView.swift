@@ -74,9 +74,12 @@ struct AboutView: View {
 				Text("Syncthing").badge(SushitrainVersion())
 			}
 
-			Button("Show introduction screen") {
+			Button("Show introduction screen", systemImage: "hands.and.sparkles.fill") {
 				showOnboarding = true
 			}
+			#if os(macOS)
+				.buttonStyle(.link)
+			#endif
 		}
 		.navigationTitle("About this app")
 		#if os(iOS)
