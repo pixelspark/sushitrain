@@ -18,7 +18,10 @@ private struct AppSupportBundle: Encodable {
 		case data(Data)
 
 		init(_ v: Any) {
-			if let s = v as? String {
+			if let b = v as? Bool {
+				self = .boolean(b)
+			}
+			else if let s = v as? String {
 				self = .string(s)
 			}
 			else if let d = v as? Double {
@@ -26,10 +29,7 @@ private struct AppSupportBundle: Encodable {
 			}
 			else if let n = v as? Int {
 				self = .int(n)
-			}
-			else if let b = v as? Bool {
-				self = .boolean(b)
-			}
+			}			
 			else if let b = v as? [Any] {
 				self = .list(b.map(PrefValue.init))
 			}
@@ -124,7 +124,10 @@ private struct SupportBundleView: View {
 	@Environment(AppState.self) private var appState
 	@State private var writingSupportBundle: Bool = false
 	@State private var supportBundle: URL? = nil
-	@State private var showSaveSupportBundle: Bool = false
+	
+	#if os(macOS)
+		@State private var showSaveSupportBundle: Bool = false
+	#endif
 
 	var body: some View {
 		Section {
@@ -137,23 +140,25 @@ private struct SupportBundleView: View {
 					try? FileManager.default.removeItem(at: s)
 				}
 			}
-			.fileImporter(isPresented: $showSaveSupportBundle, allowedContentTypes: [.directory]) { res in
-				switch res {
-				case .failure(let e):
-					Log.warn("error selecting path: \(e)")
-				case .success(let url):
-					if !url.startAccessingSecurityScopedResource() {
-						Log.warn("Could not start accessing folder to export support bundle to")
-					}
-					defer { url.stopAccessingSecurityScopedResource() }
+			#if os(macOS)
+				.fileImporter(isPresented: $showSaveSupportBundle, allowedContentTypes: [.directory]) { res in
+					switch res {
+					case .failure(let e):
+						Log.warn("error selecting path: \(e)")
+					case .success(let url):
+						if !url.startAccessingSecurityScopedResource() {
+							Log.warn("Could not start accessing folder to export support bundle to")
+						}
+						defer { url.stopAccessingSecurityScopedResource() }
 
-					if let sbURL = self.supportBundle {
-						let targetURL = url.appendingPathComponent(sbURL.lastPathComponent, isDirectory: false)
-						Log.info("Copying support bundle  to URL \(targetURL)")
-						try? FileManager.default.copyItem(at: sbURL, to: targetURL)
+						if let sbURL = self.supportBundle {
+							let targetURL = url.appendingPathComponent(sbURL.lastPathComponent, isDirectory: false)
+							Log.info("Copying support bundle  to URL \(targetURL)")
+							try? FileManager.default.copyItem(at: sbURL, to: targetURL)
+						}
 					}
 				}
-			}
+			#endif
 
 			if let s = supportBundle {
 				ShareLink(item: s, subject: Text("Support bundle"), message: Text("Support bundle"), preview: self.sharePreview()) {
@@ -163,10 +168,10 @@ private struct SupportBundleView: View {
 					.buttonStyle(.link)
 				#endif
 
-				Button("Save support bundle", systemImage: "text.page.badge.magnifyingglass") {
-					showSaveSupportBundle = true
-				}
 				#if os(macOS)
+					Button("Save support bundle", systemImage: "text.page.badge.magnifyingglass") {
+						showSaveSupportBundle = true
+					}
 					.buttonStyle(.link)
 				#endif
 			}
