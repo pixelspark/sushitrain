@@ -692,19 +692,21 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 		// run. Therefore we re-set the absolute folder path here to [app documents directory]/[folder ID] if we don't have
 		// a folder marker in the old location but do have one in the new.
 		for _, folderConfig := range conf.Folders {
-			standardPath := path.Join(filesPath, folderConfig.ID)
-			if folderConfig.Path != standardPath {
-				slog.Warn("configured folder path differs from expected path", "configured", folderConfig.Path, "expected", standardPath)
+			if folderConfig.FilesystemType == config.FilesystemTypeBasic {
+				standardPath := path.Join(filesPath, folderConfig.ID)
+				if folderConfig.Path != standardPath {
+					slog.Warn("configured folder path differs from expected path", "configured", folderConfig.Path, "expected", standardPath)
 
-				oldMarkerPath := path.Join(folderConfig.Path, folderConfig.MarkerName)
-				if _, err := os.Stat(oldMarkerPath); errors.Is(err, os.ErrNotExist) {
-					newMarkerPath := path.Join(standardPath, folderConfig.MarkerName)
-					if _, err := os.Stat(newMarkerPath); errors.Is(err, os.ErrNotExist) {
-						slog.Warn("marker does not exist at either old or new location, not changing anything", "oldMarkerPath", oldMarkerPath, "newMarkerPath", newMarkerPath)
-					} else {
-						slog.Warn("marker does not exist at old location and exists at new location, resetting standard path", "oldMarkerPath", oldMarkerPath, "newMarkerPath", newMarkerPath, "standardPath", standardPath)
-						folderConfig.Path = standardPath
-						conf.SetFolder(folderConfig)
+					oldMarkerPath := path.Join(folderConfig.Path, folderConfig.MarkerName)
+					if _, err := os.Stat(oldMarkerPath); errors.Is(err, os.ErrNotExist) {
+						newMarkerPath := path.Join(standardPath, folderConfig.MarkerName)
+						if _, err := os.Stat(newMarkerPath); errors.Is(err, os.ErrNotExist) {
+							slog.Warn("marker does not exist at either old or new location, not changing anything", "oldMarkerPath", oldMarkerPath, "newMarkerPath", newMarkerPath)
+						} else {
+							slog.Warn("marker does not exist at old location and exists at new location, resetting standard path", "oldMarkerPath", oldMarkerPath, "newMarkerPath", newMarkerPath, "standardPath", standardPath)
+							folderConfig.Path = standardPath
+							conf.SetFolder(folderConfig)
+						}
 					}
 				}
 			}
