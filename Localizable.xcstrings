@@ -4812,42 +4812,42 @@
         }
       }
     },
-    "Before we start, we need to go over a few things:" : {
+    "Before we start, we need to go over a few things." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bevor wir starten, müssen wir einige Dinge durchgehen:"
+            "value" : "Bevor wir beginnen, müssen wir ein paar Dinge durchgehen."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Antes de empezar, necesitamos repasar algunas cosas:"
+            "value" : "Antes de comenzar, necesitamos repasar algunas cosas."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Prima di iniziare, dobbiamo rivedere alcune cose:"
+            "value" : "Prima di iniziare, dobbiamo rivedere alcune cose."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Voordat we beginnen moeten we even een paar dingen doornemen:"
+            "value" : "Voordat we beginnen, moeten we een paar punten doornemen."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Перш ніж почати, нам потрібно обговорити кілька речей:"
+            "value" : "Перш ніж розпочати, нам потрібно обговорити кілька речей."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在开始之前，我们需要先了解一些事情："
+            "value" : "在我们开始之前，我们需要先了解一些事情。"
           }
         }
       }
@@ -13799,7 +13799,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ik begrijp het!"
+            "value" : "Ik begrijp het, tijd om te beginnen!"
           }
         },
         "uk" : {
@@ -13812,6 +13812,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "我明白了，我们开始吧！"
+          }
+        }
+      }
+    },
+    "I understand!" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ich verstehe!"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Entiendo!"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Capisco!"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ik begrijp het!"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зрозуміло!"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我明白！"
           }
         }
       }
@@ -30404,47 +30444,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "当设备在一段时间内未连接时发出警告。"
-          }
-        }
-      }
-    },
-    "Warn when not connected for a while" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Warnen, wenn für eine Weile keine Verbindung besteht"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Advertir cuando no haya conexión durante un tiempo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Avvisa quando non connesso da un po'"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Waarschuw wanneer er een tijdje geen verbinding is"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Попереджати, якщо немає з'єднання протягом деякого часу"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "长时间未连接时提醒"
           }
         }
       }
