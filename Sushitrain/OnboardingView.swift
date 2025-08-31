@@ -273,6 +273,10 @@ struct OnboardingView: View {
 			try! self.appState.client.setRelaysEnabled(true)
 			try! self.appState.client.setNATEnabled(true)
 			try! self.appState.client.setAnnounceLANAddresses(true)
+
+			// The 'default' value equals tcp://0.0.0.0:22000, quic://0.0.0.0:22000 and dynamic+https://relays.syncthing.net/endpoint
+			// See https://docs.syncthing.net/users/config.html#listen-addresses
+			try! self.appState.client.setListenAddresses(SushitrainListOfStrings.from(["default"]))
 			appState.userSettings.appliedOnboardingPrivacyChoicesAt = Date.timeIntervalSinceReferenceDate
 
 		case .doNotUseSyncthingServices:
@@ -281,6 +285,12 @@ struct OnboardingView: View {
 			try! self.appState.client.setRelaysEnabled(false)
 			try! self.appState.client.setNATEnabled(false)
 			try! self.appState.client.setAnnounceLANAddresses(false)
+
+			// The 'default' value equals tcp://0.0.0.0:22000, quic://0.0.0.0:22000 and dynamic+https://relays.syncthing.net/endpoint
+			// See https://docs.syncthing.net/users/config.html#listen-addresses
+			// Therefore we set (only) tcp://0.0.0.0:22000, quic://0.0.0.0:22000 here to disable joining relays.
+			try! self.appState.client.setListenAddresses(
+				SushitrainListOfStrings.from(["tcp://0.0.0.0:22000", "quic://0.0.0.0:22000"]))
 			appState.userSettings.appliedOnboardingPrivacyChoicesAt = Date.timeIntervalSinceReferenceDate
 
 		case .noChoice:
