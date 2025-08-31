@@ -395,6 +395,11 @@ struct StartView: View {
 		.task {
 			await self.update()
 		}
+		.onChange(of: appState.userSettings.ignoreLongTimeNoSeeDevices.count) { _, _ in
+			Task {
+				await self.update()
+			}
+		}
 		.onChange(of: appState.eventCounter) { _, _ in
 			Task {
 				await self.update()
@@ -539,16 +544,7 @@ struct StartView: View {
 		let p = await self.appState.peers()
 		self.peers = p
 		self.folders = await self.appState.folders().sorted()
-		self.longTimeNotSeenDevices = p.filter {
-			if $0.isPaused() {
-				return false
-			}
-
-			if let d = $0.lastSeen()?.date() {
-				return -d.timeIntervalSinceNow > appState.userSettings.longTimeNoSeeInterval
-			}
-			return false
-		}
+		self.longTimeNotSeenDevices = await self.appState.getPeersNotSeenForALongTime()
 
 		isDiskSpaceSufficient = appState.client.isDiskSpaceSufficient()
 

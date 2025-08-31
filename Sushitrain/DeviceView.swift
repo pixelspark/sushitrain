@@ -154,6 +154,23 @@ struct DeviceView: View {
 					}
 				}
 
+				Section("Other settings") {
+					Toggle(
+						"Warn when device has not connected for a while",
+						isOn: Binding(
+							get: {
+								return !appState.userSettings.ignoreLongTimeNoSeeDevices.contains(self.device.deviceID())
+							},
+							set: { nv in
+								if nv {
+									appState.userSettings.ignoreLongTimeNoSeeDevices.remove(self.device.deviceID())
+								}
+								else {
+									appState.userSettings.ignoreLongTimeNoSeeDevices.insert(self.device.deviceID())
+								}
+							}))
+				}
+
 				if !lastAddress.isEmpty {
 					Section("Current addresses") {
 						Label(lastAddress, systemImage: "network").contextMenu {

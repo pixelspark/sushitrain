@@ -80,6 +80,7 @@ class SushitrainDelegate: NSObject {
 	@AppStorage("automaticallyShowWebpages") var automaticallyShowWebpages: Bool = true
 	@AppStorage("migratedToV2At") var migratedToV2At: Double = 0.0
 	@AppStorage("userPausedDevices") var userPausedDevices = Set<String>()
+	@AppStorage("ignoreLongTimeNoSeeDevices") var ignoreLongTimeNoSeeDevices = Set<String>()
 
 	// Number of seconds after which we remind the user that a device hasn't connected in a while
 	@AppStorage("longTimeNoSeeInterval") var longTimeNoSeeInterval = 86400.0 * 2.0  // two days
@@ -454,6 +455,27 @@ struct SyncState {
 		}
 	}
 
+	nonisolated func getPeersNotSeenForALongTime() async -> [SushitrainPeer] {
+		let interval = await self.userSettings.longTimeNoSeeInterval
+		let ignored = await self.userSettings.ignoreLongTimeNoSeeDevices
+
+		let p = await self.peers()
+		return p.filter {
+			if ignored.contains($0.deviceID()) {
+				return false
+			}
+
+			if $0.isPaused() {
+				return false
+			}
+
+			if let d = $0.lastSeen()?.date() {
+				return -d.timeIntervalSinceNow > interval
+			}
+			return false
+		}
+	}
+
 	nonisolated func folders() async -> [SushitrainFolder] {
 		let client = self.client
 		let folderIDs = client.folders()?.asArray() ?? []
@@ -545,17 +567,19 @@ struct SyncState {
 	func updateBadge() async {
 		await self.updateExtraneousFiles()
 		let numExtra = self.foldersWithExtraFiles.count
+		let numLongTimeNoSee = (await getPeersNotSeenForALongTime()).count
+		let numTotal = numExtra + numLongTimeNoSee
 
 		#if os(iOS)
 			DispatchQueue.main.async {
-				UNUserNotificationCenter.current().setBadgeCount(numExtra)
+				UNUserNotificationCenter.current().setBadgeCount(numTotal)
 			}
 		#elseif os(macOS)
-			let newBadge = numExtra > 0 ? String(numExtra) : ""
+			let newBadge = numTotal > 0 ? String(numTotal) : ""
 			if NSApplication.shared.dockTile.badgeLabel != newBadge {
-				Log.info("Set dock tile badgeLabel \(numExtra)")
+				Log.info("Set dock tile badgeLabel \(numTotal)")
 			}
-			NSApplication.shared.dockTile.showsApplicationBadge = numExtra > 0
+			NSApplication.shared.dockTile.showsApplicationBadge = numTotal > 0
 			NSApplication.shared.dockTile.badgeLabel = newBadge
 			NSApplication.shared.dockTile.display()
 		#endif
