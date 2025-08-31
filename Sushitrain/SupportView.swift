@@ -280,6 +280,9 @@ struct SupportView: View {
 						LogView()
 					}
 				}
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
 			}
 		}
 		#if os(macOS)
