@@ -10,6 +10,16 @@
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 			<key>Title</key>
+			<string>Show onboarding on next startup</string>
+			<key>Key</key>
+			<string>forceOnboardingOnNextStartup</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
 			<string>Pause all folders on next start</string>
 			<key>Key</key>
 			<string>pauseAllFolders</string>

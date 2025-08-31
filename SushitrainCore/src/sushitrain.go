@@ -1544,7 +1544,7 @@ func (c *Client) generateSupportBundle(writer io.Writer, appInfo []byte) error {
 	infoJson["shortDeviceID"] = c.ShortDeviceID()
 	infoJson["isUsingCustomConfiguration"] = c.IsUsingCustomConfiguration
 	infoJson["isIgnoringEvents"] = c.IgnoreEvents
-	infoJson["extraneousIGnored"] = c.extraneousIgnored
+	infoJson["extraneousIgnored"] = c.extraneousIgnored
 	infoJson["hasLegacyDatabase"] = c.HasLegacyDatabase()
 	infoJson["hasMigratedLegacyDatabase"] = c.HasMigratedLegacyDatabase()
 	infoJson["connectedPeerCount"] = c.ConnectedPeerCount()

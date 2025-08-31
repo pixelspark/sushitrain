@@ -16,6 +16,10 @@ struct MainView: View {
 		switch appState.startupState {
 		case .notStarted:
 			LoadingMainView(appState: appState)
+
+		case .onboarding:
+			OnboardingView(allowSkip: false)
+
 		case .error(let e):
 			ContentUnavailableView {
 				Label("Cannot start the app", systemImage: "exclamationmark.triangle.fill")
@@ -35,14 +39,10 @@ struct MainView: View {
 }
 
 private struct ContentView: View {
-	private static let currentOnboardingVersion = 1
-
 	@Environment(AppState.self) private var appState
-	@AppStorage("onboardingVersionShown") var onboardingVersionShown = 0
 	@Environment(\.scenePhase) var scenePhase
 	@Environment(\.horizontalSizeClass) private var horizontalSizeClass
 	@State private var showCustomConfigWarning = false
-	@State private var showOnboarding = false
 	@State var route: Route? = .start
 	@State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
 
@@ -176,20 +176,6 @@ private struct ContentView: View {
 				self.splitBody
 			}
 		}
-		.sheet(
-			isPresented: $showOnboarding,
-			content: {
-				if #available(iOS 18, *) {
-					OnboardingView(allowSkip: false)
-						.interactiveDismissDisabled()
-						.presentationSizing(.form.fitted(horizontal: false, vertical: true))
-				}
-				else {
-					OnboardingView(allowSkip: false)
-						.interactiveDismissDisabled()
-				}
-			}
-		)
 		#if os(iOS)
 			.onChange(of: QuickActionService.shared.action) { _, newAction in
 				if case .search(for: let searchFor) = newAction {
@@ -210,20 +196,16 @@ private struct ContentView: View {
 					"You are using a custom configuration. This may be used for testing only, and at your own risk. Not all configuration options may be supported. To disable the custom configuration, remove the configuration files from the app's folder and restart the app. The makers of the app cannot be held liable for any data loss that may occur!"
 				),
 				dismissButton: .default(Text("I understand and agree")) {
-					self.showOnboardingIfNecessary()
+					// Further consent and warning stuff
+					AppState.requestNotificationPermissionIfNecessary()
 				})
 		}
 		.onAppear {
+			// Consent and warning stuff
 			if self.appState.client.isUsingCustomConfiguration {
 				self.showCustomConfigWarning = true
 			}
 			else {
-				self.showOnboardingIfNecessary()
-			}
-		}
-		.onChange(of: showOnboarding) { _, shown in
-			if !shown {
-				// End of onboarding, request notification authorization
 				AppState.requestNotificationPermissionIfNecessary()
 			}
 		}
@@ -249,20 +231,6 @@ private struct ContentView: View {
 				}
 			}
 		#endif
-	}
-
-	private func showOnboardingIfNecessary() {
-		Log.info(
-			"Current onboarding version is \(Self.currentOnboardingVersion), user last saw \(self.onboardingVersionShown)"
-		)
-		if onboardingVersionShown < Self.currentOnboardingVersion || true {
-			self.showOnboarding = true
-			onboardingVersionShown = Self.currentOnboardingVersion
-		}
-		else {
-			// Go straight on to request notification permissions
-			AppState.requestNotificationPermissionIfNecessary()
-		}
 	}
 }
 

@@ -43,6 +43,7 @@ enum FolderMetric: String {
 
 enum AppStartupState: Equatable {
 	case notStarted
+	case onboarding
 	case error(String)
 	case started
 }
@@ -82,6 +83,8 @@ class SushitrainDelegate: NSObject {
 	@AppStorage("userPausedDevices") var userPausedDevices = Set<String>()
 	@AppStorage("ignoreLongTimeNoSeeDevices") var ignoreLongTimeNoSeeDevices = Set<String>()
 
+	@AppStorage("onboardingVersionShown") var onboardingVersionShown = 0
+
 	// Number of seconds after which we remind the user that a device hasn't connected in a while
 	@AppStorage("longTimeNoSeeInterval") var longTimeNoSeeInterval = 86400.0 * 2.0  // two days
 
@@ -90,6 +93,8 @@ class SushitrainDelegate: NSObject {
 
 	// When did we apply privacy choices from the onboarding?
 	@AppStorage("appliedOnboardingPrivacyChoicesAt") var appliedOnboardingPrivacyChoicesAt: Double = 0.0
+
+	@AppStorage("forceOnboardingOnNextStartup") var forceOnboardingOnNextStartup = false
 
 	#if os(macOS)
 		@AppStorage("menuFolderAction") var menuFolderAction: MenuFolderAction = .finderExceptSelective
@@ -119,6 +124,8 @@ struct SyncState {
 }
 
 @Observable @MainActor class AppState {
+	private static let currentOnboardingVersion = 1
+
 	@ObservationIgnored nonisolated let client: SushitrainClient
 	@ObservationIgnored var photoBackup = PhotoBackup()
 	@ObservationIgnored var changePublisher = PassthroughSubject<Void, Never>()
@@ -180,81 +187,118 @@ struct SyncState {
 	}
 
 	@MainActor func start() async {
-		if self.startupState != .notStarted {
+		if self.startupState != .notStarted || self.startupState != .onboarding {
 			assertionFailure("cannot start again")
 		}
 
-		self.isMigratedToNewDatabase = !client.hasLegacyDatabase()
+		let client = self.client
 
-		#if os(iOS)
-			// If we are not migrated and we are in the background, bail out. We want to migrate in the foreground only
-			if !self.isMigratedToNewDatabase && UIApplication.shared.applicationState == .background {
-				Log.warn(
-					"The app is started in the background but it still has a legacy database. Please open it in the foreground to upgrade the database."
-				)
-				self.startupState = .error(
-					String(localized: "The app needs to be opened in the foreground at least once to upgrade the database."))
+		// If we are called again from onboarding, skip the stuff we already did
+		if self.startupState == .notStarted {
+			self.isMigratedToNewDatabase = !client.hasLegacyDatabase()
+
+			#if os(iOS)
+				// If we are not migrated and we are in the background, bail out. We want to migrate in the foreground only
+				if !self.isMigratedToNewDatabase && UIApplication.shared.applicationState == .background {
+					Log.warn(
+						"The app is started in the background but it still has a legacy database. Please open it in the foreground to upgrade the database."
+					)
+					self.startupState = .error(
+						String(localized: "The app needs to be opened in the foreground at least once to upgrade the database."))
+					return
+				}
+			#endif
+
+			let resetDeltas = UserDefaults.standard.bool(forKey: "resetDeltas")
+			if resetDeltas {
+				Log.info("Reset deltas requested from settings")
+			}
+
+			do {
+				// Load the client
+				try await Task.detached(priority: .userInitiated) {
+					// This one opens the database, migrates stuff, etc. and may take a while
+					Log.info("Loading the client...")
+					try client.load(resetDeltas)
+					if resetDeltas {
+						UserDefaults.standard.setValue(false, forKey: "resetDeltas")
+					}
+					Log.info("Client loaded")
+				}.value
+
+				// Resolve bookmarks
+				let folderIDs = client.folders()?.asArray() ?? []
+				for folderID in folderIDs {
+					do {
+						if let bm = try BookmarkManager.shared.resolveBookmark(folderID: folderID) {
+							Log.info("We have a bookmark for folder \(folderID): \(bm)")
+							if let folder = client.folder(withID: folderID) {
+								try folder.setPath(bm.path(percentEncoded: false))
+							}
+							else {
+								Log.warn(
+									"Cannot obtain folder configuration for \(folderID) for setting bookmark; skipping"
+								)
+							}
+						}
+					}
+					catch {
+						Log.warn("Error restoring bookmark for \(folderID): \(error.localizedDescription)")
+					}
+				}
+
+				await self.updateDeviceSuspension()
+
+				// Do we need to pause all folders?
+				let pauseAllFolders = UserDefaults.standard.bool(forKey: "pauseAllFolders")
+				if pauseAllFolders {
+					Log.info("Pausing all folders at the user's request...")
+					UserDefaults.standard.setValue(false, forKey: "pauseAllFolders")
+					for folder in folderIDs {
+						do {
+							let folder = client.folder(withID: folder)
+							try folder?.setPaused(true)
+						}
+						catch {
+							Log.warn("Failed to delete v1 index: " + error.localizedDescription)
+						}
+					}
+				}
+
+				// Other housekeeping
+				FolderSettingsManager.shared.removeSettingsForFoldersNotIn(Set(folderIDs))
+			}
+			catch let error {
+				Log.warn("Could not start: \(error.localizedDescription)")
+				self.startupState = .error(error.localizedDescription)
+
+				#if os(macOS)
+					self.alert(message: error.localizedDescription)
+				#endif
+			}
+		}
+
+		// Check if we need to show onboarding; if so, we interrupt the startup process here and come back later
+		if self.startupState == .notStarted {
+			Log.info(
+				"Current onboarding version is \(Self.currentOnboardingVersion), user last saw \(self.userSettings.onboardingVersionShown)"
+			)
+
+			if userSettings.onboardingVersionShown < Self.currentOnboardingVersion || userSettings.forceOnboardingOnNextStartup {
+				Log.info("Showing onboarding")
+				self.startupState = .onboarding
+				// OnboardingView will call start() again after finishing
 				return
 			}
-		#endif
-
-		let client = self.client
-		let resetDeltas = UserDefaults.standard.bool(forKey: "resetDeltas")
-		if resetDeltas {
-			Log.info("Reset deltas requested from settings")
+		}
+		else if self.startupState == .onboarding {
+			// We just came out of onboarding, update the version so it is not shown again
+			userSettings.forceOnboardingOnNextStartup = false
+			userSettings.onboardingVersionShown = Self.currentOnboardingVersion
 		}
 
 		do {
-			// Load the client
-			try await Task.detached(priority: .userInitiated) {
-				// This one opens the database, migrates stuff, etc. and may take a while
-				Log.info("Loading the client...")
-				try client.load(resetDeltas)
-				if resetDeltas {
-					UserDefaults.standard.setValue(false, forKey: "resetDeltas")
-				}
-				Log.info("Client loaded")
-			}.value
-
-			// Resolve bookmarks
-			let folderIDs = client.folders()?.asArray() ?? []
-			for folderID in folderIDs {
-				do {
-					if let bm = try BookmarkManager.shared.resolveBookmark(folderID: folderID) {
-						Log.info("We have a bookmark for folder \(folderID): \(bm)")
-						if let folder = client.folder(withID: folderID) {
-							try folder.setPath(bm.path(percentEncoded: false))
-						}
-						else {
-							Log.warn(
-								"Cannot obtain folder configuration for \(folderID) for setting bookmark; skipping"
-							)
-						}
-					}
-				}
-				catch {
-					Log.warn("Error restoring bookmark for \(folderID): \(error.localizedDescription)")
-				}
-			}
-
-			await self.updateDeviceSuspension()
-
-			// Do we need to pause all folders?
-			let pauseAllFolders = UserDefaults.standard.bool(forKey: "pauseAllFolders")
-			if pauseAllFolders {
-				Log.info("Pausing all folders at the user's request...")
-				UserDefaults.standard.setValue(false, forKey: "pauseAllFolders")
-				for folder in folderIDs {
-					do {
-						let folder = client.folder(withID: folder)
-						try folder?.setPaused(true)
-					}
-					catch {
-						Log.warn("Failed to delete v1 index: " + error.localizedDescription)
-					}
-				}
-			}
-
+			try await Task.sleep(for: .seconds(1))
 			// Start the client
 			try await Task.detached(priority: .userInitiated) {
 				// Showtime!
@@ -262,9 +306,6 @@ struct SyncState {
 				try client.start()
 				Log.info("Client started")
 			}.value
-
-			// Other housekeeping
-			FolderSettingsManager.shared.removeSettingsForFoldersNotIn(Set(folderIDs))
 
 			// Check to see if we have migrated
 			self.isMigratedToNewDatabase = !client.hasLegacyDatabase()
@@ -284,7 +325,6 @@ struct SyncState {
 		}
 		catch let error {
 			Log.warn("Could not start: \(error.localizedDescription)")
-
 			self.startupState = .error(error.localizedDescription)
 
 			#if os(macOS)

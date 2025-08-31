@@ -25156,47 +25156,6 @@
         }
       }
     },
-    "Synctrain can be configured to use services provided by the Syncthing Foundation to be able to find and connect to other devices. When this is enabled, Synctrain will send your device ID and IP addresses to these services." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain kann so konfiguriert werden, dass es Dienste nutzt, die von der Syncthing Foundation bereitgestellt werden, um andere Geräte zu finden und zu verbinden. Wenn diese Option aktiviert ist, sendet Synctrain Ihre Geräte-ID und IP-Adressen an diese Dienste."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain se puede configurar para utilizar los servicios proporcionados por la Fundación Syncthing para poder encontrar y conectar con otros dispositivos. Cuando esta opción está habilitada, Synctrain enviará su ID de dispositivo y direcciones IP a estos servicios."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain può essere configurato per utilizzare i servizi forniti dalla Syncthing Foundation per poter trovare e connettersi ad altri dispositivi. Quando questa opzione è attivata, Synctrain invierà il tuo ID dispositivo e gli indirizzi IP a questi servizi."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain kan worden geconfigureerd om diensten te gebruiken die worden aangeboden door de Syncthing Foundation om andere apparaten te kunnen vinden en verbinden. Wanneer dit is ingeschakeld, zal Synctrain je apparaat-ID en IP-adressen naar deze diensten sturen."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain можна налаштувати для використання сервісів, наданих Фондом Syncthing, щоб мати можливість знаходити та підключатися до інших пристроїв. Коли ця опція увімкнена, Synctrain відправлятиме ваш ID пристрою та IP-адреси на ці сервіси."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain 可以配置为使用由 Syncthing Foundation 提供的服务，以便能够找到并连接到其他设备。启用此功能时，Synctrain 将向这些服务发送您的设备 ID 和 IP 地址。"
-          }
-        }
-      }
-    },
     "Synctrain cannot access this folder anymore. Please click the button below to re-select the folder on your system. This should re-grant Synctrain access to the folder." : {
       "localizations" : {
         "de" : {
@@ -25433,47 +25392,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Synctrain可以找到并连接到您本地网络上的其他设备，但在您手动配置设备地址、发现、STUN和/或中继服务器之前，它将无法通过互联网找到和连接到其他设备。"
-          }
-        }
-      }
-    },
-    "Synctrain will only be able to find and connect to other devices on your local network automatically, until you configure addresses manually for each device, and/or manually configure discovery, STUN and relaying servers." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain kann automatisch nur andere Geräte in Ihrem lokalen Netzwerk finden und verbinden, bis Sie manuell Adressen für jedes Gerät konfigurieren und/oder die Erkennung, STUN und Relay-Server manuell konfigurieren."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain solo podrá encontrar y conectarse automáticamente a otros dispositivos en tu red local, hasta que configures manualmente las direcciones para cada dispositivo y/o configures manualmente los servidores de descubrimiento, STUN y relay."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain sarà in grado di trovare e connettersi automaticamente ad altri dispositivi sulla tua rete locale solo fino a quando non configuri manualmente gli indirizzi per ciascun dispositivo e/o configuri manualmente i server di rilevamento, STUN e relay."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain kan alleen automatisch andere apparaten op je lokale netwerk vinden en verbinding maken, totdat je handmatig adressen voor elk apparaat configureert en/of handmatig ontdekking, STUN en relay-servers configureert."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrain зможе автоматично знаходити та підключатися до інших пристроїв у вашій локальній мережі лише до тих пір, поки ви не налаштуєте вручну адреси для кожного пристрою і/або не налаштуєте вручну виявлення, STUN і сервери ретрансляції."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在您为每个设备手动配置地址，和/或手动配置发现、STUN以及中继服务器之前，Synctrain将只能自动发现并连接到您本地网络上的其他设备。"
           }
         }
       }

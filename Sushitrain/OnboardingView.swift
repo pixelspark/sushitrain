@@ -5,6 +5,7 @@
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 import Foundation
 import SwiftUI
+@preconcurrency import SushitrainCore
 
 private struct ChoiceView: View {
 	var image: String
@@ -32,7 +33,6 @@ private struct ChoiceView: View {
 				}
 			}.padding()
 		}
-		.frame(maxWidth: .infinity)
 		.background(isSelected ? Color.accentColor : Color.accentColor.opacity(0.075))
 		.clipShape(.rect(cornerRadius: 10))
 	}
@@ -197,16 +197,16 @@ struct OnboardingView: View {
 	let allowSkip: Bool  // Whether to allow skipping certain items, i.e. when the onboarding is not shown the first time
 
 	var body: some View {
-		#if os(iOS)
-			GeometryReader { proxy in
-				ScrollView(.vertical) {
+		GeometryReader { proxy in
+			ScrollView(.vertical) {
+				HStack {
+					Spacer()
 					self.contents()
-						.frame(minHeight: proxy.size.height)
+						.frame(maxWidth: 600, minHeight: proxy.size.height)
+					Spacer()
 				}
 			}
-		#else
-			self.contents().padding()
-		#endif
+		}
 	}
 
 	@ViewBuilder private func contents() -> some View {
@@ -232,26 +232,33 @@ struct OnboardingView: View {
 					.transition(.push(from: .trailing))
 
 			case .finished:
-				EmptyView()
+				HStack {
+					Spacer()
+					ProgressView().controlSize(.large)
+					Spacer()
+				}
 			}
 
 			Spacer()
 
-			NextButton(
-				label: (page.rawValue == OnboardingPage.finished.rawValue - 1)
-					? String(localized: "Let's get started!")
-					: String(localized: "I understand!")
-			)
-			.disabled(!canProceed)
-			.opacity(canProceed ? 1.0 : 0.5)
-			.onTapGesture {
-				if canProceed && page.rawValue < (OnboardingPage.finished.rawValue - 1) {
-					withAnimation {
-						page = OnboardingPage(rawValue: page.rawValue + 1)!
+			if page != .finished {
+				NextButton(
+					label: (page.rawValue == OnboardingPage.finished.rawValue - 1)
+						? String(localized: "Let's get started!")
+						: String(localized: "I understand!")
+				)
+				.disabled(!canProceed)
+				.opacity(canProceed ? 1.0 : 0.5)
+				.onTapGesture {
+					if canProceed && page.rawValue < (OnboardingPage.finished.rawValue - 1) {
+						withAnimation {
+							page = OnboardingPage(rawValue: page.rawValue + 1)!
+						}
 					}
-				}
-				else {
-					self.finish()
+					else {
+						page = .finished
+						self.finish()
+					}
 				}
 			}
 		}.padding(.horizontal, 20)
@@ -280,15 +287,27 @@ struct OnboardingView: View {
 			// Change nothing
 			break
 		}
-		self.dismiss()
+
+		if self.appState.startupState == .onboarding {
+			// Continue app startup!
+			Task {
+				await self.appState.start()
+			}
+		}
+		else {
+			// We are a sheet, see ourselves out
+			self.dismiss()
+		}
 	}
 
 	private var canProceed: Bool {
 		switch self.page {
 		case .privacyChoices:
 			return self.allowSkip || self.privacyChoice != .noChoice
-		case .start, .explainNoBackup, .explainResponsibility, .explainSyncthing, .finished:
+		case .start, .explainNoBackup, .explainResponsibility, .explainSyncthing:
 			return true
+		case .finished:
+			return false
 		}
 	}
 }

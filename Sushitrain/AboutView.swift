@@ -92,7 +92,7 @@ struct AboutView: View {
 			if #available(iOS 18, *) {
 				OnboardingView(allowSkip: true)
 					.interactiveDismissDisabled()
-					.presentationSizing(.form.fitted(horizontal: false, vertical: true))
+					.presentationSizing(.form.sticky())
 			}
 			else {
 				OnboardingView(allowSkip: true)

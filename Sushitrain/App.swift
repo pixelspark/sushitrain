@@ -12,6 +12,7 @@ import AppIntents
 @main
 struct SushitrainApp: App {
 	@State fileprivate var appState: AppState
+
 	fileprivate var delegate: SushitrainDelegate?
 	private let qaService = QuickActionService.shared
 
@@ -75,6 +76,7 @@ struct SushitrainApp: App {
 			let hideInDock = self.hideInDock
 		#endif
 
+		// Check if we need to show onboarding
 		Task {
 			await appState.start()
 		}
