@@ -215,6 +215,8 @@ struct AdvancedSettingsView: View {
 	@State private var folders: [SushitrainFolder] = []
 	@State private var confirmClearThumbnailCache = false
 
+	@State private var updateCounter = 0  // Used to force update after binding set... ugly
+
 	#if os(macOS)
 		@State private var showConfigurationSettings = false
 		@State private var showTroubleshooting = false
@@ -231,6 +233,7 @@ struct AdvancedSettingsView: View {
 						},
 						set: { listening in
 							try? appState.client.setListening(listening)
+							self.updateCounter += 1
 						}))
 
 				// Listening addresses popup sheet
@@ -296,6 +299,7 @@ struct AdvancedSettingsView: View {
 						},
 						set: { nv in
 							try? appState.client.setLocalAnnounceEnabled(nv)
+							self.updateCounter += 1
 						}))
 
 				Toggle(
@@ -306,6 +310,7 @@ struct AdvancedSettingsView: View {
 						},
 						set: { nv in
 							try? appState.client.setAnnounceLANAddresses(nv)
+							self.updateCounter += 1
 						}))
 
 				Toggle(
@@ -316,6 +321,7 @@ struct AdvancedSettingsView: View {
 						},
 						set: { nv in
 							try? appState.client.setGlobalAnnounceEnabled(nv)
+							self.updateCounter += 1
 						}))
 
 				// Global announce addresses popup sheet
@@ -352,6 +358,7 @@ struct AdvancedSettingsView: View {
 						},
 						set: { nv in
 							try? appState.client.setRelaysEnabled(nv)
+							self.updateCounter += 1
 						}))
 
 				Toggle(
@@ -362,6 +369,7 @@ struct AdvancedSettingsView: View {
 						},
 						set: { nv in
 							try? appState.client.setNATEnabled(nv)
+							self.updateCounter += 1
 						}))
 
 				Toggle(
@@ -372,6 +380,7 @@ struct AdvancedSettingsView: View {
 						},
 						set: { nv in
 							try? appState.client.setSTUNEnabled(nv)
+							self.updateCounter += 1
 						}))
 
 				// STUN server addresses popup sheet
@@ -508,6 +517,10 @@ struct AdvancedSettingsView: View {
 		}
 		.onDisappear {
 			appState.applySettings()
+		}
+		// This needs to be here to make sure the view refreshes after changing something
+		.onChange(of: self.updateCounter) { _, _ in
+			Log.info("Update counter changed")
 		}
 		.navigationTitle("Advanced settings")
 		#if os(macOS)

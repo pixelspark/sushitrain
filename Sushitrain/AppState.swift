@@ -88,6 +88,9 @@ class SushitrainDelegate: NSObject {
 	// Whether to ignore certain files by default when scanning for extraneous files (i.e. .DS_Store)
 	@AppStorage("ignoreExtraneousDefaultFiles") var ignoreExtraneousDefaultFiles: Bool = true
 
+	// When did we apply privacy choices from the onboarding?
+	@AppStorage("appliedOnboardingPrivacyChoicesAt") var appliedOnboardingPrivacyChoicesAt: Double = 0.0
+
 	#if os(macOS)
 		@AppStorage("menuFolderAction") var menuFolderAction: MenuFolderAction = .finderExceptSelective
 	#endif

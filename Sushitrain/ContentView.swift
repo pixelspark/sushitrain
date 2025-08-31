@@ -180,12 +180,12 @@ private struct ContentView: View {
 			isPresented: $showOnboarding,
 			content: {
 				if #available(iOS 18, *) {
-					OnboardingView()
+					OnboardingView(allowSkip: false)
 						.interactiveDismissDisabled()
 						.presentationSizing(.form.fitted(horizontal: false, vertical: true))
 				}
 				else {
-					OnboardingView()
+					OnboardingView(allowSkip: false)
 						.interactiveDismissDisabled()
 				}
 			}
@@ -255,7 +255,7 @@ private struct ContentView: View {
 		Log.info(
 			"Current onboarding version is \(Self.currentOnboardingVersion), user last saw \(self.onboardingVersionShown)"
 		)
-		if onboardingVersionShown < Self.currentOnboardingVersion {
+		if onboardingVersionShown < Self.currentOnboardingVersion || true {
 			self.showOnboarding = true
 			onboardingVersionShown = Self.currentOnboardingVersion
 		}

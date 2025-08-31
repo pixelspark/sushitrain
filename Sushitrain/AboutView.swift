@@ -90,12 +90,12 @@ struct AboutView: View {
 		#endif
 		.sheet(isPresented: $showOnboarding) {
 			if #available(iOS 18, *) {
-				OnboardingView()
+				OnboardingView(allowSkip: true)
 					.interactiveDismissDisabled()
 					.presentationSizing(.form.fitted(horizontal: false, vertical: true))
 			}
 			else {
-				OnboardingView()
+				OnboardingView(allowSkip: true)
 					.interactiveDismissDisabled()
 			}
 		}

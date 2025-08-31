@@ -8838,6 +8838,86 @@
         }
       }
     },
+    "Do not use Syncthing services" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwenden Sie keine Syncthing-Dienste"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No utilices servicios Syncthing"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non utilizzare i servizi Syncthing"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebruik geen Syncthing-diensten"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не використовуйте сервіси Syncthing"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不要使用 Syncthing 服务"
+          }
+        }
+      }
+    },
+    "Do you want to use Syncthing services?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Möchten Sie Syncthing-Dienste nutzen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Quieres usar los servicios de Syncthing?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vuoi utilizzare i servizi Syncthing?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wilt u gebruik maken van Syncthing-diensten?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ви бажаєте скористатися послугами Syncthing?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您想使用 Syncthing 服务吗？"
+          }
+        }
+      }
+    },
     "Done" : {
       "localizations" : {
         "de" : {
@@ -13776,46 +13856,6 @@
         }
       }
     },
-    "I understand, let's get started!" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ich verstehe, lass uns anfangen!"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entiendo, ¡comencemos!"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ho capito, iniziamo!"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ik begrijp het, tijd om te beginnen!"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Я розумію, давайте почнемо!"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "我明白了，我们开始吧！"
-          }
-        }
-      }
-    },
     "I understand!" : {
       "localizations" : {
         "de" : {
@@ -15270,6 +15310,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "法律声明"
+          }
+        }
+      }
+    },
+    "Let's get started!" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los geht's!"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Empecemos!"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniziamo!"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laten we beginnen!"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Давайте почнемо!"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "让我们开始吧！"
           }
         }
       }
@@ -25036,6 +25116,87 @@
         }
       }
     },
+    "Synctrain can be configured to use services provided by the [Syncthing Foundation](https://syncthing.net/foundation) to be able to find and connect to other devices. When this is enabled, Synctrain will send your device ID and IP addresses to these services." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain kann so konfiguriert werden, dass es die von der [Syncthing Foundation](https://syncthing.net/foundation) bereitgestellten Dienste nutzt, um andere Geräte zu finden und sich mit ihnen zu verbinden. Wenn dies aktiviert ist, sendet Synctrain Ihre Geräte-ID und IP-Adressen an diese Dienste."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain puede configurarse para usar servicios proporcionados por la [Syncthing Foundation](https://syncthing.net/foundation) para poder encontrar y conectar con otros dispositivos. Cuando esto está habilitado, Synctrain enviará tu ID de dispositivo y las direcciones IP a estos servicios."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain può essere configurato per utilizzare i servizi forniti dalla [Syncthing Foundation](https://syncthing.net/foundation) per poter trovare e connettersi ad altri dispositivi. Quando questa opzione è abilitata, Synctrain invierà il tuo ID dispositivo e gli indirizzi IP a questi servizi."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain kan worden geconfigureerd om gebruik te maken van de diensten die worden aangeboden door de [Syncthing Foundation](https://syncthing.net/foundation) om andere apparaten te kunnen vinden en ermee te verbinden. Wanneer dit is ingeschakeld, stuurt Synctrain je apparaat-ID en IP-adressen naar deze diensten."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain можна налаштувати на використання сервісів, наданих [Syncthing Foundation](https://syncthing.net/foundation), для можливості знаходити та підключатися до інших пристроїв. Коли ця функція ввімкнена, Synctrain надсилатиме ваш ідентифікатор пристрою та IP-адреси цим сервісам."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain 可以配置为使用 [Syncthing Foundation](https://syncthing.net/foundation) 提供的服务，以便能够找到和连接到其他设备。启用此功能时，Synctrain 会将您的设备 ID 和 IP 地址发送到这些服务。"
+          }
+        }
+      }
+    },
+    "Synctrain can be configured to use services provided by the Syncthing Foundation to be able to find and connect to other devices. When this is enabled, Synctrain will send your device ID and IP addresses to these services." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain kann so konfiguriert werden, dass es Dienste nutzt, die von der Syncthing Foundation bereitgestellt werden, um andere Geräte zu finden und zu verbinden. Wenn diese Option aktiviert ist, sendet Synctrain Ihre Geräte-ID und IP-Adressen an diese Dienste."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain se puede configurar para utilizar los servicios proporcionados por la Fundación Syncthing para poder encontrar y conectar con otros dispositivos. Cuando esta opción está habilitada, Synctrain enviará su ID de dispositivo y direcciones IP a estos servicios."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain può essere configurato per utilizzare i servizi forniti dalla Syncthing Foundation per poter trovare e connettersi ad altri dispositivi. Quando questa opzione è attivata, Synctrain invierà il tuo ID dispositivo e gli indirizzi IP a questi servizi."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain kan worden geconfigureerd om diensten te gebruiken die worden aangeboden door de Syncthing Foundation om andere apparaten te kunnen vinden en verbinden. Wanneer dit is ingeschakeld, zal Synctrain je apparaat-ID en IP-adressen naar deze diensten sturen."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain можна налаштувати для використання сервісів, наданих Фондом Syncthing, щоб мати можливість знаходити та підключатися до інших пристроїв. Коли ця опція увімкнена, Synctrain відправлятиме ваш ID пристрою та IP-адреси на ці сервіси."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain 可以配置为使用由 Syncthing Foundation 提供的服务，以便能够找到并连接到其他设备。启用此功能时，Synctrain 将向这些服务发送您的设备 ID 和 IP 地址。"
+          }
+        }
+      }
+    },
     "Synctrain cannot access this folder anymore. Please click the button below to re-select the folder on your system. This should re-grant Synctrain access to the folder." : {
       "localizations" : {
         "de" : {
@@ -25192,6 +25353,127 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Synctrain 基于 Syncthing。如果您对 Syncthing 本身有任何疑问，或在运行其他版本 Syncthing 的设备上遇到问题，您可以在 Syncthing 论坛上找到有用的答案和讨论。"
+          }
+        }
+      }
+    },
+    "Synctrain will be able to automatically find and connect other devices on your local network as well as the internet, as long as the other devices are also configured to use Syncthing services." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain kann automatisch andere Geräte in Ihrem lokalen Netzwerk sowie im Internet finden und verbinden, sofern die anderen Geräte ebenfalls für die Nutzung der Syncthing-Dienste konfiguriert sind."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain podrá encontrar y conectar automáticamente otros dispositivos en tu red local, así como en Internet, siempre que los otros dispositivos también estén configurados para usar los servicios de Syncthing."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain sarà in grado di trovare e connettere automaticamente altri dispositivi sulla tua rete locale così come su Internet, a condizione che anche gli altri dispositivi siano configurati per utilizzare i servizi Syncthing."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain kan automatisch andere apparaten op uw lokale netwerk en op internet vinden en verbinden, zolang de andere apparaten ook zijn geconfigureerd om Syncthing-services te gebruiken."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain зможе автоматично знаходити та підключати інші пристрої у вашій локальній мережі та в Інтернеті, за умови, що інші пристрої також налаштовані на використання послуг Syncthing."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain 将能够自动在您的本地网络以及互联网上查找并连接其他设备，只要其他设备也配置为使用 Syncthing 服务。"
+          }
+        }
+      }
+    },
+    "Synctrain will be able to find and connect to other devices on your local network, but until you manually configure device addresses, discovery, STUN and/or relaying servers, it will not be able to find and connect to other devices over the internet." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain kann andere Geräte in Ihrem lokalen Netzwerk finden und verbinden, aber bis Sie manuell Geräteadressen, Discovery, STUN und/oder Relais-Server konfigurieren, kann es keine anderen Geräte über das Internet finden und verbinden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain podrá encontrar y conectarse con otros dispositivos en tu red local, pero hasta que configures manualmente las direcciones de los dispositivos, los servidores de descubrimiento, STUN y/o relé, no podrá encontrar ni conectarse a otros dispositivos a través de internet."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain sarà in grado di trovare e connettersi ad altri dispositivi sulla tua rete locale, ma finché non configuri manualmente gli indirizzi dei dispositivi, i server di discovery, STUN e/o relaying, non sarà in grado di trovare e connettersi ad altri dispositivi su Internet."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain kan andere apparaten in je lokale netwerk vinden en verbinden, maar totdat je handmatig apparaatadressen, discovery, STUN en/of relay-servers configureert, kan het geen apparaten via het internet vinden en verbinden."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain зможе знаходити та підключатися до інших пристроїв у вашій локальній мережі, але до тих пір, поки ви не налаштуєте вручну адреси пристроїв, сервери виявлення, STUN та/або ретрансляції, він не зможе знаходити та підключатися до інших пристроїв через Інтернет."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain可以找到并连接到您本地网络上的其他设备，但在您手动配置设备地址、发现、STUN和/或中继服务器之前，它将无法通过互联网找到和连接到其他设备。"
+          }
+        }
+      }
+    },
+    "Synctrain will only be able to find and connect to other devices on your local network automatically, until you configure addresses manually for each device, and/or manually configure discovery, STUN and relaying servers." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain kann automatisch nur andere Geräte in Ihrem lokalen Netzwerk finden und verbinden, bis Sie manuell Adressen für jedes Gerät konfigurieren und/oder die Erkennung, STUN und Relay-Server manuell konfigurieren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain solo podrá encontrar y conectarse automáticamente a otros dispositivos en tu red local, hasta que configures manualmente las direcciones para cada dispositivo y/o configures manualmente los servidores de descubrimiento, STUN y relay."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain sarà in grado di trovare e connettersi automaticamente ad altri dispositivi sulla tua rete locale solo fino a quando non configuri manualmente gli indirizzi per ciascun dispositivo e/o configuri manualmente i server di rilevamento, STUN e relay."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain kan alleen automatisch andere apparaten op je lokale netwerk vinden en verbinding maken, totdat je handmatig adressen voor elk apparaat configureert en/of handmatig ontdekking, STUN en relay-servers configureert."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain зможе автоматично знаходити та підключатися до інших пристроїв у вашій локальній мережі лише до тих пір, поки ви не налаштуєте вручну адреси для кожного пристрою і/або не налаштуєте вручну виявлення, STUN і сервери ретрансляції."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在您为每个设备手动配置地址，和/或手动配置发现、STUN以及中继服务器之前，Synctrain将只能自动发现并连接到您本地网络上的其他设备。"
           }
         }
       }
@@ -29724,6 +30006,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "使用设备密码"
+          }
+        }
+      }
+    },
+    "Use Syncthing services" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Syncthing-Dienste verwenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utiliza los servicios de Syncthing"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa i servizi Syncthing"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebruik Syncthing-diensten"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Використовуйте послуги Syncthing"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用Syncthing服务"
           }
         }
       }
