@@ -93,6 +93,33 @@ extension AppState {
 	}
 }
 
+private struct LogView: View {
+	@Environment(AppState.self) private var appState
+	@State private var lines: String = ""
+	
+	var body: some View {
+		ScrollView {
+			Text(self.lines)
+				.textSelection(.enabled)
+				.multilineTextAlignment(.leading)
+				.lineLimit(nil)
+				.monospaced()
+				.padding()
+				.fixedSize(horizontal: false, vertical: true)
+		}
+		.navigationTitle("Log")
+		#if os(iOS)
+			.navigationBarTitleDisplayMode(.inline)
+		#endif
+		.task {
+			Task {
+				var error: NSError? = nil
+				self.lines = appState.client.getLastLogLines(&error)
+			}
+		}
+	}
+}
+
 private struct SupportBundleView: View {
 	@Environment(AppState.self) private var appState
 	@State private var writingSupportBundle: Bool = false
@@ -189,6 +216,7 @@ private struct SupportBundleView: View {
 
 struct SupportView: View {
 	@Environment(AppState.self) private var appState
+	@State private var showLog: Bool = false
 
 	var body: some View {
 		Form {
@@ -238,6 +266,14 @@ struct SupportView: View {
 
 				NavigationLink(destination: TroubleshootingView(userSettings: appState.userSettings)) {
 					Label("Troubleshooting options", systemImage: "book.and.wrench")
+				}
+				
+				Button("View log messages", systemImage: "heart.text.clipboard") {
+					showLog = true
+				}.sheet(isPresented: $showLog) {
+					NavigationStack {
+						LogView()
+					}
 				}
 			}
 		}

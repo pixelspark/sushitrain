@@ -8,6 +8,7 @@ package sushitrain
 import (
 	"archive/zip"
 	"bufio"
+	"bytes"
 	"context"
 	"crypto/tls"
 	"encoding/json"
@@ -1484,6 +1485,15 @@ func (c *Client) ClearDatabase() error {
 	dbPath := locations.Get(locations.Database)
 	slog.Warn("Removing v2 index", "path", dbPath)
 	return os.RemoveAll(dbPath)
+}
+
+func (c *Client) GetLastLogLines() (string, error) {
+	var buf bytes.Buffer
+	err := c.logHandler.tail.write(&buf, true)
+	if err != nil {
+		return "", err
+	}
+	return buf.String(), nil
 }
 
 func (c *Client) WriteSupportBundle(path string, appInfo []byte) error {
