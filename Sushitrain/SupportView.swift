@@ -6,9 +6,189 @@
 import SwiftUI
 @preconcurrency import SushitrainCore
 
+private struct AppSupportBundle: Encodable {
+	enum PrefValue: Encodable {
+		case string(String)
+		case int(Int)
+		case double(Double)
+		case boolean(Bool)
+		case list([PrefValue])
+		case dictionary([String: PrefValue])
+		case null
+		case data(Data)
+
+		init(_ v: Any) {
+			if let s = v as? String {
+				self = .string(s)
+			}
+			else if let d = v as? Double {
+				self = .double(d)
+			}
+			else if let n = v as? Int {
+				self = .int(n)
+			}
+			else if let b = v as? Bool {
+				self = .boolean(b)
+			}
+			else if let b = v as? [Any] {
+				self = .list(b.map(PrefValue.init))
+			}
+			else if let d = v as? [String: Any] {
+				self = .dictionary(PrefValue.from(d))
+			}
+			else if let d = v as? Data {
+				self = .data(d)
+			}
+			else {
+				self = .null
+			}
+		}
+
+		func encode(to encoder: any Encoder) throws {
+			switch self {
+			case .string(let s): try s.encode(to: encoder)
+			case .int(let s): try s.encode(to: encoder)
+			case .double(let s): try s.encode(to: encoder)
+			case .boolean(let s): try s.encode(to: encoder)
+			case .list(let s): try s.encode(to: encoder)
+			case .dictionary(let s): try s.encode(to: encoder)
+			case .data(let s):
+				if let utf = String(data: s, encoding: .utf8) {
+					try utf.encode(to: encoder)
+				}
+				else {
+					try s.base64EncodedString().encode(to: encoder)
+				}
+			case .null: return
+			}
+		}
+
+		static func from(_ values: [String: Any]) -> [String: PrefValue] {
+			var out: [String: PrefValue] = [:]
+			for (k, v) in values {
+				out[k] = PrefValue(v)
+			}
+			return out
+		}
+	}
+
+	var appVersion: String?
+	var bundleIdentifier: String?
+	var bundlePath: String?
+	var userSettings: [String: PrefValue]
+}
+
+extension AppState {
+	fileprivate func generateAppSupportBundle() -> AppSupportBundle {
+		let mainBundle = Bundle.main
+
+		UserDefaults.standard.dictionaryRepresentation()
+		return AppSupportBundle(
+			appVersion: mainBundle.buildVersionNumber,
+			bundleIdentifier: mainBundle.bundleIdentifier,
+			bundlePath: mainBundle.bundlePath,
+			userSettings: AppSupportBundle.PrefValue.from(
+				UserDefaults.standard.persistentDomain(forName: mainBundle.bundleIdentifier!) ?? [:])
+		)
+	}
+}
+
+private struct SupportBundleView: View {
+	@Environment(AppState.self) private var appState
+	@State private var writingSupportBundle: Bool = false
+	@State private var supportBundle: URL? = nil
+	@State private var showSaveSupportBundle: Bool = false
+
+	var body: some View {
+		Section {
+			Text(
+				"To allow others to assist you in troubleshooting, you can send them a support bundle. This bundle contains technical information about the app. **Note: while the app will redact user names, IP addresses and device IDs in the bundle, it may still contain personally identifiable information, such as folder names. Be sure to review the contents of the bundle before sending it to others.**"
+			)
+			.fixedSize(horizontal: false, vertical: true)
+			.onDisappear {
+				if let s = self.supportBundle {
+					try? FileManager.default.removeItem(at: s)
+				}
+			}
+			.fileImporter(isPresented: $showSaveSupportBundle, allowedContentTypes: [.directory]) { res in
+				switch res {
+				case .failure(let e):
+					Log.warn("error selecting path: \(e)")
+				case .success(let url):
+					if !url.startAccessingSecurityScopedResource() {
+						Log.warn("Could not start accessing folder to export support bundle to")
+					}
+					defer { url.stopAccessingSecurityScopedResource() }
+
+					if let sbURL = self.supportBundle {
+						let targetURL = url.appendingPathComponent(sbURL.lastPathComponent, isDirectory: false)
+						Log.info("Copying support bundle  to URL \(targetURL)")
+						try? FileManager.default.copyItem(at: sbURL, to: targetURL)
+					}
+				}
+			}
+
+			if let s = supportBundle {
+				ShareLink(item: s, subject: Text("Support bundle"), message: Text("Support bundle"), preview: self.sharePreview()) {
+					Label("Share information bundle for support", systemImage: "text.page.badge.magnifyingglass")
+				}
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
+
+				Button("Save support bundle", systemImage: "text.page.badge.magnifyingglass") {
+					showSaveSupportBundle = true
+				}
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
+			}
+			else {
+				Button("Generate support bundle", systemImage: "text.page.badge.magnifyingglass") {
+					Task.detached {
+						await self.generateSupportBundle()
+					}
+				}.disabled(writingSupportBundle)
+					#if os(macOS)
+						.buttonStyle(.link)
+					#endif
+			}
+		}
+	}
+
+	private func generateSupportBundle() async {
+		if self.supportBundle == nil && !self.writingSupportBundle {
+			self.writingSupportBundle = true
+			do {
+				// Generate app-side bundle
+				let appBundle = appState.generateAppSupportBundle()
+				let encoder = JSONEncoder()
+				encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes]
+				let appBundleJSON = try encoder.encode(appBundle)
+
+				let tempDir = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+				let tempPath = tempDir.appending(
+					component: "Synctrain-support-bundle-\(ProcessInfo().globallyUniqueString).zip")
+				try self.appState.client.writeSupportBundle(tempPath.path(percentEncoded: false), appInfo: appBundleJSON)
+
+				DispatchQueue.main.async {
+					self.writingSupportBundle = false
+					self.supportBundle = tempPath
+				}
+			}
+			catch {
+				Log.warn("cannot write support bundle: \(error.localizedDescription)")
+			}
+		}
+	}
+
+	private func sharePreview() -> SharePreview<Never, Never> {
+		return SharePreview("Support bundle")
+	}
+}
+
 struct SupportView: View {
 	@Environment(AppState.self) private var appState
-	@State private var supportBundle: URL? = nil
 
 	var body: some View {
 		Form {
@@ -37,26 +217,7 @@ struct SupportView: View {
 				}
 			}
 
-			Section {
-				Text(
-					"To diagnose any issue you may be experiencing, you may want to make use of the troubleshooting options provided in this app."
-				)
-				.fixedSize(horizontal: false, vertical: true)
-
-				NavigationLink(destination: TroubleshootingView(userSettings: appState.userSettings)) {
-					Label("Troubleshooting options", systemImage: "book.and.wrench")
-				}
-
-				if let s = supportBundle {
-					ShareLink(item: s, subject: Text("Support bundle"), message: Text("Support bundle"), preview: self.sharePreview())
-					{
-						Label("Share information bundle for support", systemImage: "text.page.badge.magnifyingglass")
-					}
-					#if os(macOS)
-						.buttonStyle(.link)
-					#endif
-				}
-			}
+			SupportBundleView()
 
 			Section {
 				Text(
@@ -68,6 +229,17 @@ struct SupportView: View {
 					Label("Visit the Syncthing forum", systemImage: "link")
 				}
 			}
+			
+			Section {
+				Text(
+					"To diagnose any issue you may be experiencing, you may want to make use of the troubleshooting options provided in this app."
+				)
+				.fixedSize(horizontal: false, vertical: true)
+
+				NavigationLink(destination: TroubleshootingView(userSettings: appState.userSettings)) {
+					Label("Troubleshooting options", systemImage: "book.and.wrench")
+				}
+			}
 		}
 		#if os(macOS)
 			.formStyle(.grouped)
@@ -76,38 +248,6 @@ struct SupportView: View {
 		#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)
 		#endif
-		.task {
-			Task.detached {
-				await self.generateSupportBundle()
-			}
-		}
-		.onDisappear {
-			if let s = self.supportBundle {
-				try? FileManager.default.removeItem(at: s)
-			}
-		}
-	}
-
-	private func generateSupportBundle() async {
-		if self.supportBundle == nil {
-			do {
-				let data = try self.appState.client.generateSupportBundle()
-				let tempDir = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-				let tempPath = tempDir.appending(
-					component: "Synctrain-support-bundle-\(ProcessInfo().globallyUniqueString).zip")
-				try data.write(to: tempPath)
-				DispatchQueue.main.async {
-					self.supportBundle = tempPath
-				}
-			}
-			catch {
-				Log.warn("cannot write support bundle: \(error.localizedDescription)")
-			}
-		}
-	}
-
-	private func sharePreview() -> SharePreview<Never, Never> {
-		return SharePreview("Support bundle")
 	}
 }
 

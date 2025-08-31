@@ -12330,47 +12330,6 @@
         }
       }
     },
-    "Frequently asked questions" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Häufig gestellte Fragen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Preguntas frecuentes"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Domande frequenti"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Veelgestelde vragen"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Часті запитання"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "常见问题"
-          }
-        }
-      }
-    },
     "From album" : {
       "localizations" : {
         "de" : {
@@ -12487,6 +12446,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "常规"
+          }
+        }
+      }
+    },
+    "Generate support bundle" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support-Bundle erstellen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generar paquete de soporte"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Genera pacchetto di supporto"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Genereer ondersteuningspakket"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Створити пакет підтримки"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成支持包"
           }
         }
       }
@@ -20555,6 +20554,46 @@
         }
       }
     },
+    "Save support bundle" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support-Bundle speichern"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar paquete de soporte"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salva il pacchetto di supporto"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ondersteuningspakket opslaan"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зберегти пакет підтримки"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存支持包"
+          }
+        }
+      }
+    },
     "Save the following media types" : {
       "localizations" : {
         "de" : {
@@ -28125,6 +28164,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "要访问此页面，您需要登录"
+          }
+        }
+      }
+    },
+    "To allow others to assist you in troubleshooting, you can send them a support bundle. This bundle contains technical information about the app. **Note: while the app will redact user names, IP addresses and device IDs in the bundle, it may still contain personally identifiable information, such as folder names. Be sure to review the contents of the bundle before sending it to others.**" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um anderen bei der Fehlersuche zu helfen, können Sie ihnen ein Support-Paket senden. Dieses Paket enthält technische Informationen über die App. **Hinweis: Während die App Benutzernamen, IP-Adressen und Geräte-IDs im Paket unkenntlich macht, kann es dennoch personenbezogene Informationen enthalten, wie z.B. Ordnernamen. Überprüfen Sie den Inhalt des Pakets, bevor Sie es an andere senden.**"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para permitir que otros te ayuden a solucionar problemas, puedes enviarles un paquete de soporte. Este paquete contiene información técnica sobre la aplicación. **Nota: aunque la aplicación eliminará los nombres de usuario, direcciones IP e identificaciones de dispositivos en el paquete, aún puede contener información personal identificable, como los nombres de las carpetas. Asegúrate de revisar el contenido del paquete antes de enviarlo a otros.**"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per consentire ad altri di assisterti nella risoluzione dei problemi, puoi inviare loro un pacchetto di supporto. Questo pacchetto contiene informazioni tecniche sull'app. **Nota: mentre l'app redige nomi utente, indirizzi IP e ID dispositivo nel pacchetto, potrebbe ancora contenere informazioni personali identificabili, come i nomi delle cartelle. Assicurati di rivedere il contenuto del pacchetto prima di inviarlo ad altri.**"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om anderen te helpen met het oplossen van problemen, kunt u hen een ondersteuningspakket sturen. Dit pakket bevat technische informatie over de app. **Let op: hoewel de app gebruikersnamen, IP-adressen en apparaat-ID's in het pakket redigeert, kan deze nog steeds persoonlijk identificeerbare informatie bevatten, zoals mapnamen. Controleer de inhoud van het pakket voordat u dit naar anderen stuurt.**"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Щоб дозволити іншим допомогти вам у вирішенні проблем, ви можете надіслати їм пакет підтримки. Цей пакет містить технічну інформацію про програму. **Примітка: хоча програма зафарбовує імена користувачів, IP-адреси та ідентифікатори пристроїв у пакеті, він може все ще містити особисту інформацію, таку як імена папок. Переконайтесь, що ви перевірили вміст пакету перед тим, як відправляти його іншим.**"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "为了让其他人协助您进行故障排除，您可以向他们发送一个支持包。此包包含有关应用程序的技术信息。**注意：虽然应用程序会在包中编辑用户名、IP地址和设备ID，但可能仍包含个人身份信息，如文件夹名称。在将包发送给他人之前，请确保检查包的内容。**"
           }
         }
       }

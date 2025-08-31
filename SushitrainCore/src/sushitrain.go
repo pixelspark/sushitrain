@@ -8,7 +8,6 @@ package sushitrain
 import (
 	"archive/zip"
 	"bufio"
-	"bytes"
 	"context"
 	"crypto/tls"
 	"encoding/json"
@@ -1487,20 +1486,44 @@ func (c *Client) ClearDatabase() error {
 	return os.RemoveAll(dbPath)
 }
 
-func (c *Client) GenerateSupportBundle() ([]byte, error) {
-	archive := new(bytes.Buffer)
+func (c *Client) WriteSupportBundle(path string, appInfo []byte) error {
+	out, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	err = c.generateSupportBundle(out, appInfo)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
-	zipWriter := zip.NewWriter(archive)
+func (c *Client) generateSupportBundle(writer io.Writer, appInfo []byte) error {
+	zipWriter := zip.NewWriter(writer)
 	defer zipWriter.Close() // We might close twice but that's alright
+
+	// Write app support info
+	if len(appInfo) > 0 {
+		appInfo = []byte(redactLog(string(appInfo)))
+		appInfoWriter, err := zipWriter.Create("info-app.json")
+		if err != nil {
+			return err
+		}
+		_, err = appInfoWriter.Write(appInfo)
+		if err != nil {
+			return err
+		}
+	}
 
 	// Write log tail
 	logTailFileWriter, err := zipWriter.Create("log-tail.txt")
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if err := c.logHandler.tail.write(logTailFileWriter, true); err != nil {
-		return nil, err
+		return err
 	}
 
 	// Write a general info JSON
@@ -1517,31 +1540,31 @@ func (c *Client) GenerateSupportBundle() ([]byte, error) {
 	infoJson["redactedConfig"] = c.getRedactedConfigFile()
 	jsonData, err := json.MarshalIndent(infoJson, "", "\t")
 	if err != nil {
-		return nil, err
+		return err
 	}
-	jsonData = []byte(redactLogLine(string(jsonData)))
+	jsonData = []byte(redactLog(string(jsonData)))
 	jsonWriter, err := zipWriter.Create("info.json")
 	if err != nil {
-		return nil, err
+		return err
 	}
 	_, err = jsonWriter.Write(jsonData)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// Goroutine profile
 	if p := pprof.Lookup("goroutine"); p != nil {
 		goroutineWriter, err := zipWriter.Create("goroutines.pprof")
 		if err != nil {
-			return nil, err
+			return err
 		}
 		_ = p.WriteTo(goroutineWriter, 0)
 	}
 
 	if err = zipWriter.Close(); err != nil {
-		return nil, err
+		return err
 	}
-	return archive.Bytes(), nil
+	return nil
 }
 
 func (c *Client) getRedactedConfigFile() config.Configuration {

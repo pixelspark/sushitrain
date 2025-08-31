@@ -64,11 +64,13 @@ func (lt *logTail) append(line string) {
 var deviceIDTailRegexp = regexp.MustCompile("(-[A-Z0-9]{7}){7}")
 var ipHeadRegexp = regexp.MustCompile("(([0-9]{1,3}\\.){3})|(([0-9a-fA-F]{1,4}:){4})")
 var pathsRegexp = regexp.MustCompile("/Users/[^/]+/")
+var uuidTailRegexp = regexp.MustCompile("-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}")
 
-func redactLogLine(line string) string {
+func redactLog(line string) string {
 	line = deviceIDTailRegexp.ReplaceAllString(line, "•••")
 	line = ipHeadRegexp.ReplaceAllString(line, "•••.•••.•••.")
 	line = pathsRegexp.ReplaceAllString(line, "/Users/•••/")
+	line = uuidTailRegexp.ReplaceAllString(line, "-•••")
 	return line
 }
 
@@ -78,7 +80,7 @@ func (lt *logTail) write(to io.Writer, redact bool) error {
 		line := lt.lines[i]
 		if len(line) > 0 {
 			if redact {
-				line = redactLogLine(line)
+				line = redactLog(line)
 			}
 			_, err := to.Write([]byte(line + "\n"))
 			if err != nil {
@@ -91,7 +93,7 @@ func (lt *logTail) write(to io.Writer, redact bool) error {
 		line := lt.lines[i]
 		if len(line) > 0 {
 			if redact {
-				line = redactLogLine(line)
+				line = redactLog(line)
 			}
 			_, err := to.Write([]byte(line + "\n"))
 			if err != nil {
