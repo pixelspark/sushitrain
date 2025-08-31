@@ -4007,7 +4007,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Weet u zeker dat u %#@arg1@  %2$lld bestanden wilt toevoegen voor synchronisatie met andere apparaten?"
+            "value" : "Weet je zeker dat je %#@arg1@  %2$lld bestanden wilt toevoegen voor synchronisatie met andere apparaten?"
           },
           "substitutions" : {
             "arg1" : {
@@ -8301,7 +8301,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apparaten die uw aandacht nodig hebben"
+            "value" : "Apparaten die je aandacht nodig hebben"
           }
         },
         "uk" : {
@@ -8901,7 +8901,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wilt u gebruik maken van Syncthing-diensten?"
+            "value" : "Wil je gebruik maken van Syncthing-diensten?"
           }
         },
         "uk" : {
@@ -12313,7 +12313,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Voor een bestand in deze map op locatie '%@', wordt de gegenereerde deel-link %@'. Om de link daadwerkelijk te laten werken, moet u een webserver opzetten die de map op de aangegeven URL serveert."
+            "value" : "Voor een bestand in deze map op locatie '%@', wordt de gegenereerde deel-link %@'. Om de link daadwerkelijk te laten werken, moet je een webserver opzetten die de map op de aangegeven URL serveert."
           }
         },
         "uk" : {
@@ -12633,7 +12633,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gegenereerde URL's zullen eruitzien als '%@'. U moet een webserver en/of applicatie configureren om deze URL's te behandelen."
+            "value" : "Gegenereerde URL's zullen eruitzien als '%@'. Je moet een webserver en/of applicatie configureren om deze URL's te behandelen."
           }
         },
         "uk" : {
@@ -12673,7 +12673,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Miniatuurweergaven genereren kan even duren en kan veel dataverkeer gebruiken. Het is raadzaam om verbinding te maken met een Wi-Fi-netwerk voordat u verdergaat. Weet u zeker dat u wilt doorgaan?"
+            "value" : "Miniatuurweergaven genereren kan even duren en kan veel dataverkeer gebruiken. Het is raadzaam om verbinding te maken met een Wi-Fi-netwerk voordat je verdergaat. Weet je zeker dat je wilt doorgaan?"
           }
         },
         "uk" : {
@@ -14159,7 +14159,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Als uw probleem onopgelost blijft, kunt u de hulp van onze gemeenschap inroepen via onze discussiepagina. Vergeet niet dat deze app gratis software is. Hoewel we veel belang hechten aan uw feedback en ervoor willen zorgen dat de app correct werkt, hebben we niet de middelen om ondersteuning te bieden bij uw specifieke probleem of het gebruik van Synctrain. U kunt de kans op het oplossen van uw probleem aanzienlijk vergroten door gedetailleerde beschrijvingen te geven van uw probleem, uw configuratie en gebruik, en wat u al heeft gedaan om het probleem zelf op te lossen. Geef alstublieft zoveel mogelijk informatie, inclusief relevante instellingen, schermafbeeldingen en foutmeldingen."
+            "value" : "Als je probleem onopgelost blijft, kun je de hulp van onze gemeenschap inroepen via onze discussiepagina. Vergeet niet dat deze app gratis software is. Hoewel we veel belang hechten aan uw feedback en ervoor willen zorgen dat de app correct werkt, hebben we niet de middelen om ondersteuning te bieden bij uw specifieke probleem of het gebruik van Synctrain. Je kunt de kans op het oplossen van uw probleem aanzienlijk vergroten door gedetailleerde beschrijvingen te geven van uw probleem, je configuratie en gebruik, en watjeu al hebt gedaan om het probleem zelf op te lossen. Geef zoveel mogelijk informatie, inclusief relevante instellingen, schermafbeeldingen en foutmeldingen."
           }
         },
         "uk" : {
@@ -24699,7 +24699,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synchronisatie is uitgeschakeld voor alle gekoppelde apparaten. Dit kan optreden na het updaten of opnieuw opstarten van de app. Om synchronisatie opnieuw te starten, schakelt u synchronisatie in op de 'apparaten'-pagina, of tik hier om alle apparaten in te schakelen."
+            "value" : "Synchronisatie is uitgeschakeld voor alle gekoppelde apparaten. Dit kan optreden na het updaten of opnieuw opstarten van de app. Om synchronisatie opnieuw te starten, schakel je synchronisatie in op de 'apparaten'-pagina, of tik hier om alle apparaten in te schakelen."
           }
         },
         "uk" : {
@@ -25339,7 +25339,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synctrain kan automatisch andere apparaten op uw lokale netwerk en op internet vinden en verbinden, zolang de andere apparaten ook zijn geconfigureerd om Syncthing-services te gebruiken."
+            "value" : "Synctrain kan automatisch andere apparaten op je lokale netwerk en op internet vinden en verbinden, zolang de andere apparaten ook zijn geconfigureerd om Syncthing-services te gebruiken."
           }
         },
         "uk" : {
@@ -25939,7 +25939,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "De datums in de bestandsnamen/-paden zullen in de ingestelde tijdzone van uw apparaat zijn op het moment dat de back-up wordt gemaakt. Dit kan ervoor zorgen dat items meer dan eens worden geëxporteerd wanneer u tussen tijdzones beweegt. Het wijzigen van deze instelling kan ervoor zorgen dat foto's opnieuw worden opgeslagen."
+            "value" : "De datums in de bestandsnamen/-paden zullen in de ingestelde tijdzone van je apparaat zijn op het moment dat de back-up wordt gemaakt. Dit kan ervoor zorgen dat items meer dan eens worden geëxporteerd wanneer je tussen tijdzones beweegt. Het wijzigen van deze instelling kan ervoor zorgen dat foto's opnieuw worden opgeslagen."
           }
         },
         "uk" : {
@@ -28151,7 +28151,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dit is een geavanceerde functie en moet alleen worden gebruikt als u weet wat u doet."
+            "value" : "Dit is een geavanceerde functie en moet alleen worden gebruikt als je weet wat je doet."
           }
         },
         "uk" : {
@@ -28351,7 +28351,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hiermee worden alle lokaal opgeslagen kopieën van bestanden in deze map verwijderd. Alle bestanden die niet op een ander apparaat aanwezig zijn, gaan permanent verloren en kunnen niet worden hersteld. Weet u zeker dat u wilt doorgaan?"
+            "value" : "Hiermee worden alle lokaal opgeslagen kopieën van bestanden in deze map verwijderd. Alle bestanden die niet op een ander apparaat aanwezig zijn, gaan permanent verloren en kunnen niet worden hersteld. Weet je zeker dat je wilt doorgaan?"
           }
         },
         "uk" : {
@@ -28391,7 +28391,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hiermee worden alle lokaal opgeslagen kopieën van bestanden in deze map verwijderd. Bestanden die niet ook op een ander apparaat aanwezig zijn, worden niet verwijderd. Weet u zeker dat u wilt doorgaan?"
+            "value" : "Hiermee worden alle lokaal opgeslagen kopieën van bestanden in deze map verwijderd. Bestanden die niet ook op een ander apparaat aanwezig zijn, worden niet verwijderd. Weet je zeker dat je wilt doorgaan?"
           }
         },
         "uk" : {
@@ -28551,7 +28551,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "U moet inloggen om deze pagina te openen."
+            "value" : "Je moet inloggen om deze pagina te openen."
           }
         },
         "uk" : {
@@ -28591,7 +28591,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Om anderen te helpen met het oplossen van problemen, kunt u hen een ondersteuningspakket sturen. Dit pakket bevat technische informatie over de app. **Let op: hoewel de app gebruikersnamen, IP-adressen en apparaat-ID's in het pakket redigeert, kan deze nog steeds persoonlijk identificeerbare informatie bevatten, zoals mapnamen. Controleer de inhoud van het pakket voordat u dit naar anderen stuurt.**"
+            "value" : "Om anderen te helpen met het oplossen van problemen, kunt je hen een ondersteuningspakket sturen. Dit pakket bevat technische informatie over de app. **Let op: hoewel de app gebruikersnamen, IP-adressen en apparaat-ID's in het pakket redigeert, kan deze nog steeds persoonlijk identificeerbare informatie bevatten, zoals mapnamen. Controleer de inhoud van het pakket voordat je dit naar anderen stuurt.**"
           }
         },
         "uk" : {
@@ -28671,7 +28671,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Om problemen die u ondervindt te diagnosticeren, kunt u gebruik maken van de probleemoplossingsopties die in deze app worden aangeboden."
+            "value" : "Om problemen die je ondervindt te diagnosticeren, kun je gebruik maken van de probleemoplossingsopties die in deze app worden aangeboden."
           }
         },
         "uk" : {
@@ -32071,7 +32071,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "U voegt een map toe die mogelijk door een andere app wordt beheerd. Dit kan problemen veroorzaken, bijvoorbeeld wanneer synchronisatie de bestandstructuur van de app op een niet-ondersteunde manier wijzigt. Weet u zeker dat u wilt doorgaan?"
+            "value" : "Je staat op het punt een map toe te voegen die mogelijk door een andere app wordt beheerd. Dit kan problemen veroorzaken, bijvoorbeeld wanneer synchronisatie de bestandstructuur van de app op een niet-ondersteunde manier wijzigt. Weet je zeker dat je wilt doorgaan?"
           }
         },
         "uk" : {
