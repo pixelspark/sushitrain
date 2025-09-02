@@ -17394,6 +17394,46 @@
         }
       }
     },
+    "Onboarding is required before performing intent tasks" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voraussetzung für die Ausführung von Aufgaben ist das Onboarding"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se requiere incorporación antes de realizar tareas de intención"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "È necessario completare l'onboarding prima di eseguire i compiti di intento"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inschrijven is vereist voordat u shortcut-taken kunt uitvoeren"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перед виконанням запитуваних завдань необхідно пройти онбординг"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在执行意图任务之前需要进行入职培训"
+          }
+        }
+      }
+    },
     "One connection is enough" : {
       "localizations" : {
         "de" : {

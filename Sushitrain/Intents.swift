@@ -10,9 +10,13 @@ import UniformTypeIdentifiers
 private enum IntentHandlingError: LocalizedError {
 	case appStartupFailed(String)
 	case unsupported(String)
+	case onboardingRequired
 
 	var errorDescription: String? {
 		switch self {
+		case .onboardingRequired:
+			return String(localized: "Onboarding is required before performing intent tasks")
+
 		case .appStartupFailed(let msg):
 			return String(
 				localized: "Could not start the app: \(msg)"
@@ -28,7 +32,11 @@ extension AppState {
 		// Wait for app startup
 		do {
 			while self.startupState != .started {
-				if case .error(let msg) = self.startupState {
+				if case .onboarding = self.startupState {
+					Log.info("Onboarding required, cannot perform intent tasks now")
+					throw IntentHandlingError.onboardingRequired
+				}
+				else if case .error(let msg) = self.startupState {
 					Log.info("Error in app startup: \(msg); abort intent task")
 					throw IntentHandlingError.appStartupFailed(msg)
 				}
