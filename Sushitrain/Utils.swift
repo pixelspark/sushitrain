@@ -1135,3 +1135,21 @@ extension URL {
 		return false
 	}
 }
+
+extension FileManager {
+	nonisolated func sizeOfFolder(path: URL) async throws -> UInt {
+		let files = try self.subpathsOfDirectory(atPath: path.path(percentEncoded: false))
+		var totalSize: UInt = 0
+		for file in files {
+			let filePath = path.appendingPathComponent(file)
+			let fileDictionary = try self.attributesOfItem(atPath: filePath.path(percentEncoded: false))
+			if let size = fileDictionary[FileAttributeKey.size] as? UInt {
+				totalSize += size
+			}
+			else {
+				Log.warn("No file size for path \(filePath.path) \(file) \(fileDictionary)")
+			}
+		}
+		return totalSize
+	}
+}

@@ -88,7 +88,7 @@ struct SushitrainApp: App {
 		#endif
 	}
 
-	private static func configDirectoryURL() -> URL {
+	static func configDirectoryURL() -> URL {
 		// Determine the config directory (on macOS the user can choose a directory)
 		var isCustom = false
 		#if os(macOS)

@@ -295,10 +295,10 @@ struct SyncState {
 			// We just came out of onboarding, update the version so it is not shown again
 			userSettings.forceOnboardingOnNextStartup = false
 			userSettings.onboardingVersionShown = Self.currentOnboardingVersion
+			try? await Task.sleep(for: .seconds(1))
 		}
 
 		do {
-			try await Task.sleep(for: .seconds(1))
 			// Start the client
 			try await Task.detached(priority: .userInitiated) {
 				// Showtime!

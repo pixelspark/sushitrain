@@ -303,6 +303,9 @@ struct TroubleshootingView: View {
 	@State private var hasMigratedLegacyDatabase = false
 	@State private var hasLegacyDatabase = false
 	@State private var performingDatabaseMaintenance = false
+	@State private var databaseSize: Int64? = nil
+
+	private static let formatter = ByteCountFormatter()
 
 	var body: some View {
 		Form {
@@ -344,6 +347,15 @@ struct TroubleshootingView: View {
 					}
 					else {
 						Text("v2")
+					}
+				}
+
+				LabeledContent("Database size") {
+					if let size = self.databaseSize {
+						Text(Self.formatter.string(fromByteCount: size))
+					}
+					else {
+						Text("Unknown")
 					}
 				}
 
@@ -403,7 +415,7 @@ struct TroubleshootingView: View {
 			}
 		#endif
 		.task {
-			self.updateDatabaseInfo()
+			await self.updateDatabaseInfo()
 		}
 		.navigationTitle("Troubleshooting")
 		#if os(iOS)
@@ -411,9 +423,20 @@ struct TroubleshootingView: View {
 		#endif
 	}
 
-	private func updateDatabaseInfo() {
+	private func updateDatabaseInfo() async {
 		self.hasLegacyDatabase = appState.client.hasLegacyDatabase()
 		self.hasMigratedLegacyDatabase = appState.client.hasMigratedLegacyDatabase()
+
+		let path = SushitrainApp.configDirectoryURL().appending(path: "index-v2", directoryHint: .isDirectory)
+		do {
+			let size = try await FileManager.default.sizeOfFolder(path: path)
+			self.databaseSize = Int64(size)
+			Log.info("size of database is \(size) at path \(path)")
+		}
+		catch {
+			Log.warn("could not determine database size at path \(path): \(error.localizedDescription)")
+			self.databaseSize = nil
+		}
 	}
 
 	private func clearMigratedLegacyDatabase() {
@@ -428,7 +451,7 @@ struct TroubleshootingView: View {
 			catch {
 				print("Cannot clear migrated V1 index: \(error.localizedDescription)")
 			}
-			self.updateDatabaseInfo()
+			await self.updateDatabaseInfo()
 			self.performingDatabaseMaintenance = false
 		}
 	}

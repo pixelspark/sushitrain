@@ -282,24 +282,8 @@ struct ThumbnailImage<Content>: View where Content: View {
 
 	nonisolated func diskCacheSizeBytes() async throws -> UInt {
 		return try await Task(priority: .utility) {
-			return try await self.sizeOfFolder(path: self.cacheDirectory)
+			return try await FileManager.default.sizeOfFolder(path: self.cacheDirectory)
 		}.value
-	}
-
-	private nonisolated func sizeOfFolder(path: URL) async throws -> UInt {
-		let files = try FileManager.default.subpathsOfDirectory(atPath: path.path())
-		var totalSize: UInt = 0
-		for file in files {
-			let filePath = path.appendingPathComponent(file)
-			let fileDictionary = try FileManager.default.attributesOfItem(atPath: filePath.path())
-			if let size = fileDictionary[FileAttributeKey.size] as? UInt {
-				totalSize += size
-			}
-			else {
-				Log.warn("No file size for path \(filePath.path) \(file) \(fileDictionary)")
-			}
-		}
-		return totalSize
 	}
 
 	func remove(cacheKey: String) throws {
