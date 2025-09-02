@@ -10,7 +10,7 @@ require (
 	github.com/gotd/contrib v0.21.0
 	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/miscreant/miscreant.go v0.0.0-20200214223636-26d376326b75
-	github.com/syncthing/syncthing v1.30.0-rc.1.0.20250822070005-8151bcddff7a
+	github.com/syncthing/syncthing v1.30.0-rc.1.0.20250901201048-541678ad9e62
 	golang.org/x/exp v0.0.0-20250811191247-51f88131bc50
 	google.golang.org/protobuf v1.36.7
 )
@@ -39,7 +39,7 @@ require (
 	github.com/jmoiron/sqlx v1.4.0 // indirect
 	github.com/julienschmidt/httprouter v1.3.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
-	github.com/lufia/plan9stats v0.0.0-20250821153705-5981dea3221d // indirect
+	github.com/lufia/plan9stats v0.0.0-20250827001030-24949be3fa54 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-sqlite3 v1.14.31 // indirect
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.11.3 // indirect
@@ -57,9 +57,9 @@ require (
 	github.com/quic-go/quic-go v0.52.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	github.com/shirou/gopsutil/v4 v4.25.7 // indirect
+	github.com/shirou/gopsutil/v4 v4.25.8 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
+	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/syncthing/notify v0.0.0-20250528144937-c7027d4f7465 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/thejerf/suture/v4 v4.0.6 // indirect
