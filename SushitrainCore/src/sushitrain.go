@@ -106,7 +106,7 @@ const (
 
 func NewClient(configPath string, filesPath string, saveLog bool) *Client {
 	// Set version info
-	build.Version = "v2.0.5"
+	build.Version = "v2.0.6"
 	build.Host = "t-shaped.nl"
 	build.User = "sushitrain"
 
