@@ -1588,6 +1588,16 @@ func (c *Client) getRedactedConfigFile() config.Configuration {
 	if rawConf.GUI.User != "" {
 		rawConf.GUI.User = "•••"
 	}
+
+	for fi, f := range rawConf.Folders {
+		for di, d := range f.Devices {
+			if len(d.EncryptionPassword) > 0 {
+				d.EncryptionPassword = "•••"
+				rawConf.Folders[fi].Devices[di] = d
+			}
+		}
+	}
+
 	return rawConf
 }
 
