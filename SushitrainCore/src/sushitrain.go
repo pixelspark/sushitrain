@@ -1518,7 +1518,11 @@ func (c *Client) generateSupportBundle(writer io.Writer, appInfo []byte) error {
 	// Write app support info
 	if len(appInfo) > 0 {
 		appInfo = []byte(redactLog(string(appInfo)))
-		appInfoWriter, err := zipWriter.Create("info-app.json")
+		appInfoWriter, err := zipWriter.CreateHeader(&zip.FileHeader{
+			Name:     "info-app.json",
+			Modified: time.Now(),
+			Method:   zip.Deflate,
+		})
 		if err != nil {
 			return err
 		}
@@ -1529,7 +1533,11 @@ func (c *Client) generateSupportBundle(writer io.Writer, appInfo []byte) error {
 	}
 
 	// Write log tail
-	logTailFileWriter, err := zipWriter.Create("log-tail.txt")
+	logTailFileWriter, err := zipWriter.CreateHeader(&zip.FileHeader{
+		Name:     "log-tail.txt",
+		Modified: time.Now(),
+		Method:   zip.Deflate,
+	})
 	if err != nil {
 		return err
 	}
@@ -1555,7 +1563,11 @@ func (c *Client) generateSupportBundle(writer io.Writer, appInfo []byte) error {
 		return err
 	}
 	jsonData = []byte(redactLog(string(jsonData)))
-	jsonWriter, err := zipWriter.Create("info.json")
+	jsonWriter, err := zipWriter.CreateHeader(&zip.FileHeader{
+		Name:     "info.json",
+		Modified: time.Now(),
+		Method:   zip.Deflate,
+	})
 	if err != nil {
 		return err
 	}
@@ -1566,7 +1578,11 @@ func (c *Client) generateSupportBundle(writer io.Writer, appInfo []byte) error {
 
 	// Goroutine profile
 	if p := pprof.Lookup("goroutine"); p != nil {
-		goroutineWriter, err := zipWriter.Create("goroutines.pprof")
+		goroutineWriter, err := zipWriter.CreateHeader(&zip.FileHeader{
+			Name:     "goroutines.pprof",
+			Modified: time.Now(),
+			Method:   zip.Deflate,
+		})
 		if err != nil {
 			return err
 		}
