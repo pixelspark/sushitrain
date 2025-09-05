@@ -199,6 +199,8 @@ github.com/syncthing/syncthing v1.30.0-rc.1.0.20250902190322-6e9ccf7211ae h1:fyt
 github.com/syncthing/syncthing v1.30.0-rc.1.0.20250902190322-6e9ccf7211ae/go.mod h1:4fXQuO2uPVFDlBX3/p4IZYmncoChUPdtc14umDfNygw=
 github.com/syncthing/syncthing v1.30.0-rc.1.0.20250903072753-372e3c26b085 h1:KggKLfxd54w9eBAymd5UUdQnDr82lG8kaAa9V7+BNJ0=
 github.com/syncthing/syncthing v1.30.0-rc.1.0.20250903072753-372e3c26b085/go.mod h1:4fXQuO2uPVFDlBX3/p4IZYmncoChUPdtc14umDfNygw=
+github.com/syncthing/syncthing v1.30.0-rc.1.0.20250905095115-3c9e87d99418 h1:j7AGHjXi26uOZXGR30hGW72ulIy0pyI6gYgPhHli/fE=
+github.com/syncthing/syncthing v1.30.0-rc.1.0.20250905095115-3c9e87d99418/go.mod h1:4fXQuO2uPVFDlBX3/p4IZYmncoChUPdtc14umDfNygw=
 github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d h1:vfofYNRScrDdvS342BElfbETmL1Aiz3i2t0zfRj16Hs=
 github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d/go.mod h1:RRCYJbIwD5jmqPI9XoAFR0OcDxqUctll6zUj/+B4S48=
 github.com/thejerf/suture/v4 v4.0.6 h1:QsuCEsCqb03xF9tPAsWAj8QOAJBgQI1c0VqJNaingg8=
