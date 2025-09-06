@@ -721,6 +721,17 @@ struct SyncState {
 		}
 	}
 
+	func reduceMemoryUsage() {
+		ImageCache.clearMemoryCache()
+
+		Task {
+			try? await goTask {
+				SushitrainClearBlockCache()
+				SushitrainTriggerGC()
+			}
+		}
+	}
+
 	func onScenePhaseChange(from oldPhase: ScenePhase, to newPhase: ScenePhase) {
 		Log.info("Phase change from \(oldPhase) to \(newPhase) lingeringEnabled=\(self.userSettings.lingeringEnabled)")
 
@@ -736,6 +747,7 @@ struct SyncState {
 				await self.updateBadge()
 				#if os(iOS)
 					self.backgroundManager.inactivate()
+					self.reduceMemoryUsage()
 				#endif
 			}
 			#if os(iOS)
