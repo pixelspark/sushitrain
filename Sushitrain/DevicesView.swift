@@ -18,19 +18,46 @@ struct DevicesView: View {
 	}
 }
 
-struct DeviceMetricView: View {
+private struct DeviceMetricView: View {
 	@Environment(AppState.self) private var appState
 
 	let device: SushitrainPeer
 	let metric: DeviceMetric
 
 	@State private var measurement: Double? = nil
+	@State private var address: String? = nil
+
+	static let formatter = ByteCountFormatter()
 
 	var body: some View {
+		self.metricView().foregroundStyle(.secondary)
+	}
+
+	@ViewBuilder private func metricView() -> some View {
 		ZStack {
 			switch self.metric {
 			case .none:
 				EmptyView()
+
+			case .shortID:
+				Text(self.device.shortDeviceID()).monospaced()
+
+			case .lastSeenAgo:
+				if let secondsAgo = self.measurement, !secondsAgo.isNaN {
+					Text(Duration.seconds(secondsAgo).formatted())
+				}
+				else {
+					EmptyView()
+				}
+
+			case .lastAddress:
+				if let la = self.address {
+					Text(la)
+				}
+				else {
+					EmptyView()
+				}
+
 			case .latency:
 				if let latency = self.measurement, !latency.isNaN {
 					LatencyView(latency: latency)
@@ -38,22 +65,105 @@ struct DeviceMetricView: View {
 				else {
 					EmptyView()
 				}
-			}
+			case .needBytes:
+				if let bytes = self.measurement, !bytes.isNaN {
+					Text(DeviceMetricView.formatter.string(fromByteCount: Int64(bytes)))
+				}
+				else {
+					EmptyView()
+				}
+			case .needItems:
+				if let items = self.measurement, !items.isNaN {
+					Text(items.formatted())
+				}
+				else {
+					EmptyView()
+				}
 
+			case .completionPercentage:
+				if let pct = self.measurement, !pct.isNaN {
+					Text("\(Int(pct))%")
+				}
+				else {
+					EmptyView()
+				}
+			}
 		}.task {
-			self.update()
+			await self.update()
 		}
 		.onChange(of: self.metric) { _, _ in
-			self.update()
+			self.measurement = nil
+			Task {
+				await self.update()
+			}
 		}
 	}
 
-	private func update() {
-		if let m = appState.client.measurements, self.metric == .latency {
-			self.measurement = m.latency(for: self.device.deviceID())
+	private func update() async {
+		(self.measurement, self.address) = await Task.detached {
+			return await self.calculateMeasurement()
+		}.value
+	}
+
+	private nonisolated func calculateMeasurement() async -> (Double?, String?) {
+		let client = await appState.client
+
+		do {
+			switch self.metric {
+			case .latency:
+				return (client.measurements?.latency(for: self.device.deviceID()), nil)
+
+			case .lastAddress:
+				return (nil, client.getLastPeerAddress(self.device.deviceID()))
+
+			case .lastSeenAgo:
+				if let ls = device.lastSeen()?.date() {
+					return (Date.now.timeIntervalSince(ls), nil)
+				}
+				else {
+					return (nil, nil)
+				}
+
+			case .needBytes, .needItems, .completionPercentage:
+				if let folders = device.sharedFolderIDs()?.asArray() {
+					var total: Int64 = 0
+					var totalPercentage: Double = 100.0
+					for folderID in folders {
+						if let folder = client.folder(withID: folderID) {
+							let stats = try folder.completion(forDevice: self.device.deviceID())
+							if self.metric == .needBytes {
+								total += stats.needBytes
+							}
+							else if self.metric == .needItems {
+								total += Int64(stats.needItems)
+							}
+							else if self.metric == .completionPercentage {
+								totalPercentage *= stats.completionPct / 100.0
+							}
+						}
+					}
+
+					if self.metric == .needBytes || self.metric == .needItems {
+						return (Double(total), nil)
+					}
+					else if self.metric == .completionPercentage {
+						return (totalPercentage, nil)
+					}
+					else {
+						return (nil, nil)
+					}
+				}
+				else {
+					return (nil, nil)
+				}
+
+			case .none, .shortID:
+				return (nil, nil)
+			}
 		}
-		else {
-			self.measurement = nil
+		catch {
+			Log.warn("error getting device metrics: \(error.localizedDescription)")
+			return (nil, nil)
 		}
 	}
 }
@@ -98,6 +208,36 @@ struct LatencyView: View {
 					Image(systemName: "cellularbars")
 					Text("Latency")
 				}.tag(DeviceMetric.latency)
+
+				HStack {
+					Image(systemName: "number.circle.fill")
+					Text("Needs (size)")
+				}.tag(DeviceMetric.needBytes)
+
+				HStack {
+					Image(systemName: "number.circle.fill")
+					Text("Needs (items)")
+				}.tag(DeviceMetric.needItems)
+
+				HStack {
+					Image(systemName: "percent")
+					Text("Completion percentage")
+				}.tag(DeviceMetric.completionPercentage)
+
+				HStack {
+					Image(systemName: "qrcode")
+					Text("Device ID")
+				}.tag(DeviceMetric.shortID)
+
+				HStack {
+					Image(systemName: "timer")
+					Text("Last seen (ago)")
+				}.tag(DeviceMetric.lastSeenAgo)
+
+				HStack {
+					Image(systemName: "envelope.front")
+					Text("Address")
+				}.tag(DeviceMetric.lastAddress)
 			}
 			.pickerStyle(.inline)
 		}
@@ -145,9 +285,7 @@ struct LatencyView: View {
 
 									Spacer()
 
-									if peer.isConnected() {
-										DeviceMetricView(device: peer, metric: userSettings.devicesViewMetric)
-									}
+									DeviceMetricView(device: peer, metric: userSettings.devicesViewMetric)
 								}
 							}
 						}.onDelete(perform: { indexSet in

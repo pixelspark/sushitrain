@@ -28,6 +28,12 @@ enum FolderMetric: String {
 enum DeviceMetric: String {
 	case none = ""
 	case latency = "latency"
+	case needBytes = "needBytes"
+	case needItems = "needItems"
+	case completionPercentage = "completionPercentage"
+	case shortID = "shortID"
+	case lastSeenAgo = "lastSeenAgo"
+	case lastAddress = "lastAddress"
 }
 
 #if os(macOS)
