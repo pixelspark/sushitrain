@@ -25,6 +25,11 @@ enum FolderMetric: String {
 	case localPercentage = "localPercentage"
 }
 
+enum DeviceMetric: String {
+	case none = ""
+	case latency = "latency"
+}
+
 #if os(macOS)
 	enum MenuFolderAction: String, Hashable, Equatable {
 		// Do not show folder shortcuts in menu
@@ -71,6 +76,7 @@ class SushitrainDelegate: NSObject {
 	@AppStorage("hideHiddenFolders") var hideHiddenFolders: Bool = false
 	@AppStorage("lingeringEnabled") var lingeringEnabled: Bool = true
 	@AppStorage("foldersViewMetric") var viewMetric: FolderMetric = .none
+	@AppStorage("devicesViewMetric") var devicesViewMetric: DeviceMetric = .none
 	@AppStorage("previewVideos") var previewVideos: Bool = false
 	@AppStorage("tapFileToPreview") var tapFileToPreview: Bool = false
 	@AppStorage("cacheThumbnailsToDisk") var cacheThumbnailsToDisk: Bool = true

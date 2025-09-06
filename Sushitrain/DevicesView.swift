@@ -13,9 +13,48 @@ struct DevicesView: View {
 		#if os(macOS)
 			DevicesGridView().navigationTitle("Devices")
 		#else
-			DevicesListView().navigationTitle("Devices")
+			DevicesListView(userSettings: appState.userSettings).navigationTitle("Devices")
 		#endif
+	}
+}
 
+struct DeviceMetricView: View {
+	@Environment(AppState.self) private var appState
+
+	let device: SushitrainPeer
+	let metric: DeviceMetric
+
+	@State private var measurement: Double? = nil
+
+	var body: some View {
+		ZStack {
+			switch self.metric {
+			case .none:
+				EmptyView()
+			case .latency:
+				if let latency = self.measurement, !latency.isNaN {
+					LatencyView(latency: latency)
+				}
+				else {
+					EmptyView()
+				}
+			}
+
+		}.task {
+			self.update()
+		}
+		.onChange(of: self.metric) { _, _ in
+			self.update()
+		}
+	}
+
+	private func update() {
+		if let m = appState.client.measurements, self.metric == .latency {
+			self.measurement = m.latency(for: self.device.deviceID())
+		}
+		else {
+			self.measurement = nil
+		}
 	}
 }
 
@@ -46,6 +85,24 @@ struct LatencyView: View {
 }
 
 #if os(iOS)
+	struct DeviceMetricPickerView: View {
+		@ObservedObject var userSettings: AppUserSettings
+
+		var body: some View {
+			Picker("Show metric", selection: self.userSettings.$devicesViewMetric) {
+				HStack {
+					Text("None")
+				}.tag(DeviceMetric.none)
+
+				HStack {
+					Image(systemName: "cellularbars")
+					Text("Latency")
+				}.tag(DeviceMetric.latency)
+			}
+			.pickerStyle(.inline)
+		}
+	}
+
 	private struct DevicesListView: View {
 		@Environment(AppState.self) private var appState
 		@State private var showingAddDevicePopup = false
@@ -53,7 +110,8 @@ struct LatencyView: View {
 		@State private var discoveredNewDevices: [String] = []
 		@State private var peers: [SushitrainPeer] = []
 		@State private var loading = true
-		@State private var measurements: [String: Double] = [:]
+
+		@ObservedObject var userSettings: AppUserSettings
 
 		var body: some View {
 			List {
@@ -86,10 +144,9 @@ struct LatencyView: View {
 									}
 
 									Spacer()
+
 									if peer.isConnected() {
-										if let latency = self.measurements[peer.deviceID()], !latency.isNaN {
-											LatencyView(latency: latency)
-										}
+										DeviceMetricView(device: peer, metric: userSettings.devicesViewMetric)
 									}
 								}
 							}
@@ -126,7 +183,23 @@ struct LatencyView: View {
 				}
 			}
 			#if os(iOS)
-				.toolbar { if !peers.isEmpty { EditButton() } }
+				.toolbar {
+					ToolbarItem {
+						EditButton().disabled(peers.isEmpty)
+					}
+
+					ToolbarItem {
+						Menu(
+							content: {
+								DeviceMetricPickerView(userSettings: appState.userSettings)
+							},
+							label: {
+								Image(systemName: "ellipsis.circle")
+									.accessibilityLabel(Text("Menu"))
+							}
+						)
+					}
+				}
 			#endif
 			.sheet(isPresented: $showingAddDevicePopup) {
 				AddDeviceView(suggestedDeviceID: $addingDeviceID)
@@ -142,17 +215,6 @@ struct LatencyView: View {
 				let measurements = appState.client.measurements
 				Task.detached {
 					measurements?.measure()
-					await self.updateMeasurements()
-				}
-			}
-		}
-
-		private func updateMeasurements() {
-			// Measurements
-			self.measurements = [:]
-			if let m = appState.client.measurements {
-				for device in self.peers {
-					self.measurements[device.deviceID()] = m.latency(for: device.deviceID())
 				}
 			}
 		}
@@ -160,7 +222,6 @@ struct LatencyView: View {
 		private func update() async {
 			self.loading = true
 			self.peers = await appState.peers().filter({ x in !x.isSelf() }).sorted()
-			self.updateMeasurements()
 
 			// Discovered peers
 			let peerIDs = peers.map { $0.deviceID() }
