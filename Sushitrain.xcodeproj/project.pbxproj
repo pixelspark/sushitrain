@@ -29,6 +29,7 @@
 		6575B3DF2C6012480057686E /* ChangesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6575B3DE2C6012480057686E /* ChangesView.swift */; };
 		657603EF2D0457B400B36D78 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657603EE2D0457B300B36D78 /* Intents.swift */; };
 		657603F12D045D0B00B36D78 /* QuickActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657603F02D045D0900B36D78 /* QuickActions.swift */; };
+		6580EBB52E6C69610004280A /* SushitrainGlass.icon in Resources */ = {isa = PBXBuildFile; fileRef = 6580EBB42E6C69610004280A /* SushitrainGlass.icon */; };
 		6586863D2CE892130023B1DA /* IgnoresView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6586863C2CE892100023B1DA /* IgnoresView.swift */; };
 		658A29F02CA821950061D1D5 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 658A29EF2CA821950061D1D5 /* AVKit.framework */; };
 		659010962E3E6279000B767E /* ZipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659010952E3E6276000B767E /* ZipView.swift */; };
@@ -113,6 +114,7 @@
 		6575B3DE2C6012480057686E /* ChangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangesView.swift; sourceTree = "<group>"; };
 		657603EE2D0457B300B36D78 /* Intents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intents.swift; sourceTree = "<group>"; };
 		657603F02D045D0900B36D78 /* QuickActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActions.swift; sourceTree = "<group>"; };
+		6580EBB42E6C69610004280A /* SushitrainGlass.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; name = SushitrainGlass.icon; path = Assets/SushitrainGlass.icon; sourceTree = "<group>"; };
 		6586863C2CE892100023B1DA /* IgnoresView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IgnoresView.swift; sourceTree = "<group>"; };
 		658A29EF2CA821950061D1D5 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		659010952E3E6276000B767E /* ZipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipView.swift; sourceTree = "<group>"; };
@@ -171,6 +173,7 @@
 		65AE11F02C39EE0E00E721D4 = {
 			isa = PBXGroup;
 			children = (
+				6580EBB42E6C69610004280A /* SushitrainGlass.icon */,
 				6506158A2C3C4EA9002B6EE6 /* Localizable.xcstrings */,
 				65AE11FB2C39EE0E00E721D4 /* Sushitrain */,
 				65AE12132C39F0CD00E721D4 /* Frameworks */,
@@ -315,7 +318,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1540;
-				LastUpgradeCheck = 1610;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					65AE11F82C39EE0E00E721D4 = {
 						CreatedOnToolsVersion = 15.4;
@@ -354,6 +357,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				652EA4152CBA60AA009EC5FE /* notices.html in Resources */,
+				6580EBB52E6C69610004280A /* SushitrainGlass.icon in Resources */,
 				65AE123C2C39F34B00E721D4 /* PrivacyInfo.xcprivacy in Resources */,
 				65AE12042C39EE0F00E721D4 /* Preview Assets.xcassets in Resources */,
 				6506158B2C3C4EA9002B6EE6 /* Localizable.xcstrings in Resources */,
@@ -493,6 +497,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -551,6 +556,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				VALIDATE_PRODUCT = YES;
@@ -560,16 +566,22 @@
 		65AE12082C39EE0F00E721D4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = SushitrainGlass;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = Sushitrain/Sushitrain.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 54;
 				DEVELOPMENT_ASSET_PATHS = "\"Sushitrain/Preview Content\"";
 				DEVELOPMENT_TEAM = 2N89DJPQ2P;
+				ENABLE_APP_SANDBOX = YES;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_PHOTO_LIBRARY = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Sushitrain/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Synctrain;
@@ -605,16 +617,22 @@
 		65AE12092C39EE0F00E721D4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = SushitrainGlass;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = Sushitrain/Sushitrain.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 54;
 				DEVELOPMENT_ASSET_PATHS = "\"Sushitrain/Preview Content\"";
 				DEVELOPMENT_TEAM = 2N89DJPQ2P;
+				ENABLE_APP_SANDBOX = YES;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_PHOTO_LIBRARY = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Sushitrain/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Synctrain;
