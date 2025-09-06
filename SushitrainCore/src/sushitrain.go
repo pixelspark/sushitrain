@@ -21,6 +21,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"runtime"
 	"runtime/pprof"
 	"slices"
 	"strings"
@@ -1558,6 +1559,14 @@ func (c *Client) generateSupportBundle(writer io.Writer, appInfo []byte) error {
 	infoJson["connectedPeerCount"] = c.ConnectedPeerCount()
 	infoJson["bundleGeneratedAt"] = time.Now().Format(time.RFC3339)
 	infoJson["redactedConfig"] = c.getRedactedConfigFile()
+	infoJson["numGoroutines"] = runtime.NumGoroutine()
+	infoJson["numCPUs"] = runtime.NumCPU()
+
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	infoJson["allocatedHeapBytes"] = m.Alloc
+	infoJson["sysMemoryBytes"] = m.Sys - m.HeapReleased
+
 	jsonData, err := json.MarshalIndent(infoJson, "", "\t")
 	if err != nil {
 		return err
