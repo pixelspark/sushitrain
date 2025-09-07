@@ -273,7 +273,7 @@ struct FolderStatusView: View {
 		#if os(iOS)
 			Label(folderStatus.text, systemImage: folderStatus.systemImage)
 				.foregroundStyle(folderStatus.color)
-				.badge(folderStatus.badge)
+				.badge(Text(folderStatus.badge).foregroundStyle(folderStatus.color))
 		#else
 			Label(folderStatus.fullText, systemImage: folderStatus.systemImage)
 				.foregroundStyle(folderStatus.color)
