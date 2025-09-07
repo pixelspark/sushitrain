@@ -53,39 +53,59 @@ struct PhotoFolderSettingsView: View {
 struct PhotoFolderConfigurationView: View {
 	@Binding var config: PhotoFSConfiguration
 
+	private enum ShowingSheet: String, Identifiable {
+		typealias ObjectIdentifier = String
+
+		var id: ObjectIdentifier {
+			return self.rawValue
+		}
+
+		case editing = "editing"
+		case adding = "adding"
+	}
+
+	@State private var showingSheet: ShowingSheet? = nil
 	@State private var editingAlbumConfig = PhotoFSAlbumConfiguration()
-	@State private var addingNewAlbum = false
 	@State private var editingAlbum = false
 	@State private var editingDirName = ""
 	@State private var editingOldDirName = ""
 
 	var body: some View {
 		Section("Albums") {
-			List {
-				let folderPairs = Array(config.folders)
-				ForEach(folderPairs, id: \.key) { folderName, albumConfig in
-					Button(folderName, systemImage: "folder.fill") {
-						editingAlbumConfig = albumConfig
-						editingOldDirName = folderName
-						editingDirName = folderName
-						editingAlbum = true
-					}
-					#if os(macOS)
-						.buttonStyle(.link)
-						.padding(3.0)
-					#endif
+			let folderPairs = Array(config.folders)
+			ForEach(folderPairs, id: \.key) { folderName, albumConfig in
+				Button(folderName, systemImage: "folder.fill") {
+					editingAlbumConfig = albumConfig
+					editingOldDirName = folderName
+					editingDirName = folderName
+					self.showingSheet = .editing
 				}
-				.onDelete { idxs in
-					Task {
-						for idx in idxs {
-							let albumName = folderPairs[idx].key
-							self.config.folders.removeValue(forKey: albumName)
-						}
+				#if os(macOS)
+					.buttonStyle(.link)
+					.padding(3.0)
+				#endif
+			}
+			.onDelete { idxs in
+				Task {
+					for idx in idxs {
+						let albumName = folderPairs[idx].key
+						self.config.folders.removeValue(forKey: albumName)
 					}
 				}
-				.sheet(isPresented: $editingAlbum) {
-					NavigationStack {
+			}
+			Button("Add album...", systemImage: "plus") {
+				editingAlbumConfig = PhotoFSAlbumConfiguration()
+				self.showingSheet = .adding
+				editingDirName = ""
+			}
+			// This sheet must be attached to the 'Add album' button, because when it's attached to the Section it will
+			// be repeated, and chaos ensues (multiple sheets presented at the same time)
+			.sheet(item: $showingSheet) { showingSheet in
+				NavigationStack {
+					switch showingSheet {
+					case .editing:
 						PhotoFolderAlbumSettingsView(config: $editingAlbumConfig, dirName: $editingDirName)
+							.interactiveDismissDisabled()
 							#if os(iOS)
 								.navigationBarTitleDisplayMode(.inline)
 							#endif
@@ -100,20 +120,8 @@ struct PhotoFolderConfigurationView: View {
 										}
 									})
 							}
-					}
-				}.interactiveDismissDisabled()
 
-				Button("Add album...", systemImage: "plus") {
-					editingAlbumConfig = PhotoFSAlbumConfiguration()
-					addingNewAlbum = true
-					editingDirName = ""
-				}
-				#if os(macOS)
-					.padding(3.0)
-					.buttonStyle(.link)
-				#endif
-				.sheet(isPresented: $addingNewAlbum) {
-					NavigationStack {
+					case .adding:
 						PhotoFolderAlbumSettingsView(config: $editingAlbumConfig, dirName: $editingDirName)
 							.navigationTitle("Add album")
 							#if os(iOS)
@@ -131,6 +139,10 @@ struct PhotoFolderConfigurationView: View {
 					}
 				}
 			}
+			#if os(macOS)
+				.padding(3.0)
+				.buttonStyle(.link)
+			#endif
 		}
 	}
 
@@ -141,6 +153,7 @@ struct PhotoFolderConfigurationView: View {
 				? (self.editingOldDirName.isEmpty ? self.editingAlbumConfig.albumID : editingOldDirName) : editingDirName
 			self.config.folders.removeValue(forKey: self.editingOldDirName)
 			self.config.folders[newName] = self.editingAlbumConfig
+			self.showingSheet = nil
 			editingAlbum = false
 			editingOldDirName = ""
 			editingDirName = ""
@@ -151,7 +164,7 @@ struct PhotoFolderConfigurationView: View {
 		Task {
 			let newName = editingDirName.isEmpty ? self.editingAlbumConfig.albumID : editingDirName
 			self.config.folders[newName] = self.editingAlbumConfig
-			addingNewAlbum = false
+			self.showingSheet = nil
 		}
 	}
 }
