@@ -87,22 +87,33 @@ struct PhotoBackupStatusView: View {
 
 struct PhotoBackupSettingsView: View {
 	@Environment(AppState.self) private var appState
+
+	@ObservedObject var photoBackup: PhotoBackup
+
 	@State private var authorizationStatus: PHAuthorizationStatus = .notDetermined
 	@State private var albumPickerShown = false
-	@ObservedObject var photoBackup: PhotoBackup
 	@State private var folders: [SushitrainFolder] = []
+	@State private var albums: [PHAssetCollection] = []
+	@State private var smartAlbums: [PHAssetCollection] = []
 
 	var body: some View {
-		let albums = self.authorizationStatus == .authorized ? self.loadAlbums() : []
-
 		Form {
 			Section {
 				if authorizationStatus == .authorized {
 					Picker("From album", selection: $photoBackup.selectedAlbumID) {
 						Text("None").tag("")
-						ForEach(albums, id: \.localIdentifier) { album in
-							Text(album.localizedTitle ?? "Unknown album").tag(
-								album.localIdentifier)
+						Text("Camera roll").tag(PhotoBackup.allPhotosAlbumIdentifier)
+
+						Section("Albums") {
+							ForEach(albums, id: \.localIdentifier) { album in
+								Text(album.localizedTitle ?? "Unknown album").tag(album.localIdentifier)
+							}
+						}
+
+						Section("Smart albums") {
+							ForEach(smartAlbums, id: \.localIdentifier) { album in
+								Text(album.localizedTitle ?? "Unknown album").tag(album.localIdentifier)
+							}
 						}
 					}
 					.pickerStyle(.menu)
@@ -322,12 +333,23 @@ struct PhotoBackupSettingsView: View {
 			.navigationBarTitleDisplayMode(.inline)
 		#endif
 		.task {
-			authorizationStatus = PHPhotoLibrary.authorizationStatus()
-			self.folders = await appState.folders().filter({ $0.isSuitablePhotoBackupDestination }).sorted()
+			await self.update()
 		}
 	}
 
-	func loadAlbums() -> [PHAssetCollection] {
+	private func update() async {
+		authorizationStatus = PHPhotoLibrary.authorizationStatus()
+		self.folders = await appState.folders().filter({ $0.isSuitablePhotoBackupDestination }).sorted()
+		if self.authorizationStatus == .authorized {
+			self.loadAlbums()
+		}
+		else {
+			self.albums = []
+			self.smartAlbums = []
+		}
+	}
+
+	private func loadAlbums() {
 		var albums: [PHAssetCollection] = []
 		let options = PHFetchOptions()
 		options.sortDescriptors = [NSSortDescriptor(key: "localizedTitle", ascending: true)]
@@ -336,15 +358,17 @@ struct PhotoBackupSettingsView: View {
 		userAlbums.enumerateObjects { (collection, _, _) in
 			albums.append(collection)
 		}
+		self.albums = albums
 
 		// Fetch system albums, including 'Recents'
+		var smartAlbums: [PHAssetCollection] = []
 		let systemAlbumsOptions = PHFetchOptions()
 		let systemAlbums = PHAssetCollection.fetchAssetCollections(
 			with: .smartAlbum, subtype: .any, options: systemAlbumsOptions)
 		systemAlbums.enumerateObjects { (collection, _, _) in
-			albums.append(collection)
+			smartAlbums.append(collection)
 		}
-		return albums
+		self.smartAlbums = smartAlbums
 	}
 
 	#if os(iOS)

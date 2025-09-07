@@ -164,6 +164,8 @@ enum PhotoSyncProgress {
 }
 
 @MainActor class PhotoBackup: ObservableObject {
+	static nonisolated let allPhotosAlbumIdentifier = "_SUSHITRAIN_ALL_PHOTOS"
+
 	// These settings are prefixed 'photoSync' because that is what the feature used to be called
 	@AppStorage("photoSyncSelectedAlbumID") var selectedAlbumID: String = ""
 	@AppStorage("photoSyncFolderID") var selectedFolderID: String = ""
@@ -315,7 +317,14 @@ enum PhotoSyncProgress {
 			}
 
 			let folderURL = URL(fileURLWithPath: folderPath)
-			let fetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [selectedAlbumID], options: nil)
+			let fetchResult: PHFetchResult<PHAssetCollection>
+			if selectedAlbumID == PhotoBackup.allPhotosAlbumIdentifier {
+				fetchResult = PHAssetCollection.fetchAssetCollections(
+					with: .smartAlbum, subtype: .smartAlbumUserLibrary, options: nil)
+			}
+			else {
+				fetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [selectedAlbumID], options: nil)
+			}
 			guard let album = fetchResult.firstObject else {
 				DispatchQueue.main.async { self.progress = .error(String(localized: "Could not find selected album")) }
 				return
