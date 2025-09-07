@@ -643,7 +643,7 @@ struct FolderView: View {
 
 	func update() async {
 		self.possiblePeers = await appState.peers().sorted().filter({ d in !d.isSelf() })
-		self.unsupportedDataProtection = URL(fileURLWithPath: self.folder.path()).hasUnsupportedProtection()
+		self.unsupportedDataProtection = self.folder.isRegularFolder && URL(fileURLWithPath: self.folder.path()).hasUnsupportedProtection()
 	}
 
 	var body: some View {
