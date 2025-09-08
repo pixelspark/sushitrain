@@ -1321,62 +1321,16 @@ private struct FolderGenerateThumbnailsView: View {
 	private static let thumbnailInterval: TimeInterval = 1.0
 
 	private func generateFor(prefix: String?) async throws {
-		let ic = ImageCache.forFolder(self.folder)
-		let tg = FolderSettingsManager.shared.settingsFor(folderID: self.folder.folderID).thumbnailGeneration
-
-		// If thumbnails are written to a custom folder, also write thumbnails for local images
-		let forceCachingLocalFiles: Bool
-		switch tg {
-		case .global:
-			forceCachingLocalFiles = !appState.userSettings.cacheThumbnailsToFolderID.isEmpty
-		case .disabled:
-			forceCachingLocalFiles = false
-		case .deviceLocal:
-			forceCachingLocalFiles = false
-		case .inside(_):
-			forceCachingLocalFiles = true
-		}
-
-		// Iterate over this folder's entries
-		let files = try self.folder.list(prefix, directories: false, recurse: false)
-
-		for idx in 0..<files.count() {
-			let filePath = files.item(at: idx)
-			if Task.isCancelled {
-				Log.info("Thumbnail generate task cancelled")
-				return
-			}
-
-			let fullPath = (prefix ?? "") + "/" + filePath
-
-			if case .inside(path: let insidePath) = tg, fullPath.withoutStartingSlash.starts(with: insidePath) {
-				Log.info("Skipping file \(fullPath), inside thumbnail directory")
-				continue
-			}
-
-			if let file = try? self.folder.getFileInformation(fullPath) {
-				// Recurse into subdirectories (depth-first)
-				if file.isDirectory() {
-					try await self.generateFor(prefix: file.path())
-				}
-
-				// Generate thumbnail for files that are not locally present (otherwise QuickLook will manage it for us)
-				// except when we are writing to a custom thumbnail folder (this device can then generate thumbnails for
-				// another from local files)
-				if file.canThumbnail && (forceCachingLocalFiles || !file.isLocallyPresent()) {
-					let thumb = await ic.getThumbnail(file: file, forceCache: forceCachingLocalFiles)
-
-					if (-lastThumbnailTime.timeIntervalSinceNow) > Self.thumbnailInterval {
-						lastThumbnailTime = Date.now
-						self.lastThumbnail = thumb
-					}
+		let tg = FolderSettingsManager.shared.settingsFor(folderID: folder.folderID).thumbnailGeneration
+		try await generateThumbnailsFor(
+			folder: self.folder, prefix: prefix, userSettings: appState.userSettings, generation: tg,
+			callback: { thumb in
+				if (-lastThumbnailTime.timeIntervalSinceNow) > Self.thumbnailInterval {
+					lastThumbnailTime = Date.now
+					self.lastThumbnail = thumb
 				}
 				self.processedFiles += 1
-			}
-			else {
-				Log.warn("Could not get file entry for path \(filePath)")
-			}
-		}
+			})
 	}
 }
 

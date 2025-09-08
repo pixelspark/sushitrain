@@ -11884,6 +11884,46 @@
         }
       }
     },
+    "Folder for which to generate thumbnails" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner, für den Vorschaubilder erstellt werden sollen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carpeta para la que generar miniaturas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartella per la quale generare le miniature"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map waarvoor miniaturen gegenereerd moeten worden"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Папка, для якої потрібно створити ескізи"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成缩略图的文件夹"
+          }
+        }
+      }
+    },
     "Folder ID" : {
       "localizations" : {
         "de" : {
@@ -13852,6 +13892,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "允许同步的时间。"
+          }
+        }
+      }
+    },
+    "How much time to allow for thumbnail generation." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie viel Zeit für die Miniaturbildgenerierung einplanen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuánto tiempo permitir para la generación de miniaturas."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanto tempo dedicare alla generazione delle miniature."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoeveel tijd te reserveren voor het genereren van miniaturen."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скільки часу виділити на створення ескізів."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成缩略图需要多长时间。"
           }
         }
       }
@@ -27276,6 +27356,86 @@
         }
       }
     },
+    "the specified timeout is not valid" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "das angegebene Timeout ist ungültig"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "el tiempo de espera especificado no es válido"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "il timeout specificato non è valido"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "de opgegeven timeout is niet geldig"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "зазначений тайм-аут недійсний"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指定的超时无效"
+          }
+        }
+      }
+    },
+    "The subdirectory to generate thumbnails for (empty to rescan the whole folder)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Unterverzeichnis, für das Thumbnails generiert werden sollen (leer lassen, um den gesamten Ordner erneut zu scannen)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El subdirectorio para generar miniaturas (déjalo vacío para volver a escanear toda la carpeta)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sottodirectory per cui generare le miniature (lascia vuoto per eseguire una nuova scansione dell'intera cartella)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De submap om miniaturen voor te genereren (leeg laten om de hele map opnieuw te scannen)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Підкаталог для створення ескізів (залиште порожнім, щоб просканувати всю папку)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成缩略图的子目录（留空以重新扫描整个文件夹）"
+          }
+        }
+      }
+    },
     "The subdirectory to rescan (empty to rescan the whole folder)" : {
       "localizations" : {
         "de" : {
@@ -27592,6 +27752,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "目前没有其他设备连接，因此无法确定此文件在至少一个其他设备上完全可用。"
+          }
+        }
+      }
+    },
+    "there is insufficient disk space free to continue" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "es steht nicht genügend freier Speicherplatz zur Verfügung, um fortzufahren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no hay suficiente espacio en disco libre para continuar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "spazio su disco insufficiente per continuare"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "er is onvoldoende schijfruimte vrij om door te gaan"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "недостатньо вільного місця на диску для продовження"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "磁盘可用空间不足，无法继续"
           }
         }
       }
@@ -28808,6 +29008,46 @@
         }
       }
     },
+    "thumbnail disk caching is not enabled" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Miniatur-Disk-Cache ist nicht aktiviert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "la caché de disco en miniatura no está habilitada"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "la memorizzazione nella cache del disco delle miniature non è abilitata"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "miniatuur-schijfcaching is niet ingeschakeld"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "кешування мініатюр на диску не ввімкнено"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未启用缩略图磁盘缓存"
+          }
+        }
+      }
+    },
     "Thumbnails" : {
       "localizations" : {
         "de" : {
@@ -29191,7 +29431,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Naar subdirectory"
+            "value" : "Naar submap"
           }
         },
         "uk" : {

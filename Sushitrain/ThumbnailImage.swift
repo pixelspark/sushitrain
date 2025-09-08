@@ -527,3 +527,65 @@ actor ConcurrentActor<Result: Sendable> {
 		}
 	}
 }
+
+typealias GenerateStatusCallback = (_ thumbnail: AsyncImagePhase?) -> Void
+
+@MainActor func generateThumbnailsFor(
+	folder: SushitrainFolder, prefix: String?, userSettings: AppUserSettings, generation tg: ThumbnailGeneration,
+	callback: GenerateStatusCallback? = nil
+) async throws {
+	let ic = ImageCache.forFolder(folder)
+
+	// If thumbnails are written to a custom folder, also write thumbnails for local images
+	let forceCachingLocalFiles: Bool
+	switch tg {
+	case .global:
+		forceCachingLocalFiles = !userSettings.cacheThumbnailsToFolderID.isEmpty
+	case .disabled:
+		forceCachingLocalFiles = false
+	case .deviceLocal:
+		forceCachingLocalFiles = false
+	case .inside(_):
+		forceCachingLocalFiles = true
+	}
+
+	// Iterate over this folder's entries
+	let files = try folder.list(prefix, directories: false, recurse: false)
+
+	for idx in 0..<files.count() {
+		let filePath = files.item(at: idx)
+		if Task.isCancelled {
+			Log.info("Thumbnail generate task cancelled")
+			return
+		}
+
+		let fullPath = (prefix ?? "") + "/" + filePath
+
+		if case .inside(path: let insidePath) = tg, fullPath.withoutStartingSlash.starts(with: insidePath) {
+			Log.info("Skipping file \(fullPath), inside thumbnail directory")
+			continue
+		}
+
+		if let file = try? folder.getFileInformation(fullPath) {
+			// Recurse into subdirectories (depth-first)
+			if file.isDirectory() {
+				try await generateThumbnailsFor(
+					folder: folder, prefix: file.path(), userSettings: userSettings, generation: tg, callback: callback)
+			}
+
+			// Generate thumbnail for files that are not locally present (otherwise QuickLook will manage it for us)
+			// except when we are writing to a custom thumbnail folder (this device can then generate thumbnails for
+			// another from local files)
+			if file.canThumbnail && (forceCachingLocalFiles || !file.isLocallyPresent()) {
+				let thumb = await ic.getThumbnail(file: file, forceCache: forceCachingLocalFiles)
+				callback?(thumb)
+			}
+			else {
+				callback?(nil)
+			}
+		}
+		else {
+			Log.warn("Could not get file entry for path \(filePath)")
+		}
+	}
+}
