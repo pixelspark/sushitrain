@@ -174,7 +174,7 @@ struct FolderStatusDescription {
 							)
 						}
 						// Error message is "fcntl /private/...: too many open files"
-						else if folder.isWatcherEnabled() && status.contains("too many open files") {
+						else if let err = error, folder.isWatcherEnabled() && err.localizedDescription.contains("too many open files") {
 							(self.text, self.systemImage, self.color) = (
 								String(localized: "Folder too large for watching"), "exclamationmark.triangle.fill", .red
 							)
@@ -213,7 +213,7 @@ struct FolderStatusView: View {
 	@State private var folderStatusDescription: FolderStatusDescription? = nil
 
 	var body: some View {
-		ZStack {
+		VStack {
 			if let status = status {
 				if status == "syncing" && !folder.isSelective() {
 					if let statistics = self.statistics, statistics.global!.bytes > 0 {
