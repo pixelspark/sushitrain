@@ -26,6 +26,7 @@ import (
 	"slices"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/syncthing/syncthing/lib/build"
@@ -1561,6 +1562,12 @@ func (c *Client) generateSupportBundle(writer io.Writer, appInfo []byte) error {
 	infoJson["redactedConfig"] = c.getRedactedConfigFile()
 	infoJson["numGoroutines"] = runtime.NumGoroutine()
 	infoJson["numCPUs"] = runtime.NumCPU()
+
+	var rlimit syscall.Rlimit
+	if err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rlimit); err == nil {
+		infoJson["currentFileDescriptorLimit"] = rlimit.Cur
+		infoJson["maxFileDescriptorLimit"] = rlimit.Max
+	}
 
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
