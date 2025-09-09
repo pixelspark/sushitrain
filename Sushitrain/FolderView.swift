@@ -1432,6 +1432,20 @@ private struct AdvancedFolderSettingsView: View {
 
 				if !folder.isPhotoFolder {
 					Toggle(
+						"Keep conflicting versions",
+						isOn: Binding(
+							get: {
+								return folder.maxConflicts() != 0
+							},
+							set: { nv in
+								try? folder.setMaxConflicts(nv ? -1 : 0)
+							}))
+				}
+			}
+
+			if !folder.isPhotoFolder {
+				Section {
+					Toggle(
 						"Watch for changes",
 						isOn: Binding(get: { folder.isWatcherEnabled() }, set: { try? folder.setWatcherEnabled($0) }))
 
@@ -1456,16 +1470,12 @@ private struct AdvancedFolderSettingsView: View {
 							Text("Delay for processing changes (seconds)")
 						}
 					}
-
-					Toggle(
-						"Keep conflicting versions",
-						isOn: Binding(
-							get: {
-								return folder.maxConflicts() != 0
-							},
-							set: { nv in
-								try? folder.setMaxConflicts(nv ? -1 : 0)
-							}))
+				} footer: {
+					#if os(iOS)
+						Text(
+							"Because of limitations in iOS, watching for changes will only work for about 250 subdirectories in total across all folders. If you are experiencing issues, disable this setting for all folders."
+						)
+					#endif
 				}
 			}
 		}

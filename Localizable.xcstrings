@@ -4812,6 +4812,46 @@
         }
       }
     },
+    "Because of limitations in iOS, watching for changes will only work for about 250 subdirectories in total across all folders. If you are experiencing issues, disable this setting for all folders." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufgrund von Einschränkungen in iOS funktioniert die Überwachung von Änderungen nur für insgesamt etwa 250 Unterverzeichnisse in allen Ordnern. Wenn Sie Probleme haben, deaktivieren Sie diese Einstellung für alle Ordner."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debido a limitaciones de iOS, la supervisión de cambios solo funcionará para unas 250 subdirectorios en total a través de todas las carpetas. Si experimentas problemas, desactiva esta configuración para todas las carpetas."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A causa di limitazioni in iOS, il monitoraggio delle modifiche funzionerà solo per circa 250 sottodirectory in totale in tutte le cartelle. Se riscontri problemi, disabilita questa impostazione per tutte le cartelle."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vanwege beperkingen in iOS werkt het volgen van wijzigingen alleen voor ongeveer 250 submappen in totaal over alle mappen. Als je problemen ondervindt, schakel deze instelling dan uit voor alle mappen."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Через обмеження iOS, спостереження за змінами буде працювати лише для приблизно 250 підкаталогів усього в усіх папках. Якщо виникають проблеми, вимкніть це налаштування для всіх папок."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "由于 iOS 的限制，监视更改仅在所有文件夹中总共约 250 个子目录下工作。如果您遇到问题，请为所有文件夹禁用此设置。"
+          }
+        }
+      }
+    },
     "Because of the setting below to immediately delete photos after saving, newly saved photos will not be added to this album." : {
       "localizations" : {
         "de" : {
