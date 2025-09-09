@@ -158,8 +158,14 @@ struct FolderStatisticsView: View {
 	@State private var allDevices: [String: SushitrainPeer] = [:]
 	@State private var completions: [String: SushitrainCompletion] = [:]
 	@State private var formatter = ByteCountFormatter()
+	@State private var loading = false
 
 	private func update() async {
+		if self.loading {
+			return
+		}
+
+		self.loading = true
 		await Task.detached {
 			let peers = await appState.peers().filter({ d in !d.isSelf() })
 			var dict: [String: SushitrainPeer] = [:]
@@ -175,13 +181,21 @@ struct FolderStatisticsView: View {
 				self.completions = completions ?? [:]
 			}
 		}.value
+		self.loading = false
 	}
 
 	var body: some View {
 		Form {
 			FolderStatusView(folder: folder)
 
-			if let stats = self.statistics {
+			if self.loading {
+				HStack {
+					Spacer()
+					ProgressView().padding()
+					Spacer()
+				}
+			}
+			else if let stats = self.statistics {
 				FolderProgressChartView(statistics: stats, progressType: folder.isSelective() ? .stores : .needs).frame(height: 48)
 
 				// Global statistics
