@@ -76,6 +76,7 @@ private struct AppSupportBundle: Encodable {
 	var bundleIdentifier: String?
 	var bundlePath: String?
 	var userSettings: [String: PrefValue]
+	var secondsSinceLaunch: Double?
 }
 
 extension AppState {
@@ -88,7 +89,8 @@ extension AppState {
 			bundleIdentifier: mainBundle.bundleIdentifier,
 			bundlePath: mainBundle.bundlePath,
 			userSettings: AppSupportBundle.PrefValue.from(
-				UserDefaults.standard.persistentDomain(forName: mainBundle.bundleIdentifier!) ?? [:])
+				UserDefaults.standard.persistentDomain(forName: mainBundle.bundleIdentifier!) ?? [:]),
+			secondsSinceLaunch: Date.now.timeIntervalSince(self.launchedAt)
 		)
 	}
 }
