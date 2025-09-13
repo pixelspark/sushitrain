@@ -28,6 +28,7 @@ struct FileView: View {
 	@State private var openWithAppURL: URL? = nil
 	@State private var localPath: String? = nil
 	@State private var showArchive: Bool = false
+	@State private var subdirectorySizeBytes: Int64? = nil
 
 	@Environment(AppState.self) private var appState
 	@Environment(\.dismiss) private var dismiss
@@ -58,6 +59,10 @@ struct FileView: View {
 				Section {
 					if !file.isDirectory() && !file.isSymlink() {
 						Text("File size").badge(Self.formatter.string(fromByteCount: file.size()))
+					}
+
+					if let subDirSize = self.subdirectorySizeBytes, file.isDirectory() {
+						Text("Subdirectory size").badge(Self.formatter.string(fromByteCount: subDirSize))
 					}
 
 					if let md = file.modifiedAt()?.date(), !file.isSymlink() {
@@ -291,6 +296,10 @@ struct FileView: View {
 				self.downloaderSheet()
 			}
 
+			.sheet(isPresented: $showEncryptionSheet) {
+				EncryptionView(entry: self.file)
+			}
+
 			.toolbar {
 				// Next/previous buttons
 				if let selfIndex = selfIndex, let siblings = siblings {
@@ -328,12 +337,12 @@ struct FileView: View {
 				#endif
 			}
 
-			.sheet(isPresented: $showEncryptionSheet) {
-				EncryptionView(entry: self.file)
-			}
-
 			.onAppear {
 				selfIndex = self.siblings?.firstIndex(of: file)
+			}
+
+			.task {
+				await self.update()
 			}
 
 			.onChange(of: file, initial: true) { _, _ in
@@ -345,6 +354,24 @@ struct FileView: View {
 				self.update()
 			}
 		}
+	}
+
+	private func update() async {
+		self.subdirectorySizeBytes = nil
+		let file = self.file
+		self.subdirectorySizeBytes = await Task.detached {
+			if file.isDirectory() {
+				var size: Int64 = 0
+				do {
+					try file.recursiveSize(&size)
+					return size
+				}
+				catch {
+					Log.warn("could not calculate subdirectory size: \(error.localizedDescription)")
+				}
+			}
+			return nil
+		}.value
 	}
 
 	@ViewBuilder private func zipButton() -> some View {

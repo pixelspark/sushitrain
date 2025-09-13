@@ -91,6 +91,26 @@ func (entry *Entry) Size() int64 {
 	return entry.info.FileSize()
 }
 
+func (entry *Entry) RecursiveSize() (int64, error) {
+	if !entry.IsDirectory() {
+		return entry.Size(), nil
+	}
+
+	prefix := entry.Path() + "/"
+	leaves, err := entry.Folder.listEntries(prefix, false, true)
+	if err != nil {
+		return 0, err
+	}
+
+	var size int64 = 0
+	err = walkEntries(entry.Path(), leaves, func(leafPrefix string, leaf *model.TreeEntry) (bool, error) {
+		size += leaf.Size
+		return true, nil
+	})
+
+	return size, err
+}
+
 func (entry *Entry) IsDeleted() bool {
 	return entry.info.IsDeleted()
 }
