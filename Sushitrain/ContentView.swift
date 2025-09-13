@@ -177,7 +177,7 @@ private struct ContentView: View {
 			}
 		}
 		#if os(iOS)
-			.onChange(of: QuickActionService.shared.action) { _, newAction in
+			.onChange(of: QuickActionService.shared.action, initial: true) { _, newAction in
 				if case .search(for: let searchFor) = newAction {
 					self.route = .start
 					self.searchSheetSearchTerm = searchFor
