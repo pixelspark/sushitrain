@@ -36,15 +36,7 @@ import SafariServices
 						return .handled
 					}
 				)
-				.sheet(
-					isPresented: Binding(
-						get: { urlToOpen != nil },
-						set: { nv in
-							if !nv {
-								urlToOpen = nil
-							}
-						})
-				) {
+				.sheet(isPresented: Binding.isNotNil($urlToOpen)) {
 					SafariView(url: urlToOpen!)
 				}
 		}

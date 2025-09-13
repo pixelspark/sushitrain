@@ -110,10 +110,7 @@ import SwiftUI
 					}.frame(minWidth: 400, maxWidth: .infinity, maxHeight: .infinity)
 				}
 				.frame(maxWidth: .infinity, maxHeight: .infinity)
-				.fileImporter(
-					isPresented: Binding(get: { self.showPickerFor != nil }, set: { _ in return }),
-					allowedContentTypes: [.directory]
-				) { (result) in
+				.fileImporter(isPresented: Binding.isNotNil($showPickerFor), allowedContentTypes: [.directory]) { (result) in
 					switch (result, showPickerFor) {
 					case (.success(let url), .source):
 						self.sourceURL = url

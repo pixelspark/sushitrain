@@ -134,7 +134,9 @@ struct ExtraFilesView: View {
 						}
 					}
 				})
-		}.quickLookPreview(self.$localItemURL).alert(isPresented: Binding.constant(errorMessage != nil)) {
+		}
+		.quickLookPreview(self.$localItemURL)
+		.alert(isPresented: Binding.isNotNil($errorMessage)) {
 			Alert(
 				title: Text("An error occurred"), message: Text(errorMessage ?? ""),
 				dismissButton: .default(Text("OK")) { errorMessage = nil })

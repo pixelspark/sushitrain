@@ -86,10 +86,7 @@ struct ShareFolderWithDeviceDetailsView: View {
 				}
 			}
 		}
-		.alert(
-			isPresented: Binding(
-				get: { self.error != nil }, set: { nv in self.error = nv ? self.error : nil })
-		) {
+		.alert(isPresented: Binding.isNotNil($error)) {
 			Alert(title: Text("Could not set encryption key"), message: Text(self.error!))
 		}
 	}
@@ -439,12 +436,9 @@ private struct ExternalFolderSectionView: View {
 					}
 				}
 			)
-			.alert(
-				isPresented: .constant(self.errorText != nil),
-				content: {
-					Alert(title: Text("Could not relink folder"), message: Text(errorText ?? ""), dismissButton: .default(Text("OK")))
-				}
-			)
+			.alert(isPresented: Binding.isNotNil($errorText)) {
+				Alert(title: Text("Could not relink folder"), message: Text(errorText ?? ""), dismissButton: .default(Text("OK")))
+			}
 		} footer: {
 			if isAccessible {
 				Text("This folder is not in the default location, and may belong to another app.")
@@ -549,12 +543,9 @@ struct ExternalFolderInaccessibleView: View {
 					}
 				}
 			)
-			.alert(
-				isPresented: .constant(self.errorText != nil),
-				content: {
-					Alert(title: Text("Could not relink folder"), message: Text(errorText ?? ""), dismissButton: .default(Text("OK")))
-				}
-			)
+			.alert(isPresented: Binding.isNotNil($errorText)) {
+				Alert(title: Text("Could not relink folder"), message: Text(errorText ?? ""), dismissButton: .default(Text("OK")))
+			}
 		}
 	}
 
@@ -587,13 +578,11 @@ struct ExternalFolderInaccessibleView: View {
 
 struct FolderView: View {
 	private enum ConfirmableAction {
-		case none
 		case unlinkFolder
 		case removeFolder
 
 		var message: String {
 			switch self {
-			case .none: return ""
 			case .removeFolder:
 				return String(
 					localized:
@@ -609,7 +598,6 @@ struct FolderView: View {
 
 		var buttonTitle: String {
 			switch self {
-			case .none: return ""
 			case .removeFolder: return String(localized: "Remove the folder and all files")
 			case .unlinkFolder: return String(localized: "Unlink the folder")
 			}
@@ -621,7 +609,7 @@ struct FolderView: View {
 	@Environment(\.dismiss) private var dismiss
 	@State private var isWorking = false
 	@State private var showAlert: ShowAlert? = nil
-	@State private var showConfirmable: ConfirmableAction = .none
+	@State private var showConfirmable: ConfirmableAction? = nil
 	@State private var advancedExpanded = false
 	@State private var possiblePeers: [SushitrainPeer] = []
 	@State private var unsupportedDataProtection = false
@@ -758,14 +746,11 @@ struct FolderView: View {
 			#endif
 		}
 		.confirmationDialog(
-			showConfirmable.message,
-			isPresented: Binding(
-				get: { self.showConfirmable != .none },
-				set: { self.showConfirmable = $0 ? self.showConfirmable : .none }
-			),
-			titleVisibility: .visible
+			showConfirmable?.message ?? "", isPresented: Binding.isNotNil($showConfirmable), titleVisibility: .visible
 		) {
-			Button(showConfirmable.buttonTitle, role: .destructive, action: self.confirmedAction)
+			if let sc = showConfirmable {
+				Button(sc.buttonTitle, role: .destructive, action: self.confirmedAction)
+			}
 		}
 	}
 
@@ -1296,7 +1281,7 @@ private struct FolderGenerateThumbnailsView: View {
 			}
 		}
 		.padding(30)
-		.alert(isPresented: Binding.constant(error != nil)) {
+		.alert(isPresented: Binding.isNotNil($error)) {
 			Alert(
 				title: Text("An error occurred"), message: Text(error!),
 				dismissButton: .default(Text("OK")) {

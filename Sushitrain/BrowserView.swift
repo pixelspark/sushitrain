@@ -248,15 +248,7 @@ struct BrowserView: View {
 					return true
 				})
 		#endif
-		.alert(
-			isPresented: Binding(
-				get: { return self.error != nil },
-				set: { nv in
-					if !nv {
-						self.error = nil
-					}
-				})
-		) {
+		.alert(isPresented: Binding.isNotNil($error)) {
 			Alert(
 				title: Text("An error occurred"),
 				message: self.error == nil ? nil : Text(self.error!.localizedDescription),

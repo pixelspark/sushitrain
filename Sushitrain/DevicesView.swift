@@ -613,11 +613,7 @@ struct LatencyView: View {
 			.task {
 				await self.update()
 			}
-			.navigationDestination(
-				isPresented: Binding(
-					get: { self.openedDevice != nil },
-					set: { self.openedDevice = $0 ? self.openedDevice : nil })
-			) {
+			.navigationDestination(isPresented: Binding.isNotNil($openedDevice)) {
 				self.nextView()
 			}
 			.toolbar {

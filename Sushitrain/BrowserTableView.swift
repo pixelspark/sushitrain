@@ -188,13 +188,9 @@ struct BrowserTableView: View {
 			},
 			primaryAction: self.doubleClick
 		)
-		.navigationDestination(
-			isPresented: Binding(
-				get: { self.openedEntry != nil },
-				set: { self.openedEntry = $0 ? self.openedEntry : nil }),
-			destination: {
-				self.nextView()
-			})
+		.navigationDestination(isPresented: Binding.isNotNil($openedEntry)) {
+			self.nextView()
+		}
 	}
 
 	@ViewBuilder private func nextView() -> some View {

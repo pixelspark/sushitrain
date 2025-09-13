@@ -27,13 +27,11 @@ private struct DeviceAddressesView: View {
 			.onDisappear {
 				self.write()
 			}
-			.alert(
-				isPresented: Binding(get: { self.error != nil }, set: { show in self.error = show ? self.error : nil }),
-				content: {
-					Alert(
-						title: Text("Could not change addresses"), message: Text(self.error ?? ""),
-						dismissButton: .default(Text("OK")))
-				})
+			.alert(isPresented: Binding.isNotNil($error)) {
+				Alert(
+					title: Text("Could not change addresses"), message: Text(self.error ?? ""),
+					dismissButton: .default(Text("OK")))
+			}
 	}
 
 	private func update() async {

@@ -42,14 +42,12 @@ private struct ContentView: View {
 	@Environment(AppState.self) private var appState
 	@Environment(\.scenePhase) var scenePhase
 	@Environment(\.horizontalSizeClass) private var horizontalSizeClass
+	
 	@State private var showCustomConfigWarning = false
 	@State var route: Route? = .start
 	@State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
-
-	#if os(iOS)
-		@State private var showSearchSheet = false
-		@State private var searchSheetSearchTerm: String = ""
-	#endif
+	@State private var showSearchSheet = false
+	@State private var searchSheetSearchTerm: String = ""
 
 	@ViewBuilder private func foldersTab() -> some View {
 		NavigationStack {
@@ -268,7 +266,9 @@ private struct ContentView: View {
 				initialSearchText: self.searchSheetSearchTerm
 			)
 			.navigationTitle("Search")
-			.navigationBarTitleDisplayMode(.inline)
+			#if os(iOS)
+				.navigationBarTitleDisplayMode(.inline)
+			#endif
 			.toolbar {
 				SheetButton(role: .done) {
 					showSearchSheet = false

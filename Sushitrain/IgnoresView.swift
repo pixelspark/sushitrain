@@ -120,7 +120,7 @@ struct IgnoresView: View {
 		.onDisappear {
 			self.write()
 		}
-		.alert(isPresented: Binding.constant(error != nil)) {
+		.alert(isPresented: Binding.isNotNil($error)) {
 			Alert(
 				title: Text("Error loading ignore settings"),
 				message: error != nil ? Text(error!.localizedDescription) : nil,

@@ -361,30 +361,30 @@ private struct ItemSelectSwipeView<Content: View>: View {
 
 	var body: some View {
 		if self.file.isSelectionToggleAvailable {
-			self.content.alert(
-				isPresented: Binding(get: { errorMessage != nil }, set: { s in errorMessage = s ? errorMessage : nil })
-			) {
-				Alert(
-					title: Text("Could not change synchronization setting"), message: Text(errorMessage ?? ""),
-					dismissButton: .default(Text("OK")))
-			}.swipeActions(allowsFullSwipe: false) {
-				if file.isExplicitlySelected() || file.isSelected() {
-					// Unselect button
-					Button {
-						Task { self.errorMessage = await self.file.setSelectedFromToggle(s: false) }
-					} label: {
-						Label("Do not synchronize with this device", systemImage: "pin.slash")
-					}.tint(.red)
+			self.content
+				.alert(isPresented: Binding.isNotNil($errorMessage)) {
+					Alert(
+						title: Text("Could not change synchronization setting"), message: Text(errorMessage ?? ""),
+						dismissButton: .default(Text("OK")))
 				}
-				else {
-					// Select button
-					Button {
-						Task { self.errorMessage = await self.file.setSelectedFromToggle(s: true) }
-					} label: {
-						Label("Synchronize with this device", systemImage: "pin")
+				.swipeActions(allowsFullSwipe: false) {
+					if file.isExplicitlySelected() || file.isSelected() {
+						// Unselect button
+						Button {
+							Task { self.errorMessage = await self.file.setSelectedFromToggle(s: false) }
+						} label: {
+							Label("Do not synchronize with this device", systemImage: "pin.slash")
+						}.tint(.red)
+					}
+					else {
+						// Select button
+						Button {
+							Task { self.errorMessage = await self.file.setSelectedFromToggle(s: true) }
+						} label: {
+							Label("Synchronize with this device", systemImage: "pin")
+						}
 					}
 				}
-			}
 		}
 		else {
 			self.content

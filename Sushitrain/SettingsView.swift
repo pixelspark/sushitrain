@@ -52,41 +52,41 @@ struct TotalStatisticsView: View {
 
 #if os(iOS)
 	private struct ExportButtonView: View {
-		@State private var error: Error? = nil
-		@State private var showSuccess: Bool = false
+		enum ShowAlert {
+			case error(Error)
+			case success
+		}
+
 		@Environment(AppState.self) private var appState
+		@State private var showAlert: ShowAlert? = nil
 
 		var body: some View {
 			Button("Export configuration file") {
 				do {
 					try self.appState.client.exportConfigurationFile()
-					showSuccess = true
+					showAlert = .success
 				}
 				catch {
-					self.error = error
+					showAlert = .error(error)
 				}
 			}
 			.disabled(self.appState.client.isUsingCustomConfiguration)
-			.alert(
-				isPresented: Binding(
-					get: { return self.error != nil },
-					set: { nv in
-						if !nv {
-							self.error = nil
-						}
-					})
-			) {
-				Alert(
-					title: Text("An error occurred"),
-					message: Text(self.error!.localizedDescription),
-					dismissButton: .default(Text("OK")))
-			}
-			.alert(isPresented: $showSuccess) {
-				Alert(
-					title: Text("Custom configuration saved"),
-					message: Text(
-						"The configuration file has been saved in the application folder."),
-					dismissButton: .default(Text("OK")))
+			.alert(isPresented: Binding.isNotNil($showAlert)) {
+				switch self.showAlert {
+				case .error(let error):
+					Alert(
+						title: Text("An error occurred"),
+						message: Text(error.localizedDescription),
+						dismissButton: .default(Text("OK")))
+				case .success:
+					Alert(
+						title: Text("Custom configuration saved"),
+						message: Text(
+							"The configuration file has been saved in the application folder."),
+						dismissButton: .default(Text("OK")))
+				case .none:
+					Alert(title: Text("An error occurred"))
+				}
 			}
 		}
 	}
@@ -697,7 +697,10 @@ struct AdvancedSettingsView: View {
 
 		private func updateNotificationStatus() {
 			UNUserNotificationCenter.current().getNotificationSettings { settings in
-				self.authorizationStatus = settings.authorizationStatus
+				let authorizationStatus = settings.authorizationStatus
+				DispatchQueue.main.async {
+					self.authorizationStatus = authorizationStatus
+				}
 			}
 		}
 	}
