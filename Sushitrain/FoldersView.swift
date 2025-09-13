@@ -10,6 +10,7 @@ enum Route: Hashable, Equatable {
 	case start
 	case folder(folderID: String?)
 	case devices
+	case search
 }
 
 private struct FolderMetricView: View {
