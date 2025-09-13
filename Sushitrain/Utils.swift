@@ -1160,7 +1160,7 @@ struct SheetButton: ToolbarContent {
 		case cancel
 		case add
 
-		@available(iOS 26.0, *)
+		@available(iOS 26.0, macOS 26.0, *)
 		var buttonRole: ButtonRole {
 			switch self {
 			case .done: return .close
@@ -1188,7 +1188,7 @@ struct SheetButton: ToolbarContent {
 
 	var body: some ToolbarContent {
 		ToolbarItem(placement: self.role.placement) {
-			if #available(iOS 26.0, *) {
+			if #available(iOS 26.0, macOS 26.0, *) {
 				Button(role: self.role.buttonRole, action: self.action)
 					.disabled(self.isDisabled || self.inEditMode)
 			}
