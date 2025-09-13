@@ -134,15 +134,11 @@ struct DeviceIDView: View {
 			content: {
 				NavigationStack {
 					QRView(text: self.device.deviceID())
-						.toolbar(content: {
-							ToolbarItem(
-								placement: .confirmationAction,
-								content: {
-									Button("Done") {
-										self.qrCodeShown = false
-									}
-								})
-						})
+						.toolbar {
+							SheetButton(role: .done) {
+								self.qrCodeShown = false
+							}
+						}
 				}
 			}
 		)
@@ -150,15 +146,11 @@ struct DeviceIDView: View {
 			NavigationStack {
 				ResolvedAddressesView()
 					.navigationTitle("Addresses")
-					.toolbar(content: {
-						ToolbarItem(
-							placement: .confirmationAction,
-							content: {
-								Button("Done") {
-									self.localAddressesShown = false
-								}
-							})
-					})
+					.toolbar {
+						SheetButton(role: .done) {
+							self.localAddressesShown = false
+						}
+					}
 			}
 		}
 	}

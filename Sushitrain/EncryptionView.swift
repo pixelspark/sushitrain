@@ -79,15 +79,11 @@ struct EncryptionView: View {
 			}
 			.formStyle(.grouped)
 			.navigationTitle(entry.name())
-			.toolbar(content: {
-				ToolbarItem(
-					placement: .confirmationAction,
-					content: {
-						Button("Done") {
-							self.dismiss()
-						}
-					})
-			})
+			.toolbar {
+				SheetButton(role: .done) {
+					self.dismiss()
+				}
+			}
 		}
 	}
 

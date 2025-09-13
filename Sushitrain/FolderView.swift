@@ -64,7 +64,7 @@ struct ShareFolderWithDeviceDetailsView: View {
 			#if os(iOS)
 				.navigationBarTitleDisplayMode(.inline)
 			#endif
-			.toolbar(content: {
+			.toolbar {
 				ToolbarItem(
 					placement: .confirmationAction,
 					content: {
@@ -80,14 +80,11 @@ struct ShareFolderWithDeviceDetailsView: View {
 							}
 						}
 					})
-				ToolbarItem(
-					placement: .cancellationAction,
-					content: {
-						Button("Cancel") {
-							dismiss()
-						}
-					})
-			})
+
+				SheetButton(role: .cancel) {
+					dismiss()
+				}
+			}
 		}
 		.alert(
 			isPresented: Binding(
@@ -1181,15 +1178,11 @@ private struct FolderThumbnailSettingsView: View {
 					#if os(iOS)
 						.navigationBarTitleDisplayMode(.inline)
 					#endif
-					.toolbar(content: {
-						ToolbarItem(
-							placement: .cancellationAction,
-							content: {
-								Button("Cancel") {
-									showGenerateThumbnails = false
-								}
-							})
-					})
+					.toolbar {
+						SheetButton(role: .cancel) {
+							showGenerateThumbnails = false
+						}
+					}
 			}
 		}
 	}

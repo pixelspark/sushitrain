@@ -362,13 +362,9 @@ struct FileView: View {
 				ZipView(archive: ar, prefix: "")
 					.navigationTitle(file.fileName())
 					.toolbar {
-						ToolbarItem(
-							placement: .cancellationAction,
-							content: {
-								Button("Close") {
-									showArchive = false
-								}
-							})
+						SheetButton(role: .done) {
+							showArchive = false
+						}
 					}
 			}
 			else {
@@ -383,9 +379,11 @@ struct FileView: View {
 				#if os(iOS)
 					.navigationBarTitleDisplayMode(.inline)
 				#endif
-				.toolbar(content: {
-					ToolbarItem(placement: .cancellationAction, content: { Button("Cancel") { showDownloader = false } })
-				})
+				.toolbar {
+					SheetButton(role: .cancel) {
+						showDownloader = false
+					}
+				}
 		}
 	}
 

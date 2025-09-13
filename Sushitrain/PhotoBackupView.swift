@@ -33,7 +33,7 @@ struct PhotoBackupButton: View {
 		if photoBackup.isSynchronizing {
 			PhotoBackupProgressView(photoBackup: photoBackup)
 
-			Button("Cancel") {
+			Button("Cancel", role: .cancel) {
 				photoBackup.cancel()
 			}
 			#if os(macOS)

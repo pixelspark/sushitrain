@@ -248,15 +248,11 @@ struct AdvancedSettingsView: View {
 					NavigationStack {
 						AsyncAddressesView(addressType: .listening)
 							.navigationTitle("Listening addresses")
-							.toolbar(content: {
-								ToolbarItem(
-									placement: .confirmationAction,
-									content: {
-										Button("Done") {
-											showListeningAddresses = false
-										}
-									})
-							})
+							.toolbar {
+								SheetButton(role: .done) {
+									showListeningAddresses = false
+								}
+							}
 					}
 				}
 			} header: {
@@ -332,15 +328,11 @@ struct AdvancedSettingsView: View {
 					NavigationStack {
 						AsyncAddressesView(addressType: .discovery)
 							.navigationTitle("Global announce servers")
-							.toolbar(content: {
-								ToolbarItem(
-									placement: .confirmationAction,
-									content: {
-										Button("Done") {
-											showDiscoveryAddresses = false
-										}
-									})
-							})
+							.toolbar {
+								SheetButton(role: .done) {
+									showDiscoveryAddresses = false
+								}
+							}
 					}
 				}
 				.disabled(!appState.client.isGlobalAnnounceEnabled())
@@ -391,15 +383,11 @@ struct AdvancedSettingsView: View {
 					NavigationStack {
 						AsyncAddressesView(addressType: .stun)
 							.navigationTitle("STUN servers")
-							.toolbar(content: {
-								ToolbarItem(
-									placement: .confirmationAction,
-									content: {
-										Button("Done") {
-											showSTUNAddresses = false
-										}
-									})
-							})
+							.toolbar {
+								SheetButton(role: .done) {
+									showSTUNAddresses = false
+								}
+							}
 					}
 				}
 				.disabled(!appState.client.isNATEnabled())
@@ -477,15 +465,11 @@ struct AdvancedSettingsView: View {
 					.sheet(isPresented: $showTroubleshooting) {
 						NavigationStack {
 							TroubleshootingView(userSettings: userSettings)
-								.toolbar(content: {
-									ToolbarItem(
-										placement: .confirmationAction,
-										content: {
-											Button("Close") {
-												showTroubleshooting = false
-											}
-										})
-								})
+								.toolbar {
+									SheetButton(role: .done) {
+										showTroubleshooting = false
+									}
+								}
 						}
 					}
 
@@ -496,15 +480,11 @@ struct AdvancedSettingsView: View {
 				}.buttonStyle(.link)
 					.sheet(isPresented: $showConfigurationSettings) {
 						ConfigurationSettingsView()
-							.toolbar(content: {
-								ToolbarItem(
-									placement: .confirmationAction,
-									content: {
-										Button("Close") {
-											showConfigurationSettings = false
-										}
-									})
-							})
+							.toolbar {
+								SheetButton(role: .done) {
+									showConfigurationSettings = false
+								}
+							}
 					}
 			#else
 				NavigationLink(destination: TroubleshootingView(userSettings: userSettings)) {

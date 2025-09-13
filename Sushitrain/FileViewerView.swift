@@ -60,8 +60,8 @@ struct FileViewerView: View {
 				#endif
 				.toolbar {
 					if inSheet {
-						ToolbarItem(placement: .confirmationAction) {
-							Button("Done") { isShown = false }
+						SheetButton(role: .done) {
+							isShown = false
 						}
 
 						#if os(macOS)

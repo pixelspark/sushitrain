@@ -69,43 +69,24 @@ struct AddDeviceView: View {
 								)
 								.navigationTitle("Scan a device QR code")
 								.navigationBarTitleDisplayMode(.inline)
-								.toolbar(content: {
-									ToolbarItem(
-										placement: .cancellationAction,
-										content: {
-											Button("Cancel") {
-												showQRScanner = false
-											}
-										})
-								})
+								.toolbar {
+									SheetButton(role: .cancel) {
+										showQRScanner = false
+									}
+								}
 							}
 						}
 					})
 			#endif
-			.toolbar(content: {
-				ToolbarItem(
-					placement: .confirmationAction,
-					content: {
-						Button("Add") {
-							do {
-								try appState.client.addPeer(self.deviceID)
-								showHelpAfterAdding = true
-							}
-							catch let error {
-								showError = true
-								errorText = error.localizedDescription
-							}
-						}.disabled(deviceID.isEmpty || !SushitrainIsValidDeviceID(deviceID))
-					})
-				ToolbarItem(
-					placement: .cancellationAction,
-					content: {
-						Button("Cancel") {
-							dismiss()
-						}
-					})
+			.toolbar {
+				SheetButton(role: .add, isDisabled: deviceID.isEmpty || !SushitrainIsValidDeviceID(deviceID)) {
+					self.add()
+				}
 
-			})
+				SheetButton(role: .cancel) {
+					dismiss()
+				}
+			}
 			.navigationTitle("Add device")
 			#if os(iOS)
 				.navigationBarTitleDisplayMode(.inline)
@@ -128,6 +109,17 @@ struct AddDeviceView: View {
 						dismiss()
 					})
 			}
+		}
+	}
+
+	private func add() {
+		do {
+			try appState.client.addPeer(self.deviceID)
+			showHelpAfterAdding = true
+		}
+		catch let error {
+			showError = true
+			errorText = error.localizedDescription
 		}
 	}
 }

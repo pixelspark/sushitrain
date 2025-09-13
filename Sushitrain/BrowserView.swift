@@ -97,15 +97,11 @@ struct BrowserView: View {
 					SearchView(prefix: self.prefix, folder: self.folder)
 					.navigationTitle("Search in this folder")
 					.navigationBarTitleDisplayMode(.inline)
-					.toolbar(content: {
-						ToolbarItem(
-							placement: .cancellationAction,
-							content: {
-								Button("Cancel") {
-									showSearch = false
-								}
-							})
-					})
+					.toolbar {
+						SheetButton(role: .cancel) {
+							showSearch = false
+						}
+					}
 				}
 			}
 		#endif
@@ -186,15 +182,11 @@ struct BrowserView: View {
 			.sheet(isPresented: $showFolderStatistics) {
 				NavigationStack {
 					FolderStatisticsView(folder: folder)
-					.toolbar(content: {
-						ToolbarItem(
-							placement: .confirmationAction,
-							content: {
-								Button("Done") {
-									showFolderStatistics = false
-								}
-							})
-					})
+					.toolbar {
+						SheetButton(role: .done) {
+							showFolderStatistics = false
+						}
+					}
 				}
 			}
 		#endif
@@ -202,13 +194,9 @@ struct BrowserView: View {
 			NavigationStack {
 				FolderView(folder: self.folder)
 					.toolbar {
-						ToolbarItem(
-							placement: .confirmationAction,
-							content: {
-								Button("Done") {
-									showSettings = false
-								}
-							})
+						SheetButton(role: .done) {
+							showSettings = false
+						}
 					}
 			}
 		}
@@ -220,13 +208,9 @@ struct BrowserView: View {
 					.presentationSizing(.fitted)
 					.frame(minWidth: 640, minHeight: 480)
 					.toolbar {
-						ToolbarItem(
-							placement: .confirmationAction,
-							content: {
-								Button("Done") {
-									showIgnores = false
-								}
-							})
+						SheetButton(role: .done) {
+							showIgnores = false
+						}
 					}
 				}
 			}
@@ -578,7 +562,9 @@ private struct BrowserItemsView: View {
 								NavigationStack {
 									FolderStatisticsView(folder: folder)
 										.toolbar {
-											ToolbarItem(placement: .confirmationAction) { Button("Done") { showStatistics = false } }
+											SheetButton(role: .done) {
+												showStatistics = false
+											}
 										}
 								}
 							}

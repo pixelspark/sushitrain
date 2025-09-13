@@ -29,7 +29,9 @@ struct BrowserListView: View {
 					NavigationStack {
 						FolderStatisticsView(folder: folder)
 							.toolbar {
-								ToolbarItem(placement: .confirmationAction) { Button("Done") { showStatistics = false } }
+								SheetButton(role: .done) {
+									showStatistics = false
+								}
 							}
 					}
 				}

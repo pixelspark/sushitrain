@@ -1153,3 +1153,68 @@ extension FileManager {
 		return totalSize
 	}
 }
+
+struct SheetButton: ToolbarContent {
+	enum SheetButtonRole {
+		case done
+		case cancel
+		case add
+
+		@available(iOS 26.0, *)
+		var buttonRole: ButtonRole {
+			switch self {
+			case .done: return .close
+			case .cancel: return .cancel
+			case .add: return .confirm
+			}
+		}
+
+		var placement: ToolbarItemPlacement {
+			switch self {
+			case .add: return .confirmationAction
+			case .done: return .confirmationAction
+			case .cancel: return .cancellationAction
+			}
+		}
+	}
+
+	#if os(iOS)
+		@Environment(\.editMode) private var editMode
+	#endif
+
+	let role: SheetButtonRole
+	var isDisabled: Bool = false
+	let action: () -> Void
+
+	var body: some ToolbarContent {
+		ToolbarItem(placement: self.role.placement) {
+			if #available(iOS 26.0, *) {
+				Button(role: self.role.buttonRole, action: self.action)
+					.disabled(self.isDisabled || self.inEditMode)
+			}
+			else {
+				self.legacyButton()
+					.disabled(self.isDisabled || self.inEditMode)
+			}
+		}
+	}
+
+	@ViewBuilder private func legacyButton() -> some View {
+		switch self.role {
+		case .done:
+			Button("Done", action: self.action)
+		case .cancel:
+			Button("Cancel", role: .cancel, action: self.action)
+		case .add:
+			Button("Add", action: self.action)
+		}
+	}
+
+	private var inEditMode: Bool {
+		#if os(macOS)
+			return false
+		#else
+			return editMode?.wrappedValue.isEditing ?? false
+		#endif
+	}
+}

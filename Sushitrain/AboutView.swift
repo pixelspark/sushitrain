@@ -105,13 +105,9 @@ struct AboutView: View {
 				WebView(url: url, trustFingerprints: [], isLoading: Binding.constant(false), error: Binding.constant(nil))
 					.frame(minHeight: 480)
 					.toolbar {
-						ToolbarItem(
-							placement: .cancellationAction,
-							content: {
-								Button("Close") {
-									showNotices = false
-								}
-							})
+						SheetButton(role: .done) {
+							showNotices = false
+						}
 					}
 					.navigationTitle("Legal notices")
 					#if os(iOS)

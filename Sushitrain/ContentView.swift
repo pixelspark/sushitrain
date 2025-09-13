@@ -219,15 +219,11 @@ private struct ContentView: View {
 					)
 					.navigationTitle("Search")
 					.navigationBarTitleDisplayMode(.inline)
-					.toolbar(content: {
-						ToolbarItem(
-							placement: .cancellationAction,
-							content: {
-								Button("Cancel") {
-									showSearchSheet = false
-								}
-							})
-					})
+					.toolbar {
+						SheetButton(role: .done) {
+							showSearchSheet = false
+						}
+					}
 				}
 			}
 		#endif
