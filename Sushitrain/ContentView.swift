@@ -42,7 +42,7 @@ private struct ContentView: View {
 	@Environment(AppState.self) private var appState
 	@Environment(\.scenePhase) var scenePhase
 	@Environment(\.horizontalSizeClass) private var horizontalSizeClass
-	
+
 	@State private var showCustomConfigWarning = false
 	@State var route: Route? = .start
 	@State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn

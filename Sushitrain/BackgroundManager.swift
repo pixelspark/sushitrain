@@ -145,7 +145,9 @@ import BackgroundTasks
 			}
 
 			// Start background sync on long and short sync task (if enabled) and continued task
-			if appState.userSettings.longBackgroundSyncEnabled || appState.userSettings.shortBackgroundSyncEnabled || task.identifier == Self.continuedBackgroundSyncID {
+			if appState.userSettings.longBackgroundSyncEnabled || appState.userSettings.shortBackgroundSyncEnabled
+				|| task.identifier == Self.continuedBackgroundSyncID
+			{
 				Log.info(
 					"Start background sync, time remaining = \(UIApplication.shared.backgroundTimeRemaining)"
 				)
