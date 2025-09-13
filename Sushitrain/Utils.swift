@@ -1218,3 +1218,10 @@ struct SheetButton: ToolbarContent {
 		#endif
 	}
 }
+
+extension Binding where Value == Bool {
+	static func isNotNil<T: Sendable>(_ underlying: Binding<T?>) -> Binding<Bool> {
+		return Binding(
+			get: { underlying.wrappedValue != nil }, set: { underlying.wrappedValue = $0 ? underlying.wrappedValue : nil })
+	}
+}

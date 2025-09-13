@@ -12,6 +12,7 @@ import BackgroundTasks
 		private static let longBackgroundSyncID = "nl.t-shaped.sushitrain.background-sync"
 		private static let shortBackgroundSyncID = "nl.t-shaped.sushitrain.short-background-sync"
 		private static let watchdogNotificationID = "nl.t-shaped.sushitrain.watchdog-notification"
+		private static let continuedBackgroundSyncID = "nl.t-shaped.sushitrain.background-sync.continued"
 
 		// Time before the end of allotted background time to start ending the task to prevent forceful expiration by the OS
 		private static let backgroundTimeReserve: TimeInterval = 5.6
@@ -56,20 +57,34 @@ import BackgroundTasks
 			self.appState = appState
 
 			// Schedule background synchronization task
-			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.longBackgroundSyncID, using: nil) {
-				task in
+			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.longBackgroundSyncID, using: nil) { task in
 				Task { await self.handleBackgroundSync(task: task) }
 			}
-			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.shortBackgroundSyncID, using: nil) {
-				task in
+
+			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.shortBackgroundSyncID, using: nil) { task in
 				Task { await self.handleBackgroundSync(task: task) }
 			}
+
+			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.continuedBackgroundSyncID, using: nil) { task in
+				Task { await self.handleBackgroundSync(task: task) }
+			}
+
 			updateBackgroundRunHistory(appending: nil)
 			_ = self.scheduleBackgroundSync()
 
 			Task.detached {
 				await self.rescheduleWatchdogNotification()
 			}
+		}
+
+		@available(iOS 26, *) func startContinuedSync() throws {
+			let request = BGContinuedProcessingTaskRequest(
+				identifier: Self.continuedBackgroundSyncID,
+				title: "Synchronize files",
+				subtitle: "About to start...",
+			)
+			request.strategy = .fail
+			try BGTaskScheduler.shared.submit(request)
 		}
 
 		func inactivate() {
@@ -124,19 +139,24 @@ import BackgroundTasks
 
 			// Start photo back-up if the user has enabled it
 			var photoBackupTask: Task<(), Error>? = nil
-			if self.appState.photoBackup.enableBackgroundCopy {
+			if self.appState.photoBackup.enableBackgroundCopy && task.identifier == Self.longBackgroundSyncID {
 				Log.info("Start photo backup task")
 				photoBackupTask = self.appState.photoBackup.backup(appState: self.appState, fullExport: false, isInBackground: true)
 			}
 
-			// Start background sync on long and short sync task
-			if appState.userSettings.longBackgroundSyncEnabled || appState.userSettings.shortBackgroundSyncEnabled {
+			// Start background sync on long and short sync task (if enabled) and continued task
+			if appState.userSettings.longBackgroundSyncEnabled || appState.userSettings.shortBackgroundSyncEnabled || task.identifier == Self.continuedBackgroundSyncID {
 				Log.info(
 					"Start background sync, time remaining = \(UIApplication.shared.backgroundTimeRemaining)"
 				)
 				await self.appState.suspend(false)
 				currentRun = BackgroundSyncRun(started: start, ended: nil)
 				self.lastBackgroundSyncRun = currentRun
+				if #available(iOS 26, *) {
+					if let cg = task as? BGContinuedProcessingTask {
+						cg.updateTitle(cg.title, subtitle: "Synchronizing...")
+					}
+				}
 
 				expireTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { t in
 					Task { @MainActor in

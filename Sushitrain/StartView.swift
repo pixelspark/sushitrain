@@ -289,6 +289,8 @@ struct StartView: View {
 	@State private var isDiskSpaceSufficient = true
 	@State private var longTimeNotSeenDevices: [SushitrainPeer] = []
 
+	@State private var showError: Error? = nil
+
 	var body: some View {
 		Form {
 			Section {
@@ -296,11 +298,19 @@ struct StartView: View {
 					#if os(iOS)
 						.contextMenu {
 							if !self.appState.isFinished {
-								Button(action: {
+								Button("Wait for completion", systemImage: "hourglass.circle") {
 									self.showWaitScreen = true
-								}) {
-									Text("Wait for completion")
-									Image(systemName: "hourglass.circle")
+								}
+							}
+
+							if #available(iOS 26, *) {
+								Button("Synchronize in the background", systemImage: "arrow.trianglehead.2.clockwise.rotate.90.circle") {
+									do {
+										try appState.backgroundManager.startContinuedSync()
+									}
+									catch {
+										self.showError = error
+									}
 								}
 							}
 						}
@@ -370,11 +380,7 @@ struct StartView: View {
 				WaitView(isPresented: $showWaitScreen)
 			}
 		#endif
-		.sheet(
-			isPresented: Binding(
-				get: { self.fixingInaccessibleExternalFolder != nil },
-				set: { self.fixingInaccessibleExternalFolder = $0 ? self.fixingInaccessibleExternalFolder : nil })
-		) {
+		.sheet(isPresented: Binding.isNotNil($fixingInaccessibleExternalFolder)) {
 			if let fe = self.fixingInaccessibleExternalFolder {
 				NavigationStack {
 					ExternalFolderInaccessibleView(folder: fe)
@@ -388,6 +394,17 @@ struct StartView: View {
 				}
 			}
 		}
+		.alert(
+			"An error has occurred", isPresented: Binding.isNotNil($showError),
+			actions: {
+				Button("OK") {
+					showError = nil
+				}
+			},
+			message: {
+				Text(showError?.localizedDescription ?? "")
+			}
+		)
 		.task {
 			await self.update()
 		}
