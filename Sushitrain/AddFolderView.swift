@@ -162,6 +162,11 @@ struct AddFolderView: View {
 					await self.update()
 				}
 			}
+			.onChange(of: shareWithPendingPeersByDefault, initial: false) { _, _ in
+				Task {
+					await self.update()
+				}
+			}
 			.toolbar(content: {
 				ToolbarItem(
 					placement: .confirmationAction,
