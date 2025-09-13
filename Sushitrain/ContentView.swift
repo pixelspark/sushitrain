@@ -293,14 +293,14 @@ private struct LoadingMainView: View {
 				}
 
 				NavigationStack {
-					EmptyView()
+					LoadingView(appState: appState)
 				}
 				.tabItem {
 					Label("Folders", systemImage: "folder.fill")
 				}.disabled(true)
 
 				NavigationStack {
-					EmptyView()
+					LoadingView(appState: appState)
 				}
 				.tabItem {
 					Label("Devices", systemImage: "externaldrive.fill")
