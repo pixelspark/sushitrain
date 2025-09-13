@@ -194,7 +194,7 @@ struct BrowserView: View {
 			NavigationStack {
 				FolderView(folder: self.folder)
 					.toolbar {
-						SheetButton(role: .done) {
+						SheetButton(role: .save) {
 							showSettings = false
 						}
 					}

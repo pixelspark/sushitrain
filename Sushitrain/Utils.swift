@@ -1159,6 +1159,7 @@ struct SheetButton: ToolbarContent {
 		case done
 		case cancel
 		case add
+		case save
 
 		@available(iOS 26.0, macOS 26.0, *)
 		var buttonRole: ButtonRole {
@@ -1166,6 +1167,7 @@ struct SheetButton: ToolbarContent {
 			case .done: return .close
 			case .cancel: return .cancel
 			case .add: return .confirm
+			case .save: return .confirm
 			}
 		}
 
@@ -1174,6 +1176,7 @@ struct SheetButton: ToolbarContent {
 			case .add: return .confirmationAction
 			case .done: return .confirmationAction
 			case .cancel: return .cancellationAction
+			case .save: return .confirmationAction
 			}
 		}
 	}
@@ -1201,6 +1204,8 @@ struct SheetButton: ToolbarContent {
 
 	@ViewBuilder private func legacyButton() -> some View {
 		switch self.role {
+		case .save:
+			Button("Save", action: self.action)
 		case .done:
 			Button("Done", action: self.action)
 		case .cancel:
