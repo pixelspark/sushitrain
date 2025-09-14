@@ -152,7 +152,7 @@ struct SynchronizeIntent: AppIntent {
 	@Dependency private var appState: AppState
 
 	@Parameter(
-		title: "Time (seconds)", description: "How much time to allow for synchronization.", default: 10,
+		title: "Time (seconds)", description: "How much time to allow for synchronization (must be between 1 and 15 seconds).", default: 10,
 		controlStyle: .field, inclusiveRange: (0, 15))
 	var time: Int
 

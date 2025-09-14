@@ -15936,48 +15936,48 @@
         }
       }
     },
-    "How much time to allow for synchronization." : {
+    "How much time to allow for synchronization (must be between 1 and 15 seconds)." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wie viel Zeit für die Synchronisierung einplanen."
+            "value" : "Wie viel Zeit für die Synchronisierung zulassen (muss zwischen 1 und 15 Sekunden liegen)."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cuánto tiempo permitir para la sincronización."
+            "value" : "Cuánto tiempo permitir para la sincronización (debe estar entre 1 y 15 segundos)."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quanto tempo dedicare alla sincronizzazione."
+            "value" : "Quanto tempo consentire per la sincronizzazione (deve essere tra 1 e 15 secondi)."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "同期に必要な時間。"
+            "value" : "同期に必要な時間を指定してください（1〜15秒の間で指定する必要があります）。"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hoeveel tijd nodig voor synchronisatie."
+            "value" : "Hoeveel tijd toestaan voor synchronisatie (moet tussen 1 en 15 seconden zijn)."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Скільки часу виділити на синхронізацію."
+            "value" : "Скільки часу виділити на синхронізацію (має бути від 1 до 15 секунд)."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "允许同步的时间。"
+            "value" : "允许多少时间进行同步（必须在1到15秒之间）。"
           }
         }
       }
