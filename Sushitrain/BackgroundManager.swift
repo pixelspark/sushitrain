@@ -337,37 +337,34 @@ import BackgroundTasks
 			}
 
 			if appState.userSettings.watchdogNotificationEnabled {
-				notificationCenter.getNotificationSettings { @MainActor settings in
-					let status = settings.authorizationStatus
-					if status == .authorized || status == .provisional {
-						let content = UNMutableNotificationContent()
-						content.title = String(localized: "Synchronisation did not run")
-						content.body = String(
-							localized:
-								"Background synchronization last ran more than \(Int(interval / 3600)) hours ago. Open the app to synchronize."
-						)
-						content.interruptionLevel = .passive
-						content.sound = .none
-						content.badge = 1
-						let trigger = UNTimeIntervalNotificationTrigger(
-							timeInterval: interval, repeats: true)
-						let request = UNNotificationRequest(
-							identifier: Self.watchdogNotificationID, content: content,
-							trigger: trigger)
-						notificationCenter.add(request) { err in
-							if let err = err {
-								Log.warn(
-									"Could not add watchdog notification: \(err.localizedDescription)"
-								)
-							}
-							else {
-								Log.info("Watchdog notification added")
-							}
-						}
+				let settings = await notificationCenter.notificationSettings()
+
+				let status = settings.authorizationStatus
+				if status == .authorized || status == .provisional {
+					let content = UNMutableNotificationContent()
+					content.title = String(localized: "Synchronisation did not run")
+					content.body = String(
+						localized:
+							"Background synchronization last ran more than \(Int(interval / 3600)) hours ago. Open the app to synchronize."
+					)
+					content.interruptionLevel = .passive
+					content.sound = .none
+					content.badge = 1
+					let trigger = UNTimeIntervalNotificationTrigger(
+						timeInterval: interval, repeats: true)
+					let request = UNNotificationRequest(
+						identifier: Self.watchdogNotificationID, content: content,
+						trigger: trigger)
+					do {
+						try await notificationCenter.add(request)
+						Log.info("Watchdog notification added")
 					}
-					else {
-						Log.warn("Watchdog not enabled or denied, not reinstalling")
+					catch {
+						Log.warn("Could not add watchdog notification: \(error.localizedDescription)")
 					}
+				}
+				else {
+					Log.warn("Watchdog not enabled or denied, not reinstalling")
 				}
 			}
 		}
