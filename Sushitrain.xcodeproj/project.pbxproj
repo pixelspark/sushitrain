@@ -338,6 +338,7 @@
 				de,
 				uk,
 				"zh-Hans",
+				ja,
 			);
 			mainGroup = 65AE11F02C39EE0E00E721D4;
 			preferredProjectObjectVersion = 77;
