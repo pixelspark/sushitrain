@@ -29,7 +29,7 @@
 		6575B3DF2C6012480057686E /* ChangesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6575B3DE2C6012480057686E /* ChangesView.swift */; };
 		657603EF2D0457B400B36D78 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657603EE2D0457B300B36D78 /* Intents.swift */; };
 		657603F12D045D0B00B36D78 /* QuickActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657603F02D045D0900B36D78 /* QuickActions.swift */; };
-		6580EBB52E6C69610004280A /* SushitrainGlass.icon in Resources */ = {isa = PBXBuildFile; fileRef = 6580EBB42E6C69610004280A /* SushitrainGlass.icon */; };
+		658155A52E76D1B60040332B /* SushitrainGlass.icon in Resources */ = {isa = PBXBuildFile; fileRef = 658155A42E76D1B60040332B /* SushitrainGlass.icon */; };
 		6586863D2CE892130023B1DA /* IgnoresView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6586863C2CE892100023B1DA /* IgnoresView.swift */; };
 		658A29F02CA821950061D1D5 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 658A29EF2CA821950061D1D5 /* AVKit.framework */; };
 		659010962E3E6279000B767E /* ZipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659010952E3E6276000B767E /* ZipView.swift */; };
@@ -114,7 +114,7 @@
 		6575B3DE2C6012480057686E /* ChangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangesView.swift; sourceTree = "<group>"; };
 		657603EE2D0457B300B36D78 /* Intents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intents.swift; sourceTree = "<group>"; };
 		657603F02D045D0900B36D78 /* QuickActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActions.swift; sourceTree = "<group>"; };
-		6580EBB42E6C69610004280A /* SushitrainGlass.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; name = SushitrainGlass.icon; path = Assets/SushitrainGlass.icon; sourceTree = "<group>"; };
+		658155A42E76D1B60040332B /* SushitrainGlass.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = SushitrainGlass.icon; sourceTree = "<group>"; };
 		6586863C2CE892100023B1DA /* IgnoresView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IgnoresView.swift; sourceTree = "<group>"; };
 		658A29EF2CA821950061D1D5 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		659010952E3E6276000B767E /* ZipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipView.swift; sourceTree = "<group>"; };
@@ -173,7 +173,7 @@
 		65AE11F02C39EE0E00E721D4 = {
 			isa = PBXGroup;
 			children = (
-				6580EBB42E6C69610004280A /* SushitrainGlass.icon */,
+				658155A42E76D1B60040332B /* SushitrainGlass.icon */,
 				6506158A2C3C4EA9002B6EE6 /* Localizable.xcstrings */,
 				65AE11FB2C39EE0E00E721D4 /* Sushitrain */,
 				65AE12132C39F0CD00E721D4 /* Frameworks */,
@@ -357,12 +357,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				652EA4152CBA60AA009EC5FE /* notices.html in Resources */,
-				6580EBB52E6C69610004280A /* SushitrainGlass.icon in Resources */,
 				65AE123C2C39F34B00E721D4 /* PrivacyInfo.xcprivacy in Resources */,
 				65AE12042C39EE0F00E721D4 /* Preview Assets.xcassets in Resources */,
 				6506158B2C3C4EA9002B6EE6 /* Localizable.xcstrings in Resources */,
 				653359C92D8EAF3A005CCA43 /* Settings.bundle in Resources */,
 				65AE12012C39EE0F00E721D4 /* Assets.xcassets in Resources */,
+				658155A52E76D1B60040332B /* SushitrainGlass.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
