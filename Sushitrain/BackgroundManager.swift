@@ -58,15 +58,21 @@ import BackgroundTasks
 
 			// Schedule background synchronization task
 			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.longBackgroundSyncID, using: nil) { task in
-				Task { await self.handleBackgroundSync(task: task) }
+				Task { @MainActor in
+					await self.handleBackgroundSync(task: task)
+				}
 			}
 
 			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.shortBackgroundSyncID, using: nil) { task in
-				Task { await self.handleBackgroundSync(task: task) }
+				Task { @MainActor in
+					await self.handleBackgroundSync(task: task)
+				}
 			}
 
 			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.continuedBackgroundSyncID, using: nil) { task in
-				Task { await self.handleBackgroundSync(task: task) }
+				Task { @MainActor in
+					await self.handleBackgroundSync(task: task)
+				}
 			}
 
 			updateBackgroundRunHistory(appending: nil)
