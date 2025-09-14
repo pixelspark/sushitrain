@@ -30648,6 +30648,86 @@
         }
       }
     },
+    "Use default listening addresses" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standard-Höradressen verwenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usar direcciones de escucha predeterminadas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa indirizzi di ascolto predefiniti"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebruik standaard luisteradressen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Використовуйте адреси прослуховування за замовчуванням"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用默认监听地址"
+          }
+        }
+      }
+    },
+    "Use default relays" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standard-Relais verwenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usar relés predeterminados"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa i relè predefiniti"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebruik standaard relays"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Використовувати стандартні реле"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用默认中继"
+          }
+        }
+      }
+    },
     "Use password for device" : {
       "localizations" : {
         "de" : {
@@ -32004,6 +32084,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "启用后，应用将使用各种发现机制自动查找此设备的地址。"
+          }
+        }
+      }
+    },
+    "When enabled, the app will register your device with the Syncthing relay pool. Your other devices will then be able to connect to it through a relay when necessary." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn aktiviert, registriert die App Ihr Gerät im Syncthing-Relay-Pool. Ihre anderen Geräte können dann bei Bedarf über ein Relay darauf zugreifen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando está habilitada, la aplicación registrará tu dispositivo en el grupo de retransmisión de Syncthing. Tus otros dispositivos podrán conectarse a él a través de una retransmisión cuando sea necesario."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando abilitato, l'app registrerà il tuo dispositivo nel pool di relay di Syncthing. Gli altri tuoi dispositivi potranno quindi connettersi ad esso attraverso un relay, se necessario."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer ingeschakeld, zal de app uw apparaat registreren bij de Syncthing relay pool. Uw andere apparaten kunnen er dan indien nodig via een relay mee verbinden."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли увімкнено, додаток зареєструє ваш пристрій у пулі ретрансляторів Syncthing. Ваші інші пристрої зможуть підключатися до нього через ретранслятор за потреби."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "启用时，应用程序将把您的设备注册到Syncthing中继池。您的其他设备则可以在必要时通过中继连接到它。"
           }
         }
       }

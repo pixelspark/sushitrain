@@ -22,22 +22,34 @@ enum AddressType {
 
 	var templateAddress: String {
 		switch self {
-		case .listening, .device: return "tcp://0.0.0.0:22000"
+		// Must not be equal to defaultListeningAddresses
+		case .listening: return "tcp://0.0.0.0:22123"
+		case .device: return "tcp://192.168.0.1:22000"
 		case .stun: return "stun.example:4378"
 		case .discovery: return "https://discovery.example"
 		}
 	}
+
+	// The 'default' relay address for listening (https://docs.syncthing.net/users/config.html#listen-addresses)
+	static let defaultRelayAddress: String = "dynamic+https://relays.syncthing.net/endpoint"
+
+	// The 'default' set of listening addresses (not including relay)
+	// See https://docs.syncthing.net/users/config.html#listen-addresses
+	static let defaultListeningAddresses: [String] = [
+		"tcp://0.0.0.0:22000",
+		"quic://0.0.0.0:22000",
+	]
 }
 
 private struct AddressView: View {
-	@Binding var address: String
+	@State var address: String = ""
 	var addressType: AddressType
+	let onChange: (_ address: String) -> Void
 
 	private var url: URL? {
 		get {
 			switch self.addressType {
 			case .stun: return URL(string: "stun://" + self.address)
-
 			case .device, .discovery, .listening: return URL(string: self.address)
 			}
 		}
@@ -232,10 +244,14 @@ private struct AddressView: View {
 						#endif
 				}
 			}
-		}.navigationTitle(self.address)
-			#if os(macOS)
-				.formStyle(.grouped)
-			#endif
+		}
+		.onChange(of: self.address) { _, nv in
+			self.onChange(nv)
+		}
+		.navigationTitle(self.address)
+		#if os(macOS)
+			.formStyle(.grouped)
+		#endif
 	}
 }
 
@@ -244,21 +260,125 @@ struct AddressesView: View {
 	@Binding var addresses: [String]
 	var addressType: AddressType
 
+	// The 'default' option (includes listening addresses and relays for listening address type)
+	private func setUseDefaultOption(_ newValue: Bool) {
+		if newValue && !self.addresses.contains(self.addressType.defaultOption) {
+			self.addresses.append(self.addressType.defaultOption)
+		}
+		else {
+			self.addresses.removeAll { $0 == self.addressType.defaultOption }
+		}
+		self.mergeListeningAddressesIntoDefaultOption()
+	}
+
+	private var useDefaultOption: Bool {
+		return self.addresses.contains(self.addressType.defaultOption)
+	}
+
+	// Default listening addresses
+	private var useDefaultListeningAddresses: Bool {
+		// Either the address list contains "default" or it contains all default listening addresses separately
+		return self.addresses.contains(self.addressType.defaultOption)
+			|| AddressType.defaultListeningAddresses.allSatisfy({ self.addresses.contains($0) })
+	}
+
+	private func setUseDefaultListeningAddresses(_ newValue: Bool) {
+		if self.addressType != .listening {
+			return
+		}
+
+		if newValue {
+			self.addresses.append(contentsOf: AddressType.defaultListeningAddresses)
+		}
+		else {
+			self.addresses.removeAll(where: { AddressType.defaultListeningAddresses.contains($0) })
+			// If we have the 'default' option, split it
+			if self.addresses.contains(AddressType.listening.defaultOption) {
+				self.addresses.removeAll(where: { $0 == AddressType.listening.defaultOption })
+				self.addresses.append(AddressType.defaultRelayAddress)
+			}
+		}
+
+		self.mergeListeningAddressesIntoDefaultOption()
+	}
+
+	// Default relays
+	private var useDefaultRelays: Bool {
+		// Either the address list contains "default" or it contains the default relay address
+		return self.addresses.contains(self.addressType.defaultOption)
+			|| self.addresses.contains(AddressType.defaultRelayAddress)
+	}
+
+	private func setUseDefaultRelays(_ newValue: Bool) {
+		if self.addressType != .listening {
+			return
+		}
+
+		if newValue {
+			// Just append, will deduplicate later on
+			self.addresses.append(AddressType.defaultRelayAddress)
+		}
+		else {
+			self.addresses.removeAll(where: { $0 == AddressType.defaultRelayAddress })
+			// If we have the 'default' option, split it
+			if self.addresses.contains(AddressType.listening.defaultOption) {
+				self.addresses.removeAll(where: { $0 == AddressType.listening.defaultOption })
+				self.addresses.append(contentsOf: AddressType.defaultListeningAddresses)
+			}
+		}
+
+		self.mergeListeningAddressesIntoDefaultOption()
+	}
+
+	private func mergeListeningAddressesIntoDefaultOption() {
+		if self.addressType != .listening {
+			return
+		}
+
+		// Remove duplicates
+		self.addresses = Array(Set(self.addresses))
+
+		let containsDefaultRelay = self.addresses.contains(AddressType.defaultRelayAddress)
+		let containsDefaultAddresses = AddressType.defaultListeningAddresses.allSatisfy({ self.addresses.contains($0) })
+		let containsDefault = self.addresses.contains(AddressType.listening.defaultOption)
+
+		if containsDefault {
+			self.addresses.removeAll(where: {
+				$0 == AddressType.defaultRelayAddress || AddressType.defaultListeningAddresses.contains($0)
+			})
+		}
+		// Merge default relays and listening addresses to 'default' option
+		else if containsDefaultRelay && containsDefaultAddresses {
+			self.addresses.removeAll {
+				$0 == AddressType.defaultRelayAddress || AddressType.defaultListeningAddresses.contains($0)
+					|| $0 == AddressType.listening.defaultOption
+			}
+			self.addresses.append(AddressType.listening.defaultOption)
+		}
+	}
+
+	private func isAddressHidden(_ address: String) -> Bool {
+		if address == self.addressType.defaultOption {
+			return true
+		}
+		else if self.addressType == .listening {
+			if address == AddressType.defaultRelayAddress {
+				return true
+			}
+			if AddressType.defaultListeningAddresses.contains(address) {
+				return true
+			}
+		}
+
+		return false
+	}
+
 	var body: some View {
 		Form {
 			Section {
 				Toggle(
 					"Use default addresses",
-					isOn: Binding(
-						get: { return self.addresses.contains(self.addressType.defaultOption) },
-						set: { nv in
-							if nv && !self.addresses.contains(self.addressType.defaultOption) {
-								self.addresses.append(self.addressType.defaultOption)
-							}
-							else {
-								self.addresses.removeAll { $0 == self.addressType.defaultOption }
-							}
-						}))
+					isOn: Binding(get: { return self.useDefaultOption }, set: { self.setUseDefaultOption($0) }))
 			} footer: {
 				switch self.addressType {
 				case .stun: Text("When enabled, the app will use the default STUN servers.")
@@ -271,14 +391,34 @@ struct AddressesView: View {
 				}
 			}
 
+			if self.addressType == .listening {
+				Section {
+					Toggle(
+						"Use default listening addresses",
+						isOn: Binding(
+							get: { return self.useDefaultListeningAddresses }, set: { self.setUseDefaultListeningAddresses($0) }))
+				}
+
+				Section {
+					Toggle(
+						"Use default relays", isOn: Binding(get: { return self.useDefaultRelays }, set: { self.setUseDefaultRelays($0) }))
+				} footer: {
+					Text(
+						"When enabled, the app will register your device with the Syncthing relay pool. Your other devices will then be able to connect to it through a relay when necessary."
+					)
+				}
+			}
+
 			Section("Additional addresses") {
 				ForEach(Array(addresses.enumerated()), id: \.offset) { idx in
-					if idx.element != addressType.defaultOption {
+					if !self.isAddressHidden(idx.element) {
 						NavigationLink(
 							destination: AddressView(
-								address: Binding(
-									get: { return addresses[idx.offset] }, set: { nv in addresses[idx.offset] = nv }),
-								addressType: addressType)
+								address: addresses[idx.offset],
+								addressType: addressType,
+								onChange: {
+									addresses[idx.offset] = $0
+								})
 						) {
 							HStack {
 								#if os(macOS)
@@ -292,11 +432,13 @@ struct AddressesView: View {
 					}
 				}.onDelete(perform: { indexSet in addresses.remove(atOffsets: indexSet) })
 
-				Button("Add address") { self.addresses.append(self.addressType.templateAddress) }.deleteDisabled(true)
-					#if os(
-						macOS)
-						.buttonStyle(.link)
-					#endif
+				Button("Add address") {
+					self.addresses.append(self.addressType.templateAddress)
+				}
+				.deleteDisabled(true)
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
 			}
 		}
 		#if os(iOS)
