@@ -249,7 +249,7 @@ struct AdvancedSettingsView: View {
 						AsyncAddressesView(addressType: .listening)
 							.navigationTitle("Listening addresses")
 							.toolbar {
-								SheetButton(role: .done) {
+								SheetButton(role: .save) {
 									showListeningAddresses = false
 								}
 							}
@@ -329,7 +329,7 @@ struct AdvancedSettingsView: View {
 						AsyncAddressesView(addressType: .discovery)
 							.navigationTitle("Global announce servers")
 							.toolbar {
-								SheetButton(role: .done) {
+								SheetButton(role: .save) {
 									showDiscoveryAddresses = false
 								}
 							}
@@ -384,7 +384,7 @@ struct AdvancedSettingsView: View {
 						AsyncAddressesView(addressType: .stun)
 							.navigationTitle("STUN servers")
 							.toolbar {
-								SheetButton(role: .done) {
+								SheetButton(role: .save) {
 									showSTUNAddresses = false
 								}
 							}
