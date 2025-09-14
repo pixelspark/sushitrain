@@ -996,8 +996,8 @@ private struct BandwidthSettingsView: View {
 				}
 
 				Section {
-					NavigationLink("Statistics") {
-						TotalStatisticsView()
+					NavigationLink(destination: TotalStatisticsView()) {
+						Label("Statistics", systemImage: "chart.pie")
 					}
 				}
 

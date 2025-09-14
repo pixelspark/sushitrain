@@ -319,7 +319,7 @@ struct BrowserView: View {
 				#endif
 
 				#if os(iOS)
-					Button("Folder statistics...", systemImage: "scalemass") {
+					Button("Folder statistics...", systemImage: "chart.pie") {
 						showFolderStatistics = true
 					}
 				#endif
