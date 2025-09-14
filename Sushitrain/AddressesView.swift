@@ -375,19 +375,21 @@ struct AddressesView: View {
 
 	var body: some View {
 		Form {
-			Section {
-				Toggle(
-					"Use default addresses",
-					isOn: Binding(get: { return self.useDefaultOption }, set: { self.setUseDefaultOption($0) }))
-			} footer: {
-				switch self.addressType {
-				case .stun: Text("When enabled, the app will use the default STUN servers.")
-				case .discovery: Text("When enabled, the app will use the default discovery service to announce itself.")
-				case .listening:
-					Text("When enabled, the app will listen on default addresses, and will use the default relay pool.")
-				case .device:
-					Text(
-						"When enabled, the app will look up addresses for this device automatically using various discovery mechanisms.")
+			if self.addressType != .listening {
+				Section {
+					Toggle(
+						"Use default addresses",
+						isOn: Binding(get: { return self.useDefaultOption }, set: { self.setUseDefaultOption($0) }))
+				} footer: {
+					switch self.addressType {
+					case .stun: Text("When enabled, the app will use the default STUN servers.")
+					case .discovery: Text("When enabled, the app will use the default discovery service to announce itself.")
+					case .listening:
+						Text("When enabled, the app will listen on default addresses, and will use the default relay pool.")
+					case .device:
+						Text(
+							"When enabled, the app will look up addresses for this device automatically using various discovery mechanisms.")
+					}
 				}
 			}
 
