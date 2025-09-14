@@ -57,17 +57,9 @@ import BackgroundTasks
 			self.appState = appState
 
 			// Schedule background synchronization task
-			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.longBackgroundSyncID, using: nil) { task in
-				Task { await self.handleBackgroundSync(task: task) }
-			}
-
-			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.shortBackgroundSyncID, using: nil) { task in
-				Task { await self.handleBackgroundSync(task: task) }
-			}
-
-			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.continuedBackgroundSyncID, using: nil) { task in
-				Task { await self.handleBackgroundSync(task: task) }
-			}
+			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.longBackgroundSyncID, using: nil, launchHandler: self.backgroundLaunchHandler)
+			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.shortBackgroundSyncID, using: nil, launchHandler: self.backgroundLaunchHandler)
+			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.continuedBackgroundSyncID, using: nil, launchHandler: self.backgroundLaunchHandler)
 
 			updateBackgroundRunHistory(appending: nil)
 			_ = self.scheduleBackgroundSync()
@@ -87,6 +79,17 @@ import BackgroundTasks
 			try BGTaskScheduler.shared.submit(request)
 		}
 
+		private func backgroundLaunchHandler(_ task: BGTask) {
+			// This convoluted dance may be necessary to prevent crashing in libdispatch (_dispatch_assert_queue_fail)
+			// The reason seems to be that the launch handler is called on some thread that is not associated with a queue.
+			// The fix here is to kick off the task from the main queue
+			DispatchQueue.main.async {
+				Task { @MainActor in
+					await self.handleBackgroundSync(task: task)
+				}
+			}
+		}
+		
 		func inactivate() {
 			if self.currentBackgroundTask == nil {
 				Log.info(
