@@ -126,7 +126,7 @@ struct BrowserView: View {
 						.popover(isPresented: $showStatusPopover, arrowEdge: .bottom) {
 							FolderPopoverView(folder: folder)
 						}
-						Text(folderName).font(.headline)
+						Text(folderName).font(.headline).padding(.trailing, 20)
 					}
 				}
 
