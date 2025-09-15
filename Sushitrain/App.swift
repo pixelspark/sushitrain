@@ -280,7 +280,7 @@ struct SushitrainApp: App {
 		@State private var folders: [SushitrainFolder] = []
 
 		var body: some Scene {
-			Window("Settings", id: "appSettings") {
+			Window("Settings...", id: "appSettings") {
 				NavigationStack {
 					TabbedSettingsView(hideInDock: $hideInDock)
 				}
@@ -293,7 +293,7 @@ struct SushitrainApp: App {
 							await self.update()
 						}
 
-					Button("Open file browser...") {
+					Button("Open file browser...", systemImage: "macwindow") {
 						openWindow(id: "singleMain")
 						NSApplication.shared.activate()
 					}
@@ -312,35 +312,23 @@ struct SushitrainApp: App {
 
 					Divider()
 
-					Button(
-						action: {
-							// Open the "about" window
-							openWindow(id: "appSettings")
-							NSApplication.shared.activate()
-						},
-						label: {
-							Text("Settings...")
-						})
+					Button("Settings", systemImage: "gear") {
+						// Open the "about" window
+						openWindow(id: "appSettings")
+						NSApplication.shared.activate()
+					}
 
-					Button(
-						action: {
-							openWindow(id: "stats")
-							NSApplication.shared.activate()
-						},
-						label: {
-							Text("Statistics...")
-						})
+					Button("Statistics", systemImage: "chart.pie") {
+						openWindow(id: "stats")
+						NSApplication.shared.activate()
+					}
 				}
 
-				Button(
-					action: {
-						// Open the "about" window
-						openWindow(id: "about")
-						NSApplication.shared.activate()
-					},
-					label: {
-						Text("About...")
-					})
+				Button("About...", systemImage: "info.circle") {
+					// Open the "about" window
+					openWindow(id: "about")
+					NSApplication.shared.activate()
+				}
 
 				Divider()
 
@@ -348,7 +336,7 @@ struct SushitrainApp: App {
 					Label("Hide in dock", systemImage: "eye.slash")
 				}
 
-				Button("Quit Synctrain") {
+				Button("Quit Synctrain", systemImage: "multiply.circle") {
 					NSApplication.shared.terminate(nil)
 				}
 			}
