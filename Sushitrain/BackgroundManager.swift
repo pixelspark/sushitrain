@@ -58,9 +58,15 @@ import BackgroundTasks
 
 			// Schedule background synchronization task
 			// Must start on a specified queue (here we simply use main) to prevent a crash in dispatch_assert_queue
-			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.longBackgroundSyncID, using: DispatchQueue.main, launchHandler: self.backgroundLaunchHandler)
-			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.shortBackgroundSyncID, using: DispatchQueue.main, launchHandler: self.backgroundLaunchHandler)
-			BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.continuedBackgroundSyncID, using: DispatchQueue.main, launchHandler: self.backgroundLaunchHandler)
+			BGTaskScheduler.shared.register(
+				forTaskWithIdentifier: Self.longBackgroundSyncID, using: DispatchQueue.main,
+				launchHandler: self.backgroundLaunchHandler)
+			BGTaskScheduler.shared.register(
+				forTaskWithIdentifier: Self.shortBackgroundSyncID, using: DispatchQueue.main,
+				launchHandler: self.backgroundLaunchHandler)
+			BGTaskScheduler.shared.register(
+				forTaskWithIdentifier: Self.continuedBackgroundSyncID, using: DispatchQueue.main,
+				launchHandler: self.backgroundLaunchHandler)
 
 			updateBackgroundRunHistory(appending: nil)
 			_ = self.scheduleBackgroundSync()
@@ -85,7 +91,7 @@ import BackgroundTasks
 				await self.handleBackgroundSync(task: task)
 			}
 		}
-		
+
 		func inactivate() {
 			if self.currentBackgroundTask == nil {
 				Log.info(
