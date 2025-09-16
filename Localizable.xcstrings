@@ -9731,7 +9731,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ディレクション"
+            "value" : "フォルダーの種類"
           }
         },
         "nl" : {
@@ -14527,7 +14527,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アルバムより"
+            "value" : "アルバムから"
           }
         },
         "nl" : {
@@ -17725,7 +17725,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最終更新日"
+            "value" : "最終更新元"
           }
         },
         "nl" : {
@@ -19933,7 +19933,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "お知らせ"
+            "value" : "通知"
           }
         },
         "nl" : {
@@ -20301,7 +20301,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このデバイスでは"
+            "value" : "このデバイス上"
           }
         },
         "nl" : {
@@ -20439,7 +20439,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "接続は1つで十分"
+            "value" : "同時接続を1に制限"
           }
         },
         "nl" : {
@@ -24487,7 +24487,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "以下のメディアタイプを保存する。"
+            "value" : "以下のメディアタイプを保存"
           }
         },
         "nl" : {
@@ -28025,7 +28025,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "開始済み"
+            "value" : "開始"
           }
         },
         "nl" : {
@@ -31935,7 +31935,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "現在、このファイルの完全コピーを持っている他のデバイスは接続されていない。"
+            "value" : "現在、このファイルの完全コピーを持っている他のデバイスは接続されていません。"
           }
         },
         "nl" : {
@@ -32591,7 +32591,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このデバイスは、イントロデューサー装置が接続されているすべての装置を自動的に追加する。"
+            "value" : "このデバイスは、紹介デバイスが接続しているすべてのデバイスを自動的に追加します。"
           }
         },
         "nl" : {
@@ -32683,7 +32683,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このファイルは"
+            "value" : "このファイルは以下のデバイスで完全に利用可能"
           }
         },
         "nl" : {
@@ -33235,7 +33235,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このサブフォルダとそのすべてのコンテンツは"
+            "value" : "このサブディレクトリとその中身は、以下のデバイスで利用可能"
           }
         },
         "nl" : {
@@ -34891,7 +34891,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "でアップグレード"
+            "value" : "更新日時"
           }
         },
         "nl" : {
@@ -34983,7 +34983,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アップタイム"
+            "value" : "稼働時間"
           }
         },
         "nl" : {
@@ -35903,7 +35903,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "設定を見る"
+            "value" : "表示設定"
           }
         },
         "nl" : {
@@ -36915,7 +36915,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "有効にすると、アプリはデフォルトのディスカバリーサービスを使用して自分自身をアナウンスする。"
+            "value" : "有効にすると、アプリはデフォルトのディスカバリーサービスを使用して自分自身をアナウンスします。"
           }
         },
         "nl" : {
@@ -36961,7 +36961,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "有効にすると、アプリはデフォルトのSTUNサーバーを使用する。"
+            "value" : "有効にすると、アプリはデフォルトのSTUNサーバーを使用します。"
           }
         },
         "nl" : {
@@ -37007,7 +37007,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "前回の同期がかなり前に行われた場合"
+            "value" : "前回の同期がかなり前に行われた時"
           }
         },
         "nl" : {
