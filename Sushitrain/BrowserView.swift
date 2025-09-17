@@ -31,6 +31,7 @@ struct BrowserView: View {
 
 	@State private var showSettings = false
 	@State private var searchText = ""
+	@State private var canShowInFinder = false
 	@State private var localNativeURL: URL? = nil
 	@State private var folderExists = false
 	@State private var folderIsSelective = false
@@ -111,72 +112,7 @@ struct BrowserView: View {
 		#endif
 
 		.toolbar {
-			#if os(macOS)
-				// On iOS, this is done with .navigationTitle() and the sync status is shown in the view
-				ToolbarItem(placement: .navigation) {
-					let fsd = FolderStatusDescription(folder)
-					HStack(alignment: .center) {
-						Button(fsd.text, systemImage: fsd.systemImage) {
-							showStatusPopover = true
-						}
-						.animation(.spring(), value: fsd.systemImage)
-						.labelStyle(.iconOnly)
-						.foregroundStyle(fsd.color)
-						.accessibilityLabel(fsd.text)
-						.popover(isPresented: $showStatusPopover, arrowEdge: .bottom) {
-							FolderPopoverView(folder: folder)
-						}
-						Text(folderName).font(.headline).padding(.trailing, 20)
-					}
-				}
-
-				ToolbarItemGroup(placement: .status) {
-					Picker("View as", selection: self.currentViewStyle()) {
-						Image(systemName: "list.bullet").tag(BrowserViewStyle.list)
-							.accessibilityLabel(Text("List"))
-						Image(systemName: "checklist.unchecked").tag(BrowserViewStyle.thumbnailList)
-							.accessibilityLabel(Text("List with previews"))
-						Image(systemName: "square.grid.2x2").tag(BrowserViewStyle.grid)
-							.accessibilityLabel(Text("Grid"))
-
-						if webViewAvailable {
-							Image(systemName: "doc.text.image")
-								.tag(BrowserViewStyle.web)
-								.accessibilityLabel(Text("Web page"))
-						}
-					}
-					.pickerStyle(.segmented)
-				}
-			#endif
-
-			#if os(macOS)
-				ToolbarItem {
-					// Open in Finder/Files (and possibly materialize empty folder)
-					if let localNativeURL = self.localNativeURL {
-						Button(
-							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
-							action: {
-								openURLInSystemFilesApp(url: localNativeURL)
-							}
-						).disabled(!folderExists)
-					}
-					else if folderExists {
-						if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
-							if entry.isDirectory() && !entry.isLocallyPresent() && entry.canShowInFinder {
-								Button(
-									openInFilesAppLabel, systemImage: "arrow.up.forward.app",
-									action: {
-										try? entry.showInFinder()
-									})
-							}
-						}
-					}
-				}
-			#endif
-
-			ToolbarItem {
-				self.folderMenu()
-			}
+			self.toolbarContent()
 		}
 		#if os(iOS)
 			.sheet(isPresented: $showFolderStatistics) {
@@ -256,6 +192,70 @@ struct BrowserView: View {
 		}
 	}
 
+	@ToolbarContentBuilder private func toolbarContent() -> some ToolbarContent {
+		#if os(macOS)
+			// On iOS, this is done with .navigationTitle() and the sync status is shown in the view
+			ToolbarItem(placement: .navigation) {
+				let fsd = FolderStatusDescription(folder)
+				HStack(alignment: .center) {
+					Button(fsd.text, systemImage: fsd.systemImage) {
+						showStatusPopover = true
+					}
+					.animation(.spring(), value: fsd.systemImage)
+					.labelStyle(.iconOnly)
+					.foregroundStyle(fsd.color)
+					.accessibilityLabel(fsd.text)
+					.popover(isPresented: $showStatusPopover, arrowEdge: .bottom) {
+						FolderPopoverView(folder: folder)
+					}
+					Text(folderName).font(.headline).padding(.trailing, 20)
+				}
+			}
+
+			ToolbarItemGroup(placement: .status) {
+				Picker("View as", selection: self.currentViewStyle()) {
+					Image(systemName: "list.bullet").tag(BrowserViewStyle.list)
+						.accessibilityLabel(Text("List"))
+					Image(systemName: "checklist.unchecked").tag(BrowserViewStyle.thumbnailList)
+						.accessibilityLabel(Text("List with previews"))
+					Image(systemName: "square.grid.2x2").tag(BrowserViewStyle.grid)
+						.accessibilityLabel(Text("Grid"))
+
+					if webViewAvailable {
+						Image(systemName: "doc.text.image")
+							.tag(BrowserViewStyle.web)
+							.accessibilityLabel(Text("Web page"))
+					}
+				}
+				.pickerStyle(.segmented)
+			}
+		#endif
+
+		ToolbarItemGroup(placement: .primaryAction) {
+			#if os(macOS)
+				Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
+					self.showInFinder()
+				}.disabled(!canShowInFinder)
+			#endif
+			self.folderMenu()
+		}
+	}
+
+	private func showInFinder() {
+		if !canShowInFinder {
+			return
+		}
+		// Open in Finder/Files (and possibly materialize empty folder)
+		if let localNativeURL = self.localNativeURL {
+			openURLInSystemFilesApp(url: localNativeURL)
+		}
+		else {
+			if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
+				try? entry.showInFinder()
+			}
+		}
+	}
+
 	private func update() {
 		self.folderExists = folder.exists()
 		self.updateLocalURL()
@@ -296,26 +296,9 @@ struct BrowserView: View {
 
 			if folderExists {
 				#if os(iOS)
-					// Open in Finder/Files (and possibly materialize empty folder)
-					// On macOS this has its own toolbar button
-					if let localNativeURL = self.localNativeURL {
-						Button(
-							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
-							action: {
-								openURLInSystemFilesApp(url: localNativeURL)
-							})
-					}
-					else {
-						if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash),
-							entry.isDirectory() && !entry.isLocallyPresent()
-						{
-							Button(
-								openInFilesAppLabel, systemImage: "arrow.up.forward.app",
-								action: {
-									try? entry.showInFinder()
-								})
-						}
-					}
+					Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
+						self.showInFinder()
+					}.disabled(!canShowInFinder)
 				#endif
 
 				#if os(iOS)
@@ -432,8 +415,13 @@ struct BrowserView: View {
 	#endif
 
 	private func updateLocalURL() {
-		// Get local native URL
-		self.localNativeURL = nil
+		if !self.folder.exists() {
+			self.localNativeURL = nil
+			self.canShowInFinder = false
+			return
+		}
+
+		// Check if we can get a local native URL
 		var error: NSError? = nil
 		let localNativePath = self.folder.localNativePath(&error)
 
@@ -443,6 +431,15 @@ struct BrowserView: View {
 
 			if FileManager.default.fileExists(atPath: localNativeURL.path) {
 				self.localNativeURL = localNativeURL
+				self.canShowInFinder = true
+				return
+			}
+		}
+
+		// Check if this entry supports lazy creation
+		if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
+			if entry.isDirectory() && !entry.isLocallyPresent() && entry.canShowInFinder {
+				self.canShowInFinder = true
 			}
 		}
 	}
