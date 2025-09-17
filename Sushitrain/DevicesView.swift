@@ -100,7 +100,7 @@ private struct DeviceMetricView: View {
 	}
 
 	private func update() async {
-		(self.measurement, self.address) = await Task.detached {
+		(self.measurement, self.address) = await Task { @concurrent in
 			return await self.calculateMeasurement()
 		}.value
 	}
@@ -416,7 +416,7 @@ struct LatencyView: View {
 
 						TableColumnForEach(self.peers) { peer in
 							TableColumn(peer.displayName) { folder in
-								DevicesGridCellView(device: peer, folder: folder, viewStyle: viewStyle)
+								DevicesGridCellView(appState: appState, device: peer, folder: folder, viewStyle: viewStyle)
 									// Needed because for some reason SwiftUI doesn't propagate environment inside TableColumn
 									.environment(self.appState)
 							}.width(ideal: 50).alignment(.center)
@@ -571,7 +571,9 @@ struct LatencyView: View {
 								TableColumnForEach(self.folders) { folder in
 									TableColumn(folder.displayName) { (row: DevicesGridRow) in
 										if case .connectedDevice(let peer) = row {
-											DevicesGridCellView(device: peer, folder: folder, viewStyle: viewStyle)
+											DevicesGridCellView(appState: self.appState, device: peer, folder: folder, viewStyle: viewStyle)
+												// Needed because for some reason SwiftUI doesn't propagate environment inside TableColumn
+												.environment(self.appState)
 										}
 										else {
 											EmptyView()
@@ -717,7 +719,7 @@ struct LatencyView: View {
 	}
 
 	private struct DevicesGridCellView: View {
-		@Environment(AppState.self) private var appState
+		var appState: AppState
 		var device: SushitrainPeer
 		var folder: SushitrainFolder
 		var viewStyle: GridViewStyle
@@ -802,7 +804,7 @@ struct LatencyView: View {
 				self.loadingTask = nil
 			}
 
-			self.loadingTask = Task.detached(priority: .userInitiated) {
+			self.loadingTask = Task(priority: .userInitiated) { @concurrent in
 				dispatchPrecondition(condition: .notOnQueue(.main))
 				let sharedWithDeviceIDs = folder.sharedWithDeviceIDs()?.asArray() ?? []
 				let sharedEncrypted = folder.sharedEncryptedWithDeviceIDs()?.asArray() ?? []
