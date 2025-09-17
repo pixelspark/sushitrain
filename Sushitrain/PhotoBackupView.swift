@@ -351,7 +351,7 @@ struct PhotoBackupSettingsView: View {
 
 	@concurrent private func loadAlbums() async {
 		dispatchPrecondition(condition: .notOnQueue(.main))
-		
+
 		var albums: [PHAssetCollection] = []
 		let options = PHFetchOptions()
 		options.sortDescriptors = [NSSortDescriptor(key: "localizedTitle", ascending: true)]
@@ -360,7 +360,7 @@ struct PhotoBackupSettingsView: View {
 		userAlbums.enumerateObjects { (collection, _, _) in
 			albums.append(collection)
 		}
-		
+
 		DispatchQueue.main.async {
 			self.albums = albums
 		}
@@ -373,7 +373,7 @@ struct PhotoBackupSettingsView: View {
 		systemAlbums.enumerateObjects { (collection, _, _) in
 			smartAlbums.append(collection)
 		}
-		
+
 		DispatchQueue.main.async {
 			self.smartAlbums = smartAlbums
 		}
