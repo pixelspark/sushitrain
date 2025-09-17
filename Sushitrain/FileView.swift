@@ -550,7 +550,7 @@ struct FileView: View {
 				self.fullyAvailableOnDevices = availability.flatMap { devID in
 					if let p = self.appState.client.peer(withID: devID) { return [p] }
 					return []
-				}
+				}.sorted(by: { $0.displayName < $1.displayName })
 			}
 			catch {
 				self.availabilityError = error
