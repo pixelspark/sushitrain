@@ -308,13 +308,10 @@ struct LatencyView: View {
 
 				// Add peer manually
 				Section {
-					Button(
-						"Add device...", systemImage: "plus",
-						action: {
-							addingDeviceID = ""
-							showingAddDevicePopup = true
-						}
-					)
+					Button("Add device...", systemImage: "plus") {
+						addingDeviceID = ""
+						showingAddDevicePopup = true
+					}
 					#if os(macOS)
 						.buttonStyle(.borderless)
 					#endif
@@ -764,8 +761,8 @@ struct LatencyView: View {
 				}
 			}
 			.contextMenu {
-				Button(action: { self.showEditEncryptionPassword = true }) {
-					Text("Show info...")
+				Button("Show info...") {
+					self.showEditEncryptionPassword = true
 				}
 			}
 			.task {

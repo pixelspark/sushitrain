@@ -293,17 +293,15 @@ struct FileEntryLink<Content: View>: View {
 
 			// Show file in Finder
 			if entry.canShowInFinder {
-				Button(
-					openInFilesAppLabel,
-					systemImage: "arrow.up.forward.app",
-					action: {
-						try? entry.showInFinder()
-					}
-				)
+				Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
+					try? entry.showInFinder()
+				}
 			}
 
 			#if os(macOS)
-				Button("Copy", systemImage: "document.on.document") { self.copy() }.disabled(!entry.isLocallyPresent())
+				Button("Copy", systemImage: "document.on.document") {
+					self.copy()
+				}.disabled(!entry.isLocallyPresent())
 			#endif
 
 			// Show 'go to location' in list if we are not in the file's folder already

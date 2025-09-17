@@ -98,25 +98,17 @@ struct SelectiveFolderView: View {
 			ToolbarItem(placement: .primaryAction) {
 				Menu {
 					Section(inEditMode ? "Remove selected files from this device" : "Remove files from this device") {
-						Button(
-							"All files that are available on other devices",
-							systemImage: "pin.slash",
-							action: {
-								showConfirmClearSelectionSoft = true
-							}
-						)
+						Button("All files that are available on other devices", systemImage: "pin.slash") {
+							showConfirmClearSelectionSoft = true
+						}
 						.help(
 							"Remove the files shown in the list from this device, but do not remove them from other devices. If a file is not available on at least one other device, it will not be removed."
 						)
 
 						if !inEditMode && self.prefix.isEmpty {
-							Button(
-								"All files including those not available elsewhere",
-								systemImage: "pin.slash",
-								action: {
-									showConfirmClearSelectionHard = true
-								}
-							)
+							Button("All files including those not available elsewhere", systemImage: "pin.slash") {
+								showConfirmClearSelectionHard = true
+							}
 							.help(
 								"Remove the files shown in the list from this device, but do not remove them from other devices. If the file is not available on another device it will be permanently removed."
 							)

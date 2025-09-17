@@ -188,40 +188,24 @@ struct SushitrainApp: App {
 				}
 
 				CommandGroup(replacing: CommandGroupPlacement.help) {
-					Button(
-						action: {
-							openWindow(id: "support")
-						},
-						label: {
-							Text("Questions, support & feedback...")
-						})
+					Button("Questions, support & feedback...") {
+						openWindow(id: "support")
+					}
 				}
 
 				CommandGroup(replacing: CommandGroupPlacement.appInfo) {
-					Button(
-						action: {
-							// Open the "about" window
-							openWindow(id: "about")
-						},
-						label: {
-							Text("About Synctrain")
-						})
+					Button("About Synctrain") {
+						// Open the "about" window
+						openWindow(id: "about")
+					}
 
-					Button(
-						action: {
-							openWindow(id: "stats")
-						},
-						label: {
-							Text("Statistics...")
-						})
+					Button("Statistics...") {
+						openWindow(id: "stats")
+					}
 
-					Button(
-						action: {
-							openWindow(id: "decrypter")
-						},
-						label: {
-							Text("Decrypt a folder...")
-						})
+					Button("Decrypt a folder...") {
+						openWindow(id: "decrypter")
+					}
 				}
 			}
 			.defaultLaunchBehavior(hideInDock ? .suppressed : .presented)

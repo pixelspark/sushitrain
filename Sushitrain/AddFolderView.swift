@@ -56,13 +56,10 @@ struct AddFolderView: View {
 
 	@ViewBuilder private func folderTypeSection() -> some View {
 		Section("Folder type") {
-			Button(action: {
+			Button("Regular folder", systemImage: self.folderPath == nil && !isPhotoFolder ? "checkmark.circle.fill" : "circle")
+			{
 				self.folderPath = nil
 				self.isPhotoFolder = false
-			}) {
-				Label(
-					"Regular folder",
-					systemImage: self.folderPath == nil && !isPhotoFolder ? "checkmark.circle.fill" : "circle")
 			}
 			#if os(macOS)
 				.buttonStyle(.link)
@@ -70,10 +67,8 @@ struct AddFolderView: View {
 
 			// Only allow creation of photo folders for non-discovered folders
 			if !folderIDReadOnly {
-				Button(action: {
+				Button("Photo folder", systemImage: self.isPhotoFolder ? "checkmark.circle.fill" : "circle") {
 					self.isPhotoFolder = true
-				}) {
-					Label("Photo folder", systemImage: self.isPhotoFolder ? "checkmark.circle.fill" : "circle")
 				}
 				#if os(macOS)
 					.buttonStyle(.link)
