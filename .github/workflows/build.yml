@@ -19,7 +19,7 @@ jobs:
       - name: Check Xcode version
         run: |
           /usr/bin/xcodebuild -version
-          sudo /usr/bin/xcode-select -switch /Applications/Xcode_16.4.app/Contents/Developer
+          sudo /usr/bin/xcode-select -switch /Applications/Xcode_26.0.app/Contents/Developer
           xcrun simctl list > /dev/null
           /usr/bin/xcodebuild -version
 
