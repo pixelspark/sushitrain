@@ -341,7 +341,7 @@ struct PhotoBackupSettingsView: View {
 		authorizationStatus = PHPhotoLibrary.authorizationStatus()
 		self.folders = await appState.folders().filter({ $0.isSuitablePhotoBackupDestination }).sorted()
 		if self.authorizationStatus == .authorized {
-			self.loadAlbums()
+			await self.loadAlbums()
 		}
 		else {
 			self.albums = []
@@ -349,7 +349,9 @@ struct PhotoBackupSettingsView: View {
 		}
 	}
 
-	private func loadAlbums() {
+	@concurrent private func loadAlbums() async {
+		dispatchPrecondition(condition: .notOnQueue(.main))
+		
 		var albums: [PHAssetCollection] = []
 		let options = PHFetchOptions()
 		options.sortDescriptors = [NSSortDescriptor(key: "localizedTitle", ascending: true)]
@@ -358,7 +360,10 @@ struct PhotoBackupSettingsView: View {
 		userAlbums.enumerateObjects { (collection, _, _) in
 			albums.append(collection)
 		}
-		self.albums = albums
+		
+		DispatchQueue.main.async {
+			self.albums = albums
+		}
 
 		// Fetch system albums, including 'Recents'
 		var smartAlbums: [PHAssetCollection] = []
@@ -368,7 +373,10 @@ struct PhotoBackupSettingsView: View {
 		systemAlbums.enumerateObjects { (collection, _, _) in
 			smartAlbums.append(collection)
 		}
-		self.smartAlbums = smartAlbums
+		
+		DispatchQueue.main.async {
+			self.smartAlbums = smartAlbums
+		}
 	}
 
 	#if os(iOS)

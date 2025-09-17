@@ -1000,7 +1000,7 @@ func writeTextToPasteboard(_ text: String) {
 
 // Run a possibly blocking task in the background (for calls into Go code)
 func goTask(_ block: @Sendable @escaping () async throws -> Void) async throws {
-	try await Task.detached {
+	try await Task { @concurrent in
 		dispatchPrecondition(condition: .notOnQueue(.main))
 		try await block()
 	}.value
