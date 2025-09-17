@@ -812,7 +812,7 @@ struct SyncState {
 		}
 
 		func cancelLingering() {
-			Log.info("Cancel lingering")
+			Log.info("Cancel lingering lingerTask=\(self.lingerTask.debugDescription)")
 			if let lt = self.lingerTask {
 				UIApplication.shared.endBackgroundTask(lt)
 			}

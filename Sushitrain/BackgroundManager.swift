@@ -7,12 +7,43 @@ import SwiftUI
 @preconcurrency import SushitrainCore
 import BackgroundTasks
 
+struct BackgroundSyncRun: Codable, Equatable {
+	var started: Date
+	var ended: Date?
+	var taskType: BackgroundTaskType?
+
+	var asString: String {
+		if let ended = self.ended {
+			if let tt = self.taskType {
+				return "\(self.started.formatted()) - \(ended.formatted()) (\(tt.localizedTypeName))"
+			}
+			return "\(self.started.formatted()) - \(ended.formatted())"
+		}
+		return self.started.formatted()
+	}
+}
+
+enum BackgroundTaskType: String, Codable, Equatable {
+	case short = "nl.t-shaped.sushitrain.short-background-sync"
+	case long = "nl.t-shaped.sushitrain.background-sync"
+	case continued = "nl.t-shaped.sushitrain.background-sync.continued"
+
+	var identifier: String {
+		return self.rawValue
+	}
+
+	var localizedTypeName: String {
+		switch self {
+		case .short: String(localized: "short")
+		case .long: String(localized: "long")
+		case .continued: String(localized: "continued")
+		}
+	}
+}
+
 #if os(iOS)
 	@MainActor class BackgroundManager: ObservableObject {
-		private static let longBackgroundSyncID = "nl.t-shaped.sushitrain.background-sync"
-		private static let shortBackgroundSyncID = "nl.t-shaped.sushitrain.short-background-sync"
 		private static let watchdogNotificationID = "nl.t-shaped.sushitrain.watchdog-notification"
-		private static let continuedBackgroundSyncID = "nl.t-shaped.sushitrain.background-sync.continued"
 
 		// Time before the end of allotted background time to start ending the task to prevent forceful expiration by the OS
 		private static let backgroundTimeReserve: TimeInterval = 5.6
@@ -59,13 +90,13 @@ import BackgroundTasks
 			// Schedule background synchronization task
 			// Must start on a specified queue (here we simply use main) to prevent a crash in dispatch_assert_queue
 			BGTaskScheduler.shared.register(
-				forTaskWithIdentifier: Self.longBackgroundSyncID, using: DispatchQueue.main,
+				forTaskWithIdentifier: BackgroundTaskType.long.identifier, using: DispatchQueue.main,
 				launchHandler: self.backgroundLaunchHandler)
 			BGTaskScheduler.shared.register(
-				forTaskWithIdentifier: Self.shortBackgroundSyncID, using: DispatchQueue.main,
+				forTaskWithIdentifier: BackgroundTaskType.short.identifier, using: DispatchQueue.main,
 				launchHandler: self.backgroundLaunchHandler)
 			BGTaskScheduler.shared.register(
-				forTaskWithIdentifier: Self.continuedBackgroundSyncID, using: DispatchQueue.main,
+				forTaskWithIdentifier: BackgroundTaskType.continued.identifier, using: DispatchQueue.main,
 				launchHandler: self.backgroundLaunchHandler)
 
 			updateBackgroundRunHistory(appending: nil)
@@ -77,16 +108,24 @@ import BackgroundTasks
 		}
 
 		@available(iOS 26, *) func startContinuedSync() throws {
-			let request = BGContinuedProcessingTaskRequest(
-				identifier: Self.continuedBackgroundSyncID,
-				title: "Synchronize files",
-				subtitle: "About to start...",
-			)
-			request.strategy = .fail
-			try BGTaskScheduler.shared.submit(request)
+			do {
+				let request = BGContinuedProcessingTaskRequest(
+					identifier: BackgroundTaskType.continued.identifier,
+					title: "Synchronize files",
+					subtitle: "About to start...",
+				)
+				request.strategy = .queue
+				Log.info("Scheduling continued background processing task")
+				try BGTaskScheduler.shared.submit(request)
+			}
+			catch {
+				Log.warn("Failed to schedule continued background processing task: \(error.localizedDescription)")
+				throw error
+			}
 		}
 
 		private func backgroundLaunchHandler(_ task: BGTask) {
+			Log.info("Background launch handler: \(task.identifier)")
 			Task { @MainActor in
 				await self.handleBackgroundSync(task: task)
 			}
@@ -102,9 +141,15 @@ import BackgroundTasks
 		}
 
 		private func handleBackgroundSync(task: BGTask) async {
+			guard let taskType = BackgroundTaskType(rawValue: task.identifier) else {
+				Log.warn("invalid background task type identifier=\(task.identifier)")
+				return
+			}
+
 			let start = Date.now
 			self.currentBackgroundTask = task
-			Log.info("Start background task at \(start) \(task.identifier)")
+			Log.info("Start background task at \(start) \(task.identifier) type=\(taskType)")
+
 			DispatchQueue.main.async {
 				_ = self.scheduleBackgroundSync()
 			}
@@ -144,20 +189,20 @@ import BackgroundTasks
 
 			// Start photo back-up if the user has enabled it
 			var photoBackupTask: Task<(), Error>? = nil
-			if self.appState.photoBackup.enableBackgroundCopy && task.identifier == Self.longBackgroundSyncID {
+			if self.appState.photoBackup.enableBackgroundCopy && taskType == .long {
 				Log.info("Start photo backup task")
 				photoBackupTask = self.appState.photoBackup.backup(appState: self.appState, fullExport: false, isInBackground: true)
 			}
 
 			// Start background sync on long and short sync task (if enabled) and continued task
-			if appState.userSettings.longBackgroundSyncEnabled || appState.userSettings.shortBackgroundSyncEnabled
-				|| task.identifier == Self.continuedBackgroundSyncID
+			if (taskType == .long && appState.userSettings.longBackgroundSyncEnabled)
+				|| (taskType == .short && appState.userSettings.shortBackgroundSyncEnabled) || taskType == .continued
 			{
 				Log.info(
 					"Start background sync, time remaining = \(UIApplication.shared.backgroundTimeRemaining)"
 				)
 				await self.appState.suspend(false)
-				currentRun = BackgroundSyncRun(started: start, ended: nil)
+				currentRun = BackgroundSyncRun(started: start, ended: nil, taskType: taskType)
 				self.lastBackgroundSyncRun = currentRun
 				if #available(iOS 26, *) {
 					if let cg = task as? BGContinuedProcessingTask {
@@ -179,6 +224,7 @@ import BackgroundTasks
 
 				// Run to expiration
 				task.expirationHandler = {
+					Log.warn("Task expiration handler called identifier=\(task.identifier)")
 					Task { @MainActor in
 						Log.warn(
 							"Background task expired (this should not happen because our timer should have expired the task first; perhaps iOS changed its mind?) Remaining = \(UIApplication.shared.backgroundTimeRemaining)"
@@ -189,7 +235,7 @@ import BackgroundTasks
 			}
 			else {
 				// We're just doing some photo backupping this time
-				if task.identifier == Self.longBackgroundSyncID {
+				if taskType == .long {
 					// When background task expires, end photo back-up
 					task.expirationHandler = {
 						Log.warn(
@@ -289,7 +335,7 @@ import BackgroundTasks
 			var success = true
 
 			if appState.userSettings.longBackgroundSyncEnabled {
-				let longRequest = BGProcessingTaskRequest(identifier: Self.longBackgroundSyncID)
+				let longRequest = BGProcessingTaskRequest(identifier: BackgroundTaskType.long.identifier)
 
 				// No earlier than within 15 minutes
 				longRequest.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60)
@@ -309,7 +355,7 @@ import BackgroundTasks
 			}
 
 			if appState.userSettings.shortBackgroundSyncEnabled {
-				let shortRequest = BGAppRefreshTaskRequest(identifier: Self.shortBackgroundSyncID)
+				let shortRequest = BGAppRefreshTaskRequest(identifier: BackgroundTaskType.short.identifier)
 				// No earlier than within 15 minutes
 				shortRequest.earliestBeginDate = Date(timeIntervalSinceNow: 30 * 60)
 				Log.info(

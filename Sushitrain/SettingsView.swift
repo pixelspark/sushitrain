@@ -631,18 +631,18 @@ struct AdvancedSettingsView: View {
 
 				Section("Last background synchronization") {
 					if let lastSyncRun = self.appState.backgroundManager.lastBackgroundSyncRun {
-						Text("Started").badge(
-							lastSyncRun.started.formatted(
-								date: .abbreviated, time: .shortened))
+						Text("Started").badge(lastSyncRun.started.formatted(date: .abbreviated, time: .shortened))
 
 						if let lastSyncEnded = lastSyncRun.ended {
-							Text("Ended").badge(
-								lastSyncEnded.formatted(
-									date: .abbreviated, time: .shortened))
+							Text("Ended").badge(lastSyncEnded.formatted(date: .abbreviated, time: .shortened))
+
 							Text("Duration").badge(
-								durationFormatter.string(
-									from: lastSyncEnded.timeIntervalSince(
-										lastSyncRun.started)))
+								durationFormatter.string(from: lastSyncEnded.timeIntervalSince(lastSyncRun.started))
+							)
+
+							if let taskType = lastSyncRun.taskType {
+								Text("Type").badge(taskType.localizedTypeName)
+							}
 						}
 					}
 					else {

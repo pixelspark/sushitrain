@@ -542,18 +542,6 @@ extension SushitrainFolder: @retroactive Identifiable {
 extension SushitrainChange: @retroactive Identifiable {
 }
 
-struct BackgroundSyncRun: Codable, Equatable {
-	var started: Date
-	var ended: Date?
-
-	var asString: String {
-		if let ended = self.ended {
-			return "\(self.started.formatted()) - \(ended.formatted())"
-		}
-		return self.started.formatted()
-	}
-}
-
 enum SushitrainEntryTransferableError: Error {
 	case notAvailable
 }
