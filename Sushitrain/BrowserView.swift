@@ -608,6 +608,9 @@ private struct BrowserItemsView: View {
 					folder: folder,
 					columns: columns
 				)
+				#if os(macOS)
+					.padding(.leading, 5.0)
+				#endif
 			})
 	}
 
