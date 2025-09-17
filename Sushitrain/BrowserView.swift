@@ -913,3 +913,26 @@ private struct BrowserViewStylePickerView: View {
 		.pickerStyle(.inline)
 	}
 }
+
+struct FilesFooterView: View {
+	let subdirectories: Int
+	let files: Int
+
+	var body: some View {
+		// Show number of items
+		Group {
+			if self.subdirectories > 0 && self.files == 0 {
+				Text("\(self.subdirectories) subdirectories")
+			}
+			else if self.files > 0 && self.subdirectories == 0 {
+				Text("\(self.files) files")
+			}
+			else if self.files > 0 && self.subdirectories > 0 {
+				Text("\(self.files) files and \(self.subdirectories) subdirectories")
+			}
+		}
+		.font(.footnote)
+		.foregroundColor(.secondary)
+		.frame(maxWidth: .infinity)
+	}
+}

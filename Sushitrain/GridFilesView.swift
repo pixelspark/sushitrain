@@ -107,53 +107,58 @@ struct GridFilesView: View {
 			repeating: GridItem(.flexible(), spacing: 1.0), count: self.columns)
 
 		LazyVGrid(columns: gridColumns, spacing: 1.0) {
-			// List subdirectories
-			ForEach(subdirectories, id: \.self.id) { (subDirEntry: SushitrainEntry) in
-				GeometryReader { geo in
-					let fileName = subDirEntry.fileName()
-					NavigationLink(
-						destination: BrowserView(folder: folder, prefix: "\(self.prefix)\(fileName)/")
-					) {
-						GridItemView(size: geo.size.width, file: subDirEntry).id(subDirEntry.id)
-					}
-					.buttonStyle(PlainButtonStyle())
-					.contextMenu(
-						ContextMenu(menuItems: {
-							if let file = try? folder.getFileInformation(
-								self.prefix + fileName)
-							{
-								NavigationLink(destination: FileView(file: file, showPath: false, siblings: nil)) {
-									Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
+			Section {
+				// List subdirectories
+				ForEach(subdirectories, id: \.self.id) { (subDirEntry: SushitrainEntry) in
+					GeometryReader { geo in
+						let fileName = subDirEntry.fileName()
+						NavigationLink(
+							destination: BrowserView(folder: folder, prefix: "\(self.prefix)\(fileName)/")
+						) {
+							GridItemView(size: geo.size.width, file: subDirEntry).id(subDirEntry.id)
+						}
+						.buttonStyle(PlainButtonStyle())
+						.contextMenu(
+							ContextMenu(menuItems: {
+								if let file = try? folder.getFileInformation(
+									self.prefix + fileName)
+								{
+									NavigationLink(destination: FileView(file: file, showPath: false, siblings: nil)) {
+										Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
+									}
+									ItemSelectToggleView(file: file)
+
+									NavigationLink(destination: SelectiveFolderView(folder: folder, prefix: "\(self.prefix)\(fileName)/")) {
+										Label("Files kept on this device", systemImage: "pin")
+									}
+
+									if file.hasExternalSharingURL { FileSharingLinksView(entry: file, sync: true) }
 								}
-								ItemSelectToggleView(file: file)
-
-								NavigationLink(destination: SelectiveFolderView(folder: folder, prefix: "\(self.prefix)\(fileName)/")) {
-									Label("Files kept on this device", systemImage: "pin")
-								}
-
-								if file.hasExternalSharingURL { FileSharingLinksView(entry: file, sync: true) }
-							}
-						}))
-				}
-				.aspectRatio(1, contentMode: .fit)
-				.clipShape(.rect)
-				.contentShape(.rect())
-			}
-
-			// List files
-			ForEach(files, id: \.self.id) { file in
-				GeometryReader { geo in
-					FileEntryLink(
-						appState: appState,
-						entry: file, inFolder: self.folder, siblings: files, honorTapToPreview: true
-					) {
-						GridItemView(size: geo.size.width, file: file)
+							}))
 					}
-					.buttonStyle(PlainButtonStyle())
+					.aspectRatio(1, contentMode: .fit)
+					.clipShape(.rect)
+					.contentShape(.rect())
 				}
-				.clipShape(.rect)
-				.contentShape(.rect())
-				.aspectRatio(1, contentMode: .fit)
+
+				// List files
+				ForEach(files, id: \.self.id) { file in
+					GeometryReader { geo in
+						FileEntryLink(
+							appState: appState,
+							entry: file, inFolder: self.folder, siblings: files, honorTapToPreview: true
+						) {
+							GridItemView(size: geo.size.width, file: file)
+						}
+						.buttonStyle(PlainButtonStyle())
+					}
+					.clipShape(.rect)
+					.contentShape(.rect())
+					.aspectRatio(1, contentMode: .fit)
+				}
+			} footer: {
+				FilesFooterView(subdirectories: self.subdirectories.count, files: self.files.count)
+					.padding()
 			}
 		}
 		.padding(.horizontal, 2)

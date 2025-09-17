@@ -89,17 +89,7 @@ struct BrowserListView: View {
 			}
 
 			// Show number of items
-			Group {
-				if !self.subdirectories.isEmpty && self.files.isEmpty {
-					Text("\(self.subdirectories.count) subdirectories")
-				}
-				else if !self.files.isEmpty && self.subdirectories.isEmpty {
-					Text("\(self.files.count) files")
-				}
-				else if !self.files.isEmpty && !self.subdirectories.isEmpty {
-					Text("\(self.files.count) files and \(self.subdirectories.count) subdirectories")
-				}
-			}.font(.footnote).foregroundColor(.secondary).frame(maxWidth: .infinity)
+			FilesFooterView(subdirectories: self.subdirectories.count, files: self.files.count)
 				#if os(iOS)
 					.listRowBackground(Color(.systemGroupedBackground))
 				#endif
