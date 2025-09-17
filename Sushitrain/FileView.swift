@@ -313,20 +313,18 @@ struct FileView: View {
 				}
 
 				#if os(macOS)
-					// Menu for advanced actions
-					ToolbarItem {
+					ToolbarItemGroup(placement: .primaryAction) {
+						// Menu for advanced actions
 						Menu {
 							Button("Encryption details...", systemImage: "lock.document.fill") { showEncryptionSheet = true }
 								.disabled(!(file.folder?.hasEncryptedPeers ?? false))
-
+							
 							Button("Explore archive contents...", systemImage: "doc.zipper") { showArchive = true }
 						} label: {
 							Label("Advanced", systemImage: "ellipsis.circle")
 						}
-					}
-
-					// Open in Finder button
-					ToolbarItem(id: "open-in-finder", placement: .primaryAction) {
+						
+						// Open in Finder button
 						Button(
 							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
 							action: {
