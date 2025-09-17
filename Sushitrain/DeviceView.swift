@@ -172,21 +172,8 @@ struct DeviceView: View {
 				if !lastAddress.isEmpty {
 					Section("Current addresses") {
 						Label(lastAddress, systemImage: "network").contextMenu {
-							Button(action: {
-								#if os(iOS)
-									UIPasteboard.general.string = lastAddress
-								#endif
-
-								#if os(macOS)
-									let pasteboard = NSPasteboard.general
-									pasteboard.clearContents()
-									pasteboard.prepareForNewContents()
-									pasteboard.setString(
-										lastAddress, forType: .string)
-								#endif
-							}) {
-								Text("Copy to clipboard")
-								Image(systemName: "doc.on.doc")
+							Button("Copy to clipboard", systemImage: "doc.on.doc") {
+								writeTextToPasteboard(lastAddress)
 							}
 						}
 					}
