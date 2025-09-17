@@ -318,12 +318,12 @@ struct FileView: View {
 						Menu {
 							Button("Encryption details...", systemImage: "lock.document.fill") { showEncryptionSheet = true }
 								.disabled(!(file.folder?.hasEncryptedPeers ?? false))
-							
+
 							Button("Explore archive contents...", systemImage: "doc.zipper") { showArchive = true }
 						} label: {
 							Label("Advanced", systemImage: "ellipsis.circle")
 						}
-						
+
 						// Open in Finder button
 						Button(
 							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
