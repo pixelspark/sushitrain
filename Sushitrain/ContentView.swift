@@ -376,7 +376,11 @@ private struct StartOrSearchView: View {
 				)
 			}
 			else {
-				StartView(route: $route)
+				#if os(iOS)
+					StartView(route: $route, backgroundManager: appState.backgroundManager)
+				#else
+					StartView(route: $route)
+				#endif
 			}
 		}
 	}

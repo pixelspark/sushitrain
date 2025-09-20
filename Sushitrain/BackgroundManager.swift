@@ -24,9 +24,9 @@ struct BackgroundSyncRun: Codable, Equatable {
 }
 
 enum BackgroundTaskType: String, Codable, Equatable {
-	case short = "nl.t-shaped.sushitrain.short-background-sync"
-	case long = "nl.t-shaped.sushitrain.background-sync"
-	case continued = "nl.t-shaped.sushitrain.background-sync.continued"
+	case short = "nl.t-shaped.Sushitrain.short-background-sync"
+	case long = "nl.t-shaped.Sushitrain.background-sync"
+	case continued = "nl.t-shaped.Sushitrain.continued-background-sync"  // For some reason, this one must have the exact App bundle ID as prefix
 
 	var identifier: String {
 		return self.rawValue
@@ -41,8 +41,16 @@ enum BackgroundTaskType: String, Codable, Equatable {
 	}
 }
 
+enum ContinuedTaskType {
+	case time(seconds: Double)
+}
+
 #if os(iOS)
 	@MainActor class BackgroundManager: ObservableObject {
+		enum Errors: Error {
+			case alreadyRunning
+		}
+
 		private static let watchdogNotificationID = "nl.t-shaped.sushitrain.watchdog-notification"
 
 		// Time before the end of allotted background time to start ending the task to prevent forceful expiration by the OS
@@ -53,6 +61,7 @@ enum BackgroundTaskType: String, Codable, Equatable {
 		private var isEndingBackgroundTask = false
 		private var currentRun: BackgroundSyncRun? = nil
 		fileprivate unowned var appState: AppState
+		@Published private(set) var runningContinuedTask: ContinuedTaskType? = nil
 
 		// Using this to store background information instead of AppStorage because it comes with observers that seem to
 		// trigger SwiftUI hangs when the app comes back to the foreground.
@@ -95,9 +104,13 @@ enum BackgroundTaskType: String, Codable, Equatable {
 			BGTaskScheduler.shared.register(
 				forTaskWithIdentifier: BackgroundTaskType.short.identifier, using: DispatchQueue.main,
 				launchHandler: self.backgroundLaunchHandler)
-			BGTaskScheduler.shared.register(
-				forTaskWithIdentifier: BackgroundTaskType.continued.identifier, using: DispatchQueue.main,
-				launchHandler: self.backgroundLaunchHandler)
+
+			if #available(iOS 26, *) {
+				BGTaskScheduler.shared.register(
+					forTaskWithIdentifier: BackgroundTaskType.continued.identifier, using: DispatchQueue.main,
+					launchHandler: self.continuedBackgroundLaunchHandler)
+				Log.info("Registered continued background task handler")
+			}
 
 			updateBackgroundRunHistory(appending: nil)
 			_ = self.scheduleBackgroundSync()
@@ -107,20 +120,85 @@ enum BackgroundTaskType: String, Codable, Equatable {
 			}
 		}
 
-		@available(iOS 26, *) func startContinuedSync() throws {
+		@available(iOS 26, *) func startContinuedSync(_ type: ContinuedTaskType) throws {
+			if self.runningContinuedTask != nil {
+				Log.warn("We're already running a continued task")
+				throw Errors.alreadyRunning
+			}
+			self.runningContinuedTask = type
+
 			do {
 				let request = BGContinuedProcessingTaskRequest(
 					identifier: BackgroundTaskType.continued.identifier,
-					title: "Synchronize files",
-					subtitle: "About to start...",
+					title: String(localized: "Synchronize files"),
+					subtitle: String(localized: "About to start..."),
 				)
-				request.strategy = .queue
-				Log.info("Scheduling continued background processing task")
+				request.strategy = .fail
+				Log.info("Scheduling continued background processing task \(request)")
 				try BGTaskScheduler.shared.submit(request)
+				Log.info("Scheduled continued background processing task")
 			}
 			catch {
 				Log.warn("Failed to schedule continued background processing task: \(error.localizedDescription)")
 				throw error
+			}
+		}
+
+		@available(iOS 26, *) private func continuedBackgroundLaunchHandler(_ task: BGTask) {
+			guard let taskType = self.runningContinuedTask else {
+				Log.warn("could not find task type")
+				return
+			}
+
+			Log.info("Continued background task launched")
+			guard let continuedTask = task as? BGContinuedProcessingTask else {
+				Log.warn("received some other task than a continuous one for continuous processing")
+				self.runningContinuedTask = nil
+				task.setTaskCompleted(success: false)
+				return
+			}
+
+			Task {
+				// Perform the requested continued task
+				switch taskType {
+				case .time(seconds: let duration):
+					let start = Date.now
+					var shouldContinue = true
+					task.expirationHandler = {
+						Log.info("Continued processing task expired")
+						shouldContinue = false
+					}
+
+					do {
+						while shouldContinue {
+							let remaining = Int64(duration - Date.now.timeIntervalSince(start))
+							if remaining <= 0 {
+								shouldContinue = false
+								continuedTask.updateTitle(continuedTask.title, subtitle: String(localized: "Finishing up..."))
+							}
+							else {
+								continuedTask.progress.totalUnitCount = Int64(duration)
+								continuedTask.progress.completedUnitCount = Int64(Date.now.timeIntervalSince(start))
+
+								continuedTask.updateTitle(continuedTask.title, subtitle: String(localized: "\(remaining)s remaining..."))
+								try await Task.sleep(for: .seconds(1))
+							}
+						}
+					}
+					catch {
+						Log.warn("failed to sleep: \(error.localizedDescription)")
+					}
+				}
+
+				// If we are now in the background, we need to sleep
+				if UIApplication.shared.applicationState == .background {
+					Log.info("We are backgrounded, so we're finally going to sleep")
+					await appState.sleep()
+				}
+				task.setTaskCompleted(success: true)
+				continuedTask.updateTitle(continuedTask.title, subtitle: String(localized: "Finished"))
+				self.runningContinuedTask = nil
+				Log.info("Continued processing task done")
 			}
 		}
 

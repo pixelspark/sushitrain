@@ -274,6 +274,11 @@ private struct OverallUploadStatusView: View {
 struct StartView: View {
 	@Environment(AppState.self) private var appState
 	@Binding var route: Route?
+
+	#if os(iOS)
+		let backgroundManager: BackgroundManager
+	#endif
+
 	@State private var qrCodeShown = false
 	@State private var showWaitScreen: Bool = false
 	@State private var showAddresses = false
@@ -304,17 +309,16 @@ struct StartView: View {
 							}
 
 							if #available(iOS 26, *) {
-								Button("Synchronize in the background", systemImage: "arrow.trianglehead.2.clockwise.rotate.90.circle") {
-									do {
-										try appState.backgroundManager.startContinuedSync()
-									}
-									catch {
-										self.showError = error
-									}
-								}
+								self.continueInBackgroundMenu()
 							}
 						}
 					#endif
+
+				#if os(iOS)
+					if backgroundManager.runningContinuedTask != nil {
+						Label("Will continue in the background", systemImage: "gearshape.2.fill")
+					}
+				#endif
 			}
 
 			Section(header: Text("This device's identifier")) {
@@ -417,6 +421,35 @@ struct StartView: View {
 			Task {
 				await self.update()
 			}
+		}
+	}
+
+	@ViewBuilder @available(iOS 26, *) private func continueInBackgroundMenu() -> some View {
+		Menu("Synchronize in the background", systemImage: "gearshape.2.fill") {
+			Button("For 10 seconds") {
+				self.startBackgroundSyncFor(.time(seconds: 10))
+			}.disabled(backgroundManager.runningContinuedTask != nil)
+
+			Button("For 1 minute") {
+				self.startBackgroundSyncFor(.time(seconds: 60))
+			}.disabled(backgroundManager.runningContinuedTask != nil)
+
+			Button("For 10 minutes") {
+				self.startBackgroundSyncFor(.time(seconds: 10 * 60))
+			}.disabled(backgroundManager.runningContinuedTask != nil)
+
+			Button("For 1 hour") {
+				self.startBackgroundSyncFor(.time(seconds: 3600))
+			}.disabled(backgroundManager.runningContinuedTask != nil)
+		}
+	}
+
+	@available(iOS 26, *) private func startBackgroundSyncFor(_ type: ContinuedTaskType) {
+		do {
+			try backgroundManager.startContinuedSync(type)
+		}
+		catch {
+			self.showError = error
 		}
 	}
 

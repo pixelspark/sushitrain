@@ -4,9 +4,9 @@
 <dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>nl.t-shaped.sushitrain.background-sync.continued</string>
-		<string>nl.t-shaped.sushitrain.background-sync</string>
-		<string>nl.t-shaped.sushitrain.short-background-sync</string>
+		<string>nl.t-shaped.Sushitrain.continued-background-sync</string>
+		<string>nl.t-shaped.Sushitrain.background-sync</string>
+		<string>nl.t-shaped.Sushitrain.short-background-sync</string>
 	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>

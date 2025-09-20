@@ -166,9 +166,8 @@ struct SyncState {
 
 	#if os(iOS)
 		@ObservationIgnored var backgroundManager: BackgroundManager!
-		private var lingerManager: LingerManager!
+		@ObservationIgnored private var lingerManager: LingerManager!
 		private(set) var isSuspended = false
-		var currentAction: QuickAction? = nil
 	#endif
 
 	static private var defaultIgnoredExtraneousFiles = [
@@ -749,6 +748,11 @@ struct SyncState {
 
 		switch newPhase {
 		case .background:
+			if self.backgroundManager.runningContinuedTask != nil {
+				Log.info("Going to background, but not sleeping or lingering, as we are running a continued task")
+				return
+			}
+
 			Task {
 				await self.sleep()
 			}
