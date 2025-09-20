@@ -10,7 +10,7 @@ require (
 	github.com/gotd/contrib v0.21.0
 	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/miscreant/miscreant.go v0.0.0-20200214223636-26d376326b75
-	github.com/syncthing/syncthing v1.30.0-rc.1.0.20250912094147-3382ccc3f165
+	github.com/syncthing/syncthing v1.30.0-rc.1.0.20250919051710-eb4eb7524d2a
 	golang.org/x/exp v0.0.0-20250811191247-51f88131bc50
 	google.golang.org/protobuf v1.36.7
 )
