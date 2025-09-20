@@ -121,7 +121,7 @@ enum ContinuedTaskType {
 		}
 
 		@available(iOS 26, *) func startContinuedSync(_ type: ContinuedTaskType) throws {
-			if self.runningContinuedTask != nil {
+			if self.runningContinuedTask != nil || self.currentBackgroundTask != nil {
 				Log.warn("We're already running a continued task")
 				throw Errors.alreadyRunning
 			}
@@ -158,7 +158,15 @@ enum ContinuedTaskType {
 				return
 			}
 
+			if self.currentBackgroundTask != nil {
+				Log.warn("A background task is already running, not running additional one")
+				self.runningContinuedTask = nil
+				task.setTaskCompleted(success: false)
+				return
+			}
+
 			Task {
+				self.currentBackgroundTask = continuedTask
 				var run = BackgroundSyncRun(started: Date.now, taskType: .continued)
 				// Perform the requested continued task
 				switch taskType {
@@ -199,6 +207,7 @@ enum ContinuedTaskType {
 				task.setTaskCompleted(success: true)
 				continuedTask.updateTitle(continuedTask.title, subtitle: String(localized: "Finished"))
 				self.runningContinuedTask = nil
+				self.currentBackgroundTask = nil
 				run.ended = Date.now
 				self.lastBackgroundSyncRun = run
 				self.updateBackgroundRunHistory(appending: run)
@@ -225,6 +234,13 @@ enum ContinuedTaskType {
 		private func handleBackgroundSync(task: BGTask) async {
 			guard let taskType = BackgroundTaskType(rawValue: task.identifier) else {
 				Log.warn("invalid background task type identifier=\(task.identifier)")
+				task.setTaskCompleted(success: false)
+				return
+			}
+
+			if self.currentBackgroundTask != nil {
+				Log.warn("A background task is already running, not running another")
+				task.setTaskCompleted(success: false)
 				return
 			}
 
