@@ -424,34 +424,36 @@ struct StartView: View {
 		}
 	}
 
-	@ViewBuilder @available(iOS 26, *) private func continueInBackgroundMenu() -> some View {
-		Menu("Synchronize in the background", systemImage: "gearshape.2.fill") {
-			Button("For 10 seconds") {
-				self.startBackgroundSyncFor(.time(seconds: 10))
-			}.disabled(backgroundManager.runningContinuedTask != nil)
+	#if os(iOS)
+		@ViewBuilder @available(iOS 26, *) private func continueInBackgroundMenu() -> some View {
+			Menu("Synchronize in the background", systemImage: "gearshape.2.fill") {
+				Button("For 10 seconds") {
+					self.startBackgroundSyncFor(.time(seconds: 10))
+				}.disabled(backgroundManager.runningContinuedTask != nil)
 
-			Button("For 1 minute") {
-				self.startBackgroundSyncFor(.time(seconds: 60))
-			}.disabled(backgroundManager.runningContinuedTask != nil)
+				Button("For 1 minute") {
+					self.startBackgroundSyncFor(.time(seconds: 60))
+				}.disabled(backgroundManager.runningContinuedTask != nil)
 
-			Button("For 10 minutes") {
-				self.startBackgroundSyncFor(.time(seconds: 10 * 60))
-			}.disabled(backgroundManager.runningContinuedTask != nil)
+				Button("For 10 minutes") {
+					self.startBackgroundSyncFor(.time(seconds: 10 * 60))
+				}.disabled(backgroundManager.runningContinuedTask != nil)
 
-			Button("For 1 hour") {
-				self.startBackgroundSyncFor(.time(seconds: 3600))
-			}.disabled(backgroundManager.runningContinuedTask != nil)
+				Button("For 1 hour") {
+					self.startBackgroundSyncFor(.time(seconds: 3600))
+				}.disabled(backgroundManager.runningContinuedTask != nil)
+			}
 		}
-	}
 
-	@available(iOS 26, *) private func startBackgroundSyncFor(_ type: ContinuedTaskType) {
-		do {
-			try backgroundManager.startContinuedSync(type)
+		@available(iOS 26, *) private func startBackgroundSyncFor(_ type: ContinuedTaskType) {
+			do {
+				try backgroundManager.startContinuedSync(type)
+			}
+			catch {
+				self.showError = error
+			}
 		}
-		catch {
-			self.showError = error
-		}
-	}
+	#endif
 
 	@ViewBuilder private func gettingStartedFolders() -> some View {
 		Section("Getting started") {

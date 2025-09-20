@@ -748,10 +748,12 @@ struct SyncState {
 
 		switch newPhase {
 		case .background:
-			if self.backgroundManager.runningContinuedTask != nil {
-				Log.info("Going to background, but not sleeping or lingering, as we are running a continued task")
-				return
-			}
+			#if os(iOS)
+				if self.backgroundManager.runningContinuedTask != nil {
+					Log.info("Going to background, but not sleeping or lingering, as we are running a continued task")
+					return
+				}
+			#endif
 
 			Task {
 				await self.sleep()
