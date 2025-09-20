@@ -159,6 +159,7 @@ enum ContinuedTaskType {
 			}
 
 			Task {
+				var run = BackgroundSyncRun(started: Date.now, taskType: .continued)
 				// Perform the requested continued task
 				switch taskType {
 				case .time(seconds: let duration):
@@ -198,6 +199,9 @@ enum ContinuedTaskType {
 				task.setTaskCompleted(success: true)
 				continuedTask.updateTitle(continuedTask.title, subtitle: String(localized: "Finished"))
 				self.runningContinuedTask = nil
+				run.ended = Date.now
+				self.lastBackgroundSyncRun = run
+				self.updateBackgroundRunHistory(appending: run)
 				Log.info("Continued processing task done")
 			}
 		}
