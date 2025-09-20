@@ -303,13 +303,18 @@ struct StartView: View {
 					#if os(iOS)
 						.contextMenu {
 							if !self.appState.isFinished {
-								Button("Wait for completion", systemImage: "hourglass.circle") {
-									self.showWaitScreen = true
+								if #available(iOS 26, *) {
+									self.continueInBackgroundMenu(untilFinished: true)
+								}
+								else {
+									Button("Wait for completion", systemImage: "hourglass.circle") {
+										self.showWaitScreen = true
+									}
 								}
 							}
 
 							if #available(iOS 26, *) {
-								self.continueInBackgroundMenu()
+								self.continueInBackgroundMenu(untilFinished: false)
 							}
 						}
 					#endif
@@ -425,32 +430,40 @@ struct StartView: View {
 	}
 
 	#if os(iOS)
-		@ViewBuilder @available(iOS 26, *) private func continueInBackgroundMenu() -> some View {
-			Menu("Synchronize in the background", systemImage: "gearshape.2.fill") {
+		@ViewBuilder @available(iOS 26, *) private func continueInBackgroundMenu(untilFinished: Bool) -> some View {
+			Menu(untilFinished ? "Wait for completion" : "Synchronize in the background", systemImage: "gearshape.2.fill") {
 				Button("For 10 seconds") {
-					self.startBackgroundSyncFor(.time(seconds: 10))
+					self.startBackgroundSyncFor(untilFinished ? .timeOrFinished(seconds: 10) : .time(seconds: 10))
 				}.disabled(backgroundManager.runningContinuedTask != nil)
 
 				Button("For 1 minute") {
-					self.startBackgroundSyncFor(.time(seconds: 60))
+					self.startBackgroundSyncFor(untilFinished ? .timeOrFinished(seconds: 60) : .time(seconds: 60))
 				}.disabled(backgroundManager.runningContinuedTask != nil)
 
 				Button("For 10 minutes") {
-					self.startBackgroundSyncFor(.time(seconds: 10 * 60))
+					self.startBackgroundSyncFor(untilFinished ? .timeOrFinished(seconds: 10 * 60) : .time(seconds: 10 * 60))
 				}.disabled(backgroundManager.runningContinuedTask != nil)
 
 				Button("For 1 hour") {
-					self.startBackgroundSyncFor(.time(seconds: 3600))
+					self.startBackgroundSyncFor(untilFinished ? .timeOrFinished(seconds: 3600) : .time(seconds: 3600))
 				}.disabled(backgroundManager.runningContinuedTask != nil)
+
+				Divider()
+
+				Button("Wait inside the app", systemImage: "hourglass.circle") {
+					self.showWaitScreen = true
+				}
 			}
 		}
 
 		@available(iOS 26, *) private func startBackgroundSyncFor(_ type: ContinuedTaskType) {
-			do {
-				try backgroundManager.startContinuedSync(type)
-			}
-			catch {
-				self.showError = error
+			withAnimation {
+				do {
+					try backgroundManager.startContinuedSync(type)
+				}
+				catch {
+					self.showError = error
+				}
 			}
 		}
 	#endif

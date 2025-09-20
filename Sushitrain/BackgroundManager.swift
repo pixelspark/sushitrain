@@ -43,6 +43,7 @@ enum BackgroundTaskType: String, Codable, Equatable {
 
 enum ContinuedTaskType {
 	case time(seconds: Double)
+	case timeOrFinished(seconds: Double)
 }
 
 #if os(iOS)
@@ -170,8 +171,13 @@ enum ContinuedTaskType {
 				var run = BackgroundSyncRun(started: Date.now, taskType: .continued)
 				// Perform the requested continued task
 				switch taskType {
-				case .time(seconds: let duration):
+				case .time(seconds: let duration), .timeOrFinished(seconds: let duration):
 					let start = Date.now
+					var stopWhenFinished = false
+					if case .timeOrFinished(_) = taskType {
+						stopWhenFinished = true
+					}
+
 					var shouldContinue = true
 					task.expirationHandler = {
 						Log.info("Continued processing task expired")
@@ -180,6 +186,17 @@ enum ContinuedTaskType {
 
 					do {
 						while shouldContinue {
+							if stopWhenFinished && appState.isFinished {
+								// Wait another second to see if we're still finished
+								continuedTask.updateTitle(continuedTask.title, subtitle: String(localized: "Finished"))
+								try await Task.sleep(for: .seconds(1))
+								if appState.isFinished {
+									shouldContinue = false
+									continuedTask.updateTitle(continuedTask.title, subtitle: String(localized: "Finishing up..."))
+									break
+								}
+							}
+
 							let remaining = Int64(duration - Date.now.timeIntervalSince(start))
 							if remaining <= 0 {
 								shouldContinue = false
