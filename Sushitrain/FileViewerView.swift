@@ -100,8 +100,9 @@ struct FileViewerView: View {
 			if let siblings = siblings, let file = self.file, let idx = self.siblings?.firstIndex(where: { $0.id == file.id }) {
 				let newIndex = idx + offset
 				if newIndex >= 0 && newIndex < siblings.count {
-					self.file = siblings[newIndex]
-					selfIndex = siblings.firstIndex(of: file)
+					let newFile = siblings[newIndex]
+					self.file = newFile
+					selfIndex = siblings.firstIndex(of: newFile)
 				}
 			}
 		}
@@ -111,10 +112,6 @@ struct FileViewerView: View {
 		if inSheet {
 			SheetButton(role: .done) {
 				isShown = false
-			}
-
-			ToolbarItem(placement: .automatic) {
-				FileShareLink(file: file)
 			}
 
 			#if os(macOS)
@@ -135,24 +132,30 @@ struct FileViewerView: View {
 						}
 					}
 				}
-
-				if let siblings = siblings, let selfIndex = selfIndex {
-					ToolbarItemGroup(placement: .automatic) {
-						Button("Previous", systemImage: "chevron.up") {
-							next(-1)
-						}
-						.disabled(selfIndex < 1)
-						.keyboardShortcut(KeyEquivalent.upArrow)
-
-						Button("Next", systemImage: "chevron.down") {
-							next(1)
-						}
-						.disabled(selfIndex >= siblings.count - 1)
-						.keyboardShortcut(KeyEquivalent.downArrow)
-					}
-				}
 			#endif
 		}
+
+		ToolbarItem(placement: .automatic) {
+			FileShareLink(file: file)
+		}
+
+		#if os(macOS)
+			if let siblings = siblings, let selfIndex = selfIndex {
+				ToolbarItemGroup(placement: .automatic) {
+					Button("Previous", systemImage: "chevron.up") {
+						next(-1)
+					}
+					.disabled(selfIndex < 1)
+					.keyboardShortcut(KeyEquivalent.upArrow)
+
+					Button("Next", systemImage: "chevron.down") {
+						next(1)
+					}
+					.disabled(selfIndex >= siblings.count - 1)
+					.keyboardShortcut(KeyEquivalent.downArrow)
+				}
+			}
+		#endif
 	}
 }
 

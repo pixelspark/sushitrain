@@ -31,7 +31,6 @@ import SwiftUI
 			ZStack {
 				if let entry = self.entry {
 					FileViewerView(
-
 						file: entry,
 						siblings: self.siblings,
 						inSheet: false,
