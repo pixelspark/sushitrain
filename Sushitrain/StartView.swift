@@ -431,20 +431,20 @@ struct StartView: View {
 
 	#if os(iOS)
 		@ViewBuilder @available(iOS 26, *) private func continueInBackgroundMenu(untilFinished: Bool) -> some View {
-			Menu(untilFinished ? "Wait for completion" : "Synchronize in the background", systemImage: "gearshape.2.fill") {
-				Button("For 10 seconds") {
+			Section(untilFinished ? "Wait for completion" : "Synchronize in the background") {
+				Button("For 10 seconds", systemImage: "gearshape.2.fill") {
 					self.startBackgroundSyncFor(untilFinished ? .timeOrFinished(seconds: 10) : .time(seconds: 10))
 				}.disabled(backgroundManager.runningContinuedTask != nil)
 
-				Button("For 1 minute") {
+				Button("For 1 minute", systemImage: "gearshape.2.fill") {
 					self.startBackgroundSyncFor(untilFinished ? .timeOrFinished(seconds: 60) : .time(seconds: 60))
 				}.disabled(backgroundManager.runningContinuedTask != nil)
 
-				Button("For 10 minutes") {
+				Button("For 10 minutes", systemImage: "gearshape.2.fill") {
 					self.startBackgroundSyncFor(untilFinished ? .timeOrFinished(seconds: 10 * 60) : .time(seconds: 10 * 60))
 				}.disabled(backgroundManager.runningContinuedTask != nil)
 
-				Button("For 1 hour") {
+				Button("For 1 hour", systemImage: "gearshape.2.fill") {
 					self.startBackgroundSyncFor(untilFinished ? .timeOrFinished(seconds: 3600) : .time(seconds: 3600))
 				}.disabled(backgroundManager.runningContinuedTask != nil)
 
@@ -452,7 +452,7 @@ struct StartView: View {
 
 				Button("Wait inside the app", systemImage: "hourglass.circle") {
 					self.showWaitScreen = true
-				}
+				}.disabled(appState.isFinished)
 			}
 		}
 
