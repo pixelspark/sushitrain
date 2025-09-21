@@ -1052,14 +1052,6 @@ struct ViewSettingsView: View {
 
 			#if os(iOS)
 				Section {
-					Toggle(
-						"Swipe between files when viewing",
-						isOn: userSettings.$enableSwipeFilesInPreview)
-				}
-			#endif
-
-			#if os(iOS)
-				Section {
 					Toggle("Automatically hide hidden folders", isOn: userSettings.$rehideHiddenFoldersOnActivate)
 				} footer: {
 					Text(

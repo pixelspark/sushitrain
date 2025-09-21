@@ -29290,52 +29290,6 @@
         }
       }
     },
-    "Swipe between files when viewing" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zwischen Dateien wischen beim Ansehen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Desliza entre archivos al ver"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scorri tra i file durante la visualizzazione"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "表示中にファイルをスワイプして切り替える"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vegen tussen bestanden bij bekijken"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Проводьте пальцем між файлами під час перегляду"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "查看时在文件之间滑动"
-          }
-        }
-      }
-    },
     "Switch rows/columns" : {
       "localizations" : {
         "de" : {
