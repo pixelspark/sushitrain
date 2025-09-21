@@ -1060,9 +1060,7 @@ struct ViewSettingsView: View {
 
 			#if os(iOS)
 				Section {
-					Toggle(isOn: userSettings.$rehideHiddenFoldersOnActivate) {
-						Label("Automatically hide hidden folders", systemImage: "eye.slash")
-					}
+					Toggle("Automatically hide hidden folders", isOn: userSettings.$rehideHiddenFoldersOnActivate)
 				} footer: {
 					Text(
 						"When enabled, hidden folders will be hidden in the folder list again each time the app comes to the foreground.")
