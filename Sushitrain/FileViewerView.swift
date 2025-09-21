@@ -180,7 +180,7 @@ private struct FileViewerContentView: View {
 				}
 				else if file.isWebPreviewable {
 					ZStack {
-						WebView(url: url, trustFingerprints: [], isLoading: self.$loading, error: self.$error)
+						WebView(url: url, trustFingerprints: [], verticallyCenter: true, isLoading: self.$loading, error: self.$error)
 							.id(url)
 							#if os(iOS)
 								.ignoresSafeArea()

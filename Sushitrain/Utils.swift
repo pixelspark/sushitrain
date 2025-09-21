@@ -736,6 +736,7 @@ struct WebView: UIViewRepresentable {
 	let url: URL
 	var trustFingerprints: [Data] = []
 	var cookies: [HTTPCookie] = []
+	var verticallyCenter: Bool = false
 
 	@State var isOpaque: Bool = false
 
@@ -794,7 +795,19 @@ struct WebView: UIViewRepresentable {
 			completionHandler(.performDefaultHandling, nil)
 		}
 
+		private static func verticallyCenter(_ webView: WKWebView) {
+			webView.evaluateJavaScript(
+				"""
+					(function() {
+						document.body.style.display = "grid";
+					})()
+				""")
+		}
+
 		func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+			if parent.verticallyCenter {
+				Self.verticallyCenter(webView)
+			}
 			parent.isLoading = false
 		}
 
