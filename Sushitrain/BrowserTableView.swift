@@ -140,7 +140,10 @@ struct BrowserTableView: View {
 		.contextMenu(
 			forSelectionType: SushitrainEntry.ID.self,
 			menu: { items in
-				if let item = items.first, items.count == 1 {
+				if items.isEmpty {
+					
+				}
+				else if let item = items.first, items.count == 1 {
 					// Single item selected
 					if let oe = self.entryById(item) {
 						if !oe.isDirectory() && !oe.isSymlink() {
