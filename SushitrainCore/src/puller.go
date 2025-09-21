@@ -164,8 +164,12 @@ func (mp *miniPuller) downloadBlock(ctx context.Context, folderID string, blockI
 				defer cancelDownloadBlock()
 				slog.Debug("downloadBlock fetch good", "blockIndex", blockIndex, "from", available.ID)
 				buf, err := mp.internals.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
-				// Remember our experience with this peer for next time
-				mp.experiences.set(available.ID, err == nil || err == context.Canceled)
+				// Remember our experience with this peer for next time (if the whole operation wasn't cancelled, which
+				// would cause this call to be cancelled as well and fail with err == context.Canceled)
+				if ctx.Err() == nil {
+					mp.experiences.set(available.ID, err == nil)
+				}
+
 				if err == nil {
 					blockCache.Add(blockHashString, buf)
 					return buf, nil
@@ -192,8 +196,13 @@ func (mp *miniPuller) downloadBlock(ctx context.Context, folderID string, blockI
 				defer cancelDownloadBlock()
 				slog.Debug("downloadBlock fetch new", "blockIndex", blockIndex, "from", available.ID)
 				buf, err := mp.internals.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
-				// Remember our experience with this peer for next time
-				mp.experiences.set(available.ID, err == nil || err == context.Canceled)
+
+				// Remember our experience with this peer for next time (if the whole operation wasn't cancelled, which
+				// would cause this call to be cancelled as well and fail with err == context.Canceled)
+				if ctx.Err() == nil {
+					mp.experiences.set(available.ID, err == nil)
+				}
+
 				if err == nil {
 					blockCache.Add(blockHashString, buf)
 					return buf, nil
@@ -220,8 +229,13 @@ func (mp *miniPuller) downloadBlock(ctx context.Context, folderID string, blockI
 				defer cancelDownloadBlock()
 				slog.Debug("downloadBlock fetch bad", "blockIndex", blockIndex, "from", available.ID)
 				buf, err := mp.internals.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
-				// Remember our experience with this peer for next time
-				mp.experiences.set(available.ID, err == nil || err == context.Canceled)
+
+				// Remember our experience with this peer for next time (if the whole operation wasn't cancelled, which
+				// would cause this call to be cancelled as well and fail with err == context.Canceled)
+				if ctx.Err() == nil {
+					mp.experiences.set(available.ID, err == nil)
+				}
+
 				if err == nil {
 					blockCache.Add(blockHashString, buf)
 					return buf, nil
