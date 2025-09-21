@@ -95,6 +95,11 @@ class SushitrainDelegate: NSObject {
 	@AppStorage("userPausedDevices") var userPausedDevices = Set<String>()
 	@AppStorage("ignoreLongTimeNoSeeDevices") var ignoreLongTimeNoSeeDevices = Set<String>()
 
+	#if os(iOS)
+		// Whether to re-enable hideHiddenFolders when app comes to the foreground
+		@AppStorage("rehideHiddenFoldersOnActivate") var rehideHiddenFoldersOnActivate: Bool = false
+	#endif
+
 	@AppStorage("onboardingVersionShown") var onboardingVersionShown = 0
 
 	// Number of seconds after which we remind the user that a device hasn't connected in a while
@@ -687,6 +692,12 @@ struct SyncState {
 
 	func awake() async {
 		self.startNetworkMonitor()
+
+		#if os(iOS)
+			if self.userSettings.rehideHiddenFoldersOnActivate {
+				self.userSettings.hideHiddenFolders = true
+			}
+		#endif
 
 		#if os(iOS)
 			self.lingerManager.cancelLingering()

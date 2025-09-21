@@ -1057,6 +1057,17 @@ struct ViewSettingsView: View {
 						isOn: userSettings.$enableSwipeFilesInPreview)
 				}
 			#endif
+
+			#if os(iOS)
+				Section {
+					Toggle(isOn: userSettings.$rehideHiddenFoldersOnActivate) {
+						Label("Automatically hide hidden folders", systemImage: "eye.slash")
+					}
+				} footer: {
+					Text(
+						"When enabled, hidden folders will be hidden in the folder list again each time the app comes to the foreground.")
+				}
+			#endif
 		}
 		.navigationTitle("View settings")
 		#if os(iOS)

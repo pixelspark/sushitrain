@@ -5134,6 +5134,52 @@
         }
       }
     },
+    "Automatically hide hidden folders" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versteckte Ordner automatisch ausblenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar automáticamente las carpetas ocultas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi automaticamente le cartelle nascoste"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隠しフォルダを自動的に非表示にする"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisch verborgen mappen verbergen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоматично приховувати приховані папки"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动隐藏隐藏文件夹"
+          }
+        }
+      }
+    },
     "Automatically switch to grid view" : {
       "localizations" : {
         "de" : {
@@ -29963,7 +30009,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synctrain kan worden geconfigureerd om gebruik te maken van de diensten die worden aangeboden door de [Syncthing Foundation](https://syncthing.net/foundation) om andere apparaten te kunnen vinden en ermee te verbinden. Wanneer dit is ingeschakeld, stuurt Synctrain je apparaat-ID en IP-adressen naar deze diensten."
+            "value" : "Synctrain kan worden geconfigureerd om gebruik te maken van de diensten die worden aangeboden door de [Syncthing Foundation](https://syncthing.net/foundation) om andere apparaten te kunnen vinden en ermee te verbinden. Als dit is ingeschakeld, stuurt Synctrain je apparaat-ID en IP-adressen naar deze diensten."
           }
         },
         "uk" : {
@@ -37197,7 +37243,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wanneer ingeschakeld, zullen bepaalde bestanden die door het systeem zijn aangemaakt (zoals .DS_Store) niet als 'nieuwe bestanden' worden opgemerkt in mappen die selectief worden gesynchroniseerd. Deze bestanden worden nog steeds gesynchroniseerd in mappen die volledig worden gesynchroniseerd en wanneer ze worden aangemaakt door andere apparaten."
+            "value" : "Als dit is ingeschakeld, zullen bepaalde bestanden die door het systeem zijn aangemaakt (zoals .DS_Store) niet als 'nieuwe bestanden' worden opgemerkt in mappen die selectief worden gesynchroniseerd. Deze bestanden worden nog steeds gesynchroniseerd in mappen die volledig worden gesynchroniseerd en wanneer ze worden aangemaakt door andere apparaten."
           }
         },
         "uk" : {
@@ -37243,7 +37289,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wanneer ingeschakeld, worden bestanden en mappen waarvan de naam begint met een punt niet getoond bij het bladeren door een map. Deze bestanden en mappen blijven zichtbaar in zoekresultaten."
+            "value" : "Als dit is  ingeschakeld, worden bestanden en mappen waarvan de naam begint met een punt niet getoond bij het bladeren door een map. Deze bestanden en mappen blijven zichtbaar in zoekresultaten."
           }
         },
         "uk" : {
@@ -37256,6 +37302,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "启用后，名称以点开头的文件和目录在浏览文件夹时将不会显示。这些文件和目录将在搜索结果中保持可见。"
+          }
+        }
+      }
+    },
+    "When enabled, hidden folders will be hidden in the folder list again each time the app comes to the foreground." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn aktiviert, werden versteckte Ordner jedes Mal, wenn die App in den Vordergrund kommt, wieder in der Ordnerliste verborgen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando está habilitado, las carpetas ocultas volverán a ocultarse en la lista de carpetas cada vez que la aplicación pase a primer plano."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando abilitata, le cartelle nascoste verranno nuovamente nascoste nell'elenco delle cartelle ogni volta che l'app torna in primo piano."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有効にすると、アプリがフォアグラウンドになるたびに、隠しフォルダはフォルダリストに再び隠されます。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als dit is ingeschakeld, worden verborgen mappen opnieuw verborgen in de mappenlijst wanneer de app wordt geopend."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли увімкнено, приховані папки знову будуть приховані у списку папок щоразу, коли додаток виходить на передній план."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "启用后，每次应用程序切换到前台时，隐藏文件夹将再次在文件夹列表中隐藏。"
           }
         }
       }
@@ -37289,7 +37381,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wanneer ingeschakeld, luistert de app op standaardadressen en gebruikt deze de standaard relay pool."
+            "value" : "Als dit is ingeschakeld, luistert de app op standaardadressen en gebruikt deze de standaard relay pool."
           }
         },
         "uk" : {
@@ -37335,7 +37427,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wanneer ingeschakeld, zal de app automatisch adressen voor dit apparaat opzoeken met behulp van verschillende ontdekkingsmechanismen."
+            "value" : "Als dit is  ingeschakeld, zal de app automatisch adressen voor dit apparaat opzoeken met behulp van verschillende ontdekkingsmechanismen."
           }
         },
         "uk" : {
@@ -37381,7 +37473,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wanneer ingeschakeld, zal de app uw apparaat registreren bij de Syncthing relay pool. Uw andere apparaten kunnen er dan indien nodig via een relay mee verbinden."
+            "value" : "Als dit is  ingeschakeld, zal de app uw apparaat registreren bij de Syncthing relay pool. Uw andere apparaten kunnen er dan indien nodig via een relay mee verbinden."
           }
         },
         "uk" : {
@@ -37427,7 +37519,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wanneer ingeschakeld, zal de app de standaard ontdekkingsservice gebruiken om zichzelf aan te kondigen."
+            "value" : "Als dit is  ingeschakeld, zal de app de standaard ontdekkingsservice gebruiken om zichzelf aan te kondigen."
           }
         },
         "uk" : {
@@ -37473,7 +37565,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wanneer ingeschakeld, zal de app de standaard STUN-servers gebruiken."
+            "value" : "Als dit is  ingeschakeld, zal de app de standaard STUN-servers gebruiken."
           }
         },
         "uk" : {
@@ -37657,7 +37749,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wanneer dit is ingeschakeld probeert de app niet om met meer apparaten te verbinden zodra er één verbinding tot stand is gekomen met een apparaat."
+            "value" : "Als dit is ingeschakeld probeert de app niet om met meer apparaten te verbinden zodra er één verbinding tot stand is gekomen met een apparaat."
           }
         },
         "uk" : {
