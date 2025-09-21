@@ -164,7 +164,6 @@ private struct FileViewerContentView: View {
 					FileMediaPlayer(file: file, visible: $isShown)
 				}
 				else if file.isWebPreviewable {
-					let url = file.localNativeFileURL ?? URL(string: self.file.onDemandURL())!
 					ZStack {
 						WebView(url: url, trustFingerprints: [], isLoading: self.$loading, error: self.$error)
 							.id(url)
@@ -184,10 +183,19 @@ private struct FileViewerContentView: View {
 				}
 			}
 		}
+		.toolbar {
+			ToolbarItem(placement: .automatic) {
+				FileShareLink(file: self.file)
+			}
+		}
 		.onChange(of: file) { (_, _) in
 			self.error = nil
 			self.loading = true
 		}
+	}
+
+	private var url: URL {
+		return file.localNativeFileURL ?? URL(string: self.file.onDemandURL())!
 	}
 }
 

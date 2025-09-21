@@ -312,6 +312,10 @@ struct FileView: View {
 					}
 				}
 
+				ToolbarItem {
+					FileShareLink(file: file)
+				}
+
 				#if os(macOS)
 					ToolbarItemGroup(placement: .primaryAction) {
 						// Menu for advanced actions
@@ -437,11 +441,6 @@ struct FileView: View {
 								}.buttonStyle(.link)
 							}
 						#endif
-
-						ShareLink("Share file", item: URL(fileURLWithPath: localPathActual))
-							#if os(macOS)
-								.buttonStyle(.link)
-							#endif
 
 						#if os(iOS)
 							// On macOS, this button is in the toolbar; on iOS there is not enough horizontal space

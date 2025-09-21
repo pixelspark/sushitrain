@@ -542,37 +542,6 @@ extension SushitrainFolder: @retroactive Identifiable {
 extension SushitrainChange: @retroactive Identifiable {
 }
 
-enum SushitrainEntryTransferableError: Error {
-	case notAvailable
-}
-
-extension SushitrainEntry: @retroactive Transferable {
-	static public var transferRepresentation: some TransferRepresentation {
-		ProxyRepresentation { entry in
-			if let url = entry.localNativeFileURL {
-				return url
-			}
-
-			throw SushitrainEntryTransferableError.notAvailable
-		}
-		.exportingCondition { entry in
-			entry.isLocallyPresent()
-		}
-
-		// This works somewhat, but must be repeated for each file type... so it cannot be made consistent
-		// FileRepresentation(exportedContentType: .png, exporting: { try await $0.downloadFileToSent() }).exportingCondition({ !$0.isLocallyPresent() && $0.mimeType() == "image/png" })
-		// FileRepresentation(exportedContentType: .data, exporting: { try await $0.downloadFileToSent() }).exportingCondition({ !$0.isLocallyPresent() })
-	}
-
-	//	private func downloadFileToSent() async throws -> SentTransferredFile {
-	//        if let url = URL(string: self.onDemandURL()) {
-	//            let (localURL, _) = try await URLSession.shared.download(from: url)
-	//            return SentTransferredFile(localURL, allowAccessingOriginalFile: false)
-	//        }
-	//        throw SushitrainEntryTransferableError.notAvailable
-	//    }
-}
-
 #if os(iOS)
 	struct QRScannerViewRepresentable: UIViewControllerRepresentable {
 		@Binding var scannedText: String
@@ -996,6 +965,7 @@ func goTask(_ block: @Sendable @escaping () async throws -> Void) async throws {
 }
 
 import CommonCrypto
+import UniformTypeIdentifiers
 
 extension SecCertificate {
 	var sha256: Data {
