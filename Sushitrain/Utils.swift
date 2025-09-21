@@ -864,6 +864,7 @@ struct WebView: UIViewRepresentable {
 			let view = WKWebView(frame: .zero, configuration: self.config)
 			view.navigationDelegate = context.coordinator
 			view.isOpaque = self.isOpaque
+			view.scrollView.contentInsetAdjustmentBehavior = .always
 			let request = URLRequest(url: url)
 			view.load(request)
 			return view

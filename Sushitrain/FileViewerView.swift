@@ -29,12 +29,12 @@ struct FileViewerView: View {
 				#if os(iOS)
 					// Allow toolbar to be hidden on iOS
 					.navigationBarTitleDisplayMode(.inline)
-					.toolbarBackground(.visible, for: .navigationBar)
-					.toolbarBackground(.thinMaterial, for: .navigationBar)
 					.navigationBarHidden(barHidden)
 					.simultaneousGesture(
 						TapGesture().onEnded {
-							barHidden = !barHidden
+							withAnimation {
+								barHidden = !barHidden
+							}
 						}
 					)
 					// Swipe up and down for next/previous
@@ -169,12 +169,13 @@ private struct FileViewerContentView: View {
 						WebView(url: url, trustFingerprints: [], isLoading: self.$loading, error: self.$error)
 							.id(url)
 							#if os(iOS)
+								.ignoresSafeArea()
 								.backgroundStyle(.black)
 								.background(.black)
 							#endif
 						if loading {
-							ProgressView().progressViewStyle(.circular).controlSize(
-								.extraLarge)
+							ProgressView()
+								.progressViewStyle(.circular).controlSize(.extraLarge)
 						}
 					}
 				}
