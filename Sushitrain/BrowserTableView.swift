@@ -141,7 +141,7 @@ struct BrowserTableView: View {
 			forSelectionType: SushitrainEntry.ID.self,
 			menu: { items in
 				if items.isEmpty {
-					
+
 				}
 				else if let item = items.first, items.count == 1 {
 					// Single item selected
