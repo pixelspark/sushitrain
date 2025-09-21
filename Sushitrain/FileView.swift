@@ -60,7 +60,6 @@ struct FileView: View {
 
 				self.fileDetailsSection()
 				self.conflictsSection()
-				self.availabilitySection()
 
 				if showPath {
 					Section("Location") {
@@ -86,13 +85,7 @@ struct FileView: View {
 					}
 
 					// Devices that have this file
-					if let availability = self.fullyAvailableOnDevices {
-						if !availability.isEmpty {
-							Section("This file is fully available on") {
-								ForEach(availability, id: \.self) { device in Label(device.displayName, systemImage: "externaldrive") }
-							}
-						}
-					}
+					self.availabilitySection()
 
 					// Remove file
 					if file.isSelected() && file.isLocallyPresent() && folder.folderType() == SushitrainFolderTypeSendReceive {
@@ -165,12 +158,10 @@ struct FileView: View {
 					}
 				}
 
-				ToolbarItem {
-					FileShareLink(file: file)
-				}
-
 				#if os(macOS)
 					ToolbarItemGroup(placement: .primaryAction) {
+						FileShareLink(file: file)
+
 						// Menu for advanced actions
 						Menu {
 							Button("Encryption details...", systemImage: "lock.document.fill") { showEncryptionSheet = true }
@@ -188,6 +179,10 @@ struct FileView: View {
 								if let localPathActual = localPath { openURLInSystemFilesApp(url: URL(fileURLWithPath: localPathActual)) }
 							}
 						).labelStyle(.iconOnly).disabled(localPath == nil)
+					}
+				#else
+					ToolbarItem {
+						FileShareLink(file: file)
 					}
 				#endif
 			}
@@ -307,22 +302,35 @@ struct FileView: View {
 		if !self.file.isSymlink() {
 			if let availability = self.fullyAvailableOnDevices {
 				if availability.isEmpty && self.folder.connectedPeerCount() > 0 {
-					Label(
-						"This file is not fully available on any connected device",
-						systemImage: "externaldrive.trianglebadge.exclamationmark"
-					).foregroundStyle(.orange)
+					Section {
+						Label(
+							"This file is not fully available on any connected device",
+							systemImage: "externaldrive.trianglebadge.exclamationmark"
+						).foregroundStyle(.orange)
+					}
+				}
+				else {
+					Section("This file is fully available on") {
+						ForEach(availability, id: \.self) { device in
+							Label(device.displayName, systemImage: "externaldrive")
+						}
+					}
 				}
 			}
 			else {
 				if let err = self.availabilityError {
-					Label(
-						"Could not determine file availability: \(err.localizedDescription)",
-						systemImage: "externaldrive.trianglebadge.exclamationmark"
-					).foregroundStyle(.orange)
+					Section {
+						Label(
+							"Could not determine file availability: \(err.localizedDescription)",
+							systemImage: "externaldrive.trianglebadge.exclamationmark"
+						).foregroundStyle(.orange)
+					}
 				}
 				else {
-					Label("Checking availability on other devices...", systemImage: "externaldrive.badge.questionmark")
-						.foregroundStyle(.gray)
+					Section {
+						Label("Checking availability on other devices...", systemImage: "externaldrive.badge.questionmark")
+							.foregroundStyle(.gray)
+					}
 				}
 			}
 		}
@@ -400,7 +408,7 @@ struct FileView: View {
 						"When you select this file, it will not become immediately available on this device, because there are no other devices connected to download the file from."
 					)
 				}
-				else if self.fullyAvailableOnDevices == nil || (self.fullyAvailableOnDevices ?? []).isEmpty {
+				else if let fa = self.fullyAvailableOnDevices, fa.isEmpty {
 					Text(
 						"When you select this file, it will not become immediately available on this device, because none of the currently connected devices have a full copy of the file that can be downloaded."
 					)
@@ -568,10 +576,12 @@ struct FileView: View {
 				let availability = try await Task.detached { [fileEntry] in return (try fileEntry.peersWithFullCopy()).asArray() }
 					.value
 
-				self.fullyAvailableOnDevices = availability.flatMap { devID in
-					if let p = self.appState.client.peer(withID: devID) { return [p] }
-					return []
-				}.sorted(by: { $0.displayName < $1.displayName })
+				withAnimation {
+					self.fullyAvailableOnDevices = availability.flatMap { devID in
+						if let p = self.appState.client.peer(withID: devID) { return [p] }
+						return []
+					}.sorted(by: { $0.displayName < $1.displayName })
+				}
 			}
 			catch {
 				self.availabilityError = error
