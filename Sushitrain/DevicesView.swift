@@ -335,6 +335,20 @@ struct LatencyView: View {
 						Menu(
 							content: {
 								DeviceMetricPickerView(userSettings: appState.userSettings)
+
+								Divider()
+
+								Button("Disable all devices") {
+									self.peers.forEach { peer in
+										self.appState.setDevice(peer, pausedByUser: true)
+									}
+								}.disabled(self.peers.allSatisfy { self.appState.isDevicePausedByUser($0) })
+
+								Button("Enable all devices") {
+									self.peers.forEach { peer in
+										self.appState.setDevice(peer, pausedByUser: false)
+									}
+								}.disabled(self.peers.allSatisfy { !self.appState.isDevicePausedByUser($0) })
 							},
 							label: {
 								Image(systemName: "ellipsis.circle")
