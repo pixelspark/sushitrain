@@ -270,7 +270,6 @@ private struct FileMediaPlayer: View {
 					}
 			}
 		}
-		.ignoresSafeArea(.all)
 		.background(.black)
 		.onAppear {
 			Task {
