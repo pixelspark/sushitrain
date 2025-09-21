@@ -170,8 +170,6 @@ private struct FileViewerContentView: View {
 							.id(url)
 							#if os(iOS)
 								.ignoresSafeArea()
-								.backgroundStyle(.black)
-								.background(.black)
 							#endif
 						if loading {
 							ProgressView()
