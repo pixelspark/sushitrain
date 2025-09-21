@@ -9,7 +9,9 @@ import UniformTypeIdentifiers
 
 extension SushitrainEntry: @retroactive Transferable {
 	static public var transferRepresentation: some TransferRepresentation {
-		FileRepresentation(exportedContentType: .data, exporting: Self.sentTransferredFile)
+		FileRepresentation(exportedContentType: .data, exporting: Self.sentTransferredFile).exportingCondition {
+			!$0.isSymlink() && !$0.isDirectory() && !$0.isDeleted()
+		}
 	}
 
 	private static func sentTransferredFile(entry: SushitrainEntry) async throws -> SentTransferredFile {
@@ -78,9 +80,11 @@ struct FileShareLink: View {
 	@State private var image: AsyncImagePhase = .empty
 
 	var body: some View {
-		self.shareLink.task {
-			self.image = await ImageCache.shared.getThumbnail(file: file, forceCache: false)
-		}
+		self.shareLink
+			.disabled(file.isDirectory() || file.isSymlink() || file.isDeleted())
+			.task {
+				self.image = await ImageCache.shared.getThumbnail(file: file, forceCache: false)
+			}
 	}
 
 	@ViewBuilder private var shareLink: some View {
