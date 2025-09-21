@@ -236,7 +236,7 @@ func (mp *miniPuller) downloadBlock(ctx context.Context, folderID string, blockI
 		time.Sleep(retryTime)
 	}
 
-	slog.Info("download block giving up", "retry", retry)
+	slog.Warn("download block giving up", "retry", retry, "timeoutForBlock", mp.timeoutFor(&block), "availables", availables)
 	return nil, errors.New("no peer to download this block from")
 }
 
