@@ -95,6 +95,8 @@ class SushitrainDelegate: NSObject {
 	@AppStorage("userPausedDevices") var userPausedDevices = Set<String>()
 	@AppStorage("ignoreLongTimeNoSeeDevices") var ignoreLongTimeNoSeeDevices = Set<String>()
 
+	@AppStorage("ignoreDiscoveredDevices") var ignoreDiscoveredDevices = Set<String>()
+
 	#if os(iOS)
 		// Whether to re-enable hideHiddenFolders when app comes to the foreground
 		@AppStorage("rehideHiddenFoldersOnActivate") var rehideHiddenFoldersOnActivate: Bool = false

@@ -302,6 +302,14 @@ struct LatencyView: View {
 								addingDeviceID = devID
 								showingAddDevicePopup = true
 							}
+						}.onDelete { idxs in
+							let toDelete = idxs.map { discoveredNewDevices[$0] }
+							for deviceID in toDelete {
+								appState.userSettings.ignoreDiscoveredDevices.insert(deviceID)
+							}
+							Task {
+								await self.update()
+							}
 						}
 					}
 				}
@@ -360,7 +368,9 @@ struct LatencyView: View {
 
 			// Discovered peers
 			let peerIDs = peers.map { $0.deviceID() }
-			self.discoveredNewDevices = Array(appState.discoveredDevices.keys).filter({ d in !peerIDs.contains(d) })
+			self.discoveredNewDevices = Array(appState.discoveredDevices.keys).filter({ d in
+				!peerIDs.contains(d) && !appState.userSettings.ignoreDiscoveredDevices.contains(d)
+			})
 			self.loading = false
 		}
 	}

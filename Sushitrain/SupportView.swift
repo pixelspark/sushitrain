@@ -402,6 +402,12 @@ struct TroubleshootingView: View {
 					)
 				}.disabled(performingDatabaseMaintenance)
 			}
+
+			Section {
+				Button("Reset ignored discovered devices", role: .destructive) {
+					appState.userSettings.ignoreDiscoveredDevices.removeAll()
+				}
+			}
 		}
 		#if os(macOS)
 			.formStyle(.grouped)

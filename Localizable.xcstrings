@@ -24648,6 +24648,52 @@
         }
       }
     },
+    "Reset ignored discovered devices" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ignorierte entdeckte Geräte zurücksetzen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restablecer dispositivos descubiertos ignorados"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reimposta dispositivi scoperti ignorati"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無視された発見済みデバイスをリセット"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Negeer geen ontdekte apparaten"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скинути ігноровані виявлені пристрої"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重置已忽略的发现设备"
+          }
+        }
+      }
+    },
     "Restart app to remove v1 database" : {
       "localizations" : {
         "de" : {
