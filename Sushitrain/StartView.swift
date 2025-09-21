@@ -598,7 +598,6 @@ struct StartView: View {
 	}
 
 	private func update() async {
-		showNoPeersEnabledWarning = false
 		await self.updateFoldersWithIssues()
 
 		// Check to see if there are peers connected
