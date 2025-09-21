@@ -10,133 +10,148 @@ import AVKit
 
 struct FileViewerView: View {
 	@Environment(AppState.self) private var appState
-	@State var file: SushitrainEntry
+
+	@State var file: SushitrainEntry? = nil
 	let siblings: [SushitrainEntry]?
 	let inSheet: Bool
 	@Binding var isShown: Bool
 
-	@State private var selfIndex: Int? = nil
-	@State private var barHidden: Bool = false
+	#if os(iOS)
+		@State private var barHidden: Bool = false
+	#endif
 
 	#if os(macOS)
+		@State private var selfIndex: Int? = nil
 		@Environment(\.openWindow) private var openWindow
 	#endif
 
-	var body: some View {
-		NavigationStack {
-			FileViewerContentView(file: file, isShown: $isShown)
-				.navigationTitle(file.fileName())
-				#if os(iOS)
-					// Allow toolbar to be hidden on iOS
-					.navigationBarTitleDisplayMode(.inline)
-					.navigationBarHidden(barHidden)
-					.simultaneousGesture(
-						TapGesture().onEnded {
-							withAnimation {
-								barHidden = !barHidden
+	#if os(iOS)
+		private var scrollableFiles: [SushitrainEntry] {
+			if let s = siblings {
+				return s
+			}
+			if let f = self.file {
+				return [f]
+			}
+			return []
+		}
+
+		// iOS version has infinite scrolling
+		var body: some View {
+			GeometryReader { reader in
+				ScrollView(.horizontal, showsIndicators: false) {
+					LazyHStack(spacing: 1.0) {
+						ForEach(self.scrollableFiles) { sibling in
+							NavigationStack {
+								FileViewerContentView(file: sibling, isShown: $isShown)
+									.toolbar {
+										self.toolbarContent(file: sibling)
+									}
+									.navigationTitle(sibling.fileName())
+									// Allow toolbar to be hidden on iOS
+									.navigationBarTitleDisplayMode(.inline)
+									.navigationBarHidden(barHidden)
 							}
+							.frame(width: reader.size.width)
+							.tag(sibling)
+							.id(sibling)
 						}
-					)
-					// Swipe up and down for next/previous
-					.simultaneousGesture(
-						DragGesture(minimumDistance: 140, coordinateSpace: .global).onEnded {
-							value in
-							// Only act on swipe gestures when enabled
-							if !appState.userSettings.enableSwipeFilesInPreview {
-								return
-							}
+					}
+					.scrollTargetLayout()
+				}
+				.simultaneousGesture(
+					TapGesture().onEnded {
+						withAnimation {
+							barHidden = !barHidden
+						}
+					}
+				)
+				.scrollTargetBehavior(.viewAligned)
+				.scrollPosition(id: $file, anchor: .center)
+			}
+			.onAppear {
+				barHidden = false
+			}
+		}
+	#else
+		// Mac version has back/forward buttons
+		var body: some View {
+			NavigationStack {
+				if let file = file {
+					FileViewerContentView(file: file, isShown: $isShown)
+						.navigationTitle(file.fileName())
+						.toolbar {
+							self.toolbarContent(file: file)
+						}
+				}
+			}
+			.onAppear {
+				if let file = self.file {
+					self.selfIndex = self.siblings?.firstIndex {
+						$0.id == file.id
+					}
+				}
+			}
+			.presentationSizing(.fitted)
+			.frame(minWidth: 640, minHeight: 480)
+		}
 
-							if let selfIndex = selfIndex, let siblings = siblings {
-								let verticalAmount = value.translation.height
+		private func next(_ offset: Int) {
+			if let siblings = siblings, let file = self.file, let idx = self.siblings?.firstIndex(where: { $0.id == file.id }) {
+				let newIndex = idx + offset
+				if newIndex >= 0 && newIndex < siblings.count {
+					self.file = siblings[newIndex]
+					selfIndex = siblings.firstIndex(of: file)
+				}
+			}
+		}
+	#endif
 
-								if verticalAmount < 0 && selfIndex <= siblings.count {
-									next(1)
-								}
-								else if verticalAmount > 0 && selfIndex > 0 {
-									next(-1)
-								}
-							}
-						})
-				#endif
-				.toolbar {
-					if inSheet {
-						SheetButton(role: .done) {
+	@ToolbarContentBuilder private func toolbarContent(file: SushitrainEntry) -> some ToolbarContent {
+		if inSheet {
+			SheetButton(role: .done) {
+				isShown = false
+			}
+
+			ToolbarItem(placement: .automatic) {
+				FileShareLink(file: file)
+			}
+
+			#if os(macOS)
+				ToolbarItemGroup(placement: .automatic) {
+					Button(
+						"Open in new window",
+						systemImage: "macwindow.on.rectangle"
+					) {
+						if let folder = file.folder {
+							openWindow(
+								id: "preview",
+								value: Preview(
+									folderID: folder
+										.folderID,
+									path: file.path()
+								))
 							isShown = false
 						}
-
-						#if os(macOS)
-							ToolbarItemGroup(placement: .automatic) {
-								Button(
-									"Open in new window",
-									systemImage: "macwindow.on.rectangle"
-								) {
-									if let folder = self.file.folder {
-										openWindow(
-											id: "preview",
-											value: Preview(
-												folderID: folder
-													.folderID,
-												path: self.file.path()
-											))
-										isShown = false
-									}
-								}
-							}
-						#endif
-					}
-
-					if let siblings = siblings, let selfIndex = selfIndex {
-						#if os(macOS)
-							ToolbarItemGroup(placement: .automatic) {
-								Button("Previous", systemImage: "chevron.up") {
-									next(-1)
-								}
-								.disabled(selfIndex < 1)
-								.keyboardShortcut(KeyEquivalent.upArrow)
-
-								Button("Next", systemImage: "chevron.down") {
-									next(1)
-								}
-								.disabled(selfIndex >= siblings.count - 1)
-								.keyboardShortcut(KeyEquivalent.downArrow)
-							}
-						#else
-							ToolbarItemGroup(placement: .navigation) {
-								Button("Previous", systemImage: "chevron.up") {
-									next(-1)
-								}
-								.disabled(selfIndex < 1)
-								.keyboardShortcut(KeyEquivalent.upArrow)
-
-								Button("Next", systemImage: "chevron.down") {
-									next(1)
-								}
-								.disabled(selfIndex >= siblings.count - 1)
-								.keyboardShortcut(KeyEquivalent.downArrow)
-							}
-						#endif
 					}
 				}
-				.onAppear {
-					barHidden = false
-					self.selfIndex = self.siblings?.firstIndex {
-						$0.id == self.file.id
+
+				if let siblings = siblings, let selfIndex = selfIndex {
+					ToolbarItemGroup(placement: .automatic) {
+						Button("Previous", systemImage: "chevron.up") {
+							next(-1)
+						}
+						.disabled(selfIndex < 1)
+						.keyboardShortcut(KeyEquivalent.upArrow)
+
+						Button("Next", systemImage: "chevron.down") {
+							next(1)
+						}
+						.disabled(selfIndex >= siblings.count - 1)
+						.keyboardShortcut(KeyEquivalent.downArrow)
 					}
 				}
-				#if os(macOS)
-					.presentationSizing(.fitted)
-					.frame(minWidth: 640, minHeight: 480)
-				#endif
-		}
-	}
-
-	private func next(_ offset: Int) {
-		if let siblings = siblings, let idx = self.siblings?.firstIndex(where: { $0.id == self.file.id }) {
-			let newIndex = idx + offset
-			if newIndex >= 0 && newIndex < siblings.count {
-				file = siblings[newIndex]
-				selfIndex = siblings.firstIndex(of: file)
-			}
+			#endif
 		}
 	}
 }
@@ -181,11 +196,6 @@ private struct FileViewerContentView: View {
 						"Cannot preview this file", systemImage: "document",
 						description: Text("Cannot show a preview for this type of file."))
 				}
-			}
-		}
-		.toolbar {
-			ToolbarItem(placement: .automatic) {
-				FileShareLink(file: self.file)
 			}
 		}
 		.onChange(of: file) { (_, _) in
