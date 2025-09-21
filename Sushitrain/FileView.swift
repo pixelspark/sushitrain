@@ -53,125 +53,14 @@ struct FileView: View {
 		}
 		else {
 			Form {
+				self.thumbnailView()
+
 				// Symbolic link: show link target
 				if file.isSymlink() { Section("Link destination") { Text(file.symlinkTarget()) } }
 
-				Section {
-					if !file.isDirectory() && !file.isSymlink() {
-						Text("File size").badge(Self.formatter.string(fromByteCount: file.size()))
-					}
-
-					if let subDirSize = self.subdirectorySizeBytes, file.isDirectory() {
-						Text("Subdirectory size").badge(Self.formatter.string(fromByteCount: subDirSize))
-					}
-
-					if let md = file.modifiedAt()?.date(), !file.isSymlink() {
-						Text("Last modified").badge(md.formatted(date: .abbreviated, time: .shortened))
-
-						let mby = file.modifiedByShortDeviceID()
-						if !mby.isEmpty {
-							if let modifyingDevice = appState.client.peer(withShortID: mby) {
-								if modifyingDevice.deviceID() == appState.localDeviceID {
-									Text("Last modified from").badge(Text("This device"))
-								}
-								else {
-									Text("Last modified from").badge(modifyingDevice.displayName)
-								}
-							}
-						}
-					}
-
-					if self.folder.isSelective() && !file.isSymlink() {
-						let isExplicitlySelected = file.isExplicitlySelected()
-
-						Toggle(
-							"Synchronize with this device", systemImage: "pin",
-							isOn: Binding(
-								get: { file.isExplicitlySelected() || file.isSelected() },
-								set: { s in try? file.setExplicitlySelected(s) }
-							)
-						).disabled(
-							// We're doing something weird
-							!folder.isIdleOrSyncing
-								// Selected implicitly by parent
-								|| (file.isSelected() && !isExplicitlySelected)
-								// We have the only copy
-								|| (isExplicitlySelected && localIsOnlyCopy)
-								// File is selected but is not local, we are probably still downloading it
-								|| (file.isSelected() && !file.isLocallyPresent())
-						)
-					}
-				} footer: {
-					if !file.isSymlink() && self.folder.isSelective() && (file.isSelected() && !file.isExplicitlySelected()) {
-						Text("This item is synchronized with this device because a parent folder is synchronized with this device.")
-					}
-
-					if !file.isSymlink() {
-						if file.isExplicitlySelected() {
-							if localIsOnlyCopy {
-								if self.folder.connectedPeerCount() > 0 {
-									Text("There are currently no other devices connected that have a full copy of this file.")
-								}
-								else {
-									Text(
-										"There are currently no other devices connected, so it can't be established that this file is fully available on at least one other device."
-									)
-								}
-							}
-						}
-						else if !self.file.isLocallyPresent() {
-							if self.folder.connectedPeerCount() == 0 {
-								Text(
-									"When you select this file, it will not become immediately available on this device, because there are no other devices connected to download the file from."
-								)
-							}
-							else if self.fullyAvailableOnDevices == nil || (self.fullyAvailableOnDevices ?? []).isEmpty {
-								Text(
-									"When you select this file, it will not become immediately available on this device, because none of the currently connected devices have a full copy of the file that can be downloaded."
-								)
-							}
-						}
-					}
-				}
-				// Conflicts
-				if let ce = conflictingEntries, !ce.isEmpty {
-					Section("Conflicting versions of this file") {
-						ForEach(ce) { (conflictingEntry: SushitrainEntry) in
-							if conflictingEntry.path() != self.file.path() {
-								FileEntryLink(
-									appState: appState, entry: conflictingEntry, inFolder: self.folder, siblings: ce, honorTapToPreview: false
-								) {
-									// TODO: attempt to interpret conflict file name, show date/time/device info neatly
-									Text(conflictingEntry.fileName()).foregroundStyle(.red)
-								}
-							}
-						}
-					}
-				}
-
-				// Devices that have this file
-				if !self.file.isSymlink() {
-					if let availability = self.fullyAvailableOnDevices {
-						if availability.isEmpty && self.folder.connectedPeerCount() > 0 {
-							Label(
-								"This file is not fully available on any connected device",
-								systemImage: "externaldrive.trianglebadge.exclamationmark"
-							).foregroundStyle(.orange)
-						}
-					}
-					else {
-						if let err = self.availabilityError {
-							Label(
-								"Could not determine file availability: \(err.localizedDescription)",
-								systemImage: "externaldrive.trianglebadge.exclamationmark"
-							).foregroundStyle(.orange)
-						}
-						else {
-							Label("Checking availability on other devices...", systemImage: "externaldrive.badge.questionmark")
-								.foregroundStyle(.gray)
-						}
-					}
-				}
+				self.fileDetailsSection()
+				self.conflictsSection()
+				self.availabilitySection()
 
 				if showPath {
 					Section("Location") {
@@ -182,26 +71,6 @@ struct FileView: View {
 				}
 
 				if !file.isDirectory() && !file.isSymlink() {
-					// Image preview
-					if file.canThumbnail && !showFullScreenViewer {
-						Section {
-							ThumbnailView(
-								file: file,
-								showFileName: false,
-								showErrorMessages: true,
-								onTap: {
-									self.onTapThumbnail()
-								}
-							)
-							.ignoresSafeArea()
-							.padding(.all, 0)
-							// Fixes issue where image is still tappable outside its rectangle
-							.contentShape(Rectangle().inset(by: 0))
-							.cornerRadius(8.0)
-							.listRowInsets(EdgeInsets())
-						}
-					}
-
 					self.viewButtons()
 
 					// Zip
@@ -228,24 +97,7 @@ struct FileView: View {
 					// Remove file
 					if file.isSelected() && file.isLocallyPresent() && folder.folderType() == SushitrainFolderTypeSendReceive {
 						Section {
-							Button("Remove file from all devices", systemImage: "trash", role: .destructive) {
-								showRemoveConfirmation = true
-							}
-							#if os(macOS)
-								.buttonStyle(.link)
-							#endif
-							.foregroundColor(.red)
-							.confirmationDialog(
-								self.localIsOnlyCopy
-									? "Are you sure you want to remove this file from all devices? The local copy of this file is the only one currently available on any device. This will remove the last copy. It will not be possible to recover the file after removing it."
-									: "Are you sure you want to remove this file from all devices?", isPresented: $showRemoveConfirmation,
-								titleVisibility: .visible
-							) {
-								Button("Remove the file from all devices", role: .destructive) {
-									dismiss()
-									try? file.remove()
-								}
-							}
+							self.removeButton()
 						}
 					}
 				}
@@ -264,7 +116,8 @@ struct FileView: View {
 			#if os(macOS)
 				.formStyle(.grouped)
 			#endif
-			.navigationTitle(file.fileName()).quickLookPreview(self.$localItemURL)
+			.navigationTitle(file.fileName())
+			.quickLookPreview(self.$localItemURL)
 
 			// Sheet viewer
 			.sheet(isPresented: $showSheetViewer) {
@@ -358,6 +211,123 @@ struct FileView: View {
 		}
 	}
 
+	@ViewBuilder private func fileDetailsSection() -> some View {
+		Section {
+			if !file.isDirectory() && !file.isSymlink() {
+				Text("File size").badge(Self.formatter.string(fromByteCount: file.size()))
+			}
+
+			if let subDirSize = self.subdirectorySizeBytes, file.isDirectory() {
+				Text("Subdirectory size").badge(Self.formatter.string(fromByteCount: subDirSize))
+			}
+
+			if let md = file.modifiedAt()?.date(), !file.isSymlink() {
+				Text("Last modified").badge(md.formatted(date: .abbreviated, time: .shortened))
+
+				let mby = file.modifiedByShortDeviceID()
+				if !mby.isEmpty {
+					if let modifyingDevice = appState.client.peer(withShortID: mby) {
+						if modifyingDevice.deviceID() == appState.localDeviceID {
+							Text("Last modified from").badge(Text("This device"))
+						}
+						else {
+							Text("Last modified from").badge(modifyingDevice.displayName)
+						}
+					}
+				}
+			}
+
+			if self.folder.isSelective() && !file.isSymlink() {
+				let isExplicitlySelected = file.isExplicitlySelected()
+
+				Toggle(
+					"Synchronize with this device", systemImage: "pin",
+					isOn: Binding(
+						get: { file.isExplicitlySelected() || file.isSelected() },
+						set: { s in try? file.setExplicitlySelected(s) }
+					)
+				).disabled(
+					// We're doing something weird
+					!folder.isIdleOrSyncing
+						// Selected implicitly by parent
+						|| (file.isSelected() && !isExplicitlySelected)
+						// We have the only copy
+						|| (isExplicitlySelected && localIsOnlyCopy)
+						// File is selected but is not local, we are probably still downloading it
+						|| (file.isSelected() && !file.isLocallyPresent())
+				)
+			}
+		} footer: {
+			self.selectiveSyncFooter()
+		}
+	}
+
+	@ViewBuilder private func conflictsSection() -> some View {
+		// Conflicts
+		if let ce = conflictingEntries, !ce.isEmpty {
+			Section("Conflicting versions of this file") {
+				ForEach(ce) { (conflictingEntry: SushitrainEntry) in
+					if conflictingEntry.path() != self.file.path() {
+						FileEntryLink(
+							appState: appState, entry: conflictingEntry, inFolder: self.folder, siblings: ce, honorTapToPreview: false
+						) {
+							// TODO: attempt to interpret conflict file name, show date/time/device info neatly
+							Text(conflictingEntry.fileName()).foregroundStyle(.red)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@ViewBuilder private func thumbnailView() -> some View {
+		if !file.isDirectory() && !file.isSymlink() && file.canThumbnail {
+			ThumbnailView(
+				file: file,
+				showFileName: false,
+				showErrorMessages: true,
+				onTap: {
+					self.onTapThumbnail()
+				}
+			)
+			.padding(.all, 0)
+			.frame(minHeight: 48, maxHeight: 200)
+			// Fixes issue where image is still tappable outside its rectangle
+			.contentShape(Rectangle().inset(by: 0))
+			.cornerRadius(8.0)
+			.listRowInsets(EdgeInsets())
+		}
+		else {
+			EmptyView()
+		}
+	}
+
+	@ViewBuilder private func availabilitySection() -> some View {
+		// Devices that have this file
+		if !self.file.isSymlink() {
+			if let availability = self.fullyAvailableOnDevices {
+				if availability.isEmpty && self.folder.connectedPeerCount() > 0 {
+					Label(
+						"This file is not fully available on any connected device",
+						systemImage: "externaldrive.trianglebadge.exclamationmark"
+					).foregroundStyle(.orange)
+				}
+			}
+			else {
+				if let err = self.availabilityError {
+					Label(
+						"Could not determine file availability: \(err.localizedDescription)",
+						systemImage: "externaldrive.trianglebadge.exclamationmark"
+					).foregroundStyle(.orange)
+				}
+				else {
+					Label("Checking availability on other devices...", systemImage: "externaldrive.badge.questionmark")
+						.foregroundStyle(.gray)
+				}
+			}
+		}
+	}
+
 	private func update() async {
 		self.subdirectorySizeBytes = nil
 		let file = self.file
@@ -376,6 +346,27 @@ struct FileView: View {
 		}.value
 	}
 
+	@ViewBuilder private func removeButton() -> some View {
+		Button("Remove file from all devices", systemImage: "trash", role: .destructive) {
+			showRemoveConfirmation = true
+		}
+		#if os(macOS)
+			.buttonStyle(.link)
+		#endif
+		.foregroundColor(.red)
+		.confirmationDialog(
+			self.localIsOnlyCopy
+				? "Are you sure you want to remove this file from all devices? The local copy of this file is the only one currently available on any device. This will remove the last copy. It will not be possible to recover the file after removing it."
+				: "Are you sure you want to remove this file from all devices?", isPresented: $showRemoveConfirmation,
+			titleVisibility: .visible
+		) {
+			Button("Remove the file from all devices", role: .destructive) {
+				dismiss()
+				try? file.remove()
+			}
+		}
+	}
+
 	@ViewBuilder private func zipButton() -> some View {
 		Button("Explore archive contents", systemImage: "doc.zipper") {
 			self.showArchive = true
@@ -383,6 +374,39 @@ struct FileView: View {
 		#if os(macOS)
 			.buttonStyle(.link)
 		#endif
+	}
+
+	@ViewBuilder private func selectiveSyncFooter() -> some View {
+		if !file.isSymlink() && self.folder.isSelective() && (file.isSelected() && !file.isExplicitlySelected()) {
+			Text("This item is synchronized with this device because a parent folder is synchronized with this device.")
+		}
+
+		if !file.isSymlink() {
+			if file.isExplicitlySelected() {
+				if localIsOnlyCopy {
+					if self.folder.connectedPeerCount() > 0 {
+						Text("There are currently no other devices connected that have a full copy of this file.")
+					}
+					else {
+						Text(
+							"There are currently no other devices connected, so it can't be established that this file is fully available on at least one other device."
+						)
+					}
+				}
+			}
+			else if !self.file.isLocallyPresent() {
+				if self.folder.connectedPeerCount() == 0 {
+					Text(
+						"When you select this file, it will not become immediately available on this device, because there are no other devices connected to download the file from."
+					)
+				}
+				else if self.fullyAvailableOnDevices == nil || (self.fullyAvailableOnDevices ?? []).isEmpty {
+					Text(
+						"When you select this file, it will not become immediately available on this device, because none of the currently connected devices have a full copy of the file that can be downloaded."
+					)
+				}
+			}
+		}
 	}
 
 	@ViewBuilder private func zipSheet() -> some View {

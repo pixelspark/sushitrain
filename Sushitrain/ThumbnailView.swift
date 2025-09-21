@@ -48,7 +48,7 @@ struct ThumbnailView: View {
 				}
 			}
 		)
-		.frame(maxWidth: .infinity, maxHeight: 200)
+		.frame(maxWidth: .infinity)
 	}
 
 	var body: some View {
