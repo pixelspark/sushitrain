@@ -276,7 +276,7 @@ struct StartView: View {
 	@Binding var route: Route?
 
 	#if os(iOS)
-		let backgroundManager: BackgroundManager
+		@ObservedObject var backgroundManager: BackgroundManager
 	#endif
 
 	@State private var qrCodeShown = false
