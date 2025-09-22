@@ -7,15 +7,18 @@ import SwiftUI
 @preconcurrency import SushitrainCore
 
 #if os(macOS)
-
 	struct DecrypterView: View {
 		private enum PickerFor {
 			case source
 			case dest
 		}
 
+		// The 'showPicker' variable controls fileImporter visibility, and showPickerFor decides what it is picking for.
+		// We can't just use Binding.isNotNull(showPickerFor) for fileImporter visibility, because it is set to nil before
+		// the callback is able to determine its value.
 		@State private var showPickerFor: PickerFor? = nil
-		@State private var showDestPicker: Bool = false
+		@State private var showPicker: Bool = false
+
 		@State private var error: Error? = nil
 		@State private var loading: Bool = false
 		@State private var sourceURL: URL? = nil
@@ -41,6 +44,7 @@ import SwiftUI
 									Text(sourceURL?.lastPathComponent ?? "")
 									Button("Select...") {
 										showPickerFor = .source
+										showPicker = true
 									}
 								}
 							}
@@ -65,6 +69,7 @@ import SwiftUI
 									Text(destURL?.lastPathComponent ?? "")
 									Button("Select...") {
 										showPickerFor = .dest
+										showPicker = true
 									}
 								}
 							}
@@ -110,7 +115,7 @@ import SwiftUI
 					}.frame(minWidth: 400, maxWidth: .infinity, maxHeight: .infinity)
 				}
 				.frame(maxWidth: .infinity, maxHeight: .infinity)
-				.fileImporter(isPresented: Binding.isNotNil($showPickerFor), allowedContentTypes: [.directory]) { (result) in
+				.fileImporter(isPresented: $showPicker, allowedContentTypes: [.directory]) { (result) in
 					switch (result, showPickerFor) {
 					case (.success(let url), .source):
 						self.sourceURL = url
@@ -129,6 +134,7 @@ import SwiftUI
 					default:
 						break
 					}
+					self.showPicker = false
 					self.showPickerFor = nil
 				}
 				.navigationTitle(self.sourceURL?.lastPathComponent ?? String(localized: "Decrypt folder"))
