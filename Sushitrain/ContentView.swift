@@ -99,7 +99,11 @@ private struct ContentView: View {
 			Tab("Start", systemImage: self.appState.syncState.systemImage, value: Route.start) {
 				// Me
 				NavigationStack {
-					StartOrSearchView(route: $route)
+					#if os(iOS)
+						StartView(route: $route, backgroundManager: appState.backgroundManager)
+					#else
+						StartView(route: $route)
+					#endif
 				}
 			}
 
@@ -121,7 +125,7 @@ private struct ContentView: View {
 			}
 		}
 	}
-	
+
 	@ViewBuilder private func tabbedBody() -> some View {
 		if #available(iOS 26, *) {
 			self.modernTabbedBody()
@@ -283,7 +287,7 @@ private struct ContentView: View {
 private struct LoadingMainView: View {
 	@State var appState: AppState
 	@State var route: Route? = .start
-	
+
 	#if os(iOS)
 		// Mirrors ContentView.modernTabbedBody
 		@available(iOS 26.0, *)
@@ -318,7 +322,7 @@ private struct LoadingMainView: View {
 				}.disabled(true)
 			}
 		}
-		
+
 		// Mirrors ContentView.legacyTabbedBody
 		@ViewBuilder private func legacyTabbedBody() -> some View {
 			TabView(selection: $route) {
@@ -345,7 +349,7 @@ private struct LoadingMainView: View {
 			}
 		}
 	#endif
-	
+
 	var body: some View {
 		#if os(iOS)
 			if #available(iOS 26, *) {
@@ -434,13 +438,7 @@ private struct StartOrSearchView: View {
 	}
 
 	@ViewBuilder private func view() -> some View {
-		if #available(iOS 26, *) {
-			InnerView(route: $route, searchText: $searchText)
-		}
-		else {
-			ZStack {
-				InnerView(route: $route, searchText: $searchText)
-			}
+		InnerView(route: $route, searchText: $searchText)
 			.searchable(
 				text: $searchText, placement: SearchFieldPlacement.toolbar,
 				prompt: "Search all files and folders..."
@@ -449,7 +447,6 @@ private struct StartOrSearchView: View {
 				.textInputAutocapitalization(.never)
 			#endif
 			.autocorrectionDisabled()
-		}
 	}
 
 	var body: some View {
