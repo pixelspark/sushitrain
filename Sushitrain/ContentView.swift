@@ -67,6 +67,7 @@ private struct ContentView: View {
 	}
 
 	// Legacy one has search as toolbar option at the top
+	// When changing this, also update LoadingMainView.legacyTabbedBody to match
 	@ViewBuilder private func legacyTabbedBody() -> some View {
 		TabView(selection: $route) {
 			// Me
@@ -91,6 +92,7 @@ private struct ContentView: View {
 	}
 
 	// Modern one has the search as a tab
+	// When changing this, also update LoadingMainView.modernTabbedBody to match
 	@available(iOS 26.0, *)
 	@ViewBuilder private func modernTabbedBody() -> some View {
 		TabView(selection: $route) {
@@ -119,7 +121,7 @@ private struct ContentView: View {
 			}
 		}
 	}
-
+	
 	@ViewBuilder private func tabbedBody() -> some View {
 		if #available(iOS 26, *) {
 			self.modernTabbedBody()
@@ -280,31 +282,77 @@ private struct ContentView: View {
 
 private struct LoadingMainView: View {
 	@State var appState: AppState
+	@State var route: Route? = .start
+	
+	#if os(iOS)
+		// Mirrors ContentView.modernTabbedBody
+		@available(iOS 26.0, *)
+		@ViewBuilder private func modernTabbedBody() -> some View {
+			TabView(selection: $route) {
+				Tab("Start", systemImage: self.appState.syncState.systemImage, value: Route.start) {
+					// Me
+					NavigationStack {
+						LoadingView(appState: appState)
+					}
+				}.disabled(true)
 
+				// Folders
+				Tab("Folders", systemImage: "folder.fill", value: Route.folder(folderID: nil)) {
+					NavigationStack {
+						LoadingView(appState: appState)
+					}
+				}.disabled(true)
+
+				// Peers
+				Tab("Devices", systemImage: "externaldrive.fill", value: Route.devices) {
+					NavigationStack {
+						LoadingView(appState: appState)
+					}
+				}.disabled(true)
+
+				// Search (iOS 26)
+				Tab(value: Route.search, role: .search) {
+					NavigationStack {
+						LoadingView(appState: appState)
+					}
+				}.disabled(true)
+			}
+		}
+		
+		// Mirrors ContentView.legacyTabbedBody
+		@ViewBuilder private func legacyTabbedBody() -> some View {
+			TabView(selection: $route) {
+				// Me
+				NavigationStack {
+					LoadingView(appState: appState)
+				}.tabItem {
+					Label("Start", systemImage: self.appState.syncState.systemImage)
+				}.tag(Route.start)
+
+				// Folders
+				NavigationStack {
+					LoadingView(appState: appState)
+				}.tabItem {
+					Label("Folders", systemImage: "folder.fill")
+				}.tag(Route.folder(folderID: nil))
+
+				// Peers
+				NavigationStack {
+					LoadingView(appState: appState)
+				}.tabItem {
+					Label("Devices", systemImage: "externaldrive.fill")
+				}.tag(Route.devices)
+			}
+		}
+	#endif
+	
 	var body: some View {
 		#if os(iOS)
-			// Skeleton of the actual app structure, to make the app launch feel faster
-			TabView {
-				NavigationStack {
-					LoadingView(appState: appState)
-				}
-				.tabItem {
-					Label("Start", systemImage: "ellipsis.circle.fill")
-				}
-
-				NavigationStack {
-					LoadingView(appState: appState)
-				}
-				.tabItem {
-					Label("Folders", systemImage: "folder.fill")
-				}.disabled(true)
-
-				NavigationStack {
-					LoadingView(appState: appState)
-				}
-				.tabItem {
-					Label("Devices", systemImage: "externaldrive.fill")
-				}.disabled(true)
+			if #available(iOS 26, *) {
+				self.modernTabbedBody()
+			}
+			else {
+				self.legacyTabbedBody()
 			}
 		#else
 			NavigationSplitView(
