@@ -276,47 +276,58 @@ struct FolderStatusView: View {
 }
 
 struct FolderSyncTypePicker: View {
+	private enum FolderSyncType: String {
+		case allFiles = "allFiles"
+		case selectedFiles = "selectedFiles"
+	}
+
 	@Environment(AppState.self) private var appState
 	@State private var changeProhibited = true
+	@State private var folderSyncType: FolderSyncType? = nil
 	var folder: SushitrainFolder
 
 	var body: some View {
 		if folder.exists() {
-			Picker(
-				"Selection",
-				selection: Binding(
-					get: { folder.isSelective() }, set: { s in try? folder.setSelective(s) })
-			) {
-				Text("All files").tag(false)
-				Text("Selected files").tag(true)
+			Picker("Selection", selection: $folderSyncType) {
+				Text("All files").tag(FolderSyncType.allFiles)
+				Text("Selected files").tag(FolderSyncType.selectedFiles)
+			}
+			.onChange(of: folderSyncType) { _, nv in
+				try? self.folder.setSelective(nv == .selectedFiles)
 			}
 			.pickerStyle(.menu)
 			.disabled(changeProhibited)
 			.onAppear {
-				// Only allow changes to selection mode when folder is idle
-				if !folder.isIdleOrSyncing {
-					changeProhibited = true
-					return
-				}
+				self.update()
+			}
+		}
+	}
 
-				// Prohibit change in selection mode when there are extraneous files
-				Task.detached {
-					var hasExtra: ObjCBool = false
-					do {
-						let _ = try folder.hasExtraneousFiles(&hasExtra)
-						let hasExtraFinal = hasExtra
-						DispatchQueue.main.async {
-							changeProhibited = hasExtraFinal.boolValue
-						}
-					}
-					catch {
-						Log.warn(
-							"Error calling hasExtraneousFiles: \(error.localizedDescription)"
-						)
-						DispatchQueue.main.async {
-							changeProhibited = true
-						}
-					}
+	private func update() {
+		self.folderSyncType = self.folder.isSelective() ? .selectedFiles : .allFiles
+
+		// Only allow changes to selection mode when folder is idle
+		if !folder.isIdleOrSyncing {
+			changeProhibited = true
+			return
+		}
+
+		// Prohibit change in selection mode when there are extraneous files
+		Task.detached {
+			var hasExtra: ObjCBool = false
+			do {
+				let _ = try folder.hasExtraneousFiles(&hasExtra)
+				let hasExtraFinal = hasExtra
+				DispatchQueue.main.async {
+					changeProhibited = hasExtraFinal.boolValue
+				}
+			}
+			catch {
+				Log.warn(
+					"Error calling hasExtraneousFiles: \(error.localizedDescription)"
+				)
+				DispatchQueue.main.async {
+					changeProhibited = true
 				}
 			}
 		}
@@ -327,49 +338,54 @@ struct FolderDirectionPicker: View {
 	@Environment(AppState.self) private var appState
 	var folder: SushitrainFolder
 	@State private var changeProhibited: Bool = true
+	@State private var folderType: String? = nil
 
 	var body: some View {
 		if folder.exists() {
-			Picker(
-				"Direction",
-				selection: Binding(
-					get: { folder.folderType() }, set: { s in try? folder.setFolderType(s) })
-			) {
-				Text("Send and receive").tag(SushitrainFolderTypeSendReceive)
-				Text("Receive only").tag(SushitrainFolderTypeReceiveOnly)
+			Picker("Direction", selection: $folderType) {
+				Text("Send and receive").tag(SushitrainFolderTypeSendReceive as String?)
+				Text("Receive only").tag(SushitrainFolderTypeReceiveOnly as String?)
 
 				// Cannot be selected, but should be here when it is set
 				if folder.folderType() == SushitrainFolderTypeSendOnly {
-					Text("Send only").tag(SushitrainFolderTypeSendOnly)
+					Text("Send only").tag(SushitrainFolderTypeSendOnly as String?)
 				}
 			}
 			.pickerStyle(.menu)
 			.disabled(changeProhibited)
 			.onAppear {
-				// Only allow changes to selection mode when folder is idle
-				if !folder.isIdleOrSyncing {
-					changeProhibited = true
-					return
-				}
+				self.update()
+			}
+			.onChange(of: folderType) { _, nv in
+				try? self.folder.setFolderType(nv)
+			}
+		}
+	}
 
-				// Prohibit change in selection mode when there are extraneous files
-				Task.detached {
-					do {
-						var hasExtra: ObjCBool = false
-						let _ = try folder.hasExtraneousFiles(&hasExtra)
-						let hasExtraFinal = hasExtra
-						DispatchQueue.main.async {
-							changeProhibited = hasExtraFinal.boolValue
-						}
-					}
-					catch {
-						Log.warn(
-							"Error calling hasExtraneousFiles: \(error.localizedDescription)"
-						)
-						DispatchQueue.main.async {
-							changeProhibited = true
-						}
-					}
+	private func update() {
+		self.folderType = self.folder.folderType()
+		// Only allow changes to selection mode when folder is idle
+		if !folder.isIdleOrSyncing {
+			changeProhibited = true
+			return
+		}
+
+		// Prohibit change in selection mode when there are extraneous files
+		Task.detached {
+			do {
+				var hasExtra: ObjCBool = false
+				let _ = try folder.hasExtraneousFiles(&hasExtra)
+				let hasExtraFinal = hasExtra
+				DispatchQueue.main.async {
+					changeProhibited = hasExtraFinal.boolValue
+				}
+			}
+			catch {
+				Log.warn(
+					"Error calling hasExtraneousFiles: \(error.localizedDescription)"
+				)
+				DispatchQueue.main.async {
+					changeProhibited = true
 				}
 			}
 		}
