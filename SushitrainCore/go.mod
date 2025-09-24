@@ -10,7 +10,7 @@ require (
 	github.com/gotd/contrib v0.21.0
 	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/miscreant/miscreant.go v0.0.0-20200214223636-26d376326b75
-	github.com/syncthing/syncthing v1.30.0-rc.1.0.20250919051710-eb4eb7524d2a
+	github.com/syncthing/syncthing v1.30.0-rc.1.0.20250923124631-6f0acacbd2b1
 	golang.org/x/exp v0.0.0-20250811191247-51f88131bc50
 	google.golang.org/protobuf v1.36.7
 )
@@ -25,7 +25,7 @@ require (
 	github.com/coreos/go-semver v0.3.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/ebitengine/purego v0.8.4 // indirect
+	github.com/ebitengine/purego v0.9.0 // indirect
 	github.com/go-asn1-ber/asn1-ber v1.5.8-0.20250403174932-29230038a667 // indirect
 	github.com/go-ldap/ldap/v3 v3.4.11 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
