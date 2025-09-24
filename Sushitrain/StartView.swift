@@ -448,11 +448,13 @@ struct StartView: View {
 					self.startBackgroundSyncFor(untilFinished ? .timeOrFinished(seconds: 3600) : .time(seconds: 3600))
 				}.disabled(backgroundManager.runningContinuedTask != nil)
 
-				Divider()
+				if untilFinished {
+					Divider()
 
-				Button("Wait inside the app", systemImage: "hourglass.circle") {
-					self.showWaitScreen = true
-				}.disabled(appState.isFinished)
+					Button("Wait inside the app", systemImage: "hourglass.circle") {
+						self.showWaitScreen = true
+					}.disabled(appState.isFinished)
+				}
 			}
 		}
 
