@@ -211,11 +211,7 @@ private struct PhotoFolderAlbumSettingsView: View {
 				else {
 					Text("Synctrain cannot access your photo library right now")
 					Button("Allow Synctrain to access photos") {
-						PHPhotoLibrary.requestAuthorization { status in
-							DispatchQueue.main.async {
-								authorizationStatus = status
-							}
-						}
+						self.requestAuthorization()
 					}
 				}
 			}
@@ -277,6 +273,14 @@ private struct PhotoFolderAlbumSettingsView: View {
 			authorizationStatus = PHPhotoLibrary.authorizationStatus()
 		}
 		.navigationTitle(dirName.isEmpty ? "Add album" : "Settings for '\(dirName)'")
+	}
+
+	private func requestAuthorization() {
+		PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
+			Task { @MainActor in
+				authorizationStatus = status
+			}
+		}
 	}
 
 	func loadAlbums() -> [PHAssetCollection] {

@@ -131,11 +131,7 @@ struct PhotoBackupSettingsView: View {
 				else {
 					Text("Synctrain cannot access your photo library right now")
 					Button("Allow Synctrain to access photos") {
-						PHPhotoLibrary.requestAuthorization { status in
-							DispatchQueue.main.async {
-								authorizationStatus = status
-							}
-						}
+						self.requestAuthorization()
 					}
 				}
 
@@ -334,6 +330,14 @@ struct PhotoBackupSettingsView: View {
 		#endif
 		.task {
 			await self.update()
+		}
+	}
+
+	private func requestAuthorization() {
+		PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
+			Task { @MainActor in
+				authorizationStatus = status
+			}
 		}
 	}
 
