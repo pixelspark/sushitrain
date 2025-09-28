@@ -279,6 +279,10 @@ struct StartView: View {
 		@ObservedObject var backgroundManager: BackgroundManager
 	#endif
 
+	#if os(macOS)
+		@Environment(\.openWindow) private var openWindow
+	#endif
+
 	@State private var qrCodeShown = false
 	@State private var showWaitScreen: Bool = false
 	@State private var showAddresses = false
@@ -300,8 +304,8 @@ struct StartView: View {
 		Form {
 			Section {
 				OverallStatusView()
-					#if os(iOS)
-						.contextMenu {
+					.contextMenu {
+						#if os(iOS)
 							if !self.appState.isFinished {
 								if #available(iOS 26, *) {
 									self.continueInBackgroundMenu(untilFinished: true)
@@ -316,8 +320,14 @@ struct StartView: View {
 							if #available(iOS 26, *) {
 								self.continueInBackgroundMenu(untilFinished: false)
 							}
-						}
-					#endif
+						#endif
+
+						#if os(macOS)
+							Button("Statistics...") {
+								openWindow(id: "stats")
+							}
+						#endif
+					}
 
 				#if os(iOS)
 					if backgroundManager.runningContinuedTask != nil {
