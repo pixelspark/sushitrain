@@ -1642,6 +1642,15 @@ func GetFreeDiskSpaceMegaBytes() int {
 	return 0
 }
 
+/** Returns the total size of the volume where the database is stored */
+func GetTotalDiskSpaceMegaBytes() int {
+	dbPath := locations.Get(locations.Database)
+	if usage, err := fs.NewFilesystem(fs.FilesystemTypeBasic, dbPath).Usage("."); err == nil {
+		return int(usage.Total / 1024 / 1024)
+	}
+	return 0
+}
+
 func NewMeasurements(clt *Client) *Measurements {
 	return &Measurements{
 		client:       clt,

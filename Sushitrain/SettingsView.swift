@@ -7,49 +7,6 @@ import Foundation
 import SwiftUI
 import SushitrainCore
 
-struct TotalStatisticsView: View {
-	@Environment(AppState.self) private var appState
-	@State private var stats: SushitrainFolderStats? = nil
-
-	var body: some View {
-		let formatter = ByteCountFormatter()
-
-		Form {
-			if let stats = stats {
-				if let global = stats.global {
-					Section("All devices") {
-						Text("Number of files").badge(global.files)
-						Text("Number of directories").badge(global.directories)
-						Text("File size").badge(formatter.string(fromByteCount: global.bytes))
-					}
-				}
-
-				if let local = stats.local {
-					Section("This device") {
-						Text("Number of files").badge(local.files)
-						Text("Number of directories").badge(local.directories)
-						Text("File size").badge(formatter.string(fromByteCount: local.bytes))
-					}
-				}
-			}
-		}
-		.task {
-			if self.appState.startupState != .started {
-				self.stats = nil
-				return
-			}
-			self.stats = try? self.appState.client.statistics()
-		}
-		.navigationTitle("Statistics")
-		#if os(iOS)
-			.navigationBarTitleDisplayMode(.inline)
-		#endif
-		#if os(macOS)
-			.formStyle(.grouped)
-		#endif
-	}
-}
-
 #if os(iOS)
 	private struct ExportButtonView: View {
 		enum ShowAlert {

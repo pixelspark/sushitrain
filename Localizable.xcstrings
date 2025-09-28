@@ -5226,6 +5226,52 @@
         }
       }
     },
+    "Available disk space" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verfügbarer Speicherplatz"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espacio en disco disponible"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spazio su disco disponibile"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "利用可能なディスク容量"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beschikbare schijfruimte"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступне місце на диску"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可用磁盘空间"
+          }
+        }
+      }
+    },
     "Back" : {
       "localizations" : {
         "de" : {
@@ -30716,6 +30762,52 @@
         }
       }
     },
+    "The above numbers concern the disk the Synctrain database is stored on. If these values do not match those shown by the Settings app, restarting the device may help." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die obigen Zahlen beziehen sich auf die Festplatte, auf der die Synctrain-Datenbank gespeichert ist. Wenn diese Werte nicht mit denen in der Einstellungen-App übereinstimmen, kann ein Neustart des Geräts helfen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los números anteriores se refieren al disco en el que se almacena la base de datos de Synctrain. Si estos valores no coinciden con los que muestra la aplicación de Configuración, reiniciar el dispositivo podría ayudar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I numeri sopra indicati riguardano il disco su cui è memorizzato il database di Synctrain. Se questi valori non corrispondono a quelli mostrati dall'app Impostazioni, potrebbe essere utile riavviare il dispositivo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上記の数字は、Synctrainデータベースが保存されているディスクに関するものです。これらの値が設定アプリで表示されるものと一致しない場合、デバイスを再起動すると良いかもしれません。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De bovenstaande cijfers hebben betrekking op de schijf waarop de Synctrain-database is opgeslagen. Als deze waarden niet overeenkomen met die in de Instellingen-app, kan het opnieuw opstarten van het apparaat helpen."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вищезазначені цифри стосуються диска, на якому зберігається база даних Synctrain. Якщо ці значення не відповідають тим, що показані в додатку Налаштування, перезапуск пристрою може допомогти."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上述数字是有关存储Synctrain数据库的磁盘的。如果这些值与设置应用中显示的不匹配，重启设备可能会有所帮助。"
+          }
+        }
+      }
+    },
     "The app is currently using a custom configuration from config.xml in the application directory. Remove it and restart the app to revert back to the default configuration." : {
       "localizations" : {
         "de" : {
@@ -34680,6 +34772,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "文件太多（%lld）无法显示。"
+          }
+        }
+      }
+    },
+    "Total disk space" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesamter Speicherplatz"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espacio total en disco"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spazio totale su disco"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ディスク容量の合計"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Totale schijfruimte"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Загальний дисковий простір"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "总磁盘空间"
           }
         }
       }
