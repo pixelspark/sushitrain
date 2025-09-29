@@ -33,13 +33,15 @@ struct TotalStatisticsView: View {
 						Text("File size").badge(formatter.string(fromByteCount: local.bytes))
 					}
 				}
-				
+
 				if let free = self.diskSpaceFree, let total = self.diskSpaceTotal {
 					Section {
 						Text("Available disk space").badge(formatter.string(fromByteCount: free))
 						Text("Total disk space").badge(formatter.string(fromByteCount: total))
 					} footer: {
-						Text("The above numbers concern the disk the Synctrain database is stored on. If these values do not match those shown by the Settings app, restarting the device may help.")
+						Text(
+							"The above numbers concern the disk the Synctrain database is stored on. If these values do not match those shown by the Settings app, restarting the device may help."
+						)
 					}
 				}
 			}
@@ -50,7 +52,7 @@ struct TotalStatisticsView: View {
 				return
 			}
 			self.stats = try? self.appState.client.statistics()
-			
+
 			self.diskSpaceFree = Int64(SushitrainGetFreeDiskSpaceMegaBytes()) * 1024 * 1024
 			self.diskSpaceTotal = Int64(SushitrainGetTotalDiskSpaceMegaBytes()) * 1024 * 1024
 		}
