@@ -306,6 +306,9 @@ struct TroubleshootingView: View {
 	@State private var hasLegacyDatabase = false
 	@State private var performingDatabaseMaintenance = false
 	@State private var databaseSize: Int64? = nil
+	@State private var showIgnoredDiscoveredReset = false
+	@State private var showV1BackupRemoved = false
+	@State private var showCacheCleared = false
 
 	private static let formatter = ByteCountFormatter()
 
@@ -396,6 +399,9 @@ struct TroubleshootingView: View {
 					#if os(macOS)
 						.buttonStyle(.link)
 					#endif
+					.alert("Removed v1 database back-up", isPresented: $showV1BackupRemoved) {
+						Button("OK") {}
+					}
 				} footer: {
 					Text(
 						"After a database upgrade, a copy of the old version is retained for a while. This copy may take up a significant amount of storage space. If everything is working as expected, it is safe to remove this back-up."
@@ -406,6 +412,19 @@ struct TroubleshootingView: View {
 			Section {
 				Button("Reset ignored discovered devices", role: .destructive) {
 					appState.userSettings.ignoreDiscoveredDevices.removeAll()
+					showIgnoredDiscoveredReset = true
+				}
+				.alert("Ignored discovered devices reset", isPresented: $showIgnoredDiscoveredReset) {
+					Button("OK") {}
+				}
+			}
+
+			Section {
+				Button("Clear cache directory", role: .destructive) {
+					self.clearCacheDirectory()
+				}
+				.alert("Cache directory cleared", isPresented: $showCacheCleared) {
+					Button("OK") {}
 				}
 			}
 		}
@@ -461,6 +480,29 @@ struct TroubleshootingView: View {
 			}
 			await self.updateDatabaseInfo()
 			self.performingDatabaseMaintenance = false
+			self.showV1BackupRemoved = true
 		}
+	}
+
+	private func clearCacheDirectory() {
+		let fileManager = FileManager.default
+		if let cacheURL = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first {
+			do {
+				let directoryContents = try fileManager.contentsOfDirectory(
+					at: cacheURL, includingPropertiesForKeys: nil, options: [])
+				for file in directoryContents {
+					do {
+						try fileManager.removeItem(at: file)
+					}
+					catch {
+						Log.warn("failed to remove cache file: \(error.localizedDescription)")
+					}
+				}
+			}
+			catch let error as NSError {
+				print(error.localizedDescription)
+			}
+		}
+		self.showCacheCleared = true
 	}
 }
