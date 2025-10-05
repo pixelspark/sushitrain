@@ -856,6 +856,7 @@ struct SyncState {
 				// Already suspended?
 				Log.info("Already suspended (suspended peer list is not empty), not lingering")
 				await self.afterLingering()
+				return
 			}
 
 			self.wantsSuspendAfterLinger = true
