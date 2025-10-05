@@ -532,9 +532,13 @@ struct StartView: View {
 					}
 					.onTapGesture {
 						Task {
+							Log.info("Attempting to fix 'no devices are connected'")
 							self.appState.userSettings.userPausedDevices.removeAll()
+							await self.appState.suspend(false)
+							Log.info("Updating device suspension")
 							await self.appState.updateDeviceSuspension()
 							showNoPeersEnabledWarning = false
+							Log.info("Done fixing 'no devices are connected'")
 						}
 					}
 				}
