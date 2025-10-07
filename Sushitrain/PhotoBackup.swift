@@ -620,6 +620,7 @@ enum PhotoSyncProgress {
 				_ = await withCheckedContinuation { resolve in
 					Log.info("Exporting video \(asset.originalFilename)")
 					let options = PHVideoRequestOptions()
+					options.version = .current
 					options.deliveryMode = .highQualityFormat
 
 					PHImageManager.default().requestExportSession(
@@ -627,9 +628,7 @@ enum PhotoSyncProgress {
 					) { exportSession, info in
 						if let es = exportSession {
 							es.outputURL = fileURL
-							es.outputFileType = .mov
-							es.shouldOptimizeForNetworkUse = false
-
+							
 							es.exportAsynchronously {
 								Log.info("Done exporting video \(asset.originalFilename)")
 								resolve.resume(returning: true)
