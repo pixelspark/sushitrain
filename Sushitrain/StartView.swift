@@ -534,7 +534,9 @@ struct StartView: View {
 						Task {
 							Log.info("Attempting to fix 'no devices are connected'")
 							self.appState.userSettings.userPausedDevices.removeAll()
-							await self.appState.suspend(false)
+							#if os(iOS)
+								await self.appState.suspend(false)
+							#endif
 							Log.info("Updating device suspension")
 							await self.appState.updateDeviceSuspension()
 							showNoPeersEnabledWarning = false
