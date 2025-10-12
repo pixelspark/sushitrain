@@ -43,6 +43,7 @@ struct BrowserView: View {
 	#if os(macOS)
 		@State private var showIgnores = false
 		@State private var showStatusPopover = false
+		@State private var isSearching = false
 	#endif
 
 	#if os(iOS)
@@ -88,7 +89,9 @@ struct BrowserView: View {
 
 		#if os(macOS)
 			.searchable(
-				text: $searchText, placement: SearchFieldPlacement.toolbar,
+				text: $searchText,
+				isPresented: $isSearching,
+				placement: SearchFieldPlacement.toolbar,
 				prompt: "Search files in this folder...")
 		#endif
 
@@ -228,6 +231,7 @@ struct BrowserView: View {
 					}
 				}
 				.pickerStyle(.segmented)
+				.disabled(isSearching)
 			}
 		#endif
 
@@ -235,7 +239,7 @@ struct BrowserView: View {
 			#if os(macOS)
 				Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
 					self.showInFinder()
-				}.disabled(!canShowInFinder)
+				}.disabled(!canShowInFinder || isSearching)
 			#endif
 			self.folderMenu()
 		}
