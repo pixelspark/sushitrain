@@ -169,15 +169,26 @@ private struct ContentView: View {
 				#endif
 				#if os(iOS)
 					.toolbar {
-						Button(
-							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
-							action: {
-								let documentsUrl = FileManager.default.urls(
-									for: .documentDirectory, in: .userDomainMask
-								).first!
-								openURLInSystemFilesApp(url: documentsUrl)
-							}
-						).labelStyle(.iconOnly)
+						ToolbarItem {
+							Button(
+								openInFilesAppLabel, systemImage: "arrow.up.forward.app",
+								action: {
+									let documentsUrl = FileManager.default.urls(
+										for: .documentDirectory, in: .userDomainMask
+									).first!
+									openURLInSystemFilesApp(url: documentsUrl)
+								}
+							).labelStyle(.iconOnly)
+						}
+
+						ToolbarItem {
+							Menu(
+								content: {
+									FolderMetricPickerView(userSettings: appState.userSettings)
+								},
+								label: { Image(systemName: "ellipsis.circle").accessibilityLabel(Text("Menu")) }
+							).labelStyle(.iconOnly)
+						}
 					}
 				#endif
 			},
