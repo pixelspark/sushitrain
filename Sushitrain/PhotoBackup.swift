@@ -628,7 +628,7 @@ enum PhotoSyncProgress {
 					) { exportSession, info in
 						if let es = exportSession {
 							es.outputURL = fileURL
-							
+
 							es.exportAsynchronously {
 								Log.info("Done exporting video \(asset.originalFilename)")
 								resolve.resume(returning: true)
