@@ -157,6 +157,14 @@ struct BrowserView: View {
 		.task {
 			self.update()
 		}
+		.onChange(of: showSettings) { _, nv in
+			// Needed to update the screen after removing a folder
+			if !nv {
+				Log.info("Update because of showSettings = \(nv)")
+				self.folderExists = folder.exists()
+				self.update()
+			}
+		}
 		#if os(macOS)
 			.contextMenu {
 				if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
@@ -263,10 +271,11 @@ struct BrowserView: View {
 	private func update() {
 		self.folderExists = folder.exists()
 		self.updateLocalURL()
-		self.folderIsSelective = folder.isSelective()
+		self.folderIsSelective = folderExists && folder.isSelective()
 
 		// Check for presence of index.html to enable web view
-		if let entry = try? folder.getFileInformation(self.prefix + "index.html"), !entry.isDirectory() && !entry.isDeleted()
+		if folderExists, let entry = try? folder.getFileInformation(self.prefix + "index.html"),
+			!entry.isDirectory() && !entry.isDeleted()
 		{
 			self.webViewAvailable = true
 		}
@@ -495,7 +504,9 @@ private struct BrowserItemsView: View {
 				}
 			}
 			else {
-				EmptyView()
+				Rectangle()
+					.fill(Color.clear)
+					.frame(width: .infinity, height: .infinity)
 			}
 		}
 		.overlay {
@@ -509,12 +520,13 @@ private struct BrowserItemsView: View {
 				Task {
 					await self.reload()
 				}
-			}
+			}.disabled(!folderExists)
+
 			Button("Rescan subdirectory") {
 				Task {
 					await self.rescan()
 				}
-			}
+			}.disabled(!folderExists)
 		}
 		.task(id: self.folder.folderStateForUpdating) {
 			await self.reload()
@@ -850,6 +862,9 @@ private struct BrowserItemsView: View {
 
 extension SushitrainFolder {
 	fileprivate var folderStateForUpdating: Int {
+		if !self.exists() {
+			return -1
+		}
 		var error: NSError? = nil
 		let state = self.state(&error)
 		var hasher = Hasher()
