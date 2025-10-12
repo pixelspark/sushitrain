@@ -49,91 +49,99 @@ private struct ContentView: View {
 	@State private var showSearchSheet = false
 	@State private var searchSheetSearchTerm: String = ""
 
-	@ViewBuilder private func foldersTab() -> some View {
-		NavigationStack {
-			FoldersView()
-				.toolbar {
-					Button(
-						openInFilesAppLabel, systemImage: "arrow.up.forward.app",
-						action: {
-							let documentsUrl = FileManager.default.urls(
-								for: .documentDirectory, in: .userDomainMask
-							).first!
-							openURLInSystemFilesApp(url: documentsUrl)
-						}
-					).labelStyle(.iconOnly)
-				}
+	#if os(iOS)
+		// Tracks the route within the folder tab; used to force navigating back
+		@Observable class FoldersRouteManager {
+			var route: [Route] = []
 		}
-	}
+		@State private var foldersTabRouteManager = FoldersRouteManager()
 
-	// Legacy one has search as toolbar option at the top
-	// When changing this, also update LoadingMainView.legacyTabbedBody to match
-	@ViewBuilder private func legacyTabbedBody() -> some View {
-		TabView(selection: $route) {
-			// Me
-			NavigationStack {
-				StartOrSearchView(route: $route)
-			}.tabItem {
-				Label("Start", systemImage: self.appState.syncState.systemImage)
-			}.tag(Route.start)
-
-			// Folders
-			self.foldersTab().tabItem {
-				Label("Folders", systemImage: "folder.fill")
-			}.tag(Route.folder(folderID: nil))
-
-			// Peers
-			NavigationStack {
-				DevicesView()
-			}.tabItem {
-				Label("Devices", systemImage: "externaldrive.fill")
-			}.tag(Route.devices)
+		@ViewBuilder private func foldersTab() -> some View {
+			NavigationStack(path: $foldersTabRouteManager.route) {
+				FoldersView()
+					.toolbar {
+						Button(
+							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
+							action: {
+								let documentsUrl = FileManager.default.urls(
+									for: .documentDirectory, in: .userDomainMask
+								).first!
+								openURLInSystemFilesApp(url: documentsUrl)
+							}
+						).labelStyle(.iconOnly)
+					}
+			}
 		}
-	}
 
-	// Modern one has the search as a tab
-	// When changing this, also update LoadingMainView.modernTabbedBody to match
-	@available(iOS 26.0, *)
-	@ViewBuilder private func modernTabbedBody() -> some View {
-		TabView(selection: $route) {
-			Tab("Start", systemImage: self.appState.syncState.systemImage, value: Route.start) {
+		// Legacy one has search as toolbar option at the top
+		// When changing this, also update LoadingMainView.legacyTabbedBody to match
+		@ViewBuilder private func legacyTabbedBody() -> some View {
+			TabView(selection: $route) {
 				// Me
 				NavigationStack {
-					#if os(iOS)
-						StartView(route: $route, backgroundManager: appState.backgroundManager)
-					#else
-						StartView(route: $route)
-					#endif
-				}
-			}
+					StartOrSearchView(route: $route)
+				}.tabItem {
+					Label("Start", systemImage: self.appState.syncState.systemImage)
+				}.tag(Route.start)
 
-			// Folders
-			Tab("Folders", systemImage: "folder.fill", value: Route.folder(folderID: nil)) {
-				self.foldersTab()
-			}
+				// Folders
+				self.foldersTab().tabItem {
+					Label("Folders", systemImage: "folder.fill")
+				}.tag(Route.folder(folderID: nil))
 
-			// Peers
-			Tab("Devices", systemImage: "externaldrive.fill", value: Route.devices) {
+				// Peers
 				NavigationStack {
 					DevicesView()
+				}.tabItem {
+					Label("Devices", systemImage: "externaldrive.fill")
+				}.tag(Route.devices)
+			}
+		}
+
+		// Modern one has the search as a tab
+		// When changing this, also update LoadingMainView.modernTabbedBody to match
+		@available(iOS 26.0, *)
+		@ViewBuilder private func modernTabbedBody() -> some View {
+			TabView(selection: $route) {
+				Tab("Start", systemImage: self.appState.syncState.systemImage, value: Route.start) {
+					// Me
+					NavigationStack {
+						#if os(iOS)
+							StartView(route: $route, backgroundManager: appState.backgroundManager)
+						#else
+							StartView(route: $route)
+						#endif
+					}
+				}
+
+				// Folders
+				Tab("Folders", systemImage: "folder.fill", value: Route.folder(folderID: nil)) {
+					self.foldersTab()
+				}
+
+				// Peers
+				Tab("Devices", systemImage: "externaldrive.fill", value: Route.devices) {
+					NavigationStack {
+						DevicesView()
+					}
+				}
+
+				// Search (iOS 26)
+				Tab(value: Route.search, role: .search) {
+					self.searchView()
 				}
 			}
+		}
 
-			// Search (iOS 26)
-			Tab(value: Route.search, role: .search) {
-				self.searchView()
+		@ViewBuilder private func tabbedBody() -> some View {
+			if #available(iOS 26, *) {
+				self.modernTabbedBody()
+			}
+			else {
+				self.legacyTabbedBody()
 			}
 		}
-	}
-
-	@ViewBuilder private func tabbedBody() -> some View {
-		if #available(iOS 26, *) {
-			self.modernTabbedBody()
-		}
-		else {
-			self.legacyTabbedBody()
-		}
-	}
+	#endif
 
 	@ViewBuilder private func splitBody() -> some View {
 		NavigationSplitView(
@@ -217,12 +225,16 @@ private struct ContentView: View {
 
 	var body: some View {
 		Group {
-			if horizontalSizeClass == .compact {
-				self.tabbedBody()
-			}
-			else {
+			#if os(iOS)
+				if horizontalSizeClass == .compact {
+					self.tabbedBody()
+				}
+				else {
+					self.splitBody()
+				}
+			#else
 				self.splitBody()
-			}
+			#endif
 		}
 		#if os(iOS)
 			.onChange(of: QuickActionService.shared.action, initial: true) { _, newAction in
@@ -236,6 +248,12 @@ private struct ContentView: View {
 		#endif
 		.onChange(of: scenePhase) { oldPhase, newPhase in
 			self.appState.onScenePhaseChange(from: oldPhase, to: newPhase)
+
+			#if os(iOS)
+				if newPhase != .active && self.appState.userSettings.rehideHiddenFoldersOnActivate {
+					self.leaveHiddenFolder()
+				}
+			#endif
 		}
 		.alert(isPresented: $showCustomConfigWarning) {
 			Alert(
@@ -281,6 +299,30 @@ private struct ContentView: View {
 				}
 			}
 		}
+	}
+
+	private func leaveHiddenFolder() {
+		// Is our current route into a folder that is hidden? Then move out of it
+		if case .folder(let folderID) = self.route {
+			if let folder = self.appState.client.folder(withID: folderID) {
+				if folder.isHidden == true {
+					Log.info("we are currently in a hidden folder, move out of it")
+					self.route = .start
+				}
+			}
+		}
+
+		#if os(iOS)
+			// Is the folder tab inside a folder that is hidden? Then move out of it
+			if case .folder(let folderID) = self.foldersTabRouteManager.route.first {
+				if let folder = self.appState.client.folder(withID: folderID) {
+					if folder.isHidden == true {
+						Log.info("we are currently in a hidden folder, move out of it")
+						self.foldersTabRouteManager.route = []
+					}
+				}
+			}
+		#endif
 	}
 }
 
