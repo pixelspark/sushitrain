@@ -964,25 +964,6 @@ func (fld *Folder) deleteLocalFileAndRedundantChildren(path string) error {
 	return nil
 }
 
-func (fld *Folder) deleteAndDeselectLocalFile(path string) error {
-	err := fld.deleteLocalFileAndRedundantChildren(path)
-	if err != nil {
-		return err
-	}
-
-	err = fld.client.app.Internals.ScanFolderSubdirs(fld.FolderID, []string{path})
-	if err != nil {
-		return err
-	}
-
-	err = fld.SetLocalFileExplicitlySelected(path, false)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (fld *Folder) reloadIgnores() error {
 	if !fld.IsPaused() {
 		err := fld.SetPaused(true)

@@ -479,5 +479,15 @@ func (entry *Entry) MIMEType() string {
 }
 
 func (entry *Entry) Remove() error {
-	return entry.Folder.deleteAndDeselectLocalFile(entry.Path())
+	path := entry.Path()
+	err := entry.Folder.deleteLocalFileAndRedundantChildren(path)
+	if err != nil {
+		return err
+	}
+	containingDir := filepath.Dir(path)
+	return entry.Folder.RescanSubdirectory(containingDir)
+	// In selective folders, the entry will remain selected until the app cleans the entry in .stignore up.
+	// It would be better to also deselect the file immediately after the deletion has been picked up by Syncthing,
+	// but there appears not to be a reliable way to do this. Hence deleted files may become unintentionally selected
+	// again if another peer re-adds them.
 }
