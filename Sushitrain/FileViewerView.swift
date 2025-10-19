@@ -78,7 +78,7 @@ struct FileViewerView: View {
 		var body: some View {
 			NavigationStack {
 				if let file = file {
-					FileViewerContentView(file: file, isShown: $isShown)
+					FileViewerContentView(file: file, isShown: $isShown, playFile: .constant(true))
 						.navigationTitle(file.fileName())
 						.toolbar {
 							self.toolbarContent(file: file)
