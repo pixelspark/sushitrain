@@ -43,7 +43,7 @@ struct FileViewerView: View {
 					LazyHStack(spacing: 1.0) {
 						ForEach(self.scrollableFiles) { sibling in
 							NavigationStack {
-								FileViewerContentView(file: sibling, isShown: $isShown)
+								FileViewerContentView(file: sibling, isShown: $isShown, playFile: .constant(sibling == self.file))
 									.toolbar {
 										self.toolbarContent(file: sibling)
 									}
@@ -163,6 +163,7 @@ private struct FileViewerContentView: View {
 	@Environment(AppState.self) private var appState
 	var file: SushitrainEntry
 	@Binding var isShown: Bool
+	@Binding var playFile: Bool
 	@State private var error: (any Error)? = nil
 	@State private var loading: Bool = true
 
@@ -177,6 +178,17 @@ private struct FileViewerContentView: View {
 					self.error = nil
 				}
 			}
+			else if !playFile {
+				// Placeholder is shown while this view is not yet fully scrolled into view
+				ZStack {
+					if file.isVideo {
+						Rectangle().frame(maxWidth: .infinity, maxHeight: .infinity)
+							.foregroundStyle(.black)
+							.ignoresSafeArea()
+					}
+					ThumbnailView(file: file, showFileName: false, showErrorMessages: false, scaleToFill: false)
+				}
+			}
 			else {
 				if file.isVideo || file.isAudio {
 					FileMediaPlayer(file: file, visible: $isShown)
@@ -187,8 +199,12 @@ private struct FileViewerContentView: View {
 							.id(url)
 							#if os(iOS)
 								.ignoresSafeArea()
+								.opacity(loading ? 0.0 : 1.0)
 							#endif
 						if loading {
+							ThumbnailView(file: file, showFileName: false, showErrorMessages: false, scaleToFill: false)
+								.blur(radius: 10.0)
+								.opacity(0.5)
 							ProgressView()
 								.progressViewStyle(.circular).controlSize(.extraLarge)
 						}
@@ -225,11 +241,7 @@ private struct FileMediaPlayer: View {
 	private func activateSession() {
 		#if os(iOS)
 			do {
-				try session.setCategory(
-					.playback,
-					mode: .default,
-					options: []
-				)
+				try session.setCategory(.playback, mode: .default, options: [])
 			}
 			catch _ {}
 
@@ -299,6 +311,7 @@ private struct FileMediaPlayer: View {
 		do {
 			let url = file.localNativeFileURL ?? URL(string: self.file.onDemandURL())!
 			let avAsset = AVURLAsset(url: url)
+			Log.warn("StartPlayer file=\(file.fileName()) url=\(url)")
 			if try await avAsset.load(.isPlayable) {
 				let player = AVPlayer(playerItem: AVPlayerItem(asset: avAsset))
 				// TODO: External playback requires us to use http://devicename.local:xxx/file/.. URLs rather than http://localhost.

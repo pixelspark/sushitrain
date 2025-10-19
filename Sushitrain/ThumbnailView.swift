@@ -11,6 +11,7 @@ struct ThumbnailView: View {
 	var showFileName: Bool
 	var showErrorMessages: Bool
 	var onTap: (() -> Void)?
+	var scaleToFill: Bool = true
 
 	@Environment(AppState.self) private var appState
 	@State private var showPreview = false
@@ -32,7 +33,12 @@ struct ThumbnailView: View {
 						})
 
 				case .success(let image):
-					image.resizable().scaledToFill()
+					if scaleToFill {
+						image.resizable().scaledToFill()
+					}
+					else {
+						image.resizable().scaledToFit()
+					}
 
 				case .failure(_):
 					if self.showErrorMessages {
