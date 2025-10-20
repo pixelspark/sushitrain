@@ -189,6 +189,8 @@ private struct FileViewerContentView: View {
 					ThumbnailView(
 						file: file, showFileName: false, showErrorMessages: false, scaleToFill: false, generateOnDemand: true
 					)
+					.opacity(0.5)
+					.blur(radius: 10.0)
 				}
 			}
 			else {
@@ -197,18 +199,20 @@ private struct FileViewerContentView: View {
 				}
 				else if file.isWebPreviewable {
 					ZStack {
-						WebView(url: url, trustFingerprints: [], verticallyCenter: true, isLoading: self.$loading, error: self.$error)
-							.id(url)
-							#if os(iOS)
-								.ignoresSafeArea()
-								.opacity(loading ? 0.0 : 1.0)
-							#endif
+						WebView(
+							url: url, trustFingerprints: [], verticallyCenter: true, isLoading: self.$loading.animation(), error: self.$error
+						)
+						.id(url)
+						#if os(iOS)
+							.ignoresSafeArea()
+							.opacity(loading ? 0.0 : 1.0)
+						#endif
 						if loading {
-								.blur(radius: 10.0)
-								.opacity(0.5)
 							ThumbnailView(
 								file: file, showFileName: false, showErrorMessages: false, scaleToFill: false, generateOnDemand: false
 							)
+							.opacity(0.5)
+							.blur(radius: 10.0)
 							ProgressView()
 								.progressViewStyle(.circular).controlSize(.extraLarge)
 						}

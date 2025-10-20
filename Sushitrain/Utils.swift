@@ -795,20 +795,35 @@ struct WebView: UIViewRepresentable {
 			completionHandler(.performDefaultHandling, nil)
 		}
 
-		private static func verticallyCenter(_ webView: WKWebView) {
-			webView.evaluateJavaScript(
-				"""
-					(function() {
-						document.body.style.display = "grid";
-					})()
-				""")
+		private static func verticallyCenter(_ webView: WKWebView) async throws {
+			try await withCheckedThrowingContinuation { (cont: CheckedContinuation<(), Error>) in
+				webView.evaluateJavaScript(
+					"""
+					 (function() {
+					  document.body.style.display = "grid";
+					 })()
+					""",
+					completionHandler: { e, err in
+						if let err = err {
+							cont.resume(throwing: err)
+						}
+						else {
+							cont.resume(returning: ())
+						}
+					})
+			}
 		}
 
 		func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
 			if parent.verticallyCenter {
-				Self.verticallyCenter(webView)
+				Task {
+					try await Self.verticallyCenter(webView)
+					parent.isLoading = false
+				}
 			}
-			parent.isLoading = false
+			else {
+				parent.isLoading = false
+			}
 		}
 
 		func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: any Error) {
