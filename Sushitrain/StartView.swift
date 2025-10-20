@@ -555,6 +555,13 @@ struct StartView: View {
 									systemImage: "exclamationmark.triangle.fill"
 								)
 								.foregroundStyle(.orange)
+							}.contextMenu {
+								Button("Ignore for this device") {
+									appState.userSettings.ignoreLongTimeNoSeeDevices.insert(device.deviceID())
+									Task {
+										await self.update()
+									}
+								}
 							}
 						}
 					}
