@@ -14,7 +14,9 @@ struct UploadsView: View {
 	private func update() async {
 		self.isLoading = true
 		if let utp = appState.client.uploadingToPeers() {
-			self.uploadingToPeers = utp.asArray().compactMap { peerID in appState.client.peer(withID: peerID) }
+			self.uploadingToPeers = utp.asArray().compactMap { peerID in appState.client.peer(withID: peerID) }.sorted {
+				$0.displayName < $1.displayName
+			}
 		}
 		else {
 			self.uploadingToPeers = []
@@ -36,11 +38,11 @@ struct UploadsView: View {
 					Section(peer.displayName) {
 						if let uploadingFolders = appState.client.uploadingFolders(forPeer: peer.deviceID()) {
 							// For each folder we are uploading files from to this peer
-							ForEach(uploadingFolders.asArray(), id: \.self) { folderID in
+							ForEach(uploadingFolders.asArray().sorted(), id: \.self) { folderID in
 								if let folder = appState.client.folder(withID: folderID) {
 									if let uploadingFiles = appState.client.uploadingFiles(forPeerAndFolder: peer.deviceID(), folderID: folderID) {
 										// For each file that is being uploaded...
-										ForEach(uploadingFiles.asArray(), id: \.self) { filePath in
+										ForEach(uploadingFiles.asArray().sorted(), id: \.self) { filePath in
 											if let progress = appState.client.uploadProgress(
 												forPeerFolderPath: peer.deviceID(), folderID: folderID, path: filePath)
 											{
