@@ -186,7 +186,9 @@ private struct FileViewerContentView: View {
 							.foregroundStyle(.black)
 							.ignoresSafeArea()
 					}
-					ThumbnailView(file: file, showFileName: false, showErrorMessages: false, scaleToFill: false)
+					ThumbnailView(
+						file: file, showFileName: false, showErrorMessages: false, scaleToFill: false, generateOnDemand: true
+					)
 				}
 			}
 			else {
@@ -202,9 +204,11 @@ private struct FileViewerContentView: View {
 								.opacity(loading ? 0.0 : 1.0)
 							#endif
 						if loading {
-							ThumbnailView(file: file, showFileName: false, showErrorMessages: false, scaleToFill: false)
 								.blur(radius: 10.0)
 								.opacity(0.5)
+							ThumbnailView(
+								file: file, showFileName: false, showErrorMessages: false, scaleToFill: false, generateOnDemand: false
+							)
 							ProgressView()
 								.progressViewStyle(.circular).controlSize(.extraLarge)
 						}

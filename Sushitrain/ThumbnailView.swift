@@ -12,6 +12,7 @@ struct ThumbnailView: View {
 	var showErrorMessages: Bool
 	var onTap: (() -> Void)?
 	var scaleToFill: Bool = true
+	var generateOnDemand: Bool = true
 
 	@Environment(AppState.self) private var appState
 	@State private var showPreview = false
@@ -26,11 +27,9 @@ struct ThumbnailView: View {
 			content: { phase in
 				switch phase {
 				case .empty:
-					HStack(
-						alignment: .center,
-						content: {
-							ProgressView().controlSize(.small)
-						})
+					HStack(alignment: .center) {
+						ProgressView().controlSize(.small)
+					}
 
 				case .success(let image):
 					if scaleToFill {
@@ -61,8 +60,9 @@ struct ThumbnailView: View {
 		if file.canThumbnail {
 			let isLocallyPresent = file.isLocallyPresent()
 			if isLocallyPresent || showPreview || self.imageCache[file.cacheKey] != nil
-				|| file.size() <= appState.userSettings.maxBytesForPreview
-				|| (appState.userSettings.previewVideos && file.isVideo)
+				|| (generateOnDemand
+					&& (file.size() <= appState.userSettings.maxBytesForPreview
+						|| (appState.userSettings.previewVideos && file.isVideo)))
 			{
 				if let onTap = self.onTap {
 					self.thumbnailView
