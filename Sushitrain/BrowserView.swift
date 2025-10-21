@@ -410,16 +410,13 @@ struct BrowserView: View {
 
 					// Select the dropped file
 					if folder.isSelective() {
-						let localURL = URL(fileURLWithPath: self.prefix).appendingPathComponent(
-							url.lastPathComponent, isDirectory: false)
-						// Soft fail because we may be scanning or syncing
-						pathsToSelect.append(localURL.path(percentEncoded: false))
+						let localURL = self.prefix.withoutEndingSlash + "/" + url.lastPathComponent
+						pathsToSelect.append(localURL)
 					}
 				}
 
 				if folder.isSelective() {
-					try self.folder.setLocalPathsExplicitlySelected(
-						SushitrainListOfStrings.from(pathsToSelect))
+					try self.folder.setLocalPathsExplicitlySelected(SushitrainListOfStrings.from(pathsToSelect))
 				}
 
 				try self.folder.rescanSubdirectory(self.prefix)
