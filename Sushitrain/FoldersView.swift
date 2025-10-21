@@ -6,13 +6,6 @@
 import SwiftUI
 import SushitrainCore
 
-enum Route: Hashable, Equatable {
-	case start
-	case folder(folderID: String?)
-	case devices
-	case search
-}
-
 private struct FolderMetricView: View {
 	@Environment(AppState.self) private var appState
 	let metric: FolderMetric
@@ -130,7 +123,7 @@ struct FoldersSections: View {
 		Section("Folders") {
 			ForEach(folders, id: \.self.folderID) { (folder: SushitrainFolder) in
 				if !userSettings.hideHiddenFolders || folder.isHidden == false {
-					NavigationLink(value: Route.folder(folderID: folder.folderID)) {
+					NavigationLink(value: Route.folder(folderID: folder.folderID, prefix: nil)) {
 						if folder.isPaused() {
 							Label(folder.displayName, systemImage: folder.systemImage)
 								.foregroundStyle(.gray)
@@ -236,35 +229,9 @@ struct FoldersView: View {
 			FoldersSections(userSettings: appState.userSettings)
 		}
 		.navigationTitle("Folders")
-		.navigationDestination(
-			for: Route.self,
-			destination: { r in
-				switch r {
-				case .folder(let folderID):
-					if let folderID = folderID,
-						let folder = self.appState.client.folder(withID: folderID)
-					{
-						if folder.exists() {
-							BrowserView(
-								folder: folder,
-								prefix: ""
-							)
-						}
-						else {
-							ContentUnavailableView(
-								"Folder was deleted", systemImage: "trash",
-								description: Text("This folder was deleted."))
-						}
-					}
-					else {
-						ContentUnavailableView("Select a folder", systemImage: "folder")
-					}
-
-				default:
-					Text("")
-				}
-			}
-		)
+		.navigationDestination(for: Route.self) { r in
+			RouteView(route: r)
+		}
 		.toolbar {
 			ToolbarItem {
 				Menu(

@@ -7,9 +7,38 @@ import SushitrainCore
 import SwiftUI
 import UniformTypeIdentifiers
 
+enum Route: Hashable, Equatable {
+	case start
+	case folders
+	case folder(folderID: String, prefix: String?)
+	case devices
+	case search
+	
+	var splitted: [Route] {
+		switch self {
+		case .start, .folders, .devices, .search:
+			return [self]
+		case .folder(folderID: let folderID, prefix: let prefix):
+			if let prefix = prefix {
+				let parts = prefix.withoutStartingSlash.withoutEndingSlash.split(separator: "/")
+				var routes: [Route] = [Route.folder(folderID: folderID, prefix: "")]
+				var cumulativePrefix = ""
+				for part in parts {
+					cumulativePrefix = cumulativePrefix + part + "/"
+					routes.append(Route.folder(folderID: folderID, prefix: cumulativePrefix))
+				}
+				return routes
+			}
+			else {
+				return [self]
+			}
+		}
+	}
+}
+
 struct MainView: View {
 	@Environment(AppState.self) private var appState
-	@State var route: Route? = .start
+	@State var topLevelRoute: Route? = .start
 	@Environment(\.openURL) private var openURL
 
 	var body: some View {
@@ -30,7 +59,7 @@ struct MainView: View {
 				}
 			}
 		case .started:
-			ContentView(route: route)
+			ContentView(topLevelRoute: topLevelRoute)
 				#if os(iOS)
 					.handleOpenURLInApp()
 				#endif
@@ -44,18 +73,18 @@ private struct ContentView: View {
 	@Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
 	@State private var showCustomConfigWarning = false
-	@State var route: Route? = .start
+	@State var topLevelRoute: Route? = .start
 	@State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
 	@State private var showSearchSheet = false
 	@State private var searchSheetSearchTerm: String = ""
+	
+	// Tracks the route within the folder tab; used to force navigating back
+	@Observable class FoldersRouteManager {
+		var route: [Route] = []
+	}
+	@State private var foldersTabRouteManager = FoldersRouteManager()
 
 	#if os(iOS)
-		// Tracks the route within the folder tab; used to force navigating back
-		@Observable class FoldersRouteManager {
-			var route: [Route] = []
-		}
-		@State private var foldersTabRouteManager = FoldersRouteManager()
-
 		@ViewBuilder private func foldersTab() -> some View {
 			NavigationStack(path: $foldersTabRouteManager.route) {
 				FoldersView()
@@ -76,10 +105,10 @@ private struct ContentView: View {
 		// Legacy one has search as toolbar option at the top
 		// When changing this, also update LoadingMainView.legacyTabbedBody to match
 		@ViewBuilder private func legacyTabbedBody() -> some View {
-			TabView(selection: $route) {
+			TabView(selection: $topLevelRoute) {
 				// Me
 				NavigationStack {
-					StartOrSearchView(route: $route)
+					StartOrSearchView(part: $topLevelRoute)
 				}.tabItem {
 					Label("Start", systemImage: self.appState.syncState.systemImage)
 				}.tag(Route.start)
@@ -87,7 +116,7 @@ private struct ContentView: View {
 				// Folders
 				self.foldersTab().tabItem {
 					Label("Folders", systemImage: "folder.fill")
-				}.tag(Route.folder(folderID: nil))
+				}.tag(Route.folders)
 
 				// Peers
 				NavigationStack {
@@ -102,20 +131,20 @@ private struct ContentView: View {
 		// When changing this, also update LoadingMainView.modernTabbedBody to match
 		@available(iOS 26.0, *)
 		@ViewBuilder private func modernTabbedBody() -> some View {
-			TabView(selection: $route) {
+			TabView(selection: $topLevelRoute) {
 				Tab("Start", systemImage: self.appState.syncState.systemImage, value: Route.start) {
 					// Me
 					NavigationStack {
 						#if os(iOS)
-							StartView(route: $route, backgroundManager: appState.backgroundManager)
+							StartView(topLevelRoute: $topLevelRoute, backgroundManager: appState.backgroundManager)
 						#else
-							StartView(route: $route)
+							StartView(part: $part)
 						#endif
 					}
 				}
 
 				// Folders
-				Tab("Folders", systemImage: "folder.fill", value: Route.folder(folderID: nil)) {
+				Tab("Folders", systemImage: "folder.fill", value: Route.folders) {
 					self.foldersTab()
 				}
 
@@ -147,7 +176,7 @@ private struct ContentView: View {
 		NavigationSplitView(
 			columnVisibility: $columnVisibility,
 			sidebar: {
-				List(selection: $route) {
+				List(selection: $topLevelRoute) {
 					if horizontalSizeClass != .compact {
 						Section {
 							NavigationLink(value: Route.start) {
@@ -193,41 +222,40 @@ private struct ContentView: View {
 				#endif
 			},
 			detail: {
-				NavigationStack {
-					switch self.route {
-					case .start:
-						StartOrSearchView(route: $route)
-
-					case .search:
-						self.searchView()
-
-					case .devices:
-						DevicesView()
-
-					case .folder(let folderID):
-						if let folderID = folderID, let folder = self.appState.client.folder(withID: folderID) {
-							if folder.exists() {
-								BrowserView(folder: folder, prefix: "").id(folderID)
-							}
-							else {
-								ContentUnavailableView(
-									"Folder was deleted", systemImage: "trash",
-									description: Text("This folder was deleted."))
-							}
-						}
-						else {
-							ContentUnavailableView("Select a folder", systemImage: "folder")
-								.onTapGesture {
-									columnVisibility = .doubleColumn
-								}
-						}
-
-					case nil:
-						ContentUnavailableView("Select a folder", systemImage: "folder")
-							.onTapGesture {
-								columnVisibility = .doubleColumn
-							}
+				switch self.topLevelRoute {
+				case .start:
+					NavigationStack {
+						StartOrSearchView(part: $topLevelRoute)
 					}
+
+				case .search:
+					NavigationStack {
+						self.searchView()
+					}
+
+				case .devices:
+					NavigationStack {
+						DevicesView()
+					}
+					
+				case .folders:
+					NavigationStack(path: $foldersTabRouteManager.route) {
+						FoldersView()
+					}
+
+				case .folder(let folderID, let prefix):
+					NavigationStack(path: $foldersTabRouteManager.route) {
+						RouteView(route: self.topLevelRoute!)
+							.navigationDestination(for: Route.self) { r in
+								RouteView(route: r)
+							}
+					}.id(folderID + ":" + (prefix ?? ""))
+
+				case nil:
+					ContentUnavailableView("Select a folder", systemImage: "folder")
+						.onTapGesture {
+							columnVisibility = .doubleColumn
+						}
 				}
 			}
 		)
@@ -250,7 +278,7 @@ private struct ContentView: View {
 		#if os(iOS)
 			.onChange(of: QuickActionService.shared.action, initial: true) { _, newAction in
 				if case .search(for: let searchFor) = newAction {
-					self.route = .start
+					self.topLevelRoute = .start
 					self.searchSheetSearchTerm = searchFor
 					showSearchSheet = true
 					QuickActionService.shared.action = nil
@@ -292,6 +320,46 @@ private struct ContentView: View {
 				self.searchView()
 			}
 		#endif
+		
+		.onContinueUserActivity(SushitrainApp.browseFolderActivityID) { ua in
+			if let userInfo = ua.userInfo {
+				Log.info("Receive handoff \(userInfo)")
+				if let version = ua.userInfo?["version"] as? Int, version == 1, let folderID = ua.userInfo?["folderID"] as? String, let prefix = ua.userInfo?["prefix"] as? String {
+					if self.appState.client.folder(withID: folderID) != nil {
+						// TODO: check if prefix exists in the folder, and is a directory, before navigating to it
+						self.navigate(to: Route.folder(folderID: folderID, prefix: prefix))
+					}
+				}
+			}
+		}
+	}
+	
+	private func navigate(to route: Route) {
+		Log.info("Navigate to route=\(route) splitted=\(route.splitted)")
+		
+		#if os(iOS)
+			if horizontalSizeClass == .compact {
+				if case .folder(folderID: _, prefix: _) = route {
+					self.topLevelRoute = Route.folders
+					self.foldersTabRouteManager.route = route.splitted
+				}
+				else {
+					self.topLevelRoute = route
+					self.foldersTabRouteManager.route = []
+				}
+				return
+			}
+		#endif
+		
+		if case .folder(folderID: _, prefix: _) = route {
+			let splitted = route.splitted
+			self.topLevelRoute = splitted[0]
+			self.foldersTabRouteManager.route = Array(splitted.dropFirst())
+		}
+		else {
+			self.topLevelRoute = route
+			self.foldersTabRouteManager.route = []
+		}
 	}
 
 	@ViewBuilder private func searchView() -> some View {
@@ -313,23 +381,24 @@ private struct ContentView: View {
 	}
 
 	private func leaveHiddenFolder() {
-		// Is our current route into a folder that is hidden? Then move out of it
-		if case .folder(let folderID) = self.route {
+		if case .folder(folderID: let folderID, prefix: _) = topLevelRoute {
 			if let folder = self.appState.client.folder(withID: folderID) {
 				if folder.isHidden == true {
 					Log.info("we are currently in a hidden folder, move out of it")
-					self.route = .start
+					self.topLevelRoute = .start
 				}
 			}
 		}
-
+		
 		#if os(iOS)
-			// Is the folder tab inside a folder that is hidden? Then move out of it
-			if case .folder(let folderID) = self.foldersTabRouteManager.route.first {
-				if let folder = self.appState.client.folder(withID: folderID) {
-					if folder.isHidden == true {
-						Log.info("we are currently in a hidden folder, move out of it")
-						self.foldersTabRouteManager.route = []
+			for route in self.foldersTabRouteManager.route {
+				// Is the folder tab inside a folder that is hidden? Then move out of it
+				if case .folder(folderID: let folderID, prefix: _) = route {
+					if let folder = self.appState.client.folder(withID: folderID) {
+						if folder.isHidden == true {
+							Log.info("we are currently in a hidden folder, move out of it")
+							self.foldersTabRouteManager.route = []
+						}
 					}
 				}
 			}
@@ -337,15 +406,42 @@ private struct ContentView: View {
 	}
 }
 
+struct RouteView: View {
+	@Environment(AppState.self) private var appState
+	let route: Route
+	
+	var body: some View {
+		switch route {
+		case .folder(folderID: let folderID, prefix: let prefix):
+			if let folder = self.appState.client.folder(withID: folderID) {
+				if folder.exists() {
+					BrowserView(folder: folder, prefix: prefix ?? "")
+				}
+				else {
+					ContentUnavailableView(
+						"Folder was deleted", systemImage: "trash",
+						description: Text("This folder was deleted."))
+				}
+			}
+			else {
+				ContentUnavailableView("Select a folder", systemImage: "folder")
+			}
+			
+		case .folders, .start, .devices, .search:
+			EmptyView()
+		}
+	}
+}
+
 private struct LoadingMainView: View {
 	@State var appState: AppState
-	@State var route: Route? = .start
+	@State var part: Route? = .start
 
 	#if os(iOS)
 		// Mirrors ContentView.modernTabbedBody
 		@available(iOS 26.0, *)
 		@ViewBuilder private func modernTabbedBody() -> some View {
-			TabView(selection: $route) {
+			TabView(selection: $part) {
 				Tab("Start", systemImage: self.appState.syncState.systemImage, value: Route.start) {
 					// Me
 					NavigationStack {
@@ -354,7 +450,7 @@ private struct LoadingMainView: View {
 				}.disabled(true)
 
 				// Folders
-				Tab("Folders", systemImage: "folder.fill", value: Route.folder(folderID: nil)) {
+				Tab("Folders", systemImage: "folder.fill", value: Route.folders) {
 					NavigationStack {
 						LoadingView(appState: appState)
 					}
@@ -378,7 +474,7 @@ private struct LoadingMainView: View {
 
 		// Mirrors ContentView.legacyTabbedBody
 		@ViewBuilder private func legacyTabbedBody() -> some View {
-			TabView(selection: $route) {
+			TabView(selection: $part) {
 				// Me
 				NavigationStack {
 					LoadingView(appState: appState)
@@ -391,7 +487,7 @@ private struct LoadingMainView: View {
 					LoadingView(appState: appState)
 				}.tabItem {
 					Label("Folders", systemImage: "folder.fill")
-				}.tag(Route.folder(folderID: nil))
+				}.tag(Route.folders)
 
 				// Peers
 				NavigationStack {
@@ -460,14 +556,14 @@ private struct LoadingView: View {
 
 private struct StartOrSearchView: View {
 	@Environment(AppState.self) private var appState
-	@Binding var route: Route?
+	@Binding var part: Route?
 	@State private var searchText: String = ""
 	@FocusState private var isSearchFieldFocused
 
 	// This is needed because isSearching is not available from the parent view
 	struct InnerView: View {
 		@Environment(AppState.self) private var appState
-		@Binding var route: Route?
+		@Binding var topLevelRoute: Route?
 		@Binding var searchText: String
 		@Environment(\.isSearching) private var isSearching
 
@@ -482,16 +578,16 @@ private struct StartOrSearchView: View {
 			}
 			else {
 				#if os(iOS)
-					StartView(route: $route, backgroundManager: appState.backgroundManager)
+					StartView(topLevelRoute: $topLevelRoute, backgroundManager: appState.backgroundManager)
 				#else
-					StartView(route: $route)
+					StartView(topLevelRoute: $topLevelRoute)
 				#endif
 			}
 		}
 	}
 
 	@ViewBuilder private func view() -> some View {
-		InnerView(route: $route, searchText: $searchText)
+		InnerView(topLevelRoute: $part, searchText: $searchText)
 			.searchable(
 				text: $searchText, placement: SearchFieldPlacement.toolbar,
 				prompt: "Search all files and folders..."

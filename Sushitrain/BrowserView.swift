@@ -201,6 +201,17 @@ struct BrowserView: View {
 				message: self.error == nil ? nil : Text(self.error!.localizedDescription),
 				dismissButton: .default(Text("OK")))
 		}
+		
+		.userActivity(SushitrainApp.browseFolderActivityID) { ua in
+			ua.title = self.folderName
+			ua.isEligibleForHandoff = true
+			ua.targetContentIdentifier = "browse:\(self.folder.folderID):\(prefix)" // Not really used
+			ua.userInfo = [
+				"version": 1,
+				"folderID": self.folder.folderID,
+				"prefix": self.prefix
+			]
+		}
 	}
 
 	@ToolbarContentBuilder private func toolbarContent() -> some ToolbarContent {

@@ -273,7 +273,7 @@ private struct OverallUploadStatusView: View {
 
 struct StartView: View {
 	@Environment(AppState.self) private var appState
-	@Binding var route: Route?
+	@Binding var topLevelRoute: Route?
 
 	#if os(iOS)
 		@ObservedObject var backgroundManager: BackgroundManager
@@ -508,7 +508,7 @@ struct StartView: View {
 					"To synchronize files, first add a remote device. Either select a device from the list below, or add manually using the device ID."
 				)
 			}.onTapGesture {
-				route = .devices
+				topLevelRoute = .devices
 			}
 		}
 	}
