@@ -198,18 +198,20 @@ struct OnboardingView: View {
 
 	var body: some View {
 		GeometryReader { proxy in
-			ScrollView(.vertical) {
-				HStack {
-					Spacer()
-					self.contents()
-						.frame(maxWidth: 600, minHeight: proxy.size.height)
-					Spacer()
+			ScrollViewReader { reader in
+				ScrollView(.vertical) {
+					HStack {
+						Spacer()
+						self.contents(reader)
+							.frame(maxWidth: 600, minHeight: proxy.size.height)
+						Spacer()
+					}
 				}
 			}
 		}
 	}
 
-	@ViewBuilder private func contents() -> some View {
+	@ViewBuilder private func contents(_ scrollViewProxy: ScrollViewProxy) -> some View {
 		VStack(spacing: 20) {
 			if page == .start {
 				Text(
@@ -226,10 +228,23 @@ struct OnboardingView: View {
 			case .start, .explainNoBackup, .explainResponsibility, .explainSyncthing:
 				OnboardingExplainView(page: page)
 					.transition(.push(from: .trailing))
+					.onTapGesture {
+						// Scroll to the 'next' button when the user taps this (it may not be immediately obvious where
+						// the 'next' button is when people have very large text sizes)
+						withAnimation {
+							scrollViewProxy.scrollTo("next", anchor: .bottom)
+						}
+					}
 
 			case .privacyChoices:
 				PrivacyChoicesView(page: page, choice: $privacyChoice)
 					.transition(.push(from: .trailing))
+					.onChange(of: privacyChoice) { _, _ in
+						// Scroll to the 'next' button when a privacy choice is selected
+						withAnimation {
+							scrollViewProxy.scrollTo("next", anchor: .bottom)
+						}
+					}
 
 			case .finished:
 				HStack {
@@ -247,12 +262,14 @@ struct OnboardingView: View {
 						? String(localized: "Let's get started!")
 						: String(localized: "I understand!")
 				)
+				.id("next")
 				.disabled(!canProceed)
 				.opacity(canProceed ? 1.0 : 0.5)
 				.onTapGesture {
 					if canProceed && page.rawValue < (OnboardingPage.finished.rawValue - 1) {
 						withAnimation {
 							page = OnboardingPage(rawValue: page.rawValue + 1)!
+							scrollViewProxy.scrollTo("contents", anchor: .top)
 						}
 					}
 					else {
@@ -261,7 +278,9 @@ struct OnboardingView: View {
 					}
 				}
 			}
-		}.padding(.horizontal, 20)
+		}
+		.padding(.horizontal, 20)
+		.id("contents")
 	}
 
 	private func finish() {
