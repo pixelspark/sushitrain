@@ -223,7 +223,6 @@ private struct SupportBundleView: View {
 
 struct SupportView: View {
 	@Environment(AppState.self) private var appState
-	@State private var showLog: Bool = false
 
 	var body: some View {
 		Form {
@@ -274,17 +273,6 @@ struct SupportView: View {
 				NavigationLink(destination: TroubleshootingView(userSettings: appState.userSettings)) {
 					Label("Troubleshooting options", systemImage: "book.and.wrench")
 				}
-
-				Button("View log messages", systemImage: "heart.text.clipboard") {
-					showLog = true
-				}.sheet(isPresented: $showLog) {
-					NavigationStack {
-						LogView()
-					}
-				}
-				#if os(macOS)
-					.buttonStyle(.link)
-				#endif
 			}
 		}
 		#if os(macOS)
@@ -309,6 +297,7 @@ struct TroubleshootingView: View {
 	@State private var showIgnoredDiscoveredReset = false
 	@State private var showV1BackupRemoved = false
 	@State private var showCacheCleared = false
+	@State private var showLog = false
 
 	private static let formatter = ByteCountFormatter()
 
@@ -341,6 +330,19 @@ struct TroubleshootingView: View {
 						)
 					}
 				}
+			}
+			
+			Section {
+				Button("View log messages", systemImage: "heart.text.clipboard") {
+					showLog = true
+				}.sheet(isPresented: $showLog) {
+					NavigationStack {
+						LogView()
+					}
+				}
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
 			}
 
 			Section {
