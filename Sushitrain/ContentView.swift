@@ -108,7 +108,7 @@ private struct ContentView: View {
 			TabView(selection: $topLevelRoute) {
 				// Me
 				NavigationStack {
-					StartOrSearchView(part: $topLevelRoute)
+					StartOrSearchView(topLevelRoute: $topLevelRoute)
 				}.tabItem {
 					Label("Start", systemImage: self.appState.syncState.systemImage)
 				}.tag(Route.start)
@@ -138,7 +138,7 @@ private struct ContentView: View {
 						#if os(iOS)
 							StartView(topLevelRoute: $topLevelRoute, backgroundManager: appState.backgroundManager)
 						#else
-							StartView(part: $part)
+							StartView(topLevelRoute: $topLevelRoute)
 						#endif
 					}
 				}
@@ -225,7 +225,7 @@ private struct ContentView: View {
 				switch self.topLevelRoute {
 				case .start:
 					NavigationStack {
-						StartOrSearchView(part: $topLevelRoute)
+						StartOrSearchView(topLevelRoute: $topLevelRoute)
 					}
 
 				case .search:
@@ -439,13 +439,13 @@ struct RouteView: View {
 
 private struct LoadingMainView: View {
 	@State var appState: AppState
-	@State var part: Route? = .start
+	@State var topLevelRoute: Route? = .start
 
 	#if os(iOS)
 		// Mirrors ContentView.modernTabbedBody
 		@available(iOS 26.0, *)
 		@ViewBuilder private func modernTabbedBody() -> some View {
-			TabView(selection: $part) {
+			TabView(selection: $topLevelRoute) {
 				Tab("Start", systemImage: self.appState.syncState.systemImage, value: Route.start) {
 					// Me
 					NavigationStack {
@@ -478,7 +478,7 @@ private struct LoadingMainView: View {
 
 		// Mirrors ContentView.legacyTabbedBody
 		@ViewBuilder private func legacyTabbedBody() -> some View {
-			TabView(selection: $part) {
+			TabView(selection: $topLevelRoute) {
 				// Me
 				NavigationStack {
 					LoadingView(appState: appState)
@@ -560,7 +560,7 @@ private struct LoadingView: View {
 
 private struct StartOrSearchView: View {
 	@Environment(AppState.self) private var appState
-	@Binding var part: Route?
+	@Binding var topLevelRoute: Route?
 	@State private var searchText: String = ""
 	@FocusState private var isSearchFieldFocused
 
@@ -591,7 +591,7 @@ private struct StartOrSearchView: View {
 	}
 
 	@ViewBuilder private func view() -> some View {
-		InnerView(topLevelRoute: $part, searchText: $searchText)
+		InnerView(topLevelRoute: $topLevelRoute, searchText: $searchText)
 			.searchable(
 				text: $searchText, placement: SearchFieldPlacement.toolbar,
 				prompt: "Search all files and folders..."
