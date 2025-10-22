@@ -93,7 +93,6 @@ class SushitrainDelegate: NSObject {
 	@AppStorage("migratedToV2At") var migratedToV2At: Double = 0.0
 	@AppStorage("userPausedDevices") var userPausedDevices = Set<String>()
 	@AppStorage("ignoreLongTimeNoSeeDevices") var ignoreLongTimeNoSeeDevices = Set<String>()
-
 	@AppStorage("ignoreDiscoveredDevices") var ignoreDiscoveredDevices = Set<String>()
 
 	#if os(iOS)
@@ -112,9 +111,11 @@ class SushitrainDelegate: NSObject {
 	// When did we apply privacy choices from the onboarding?
 	@AppStorage("appliedOnboardingPrivacyChoicesAt") var appliedOnboardingPrivacyChoicesAt: Double = 0.0
 
+	// Whether to show the onboarding on the next startup, regardless of whether it has been shown before
 	@AppStorage("forceOnboardingOnNextStartup") var forceOnboardingOnNextStartup = false
 
 	#if os(macOS)
+		// The action to perform when a user clicks a folder in the dock menu
 		@AppStorage("menuFolderAction") var menuFolderAction: MenuFolderAction = .finderExceptSelective
 	#endif
 }
