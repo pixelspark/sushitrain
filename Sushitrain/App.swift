@@ -12,7 +12,7 @@ import AppIntents
 @main
 struct SushitrainApp: App {
 	static var browseFolderActivityID = "nl.t-shaped.Sushitrain.browse-folder"
-	
+
 	@State fileprivate var appState: AppState
 
 	fileprivate var delegate: SushitrainDelegate?
@@ -178,7 +178,7 @@ struct SushitrainApp: App {
 						self.onReceiveMemoryWarning()
 					}
 				#endif
-			
+
 				#if os(macOS)
 					.onContinueUserActivity(SushitrainApp.browseFolderActivityID) { ua in
 						Log.info("Receive handoff at app level: \(String(describing: ua.userInfo))")
@@ -187,7 +187,7 @@ struct SushitrainApp: App {
 		}
 		#if os(macOS)
 			.handlesExternalEvents(matching: ["*"])
-		
+
 			.onChange(of: hideInDock, initial: true) { _ov, nv in
 				NSApp.setActivationPolicy(nv ? .accessory : .regular)
 				NSApp.activate(ignoringOtherApps: true)

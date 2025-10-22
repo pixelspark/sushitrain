@@ -13,12 +13,12 @@ enum Route: Hashable, Equatable {
 	case folder(folderID: String, prefix: String?)
 	case devices
 	case search
-	
+
 	var splitted: [Route] {
 		switch self {
 		case .start, .folders, .devices, .search:
 			return [self]
-		case .folder(folderID: let folderID, prefix: let prefix):
+		case .folder(let folderID, let prefix):
 			if let prefix = prefix {
 				let parts = prefix.withoutStartingSlash.withoutEndingSlash.split(separator: "/")
 				var routes: [Route] = [Route.folder(folderID: folderID, prefix: "")]
@@ -77,7 +77,7 @@ private struct ContentView: View {
 	@State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
 	@State private var showSearchSheet = false
 	@State private var searchSheetSearchTerm: String = ""
-	
+
 	// Tracks the route within the folder tab; used to force navigating back
 	@Observable class FoldersRouteManager {
 		var route: [Route] = []
@@ -237,7 +237,7 @@ private struct ContentView: View {
 					NavigationStack {
 						DevicesView()
 					}
-					
+
 				case .folders:
 					NavigationStack(path: $foldersTabRouteManager.route) {
 						FoldersView()
@@ -320,11 +320,13 @@ private struct ContentView: View {
 				self.searchView(inSheet: true)
 			}
 		#endif
-		
+
 		.onContinueUserActivity(SushitrainApp.browseFolderActivityID) { ua in
 			if let userInfo = ua.userInfo {
 				Log.info("Receive handoff \(userInfo)")
-				if let version = ua.userInfo?["version"] as? Int, version == 1, let folderID = ua.userInfo?["folderID"] as? String, let prefix = ua.userInfo?["prefix"] as? String {
+				if let version = ua.userInfo?["version"] as? Int, version == 1, let folderID = ua.userInfo?["folderID"] as? String,
+					let prefix = ua.userInfo?["prefix"] as? String
+				{
 					if self.appState.client.folder(withID: folderID) != nil {
 						// TODO: check if prefix exists in the folder, and is a directory, before navigating to it
 						self.navigate(to: Route.folder(folderID: folderID, prefix: prefix))
@@ -333,10 +335,10 @@ private struct ContentView: View {
 			}
 		}
 	}
-	
+
 	private func navigate(to route: Route) {
 		Log.info("Navigate to route=\(route) splitted=\(route.splitted)")
-		
+
 		#if os(iOS)
 			if horizontalSizeClass == .compact {
 				if case .folder(folderID: _, prefix: _) = route {
@@ -350,7 +352,7 @@ private struct ContentView: View {
 				return
 			}
 		#endif
-		
+
 		if case .folder(folderID: _, prefix: _) = route {
 			let splitted = route.splitted
 			self.topLevelRoute = splitted[0]
@@ -391,7 +393,7 @@ private struct ContentView: View {
 				}
 			}
 		}
-		
+
 		#if os(iOS)
 			for route in self.foldersTabRouteManager.route {
 				// Is the folder tab inside a folder that is hidden? Then move out of it
@@ -411,10 +413,10 @@ private struct ContentView: View {
 struct RouteView: View {
 	@Environment(AppState.self) private var appState
 	let route: Route
-	
+
 	var body: some View {
 		switch route {
-		case .folder(folderID: let folderID, prefix: let prefix):
+		case .folder(let folderID, let prefix):
 			if let folder = self.appState.client.folder(withID: folderID) {
 				if folder.exists() {
 					BrowserView(folder: folder, prefix: prefix ?? "")
@@ -428,7 +430,7 @@ struct RouteView: View {
 			else {
 				ContentUnavailableView("Select a folder", systemImage: "folder")
 			}
-			
+
 		case .folders, .start, .devices, .search:
 			EmptyView()
 		}
