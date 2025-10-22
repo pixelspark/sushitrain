@@ -9,6 +9,8 @@ import SushitrainCore
 import QuickLook
 
 struct ExtraFilesView: View {
+	private static let conflictFileMarker = ".sync-conflict"
+
 	var folder: SushitrainFolder
 	@Environment(AppState.self) private var appState
 	@State private var extraFiles: [String] = []
@@ -18,6 +20,8 @@ struct ExtraFilesView: View {
 	@State private var allVerdict: Bool? = nil
 	@State private var errorMessage: String? = nil
 	@State private var showApplyConfirmation = false
+	@State private var showConflictFiles = false
+	@State private var hasConflictFiles = false
 
 	var body: some View {
 		Group {
@@ -64,41 +68,51 @@ struct ExtraFilesView: View {
 
 					Section {
 						ForEach(extraFiles, id: \.self) { path in
-							let verdict = verdicts[path]
-							let globalEntry = try? folder.getFileInformation(path)
+							if showConflictFiles || !path.contains(Self.conflictFileMarker) {
+								let verdict = verdicts[path]
+								let globalEntry = try? folder.getFileInformation(path)
 
-							HStack {
-								VStack(alignment: .leading) {
-									Text(path).multilineTextAlignment(.leading).dynamicTypeSize(.small).foregroundStyle(
-										verdict == false ? .red : verdict == true ? .green : .primary
-									).onTapGesture {
-										if let folderNativePath = folder.localNativeURL { self.localItemURL = folderNativePath.appending(path: path) }
-									}.disabled(folder.localNativeURL == nil)
-								}.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+								HStack {
+									VStack(alignment: .leading) {
+										Text(path).multilineTextAlignment(.leading).dynamicTypeSize(.small).foregroundStyle(
+											verdict == false ? .red : verdict == true ? .green : .primary
+										).onTapGesture {
+											if let folderNativePath = folder.localNativeURL {
+												self.localItemURL = folderNativePath.appending(path: path)
+											}
+										}.disabled(folder.localNativeURL == nil)
+									}.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
 
-								Picker(
-									"Action",
-									selection: Binding(
-										get: { return verdicts[path] },
-										set: { s in
-											verdicts[path] = s
-											allVerdict = nil
-										})
-								) {
-									Image(systemName: "trash").tint(.red).tag(false).accessibilityLabel("Delete file")
-									if folder.folderType() == SushitrainFolderTypeReceiveOnly {
-										Image(systemName: "trash.slash").tag(true).accessibilityLabel("Keep file")
-									}
-									else {
-										if let ge = globalEntry, !ge.isDeleted() {
-											Image(systemName: "rectangle.2.swap").tag(true).accessibilityLabel("Replace existing file")
+									Picker(
+										"Action",
+										selection: Binding(
+											get: { return verdicts[path] },
+											set: { s in
+												verdicts[path] = s
+												allVerdict = nil
+											})
+									) {
+										Image(systemName: "trash").tint(.red).tag(false).accessibilityLabel("Delete file")
+										if folder.folderType() == SushitrainFolderTypeReceiveOnly {
+											Image(systemName: "trash.slash").tag(true).accessibilityLabel("Keep file")
 										}
 										else {
-											Image(systemName: "plus.square.fill").tag(true).accessibilityLabel("Keep file")
+											if let ge = globalEntry, !ge.isDeleted() {
+												Image(systemName: "rectangle.2.swap").tag(true).accessibilityLabel("Replace existing file")
+											}
+											else {
+												Image(systemName: "plus.square.fill").tag(true).accessibilityLabel("Keep file")
+											}
 										}
-									}
-								}.pickerStyle(.segmented).frame(width: 100)
+									}.pickerStyle(.segmented).frame(width: 100)
+								}
 							}
+						}
+					}
+
+					if hasConflictFiles && !showConflictFiles {
+						Button("Show conflicted files") {
+							self.showConflictFiles = true
 						}
 					}
 				}
@@ -180,9 +194,11 @@ struct ExtraFilesView: View {
 	private func reload() async {
 		if folder.isIdleOrSyncing {
 			extraFiles = await Task.detached { return (try? folder.extraneousFiles().asArray().sorted()) ?? [] }.value
+			hasConflictFiles = extraFiles.contains(where: { $0.contains(Self.conflictFileMarker) })
 		}
 		else {
 			extraFiles = []
+			hasConflictFiles = false
 		}
 	}
 }

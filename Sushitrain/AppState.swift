@@ -382,7 +382,7 @@ struct SyncState {
 				}
 			}
 		}
-		
+
 		pm.start(queue: .main)
 		self.currentNetworkPath = pm.currentPath
 		Task {
