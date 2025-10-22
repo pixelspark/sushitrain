@@ -141,6 +141,7 @@ enum ContinuedTaskType {
 			}
 			catch {
 				Log.warn("Failed to schedule continued background processing task: \(error.localizedDescription)")
+				self.runningContinuedTask = nil
 				throw error
 			}
 		}
