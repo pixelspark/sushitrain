@@ -165,6 +165,7 @@ struct SyncState {
 	fileprivate(set) var resolvedListenAddresses = Set<String>()
 	fileprivate(set) var streamingProgress: StreamingProgress? = nil
 	fileprivate(set) var lastChanges: [SushitrainChange] = []
+	fileprivate(set) var currentNetworkPath: NWPath? = nil
 
 	private let documentsDirectory: URL
 	private let configDirectory: URL
@@ -366,9 +367,12 @@ struct SyncState {
 
 		let pm = NWPathMonitor()
 		pm.pathUpdateHandler = { [weak client] path in
-			DispatchQueue.main.async {
+			Task { @MainActor in
 				Log.info("Network path change: \(path)")
+				self.currentNetworkPath = path
+				await self.updateDeviceSuspension()
 			}
+
 			if let measurement = client?.measurements {
 				Task {
 					try? await goTask {
@@ -377,7 +381,12 @@ struct SyncState {
 				}
 			}
 		}
+		
 		pm.start(queue: .main)
+		self.currentNetworkPath = pm.currentPath
+		Task {
+			await self.updateDeviceSuspension()
+		}
 		self.pathMonitor = pm
 
 		self.pingTimer = Timer.scheduledTimer(withTimeInterval: 50, repeats: true) { [weak client] timer in

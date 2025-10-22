@@ -176,6 +176,35 @@ private struct OverallDownloadProgressView: View {
 	}
 }
 
+private struct NetworkStatusView: View {
+	@Environment(AppState.self) private var appState
+
+	var body: some View {
+		if let path = appState.currentNetworkPath {
+			if path.status == .satisfied {
+				if #available(iOS 26, macOS 26, *) {
+					if path.linkQuality == .minimal {
+						Label("Slow internet connection", systemImage: "antenna.radiowaves.left.and.right").foregroundStyle(.orange)
+					}
+				}
+
+				if path.isConstrained || path.isExpensive {
+					Label("Limited internet connection", systemImage: "antenna.radiowaves.left.and.right").foregroundStyle(.orange)
+				}
+				else if #available(iOS 26, macOS 26, *) {
+					if path.isUltraConstrained {
+						Label("Limited internet connection", systemImage: "antenna.radiowaves.left.and.right").foregroundStyle(.orange)
+					}
+				}
+			}
+			else if path.status == .unsatisfied {
+				Label("No internet connection available", systemImage: "antenna.radiowaves.left.and.right.slash").foregroundStyle(
+					.red)
+			}
+		}
+	}
+}
+
 struct OverallStatusView: View {
 	@Environment(AppState.self) private var appState
 	@State private var connectedPeerCount = 0
@@ -335,6 +364,8 @@ struct StartView: View {
 					}
 				#endif
 			}
+
+			NetworkStatusView()
 
 			Section(header: Text("This device's identifier")) {
 				DeviceIDView(device: self.appState.client.peer(withID: self.appState.localDeviceID)!)
