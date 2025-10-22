@@ -157,7 +157,7 @@ private struct ContentView: View {
 
 				// Search (iOS 26)
 				Tab(value: Route.search, role: .search) {
-					self.searchView()
+					self.searchView(inSheet: false)
 				}
 			}
 		}
@@ -230,7 +230,7 @@ private struct ContentView: View {
 
 				case .search:
 					NavigationStack {
-						self.searchView()
+						self.searchView(inSheet: false)
 					}
 
 				case .devices:
@@ -317,7 +317,7 @@ private struct ContentView: View {
 		#if os(iOS)
 			// Search sheet for quick action
 			.sheet(isPresented: $showSearchSheet) {
-				self.searchView()
+				self.searchView(inSheet: true)
 			}
 		#endif
 		
@@ -362,7 +362,7 @@ private struct ContentView: View {
 		}
 	}
 
-	@ViewBuilder private func searchView() -> some View {
+	@ViewBuilder private func searchView(inSheet: Bool) -> some View {
 		NavigationStack {
 			SearchView(
 				prefix: "",
@@ -373,8 +373,10 @@ private struct ContentView: View {
 				.navigationBarTitleDisplayMode(.inline)
 			#endif
 			.toolbar {
-				SheetButton(role: .done) {
-					showSearchSheet = false
+				if inSheet {
+					SheetButton(role: .done) {
+						showSearchSheet = false
+					}
 				}
 			}
 		}
