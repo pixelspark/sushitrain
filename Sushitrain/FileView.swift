@@ -126,6 +126,7 @@ struct FileView: View {
 					isPresented: $showFullScreenViewer,
 					content: {
 						FileViewerView(file: file, siblings: siblings, inSheet: true, isShown: $showFullScreenViewer)
+							.ignoresSafeArea()
 					})
 			#elseif os(macOS)
 				.sheet(isPresented: $showFullScreenViewer) {
