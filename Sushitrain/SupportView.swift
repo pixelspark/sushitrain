@@ -331,7 +331,7 @@ struct TroubleshootingView: View {
 					}
 				}
 			}
-			
+
 			Section {
 				Button("View log messages", systemImage: "heart.text.clipboard") {
 					showLog = true
