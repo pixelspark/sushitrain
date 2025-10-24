@@ -211,6 +211,7 @@ struct BrowserView: View {
 				"folderID": self.folder.folderID,
 				"prefix": self.prefix,
 			]
+			ua.needsSave = true
 		}
 	}
 

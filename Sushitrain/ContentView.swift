@@ -11,6 +11,7 @@ enum Route: Hashable, Equatable {
 	case start
 	case folders
 	case folder(folderID: String, prefix: String?)
+	case file(folderID: String, path: String)
 	case devices
 	case search
 
@@ -18,6 +19,23 @@ enum Route: Hashable, Equatable {
 		switch self {
 		case .start, .folders, .devices, .search:
 			return [self]
+
+		case .file(let folderID, let path):
+			var parts = path.withoutStartingSlash.withoutEndingSlash.split(separator: "/")
+			if parts.isEmpty {
+				return [self]
+			}
+			parts = parts.dropLast()
+
+			var routes: [Route] = [Route.folder(folderID: folderID, prefix: "")]
+			var cumulativePrefix = ""
+			for part in parts {
+				cumulativePrefix = cumulativePrefix + part + "/"
+				routes.append(Route.folder(folderID: folderID, prefix: cumulativePrefix))
+			}
+			routes.append(self)
+			return routes
+
 		case .folder(let folderID, let prefix):
 			if let prefix = prefix {
 				let parts = prefix.withoutStartingSlash.withoutEndingSlash.split(separator: "/")
@@ -251,6 +269,14 @@ private struct ContentView: View {
 							}
 					}.id(folderID + ":" + (prefix ?? ""))
 
+				case .file(let folderID, let path):
+					NavigationStack(path: $foldersTabRouteManager.route) {
+						RouteView(route: self.topLevelRoute!)
+							.navigationDestination(for: Route.self) { r in
+								RouteView(route: r)
+							}
+					}.id(folderID + ":" + path)
+
 				case nil:
 					ContentUnavailableView("Select a folder", systemImage: "folder")
 						.onTapGesture {
@@ -323,13 +349,30 @@ private struct ContentView: View {
 
 		.onContinueUserActivity(SushitrainApp.browseFolderActivityID) { ua in
 			if let userInfo = ua.userInfo {
-				Log.info("Receive handoff \(userInfo)")
+				Log.info("Receive browse folder handoff \(userInfo)")
 				if let version = ua.userInfo?["version"] as? Int, version == 1, let folderID = ua.userInfo?["folderID"] as? String,
 					let prefix = ua.userInfo?["prefix"] as? String
 				{
 					if self.appState.client.folder(withID: folderID) != nil {
 						// TODO: check if prefix exists in the folder, and is a directory, before navigating to it
 						self.navigate(to: Route.folder(folderID: folderID, prefix: prefix))
+					}
+				}
+			}
+		}
+
+		.onContinueUserActivity(SushitrainApp.viewFileActivityID) { ua in
+			if let userInfo = ua.userInfo {
+				Log.info("Receive view file handoff \(userInfo)")
+				if let version = ua.userInfo?["version"] as? Int, version == 1, let folderID = ua.userInfo?["folderID"] as? String,
+					let path = ua.userInfo?["path"] as? String
+				{
+					if let folder = self.appState.client.folder(withID: folderID) {
+						if let entry = try? folder.getFileInformation(path),
+							!entry.isDirectory() && !entry.isDeleted() && !entry.isSymlink()
+						{
+							self.navigate(to: Route.file(folderID: folderID, path: path))
+						}
 					}
 				}
 			}
@@ -341,11 +384,12 @@ private struct ContentView: View {
 
 		#if os(iOS)
 			if horizontalSizeClass == .compact {
-				if case .folder(folderID: _, prefix: _) = route {
+				switch route {
+				case .folder(folderID: _, prefix: _), .file(folderID: _, path: _):
 					self.topLevelRoute = Route.folders
 					self.foldersTabRouteManager.route = route.splitted
-				}
-				else {
+
+				case .devices, .search, .start, .folders:
 					self.topLevelRoute = route
 					self.foldersTabRouteManager.route = []
 				}
@@ -416,6 +460,26 @@ struct RouteView: View {
 
 	var body: some View {
 		switch route {
+		case .file(let folderID, let path):
+			if let folder = self.appState.client.folder(withID: folderID) {
+				if folder.exists() {
+					if let entry = try? folder.getFileInformation(path) {
+						FileView(file: entry, showPath: false, siblings: nil)
+					}
+					else {
+						ContentUnavailableView("File not found", systemImage: "document")
+					}
+				}
+				else {
+					ContentUnavailableView(
+						"Folder was deleted", systemImage: "trash",
+						description: Text("This folder was deleted."))
+				}
+			}
+			else {
+				ContentUnavailableView("Folder not found", systemImage: "folder")
+			}
+
 		case .folder(let folderID, let prefix):
 			if let folder = self.appState.client.folder(withID: folderID) {
 				if folder.exists() {

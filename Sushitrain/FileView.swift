@@ -112,6 +112,18 @@ struct FileView: View {
 			.navigationTitle(file.fileName())
 			.quickLookPreview(self.$localItemURL)
 
+			.userActivity(SushitrainApp.viewFileActivityID) { ua in
+				ua.title = file.fileName()
+				ua.isEligibleForHandoff = true
+				ua.targetContentIdentifier = "file:\(self.folder.folderID):\(file.path())"  // Not really used
+				ua.userInfo = [
+					"version": 1,
+					"folderID": self.folder.folderID,
+					"path": self.file.path(),
+				]
+				ua.needsSave = true
+			}
+
 			// Sheet viewer
 			.sheet(isPresented: $showSheetViewer) {
 				FileViewerView(file: file, siblings: siblings, inSheet: true, isShown: $showSheetViewer)

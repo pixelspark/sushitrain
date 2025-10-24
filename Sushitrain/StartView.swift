@@ -362,7 +362,7 @@ struct StartView: View {
 						Label("Will continue in the background", systemImage: "gearshape.2.fill")
 					}
 				#endif
-				
+
 				NetworkStatusView()
 			}
 
