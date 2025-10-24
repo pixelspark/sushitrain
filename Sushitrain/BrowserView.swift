@@ -36,6 +36,7 @@ struct BrowserView: View {
 	@State private var folderExists = false
 	@State private var folderIsSelective = false
 	@State private var showSearch = false
+	@State private var showAddFilePicker = false
 	@State private var error: Error? = nil
 	@State private var webViewAvailable = false
 	@State private var viewStyle: BrowserViewStyle? = nil
@@ -157,6 +158,7 @@ struct BrowserView: View {
 		.task {
 			self.update()
 		}
+
 		.onChange(of: showSettings) { _, nv in
 			// Needed to update the screen after removing a folder
 			if !nv {
@@ -165,6 +167,28 @@ struct BrowserView: View {
 				self.update()
 			}
 		}
+
+		.fileImporter(
+			isPresented: $showAddFilePicker, allowedContentTypes: [UTType.data], allowsMultipleSelection: true,
+			onCompletion: { result in
+				switch result {
+				case .success(let fu):
+					for url in fu {
+						if !url.startAccessingSecurityScopedResource() {
+							Log.warn("failed to access security scoped URL from file importer: \(url)")
+						}
+					}
+					try? self.dropFiles(fu)
+					for url in fu {
+						url.stopAccessingSecurityScopedResource()
+					}
+
+				case .failure(_):
+					break
+				}
+			}
+		)
+
 		#if os(macOS)
 			.contextMenu {
 				if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
@@ -261,6 +285,7 @@ struct BrowserView: View {
 					self.showInFinder()
 				}.disabled(!canShowInFinder || isSearching)
 			#endif
+
 			self.folderMenu()
 		}
 	}
@@ -320,6 +345,12 @@ struct BrowserView: View {
 			}
 
 			if folderExists {
+				if self.folder.isRegularFolder && self.folder.folderType() != SushitrainFolderTypeReceiveOnly {
+					Button("Add files...", systemImage: "plus") {
+						showAddFilePicker = true
+					}
+				}
+
 				#if os(iOS)
 					Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
 						self.showInFinder()
@@ -362,79 +393,77 @@ struct BrowserView: View {
 		}.disabled(!folderExists)
 	}
 
-	#if os(macOS)
-		private func onDrop(_ providers: [NSItemProvider]) async throws {
-			var urls: [URL] = []
+	private func onDrop(_ providers: [NSItemProvider]) async throws {
+		var urls: [URL] = []
 
-			for provider in providers {
-				let data: Data? = try await withCheckedThrowingContinuation { cb in
-					provider.loadDataRepresentation(forTypeIdentifier: "public.file-url") {
-						(data, error) in
-						if let e = error {
-							cb.resume(throwing: e)
-						}
-						else {
-							cb.resume(returning: data)
-						}
+		for provider in providers {
+			let data: Data? = try await withCheckedThrowingContinuation { cb in
+				provider.loadDataRepresentation(forTypeIdentifier: "public.file-url") {
+					(data, error) in
+					if let e = error {
+						cb.resume(throwing: e)
 					}
-				}
-
-				if let data = data, let path = NSString(data: data, encoding: 4),
-					let url = URL(string: path as String)
-				{
-					urls.append(url)
+					else {
+						cb.resume(returning: data)
+					}
 				}
 			}
 
-			try self.dropFiles(urls)
+			if let data = data, let path = NSString(data: data, encoding: 4),
+				let url = URL(string: path as String)
+			{
+				urls.append(url)
+			}
 		}
 
-		private func dropFiles(_ urls: [URL]) throws {
-			// Find out the native location of our folder
-			var error: NSError? = nil
-			let localNativePath = self.folder.localNativePath(&error)
-			if let error = error {
-				throw error
+		try self.dropFiles(urls)
+	}
+
+	private func dropFiles(_ urls: [URL]) throws {
+		// Find out the native location of our folder
+		var error: NSError? = nil
+		let localNativePath = self.folder.localNativePath(&error)
+		if let error = error {
+			throw error
+		}
+
+		// If we are in a subdirectory, and the folder is selective, ensure the folder is materialized
+		if !self.prefix.isEmpty && self.folder.isSelective() {
+			let entry = try self.folder.getFileInformation(self.prefix.withoutEndingSlash)
+			if entry.isDirectory() && !entry.isDeleted() {
+				try entry.materializeSubdirectory()
 			}
-
-			// If we are in a subdirectory, and the folder is selective, ensure the folder is materialized
-			if !self.prefix.isEmpty && self.folder.isSelective() {
-				let entry = try self.folder.getFileInformation(self.prefix.withoutEndingSlash)
-				if entry.isDirectory() && !entry.isDeleted() {
-					try entry.materializeSubdirectory()
-				}
-				else {
-					// Somehow not a directory...
-					return
-				}
+			else {
+				// Somehow not a directory...
+				return
 			}
+		}
 
-			let localNativeURL = URL(fileURLWithPath: localNativePath).appendingPathComponent(
-				self.prefix)
-			var pathsToSelect: [String] = []
+		let localNativeURL = URL(fileURLWithPath: localNativePath).appendingPathComponent(
+			self.prefix)
+		var pathsToSelect: [String] = []
 
-			if FileManager.default.fileExists(atPath: localNativeURL.path) {
-				for url in urls {
-					// Copy source to folder
-					let targetURL = localNativeURL.appendingPathComponent(
-						url.lastPathComponent, isDirectory: false)
-					try FileManager.default.copyItem(at: url, to: targetURL)
+		if FileManager.default.fileExists(atPath: localNativeURL.path) {
+			for url in urls {
+				// Copy source to folder
+				let targetURL = localNativeURL.appendingPathComponent(
+					url.lastPathComponent, isDirectory: false)
+				try FileManager.default.copyItem(at: url, to: targetURL)
 
-					// Select the dropped file
-					if folder.isSelective() {
-						let localURL = self.prefix.withoutEndingSlash + "/" + url.lastPathComponent
-						pathsToSelect.append(localURL)
-					}
-				}
-
+				// Select the dropped file
 				if folder.isSelective() {
-					try self.folder.setLocalPathsExplicitlySelected(SushitrainListOfStrings.from(pathsToSelect))
+					let localURL = (self.prefix.withoutEndingSlash + "/" + url.lastPathComponent).withoutStartingSlash
+					pathsToSelect.append(localURL)
 				}
-
-				try self.folder.rescanSubdirectory(self.prefix)
 			}
+
+			if folder.isSelective() {
+				try self.folder.setLocalPathsExplicitlySelected(SushitrainListOfStrings.from(pathsToSelect))
+			}
+
+			try self.folder.rescanSubdirectory(self.prefix)
 		}
-	#endif
+	}
 
 	private func updateLocalURL() {
 		if !self.folder.exists() {
