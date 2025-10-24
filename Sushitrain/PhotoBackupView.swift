@@ -55,12 +55,19 @@ struct PhotoBackupButton: View {
 struct PhotoBackupStatusView: View {
 	@ObservedObject var photoBackup: PhotoBackup
 
+	private var dateFormatter: RelativeDateTimeFormatter {
+		let df = RelativeDateTimeFormatter()
+		df.unitsStyle = .full
+		df.dateTimeStyle = .named
+		return df
+	}
+
 	var body: some View {
 		VStack(alignment: .leading) {
 			if !photoBackup.isSynchronizing {
 				if photoBackup.lastCompletedDate > 0.0 {
 					let lastDate = Date(timeIntervalSinceReferenceDate: photoBackup.lastCompletedDate)
-					Text("Last completed on \(lastDate.formatted(date: .abbreviated, time: .shortened)).")
+					Text("Last completed \(dateFormatter.localizedString(for: lastDate, relativeTo: Date())).")
 				}
 
 				if case .finished(savedAssets: let sa, purgedAssets: let pa) = photoBackup.progress {

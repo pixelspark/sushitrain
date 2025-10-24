@@ -18438,36 +18438,36 @@
         }
       }
     },
-    "Last completed on %@." : {
+    "Last completed %@." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zuletzt abgeschlossen am %@."
+            "value" : "Zuletzt abgeschlossen %@."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Última finalización el %@."
+            "value" : "Última completada %@."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ultima sincronizzazione completata il %@."
+            "value" : "Ultimo completato %@."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最終完了日は %@ です。"
+            "value" : "最後の完了 %@。"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Laatst voltooid op %@."
+            "value" : "Laatst voltooid %@."
           }
         },
         "uk" : {
@@ -18479,7 +18479,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最后完成于%@"
+            "value" : "上次完成 %@。"
           }
         }
       }
