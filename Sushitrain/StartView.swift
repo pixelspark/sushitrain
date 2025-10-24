@@ -187,8 +187,7 @@ private struct NetworkStatusView: View {
 						Label("Slow internet connection", systemImage: "antenna.radiowaves.left.and.right").foregroundStyle(.orange)
 					}
 				}
-
-				if path.isConstrained || path.isExpensive {
+				else if path.isConstrained || path.isExpensive {
 					Label("Limited internet connection", systemImage: "antenna.radiowaves.left.and.right").foregroundStyle(.orange)
 				}
 				else if #available(iOS 26, macOS 26, *) {
@@ -363,9 +362,9 @@ struct StartView: View {
 						Label("Will continue in the background", systemImage: "gearshape.2.fill")
 					}
 				#endif
+				
+				NetworkStatusView()
 			}
-
-			NetworkStatusView()
 
 			Section(header: Text("This device's identifier")) {
 				DeviceIDView(device: self.appState.client.peer(withID: self.appState.localDeviceID)!)
