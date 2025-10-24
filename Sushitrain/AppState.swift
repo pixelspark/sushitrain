@@ -840,16 +840,23 @@ struct SyncState {
 		}
 
 		func cancelLingering() {
-			Log.info("Cancel lingering lingerTask=\(self.lingerTask.debugDescription)")
 			if let lt = self.lingerTask {
+				Log.info("Cancel lingering lingerTask=\(lt)")
 				UIApplication.shared.endBackgroundTask(lt)
+				self.lingerTask = nil
 			}
-			self.lingerTask = nil
-			self.lingerTimer?.invalidate()
-			self.lingerTimer = nil
+			
+			if let lt = self.lingerTimer {
+				Log.info("Invalidate lingering timer=\(lt)")
+				lt.invalidate()
+				self.lingerTimer = nil
+			}
+			
 			self.wantsSuspendAfterLinger = false
 		}
 
+		// Called when we end our lingering task by ourselves. This should perform the same duties as lingeringExpired
+		// but in a more orderly way.
 		private func afterLingering() async {
 			Log.info("After lingering: suspend=\(self.wantsSuspendAfterLinger)")
 			if self.wantsSuspendAfterLinger {
@@ -857,6 +864,22 @@ struct SyncState {
 				await self.appState.suspend(true)
 			}
 			self.cancelLingering()
+		}
+		
+		// Called when the system expires our lingering background task. This should perform the same tasks as afterLingering,
+		// but it should prioritize calling endBackgroundTask (synchronously).
+		private func lingeringExpired() {
+			Log.info("Suspend after expiration of linger time")
+			let wantsSuspend = self.wantsSuspendAfterLinger
+			self.cancelLingering()
+			
+			if wantsSuspend {
+				self.wantsSuspendAfterLinger = false
+				// This task may or may not be executed in time...
+				Task {
+					await self.appState.suspend(true)
+				}
+			}
 		}
 
 		func lingerThenSuspend() async {
@@ -874,10 +897,7 @@ struct SyncState {
 				self.lingerTask = UIApplication.shared.beginBackgroundTask(
 					withName: "Short-term connection persistence",
 					expirationHandler: {
-						Log.info("Suspend after expiration of linger time")
-						Task {
-							await self.afterLingering()
-						}
+						self.lingeringExpired()
 					})
 				Log.info(
 					"Lingering before suspend: \(UIApplication.shared.backgroundTimeRemaining) remaining"
