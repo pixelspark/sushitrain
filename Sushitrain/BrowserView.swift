@@ -52,6 +52,7 @@ struct BrowserView: View {
 
 	#if os(iOS)
 		@State private var showFolderStatistics = false
+		@State private var isBookmarked = false
 	#endif
 
 	private func currentViewStyle() -> Binding<BrowserViewStyle> {
@@ -319,6 +320,14 @@ struct BrowserView: View {
 		self.updateLocalURL()
 		self.folderIsSelective = folderExists && folder.isSelective()
 
+		// Determine whether this view is bookmarked
+		#if os(iOS)
+			let route = self.route
+			self.isBookmarked = userSettings.bookmarkedRoutes.contains(where: {
+				Route(url: $0) == route
+			})
+		#endif
+
 		// Check for presence of index.html to enable web view
 		if folderExists, let entry = try? folder.getFileInformation(self.prefix + "index.html"),
 			!entry.isDirectory() && !entry.isDeleted()
@@ -430,17 +439,22 @@ struct BrowserView: View {
 	}
 
 	#if os(iOS)
-		private var isBookmarked: Bool {
-			let url = self.route.url
-			return userSettings.bookmarkedRoutes.contains(where: { $0 == url })
-		}
-
 		private func setBookmarked(_ fav: Bool) {
-			let url = self.route.url
-			userSettings.bookmarkedRoutes.removeAll(where: { $0 == url })
+			let newRoute = self.route
+
+			userSettings.bookmarkedRoutes.removeAll(where: { bookmarkedURL in
+				guard let bookmarkedRoute = Route(url: bookmarkedURL) else {
+					return true
+				}
+
+				return bookmarkedRoute == newRoute
+			})
+
 			if fav {
-				userSettings.bookmarkedRoutes.append(url)
+				userSettings.bookmarkedRoutes.append(newRoute.url)
 			}
+			Log.info("New bookmarks: \(userSettings.bookmarkedRoutes)")
+			self.update()
 		}
 	#endif
 
