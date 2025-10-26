@@ -325,6 +325,7 @@ struct StartView: View {
 	@State private var fixingInaccessibleExternalFolder: SushitrainFolder? = nil
 	@State private var isDiskSpaceSufficient = true
 	@State private var longTimeNotSeenDevices: [SushitrainPeer] = []
+	@State private var changesCount = 0
 
 	@State private var showError: Error? = nil
 
@@ -391,9 +392,8 @@ struct StartView: View {
 
 			Section("Manage files and folders") {
 				NavigationLink(destination: ChangesView()) {
-					Label("Recent changes", systemImage: "clock.arrow.2.circlepath").badge(
-						appState.lastChanges.count)
-				}.disabled(appState.lastChanges.isEmpty)
+					Label("Recent changes", systemImage: "clock.arrow.2.circlepath").badge(changesCount)
+				}.disabled(changesCount == 0)
 			}
 
 			if appState.photoBackup.isReady {
@@ -662,6 +662,17 @@ struct StartView: View {
 		self.longTimeNotSeenDevices = await self.appState.getPeersNotSeenForALongTime()
 
 		isDiskSpaceSufficient = appState.client.isDiskSpaceSufficient()
+		
+		// Determine number of changes
+		self.changesCount = appState.lastChanges.count(where: { change in
+			guard let folder = appState.client.folder(withID: change.folderID) else {
+				return false
+			}
+			guard let entry = try? folder.getFileInformation(change.path) else {
+				return false
+			}
+			return !entry.isDirectory()
+		})
 
 		await self.appState.updateBadge()  // Updates extraneous files list
 		do {

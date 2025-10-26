@@ -84,13 +84,16 @@ struct ChangesView: View {
 			List {
 				ForEach(changes, id: \.id) { change in
 					if let folder = change.folder {
-						if let entry = change.entry {
-							NavigationLink(destination: FileView(file: entry, showPath: true, siblings: nil)) {
+						// Skip modifications of directories
+						if let entry = change.entry, !entry.isDirectory() {
+							if !entry.isDeleted() {
+								NavigationLink(destination: FileView(file: entry, showPath: true, siblings: nil)) {
+									self.changeDetails(change: change.change, folder: folder)
+								}
+							}
+							else {
 								self.changeDetails(change: change.change, folder: folder)
 							}
-						}
-						else {
-							self.changeDetails(change: change.change, folder: folder)
 						}
 					}
 				}
