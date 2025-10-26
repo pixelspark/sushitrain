@@ -26,7 +26,9 @@ struct BackgroundSyncRun: Codable, Equatable {
 enum BackgroundTaskType: String, Codable, Equatable {
 	case short = "nl.t-shaped.Sushitrain.short-background-sync"
 	case long = "nl.t-shaped.Sushitrain.background-sync"
-	case continued = "nl.t-shaped.Sushitrain.continued-background-sync"  // For some reason, this one must have the exact App bundle ID as prefix
+
+	// For some reason, this one must have the exact App bundle ID as prefix (case-sensitive)
+	case continued = "nl.t-shaped.Sushitrain.continued-background-sync"
 
 	var identifier: String {
 		return self.rawValue

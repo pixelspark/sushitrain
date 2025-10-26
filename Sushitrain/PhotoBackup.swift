@@ -17,8 +17,11 @@ enum PhotoSyncCategories: String, Codable {
 enum PhotoBackupTimeZone: RawRepresentable, Codable, Equatable, Hashable {
 	typealias RawValue = String
 
-	case current  // Use the current timezone when exporting. Photos may be exported twice if you switch timezones
-	case specific(timeZone: String)  // Use a specific timezone. Photos may be exported with a day that differs from the day the photo was taken
+	// Use the current timezone when exporting. Photos may be exported twice if you switch timezones
+	case current
+
+	// Use a specific timezone. Photos may be exported with a day that differs from the day the photo was taken
+	case specific(timeZone: String)
 
 	init(rawValue: String) {
 		if rawValue == "current" {

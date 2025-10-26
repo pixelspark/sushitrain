@@ -662,7 +662,7 @@ struct StartView: View {
 		self.longTimeNotSeenDevices = await self.appState.getPeersNotSeenForALongTime()
 
 		isDiskSpaceSufficient = appState.client.isDiskSpaceSufficient()
-		
+
 		// Determine number of changes
 		self.changesCount = appState.lastChanges.count(where: { change in
 			guard let folder = appState.client.folder(withID: change.folderID) else {

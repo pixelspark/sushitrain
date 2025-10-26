@@ -339,13 +339,13 @@ struct LatencyView: View {
 								Divider()
 
 								Button("Disable all devices") {
-									self.peers.forEach { peer in
+									for peer in self.peers {
 										self.appState.setDevice(peer, pausedByUser: true)
 									}
 								}.disabled(self.peers.allSatisfy { self.appState.isDevicePausedByUser($0) })
 
 								Button("Enable all devices") {
-									self.peers.forEach { peer in
+									for peer in self.peers {
 										self.appState.setDevice(peer, pausedByUser: false)
 									}
 								}.disabled(self.peers.allSatisfy { !self.appState.isDevicePausedByUser($0) })
