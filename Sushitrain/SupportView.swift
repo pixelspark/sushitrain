@@ -298,6 +298,7 @@ struct TroubleshootingView: View {
 	@State private var showV1BackupRemoved = false
 	@State private var showCacheCleared = false
 	@State private var showLog = false
+	@State private var showAllBookmarksRemoved = false
 
 	private static let formatter = ByteCountFormatter()
 
@@ -429,6 +430,17 @@ struct TroubleshootingView: View {
 					Button("OK") {}
 				}
 			}
+
+			#if os(iOS)
+				Section {
+					Button("Remove all bookmarks", role: .destructive) {
+						self.removeAllBookmarks()
+					}
+					.alert("All bookmarks have been removed", isPresented: $showAllBookmarksRemoved) {
+						Button("OK") {}
+					}
+				}
+			#endif
 		}
 		#if os(macOS)
 			.formStyle(.grouped)
@@ -451,6 +463,13 @@ struct TroubleshootingView: View {
 			.navigationBarTitleDisplayMode(.inline)
 		#endif
 	}
+
+	#if os(iOS)
+		private func removeAllBookmarks() {
+			userSettings.bookmarkedRoutes.removeAll()
+			showAllBookmarksRemoved = true
+		}
+	#endif
 
 	private func updateDatabaseInfo() async {
 		self.hasLegacyDatabase = appState.client.hasLegacyDatabase()
