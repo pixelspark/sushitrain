@@ -178,7 +178,13 @@ struct BrowserView: View {
 							Log.warn("failed to access security scoped URL from file importer: \(url)")
 						}
 					}
-					try? self.dropFiles(fu)
+					do {
+						try self.dropFiles(fu)
+					}
+					catch {
+						Log.warn("failed to drop file: \(error)")
+						self.error = error
+					}
 					for url in fu {
 						url.stopAccessingSecurityScopedResource()
 					}
@@ -321,6 +327,25 @@ struct BrowserView: View {
 		}
 	}
 
+	@ViewBuilder private func addMenu() -> some View {
+		Menu {
+			Button("Select files...", systemImage: "plus") {
+				showAddFilePicker = true
+			}
+
+			#if os(iOS)
+				Button("Paste files...", systemImage: "document.on.clipboard") {
+					Task {
+						await self.dropItemProviders(UIPasteboard.general.itemProviders)
+					}
+				}.disabled(UIPasteboard.general.itemProviders.isEmpty)
+			#endif
+		} label: {
+			Label("Add...", systemImage: "plus")
+		}.disabled(
+			!folderExists || !self.folder.isRegularFolder || self.folder.folderType() == SushitrainFolderTypeReceiveOnly)
+	}
+
 	@ViewBuilder private func folderMenu() -> some View {
 		Menu {
 			#if os(iOS)
@@ -339,17 +364,11 @@ struct BrowserView: View {
 					NavigationLink(destination: FileView(file: entry, showPath: false, siblings: nil)) {
 						Label("Subdirectory properties...", systemImage: "folder.badge.gearshape")
 					}
-
-					Divider()
 				}
 			}
 
 			if folderExists {
-				if self.folder.isRegularFolder && self.folder.folderType() != SushitrainFolderTypeReceiveOnly {
-					Button("Add files...", systemImage: "plus") {
-						showAddFilePicker = true
-					}
-				}
+				self.addMenu()
 
 				#if os(iOS)
 					Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
@@ -419,6 +438,43 @@ struct BrowserView: View {
 		try self.dropFiles(urls)
 	}
 
+	private func dropItemProviders(_ items: [NSItemProvider]) async {
+		var urls: [URL] = []
+
+		for item in items {
+			do {
+				let tempURL: URL? = try await withCheckedThrowingContinuation { cont in
+					// TODO: add file coordination
+					let _ = item.loadFileRepresentation(for: UTType.data, openInPlace: true) { tempURL, wasOpenedInPlace, err in
+						if let err = err {
+							cont.resume(throwing: err)
+							return
+						}
+						else {
+							cont.resume(returning: tempURL)
+						}
+					}
+				}
+
+				if let tempURL = tempURL {
+					urls.append(tempURL)
+				}
+			}
+			catch {
+				Log.warn("failed to load file representation for item: \(error)")
+			}
+		}
+
+		// Process the files
+		do {
+			try self.dropFiles(urls)
+		}
+		catch {
+			Log.warn("failed to drop files: \(error)")
+			self.error = error
+		}
+	}
+
 	private func dropFiles(_ urls: [URL]) throws {
 		// Find out the native location of our folder
 		var error: NSError? = nil
@@ -444,16 +500,23 @@ struct BrowserView: View {
 		var pathsToSelect: [String] = []
 
 		if FileManager.default.fileExists(atPath: localNativeURL.path) {
+			var retainedError: Error? = nil
 			for url in urls {
-				// Copy source to folder
-				let targetURL = localNativeURL.appendingPathComponent(
-					url.lastPathComponent, isDirectory: false)
-				try FileManager.default.copyItem(at: url, to: targetURL)
+				do {
+					// Copy source to folder
+					let targetURL = localNativeURL.appendingPathComponent(
+						url.lastPathComponent, isDirectory: false)
+					try FileManager.default.copyItem(at: url, to: targetURL)
 
-				// Select the dropped file
-				if folder.isSelective() {
-					let localURL = (self.prefix.withoutEndingSlash + "/" + url.lastPathComponent).withoutStartingSlash
-					pathsToSelect.append(localURL)
+					// Select the dropped file
+					if folder.isSelective() {
+						let localURL = (self.prefix.withoutEndingSlash + "/" + url.lastPathComponent).withoutStartingSlash
+						pathsToSelect.append(localURL)
+					}
+				}
+				catch {
+					Log.warn("failed to copy a dropped file: \(error)")
+					retainedError = error
 				}
 			}
 
@@ -462,6 +525,10 @@ struct BrowserView: View {
 			}
 
 			try self.folder.rescanSubdirectory(self.prefix)
+
+			if let re = retainedError {
+				throw re
+			}
 		}
 	}
 
