@@ -5,6 +5,7 @@
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 import SwiftUI
 import QuickLook
+import UniformTypeIdentifiers
 @preconcurrency import SushitrainCore
 
 enum BrowserViewStyle: String {
@@ -26,8 +27,10 @@ private struct FolderPopoverView: View {
 
 struct BrowserView: View {
 	@Environment(AppState.self) private var appState
+
 	var folder: SushitrainFolder
 	var prefix: String
+	@ObservedObject var userSettings: AppUserSettings
 
 	@State private var showSettings = false
 	@State private var searchText = ""
@@ -232,14 +235,14 @@ struct BrowserView: View {
 				dismissButton: .default(Text("OK")))
 		}
 
-		.userActivity(SushitrainApp.browseFolderActivityID) { ua in
+		.userActivity(SushitrainApp.viewRouteActivityID) { ua in
+			let routeURL = self.route.url
 			ua.title = self.folderName
 			ua.isEligibleForHandoff = true
-			ua.targetContentIdentifier = "browse:\(self.folder.folderID):\(prefix)"  // Not really used
+			ua.targetContentIdentifier = routeURL.absoluteString
 			ua.userInfo = [
 				"version": 1,
-				"folderID": self.folder.folderID,
-				"prefix": self.prefix,
+				"url": routeURL.absoluteString,
 			]
 			ua.needsSave = true
 		}
@@ -375,7 +378,17 @@ struct BrowserView: View {
 						self.showInFinder()
 					}.disabled(!canShowInFinder)
 				#endif
+			}
 
+			#if os(iOS)
+				Toggle(isOn: Binding(get: { self.isBookmarked }, set: { self.setBookmarked($0) })) {
+					Label("Bookmark", systemImage: self.isBookmarked ? "bookmark.fill" : "bookmark")
+				}
+			#endif
+
+			Divider()
+
+			if folderExists {
 				#if os(iOS)
 					Button("Folder statistics...", systemImage: "chart.pie") {
 						showFolderStatistics = true
@@ -411,6 +424,25 @@ struct BrowserView: View {
 			#endif
 		}.disabled(!folderExists)
 	}
+
+	private var route: Route {
+		return Route.folder(folderID: self.folder.folderID, prefix: self.prefix)
+	}
+
+	#if os(iOS)
+		private var isBookmarked: Bool {
+			let url = self.route.url
+			return userSettings.bookmarkedRoutes.contains(where: { $0 == url })
+		}
+
+		private func setBookmarked(_ fav: Bool) {
+			let url = self.route.url
+			userSettings.bookmarkedRoutes.removeAll(where: { $0 == url })
+			if fav {
+				userSettings.bookmarkedRoutes.append(url)
+			}
+		}
+	#endif
 
 	private func onDrop(_ providers: [NSItemProvider]) async throws {
 		var urls: [URL] = []

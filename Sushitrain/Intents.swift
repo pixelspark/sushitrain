@@ -355,7 +355,7 @@ struct FileEntity: AppEntity {
 
 	static var typeDisplayRepresentation: TypeDisplayRepresentation {
 		TypeDisplayRepresentation(
-			name: LocalizedStringResource("File/folder")
+			name: LocalizedStringResource("File/subdirectory")
 		)
 	}
 
@@ -825,6 +825,47 @@ struct SearchInAppIntent: AppIntent {
 	@MainActor
 	func perform() async throws -> some IntentResult {
 		QuickActionService.shared.action = .search(for: searchFor)
+		return .result()
+	}
+}
+
+struct OpenFolderInAppIntent: AppIntent {
+	static let title: LocalizedStringResource = "Show folder in the app"
+	static let openAppWhenRun: Bool = true
+
+	@Dependency private var appState: AppState
+
+	@Parameter(title: "Folder", description: "The folder to open")
+	var folderEntity: FolderEntity
+
+	@Parameter(
+		title: "Path",
+		description: "Path",
+		inputOptions: String.IntentInputOptions(keyboardType: .asciiCapable, capitalizationType: .none)
+	)
+	var path: String
+
+	@MainActor
+	func perform() async throws -> some IntentResult {
+		QuickActionService.shared.action = .folder(folderID: folderEntity.folder.folderID, prefix: path)
+		return .result()
+	}
+}
+
+struct OpenFileInAppIntent: AppIntent {
+	static let title: LocalizedStringResource = "Show file in the app"
+	static let openAppWhenRun: Bool = true
+
+	@Dependency private var appState: AppState
+
+	@Parameter(title: "File", description: "The file to show")
+	var fileEntity: FileEntity
+
+	@MainActor
+	func perform() async throws -> some IntentResult {
+		if let folder = fileEntity.file.folder {
+			QuickActionService.shared.action = .file(folderID: folder.folderID, path: fileEntity.file.path())
+		}
 		return .result()
 	}
 }

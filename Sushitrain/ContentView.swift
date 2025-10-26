@@ -7,53 +7,6 @@ import SushitrainCore
 import SwiftUI
 import UniformTypeIdentifiers
 
-enum Route: Hashable, Equatable {
-	case start
-	case folders
-	case folder(folderID: String, prefix: String?)
-	case file(folderID: String, path: String)
-	case devices
-	case search
-
-	var splitted: [Route] {
-		switch self {
-		case .start, .folders, .devices, .search:
-			return [self]
-
-		case .file(let folderID, let path):
-			var parts = path.withoutStartingSlash.withoutEndingSlash.split(separator: "/")
-			if parts.isEmpty {
-				return [self]
-			}
-			parts = parts.dropLast()
-
-			var routes: [Route] = [Route.folder(folderID: folderID, prefix: "")]
-			var cumulativePrefix = ""
-			for part in parts {
-				cumulativePrefix = cumulativePrefix + part + "/"
-				routes.append(Route.folder(folderID: folderID, prefix: cumulativePrefix))
-			}
-			routes.append(self)
-			return routes
-
-		case .folder(let folderID, let prefix):
-			if let prefix = prefix {
-				let parts = prefix.withoutStartingSlash.withoutEndingSlash.split(separator: "/")
-				var routes: [Route] = [Route.folder(folderID: folderID, prefix: "")]
-				var cumulativePrefix = ""
-				for part in parts {
-					cumulativePrefix = cumulativePrefix + part + "/"
-					routes.append(Route.folder(folderID: folderID, prefix: cumulativePrefix))
-				}
-				return routes
-			}
-			else {
-				return [self]
-			}
-		}
-	}
-}
-
 struct MainView: View {
 	@Environment(AppState.self) private var appState
 	@State var topLevelRoute: Route? = .start
@@ -95,6 +48,7 @@ private struct ContentView: View {
 	@State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
 	@State private var showSearchSheet = false
 	@State private var searchSheetSearchTerm: String = ""
+	@State private var error: String? = nil
 
 	// Tracks the route within the folder tab; used to force navigating back
 	@Observable class FoldersRouteManager {
@@ -174,7 +128,7 @@ private struct ContentView: View {
 				}
 
 				// Search (iOS 26)
-				Tab(value: Route.search, role: .search) {
+				Tab(value: Route.search(for: ""), role: .search) {
 					self.searchView(inSheet: false)
 				}
 			}
@@ -303,10 +257,8 @@ private struct ContentView: View {
 		}
 		#if os(iOS)
 			.onChange(of: QuickActionService.shared.action, initial: true) { _, newAction in
-				if case .search(for: let searchFor) = newAction {
-					self.topLevelRoute = .start
-					self.searchSheetSearchTerm = searchFor
-					showSearchSheet = true
+				if let newAction = newAction {
+					self.navigate(to: newAction)
 					QuickActionService.shared.action = nil
 				}
 			}
@@ -320,6 +272,16 @@ private struct ContentView: View {
 				}
 			#endif
 		}
+
+		.alert(isPresented: Binding.isNotNil($error)) {
+			Alert(
+				title: Text("An error has occurred"),
+				message: Text(error ?? ""),
+				dismissButton: .default(Text("OK")) {
+					self.error = nil
+				})
+		}
+
 		.alert(isPresented: $showCustomConfigWarning) {
 			Alert(
 				title: Text("Custom configuration detected"),
@@ -347,40 +309,66 @@ private struct ContentView: View {
 			}
 		#endif
 
-		.onContinueUserActivity(SushitrainApp.browseFolderActivityID) { ua in
+		.onContinueUserActivity(SushitrainApp.viewRouteActivityID) { ua in
 			if let userInfo = ua.userInfo {
-				Log.info("Receive browse folder handoff \(userInfo)")
-				if let version = ua.userInfo?["version"] as? Int, version == 1, let folderID = ua.userInfo?["folderID"] as? String,
-					let prefix = ua.userInfo?["prefix"] as? String
+				Log.info("Receive view route handoff \(userInfo)")
+				if let version = ua.userInfo?["version"] as? Int,
+					version == 1,
+					let urlString = ua.userInfo?["url"] as? String,
+					let url = URL(string: urlString),
+					let route = Route(url: url)
 				{
-					if self.appState.client.folder(withID: folderID) != nil {
-						// TODO: check if prefix exists in the folder, and is a directory, before navigating to it
-						self.navigate(to: Route.folder(folderID: folderID, prefix: prefix))
-					}
-				}
-			}
-		}
-
-		.onContinueUserActivity(SushitrainApp.viewFileActivityID) { ua in
-			if let userInfo = ua.userInfo {
-				Log.info("Receive view file handoff \(userInfo)")
-				if let version = ua.userInfo?["version"] as? Int, version == 1, let folderID = ua.userInfo?["folderID"] as? String,
-					let path = ua.userInfo?["path"] as? String
-				{
-					if let folder = self.appState.client.folder(withID: folderID) {
-						if let entry = try? folder.getFileInformation(path),
-							!entry.isDirectory() && !entry.isDeleted() && !entry.isSymlink()
-						{
-							self.navigate(to: Route.file(folderID: folderID, path: path))
-						}
-					}
+					self.navigate(to: route)
 				}
 			}
 		}
 	}
 
+	private func exists(route: Route) -> Bool {
+		switch route {
+		case .devices, .start, .search(for: _), .folders:
+			return true
+		case .folder(let folderID, let prefix):
+			guard appState.client.folder(withID: folderID) != nil else {
+				return false
+			}
+
+			if let p = prefix {
+				// TODO: check if prefix points to an actual folder
+				return p.isEmpty || p.hasSuffix("/")
+			}
+			else {
+				return true
+			}
+		case .file(let folderID, let path):
+			guard let folder = appState.client.folder(withID: folderID) else {
+				return false
+			}
+
+			guard let entry = try? folder.getFileInformation(path) else {
+				return false
+			}
+
+			return !entry.isDeleted() && !entry.isSymlink()
+		}
+	}
+
 	private func navigate(to route: Route) {
 		Log.info("Navigate to route=\(route) splitted=\(route.splitted)")
+
+		if !self.exists(route: route) {
+			self.error = String(localized: "The requested item cannot be found on this device.")
+			return
+		}
+
+		// The search route opens in a sheet, because on iOS 17 is is not a separate tab, and activating the special
+		// search tab on iOS 26 doesn't seem to work properly as of writing this.
+		if case .search(for: let searchFor) = route {
+			self.topLevelRoute = .start
+			self.searchSheetSearchTerm = searchFor
+			showSearchSheet = true
+			return
+		}
 
 		#if os(iOS)
 			if horizontalSizeClass == .compact {
@@ -483,7 +471,7 @@ struct RouteView: View {
 		case .folder(let folderID, let prefix):
 			if let folder = self.appState.client.folder(withID: folderID) {
 				if folder.exists() {
-					BrowserView(folder: folder, prefix: prefix ?? "")
+					BrowserView(folder: folder, prefix: prefix ?? "", userSettings: appState.userSettings)
 				}
 				else {
 					ContentUnavailableView(
@@ -532,7 +520,7 @@ private struct LoadingMainView: View {
 				}.disabled(true)
 
 				// Search (iOS 26)
-				Tab(value: Route.search, role: .search) {
+				Tab(value: Route.search(for: ""), role: .search) {
 					NavigationStack {
 						LoadingView(appState: appState)
 					}

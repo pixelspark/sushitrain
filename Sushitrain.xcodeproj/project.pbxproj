@@ -62,6 +62,7 @@
 		65C9E1542C42B9AE00EDCE6C /* ExtraFilesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E1532C42B9AE00EDCE6C /* ExtraFilesView.swift */; };
 		65D40FCC2CBDB10600CAE91A /* SelectiveFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D40FCB2CBDB10300CAE91A /* SelectiveFolderView.swift */; };
 		65DE11A72D69CC60002FDB08 /* PreviewWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DE11A62D69CC5E002FDB08 /* PreviewWindow.swift */; };
+		65E359732EAE1EB20051D5A9 /* Route.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E359722EAE1EB00051D5A9 /* Route.swift */; };
 		65F15BFC2CA03CBE00E13DDD /* BackgroundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F15BFB2CA03CBA00E13DDD /* BackgroundManager.swift */; };
 		65F15BFD2CA03DCE00E13DDD /* SushitrainCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65AE125A2C3AB03E00E721D4 /* SushitrainCore.xcframework */; };
 		65F15C012CA06B2300E13DDD /* UploadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F15C002CA06B2100E13DDD /* UploadsView.swift */; };
@@ -154,6 +155,7 @@
 		65C9E1532C42B9AE00EDCE6C /* ExtraFilesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraFilesView.swift; sourceTree = "<group>"; };
 		65D40FCB2CBDB10300CAE91A /* SelectiveFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectiveFolderView.swift; sourceTree = "<group>"; };
 		65DE11A62D69CC5E002FDB08 /* PreviewWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewWindow.swift; sourceTree = "<group>"; };
+		65E359722EAE1EB00051D5A9 /* Route.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Route.swift; sourceTree = "<group>"; };
 		65F15BFB2CA03CBA00E13DDD /* BackgroundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundManager.swift; sourceTree = "<group>"; };
 		65F15C002CA06B2100E13DDD /* UploadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadsView.swift; sourceTree = "<group>"; };
 		65F15C022CA1F85D00E13DDD /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
@@ -240,6 +242,7 @@
 				65DE11A62D69CC5E002FDB08 /* PreviewWindow.swift */,
 				65AE123B2C39F34B00E721D4 /* PrivacyInfo.xcprivacy */,
 				657603F02D045D0900B36D78 /* QuickActions.swift */,
+				65E359722EAE1EB00051D5A9 /* Route.swift */,
 				65F15C022CA1F85D00E13DDD /* SafariView.swift */,
 				652879A72C4D06F5004AF46F /* SearchView.swift */,
 				65D40FCB2CBDB10300CAE91A /* SelectiveFolderView.swift */,
@@ -401,6 +404,7 @@
 				657603EF2D0457B400B36D78 /* Intents.swift in Sources */,
 				654272982C7BC77000F2CEF8 /* FileQuickLookView.swift in Sources */,
 				6510F19E2DAA52CF003E4D3C /* FolderSettings.swift in Sources */,
+				65E359732EAE1EB20051D5A9 /* Route.swift in Sources */,
 				6596E2422E04ABD70069B31C /* DownloadsView.swift in Sources */,
 				6505643F2CA98D22009FFFB9 /* ThumbnailView.swift in Sources */,
 				65F7EFF72E5F58B8008A64E0 /* SupportView.swift in Sources */,

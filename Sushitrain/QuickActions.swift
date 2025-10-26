@@ -9,34 +9,31 @@
 
 import SwiftUI
 
-enum QuickAction: Equatable {
-	case search(for: String)
-
-	init?(type: String) {
-		switch type {
-		case "search":
-			self = .search(for: "")
-		default:
-			return nil
-		}
-	}
-}
-
 class QuickActionService: ObservableObject {
 	@MainActor static let shared = QuickActionService()
-	@Published var action: QuickAction?
+	@Published var action: Route?
 
 	#if os(iOS)
 		@MainActor
-		static func provideActions() {
-			UIApplication.shared.shortcutItems = [
+		static func provideActions(bookmarks: [Route]) {
+			let bookmarkedActions = bookmarks.map { route in
 				UIApplicationShortcutItem(
-					type: "search",
-					localizedTitle: String(localized: "Search"),
-					localizedSubtitle: nil,
-					icon: UIApplicationShortcutIcon.init(type: .search)
+					type: route.url.absoluteString,
+					localizedTitle: route.localizedTitle,
+					localizedSubtitle: route.localizedSubtitle,
+					icon: UIApplicationShortcutIcon.init(type: .bookmark)
 				)
-			]
+			}
+
+			UIApplication.shared.shortcutItems =
+				[
+					UIApplicationShortcutItem(
+						type: Route.search(for: "").url.absoluteString,
+						localizedTitle: String(localized: "Search"),
+						localizedSubtitle: nil,
+						icon: UIApplicationShortcutIcon.init(type: .search)
+					)
+				] + bookmarkedActions
 		}
 	#endif
 }
@@ -50,9 +47,10 @@ class QuickActionService: ObservableObject {
 			_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession,
 			options: UIScene.ConnectionOptions
 		) -> UISceneConfiguration {
-			if let shortcutItem = options.shortcutItem {
-				qaService.action = QuickAction(type: shortcutItem.type)
+			if let shortcutItem = options.shortcutItem, let url = URL(string: shortcutItem.type) {
+				qaService.action = Route(url: url)
 			}
+
 			let configuration = UISceneConfiguration(
 				name: connectingSceneSession.configuration.name,
 				sessionRole: connectingSceneSession.role)
@@ -68,8 +66,8 @@ class QuickActionService: ObservableObject {
 			_ scene: UIScene, willConnectTo session: UISceneSession,
 			options connectionOptions: UIScene.ConnectionOptions
 		) {
-			if let shortcutItem = connectionOptions.shortcutItem {
-				qaService.action = QuickAction(type: shortcutItem.type)
+			if let shortcutItem = connectionOptions.shortcutItem, let url = URL(string: shortcutItem.type) {
+				qaService.action = Route(url: url)
 			}
 		}
 
@@ -77,7 +75,9 @@ class QuickActionService: ObservableObject {
 			_ windowScene: UIWindowScene, performActionFor shortcutItem: UIApplicationShortcutItem,
 			completionHandler: @escaping (Bool) -> Void
 		) {
-			qaService.action = QuickAction(type: shortcutItem.type)
+			if let url = URL(string: shortcutItem.type) {
+				qaService.action = Route(url: url)
+			}
 			completionHandler(true)
 		}
 	}

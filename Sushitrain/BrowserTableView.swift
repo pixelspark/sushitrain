@@ -207,7 +207,7 @@ struct BrowserTableView: View {
 					// Symlink to a directory
 					if targetEntry.isDirectory() {
 						if let targetFolder = targetEntry.folder {
-							BrowserView(folder: targetFolder, prefix: targetEntry.path() + "/")
+							BrowserView(folder: targetFolder, prefix: targetEntry.path() + "/", userSettings: appState.userSettings)
 						}
 					}
 					else {
@@ -233,7 +233,7 @@ struct BrowserTableView: View {
 			}
 			else if oe.isDirectory() {
 				if honorTapToPreview {
-					BrowserView(folder: folder, prefix: oe.path() + "/")
+					BrowserView(folder: folder, prefix: oe.path() + "/", userSettings: appState.userSettings)
 				}
 				else {
 					FileView(file: oe, showPath: false, siblings: self.entries)

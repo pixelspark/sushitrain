@@ -63,7 +63,9 @@ struct FileView: View {
 
 				if showPath {
 					Section("Location") {
-						NavigationLink(destination: BrowserView(folder: folder, prefix: file.parentPath())) {
+						NavigationLink(
+							destination: BrowserView(folder: folder, prefix: file.parentPath(), userSettings: appState.userSettings)
+						) {
 							Label("\(folder.label()): \(file.parentPath())", systemImage: "folder")
 						}
 					}
@@ -112,14 +114,15 @@ struct FileView: View {
 			.navigationTitle(file.fileName())
 			.quickLookPreview(self.$localItemURL)
 
-			.userActivity(SushitrainApp.viewFileActivityID) { ua in
+			.userActivity(SushitrainApp.viewRouteActivityID) { ua in
+				let route = Route.file(folderID: self.folder.folderID, path: self.file.path())
+				let routeURL = route.url
 				ua.title = file.fileName()
 				ua.isEligibleForHandoff = true
-				ua.targetContentIdentifier = "file:\(self.folder.folderID):\(file.path())"  // Not really used
+				ua.targetContentIdentifier = routeURL.absoluteString
 				ua.userInfo = [
 					"version": 1,
-					"folderID": self.folder.folderID,
-					"path": self.file.path(),
+					"url": routeURL.absoluteString,
 				]
 				ua.needsSave = true
 			}

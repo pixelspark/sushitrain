@@ -113,7 +113,8 @@ struct GridFilesView: View {
 					GeometryReader { geo in
 						let fileName = subDirEntry.fileName()
 						NavigationLink(
-							destination: BrowserView(folder: folder, prefix: "\(self.prefix)\(fileName)/")
+							destination: BrowserView(
+								folder: folder, prefix: "\(self.prefix)\(fileName)/", userSettings: appState.userSettings)
 						) {
 							GridItemView(size: geo.size.width, file: subDirEntry).id(subDirEntry.id)
 						}

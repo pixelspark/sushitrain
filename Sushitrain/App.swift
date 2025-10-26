@@ -11,8 +11,7 @@ import AppIntents
 
 @main
 struct SushitrainApp: App {
-	static var browseFolderActivityID = "nl.t-shaped.Sushitrain.browse-folder"
-	static var viewFileActivityID = "nl.t-shaped.Sushitrain.view-file"
+	static var viewRouteActivityID = "nl.t-shaped.Sushitrain.view-route"
 
 	@State fileprivate var appState: AppState
 
@@ -181,12 +180,8 @@ struct SushitrainApp: App {
 				#endif
 
 				#if os(macOS)
-					.onContinueUserActivity(SushitrainApp.browseFolderActivityID) { ua in
-						Log.info("Receive browse-folder handoff at app level: \(String(describing: ua.userInfo))")
-					}
-
-					.onContinueUserActivity(SushitrainApp.viewFileActivityID) { ua in
-						Log.info("Receive view-file handoff at app level: \(String(describing: ua.userInfo))")
+					.onContinueUserActivity(SushitrainApp.viewRouteActivityID) { ua in
+						Log.info("Receive view-route handoff at app level: \(String(describing: ua.userInfo))")
 					}
 				#endif
 		}

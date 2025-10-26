@@ -47,7 +47,9 @@ struct BrowserListView: View {
 			Section {
 				ForEach(subdirectories, id: \.self) { (subDirEntry: SushitrainEntry) in
 					let fileName = subDirEntry.fileName()
-					NavigationLink(destination: BrowserView(folder: folder, prefix: "\(prefix)\(fileName)/")) {
+					NavigationLink(
+						destination: BrowserView(folder: folder, prefix: "\(prefix)\(fileName)/", userSettings: appState.userSettings)
+					) {
 						ItemSelectSwipeView(file: subDirEntry) {
 							// Subdirectory name
 							HStack(spacing: 9.0) {
@@ -145,7 +147,8 @@ struct EntryView: View {
 				if targetEntry.isDirectory() {
 					if let targetFolder = targetEntry.folder {
 						NavigationLink(
-							destination: BrowserView(folder: targetFolder, prefix: targetEntry.path() + "/")
+							destination: BrowserView(
+								folder: targetFolder, prefix: targetEntry.path() + "/", userSettings: appState.userSettings)
 						) { self.entryView(entry: entry) }.contextMenu {
 							NavigationLink(
 								destination: FileView(file: targetEntry, showPath: self.folder == nil, siblings: nil)
@@ -297,7 +300,9 @@ struct FileEntryLink<Content: View>: View {
 			// Show 'go to location' in list if we are not in the file's folder already
 			if self.inFolder == nil {
 				if let folder = entry.folder {
-					NavigationLink(destination: BrowserView(folder: folder, prefix: entry.parentPath())) {
+					NavigationLink(
+						destination: BrowserView(folder: folder, prefix: entry.parentPath(), userSettings: appState.userSettings)
+					) {
 						let parentFolderName = entry.parentFolderName
 						if parentFolderName.isEmpty {
 							Label("Go to location", systemImage: "document.circle")

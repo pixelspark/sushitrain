@@ -95,11 +95,6 @@ class SushitrainDelegate: NSObject {
 	@AppStorage("ignoreLongTimeNoSeeDevices") var ignoreLongTimeNoSeeDevices = Set<String>()
 	@AppStorage("ignoreDiscoveredDevices") var ignoreDiscoveredDevices = Set<String>()
 
-	#if os(iOS)
-		// Whether to re-enable hideHiddenFolders when app comes to the foreground
-		@AppStorage("rehideHiddenFoldersOnActivate") var rehideHiddenFoldersOnActivate: Bool = false
-	#endif
-
 	@AppStorage("onboardingVersionShown") var onboardingVersionShown = 0
 
 	// Number of seconds after which we remind the user that a device hasn't connected in a while
@@ -113,6 +108,14 @@ class SushitrainDelegate: NSObject {
 
 	// Whether to show the onboarding on the next startup, regardless of whether it has been shown before
 	@AppStorage("forceOnboardingOnNextStartup") var forceOnboardingOnNextStartup = false
+
+	#if os(iOS)
+		// Whether to re-enable hideHiddenFolders when app comes to the foreground
+		@AppStorage("rehideHiddenFoldersOnActivate") var rehideHiddenFoldersOnActivate: Bool = false
+
+		// Bookmarked places in the app
+		@AppStorage("bookmarkedRoutes") var bookmarkedRoutes: [URL] = []
+	#endif
 
 	#if os(macOS)
 		// The action to perform when a user clicks a folder in the dock menu
@@ -723,11 +726,19 @@ struct SyncState {
 		#endif
 	}
 
+	#if os(iOS)
+		private var bookmarkedRoutesAsRoute: [Route] {
+			return self.userSettings.bookmarkedRoutes.compactMap { url in
+				return Route(url: url)
+			}
+		}
+	#endif
+
 	func sleep() async {
 		self.stopNetworkMonitor()
 
 		#if os(iOS)
-			QuickActionService.provideActions()
+			QuickActionService.provideActions(bookmarks: self.bookmarkedRoutesAsRoute)
 
 			if userSettings.lingeringEnabled {
 				Log.info("Background time remaining: \(UIApplication.shared.backgroundTimeRemaining)")
@@ -788,6 +799,7 @@ struct SyncState {
 				#if os(iOS)
 					self.backgroundManager.inactivate()
 					self.reduceMemoryUsage()
+					QuickActionService.provideActions(bookmarks: self.bookmarkedRoutesAsRoute)
 				#endif
 			}
 			#if os(iOS)
