@@ -34920,6 +34920,52 @@
         }
       }
     },
+    "This folder has not been shared with any other devices yet." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Ordner wurde noch nicht mit anderen Geräten geteilt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta carpeta aún no se ha compartido con otros dispositivos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa cartella non è ancora stata condivisa con altri dispositivi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このフォルダはまだ他のデバイスと共有されていません。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze map is nog niet met andere apparaten gedeeld."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ця папка ще не була поширена на інші пристрої."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此文件夹尚未与其他设备共享。"
+          }
+        }
+      }
+    },
     "This folder is external to this app, and cannot be accessed anymore. To resolve this issue, unlink the folder and re-add it." : {
       "localizations" : {
         "de" : {

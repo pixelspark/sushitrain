@@ -167,7 +167,8 @@ struct FolderStatisticsView: View {
 
 		self.loading = true
 		await Task.detached {
-			let peers = await appState.peers().filter({ d in !d.isSelf() })
+			let sharedWithDeviceIDs = Set(folder.sharedWithDeviceIDs()?.asArray() ?? [])
+			let peers = await appState.peers().filter({ d in !d.isSelf() && sharedWithDeviceIDs.contains(d.id) })
 			var dict: [String: SushitrainPeer] = [:]
 			for peer in peers {
 				dict[peer.deviceID()] = peer
@@ -178,7 +179,7 @@ struct FolderStatisticsView: View {
 			Task { @MainActor in
 				self.allDevices = dict
 				self.statistics = stats
-				self.completions = completions ?? [:]
+				self.completions = (completions ?? [:]).filter({ dict[$0.key] != nil })
 			}
 		}.value
 		self.loading = false
@@ -196,18 +197,25 @@ struct FolderStatisticsView: View {
 				}
 			}
 			else if let stats = self.statistics {
-				FolderProgressChartView(statistics: stats, progressType: folder.isSelective() ? .stores : .needs).frame(height: 48)
+				if !self.allDevices.isEmpty {
+					FolderProgressChartView(statistics: stats, progressType: folder.isSelective() ? .stores : .needs).frame(height: 48)
 
-				// Global statistics
-				if let g = stats.global {
-					Section("Full folder") {
-						// Use .formatted() here because zero is hidden in badges and that looks weird
-						Text("Number of files").badge(g.files.formatted())
-						Text("Number of directories").badge(g.directories.formatted())
-						Text("File size").badge(formatter.string(fromByteCount: g.bytes))
+					// Global statistics
+					if let g = stats.global {
+						Section("Full folder") {
+							// Use .formatted() here because zero is hidden in badges and that looks weird
+							Text("Number of files").badge(g.files.formatted())
+							Text("Number of directories").badge(g.directories.formatted())
+							Text("File size").badge(formatter.string(fromByteCount: g.bytes))
+						}
 					}
+
+				}
+				else {
+					Text("This folder has not been shared with any other devices yet.")
 				}
 
+				// Local stats
 				let totalLocal = Double(stats.global!.bytes)
 				let myPercentage = Int(
 					totalLocal > 0 ? (100.0 * Double(stats.local!.bytes) / totalLocal) : 100)
@@ -221,7 +229,12 @@ struct FolderStatisticsView: View {
 						Text("File size").badge(formatter.string(fromByteCount: local.bytes))
 					} header: {
 						HStack {
-							Text("On this device: \(myPercentage)% of the full folder")
+							if self.allDevices.isEmpty {
+								Text("On this device")
+							}
+							else {
+								Text("On this device: \(myPercentage)% of the full folder")
+							}
 						}
 					}
 				}
