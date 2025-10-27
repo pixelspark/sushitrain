@@ -2092,6 +2092,52 @@
         }
       }
     },
+    "A photo folder contains photos from selected albums from your photo library. Because photos are read directly from the photo album, the photo folder itself does not take up storage space on this device. Photo folders are read-only and send-only, which means that you cannot add files to the folder, nor modify or delete photos in the folder." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Fotoordner enthält Fotos aus ausgewählten Alben deiner Fotobibliothek. Da Fotos direkt aus dem Fotoalbum gelesen werden, nimmt der Fotoordner selbst keinen Speicherplatz auf diesem Gerät ein. Fotoordner sind nur lesbar und nur sendbar, was bedeutet, dass du keine Dateien zum Ordner hinzufügen oder Fotos im Ordner ändern oder löschen kannst."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una carpeta de fotos contiene fotos de álbumes seleccionados de tu biblioteca de fotos. Dado que las fotos se leen directamente desde el álbum de fotos, la carpeta de fotos en sí no ocupa espacio de almacenamiento en este dispositivo. Las carpetas de fotos son solo de lectura y solo envío, lo que significa que no puedes agregar archivos a la carpeta ni modificar o eliminar fotos de la carpeta."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una cartella foto contiene foto dagli album selezionati della tua libreria fotografica. Poiché le foto vengono lette direttamente dall'album, la cartella foto stessa non occupa spazio di archiviazione su questo dispositivo. Le cartelle foto sono di sola lettura e solo invio, il che significa che non puoi aggiungere file alla cartella, né modificare o eliminare foto nella cartella."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フォトフォルダには、フォトライブラリから選択したアルバムの写真が含まれています。写真はフォトアルバムから直接読み取られるため、フォトフォルダ自体はこのデバイスにストレージスペースを占有しません。フォトフォルダは読み取り専用で送信のみ可能であり、フォルダにファイルを追加したり、フォルダ内の写真を変更または削除することはできません。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een fotomap bevat foto's uit geselecteerde albums uit je fotobibliotheek. Omdat foto's direct uit het fotoalbum worden gelezen, neemt de fotomap zelf geen opslagruimte in beslag op dit apparaat. Fotomappen zijn alleen-lezen en alleen-verzenden, wat betekent dat je geen bestanden aan de map kunt toevoegen en ook geen foto's in de map kunt wijzigen of verwijderen."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Папка з фотографіями містить фотографії з вибраних альбомів з вашої фототеки. Оскільки фотографії зчитуються безпосередньо з фотоальбому, сама папка з фотографіями не займає місце на цьому пристрої. Папки з фотографіями є лише для читання та відправки, що означає, що ви не можете додавати файли до папки, змінювати або видаляти фотографії в папці."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片文件夹包含你照片库中选定相册的照片。由于照片直接从相册中读取，照片文件夹本身不会占用此设备的存储空间。照片文件夹是只读且仅供发送，这意味着你不能向文件夹添加文件，也不能修改或删除文件夹中的照片。"
+          }
+        }
+      }
+    },
     "About Synctrain" : {
       "localizations" : {
         "de" : {
@@ -22952,52 +22998,6 @@
         }
       }
     },
-    "Photos synchronization" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fotosynchronisierung"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronización de fotos"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronizzazione foto"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "写真の同期"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fotosynchronisatie"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Синхронізація фотографій"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "照片同步"
-          }
-        }
-      }
-    },
     "Photos will only be removed when photo back-up is started manually from inside the app, because a permission screen will be shown before the app is able to remove photos." : {
       "localizations" : {
         "de" : {
@@ -31228,6 +31228,52 @@
         }
       }
     },
+    "Synctrain can automatically export photos and videos from your photo library as files to a synchronized folder. This can be useful if you want to back up your photos to other devices. Exported photos will take up storage space on your device as long as these files remain selected for synchronization." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain kann automatisch Fotos und Videos aus Ihrer Fotobibliothek als Dateien in einen synchronisierten Ordner exportieren. Dies kann nützlich sein, wenn Sie Ihre Fotos auf anderen Geräten sichern möchten. Exportierte Fotos belegen Speicherplatz auf Ihrem Gerät, solange diese Dateien für die Synchronisierung ausgewählt bleiben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain puede exportar automáticamente fotos y videos de tu biblioteca de fotos como archivos a una carpeta sincronizada. Esto puede ser útil si quieres hacer una copia de seguridad de tus fotos en otros dispositivos. Las fotos exportadas ocuparán espacio de almacenamiento en tu dispositivo mientras estos archivos permanezcan seleccionados para sincronización."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain può esportare automaticamente foto e video dalla tua libreria fotografica come file in una cartella sincronizzata. Questo può essere utile se desideri fare il backup delle tue foto su altri dispositivi. Le foto esportate occuperanno spazio di archiviazione sul tuo dispositivo finché questi file rimarranno selezionati per la sincronizzazione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrainは、写真ライブラリから写真やビデオを同期フォルダにファイルとして自動的にエクスポートできます。これは、写真を他のデバイスにバックアップしたい場合に便利です。エクスポートされた写真は、これらのファイルが同期のために選択されたままである限り、デバイスのストレージ容量を占有します。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain kan automatisch foto's en video's vanuit je fotobibliotheek exporteren als bestanden naar een gesynchroniseerde map. Dit kan handig zijn als je een back-up van je foto's naar andere apparaten wilt maken. Geëxporteerde foto's nemen opslagruimte op je apparaat in zolang deze bestanden geselecteerd blijven voor synchronisatie."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain може автоматично експортувати фото та відео з вашої бібліотеки як файли до синхронізованої папки. Це може бути корисно, якщо ви хочете зробити резервну копію своїх фото на інші пристрої. Експортовані фото займатимуть простір на вашому пристрої, поки ці файли залишаються вибраними для синхронізації."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain可以自动将您的照片库中的照片和视频导出为文件到一个同步文件夹。如果您想将照片备份到其他设备，这可能会很有用。只要这些文件仍然选择同步，导出的照片就会占用您设备上的存储空间。"
+          }
+        }
+      }
+    },
     "Synctrain can be configured to use services provided by the [Syncthing Foundation](https://syncthing.net/foundation) to be able to find and connect to other devices. When this is enabled, Synctrain will send your device ID and IP addresses to these services." : {
       "localizations" : {
         "de" : {
@@ -32696,6 +32742,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "文件夹没有本地路径"
+          }
+        }
+      }
+    },
+    "The folder ID must be the same on each device for his folder, and cannot be changed later. You can customize the display name of the folder after creation." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Ordner-ID muss auf jedem Gerät für diesen Ordner gleich sein und kann später nicht geändert werden. Sie können den Anzeigenamen des Ordners nach der Erstellung anpassen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El ID de la carpeta debe ser el mismo en cada dispositivo para su carpeta, y no se puede cambiar más tarde. Puedes personalizar el nombre de visualización de la carpeta después de la creación."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'ID della cartella deve essere lo stesso su ciascun dispositivo per questa cartella e non può essere modificato in seguito. Puoi personalizzare il nome visualizzato della cartella dopo la creazione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フォルダーIDは各デバイスで同じである必要があり、後から変更できません。作成後にフォルダーの表示名をカスタマイズできます。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De map-ID moet op elk apparaat hetzelfde zijn voor deze map en kan later niet meer gewijzigd worden. Je kunt de weergavenaam van de map aanpassen na aanmaak."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ідентифікатор папки має бути однаковим на кожному пристрої для цієї папки і не може бути змінений пізніше. Ви можете налаштовувати відображуване ім'я папки після створення."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件夹 ID 在每个设备上必须相同，并且以后无法更改。创建后可以自定义文件夹的显示名称。"
           }
         }
       }

@@ -42,7 +42,7 @@ struct AddFolderView: View {
 	}
 
 	@ViewBuilder private func folderIDSection() -> some View {
-		Section(header: Text("Folder ID")) {
+		Section {
 			TextField("", text: $folderID, prompt: Text("XXXX-XXXX"))
 				.focused($idFieldFocus)
 				.disabled(self.folderIDReadOnly)
@@ -51,11 +51,17 @@ struct AddFolderView: View {
 					.autocorrectionDisabled()
 					.keyboardType(.asciiCapable)
 				#endif
+		} header: {
+			Text("Folder ID")
+		} footer: {
+			Text(
+				"The folder ID must be the same on each device for his folder, and cannot be changed later. You can customize the display name of the folder after creation."
+			)
 		}
 	}
 
 	@ViewBuilder private func folderTypeSection() -> some View {
-		Section("Folder type") {
+		Section {
 			Button("Regular folder", systemImage: self.folderPath == nil && !isPhotoFolder ? "checkmark.circle.fill" : "circle")
 			{
 				self.folderPath = nil
@@ -93,6 +99,14 @@ struct AddFolderView: View {
 			#if os(macOS)
 				.buttonStyle(.link)
 			#endif
+		} header: {
+			Text("Folder type")
+		} footer: {
+			if self.isPhotoFolder {
+				Text(
+					"A photo folder contains photos from selected albums from your photo library. Because photos are read directly from the photo album, the photo folder itself does not take up storage space on this device. Photo folders are read-only and send-only, which means that you cannot add files to the folder, nor modify or delete photos in the folder."
+				)
+			}
 		}
 	}
 
