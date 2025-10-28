@@ -55,12 +55,12 @@ struct ExtraFilesView: View {
 										for f in extraFiles { verdicts[f] = s }
 									})
 							) {
-								Image(systemName: "trash").tint(.red).tag(false).accessibilityLabel("Delete file")
+								Image(systemName: "trash").tint(.red).tag(false).help("Delete file")
 								if folder.folderType() == SushitrainFolderTypeReceiveOnly {
-									Image(systemName: "trash.slash").tag(true).accessibilityLabel("Keep file")
+									Image(systemName: "trash.slash").tag(true).help("Keep file")
 								}
 								else {
-									Image(systemName: "plus.square.fill").tag(true).accessibilityLabel("Keep file")
+									Image(systemName: "plus.square.fill").tag(true).help("Keep file")
 								}
 							}.pickerStyle(.segmented).frame(width: 100)
 						}
@@ -92,16 +92,16 @@ struct ExtraFilesView: View {
 												allVerdict = nil
 											})
 									) {
-										Image(systemName: "trash").tint(.red).tag(false).accessibilityLabel("Delete file")
+										Image(systemName: "trash").tint(.red).tag(false).help("Delete file")
 										if folder.folderType() == SushitrainFolderTypeReceiveOnly {
-											Image(systemName: "trash.slash").tag(true).accessibilityLabel("Keep file")
+											Image(systemName: "trash.slash").tag(true).help("Keep file")
 										}
 										else {
 											if let ge = globalEntry, !ge.isDeleted() {
-												Image(systemName: "rectangle.2.swap").tag(true).accessibilityLabel("Replace existing file")
+												Image(systemName: "rectangle.2.swap").tag(true).help("Replace existing file")
 											}
 											else {
-												Image(systemName: "plus.square.fill").tag(true).accessibilityLabel("Keep file")
+												Image(systemName: "plus.square.fill").tag(true).help("Keep file")
 											}
 										}
 									}.pickerStyle(.segmented).frame(width: 100)
