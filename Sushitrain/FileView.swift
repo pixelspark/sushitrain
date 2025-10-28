@@ -609,8 +609,8 @@ struct FileView: View {
 	private func onTapThumbnail() {
 		#if os(macOS)
 			// On macOS prefer local QuickLook
-			if file.isLocallyPresent() {
-				localItemURL = URL(fileURLWithPath: localPath!)
+			if let localPath = localPath, file.isLocallyPresent() {
+				localItemURL = URL(fileURLWithPath: localPath)
 			}
 			else if file.isVideo || file.isImage {
 				#if os(macOS)
@@ -630,8 +630,8 @@ struct FileView: View {
 			if file.isVideo || file.isImage {
 				showFullScreenViewer = true
 			}
-			else if file.isLocallyPresent() {
-				localItemURL = URL(fileURLWithPath: localPath!)
+			else if let localPath = localPath, file.isLocallyPresent() {
+				localItemURL = URL(fileURLWithPath: localPath)
 			}
 		#endif
 	}
