@@ -30630,48 +30630,48 @@
         }
       }
     },
-    "Synchronization is disabled for all associated devices. This may occur after updating or restarting the app. To restart synchronization, re-enable synchronization on the 'devices' page, or tap here to enable all devices." : {
+    "Synchronization is disabled for all associated devices. To restart synchronization, re-enable synchronization on the 'devices' page, or tap here to enable all devices." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Synchronisierung ist für alle verbundenen Geräte deaktiviert. Dies kann nach dem Aktualisieren oder Neustarten der App auftreten. Um die Synchronisierung neu zu starten, aktivieren Sie die Synchronisierung auf der 'Geräte'-Seite erneut oder tippen Sie hier, um alle Geräte zu aktivieren."
+            "value" : "Die Synchronisation ist für alle verbundenen Geräte deaktiviert. Um die Synchronisation neu zu starten, aktivieren Sie die Synchronisation auf der Seite „Geräte“ erneut oder tippen Sie hier, um alle Geräte zu aktivieren."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La sincronización está desactivada para todos los dispositivos asociados. Esto puede ocurrir después de actualizar o reiniciar la aplicación. Para reiniciar la sincronización, vuelva a habilitar la sincronización en la página de 'dispositivos', o pulse aquí para habilitar todos los dispositivos."
+            "value" : "La sincronización está desactivada para todos los dispositivos asociados. Para reiniciar la sincronización, habilita la sincronización en la página de \"dispositivos\" o toca aquí para habilitar todos los dispositivos."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La sincronizzazione è disattivata per tutti i dispositivi associati. Questo può accadere dopo l'aggiornamento o il riavvio dell'app. Per riavviare la sincronizzazione, riattivare la sincronizzazione nella pagina 'dispositivi' o tocca qui per abilitare tutti i dispositivi."
+            "value" : "La sincronizzazione è disattivata per tutti i dispositivi associati. Per riavviare la sincronizzazione, riattiva la sincronizzazione nella pagina \"dispositivi\" o tocca qui per abilitare tutti i dispositivi."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "関連するすべてのデバイスで同期が無効になっています。これはアプリのアップデートや再起動後に発生する可能性があります。同期を再開するには、「デバイス」ページで同期を再度有効にするか、ここをタップしてすべてのデバイスを有効にします。"
+            "value" : "関連付けられたすべてのデバイスの同期が無効になっています。同期を再開するには、「デバイス」ページで同期を再度有効にするか、ここをタップしてすべてのデバイスを有効にしてください。"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synchronisatie is uitgeschakeld voor alle gekoppelde apparaten. Dit kan optreden na het updaten of opnieuw opstarten van de app. Om synchronisatie opnieuw te starten, schakel je synchronisatie in op de 'apparaten'-pagina, of tik hier om alle apparaten in te schakelen."
+            "value" : "Synchronisatie is uitgeschakeld voor alle gekoppelde apparaten. Om synchronisatie opnieuw te starten, schakelt u de synchronisatie opnieuw in op de pagina 'apparaten', of tikt u hier om alle apparaten in te schakelen."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Синхронізацію вимкнено для всіх пов'язаних пристроїв. Це може статися після оновлення або перезапуску додатка. Щоб відновити синхронізацію, увімкніть її знову на сторінці 'пристрої', або натисніть тут, щоб увімкнути всі пристрої."
+            "value" : "Синхронізацію вимкнено для всіх пов’язаних пристроїв. Щоб перезапустити синхронізацію, увімкніть її на сторінці «пристрої» або натисніть тут, щоб увімкнути всі пристрої."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "所有关联设备的同步已禁用。这可能会在更新或重新启动应用后发生。要重新启动同步，请在“设备”页面重新启用同步，或点击这里启用所有设备。"
+            "value" : "已为所有关联设备禁用同步。要重新启动同步，请在“设备”页面重新启用同步，或点击此处启用所有设备。"
           }
         }
       }

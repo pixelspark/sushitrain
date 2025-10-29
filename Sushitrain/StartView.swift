@@ -556,7 +556,7 @@ struct StartView: View {
 						.bold()
 						.foregroundStyle(.orange)
 						Text(
-							"Synchronization is disabled for all associated devices. This may occur after updating or restarting the app. To restart synchronization, re-enable synchronization on the 'devices' page, or tap here to enable all devices."
+							"Synchronization is disabled for all associated devices. To restart synchronization, re-enable synchronization on the 'devices' page, or tap here to enable all devices."
 						)
 						.foregroundStyle(.orange)
 					}
@@ -675,14 +675,8 @@ struct StartView: View {
 		})
 
 		await self.appState.updateBadge()  // Updates extraneous files list
-		do {
-			try await Task.sleep(nanoseconds: 3 * 1_000_000_000)  // 3 seconds
-			let enabledPeerCount = p.count { !$0.isPaused() && !$0.isSelf() }
-			showNoPeersEnabledWarning = p.count > 1 && enabledPeerCount == 0
-		}
-		catch {
-			// Ignored
-		}
+		let enabledPeerCount = p.count { !$0.isSelf() && !appState.userSettings.userPausedDevices.contains($0.deviceID()) }
+		showNoPeersEnabledWarning = p.count > 1 && enabledPeerCount == 0
 	}
 
 	private func updateFoldersWithIssues() async {
