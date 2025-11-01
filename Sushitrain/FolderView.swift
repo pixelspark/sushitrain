@@ -593,54 +593,13 @@ struct ExternalFolderInaccessibleView: View {
 }
 
 struct FolderView: View {
-	private enum ConfirmableAction {
-		case unlinkFolder
-		case removeFolder
-
-		var message: String {
-			switch self {
-			case .removeFolder:
-				return String(
-					localized:
-						"Are you sure you want to remove this folder? Please consider carefully. All files in this folder will be removed from this device. Files that have not been synchronized to other devices yet cannot be recovered."
-				)
-			case .unlinkFolder:
-				return String(
-					localized:
-						"Are you sure you want to unlink this folder? The folder will not be synchronized any longer. Files currently on this device will not be deleted."
-				)
-			}
-		}
-
-		var buttonTitle: String {
-			switch self {
-			case .removeFolder: return String(localized: "Remove the folder and all files")
-			case .unlinkFolder: return String(localized: "Unlink the folder")
-			}
-		}
-	}
-
 	var folder: SushitrainFolder
 	@Environment(AppState.self) private var appState
 	@Environment(\.dismiss) private var dismiss
-	@State private var isWorking = false
-	@State private var showAlert: ShowAlert? = nil
-	@State private var showConfirmable: ConfirmableAction? = nil
+
 	@State private var advancedExpanded = false
 	@State private var possiblePeers: [SushitrainPeer] = []
 	@State private var unsupportedDataProtection = false
-
-	private enum ShowAlert: Identifiable {
-		case error(String)
-		case removeSuperfluousCompleted
-
-		var id: String {
-			switch self {
-			case .error(let e): return e
-			case .removeSuperfluousCompleted: return "removeSuperfluousCompleted"
-			}
-		}
-	}
 
 	func update() async {
 		self.possiblePeers = await appState.peers().sorted().filter({ d in !d.isSelf() })
@@ -734,132 +693,6 @@ struct FolderView: View {
 		.navigationTitle(folder.displayName)
 		.task {
 			await self.update()
-		}
-		.alert(item: $showAlert) { alert in
-			switch alert {
-			case .error(let err):
-				Alert(
-					title: Text("An error occurred"), message: Text(err),
-					dismissButton: .default(Text("OK")))
-			case .removeSuperfluousCompleted:
-				Alert(
-					title: Text("Unsynchronized empty subdirectories removed"),
-					message: Text(
-						"Subdirectories that were empty and had no files in them were removed from this device."
-					), dismissButton: .default(Text("OK")))
-
-			}
-		}
-		.toolbar {
-			#if os(iOS)
-				ToolbarItem(placement: .topBarLeading) {
-					self.folderOperationsMenu()
-				}
-			#else
-				ToolbarItem(placement: .automatic) {
-					self.folderOperationsMenu()
-				}
-			#endif
-		}
-		.confirmationDialog(
-			showConfirmable?.message ?? "", isPresented: Binding.isNotNil($showConfirmable), titleVisibility: .visible
-		) {
-			if let sc = showConfirmable {
-				Button(sc.buttonTitle, role: .destructive, action: self.confirmedAction)
-			}
-		}
-	}
-
-	@ViewBuilder private func folderOperationsMenu() -> some View {
-		Menu {
-			Button("Re-scan folder", systemImage: "sparkle.magnifyingglass", action: rescanFolder)
-				#if os(macOS)
-					.buttonStyle(.link)
-				#endif
-
-			Divider()
-
-			if folder.isSelective() {
-				Button(
-					"Remove unsynchronized empty subdirectories",
-					systemImage: "eraser", role: .destructive
-				) {
-					self.removeUnsynchronizedEmpty()
-				}
-				#if os(macOS)
-					.buttonStyle(.link)
-				#endif
-				.foregroundColor(.red)
-				.disabled(isWorking)
-			}
-
-			Divider()
-
-			Button("Unlink folder", systemImage: "folder.badge.minus", role: .destructive) {
-				showConfirmable = .unlinkFolder
-			}
-			#if os(macOS)
-				.buttonStyle(.link)
-			#endif
-			.foregroundColor(.red)
-
-			// Only allow removing a full folder when we are sure it is in the area managed by us
-			if folder.isRegularFolder && folder.isExternal == false {
-				Button("Remove folder", systemImage: "trash", role: .destructive) {
-					showConfirmable = .removeFolder
-				}
-				#if os(macOS)
-					.buttonStyle(.link)
-				#endif
-				.foregroundColor(.red)
-			}
-		} label: {
-			Label("Folder actions", systemImage: "ellipsis.circle")
-		}
-	}
-
-	private func confirmedAction() {
-		do {
-			switch self.showConfirmable {
-			case .none:
-				return
-			case .unlinkFolder:
-				dismiss()
-				try folder.unlinkFolderAndRemoveSettings()
-			case .removeFolder:
-				dismiss()
-				try folder.removeFolderAndSettings()
-			}
-		}
-		catch let error {
-			self.showAlert = .error(error.localizedDescription)
-		}
-		self.showConfirmable = .none
-	}
-
-	private func rescanFolder() {
-		do {
-			try folder.rescan()
-		}
-		catch let error {
-			self.showAlert = .error(error.localizedDescription)
-		}
-	}
-
-	private func removeUnsynchronizedEmpty() {
-		Task {
-			do {
-				self.isWorking = true
-				try await Task.detached {
-					try folder.removeSuperfluousSubdirectories()
-					try folder.removeSuperfluousSelectionEntries()
-				}.value
-				self.isWorking = false
-				self.showAlert = .removeSuperfluousCompleted
-			}
-			catch {
-				self.showAlert = .error(error.localizedDescription)
-			}
 		}
 	}
 }

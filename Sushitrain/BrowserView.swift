@@ -26,6 +26,45 @@ private struct FolderPopoverView: View {
 }
 
 struct BrowserView: View {
+	private enum ConfirmableAction {
+		case unlinkFolder
+		case removeFolder
+
+		var message: String {
+			switch self {
+			case .removeFolder:
+				return String(
+					localized:
+						"Are you sure you want to remove this folder? Please consider carefully. All files in this folder will be removed from this device. Files that have not been synchronized to other devices yet cannot be recovered."
+				)
+			case .unlinkFolder:
+				return String(
+					localized:
+						"Are you sure you want to unlink this folder? The folder will not be synchronized any longer. Files currently on this device will not be deleted."
+				)
+			}
+		}
+
+		var buttonTitle: String {
+			switch self {
+			case .removeFolder: return String(localized: "Remove the folder and all files")
+			case .unlinkFolder: return String(localized: "Unlink the folder")
+			}
+		}
+	}
+
+	private enum ShowAlert: Identifiable {
+		case error(String)
+		case removeSuperfluousCompleted
+
+		var id: String {
+			switch self {
+			case .error(let e): return e
+			case .removeSuperfluousCompleted: return "removeSuperfluousCompleted"
+			}
+		}
+	}
+
 	@Environment(AppState.self) private var appState
 
 	var folder: SushitrainFolder
@@ -40,9 +79,11 @@ struct BrowserView: View {
 	@State private var folderIsSelective = false
 	@State private var showSearch = false
 	@State private var showAddFilePicker = false
-	@State private var error: Error? = nil
 	@State private var webViewAvailable = false
 	@State private var viewStyle: BrowserViewStyle? = nil
+	@State private var showAlert: ShowAlert? = nil
+	@State private var showConfirmable: ConfirmableAction? = nil
+	@State private var isWorking = false
 
 	#if os(macOS)
 		@State private var showIgnores = false
@@ -173,30 +214,10 @@ struct BrowserView: View {
 		}
 
 		.fileImporter(
-			isPresented: $showAddFilePicker, allowedContentTypes: [UTType.data], allowsMultipleSelection: true,
-			onCompletion: { result in
-				switch result {
-				case .success(let fu):
-					for url in fu {
-						if !url.startAccessingSecurityScopedResource() {
-							Log.warn("failed to access security scoped URL from file importer: \(url)")
-						}
-					}
-					do {
-						try self.dropFiles(fu)
-					}
-					catch {
-						Log.warn("failed to drop file: \(error)")
-						self.error = error
-					}
-					for url in fu {
-						url.stopAccessingSecurityScopedResource()
-					}
-
-				case .failure(_):
-					break
-				}
-			}
+			isPresented: $showAddFilePicker,
+			allowedContentTypes: [UTType.data],
+			allowsMultipleSelection: true,
+			onCompletion: self.addFilesFromImporter
 		)
 
 		#if os(macOS)
@@ -217,25 +238,44 @@ struct BrowserView: View {
 				of: ["public.file-url"], isTargeted: nil,
 				perform: { providers, _ in
 					Task {
-						self.error = nil
+						self.showAlert = nil
 						do {
 							try await self.onDrop(providers)
 						}
 						catch {
 							Log.warn("Failed to drop: \(error.localizedDescription)")
-							self.error = error
+							self.showAlert = .error(error.localizedDescription)
 						}
 					}
 					return true
 				})
 		#endif
-		.alert(isPresented: Binding.isNotNil($error)) {
-			Alert(
-				title: Text("An error occurred"),
-				message: self.error == nil ? nil : Text(self.error!.localizedDescription),
-				dismissButton: .default(Text("OK")))
+		.alert(item: $showAlert) { alert in
+			switch alert {
+			case .error(let err):
+				Alert(
+					title: Text("An error occurred"),
+					message: Text(err),
+					dismissButton: .default(Text("OK"))
+				)
+				
+			case .removeSuperfluousCompleted:
+				Alert(
+					title: Text("Unsynchronized empty subdirectories removed"),
+					message: Text(
+						"Subdirectories that were empty and had no files in them were removed from this device."
+					),
+					dismissButton: .default(Text("OK"))
+				)
+			}
 		}
-
+		.confirmationDialog(
+			showConfirmable?.message ?? "", isPresented: Binding.isNotNil($showConfirmable), titleVisibility: .visible
+		) {
+			if let sc = showConfirmable {
+				Button(sc.buttonTitle, role: .destructive, action: self.confirmedAction)
+			}
+		}
 		.userActivity(SushitrainApp.viewRouteActivityID) { ua in
 			let routeURL = self.route.url
 			ua.title = self.folderName
@@ -300,6 +340,30 @@ struct BrowserView: View {
 		}
 	}
 
+	private func addFilesFromImporter(result: Result<[URL], any Error>) {
+		switch result {
+		case .success(let fu):
+			for url in fu {
+				if !url.startAccessingSecurityScopedResource() {
+					Log.warn("failed to access security scoped URL from file importer: \(url)")
+				}
+			}
+			do {
+				try self.dropFiles(fu)
+			}
+			catch {
+				Log.warn("failed to drop file: \(error)")
+				self.showAlert = .error(error.localizedDescription)
+			}
+			for url in fu {
+				url.stopAccessingSecurityScopedResource()
+			}
+
+		case .failure(_):
+			break
+		}
+	}
+
 	private func showInFinder() {
 		if !canShowInFinder {
 			return
@@ -341,63 +405,117 @@ struct BrowserView: View {
 
 	@ViewBuilder private func addMenu() -> some View {
 		Menu {
-			Button("Select files...", systemImage: "plus") {
-				showAddFilePicker = true
-			}
-
-			#if os(iOS)
-				Button("Paste files...", systemImage: "document.on.clipboard") {
-					Task {
-						await self.dropItemProviders(UIPasteboard.general.itemProviders)
-					}
-				}.disabled(UIPasteboard.general.itemProviders.isEmpty)
-			#endif
+			self.addMenuContents()
 		} label: {
 			Label("Add...", systemImage: "plus")
 		}.disabled(
 			!folderExists || !self.folder.isRegularFolder || self.folder.folderType() == SushitrainFolderTypeReceiveOnly)
 	}
 
-	@ViewBuilder private func folderMenu() -> some View {
+	@ViewBuilder private func addMenuContents() -> some View {
+		Button("Add files...", systemImage: "plus") {
+			showAddFilePicker = true
+		}
+
+		#if os(iOS)
+			Button("Paste files...", systemImage: "document.on.clipboard") {
+				Task {
+					await self.dropItemProviders(UIPasteboard.general.itemProviders)
+				}
+			}.disabled(UIPasteboard.general.itemProviders.isEmpty)
+		#endif
+	}
+
+	@ViewBuilder private func folderOperationsMenu() -> some View {
 		Menu {
-			#if os(iOS)
-				BrowserViewStylePickerView(webViewAvailable: self.webViewAvailable, viewStyle: self.currentViewStyle())
-					.pickerStyle(.inline)
-
-				Toggle(
-					"Search here...",
-					systemImage: "magnifyingglass",
-					isOn: $showSearch
-				).disabled(!folderExists)
-			#endif
-
-			if folderExists && !self.prefix.isEmpty {
-				if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
-					NavigationLink(destination: FileView(file: entry, showPath: false, siblings: nil)) {
-						Label("Subdirectory properties...", systemImage: "folder.badge.gearshape")
-					}
-				}
-			}
-
-			if folderExists {
-				self.addMenu()
-
-				#if os(iOS)
-					Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
-						self.showInFinder()
-					}.disabled(!canShowInFinder)
+			Button("Re-scan folder", systemImage: "sparkle.magnifyingglass", action: rescanFolder)
+				#if os(macOS)
+					.buttonStyle(.link)
 				#endif
-			}
-
-			#if os(iOS)
-				Toggle(isOn: Binding(get: { self.isBookmarked }, set: { self.setBookmarked($0) })) {
-					Label("Bookmark", systemImage: self.isBookmarked ? "bookmark.fill" : "bookmark")
-				}
-			#endif
 
 			Divider()
 
+			if folder.isSelective() {
+				Button(
+					"Remove unsynchronized empty subdirectories",
+					systemImage: "eraser", role: .destructive
+				) {
+					self.removeUnsynchronizedEmpty()
+				}
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
+				.foregroundColor(.red)
+				.disabled(isWorking)
+			}
+
+			Divider()
+
+			Button("Unlink folder", systemImage: "folder.badge.minus", role: .destructive) {
+				showConfirmable = .unlinkFolder
+			}
+			#if os(macOS)
+				.buttonStyle(.link)
+			#endif
+			.foregroundColor(.red)
+
+			// Only allow removing a full folder when we are sure it is in the area managed by us
+			if folder.isRegularFolder && folder.isExternal == false {
+				Button("Remove folder", systemImage: "trash", role: .destructive) {
+					showConfirmable = .removeFolder
+				}
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
+				.foregroundColor(.red)
+			}
+		} label: {
+			Label("Folder actions", systemImage: "ellipsis.circle")
+		}.labelStyle(.titleAndIcon)
+	}
+
+	@ViewBuilder private func folderMenu() -> some View {
+		Menu {
 			if folderExists {
+				#if os(iOS)
+					BrowserViewStylePickerView(
+						webViewAvailable: self.webViewAvailable,
+						viewStyle: self.currentViewStyle()
+					).pickerStyle(.inline)
+
+					self.addMenu()
+
+					Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
+						self.showInFinder()
+					}.disabled(!canShowInFinder)
+				#else
+					self.addMenuContents()
+				#endif
+
+				#if os(iOS)
+					Toggle(
+						"Search here...",
+						systemImage: "magnifyingglass",
+						isOn: $showSearch
+					).disabled(!folderExists)
+				#endif
+
+				if folderExists && !self.prefix.isEmpty {
+					if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
+						NavigationLink(destination: FileView(file: entry, showPath: false, siblings: nil)) {
+							Label("Subdirectory properties...", systemImage: "folder.badge.gearshape")
+						}
+					}
+				}
+
+				#if os(iOS)
+					Toggle(isOn: Binding(get: { self.isBookmarked }, set: { self.setBookmarked($0) })) {
+						Label("Bookmark", systemImage: self.isBookmarked ? "bookmark.fill" : "bookmark")
+					}
+				#endif
+
+				Divider()
+
 				#if os(iOS)
 					Button("Folder statistics...", systemImage: "chart.pie") {
 						showFolderStatistics = true
@@ -409,8 +527,6 @@ struct BrowserView: View {
 						Label("Files kept on this device...", systemImage: "pin")
 					}
 				}
-
-				Divider()
 			}
 
 			Button("Folder settings...", systemImage: "folder.badge.gearshape") {
@@ -425,6 +541,8 @@ struct BrowserView: View {
 					}
 				}
 			#endif
+
+			self.folderOperationsMenu()
 		} label: {
 			#if os(macOS)
 				Label("Folder settings", systemImage: "folder.badge.gearshape")
@@ -457,6 +575,51 @@ struct BrowserView: View {
 			self.update()
 		}
 	#endif
+
+	private func confirmedAction() {
+		do {
+			switch self.showConfirmable {
+			case .none:
+				return
+			case .unlinkFolder:
+				try folder.unlinkFolderAndRemoveSettings()
+				self.update()
+			case .removeFolder:
+				try folder.removeFolderAndSettings()
+				self.update()
+			}
+		}
+		catch let error {
+			self.showAlert = .error(error.localizedDescription)
+		}
+		self.showConfirmable = .none
+	}
+
+	private func rescanFolder() {
+		do {
+			try folder.rescan()
+		}
+		catch let error {
+			self.showAlert = .error(error.localizedDescription)
+		}
+	}
+
+	private func removeUnsynchronizedEmpty() {
+		Task {
+			do {
+				self.isWorking = true
+				try await Task.detached {
+					try folder.removeSuperfluousSubdirectories()
+					try folder.removeSuperfluousSelectionEntries()
+				}.value
+				self.isWorking = false
+				self.showAlert = .removeSuperfluousCompleted
+			}
+			catch {
+				self.showAlert = .error(error.localizedDescription)
+			}
+		}
+	}
 
 	private func onDrop(_ providers: [NSItemProvider]) async throws {
 		var urls: [URL] = []
@@ -517,7 +680,7 @@ struct BrowserView: View {
 		}
 		catch {
 			Log.warn("failed to drop files: \(error)")
-			self.error = error
+			self.showAlert = .error(error.localizedDescription)
 		}
 	}
 
