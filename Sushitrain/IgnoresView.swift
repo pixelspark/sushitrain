@@ -26,7 +26,7 @@ struct IgnoresView: View {
 				Text(
 					"This is an advanced feature and should only be used if you know what you are doing."
 				)
-				.bold().foregroundStyle(.red)
+				.bold().foregroundStyle(.red).listRowBackground(Color.clear)
 			}
 
 			Section {
@@ -118,6 +118,7 @@ struct IgnoresView: View {
 			}
 		}
 		.onDisappear {
+			Log.info("writing ignore lines")
 			self.write()
 		}
 		.alert(isPresented: Binding.isNotNil($error)) {
@@ -149,6 +150,7 @@ struct IgnoresView: View {
 					}.value
 				}
 				catch {
+					Log.warn("failed to clean selection: \(error)")
 					self.error = error
 				}
 				self.loading = false
@@ -161,6 +163,7 @@ struct IgnoresView: View {
 
 	private func write() {
 		do {
+			Log.info("writing ignore lines \(self.ignoreLines)")
 			if self.error == nil {
 				var lines = self.ignoreLines
 				lines.removeAll { $0.isEmpty }
@@ -169,6 +172,7 @@ struct IgnoresView: View {
 			}
 		}
 		catch {
+			Log.warn("failed to write ignore file: \(error)")
 			self.error = error
 		}
 	}
@@ -178,6 +182,7 @@ struct IgnoresView: View {
 			self.error = nil
 			self.loading = true
 			var lines = (try self.folder.ignoreLines()).asArray()
+			Log.info("Got lines: \(lines)")
 			if !lines.isEmpty && lines[0] == Self.prependedLine {
 				lines.remove(at: 0)
 			}
@@ -185,6 +190,7 @@ struct IgnoresView: View {
 		}
 		catch {
 			self.ignoreLines = []
+			Log.warn("failed to read ignore file: \(error)")
 			self.error = error
 		}
 		self.loading = false

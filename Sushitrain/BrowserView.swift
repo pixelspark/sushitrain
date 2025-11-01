@@ -258,7 +258,7 @@ struct BrowserView: View {
 					message: Text(err),
 					dismissButton: .default(Text("OK"))
 				)
-				
+
 			case .removeSuperfluousCompleted:
 				Alert(
 					title: Text("Unsynchronized empty subdirectories removed"),

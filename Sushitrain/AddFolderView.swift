@@ -159,7 +159,7 @@ struct AddFolderView: View {
 			#if os(macOS)
 				.buttonStyle(.link)
 			#endif
-		}
+		}.id("shareWith")
 	}
 
 	var body: some View {

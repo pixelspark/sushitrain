@@ -287,19 +287,23 @@ struct FolderSyncTypePicker: View {
 	var folder: SushitrainFolder
 
 	var body: some View {
-		if folder.exists() {
-			Picker("Selection", selection: $folderSyncType) {
-				Text("All files").tag(FolderSyncType.allFiles)
-				Text("Selected files").tag(FolderSyncType.selectedFiles)
+		Picker("Selection", selection: $folderSyncType) {
+			Text("All files").tag(FolderSyncType.allFiles)
+			Text("Selected files").tag(FolderSyncType.selectedFiles)
+
+			if folderSyncType == nil {
+				Text("(Unknown)").tag(nil as FolderSyncType?).disabled(true)
 			}
-			.onChange(of: folderSyncType) { _, nv in
+		}
+		.onChange(of: folderSyncType) { ov, nv in
+			if let nv = nv, ov != nv && ov != nil {
 				try? self.folder.setSelective(nv == .selectedFiles)
 			}
-			.pickerStyle(.menu)
-			.disabled(changeProhibited)
-			.onAppear {
-				self.update()
-			}
+		}
+		.pickerStyle(.menu)
+		.disabled(changeProhibited)
+		.onAppear {
+			self.update()
 		}
 	}
 
@@ -307,7 +311,7 @@ struct FolderSyncTypePicker: View {
 		self.folderSyncType = self.folder.isSelective() ? .selectedFiles : .allFiles
 
 		// Only allow changes to selection mode when folder is idle
-		if !folder.isIdleOrSyncing {
+		if !folder.isIdleOrSyncing || !self.folder.exists() {
 			changeProhibited = true
 			return
 		}
@@ -346,6 +350,10 @@ struct FolderDirectionPicker: View {
 				Text("Send and receive").tag(SushitrainFolderTypeSendReceive as String?)
 				Text("Receive only").tag(SushitrainFolderTypeReceiveOnly as String?)
 
+				if folderType == nil {
+					Text("(Unknown)").tag(nil as String?).disabled(true)
+				}
+
 				// Cannot be selected, but should be here when it is set
 				if folder.folderType() == SushitrainFolderTypeSendOnly {
 					Text("Send only").tag(SushitrainFolderTypeSendOnly as String?)
@@ -356,8 +364,11 @@ struct FolderDirectionPicker: View {
 			.onAppear {
 				self.update()
 			}
-			.onChange(of: folderType) { _, nv in
-				try? self.folder.setFolderType(nv)
+			.onChange(of: folderType) { ov, nv in
+				if let nv = nv, ov != nil && nv != ov {
+					Log.info("changing folder type to \(nv) for folder \(self.folder.folderID)")
+					try? self.folder.setFolderType(nv)
+				}
 			}
 		}
 	}
