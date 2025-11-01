@@ -120,7 +120,7 @@ struct FoldersSections: View {
 	@State private var showFolderProperties: SushitrainFolder? = nil
 
 	var body: some View {
-		Section("Folders") {
+		Section {
 			ForEach(folders, id: \.self.folderID) { (folder: SushitrainFolder) in
 				if !userSettings.hideHiddenFolders || folder.isHidden == false {
 					NavigationLink(value: Route.folder(folderID: folder.folderID, prefix: nil)) {
@@ -153,6 +153,10 @@ struct FoldersSections: View {
 					}
 				}
 			}
+		} header: {
+			#if os(macOS)
+				Text("Folders")
+			#endif
 		}
 
 		if !pendingFolderIds.isEmpty {
