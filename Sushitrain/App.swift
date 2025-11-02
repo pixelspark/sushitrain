@@ -238,8 +238,9 @@ struct SushitrainApp: App {
 			}
 			.windowResizability(.contentSize)
 
-			MenuBarExtraView(hideInDock: $hideInDock)
-				.environment(appState)
+			// Pass app state object explicitly, as sometimes Environment fails to resolve
+			// for some reason...
+			MenuBarExtraView(appState: appState, hideInDock: $hideInDock)
 
 			Settings {
 				NavigationStack {
@@ -267,9 +268,9 @@ struct SushitrainApp: App {
 
 #if os(macOS)
 	struct MenuBarExtraView: Scene {
+		let appState: AppState
 		@Binding var hideInDock: Bool
 		@Environment(\.openWindow) private var openWindow
-		@Environment(AppState.self) private var appState
 
 		@State private var folders: [SushitrainFolder] = []
 
@@ -278,11 +279,12 @@ struct SushitrainApp: App {
 				NavigationStack {
 					TabbedSettingsView(hideInDock: $hideInDock)
 				}
-			}
+			}.environment(appState)
 
 			MenuBarExtra("Synctrain", systemImage: self.menuIcon, isInserted: $hideInDock) {
 				if appState.startupState == .started {
 					OverallStatusView()
+						.environment(appState)
 						.task {
 							await self.update()
 						}
