@@ -185,6 +185,9 @@ struct SushitrainApp: App {
 					}
 				#endif
 		}
+		.commands {
+			self.commands()
+		}
 		#if os(macOS)
 			.handlesExternalEvents(matching: ["*"])
 
@@ -192,32 +195,7 @@ struct SushitrainApp: App {
 				NSApp.setActivationPolicy(nv ? .accessory : .regular)
 				NSApp.activate(ignoringOtherApps: true)
 			}
-			.commands {
-				CommandGroup(after: .sidebar) {
-					Toggle("Hide dotfiles", isOn: appState.userSettings.$dotFilesHidden)
-				}
 
-				CommandGroup(replacing: CommandGroupPlacement.help) {
-					Button("Questions, support & feedback...") {
-						openWindow(id: "support")
-					}
-				}
-
-				CommandGroup(replacing: CommandGroupPlacement.appInfo) {
-					Button("About Synctrain") {
-						// Open the "about" window
-						openWindow(id: "about")
-					}
-
-					Button("Statistics...") {
-						openWindow(id: "stats")
-					}
-
-					Button("Decrypt a folder...") {
-						openWindow(id: "decrypter")
-					}
-				}
-			}
 			.defaultLaunchBehavior(hideInDock ? .suppressed : .presented)
 			.restorationBehavior(hideInDock ? .disabled : .automatic)
 
@@ -262,6 +240,37 @@ struct SushitrainApp: App {
 				}
 			}
 			.windowResizability(.contentSize)
+		#endif
+	}
+
+	@CommandsBuilder private func commands() -> some Commands {
+		CommandGroup(after: .sidebar) {
+			Toggle("Hide dotfiles", isOn: appState.userSettings.$dotFilesHidden)
+
+			Toggle("Hide hidden folders", isOn: appState.userSettings.$hideHiddenFolders)
+		}
+
+		#if os(macOS)
+			CommandGroup(replacing: CommandGroupPlacement.help) {
+				Button("Questions, support & feedback...") {
+					openWindow(id: "support")
+				}
+			}
+
+			CommandGroup(replacing: CommandGroupPlacement.appInfo) {
+				Button("About Synctrain") {
+					// Open the "about" window
+					openWindow(id: "about")
+				}
+
+				Button("Statistics...") {
+					openWindow(id: "stats")
+				}
+
+				Button("Decrypt a folder...") {
+					openWindow(id: "decrypter")
+				}
+			}
 		#endif
 	}
 }
