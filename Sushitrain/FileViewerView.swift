@@ -200,7 +200,8 @@ private struct FileViewerContentView: View {
 				else if file.isWebPreviewable {
 					ZStack {
 						WebView(
-							url: url, trustFingerprints: [], verticallyCenter: true, isLoading: self.$loading.animation(), error: self.$error
+							url: url, trustFingerprints: [], verticallyCenter: !file.isPDF, isLoading: self.$loading.animation(),
+							error: self.$error
 						)
 						.id(url)
 						#if os(iOS)
