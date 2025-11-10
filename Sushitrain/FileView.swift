@@ -612,7 +612,7 @@ struct FileView: View {
 			if let localPath = localPath, file.isLocallyPresent() {
 				localItemURL = URL(fileURLWithPath: localPath)
 			}
-			else if file.isVideo || file.isImage {
+			else if file.isVideo || file.isImage || file.isWebPreviewable {
 				#if os(macOS)
 					// Cmd-click to open preview window directory
 					if NSEvent.modifierFlags.contains(.command) {
@@ -632,6 +632,9 @@ struct FileView: View {
 			}
 			else if let localPath = localPath, file.isLocallyPresent() {
 				localItemURL = URL(fileURLWithPath: localPath)
+			}
+			else if file.isWebPreviewable {
+				showFullScreenViewer = true
 			}
 		#endif
 	}
