@@ -300,6 +300,11 @@ struct SyncState {
 			}
 		}
 
+		if case .error(_) = self.startupState {
+			Log.warn("Not starting up as client load failed earlier.")
+			return
+		}
+
 		// Check if we need to show onboarding; if so, we interrupt the startup process here and come back later
 		if self.startupState == .notStarted {
 			Log.info(
