@@ -888,6 +888,10 @@ private struct BandwidthSettingsView: View {
 					}.disabled(!hideInDock)
 				}
 
+				Section {
+					AutoStartToggleView()
+				}
+
 				Section("View settings") {
 					ViewSettingsView(userSettings: appState.userSettings)
 				}
@@ -1087,3 +1091,35 @@ private struct AsyncAddressesView: View {
 		}
 	}
 }
+
+#if os(macOS)
+
+	import ServiceManagement
+
+	struct AutoStartToggleView: View {
+		@State private var autoStart: Bool = false
+
+		var body: some View {
+			Toggle(isOn: $autoStart) {
+				Label("Launch at login", systemImage: "autostartstop")
+			}
+			.onChange(of: autoStart) { _, nv in
+				if nv {
+					try? SMAppService.mainApp.register()
+				}
+				else {
+					try? SMAppService.mainApp.unregister()
+				}
+				self.update()
+			}
+			.onAppear {
+				self.update()
+			}
+		}
+
+		private func update() {
+			self.autoStart = SMAppService.mainApp.status == .enabled
+		}
+	}
+
+#endif
