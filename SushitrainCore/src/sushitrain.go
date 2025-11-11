@@ -29,6 +29,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gofrs/flock"
 	"github.com/syncthing/syncthing/lib/build"
 	"github.com/syncthing/syncthing/lib/config"
 	"github.com/syncthing/syncthing/lib/events"
@@ -63,6 +64,7 @@ type Client struct {
 	extraneousIgnored        []string
 	Measurements             *Measurements
 	logHandler               *logHandler
+	appLock                  *flock.Flock
 }
 
 type Change struct {
@@ -597,6 +599,16 @@ func (clt *Client) Load(resetDeltaIdxs bool) error {
 		return err
 	}
 	clt.config = config
+
+	// Check if we are the only instance running
+	clt.appLock = flock.New(locations.Get(locations.LockFile))
+	slog.Info("Attempting to obtain application lock at", "path", locations.Get(locations.LockFile))
+	locked, err := clt.appLock.TryLock()
+	if err != nil {
+		return fmt.Errorf("failed to obtain lock: %w", err)
+	} else if !locked {
+		return fmt.Errorf("The app cannot be started, as it appears it is already running. If this error persists, try restarting your device.")
+	}
 
 	// Default retention interval taken from Syncthing's CLI default
 	dbDeleteRetentionInterval := time.Duration(4320) * time.Hour
