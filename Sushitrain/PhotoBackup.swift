@@ -8,7 +8,7 @@ import SwiftUI
 @preconcurrency import SushitrainCore
 import Photos
 
-enum PhotoSyncCategories: String, Codable {
+enum PhotoBackupCategory: String, Codable {
 	case photo = "photo"
 	case livePhoto = "live"
 	case video = "video"
@@ -102,7 +102,7 @@ enum PhotoBackupFolderStructure: String, Codable {
 	}
 }
 
-enum PhotoSyncProgress {
+enum PhotoBackupProgress {
 	case notStarted
 	case starting
 	case exportingPhotos(index: Int, total: Int, current: String?)
@@ -178,7 +178,7 @@ enum PhotoSyncProgress {
 
 	@AppStorage("photoSyncLastCompletedDate") var lastCompletedDate: Double = -1.0
 	@AppStorage("photoSyncEnableBackgroundCopy") var enableBackgroundCopy: Bool = false
-	@AppStorage("photoSyncCategories") var categories: Set<PhotoSyncCategories> = Set([.photo, .video, .livePhoto])
+	@AppStorage("photoSyncCategories") var categories: Set<PhotoBackupCategory> = Set([.photo, .video, .livePhoto])
 	@AppStorage("photoSyncPurgeEnabled") var purgeEnabled = false
 	@AppStorage("photoSyncPurgeAfterDays") var purgeAfterDays = 7
 	@AppStorage("PhotoBackupFolderStructure") var folderStructure = PhotoBackupFolderStructure.byDateAndType
@@ -190,8 +190,8 @@ enum PhotoSyncProgress {
 	// Whether to replace or append the ".MOV" file extension for live photos
 	@AppStorage("photoBackupLivePhotoReplaceExtension") var livePhotoReplaceExtension: Bool = false
 
-	@Published private(set) var isSynchronizing = false
-	@Published private(set) var progress: PhotoSyncProgress = .notStarted
+	@Published private(set) var isBackingUp = false
+	@Published private(set) var progress: PhotoBackupProgress = .notStarted
 	@Published private(set) var photoBackupTask: Task<(), Error>? = nil
 
 	var selectedAlbumTitle: String? {
@@ -217,7 +217,7 @@ enum PhotoSyncProgress {
 		if !self.isReady { return nil }
 		if self.selectedAlbumID.isEmpty { return nil }
 		if self.photoBackupTask != nil { return nil }
-		self.isSynchronizing = true
+		self.isBackingUp = true
 
 		let selectedAlbumID = self.selectedAlbumID
 		let selectedFolderID = self.selectedFolderID
@@ -230,7 +230,7 @@ enum PhotoSyncProgress {
 			defer {
 				DispatchQueue.main.async {
 					self.photoBackupTask = nil
-					self.isSynchronizing = false
+					self.isBackingUp = false
 				}
 			}
 
@@ -407,7 +407,7 @@ enum PhotoSyncProgress {
 		folderURL: URL,
 		subDirectoryPath: EntryPath,
 		fullExport: Bool,
-		categories: Set<PhotoSyncCategories>,
+		categories: Set<PhotoBackupCategory>,
 		isInBackground: Bool,
 		onlyTheseLocalIdentifiers: Set<String>?
 	) async throws {

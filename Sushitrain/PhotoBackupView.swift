@@ -30,7 +30,7 @@ struct PhotoBackupButton: View {
 			Text(e).foregroundStyle(.red)
 		}
 
-		if photoBackup.isSynchronizing {
+		if photoBackup.isBackingUp {
 			PhotoBackupProgressView(photoBackup: photoBackup)
 
 			Button("Cancel", role: .cancel) {
@@ -47,7 +47,7 @@ struct PhotoBackupButton: View {
 			#if os(macOS)
 				.buttonStyle(.link)
 			#endif
-			.disabled(photoBackup.isSynchronizing || !photoBackup.isReady)
+			.disabled(photoBackup.isBackingUp || !photoBackup.isReady)
 		}
 	}
 }
@@ -64,7 +64,7 @@ struct PhotoBackupStatusView: View {
 
 	var body: some View {
 		VStack(alignment: .leading) {
-			if !photoBackup.isSynchronizing {
+			if !photoBackup.isBackingUp {
 				if photoBackup.lastCompletedDate > 0.0 {
 					let lastDate = Date(timeIntervalSinceReferenceDate: photoBackup.lastCompletedDate)
 					Text("Last completed \(dateFormatter.localizedString(for: lastDate, relativeTo: Date())).")
@@ -130,7 +130,7 @@ struct PhotoBackupSettingsView: View {
 						}
 					}
 					.pickerStyle(.menu)
-					.disabled(photoBackup.isSynchronizing)
+					.disabled(photoBackup.isBackingUp)
 					.onChange(of: photoBackup.selectedAlbumID) { _, _ in photoBackup.resetLastSuccessfulChangeToken() }
 				}
 				else if authorizationStatus == .denied || authorizationStatus == .restricted {
@@ -156,7 +156,7 @@ struct PhotoBackupSettingsView: View {
 						}
 					}
 					.pickerStyle(.menu)
-					.disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
+					.disabled(photoBackup.isBackingUp || photoBackup.selectedAlbumID.isEmpty)
 					.onChange(of: photoBackup.selectedFolderID) { _, _ in photoBackup.resetLastSuccessfulChangeToken() }
 				}
 			} header: {
@@ -174,7 +174,7 @@ struct PhotoBackupSettingsView: View {
 					Toggle(
 						"Copy photos periodically in the background",
 						isOn: photoBackup.$enableBackgroundCopy
-					).disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
+					).disabled(photoBackup.isBackingUp || photoBackup.selectedAlbumID.isEmpty)
 				}
 			#endif
 
@@ -187,7 +187,7 @@ struct PhotoBackupSettingsView: View {
 							photoBackup.categories.toggle(.photo, s)
 						})
 				)
-				.disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
+				.disabled(photoBackup.isBackingUp || photoBackup.selectedAlbumID.isEmpty)
 				.onChange(of: photoBackup.categories) { _, _ in photoBackup.resetLastSuccessfulChangeToken() }
 
 				Toggle(
@@ -197,7 +197,7 @@ struct PhotoBackupSettingsView: View {
 						set: { s in
 							photoBackup.categories.toggle(.livePhoto, s)
 						})
-				).disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
+				).disabled(photoBackup.isBackingUp || photoBackup.selectedAlbumID.isEmpty)
 
 				Toggle(
 					"Videos",
@@ -206,7 +206,7 @@ struct PhotoBackupSettingsView: View {
 						set: { s in
 							photoBackup.categories.toggle(.video, s)
 						})
-				).disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
+				).disabled(photoBackup.isBackingUp || photoBackup.selectedAlbumID.isEmpty)
 			}
 
 			Section {
@@ -224,7 +224,7 @@ struct PhotoBackupSettingsView: View {
 				}
 
 				PhotoFolderStructureView(folderStructure: photoBackup.$folderStructure)
-					.disabled(photoBackup.isSynchronizing)
+					.disabled(photoBackup.isBackingUp)
 					.onChange(of: photoBackup.folderStructure) { _, _ in photoBackup.resetLastSuccessfulChangeToken() }
 
 				Text("Example file location in folder: ")
@@ -240,7 +240,7 @@ struct PhotoBackupSettingsView: View {
 			if photoBackup.folderStructure.usesTimeZone {
 				Section {
 					PhotoBackupTimeZoneView(timeZone: photoBackup.$timeZone)
-						.disabled(photoBackup.isSynchronizing)
+						.disabled(photoBackup.isBackingUp)
 						.onChange(of: photoBackup.timeZone) { _, _ in photoBackup.resetLastSuccessfulChangeToken() }
 				} footer: {
 					PhotoBackupTimeZoneExplainerView(timeZone: photoBackup.timeZone)
@@ -256,7 +256,7 @@ struct PhotoBackupSettingsView: View {
 				}
 				.pickerStyle(.menu)
 				.disabled(
-					photoBackup.isSynchronizing || self.authorizationStatus != .authorized
+					photoBackup.isBackingUp || self.authorizationStatus != .authorized
 						|| photoBackup.selectedAlbumID.isEmpty
 				)
 				.onChange(of: photoBackup.savedAlbumID) { _, _ in photoBackup.resetLastSuccessfulChangeToken() }
@@ -288,7 +288,7 @@ struct PhotoBackupSettingsView: View {
 						)
 					}
 				#endif
-			}.disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
+			}.disabled(photoBackup.isBackingUp || photoBackup.selectedAlbumID.isEmpty)
 
 			Section {
 				Toggle(
@@ -304,8 +304,8 @@ struct PhotoBackupSettingsView: View {
 				Text(
 					"If you delete photos from the folder, this will be remembered for six months, so they will not be saved to the folder again during this time. Enable this setting to prevent these photos from being exported again after six months."
 				)
-			}.disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
-			
+			}.disabled(photoBackup.isBackingUp || photoBackup.selectedAlbumID.isEmpty)
+
 			// Live photo extension selector
 			Section {
 				Picker("Live photo file extension", selection: $photoBackup.livePhotoReplaceExtension) {
@@ -314,7 +314,7 @@ struct PhotoBackupSettingsView: View {
 				}
 				.pickerStyle(.menu)
 				.disabled(
-					photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty || !photoBackup.categories.contains(.livePhoto))
+					photoBackup.isBackingUp || photoBackup.selectedAlbumID.isEmpty || !photoBackup.categories.contains(.livePhoto))
 			}
 
 			// Action buttons
@@ -328,7 +328,7 @@ struct PhotoBackupSettingsView: View {
 				Button("Re-copy all photos", systemImage: "photo.badge.arrow.down.fill") {
 					photoBackup.backup(appState: self.appState, fullExport: true, isInBackground: false)
 				}
-				.disabled(photoBackup.isSynchronizing || !photoBackup.isReady)
+				.disabled(photoBackup.isBackingUp || !photoBackup.isReady)
 				#if os(macOS)
 					.buttonStyle(.link)
 				#endif

@@ -487,7 +487,7 @@ struct SyncState {
 	}
 
 	var isFinished: Bool {
-		return !self.client.isDownloading() && !self.client.isUploading() && !self.photoBackup.isSynchronizing
+		return !self.client.isDownloading() && !self.client.isUploading() && !self.photoBackup.isBackingUp
 	}
 
 	func alert(message: String) {

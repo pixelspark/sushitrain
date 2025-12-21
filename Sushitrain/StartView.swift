@@ -27,7 +27,7 @@ import SwiftUI
 						VStack(alignment: .leading, spacing: 10) {
 							OverallStatusView().frame(maxWidth: .infinity)
 
-							if appState.photoBackup.isSynchronizing {
+							if appState.photoBackup.isBackingUp {
 								PhotoBackupProgressView(photoBackup: appState.photoBackup)
 							}
 
