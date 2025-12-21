@@ -305,7 +305,19 @@ struct PhotoBackupSettingsView: View {
 					"If you delete photos from the folder, this will be remembered for six months, so they will not be saved to the folder again during this time. Enable this setting to prevent these photos from being exported again after six months."
 				)
 			}.disabled(photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty)
+			
+			// Live photo extension selector
+			Section {
+				Picker("Live photo file extension", selection: $photoBackup.livePhotoReplaceExtension) {
+					Text(".HEIC.MOV").tag(false)
+					Text(".MOV").tag(true)
+				}
+				.pickerStyle(.menu)
+				.disabled(
+					photoBackup.isSynchronizing || photoBackup.selectedAlbumID.isEmpty || !photoBackup.categories.contains(.livePhoto))
+			}
 
+			// Action buttons
 			Section {
 				PhotoBackupButton(photoBackup: photoBackup)
 			} footer: {

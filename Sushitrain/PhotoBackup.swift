@@ -187,6 +187,9 @@ enum PhotoSyncProgress {
 	@AppStorage("photoBackupTimeZone") var timeZone: PhotoBackupTimeZone = .current
 	@AppStorage("photoBackupLastSuccessfulChangeToken") var lastSuccessfullChangeTokenData: Data = Data()
 
+	// Whether to replace or append the ".MOV" file extension for live photos
+	@AppStorage("photoBackupLivePhotoReplaceExtension") var livePhotoReplaceExtension: Bool = false
+
 	@Published private(set) var isSynchronizing = false
 	@Published private(set) var progress: PhotoSyncProgress = .notStarted
 	@Published private(set) var photoBackupTask: Task<(), Error>? = nil
@@ -434,6 +437,7 @@ enum PhotoSyncProgress {
 		let purgeEnabled = await self.purgeEnabled
 		let maxAgeInterval = TimeInterval(Double(await self.maxAgeDays) * 86400.0)
 		let timeZone = await self.timeZone
+		let livePhotoReplaceExtension = await self.livePhotoReplaceExtension
 
 		// Enumerate assets in this album and export them (or queue them for export)
 		assets.enumerateObjects { asset, index, stop in
@@ -555,7 +559,8 @@ enum PhotoSyncProgress {
 				// If the image is a live photo, queue the live photo for saving as well
 				if asset.mediaType == .image && asset.mediaSubtypes.contains(.photoLive) && categories.contains(.livePhoto) {
 					let liveInFolderPath = asset.livePhotoPathInFolder(
-						structure: structure, subdirectoryPath: subDirectoryPath, timeZone: timeZone)
+						structure: structure, subdirectoryPath: subDirectoryPath, timeZone: timeZone,
+						replaceExtension: livePhotoReplaceExtension)
 					let liveDirectoryURL = folderURL.appending(
 						path: asset.livePhotoDirectoryPathInFolder(
 							structure: structure, subdirectoryPath: subDirectoryPath, timeZone: timeZone
@@ -889,9 +894,19 @@ extension PHAsset {
 	}
 
 	fileprivate func livePhotoPathInFolder(
-		structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath, timeZone: PhotoBackupTimeZone
+		structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath, timeZone: PhotoBackupTimeZone,
+		replaceExtension: Bool
 	) -> EntryPath {
-		let fileName = self.fileNameInFolder(structure: structure) + ".MOV"
+		var fileName = self.fileNameInFolder(structure: structure)
+		if replaceExtension {
+			// Replace file extension: IMG_1337.MOV
+			fileName = (fileName as NSString).deletingPathExtension + ".MOV"
+		}
+		else {
+			// Append file extension: IMG_1337.HEIC.MOV
+			fileName += ".MOV"
+		}
+
 		return self.livePhotoDirectoryPathInFolder(
 			structure: structure, subdirectoryPath: subdirectoryPath, timeZone: timeZone
 		)
