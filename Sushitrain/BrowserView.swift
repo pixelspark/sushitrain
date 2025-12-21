@@ -415,7 +415,8 @@ struct BrowserView: View {
 	@ViewBuilder private func addMenuContents() -> some View {
 		Button("Add files...", systemImage: "plus") {
 			showAddFilePicker = true
-		}
+		}.disabled(
+			!folderExists || !self.folder.isRegularFolder || self.folder.folderType() == SushitrainFolderTypeReceiveOnly)
 
 		#if os(iOS)
 			Button("Paste files...", systemImage: "document.on.clipboard") {
