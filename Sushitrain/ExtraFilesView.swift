@@ -13,10 +13,10 @@ struct ExtraFilesView: View {
 
 	var folder: SushitrainFolder
 	@Environment(AppState.self) private var appState
+
 	@State private var extraFiles: [String] = []
 	@Environment(\.dismiss) private var dismiss
 	@State private var verdicts: [String: Bool] = [:]
-	@State private var localItemURL: URL? = nil
 	@State private var allVerdict: Bool? = nil
 	@State private var errorMessage: String? = nil
 	@State private var showApplyConfirmation = false
@@ -67,45 +67,21 @@ struct ExtraFilesView: View {
 					}
 
 					Section {
-						ForEach(extraFiles, id: \.self) { path in
-							if showConflictFiles || !path.contains(Self.conflictFileMarker) {
-								let verdict = verdicts[path]
-								let globalEntry = try? folder.getFileInformation(path)
-
-								HStack {
-									VStack(alignment: .leading) {
-										Text(path).multilineTextAlignment(.leading).dynamicTypeSize(.small).foregroundStyle(
-											verdict == false ? .red : verdict == true ? .green : .primary
-										).onTapGesture {
-											if let folderNativePath = folder.localNativeURL {
-												self.localItemURL = folderNativePath.appending(path: path)
-											}
-										}.disabled(folder.localNativeURL == nil)
-									}.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-
-									Picker(
-										"Action",
-										selection: Binding(
-											get: { return verdicts[path] },
-											set: { s in
-												verdicts[path] = s
-												allVerdict = nil
-											})
-									) {
-										Image(systemName: "trash").tint(.red).tag(false).help("Delete file")
-										if folder.folderType() == SushitrainFolderTypeReceiveOnly {
-											Image(systemName: "trash.slash").tag(true).help("Keep file")
-										}
-										else {
-											if let ge = globalEntry, !ge.isDeleted() {
-												Image(systemName: "rectangle.2.swap").tag(true).help("Replace existing file")
-											}
-											else {
-												Image(systemName: "plus.square.fill").tag(true).help("Keep file")
-											}
-										}
-									}.pickerStyle(.segmented).frame(width: 100)
-								}
+						PathsOutlineGroup(paths: extraFiles) { path, isIntermediate in
+							if !isIntermediate {
+								ExtraFileView(
+									path: path, folder: folder,
+									verdict: Binding(
+										get: {
+											return verdicts[path]
+										},
+										set: { s in
+											verdicts[path] = s
+											allVerdict = nil
+										}))
+							}
+							else {
+								Label(path.components(separatedBy: "/").last ?? "", systemImage: "folder.fill")
 							}
 						}
 					}
@@ -149,7 +125,6 @@ struct ExtraFilesView: View {
 					}
 				})
 		}
-		.quickLookPreview(self.$localItemURL)
 		.alert(isPresented: Binding.isNotNil($errorMessage)) {
 			Alert(
 				title: Text("An error occurred"), message: Text(errorMessage ?? ""),
@@ -200,5 +175,44 @@ struct ExtraFilesView: View {
 			extraFiles = []
 			hasConflictFiles = false
 		}
+	}
+}
+
+private struct ExtraFileView: View {
+	let path: String
+	let folder: SushitrainFolder
+	@Binding var verdict: Bool?
+
+	@State private var localItemURL: URL? = nil
+
+	var body: some View {
+		let globalEntry = try? folder.getFileInformation(path)
+
+		HStack {
+			VStack(alignment: .leading) {
+				Text(path.lastPathComponent).multilineTextAlignment(.leading).dynamicTypeSize(.small).foregroundStyle(
+					verdict == false ? .red : verdict == true ? .green : .primary
+				).onTapGesture {
+					if let folderNativePath = folder.localNativeURL {
+						self.localItemURL = folderNativePath.appending(path: path)
+					}
+				}.disabled(folder.localNativeURL == nil)
+			}.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+
+			Picker("Action", selection: $verdict) {
+				Image(systemName: "trash").tint(.red).tag(false).help("Delete file")
+				if folder.folderType() == SushitrainFolderTypeReceiveOnly {
+					Image(systemName: "trash.slash").tag(true).help("Keep file")
+				}
+				else {
+					if let ge = globalEntry, !ge.isDeleted() {
+						Image(systemName: "rectangle.2.swap").tag(true).help("Replace existing file")
+					}
+					else {
+						Image(systemName: "plus.square.fill").tag(true).help("Keep file")
+					}
+				}
+			}.pickerStyle(.segmented).frame(width: 100)
+		}.quickLookPreview(self.$localItemURL)
 	}
 }

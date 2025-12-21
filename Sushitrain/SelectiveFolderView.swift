@@ -18,6 +18,7 @@ struct SelectiveFolderView: View {
 	@State private var isLoading = false
 	@State private var isClearing = false
 	@State private var selectedPaths: [String] = []
+	@State private var selectedFilteredPaths: [String] = []
 	@State private var showConfirmClearSelectionHard = false
 	@State private var showConfirmClearSelectionSoft = false
 	@State private var listSelection = Set<String>()
@@ -39,28 +40,37 @@ struct SelectiveFolderView: View {
 			if isLoading || isClearing {
 				ProgressView()
 			}
-			else if !selectedPaths.isEmpty {
-				List(selection: $listSelection) {
-					let st = searchString.lowercased()
-					Section(self.prefix.isEmpty ? "Files kept on device" : "Files in '\(self.prefix)' kept on this device") {
-						ForEach(Array(selectedPaths.enumerated()), id: \.element) { itemIndex, item in
-							let item = selectedPaths[itemIndex]
-							if st.isEmpty || item.lowercased().contains(st) {
-								SelectiveFileView(
-									path: item,
-									folder: folder,
-									deselect: {
-										Task {
-											await self.deselectIndexes(IndexSet([itemIndex]))
-										}
+			else if selectedPaths.isEmpty {
+				ContentUnavailableView(
+					"No files selected", systemImage: "pin.slash.fill",
+					description: Text(
+						"To keep files on this device, navigate to a file and select 'keep on this device'. Selected files will appear here."
+					))
+			}
+
+			List(selection: $listSelection) {
+				Section(self.prefix.isEmpty ? "Files kept on device" : "Files in '\(self.prefix)' kept on this device") {
+					PathsOutlineGroup(paths: self.selectedFilteredPaths) { item, isIntermediate in
+						if item.isEmpty {
+							EmptyView()
+						}
+						else {
+							SelectiveFileView(
+								path: item,
+								folder: folder,
+								deselect: {
+									Task {
+										await self.deselectItems([item])
 									}
-								)
-								.tag(item)
-								.swipeActions(allowsFullSwipe: false) {
-									// Unselect button
+								}
+							)
+							.tag(item)
+							.swipeActions(allowsFullSwipe: false) {
+								// Unselect button
+								if !isIntermediate {
 									Button(role: .destructive) {
 										Task {
-											await self.deselectIndexes(IndexSet([itemIndex]))
+											await self.deselectItems([item])
 										}
 									} label: {
 										Label("Do not synchronize with this device", systemImage: "pin.slash")
@@ -68,25 +78,20 @@ struct SelectiveFolderView: View {
 								}
 							}
 						}
-						.disabled(!folder.isIdleOrSyncing && folder.isDiskSpaceSufficient())
 					}
+					.disabled(!folder.isIdleOrSyncing && folder.isDiskSpaceSufficient())
 				}
-				.refreshable {
-					Task { @MainActor in
-						await self.update()
-					}
+			}
+			.refreshable {
+				Task { @MainActor in
+					await self.update()
 				}
-				#if os(macOS)
-					.formStyle(.grouped)
-				#endif
 			}
-			else {
-				ContentUnavailableView(
-					"No files selected", systemImage: "pin.slash.fill",
-					description: Text(
-						"To keep files on this device, navigate to a file and select 'keep on this device'. Selected files will appear here."
-					))
-			}
+			.opacity(selectedPaths.isEmpty ? 0.0 : 1.0)
+			.disabled(isLoading || isClearing)
+			#if os(macOS)
+				.formStyle(.grouped)
+			#endif
 		}
 		.toolbar {
 			#if os(iOS)
@@ -177,9 +182,22 @@ struct SelectiveFolderView: View {
 				await self.update()
 			}
 		}
+		.onChange(of: self.searchString) {
+			self.updateFilter()
+		}
 		.onChange(of: appState.eventCounter) {
 			// Doesn't really need to do anything, just re-render the view (it relies on folder.isIdleOrSyncing which
 			// cannot be observed directly for changes)
+		}
+	}
+
+	private func updateFilter() {
+		if searchString.isEmpty {
+			self.selectedFilteredPaths = self.selectedPaths
+		}
+		else {
+			let st = searchString.lowercased()
+			self.selectedFilteredPaths = self.selectedPaths.filter { $0.lowercased().contains(st) }
 		}
 	}
 
@@ -294,6 +312,8 @@ struct SelectiveFolderView: View {
 			self.showError = true
 			self.selectedPaths = []
 		}
+
+		self.updateFilter()
 		self.isLoading = false
 	}
 
@@ -338,9 +358,9 @@ struct SelectiveFolderView: View {
 		}
 	}
 
-	private func deselectIndexes(_ pathIndexes: IndexSet) async {
+	private func deselectItems(_ paths: [String]) async {
 		do {
-			let verdicts = pathIndexes.map({ idx in selectedPaths[idx] }).reduce(into: [:]) { dict, p in
+			let verdicts = paths.reduce(into: [:]) { dict, p in
 				dict[p] = false
 			}
 			let json = try JSONEncoder().encode(verdicts)
@@ -348,8 +368,6 @@ struct SelectiveFolderView: View {
 			try await Task.detached {
 				try folder.setExplicitlySelectedJSON(json)
 			}.value
-
-			selectedPaths.remove(atOffsets: pathIndexes)
 		}
 		catch {
 			Log.warn("Could not deselect: \(error.localizedDescription)")
@@ -362,97 +380,122 @@ struct SelectiveFolderView: View {
 }
 
 private struct SelectiveFileView: View {
-	@Environment(AppState.self) private var appState
 	let path: String
 	let folder: SushitrainFolder
 	let deselect: () -> Void
 
 	@State private var entry: SushitrainEntry? = nil
-	@State private var fullyAvailableOnDevices: [SushitrainPeer]? = nil
 
 	var body: some View {
 		ZStack {
-			if let file = self.entry {
-				if !file.isDeleted() {
-					#if os(macOS)
-						HStack {
-							if let fa = self.fullyAvailableOnDevices {
-								Label(path, systemImage: file.systemImage).badge(
-									fa.count)
-
-								Spacer()
-
-								if fa.isEmpty {
-									Text("Only copy")
-										.foregroundStyle(.orange).bold()
-										.padding(.all, 3).overlay(
-											RoundedRectangle(
-												cornerRadius: 3
-											).stroke(
-												Color.orange,
-												lineWidth: 1)
-										)
-										.help(
-											"This file is only available on this device."
-										)
-								}
-
-								Button(
-									"Remove from this device, keep on \(fa.count) others",
-									systemImage: "pin.slash"
-								) {
-									self.deselect()
-								}
-								.disabled(fa.isEmpty)
-								.labelStyle(.iconOnly)
-								.foregroundStyle(fa.isEmpty ? .gray : .red)
-								.buttonStyle(.borderless)
-							}
-							else {
-								Label(path, systemImage: file.systemImage)
-							}
-						}
-						.contextMenu {
-							NavigationLink(
-								destination: FileView(
-									file: file,
-									showPath: false,
-									siblings: nil
-								)
-							) {
-								Label("Show info", systemImage: file.systemImage)
-							}
-						}
-					#else
-						NavigationLink(destination: FileView(file: file, showPath: false, siblings: nil)) {
-							Label(path, systemImage: file.systemImage)
-						}
-					#endif
+			if let entry = entry {
+				if entry.isDeleted() {
+					Label(entry.fileName(), systemImage: entry.systemImage).strikethrough()
+				}
+				else if !entry.isExplicitlySelected() {
+					Label(entry.fileName(), systemImage: entry.systemImage).opacity(0.8)
 				}
 				else {
-					Label(path, systemImage: file.systemImage).strikethrough()
+					SelectedFileView(entry: entry, folder: folder, deselect: deselect)
 				}
+			}
+			else {
+				// This needs to be here, because otherwise macOS doesn't show disclosure arrows
+				Text(path).opacity(0)
 			}
 		}
 		.task {
 			do {
-				self.entry = try? folder.getFileInformation(path)
-				if let fileEntry = self.entry {
-					let availability = try await Task.detached { [fileEntry] in
-						return (try fileEntry.peersWithFullCopy()).asArray()
-					}.value
-
-					self.fullyAvailableOnDevices = availability.flatMap { devID in
-						if let p = self.appState.client.peer(withID: devID) {
-							return [p]
-						}
-						return []
-					}
-				}
+				self.entry = try folder.getFileInformation(path)
 			}
 			catch {
 				print("Error fetching file info: \(error.localizedDescription)")
 				self.entry = nil
+			}
+		}
+	}
+}
+
+private struct SelectedFileView: View {
+	@Environment(AppState.self) private var appState
+	let entry: SushitrainEntry
+	let folder: SushitrainFolder
+	let deselect: () -> Void
+
+	@State private var fullyAvailableOnDevices: [SushitrainPeer]? = nil
+
+	var body: some View {
+		ZStack {
+			#if os(macOS)
+				HStack {
+					if let fa = self.fullyAvailableOnDevices {
+						Label(entry.fileName(), systemImage: entry.systemImage)
+							.badge(fa.count)
+
+						Spacer()
+
+						if fa.isEmpty {
+							Text("Only copy")
+								.foregroundStyle(.orange).bold()
+								.padding(.all, 3).overlay(
+									RoundedRectangle(
+										cornerRadius: 3
+									).stroke(
+										Color.orange,
+										lineWidth: 1)
+								)
+								.help(
+									"This file is only available on this device."
+								)
+						}
+
+						Button(
+							"Remove from this device, keep on \(fa.count) others",
+							systemImage: "pin.slash"
+						) {
+							self.deselect()
+						}
+						.disabled(fa.isEmpty)
+						.labelStyle(.iconOnly)
+						.foregroundStyle(fa.isEmpty ? .gray : .red)
+						.buttonStyle(.borderless)
+					}
+					else {
+						Label(entry.fileName(), systemImage: entry.systemImage)
+					}
+				}
+				.contextMenu {
+					NavigationLink(
+						destination: FileView(
+							file: entry,
+							showPath: false,
+							siblings: nil
+						)
+					) {
+						Label("Show info", systemImage: entry.systemImage)
+					}
+				}
+			#else
+				NavigationLink(destination: FileView(file: entry, showPath: false, siblings: nil)) {
+					Label(entry.fileName(), systemImage: entry.systemImage)
+				}
+			#endif
+		}
+		.task {
+			do {
+				let availability = try await Task.detached { [entry] in
+					return (try entry.peersWithFullCopy()).asArray()
+				}.value
+
+				self.fullyAvailableOnDevices = availability.flatMap { devID in
+					if let p = self.appState.client.peer(withID: devID) {
+						return [p]
+					}
+					return []
+				}
+			}
+			catch {
+				print("Error fetching file availability: \(error.localizedDescription)")
 			}
 		}
 	}

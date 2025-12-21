@@ -924,6 +924,10 @@ extension String {
 		}
 		return self
 	}
+
+	var lastPathComponent: String {
+		return self.split(separator: "/").last.map(String.init) ?? self
+	}
 }
 
 extension CGImage {
