@@ -88,7 +88,7 @@ private struct TreeNode: Hashable, Identifiable {
 
 private struct TreeNodeView<Content: View>: View {
 	let tree: TreeNode
-	
+
 	/// Whether to place children in the parent instead of creating a disclosure group
 	/// (this is used to prevent the root node from creating a top-level disclosure group)
 	let unroll: Bool
