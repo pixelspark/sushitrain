@@ -6825,7 +6825,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kan geen voorbeeld tonen voor dit bestandstype."
+            "value" : "Kan geen voorvertoning tonen voor dit bestandstype."
           }
         },
         "uk" : {
@@ -13239,7 +13239,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bestandsvoorbeelden"
+            "value" : "Bestandsvoorvertoning"
           }
         },
         "uk" : {
@@ -16385,7 +16385,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Globale aankondigingsservers..."
+            "value" : "Wereldwijde aankondigingsservers..."
           }
         },
         "uk" : {
@@ -29371,7 +29371,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Toon voorbeeld"
+            "value" : "Toon voorvertoning"
           }
         },
         "uk" : {
