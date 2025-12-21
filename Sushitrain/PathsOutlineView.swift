@@ -128,11 +128,15 @@ private struct TreeNodeView<Content: View>: View {
 					}
 				) {
 					self.content(tree.value, tree.intermediate)
-				}.selectionDisabled(tree.intermediate)
+						.selectionDisabled(tree.intermediate)
+						.disabled(tree.intermediate)
+				}
 			}
 		}
 		else {
 			self.content(tree.value, tree.intermediate)
+				.selectionDisabled(tree.intermediate)
+				.disabled(tree.intermediate)
 		}
 	}
 }

@@ -29,7 +29,7 @@ import SwiftUI
 		@State private var folderPassword: String = ""
 		@State private var searchText: String = ""
 		@State private var destURL: URL? = nil
-		@State private var selection: Set<EncryptedFileEntry.ID> = []
+		@State private var selectedDecryptedPaths: Set<String> = []
 		@State private var showSuccessMessage = false
 		@State private var keepFolderStructure = true
 
@@ -63,7 +63,7 @@ import SwiftUI
 							.disabled(folderPassword.isEmpty || folderID.isEmpty || sourceURL == nil)
 						}
 
-						Section("\(selection.count) files selected") {
+						Section("\(selectedDecryptedPaths.count) files selected") {
 							LabeledContent("Folder") {
 								HStack {
 									Text(destURL?.lastPathComponent ?? "")
@@ -78,12 +78,12 @@ import SwiftUI
 								Text("Recreate folder structure")
 							}
 
-							Button("Decrypt \(selection.count) files") {
+							Button("Decrypt \(selectedDecryptedPaths.count) files") {
 								Task {
 									await self.decryptSelection()
 								}
 							}.disabled(destURL == nil)
-						}.disabled(folderPassword.isEmpty || folderID.isEmpty || sourceURL == nil || selection.isEmpty)
+						}.disabled(folderPassword.isEmpty || folderID.isEmpty || sourceURL == nil || selectedDecryptedPaths.isEmpty)
 					}
 					.formStyle(.grouped)
 					.disabled(loading)
@@ -104,8 +104,9 @@ import SwiftUI
 						else if sourceURL != nil && !folderID.isEmpty && !folderPassword.isEmpty {
 							// List of files
 							DecrypterItemsView(
-								folderID: folderID, folderPassword: folderPassword, entries: searchText.isEmpty ? allEntries : foundEntries,
-								selection: $selection)
+								folderID: folderID, folderPassword: folderPassword,
+								entries: searchText.isEmpty ? allEntries : foundEntries,
+								selectedDecryptedPaths: $selectedDecryptedPaths)
 						}
 						else {
 							ContentUnavailableView {
@@ -190,18 +191,23 @@ import SwiftUI
 			let folderID = self.folderID
 			let folderPassword = self.folderPassword
 			let destURL = self.destURL
-			let selection = self.selection
+			let selectedDecryptedPaths = self.selectedDecryptedPaths
 			let sourceURL = self.sourceURL
 			let keepFolderStructure = self.keepFolderStructure
+			let entries = self.allEntries
 
 			await Task.detached(priority: .userInitiated) {
 				do {
 					// Keep a bookmark accessor alive whle we write files to the destination URL
 					try withExtendedLifetime(try BookmarkManager.Accessor(url: destURL!)) {
 						let folderKey = SushitrainNewFolderKey(folderID, folderPassword)
-						for fileURL in selection {
+						for entry in entries {
+							if !selectedDecryptedPaths.contains(entry.decryptedPath) {
+								continue
+							}
+
 							let rootPath = sourceURL!.path(percentEncoded: false)
-							let filePath = URL(string: fileURL)!.path(percentEncoded: false)
+							let filePath = entry.url.path(percentEncoded: false)
 							let trimmedPath = String(filePath.trimmingPrefix(rootPath))
 							Log.info("Decrypt \(trimmedPath) \(sourceURL!) \(destURL!)")
 							try folderKey?.decryptFile(
@@ -289,22 +295,23 @@ import SwiftUI
 		let folderID: String
 		let folderPassword: String
 		let entries: [EncryptedFileEntry]
+		@State private var decryptedPaths: [String] = []
 
-		@Binding var selection: Set<EncryptedFileEntry.ID>
+		@Binding var selectedDecryptedPaths: Set<String>
 
 		var body: some View {
-			Table(
-				of: EncryptedFileEntry.self, selection: $selection,
-				columns: {
-					TableColumn("File name") { (entry: EncryptedFileEntry) in
-						Text(entry.decryptedPath)
-					}
-				},
-				rows: {
-					ForEach(entries) { entry in
-						TableRow(entry)
-					}
-				})
+			List(selection: $selectedDecryptedPaths) {
+				PathsOutlineGroup(paths: decryptedPaths) { decryptedPath, isIntermediate in
+					Text(decryptedPath.lastPathComponent)
+				}
+			}
+			.task {
+				await self.update()
+			}
+		}
+
+		private func update() async {
+			self.decryptedPaths = self.entries.map { $0.decryptedPath }
 		}
 	}
 
