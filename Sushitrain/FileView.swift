@@ -183,7 +183,10 @@ struct FileView: View {
 							Button("Encryption details...", systemImage: "lock.document.fill") { showEncryptionSheet = true }
 								.disabled(!(file.folder?.hasEncryptedPeers ?? false))
 
-							Button("Explore archive contents...", systemImage: "doc.zipper") { showArchive = true }
+							Button("Explore archive contents...", systemImage: "doc.zipper") {
+								showArchive = true
+							}
+							.disabled(!file.isArchive())
 						} label: {
 							Label("Advanced", systemImage: "ellipsis.circle")
 						}
