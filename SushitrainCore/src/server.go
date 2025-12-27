@@ -123,6 +123,7 @@ func NewServer(app *syncthing.App, measurements *Measurements, ctx context.Conte
 
 	mux.Handle("/file", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !server.verifyURL(r.URL) {
+			slog.Warn("request denied", "method", r.Method, r.URL.Path, r.URL.RawQuery)
 			w.WriteHeader(403)
 			return
 		}
@@ -133,11 +134,13 @@ func NewServer(app *syncthing.App, measurements *Measurements, ctx context.Conte
 		slog.Info("request", "method", r.Method, "folder", folder, "path", path)
 		stFolder := server.client.FolderWithID(folder)
 		if stFolder == nil {
+			slog.Warn("request not found", "method", r.Method, "folder", folder, "path", path)
 			w.WriteHeader(404)
 			return
 		}
 		stEntry, err := stFolder.GetFileInformation(path)
 		if err != nil {
+			slog.Warn("request file information failed", "cause", err, "method", r.Method, "folder", folder, "path", path)
 			w.WriteHeader(500)
 			w.Write([]byte(err.Error()))
 			return
@@ -146,11 +149,13 @@ func NewServer(app *syncthing.App, measurements *Measurements, ctx context.Conte
 		m := app.Internals
 		info, ok, err := m.GlobalFileInfo(folder, path)
 		if err != nil {
+			slog.Warn("request global file information failed", "cause", err, "method", r.Method, "folder", folder, "path", path)
 			w.WriteHeader(500)
 			w.Write([]byte(err.Error()))
 			return
 		}
 		if !ok {
+			slog.Warn("request global file not found", "method", r.Method, "folder", folder, "path", path)
 			w.WriteHeader(404)
 			return
 		}
@@ -325,7 +330,7 @@ func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *
 	w.Header().Add("Cache-Control", "no-cache, no-store, must-revalidate")
 	w.Header().Add("Pragma", "no-cache")
 	w.Header().Add("Expires", "0")
-	
+
 	mp := newMiniPuller(measurements, m)
 	readSeeker := newEntryReadSeeker(info, mp, entry, r.Context(), callback)
 	http.ServeContent(w, r, entry.info.Name, entry.info.ModTime(), readSeeker)
