@@ -192,11 +192,6 @@ struct FileView: View {
 								showArchive = true
 							}
 							.disabled(!file.isArchive())
-
-							Button("Stream in another app...", systemImage: "link") {
-								showCopyStreamingURL = true
-							}.disabled(file.isDirectory() || file.isDeleted())
-
 						} label: {
 							Label("Advanced", systemImage: "ellipsis.circle")
 						}
@@ -538,7 +533,7 @@ struct FileView: View {
 			}
 		}
 		else {
-			let streamInOtherAppButton = Button("Stream in another app...", systemImage: "arrow.down.app.fill") {
+			let streamInOtherAppButton = Button("Stream in another app", systemImage: "arrow.down.app.fill") {
 				self.showCopyStreamingURL = true
 			}.disabled(folder.connectedPeerCount() == 0)
 				#if os(macOS)
