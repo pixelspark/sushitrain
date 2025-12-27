@@ -107,6 +107,7 @@ import SwiftUI
 								folderID: folderID, folderPassword: folderPassword,
 								entries: searchText.isEmpty ? allEntries : foundEntries,
 								selectedDecryptedPaths: $selectedDecryptedPaths)
+							.id(searchText)
 						}
 						else {
 							ContentUnavailableView {
