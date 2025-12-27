@@ -17736,6 +17736,52 @@
         }
       }
     },
+    "If you reset the device identity, the device ID will change, and you will have to re-add this device to all other devices. Any files on this device will not be removed, but synchronization will not work until the other devices have re-accepted the new identity of this device again. Resetting the device identity should only be necessary if you have migrated from another device. The app will close to reset the device identity. This cannot be undone!" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn Sie die Geräteidentität zurücksetzen, ändert sich die Geräte-ID und Sie müssen dieses Gerät zu allen anderen Geräten neu hinzufügen. Alle Dateien auf diesem Gerät werden nicht entfernt, aber die Synchronisierung funktioniert nicht, bis die anderen Geräte die neue Identität dieses Geräts erneut akzeptiert haben. Das Zurücksetzen der Geräteidentität sollte nur erforderlich sein, wenn Sie von einem anderen Gerät migriert sind. Die App wird geschlossen, um die Geräteidentität zurückzusetzen. Dies kann nicht rückgängig gemacht werden!"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si restableces la identidad del dispositivo, la ID del dispositivo cambiará y tendrás que volver a agregar este dispositivo a todos los demás dispositivos. No se eliminarán los archivos de este dispositivo, pero la sincronización no funcionará hasta que los otros dispositivos hayan vuelto a aceptar la nueva identidad de este dispositivo. Restablecer la identidad del dispositivo solo debería ser necesario si has migrado desde otro dispositivo. La aplicación se cerrará para restablecer la identidad del dispositivo. ¡Esto no se puede deshacer!"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se reimposti l'identità del dispositivo, l'ID del dispositivo cambierà e dovrai riaggiungere questo dispositivo a tutti gli altri dispositivi. Qualsiasi file su questo dispositivo non verrà rimosso, ma la sincronizzazione non funzionerà finché gli altri dispositivi non avranno nuovamente accettato la nuova identità di questo dispositivo. Il ripristino dell'identità del dispositivo dovrebbe essere necessario solo se hai eseguito la migrazione da un altro dispositivo. L'app si chiuderà per reimpostare l'identità del dispositivo. Questo non può essere annullato!"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "デバイス ID をリセットすると、デバイス ID が変更され、すべての他のデバイスにこのデバイスを再追加する必要があります。このデバイスのファイルは削除されませんが、他のデバイスがこのデバイスの新しい ID を再確認するまで、同期は機能しません。デバイス ID のリセットは、他のデバイスから移行した場合にのみ必要です。デバイス ID をリセットするためにアプリが終了します。これを元に戻すことはできません。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als je de apparaatidentiteit opnieuw instelt, zal de apparaat-ID veranderen en moet je dit apparaat opnieuw toevoegen aan alle andere apparaten. De bestanden op dit apparaat worden niet verwijderd, maar synchronisatie zal niet werken totdat de andere apparaten de nieuwe identiteit van dit apparaat opnieuw hebben geaccepteerd. Het opnieuw instellen van de apparaatidentiteit is normaalgesproken alleen noodzakelijk als je bent gemigreerd van een ander apparaat. De app zal sluiten om de apparaatidentiteit opnieuw in te stellen. Dit kan niet ongedaan worden gemaakt!"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Якщо ви скинете ідентичність пристрою, ID пристрою зміниться, і вам доведеться повторно додати цей пристрій до всіх інших пристроїв. Будь-які файли на цьому пристрої не будуть видалені, але синхронізація не працюватиме, доки інші пристрої знову не приймуть нову ідентичність цього пристрою. Скидання ідентичності пристрою повинно бути необхідним лише, якщо ви перейшли з іншого пристрою. Додаток буде закрито, щоб скинути ідентичність пристрою. Це не можна скасувати!"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如果您重置设备身份，设备 ID 将更改，您将需要将此设备重新添加到所有其他设备中。此设备上的任何文件都不会被删除，但在其他设备再次接受此设备的新身份之前，同步将无法工作。重置设备身份仅在您从另一设备迁移过来的情况下才有必要。重置设备身份后应用将关闭。此操作无法撤销！"
+          }
+        }
+      }
+    },
     "If your issue remains unresolved, you may invoke the help of our community through our discussions page. Remember that this app is free software. While we do care deeply about your feedback and want to ensure the app is working correctly, we do not have the resources to provide support with your specific issue or usage of Synctrain. You can greatly increase the chance of fixing your issue by providing detailed descriptions of your issue, your configuration and usage, and what you already did to try and resolve the issue yourself. Please provide as much information as possible, including relevant settings, screenshots and error messages." : {
       "localizations" : {
         "de" : {
@@ -24332,6 +24378,52 @@
         }
       }
     },
+    "Read this carefully" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lies dies sorgfältig"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lee esto detenidamente"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leggi attentamente"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "よくお読みください"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lees dit aandachtig"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Читайте це уважно"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仔细阅读"
+          }
+        }
+      }
+    },
     "Receive only" : {
       "localizations" : {
         "de" : {
@@ -25984,6 +26076,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "重新扫描子目录"
+          }
+        }
+      }
+    },
+    "Reset device identity" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geräteidentität zurücksetzen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restablecer identidad del dispositivo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reimposta l'identità del dispositivo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "デバイスの識別情報をリセット"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apparaatidentiteit opnieuw instellen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скинути ідентичність пристрою"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重置设备身份"
           }
         }
       }

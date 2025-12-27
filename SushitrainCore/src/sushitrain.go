@@ -234,6 +234,18 @@ func (clt *Client) CurrentConfigDirectory() string {
 	return locations.GetBaseDir(locations.ConfigBaseDir)
 }
 
+func (c *Client) ClearIdentity() error {
+	certPath := locations.Get(locations.CertFile)
+	slog.Warn("Removing certificate", "path", certPath)
+	if err := os.Remove(certPath); err != nil {
+		return err
+	}
+
+	keyPath := locations.Get(locations.KeyFile)
+	slog.Warn("Removing key", "path", keyPath)
+	return os.Remove(keyPath)
+}
+
 func (clt *Client) ExportConfigurationFile() error {
 	cfg := clt.config.RawCopy()
 	homeDir := locations.GetBaseDir(locations.UserHomeBaseDir)

@@ -299,6 +299,7 @@ struct TroubleshootingView: View {
 	@State private var showCacheCleared = false
 	@State private var showLog = false
 	@State private var showAllBookmarksRemoved = false
+	@State private var showResetDeviceIdentity = false
 
 	private static let formatter = ByteCountFormatter()
 
@@ -441,6 +442,20 @@ struct TroubleshootingView: View {
 					}
 				}
 			#endif
+			
+			Section {
+				Button("Reset device identity", role: .destructive) {
+					self.showResetDeviceIdentity = true
+				}
+				.alert("Read this carefully", isPresented: $showResetDeviceIdentity) {
+					Button("Reset device identity", role: .destructive) {
+						try? self.appState.client.clearIdentity()
+						exit(0)
+					}
+				} message: {
+					Text("If you reset the device identity, the device ID will change, and you will have to re-add this device to all other devices. Any files on this device will not be removed, but synchronization will not work until the other devices have re-accepted the new identity of this device again. Resetting the device identity should only be necessary if you have migrated from another device. The app will close to reset the device identity. This cannot be undone!")
+				}
+			}
 		}
 		#if os(macOS)
 			.formStyle(.grouped)
