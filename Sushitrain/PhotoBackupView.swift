@@ -286,13 +286,17 @@ struct PhotoBackupSettingsView: View {
 						Text("Photos will be automatically removed from your photo library and iCloud after they have been backed up.")
 					}
 					else {
-						Text("Photos will be automatically removed from your photo library and iCloud \(photoBackup.purgeAfterDays) days after they have been backed up.")
+						Text(
+							"Photos will be automatically removed from your photo library and iCloud \(photoBackup.purgeAfterDays) days after they have been backed up."
+						)
 					}
 				}
 				else {
-					Text("When this option is enabled, photos will be automatically removed from your photo library and iCloud after they have been backed up.")
+					Text(
+						"When this option is enabled, photos will be automatically removed from your photo library and iCloud after they have been backed up."
+					)
 				}
-				
+
 				#if os(iOS)
 					if photoBackup.purgeEnabled && photoBackup.enableBackgroundCopy {
 						Text(

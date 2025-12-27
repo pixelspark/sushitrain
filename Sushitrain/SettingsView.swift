@@ -538,7 +538,7 @@ struct AdvancedSettingsView: View {
 						"The operating system will periodically grant the app a few minutes of time in the background, depending on network connectivity and battery status."
 					)
 				}
-				
+
 				if #available(iOS 26, *) {
 					Section {
 						if backgroundManager.runningContinuedTask != nil {
@@ -549,33 +549,35 @@ struct AdvancedSettingsView: View {
 								Button("For 10 seconds", systemImage: "gearshape.2.fill") {
 									self.startBackgroundSyncFor(.time(seconds: 10))
 								}.disabled(backgroundManager.runningContinuedTask != nil)
-								
+
 								Button("For 1 minute", systemImage: "gearshape.2.fill") {
 									self.startBackgroundSyncFor(.time(seconds: 60))
 								}.disabled(backgroundManager.runningContinuedTask != nil)
-								
+
 								Button("For 10 minutes", systemImage: "gearshape.2.fill") {
 									self.startBackgroundSyncFor(.time(seconds: 10 * 60))
 								}.disabled(backgroundManager.runningContinuedTask != nil)
-								
+
 								Button("For 1 hour", systemImage: "gearshape.2.fill") {
 									self.startBackgroundSyncFor(.time(seconds: 60 * 60))
 								}.disabled(backgroundManager.runningContinuedTask != nil)
 							}
 						}
 					} footer: {
-						Text("At your request, the app can synchronize in the background for a specific amount of time. You can also access these options by long-pressing the status item on the start screen.")
-				   }.alert(
-							"An error has occurred", isPresented: Binding.isNotNil($showError),
-					  actions: {
-						  Button("OK") {
-							  showError = nil
-						  }
-					  },
-					  message: {
-						  Text(showError?.localizedDescription ?? "")
-					  }
-				  )
+						Text(
+							"At your request, the app can synchronize in the background for a specific amount of time. You can also access these options by long-pressing the status item on the start screen."
+						)
+					}.alert(
+						"An error has occurred", isPresented: Binding.isNotNil($showError),
+						actions: {
+							Button("OK") {
+								showError = nil
+							}
+						},
+						message: {
+							Text(showError?.localizedDescription ?? "")
+						}
+					)
 				}
 
 				Section {
@@ -683,7 +685,7 @@ struct AdvancedSettingsView: View {
 					Alert(title: Text("Background synchronization"), message: Text(alertMessage))
 				})
 		}
-		
+
 		@available(iOS 26, *) private func startBackgroundSyncFor(_ type: ContinuedTaskType) {
 			withAnimation {
 				do {
@@ -993,7 +995,9 @@ private struct BandwidthSettingsView: View {
 					}
 
 					#if os(iOS)
-						NavigationLink(destination: BackgroundSettingsView(userSettings: userSettings, backgroundManager: appState.backgroundManager)) {
+						NavigationLink(
+							destination: BackgroundSettingsView(userSettings: userSettings, backgroundManager: appState.backgroundManager)
+						) {
 							Text("Background synchronization").badge(
 								userSettings.longBackgroundSyncEnabled || userSettings.shortBackgroundSyncEnabled ? "On" : "Off")
 						}

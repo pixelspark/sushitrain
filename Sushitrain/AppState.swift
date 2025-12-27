@@ -207,7 +207,7 @@ struct SyncState {
 			}
 		}
 	}
-	
+
 	private func resolveBookmarks() {
 		let folderIDs = client.folders()?.asArray() ?? []
 		for folderID in folderIDs {
@@ -218,7 +218,8 @@ struct SyncState {
 						let resolvedPath = bm.path(percentEncoded: false)
 						let oldPath = folder.path()
 						if oldPath != resolvedPath {
-							Log.info("Changing the path for folder '\(folderID)' after resolving bookmark: \(resolvedPath) (old path was \(oldPath)")
+							Log.info(
+								"Changing the path for folder '\(folderID)' after resolving bookmark: \(resolvedPath) (old path was \(oldPath)")
 							try folder.setPath(resolvedPath)
 						}
 					}
@@ -234,7 +235,7 @@ struct SyncState {
 			}
 		}
 	}
-	
+
 	@MainActor func start() async {
 		if self.startupState != .notStarted || self.startupState != .onboarding {
 			assertionFailure("cannot start again")
@@ -279,7 +280,7 @@ struct SyncState {
 				self.resolveBookmarks()
 
 				await self.updateDeviceSuspension()
-				
+
 				let folderIDs = client.folders()?.asArray() ?? []
 
 				// Do we need to pause all folders?
@@ -728,7 +729,7 @@ struct SyncState {
 				self.userSettings.hideHiddenFolders = true
 			}
 		#endif
-		
+
 		// Re-resolve bookmarks, in some cases apps may have updated and their paths changed
 		self.resolveBookmarks()
 
