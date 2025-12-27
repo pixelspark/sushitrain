@@ -159,6 +159,9 @@ func NewServer(app *syncthing.App, measurements *Measurements, ctx context.Conte
 		// Set MIME type
 		ext := filepath.Ext(path)
 		mime := MIMETypeForExtension(ext)
+		if mime == "" {
+			mime = "application/octet-stream"
+		}
 		w.Header().Add("Content-type", mime)
 
 		startTime := time.Now()

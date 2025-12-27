@@ -241,7 +241,7 @@ func (srv *FolderServer) handle(w http.ResponseWriter, r *http.Request) {
 	ext := filepath.Ext(path)
 	mime := MIMETypeForExtension(ext)
 	if mime == "" {
-		mime = "application/x-octet-stream"
+		mime = "application/octet-stream"
 	}
 	w.Header().Add("Content-type", mime)
 
