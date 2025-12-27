@@ -252,7 +252,7 @@ func (e *entryReadSeeker) Read(p []byte) (n int, err error) {
 	}
 
 	// Try to fulfill request locally
-	if bytes, err := e.entry.FetchLocal(e.offset, size); err == nil {
+	if bytes, err := e.entry.FetchLocal(e.offset, size); err == nil && bytes != nil {
 		total := copy(p, bytes)
 		e.offset += int64(total)
 		return total, nil
