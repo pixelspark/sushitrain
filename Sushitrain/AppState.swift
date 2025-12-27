@@ -207,7 +207,34 @@ struct SyncState {
 			}
 		}
 	}
-
+	
+	private func resolveBookmarks() {
+		let folderIDs = client.folders()?.asArray() ?? []
+		for folderID in folderIDs {
+			do {
+				if let bm = try BookmarkManager.shared.resolveBookmark(folderID: folderID) {
+					Log.info("We have a bookmark for folder \(folderID): \(bm)")
+					if let folder = client.folder(withID: folderID) {
+						let resolvedPath = bm.path(percentEncoded: false)
+						let oldPath = folder.path()
+						if oldPath != resolvedPath {
+							Log.info("Changing the path for folder '\(folderID)' after resolving bookmark: \(resolvedPath) (old path was \(oldPath)")
+							try folder.setPath(resolvedPath)
+						}
+					}
+					else {
+						Log.warn(
+							"Cannot obtain folder configuration for \(folderID) for setting bookmark; skipping"
+						)
+					}
+				}
+			}
+			catch {
+				Log.warn("Error restoring bookmark for \(folderID): \(error.localizedDescription)")
+			}
+		}
+	}
+	
 	@MainActor func start() async {
 		if self.startupState != .notStarted || self.startupState != .onboarding {
 			assertionFailure("cannot start again")
@@ -249,27 +276,11 @@ struct SyncState {
 				}.value
 
 				// Resolve bookmarks
-				let folderIDs = client.folders()?.asArray() ?? []
-				for folderID in folderIDs {
-					do {
-						if let bm = try BookmarkManager.shared.resolveBookmark(folderID: folderID) {
-							Log.info("We have a bookmark for folder \(folderID): \(bm)")
-							if let folder = client.folder(withID: folderID) {
-								try folder.setPath(bm.path(percentEncoded: false))
-							}
-							else {
-								Log.warn(
-									"Cannot obtain folder configuration for \(folderID) for setting bookmark; skipping"
-								)
-							}
-						}
-					}
-					catch {
-						Log.warn("Error restoring bookmark for \(folderID): \(error.localizedDescription)")
-					}
-				}
+				self.resolveBookmarks()
 
 				await self.updateDeviceSuspension()
+				
+				let folderIDs = client.folders()?.asArray() ?? []
 
 				// Do we need to pause all folders?
 				let pauseAllFolders = UserDefaults.standard.bool(forKey: "pauseAllFolders")
@@ -717,6 +728,9 @@ struct SyncState {
 				self.userSettings.hideHiddenFolders = true
 			}
 		#endif
+		
+		// Re-resolve bookmarks, in some cases apps may have updated and their paths changed
+		self.resolveBookmarks()
 
 		#if os(iOS)
 			self.lingerManager.cancelLingering()
