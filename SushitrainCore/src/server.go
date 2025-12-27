@@ -8,7 +8,6 @@ package sushitrain
 import (
 	"context"
 	"crypto/ed25519"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
@@ -326,8 +325,7 @@ func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *
 	w.Header().Add("Cache-Control", "no-cache, no-store, must-revalidate")
 	w.Header().Add("Pragma", "no-cache")
 	w.Header().Add("Expires", "0")
-	w.Header().Add("ETag", base64.StdEncoding.EncodeToString(info.BlocksHash))
-
+	
 	mp := newMiniPuller(measurements, m)
 	readSeeker := newEntryReadSeeker(info, mp, entry, r.Context(), callback)
 	http.ServeContent(w, r, entry.info.Name, entry.info.ModTime(), readSeeker)
