@@ -15,6 +15,11 @@ enum BrowserViewStyle: String {
 	case web = "web"
 }
 
+enum BrowserViewFilterAvailability: String, Codable {
+	case all = "all"
+	case localOnly = "localOnly"
+}
+
 private struct FolderPopoverView: View {
 	let folder: SushitrainFolder
 
@@ -81,6 +86,7 @@ struct BrowserView: View {
 	@State private var showAddFilePicker = false
 	@State private var webViewAvailable = false
 	@State private var viewStyle: BrowserViewStyle? = nil
+	@State private var filterAvailability: BrowserViewFilterAvailability? = nil
 	@State private var showAlert: ShowAlert? = nil
 	@State private var showConfirmable: ConfirmableAction? = nil
 	@State private var isWorking = false
@@ -107,6 +113,10 @@ struct BrowserView: View {
 			})
 	}
 
+	private var currentFilterAvailability: BrowserViewFilterAvailability {
+		return self.filterAvailability ?? appState.userSettings.defaultBrowserViewFilterAvailability
+	}
+
 	private var folderName: String {
 		if prefix.isEmpty {
 			return self.folder.label()
@@ -124,6 +134,7 @@ struct BrowserView: View {
 			prefix: prefix,
 			// Note: this binding does *not* set appState.defaultBrowserViewStyle, because this one is primarily set programmatically
 			viewStyle: $viewStyle,
+			filterAvailability: currentFilterAvailability,
 			searchText: $searchText,
 			showSettings: $showSettings
 		)
@@ -326,6 +337,8 @@ struct BrowserView: View {
 				}
 				.pickerStyle(.segmented)
 				.disabled(isSearching)
+
+				self.filterMenu()
 			}
 		#endif
 
@@ -337,6 +350,25 @@ struct BrowserView: View {
 			#endif
 
 			self.folderMenu()
+		}
+	}
+
+	@ViewBuilder private func filterMenu() -> some View {
+		Menu {
+			Picker(
+				"Show",
+				selection: Binding(
+					get: { self.currentFilterAvailability },
+					set: {
+						self.filterAvailability = $0
+						appState.userSettings.defaultBrowserViewFilterAvailability = $0
+					})
+			) {
+				Label("All files and folders", systemImage: "folder").tag(BrowserViewFilterAvailability.all)
+				Label("Only files on this device", systemImage: "folder.fill").tag(BrowserViewFilterAvailability.localOnly)
+			}.pickerStyle(.inline)
+		} label: {
+			Label("Filter", systemImage: "line.3.horizontal.decrease")
 		}
 	}
 
@@ -483,6 +515,8 @@ struct BrowserView: View {
 						webViewAvailable: self.webViewAvailable,
 						viewStyle: self.currentViewStyle()
 					).pickerStyle(.inline)
+
+					self.filterMenu()
 
 					self.addMenu()
 
@@ -775,9 +809,10 @@ struct BrowserView: View {
 
 private struct BrowserItemsView: View {
 	@Environment(AppState.self) private var appState
-	var folder: SushitrainFolder
-	var prefix: String
+	let folder: SushitrainFolder
+	let prefix: String
 	@Binding var viewStyle: BrowserViewStyle?
+	let filterAvailability: BrowserViewFilterAvailability
 
 	@Binding var searchText: String
 	@Binding var showSettings: Bool
@@ -862,6 +897,11 @@ private struct BrowserItemsView: View {
 			}
 		}
 		.onChange(of: self.folder.folderStateForUpdating) {
+			Task {
+				await self.reload()
+			}
+		}
+		.onChange(of: filterAvailability) {
 			Task {
 				await self.reload()
 			}
@@ -1032,14 +1072,25 @@ private struct BrowserItemsView: View {
 					}
 				}
 				else {
-					ContentUnavailableView(
-						"There are currently no files in this folder.",
-						systemImage: "questionmark.folder",
-						description: Text(
-							"If this is unexpected, ensure that the other devices have accepted syncing this folder with your device."
+					if filterAvailability != .all {
+						ContentUnavailableView(
+							"There are no files in this folder to show",
+							systemImage: "line.3.horizontal.decrease",
+							description: Text(
+								"Only files that are on this device are displayed."
+							)
 						)
-					).onTapGesture {
-						showSettings = true
+					}
+					else {
+						ContentUnavailableView(
+							"There are currently no files in this folder.",
+							systemImage: "questionmark.folder",
+							description: Text(
+								"If this is unexpected, ensure that the other devices have accepted syncing this folder with your device."
+							)
+						).onTapGesture {
+							showSettings = true
+						}
 					}
 				}
 			}
@@ -1073,7 +1124,7 @@ private struct BrowserItemsView: View {
 
 		let folderExists = folder.exists()
 
-		let newSubdirectories: [SushitrainEntry] = await Task.detached {
+		var newSubdirectories: [SushitrainEntry] = await Task.detached {
 			dispatchPrecondition(condition: .notOnQueue(.main))
 			if !folder.exists() {
 				return []
@@ -1094,7 +1145,7 @@ private struct BrowserItemsView: View {
 			return []
 		}.value
 
-		let newFiles: [SushitrainEntry] = await Task.detached {
+		var newFiles: [SushitrainEntry] = await Task.detached {
 			dispatchPrecondition(condition: .notOnQueue(.main))
 			if !folder.exists() {
 				return []
@@ -1109,6 +1160,15 @@ private struct BrowserItemsView: View {
 			}
 			return []
 		}.value
+
+		// Apply filters
+		switch self.filterAvailability {
+		case .all:
+			break
+		case .localOnly:
+			newFiles = newFiles.filter { $0.isLocallyPresent() }
+			newSubdirectories = newSubdirectories.filter { $0.isLocallyPresent() }
+		}
 
 		self.isLoading = false
 		loadingSpinnerTask.cancel()
