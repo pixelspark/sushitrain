@@ -293,7 +293,7 @@ struct SyncState {
 							try folder?.setPaused(true)
 						}
 						catch {
-							Log.warn("Failed to delete v1 index: " + error.localizedDescription)
+							Log.warn("Failed to pause folder '\(folder)' on startup: " + error.localizedDescription)
 						}
 					}
 				}
