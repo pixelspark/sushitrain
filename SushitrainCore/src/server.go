@@ -8,14 +8,16 @@ package sushitrain
 import (
 	"context"
 	"crypto/ed25519"
+	"encoding/base64"
+	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
 	"path/filepath"
 	"time"
 
-	"github.com/gotd/contrib/http_range"
 	"github.com/syncthing/syncthing/lib/protocol"
 	"github.com/syncthing/syncthing/lib/syncthing"
 	"golang.org/x/exp/slog"
@@ -191,128 +193,139 @@ func NewServer(app *syncthing.App, measurements *Measurements, ctx context.Conte
 	return &server, nil
 }
 
+type entryReadSeeker struct {
+	info     protocol.FileInfo
+	offset   int64
+	puller   *miniPuller
+	entry    *Entry
+	context  context.Context
+	callback serveCallback
+}
+
+func newEntryReadSeeker(info protocol.FileInfo, puller *miniPuller, entry *Entry, context context.Context, callback serveCallback) *entryReadSeeker {
+	return &entryReadSeeker{
+		info:     info,
+		offset:   0,
+		puller:   puller,
+		entry:    entry,
+		context:  context,
+		callback: callback,
+	}
+}
+
+// Seek implements io.Seeker.
+func (e *entryReadSeeker) Seek(offset int64, whence int) (int64, error) {
+	switch whence {
+	case io.SeekCurrent:
+		e.offset += offset
+		return e.offset, nil
+	case io.SeekStart:
+		e.offset = offset
+		return e.offset, nil
+	case io.SeekEnd:
+		e.offset = offset + e.info.Size
+		return e.offset, nil
+	default:
+		return e.offset, errors.New("unsuported whence value")
+	}
+}
+
+// Read implements io.Reader.
+func (e *entryReadSeeker) Read(p []byte) (n int, err error) {
+	if len(p) == 0 {
+		return 0, nil
+	}
+
+	size := int64(len(p))
+	if e.offset+int64(size) > e.info.Size {
+		if e.info.Size > e.offset {
+			size = e.info.Size - e.offset
+		} else {
+			size = 0
+		}
+	}
+
+	if size == 0 {
+		return 0, io.EOF
+	}
+
+	// Try to fulfill request locally
+	if bytes, err := e.entry.FetchLocal(e.offset, size); err == nil {
+		total := copy(p, bytes)
+		e.offset += int64(total)
+		return total, nil
+	}
+
+	// Start pulling those blocks
+	blockSize := int64(e.info.BlockSize())
+	startBlock := e.offset / int64(blockSize)
+	blockCount := ceilDiv(int64(size), blockSize)
+
+	// If we start halfway the first block, we need to fetch another one at the end to make up for it
+	offsetInStartBlock := e.offset % int64(blockSize)
+	if offsetInStartBlock > 0 {
+		blockCount += 1
+	}
+
+	var bytesRead int64 = 0
+	folderID := e.entry.Folder.FolderID
+
+	for blockIndex := startBlock; blockIndex < startBlock+blockCount; blockIndex++ {
+		if int(blockIndex) > len(e.info.Blocks)-1 {
+			break
+		}
+
+		// Fetch block
+		block := e.info.Blocks[blockIndex]
+		buf, err := e.puller.downloadBlock(e.context, folderID, int(blockIndex), e.info, 1)
+		if err != nil {
+			slog.Warn("error downloading block", "blockIndex", blockIndex, "blockCount", len(e.info.Blocks), "cause", err)
+			// We are now sending less content than we promised in the header. The client should reject our response
+			// and try again later.
+			return int(bytesRead), err
+		}
+
+		bufStart := int64(0)
+		bufEnd := int64(len(buf))
+
+		if block.Offset < e.offset {
+			bufStart = e.offset - block.Offset
+		}
+
+		blockEnd := (block.Offset + int64(block.Size))
+		rangeEnd := (e.offset + int64(size))
+		if blockEnd > rangeEnd {
+			bufEnd = rangeEnd - block.Offset
+		}
+		if bufEnd < 0 {
+			break
+		}
+
+		// Write buffer
+		slog.Info("sending block", "blockIndex", blockIndex, "bufStart", bufStart, "bufEnd", bufEnd, "bufLength", len(buf), "bytes", bufEnd-bufStart)
+		copy(p[bytesRead:], buf[bufStart:bufEnd])
+		bytesRead += (bufEnd - bufStart)
+		if e.callback != nil {
+			e.callback(bytesRead, size)
+		}
+	}
+
+	e.offset += bytesRead
+	return int(bytesRead), nil
+}
+
+var _ io.ReadSeeker = &entryReadSeeker{}
+
 type serveCallback func(bytesSent int64, bytesRequested int64)
 
 func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *Entry, info protocol.FileInfo, m *syncthing.Internals, measurements *Measurements, callback serveCallback) {
-	w.Header().Add("Accept-range", "bytes")
-
 	// Disable caching
 	w.Header().Add("Cache-Control", "no-cache, no-store, must-revalidate")
 	w.Header().Add("Pragma", "no-cache")
 	w.Header().Add("Expires", "0")
+	w.Header().Add("ETag", base64.StdEncoding.EncodeToString(info.BlocksHash))
 
-	// Is this a ranged request?
-	requestedRange := r.Header.Get("Range")
-	if len(requestedRange) > 0 {
-		// Send just the blocks requested
-		parsedRanges, err := http_range.ParseRange(requestedRange, info.Size)
-		if err != nil {
-			w.WriteHeader(500)
-			w.Write([]byte(err.Error()))
-			return
-		}
-
-		if len(parsedRanges) > 1 {
-			slog.Warn("multipart ranges not yet supported", "requestedRange", requestedRange)
-			w.WriteHeader(500)
-			return
-		}
-
-		mp := newMiniPuller(measurements, m)
-
-		blockSize := int64(info.BlockSize())
-		for _, rng := range parsedRanges {
-			// Range cannot be longer than actual file
-			if rng.Start+rng.Length > info.Size {
-				slog.Warn("requested range is larger than file; shrinking range", "requestedRange", rng, "newLength", max(0, info.Size-rng.Start))
-				rng.Length = max(0, info.Size-rng.Start)
-			}
-
-			// Do we have this file ourselves?
-			// FIXME: this will lead to re-opening the file for each block, persist the file handle and 'ReadAt' from it directly.
-			if buffer, err := entry.FetchLocal(rng.Start, rng.Length); err == nil {
-				w.Write(buffer)
-				continue
-			}
-
-			startBlock := rng.Start / int64(blockSize)
-			blockCount := ceilDiv(rng.Length, blockSize)
-
-			// If we start halfway the first block, we need to fetch another one at the end to make up for it
-			offsetInStartBlock := rng.Start % int64(blockSize)
-			if offsetInStartBlock > 0 {
-				blockCount += 1
-			}
-			rangeHeader := fmt.Sprintf("bytes %d-%d/%d", rng.Start, rng.Length+rng.Start-1, info.Size)
-			lengthHeader := fmt.Sprintf("%d", rng.Length)
-			slog.Info("range", "range", rng, "startBlock", startBlock, "blockCount", blockCount, "blockSize", blockSize, "rangeHeader", rangeHeader, "lengthHeader", lengthHeader)
-			w.Header().Add("Content-Range", rangeHeader)
-			w.Header().Add("Content-length", lengthHeader)
-			w.WriteHeader(206) // partial content
-
-			bytesSent := int64(0)
-
-			for blockIndex := startBlock; blockIndex < startBlock+blockCount; blockIndex++ {
-				if int(blockIndex) > len(info.Blocks)-1 {
-					break
-				}
-
-				// Fetch block
-				block := info.Blocks[blockIndex]
-				buf, err := mp.downloadBlock(r.Context(), folderID, int(blockIndex), info, 1)
-				if err != nil {
-					slog.Warn("error downloading block", "blockIndex", blockIndex, "blockCount", len(info.Blocks), "cause", err)
-
-					// We are now sending less content than we promised in the header. The client should reject our response
-					// and try again later.
-					return
-				}
-
-				bufStart := int64(0)
-				bufEnd := int64(len(buf))
-
-				if block.Offset < rng.Start {
-					bufStart = rng.Start - block.Offset
-				}
-
-				blockEnd := (block.Offset + int64(block.Size))
-				rangeEnd := (rng.Length + rng.Start)
-				if blockEnd > rangeEnd {
-					bufEnd = rangeEnd - block.Offset
-				}
-				if bufEnd < 0 {
-					break
-				}
-
-				// Write buffer
-				slog.Info("sending block", "blockIndex", blockIndex, "bufStart", bufStart, "bufEnd", bufEnd, "bufLength", len(buf), "bytes", bufEnd-bufStart, "range", rng)
-				w.Write(buf[bufStart:bufEnd])
-				bytesSent += (bufEnd - bufStart)
-				if callback != nil {
-					callback(bytesSent, rng.Length)
-				}
-			}
-
-			if rng.Length != bytesSent {
-				slog.Warn("sent a different number of bytes than promised", "range", rng, "promised", lengthHeader, "sent", bytesSent)
-			}
-		}
-	} else {
-		// Send all blocks (unthrottled)
-		w.Header().Add("Content-length", fmt.Sprintf("%d", info.Size))
-		w.WriteHeader(200)
-
-		// Do we have this file ourselves?
-		if buffer, err := entry.FetchLocal(0, info.Size); err == nil {
-			// We have this file completely locally
-			w.Write(buffer)
-		} else {
-			mp := newMiniPuller(measurements, m)
-			err := mp.downloadInto(r.Context(), w, folderID, info)
-			if err != nil {
-				slog.Error("downloading block", "cause", err)
-				return // Can't write an HTTP header anymore
-			}
-		}
-	}
+	mp := newMiniPuller(measurements, m)
+	readSeeker := newEntryReadSeeker(info, mp, entry, r.Context(), callback)
+	http.ServeContent(w, r, entry.info.Name, entry.info.ModTime(), readSeeker)
 }

@@ -194,12 +194,13 @@ func (srv *FolderServer) handle(w http.ResponseWriter, r *http.Request) {
 		path += "index.html"
 	}
 
-	// Remove slash prefix
-	if len(path) > 0 && path[0] == '/' {
+	// Remove slash prefixes
+	for len(path) > 0 && path[0] == '/' {
 		path = path[1:]
 	}
 
 	if !filepath.IsLocal(path) {
+		slog.Warn("folder server path is not local", "path", r.URL.Path)
 		http.Error(w, "requested path is not local", http.StatusBadRequest)
 		return
 	}
@@ -213,6 +214,7 @@ func (srv *FolderServer) handle(w http.ResponseWriter, r *http.Request) {
 	pathInFolder := filepath.Join(srv.subdirectory, path)
 	stEntry, err := stFolder.GetFileInformation(pathInFolder)
 	if err != nil {
+		slog.Warn("folder server entry not found", "path", r.URL.Path, "pathInFolder", pathInFolder)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -238,13 +240,10 @@ func (srv *FolderServer) handle(w http.ResponseWriter, r *http.Request) {
 	// Set MIME type
 	ext := filepath.Ext(path)
 	mime := MIMETypeForExtension(ext)
-	w.Header().Add("Content-type", mime)
-
-	if r.Method == "HEAD" {
-		w.Header().Add("Content-length", fmt.Sprint(stEntry.Size()))
-		w.WriteHeader(204)
-		return
+	if mime == "" {
+		mime = "application/x-octet-stream"
 	}
+	w.Header().Add("Content-type", mime)
 
 	// Obtain global file info
 	m := srv.client.app.Internals
