@@ -551,19 +551,19 @@ struct AdvancedSettingsView: View {
 						}
 						else {
 							Menu("Start background synchronization now") {
-								Button("For 10 seconds", systemImage: "gearshape.2.fill") {
+								Button("For 10 seconds", systemImage: "play.circle") {
 									self.startBackgroundSyncFor(.time(seconds: 10))
 								}.disabled(backgroundManager.runningContinuedTask != nil)
 
-								Button("For 1 minute", systemImage: "gearshape.2.fill") {
+								Button("For 1 minute", systemImage: "play.circle") {
 									self.startBackgroundSyncFor(.time(seconds: 60))
 								}.disabled(backgroundManager.runningContinuedTask != nil)
 
-								Button("For 10 minutes", systemImage: "gearshape.2.fill") {
+								Button("For 10 minutes", systemImage: "play.circle") {
 									self.startBackgroundSyncFor(.time(seconds: 10 * 60))
 								}.disabled(backgroundManager.runningContinuedTask != nil)
 
-								Button("For 1 hour", systemImage: "gearshape.2.fill") {
+								Button("For 1 hour", systemImage: "play.circle") {
 									self.startBackgroundSyncFor(.time(seconds: 60 * 60))
 								}.disabled(backgroundManager.runningContinuedTask != nil)
 							}
