@@ -7,6 +7,24 @@ import SwiftUI
 import QuickLook
 @preconcurrency import SushitrainCore
 
+// Wrapper for folder server, to ensure that it is always deinited
+private class FolderServer {
+	let server: SushitrainFolderServer
+
+	init(client: SushitrainClient, folderID: String, path: String) throws {
+		self.server = SushitrainNewFolderServer(client, folderID, path)!
+		try self.server.listen()
+	}
+
+	deinit {
+		self.server.shutdown()
+	}
+
+	var url: URL {
+		return URL(string: self.server.url())!
+	}
+}
+
 struct BrowserWebView: View {
 	@Environment(AppState.self) private var appState
 
@@ -14,7 +32,7 @@ struct BrowserWebView: View {
 	var path: String
 
 	@State private var error: Error? = nil
-	@State private var server: SushitrainFolderServer? = nil
+	@State private var server: FolderServer? = nil
 	@State private var ready = false
 	@State private var serverFingerprintSha256: [Data] = []
 	@State private var cookies: [HTTPCookie] = []
@@ -33,7 +51,7 @@ struct BrowserWebView: View {
 			}
 			else if let s = self.server, ready {
 				WebView(
-					url: URL(string: s.url())!,
+					url: s.url,
 					trustFingerprints: self.serverFingerprintSha256,
 					cookies: cookies,
 					isOpaque: true,
@@ -41,42 +59,38 @@ struct BrowserWebView: View {
 					error: $error
 				)
 				.background(.white)
-				.id(s.url())
+				.id(s.url)
 			}
 			else {
 				ProgressView()
 			}
 		}
 		.onDisappear {
-			self.server?.shutdown()
 			self.server = nil
 			self.ready = false
 		}
 		.task {
 			self.ready = false
-			if let s = self.server {
-				s.shutdown()
-			}
-			self.server = SushitrainNewFolderServer(appState.client, folderID, path)
+			self.server = nil
 
 			do {
+				self.server = try FolderServer(client: appState.client, folderID: folderID, path: path)
 				if let server = self.server {
-					try server.listen()
-					self.serverFingerprintSha256 = [server.certificateFingerprintSHA256()!]
+					self.serverFingerprintSha256 = [server.server.certificateFingerprintSHA256()!]
 					self.cookies = [
 						// FIXME: the cookie can be read from the webpage itself using document.cookie. While not particularly
 						// problematic, it is probably best to prevent this.
 						HTTPCookie(properties: [
 							.domain: "localhost",
 							.path: "/",
-							.name: server.cookieName(),
+							.name: server.server.cookieName(),
 							.sameSitePolicy: "Strict",
-							.value: server.cookieValue(),
+							.value: server.server.cookieValue(),
 							.secure: "TRUE",
 							.expires: NSDate(timeIntervalSinceNow: 86400 * 365),
 						])!
 					]
-					Log.info("Folder server URL: \(server.url()) cookie=\(self.cookies)")
+					Log.info("Folder server URL: \(server.url) cookie=\(self.cookies)")
 					self.ready = true
 				}
 			}
