@@ -36,6 +36,7 @@ struct FileView: View {
 	#if os(macOS)
 		@Environment(\.openURL) private var openURL
 		@Environment(\.openWindow) private var openWindow
+		@State private var showCopyStreamingURL: Bool = false
 	#endif
 
 	var localIsOnlyCopy: Bool {
@@ -158,6 +159,12 @@ struct FileView: View {
 				self.downloaderSheet()
 			}
 
+			#if os(macOS)
+				.sheet(isPresented: $showCopyStreamingURL) {
+					self.copyStreamingURLSheet()
+				}
+			#endif
+
 			.sheet(isPresented: $showEncryptionSheet) {
 				EncryptionView(entry: self.file)
 			}
@@ -187,6 +194,11 @@ struct FileView: View {
 								showArchive = true
 							}
 							.disabled(!file.isArchive())
+
+							Button("Stream this file...", systemImage: "link") {
+								showCopyStreamingURL = true
+							}.disabled(file.isDirectory() || file.isDeleted())
+
 						} label: {
 							Label("Advanced", systemImage: "ellipsis.circle")
 						}
@@ -467,6 +479,20 @@ struct FileView: View {
 		}
 	}
 
+	#if os(macOS)
+		@ViewBuilder private func copyStreamingURLSheet() -> some View {
+			NavigationStack {
+				StreamingURLView(entry: self.file)
+					.navigationTitle("URL for streaming")
+					.toolbar {
+						SheetButton(role: .done) {
+							showCopyStreamingURL = false
+						}
+					}
+			}
+		}
+	#endif
+
 	@ViewBuilder private func viewButtons() -> some View {
 		#if os(macOS)
 			let openInSafariButton = Button(
@@ -485,7 +511,6 @@ struct FileView: View {
 							#endif
 
 						#if os(macOS)
-
 							if let appURL = openWithAppURL {
 								Button("Open with '\(appURL.lastPathComponent)'", systemImage: "app.badge") {
 									NSWorkspace.shared.open(URL(fileURLWithPath: localPathActual))
@@ -790,3 +815,35 @@ struct FileSharingLinksView: View {
 		}
 	}
 }
+
+#if os(macOS)
+	private struct StreamingURLView: View {
+		let entry: SushitrainEntry
+
+		@State private var url: String = ""
+
+		var body: some View {
+			Form {
+				Section {
+					Text(
+						"The URL shown below can be used in other applications that support streaming (such as VLC) until Synctrain is closed."
+					).listRowBackground(Color.clear)
+				}
+				Section {
+					Text(self.url).monospaced().textSelection(.enabled)
+
+					Button(action: {
+						writeTextToPasteboard(self.url)
+					}) {
+						Text("Copy to clipboard")
+						Image(systemName: "doc.on.doc")
+					}
+				}
+			}
+			.formStyle(.grouped)
+			.task {
+				self.url = entry.onDemandURL()
+			}
+		}
+	}
+#endif

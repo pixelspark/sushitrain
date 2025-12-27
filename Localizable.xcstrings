@@ -30170,6 +30170,52 @@
         }
       }
     },
+    "Stream this file..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei streamen..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transmitir este archivo..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trasmetti questo file..."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このファイルをストリーム..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestand streamen..."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відтворити файл у потоковому режимі..."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "流式传输此文件..."
+          }
+        }
+      }
+    },
     "STUN" : {
       "localizations" : {
         "de" : {
@@ -34080,6 +34126,52 @@
         }
       }
     },
+    "The URL shown below can be used in other applications that support streaming (such as VLC) until Synctrain is closed." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die unten angezeigte URL kann in anderen Anwendungen, die Streaming unterstützen (wie VLC), verwendet werden, bis Synctrain geschlossen wird."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La URL mostrada a continuación se puede usar en otras aplicaciones que admiten streaming (como VLC) hasta que Synctrain se cierre."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'URL mostrato di seguito può essere utilizzato in altre applicazioni che supportano lo streaming (come VLC) fino alla chiusura di Synctrain."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以下のURLは、Synctrainを終了するまで、他のストリーミング対応アプリケーション（VLCなど）で使用できます。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De hieronder getoonde URL kan worden gebruikt in andere applicaties die streaming ondersteunen (zoals VLC) totdat Synctrain wordt afgesloten."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вказану нижче URL-адресу можна використовувати в інших додатках, які підтримують потокове мовлення (таких як VLC), до моменту закриття Synctrain."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下面显示的 URL 可用于支持流媒体的其他应用程序（如 VLC），直到 Synctrain 关闭。"
+          }
+        }
+      }
+    },
     "There are currently no files in this folder." : {
       "localizations" : {
         "de" : {
@@ -37354,6 +37446,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "URL"
+          }
+        }
+      }
+    },
+    "URL for streaming" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL zum Streamen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL para transmisión"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL per lo streaming"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ストリーミング用URL"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL voor streaming"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL для потокового передавання"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "流式传输的URL"
           }
         }
       }
