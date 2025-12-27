@@ -5462,6 +5462,52 @@
         }
       }
     },
+    "At your request, the app can synchronize in the background for a specific amount of time. You can also access these options by long-pressing the status item on the start screen." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auf Ihre Anfrage hin kann die App für eine bestimmte Zeit im Hintergrund synchronisieren. Sie können auf diese Optionen auch zugreifen, indem Sie das Statusobjekt auf dem Startbildschirm lange drücken."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A tu solicitud, la aplicación puede sincronizarse en segundo plano durante un tiempo específico. También puedes acceder a estas opciones manteniendo presionado el elemento de estado en la pantalla de inicio."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su tua richiesta, l'app può sincronizzarsi in background per un determinato periodo di tempo. Puoi accedere a queste opzioni anche premendo a lungo l'elemento di stato nella schermata di avvio."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ご要望に応じて、アプリは特定の時間バックグラウンドで同期することができます。スタート画面のステータス項目を長押しすると、これらのオプションにもアクセスできます。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op jouw verzoek kan de app een tijdje ynchroniseren op de achtergrond. Je kunt deze opties ook vinden door lang te drukken op het statusitem op het startscherm."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На ваш запит, додаток може виконувати синхронізацію у фоновому режимі протягом певного часу. Ви також можете отримати доступ до цих опцій, утримуючи статусний елемент на початковому екрані."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "根据您的请求，应用程序可以在后台同步特定时间。您还可以通过长按开始屏幕上的状态项来访问这些选项。"
+          }
+        }
+      }
+    },
     "Automatically display web pages" : {
       "localizations" : {
         "de" : {
@@ -17719,7 +17765,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Als je probleem onopgelost blijft, kun je de hulp van onze gemeenschap inroepen via onze discussiepagina. Vergeet niet dat deze app gratis software is. Hoewel we veel belang hechten aan uw feedback en ervoor willen zorgen dat de app correct werkt, hebben we niet de middelen om ondersteuning te bieden bij uw specifieke probleem of het gebruik van Synctrain. Je kunt de kans op het oplossen van uw probleem aanzienlijk vergroten door gedetailleerde beschrijvingen te geven van uw probleem, je configuratie en gebruik, en watjeu al hebt gedaan om het probleem zelf op te lossen. Geef zoveel mogelijk informatie, inclusief relevante instellingen, schermafbeeldingen en foutmeldingen."
+            "value" : "Als je probleem onopgelost blijft, kun je de hulp van onze gemeenschap inroepen via onze discussiepagina. Vergeet niet dat deze app gratis software is. Hoewel we veel belang hechten aan je feedback en ervoor willen zorgen dat de app correct werkt, hebben we niet de middelen om ondersteuning te bieden bij jouw specifieke probleem of het gebruik van Synctrain. Je kunt de kans op het oplossen van je probleem aanzienlijk vergroten door gedetailleerde beschrijvingen te geven van jouw probleem, je configuratie en gebruik, en wat je al hebt gedaan om het probleem zelf op te lossen. Geef zoveel mogelijk informatie, inclusief relevante instellingen, schermafbeeldingen en foutmeldingen."
           }
         },
         "uk" : {
@@ -30032,6 +30078,52 @@
         }
       }
     },
+    "Start background synchronization now" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hintergrundsynchronisation jetzt starten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciar sincronización en segundo plano ahora"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avvia ora la sincronizzazione in background"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今すぐバックグラウンド同期を開始"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start achtergrondsynchronisatie nu"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Почати фонову синхронізацію зараз"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "立即开始后台同步"
+          }
+        }
+      }
+    },
     "Started" : {
       "localizations" : {
         "de" : {
@@ -31717,7 +31809,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synctrain heeft geen toegang meer tot deze map. Klik op de knop hieronder om de map opnieuw op uw systeem te selecteren. Dit zou Synctrain opnieuw toegang tot de map moeten verlenen."
+            "value" : "Synctrain heeft geen toegang meer tot deze map. Klik op de knop hieronder om de map opnieuw op het systeem te selecteren. Dit zou Synctrain opnieuw toegang tot de map moeten verlenen."
           }
         },
         "uk" : {
@@ -39549,7 +39641,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Als dit is  ingeschakeld, zal de app uw apparaat registreren bij de Syncthing relay pool. Uw andere apparaten kunnen er dan indien nodig via een relay mee verbinden."
+            "value" : "Als dit is  ingeschakeld, zal de app dit apparaat registreren bij de Syncthing relay pool. De andere apparaten kunnen er dan indien nodig via een relay mee verbinden."
           }
         },
         "uk" : {

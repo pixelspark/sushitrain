@@ -509,15 +509,18 @@ struct AdvancedSettingsView: View {
 #if os(iOS)
 	struct BackgroundSettingsView: View {
 		@Environment(AppState.self) private var appState
+		@ObservedObject var backgroundManager: BackgroundManager
 		@ObservedObject var userSettings: AppUserSettings
 
 		private let durationFormatter = DateComponentsFormatter()
 		@State private var alertShown = false
 		@State private var alertMessage = ""
 		@State private var authorizationStatus: UNAuthorizationStatus = .notDetermined
+		@State private var showError: Error? = nil
 
-		init(userSettings: AppUserSettings) {
+		init(userSettings: AppUserSettings, backgroundManager: BackgroundManager) {
 			self.userSettings = userSettings
+			self.backgroundManager = backgroundManager
 			durationFormatter.allowedUnits = [.day, .hour, .minute]
 			durationFormatter.unitsStyle = .abbreviated
 		}
@@ -534,6 +537,45 @@ struct AdvancedSettingsView: View {
 					Text(
 						"The operating system will periodically grant the app a few minutes of time in the background, depending on network connectivity and battery status."
 					)
+				}
+				
+				if #available(iOS 26, *) {
+					Section {
+						if backgroundManager.runningContinuedTask != nil {
+							Label("Will continue in the background", systemImage: "gearshape.2.fill")
+						}
+						else {
+							Menu("Start background synchronization now") {
+								Button("For 10 seconds", systemImage: "gearshape.2.fill") {
+									self.startBackgroundSyncFor(.time(seconds: 10))
+								}.disabled(backgroundManager.runningContinuedTask != nil)
+								
+								Button("For 1 minute", systemImage: "gearshape.2.fill") {
+									self.startBackgroundSyncFor(.time(seconds: 60))
+								}.disabled(backgroundManager.runningContinuedTask != nil)
+								
+								Button("For 10 minutes", systemImage: "gearshape.2.fill") {
+									self.startBackgroundSyncFor(.time(seconds: 10 * 60))
+								}.disabled(backgroundManager.runningContinuedTask != nil)
+								
+								Button("For 1 hour", systemImage: "gearshape.2.fill") {
+									self.startBackgroundSyncFor(.time(seconds: 60 * 60))
+								}.disabled(backgroundManager.runningContinuedTask != nil)
+							}
+						}
+					} footer: {
+						Text("At your request, the app can synchronize in the background for a specific amount of time. You can also access these options by long-pressing the status item on the start screen.")
+				   }.alert(
+							"An error has occurred", isPresented: Binding.isNotNil($showError),
+					  actions: {
+						  Button("OK") {
+							  showError = nil
+						  }
+					  },
+					  message: {
+						  Text(showError?.localizedDescription ?? "")
+					  }
+				  )
 				}
 
 				Section {
@@ -640,6 +682,17 @@ struct AdvancedSettingsView: View {
 				content: {
 					Alert(title: Text("Background synchronization"), message: Text(alertMessage))
 				})
+		}
+		
+		@available(iOS 26, *) private func startBackgroundSyncFor(_ type: ContinuedTaskType) {
+			withAnimation {
+				do {
+					try backgroundManager.startContinuedSync(type)
+				}
+				catch {
+					self.showError = error
+				}
+			}
 		}
 
 		private var totalBackgroundSyncTime24Hours: TimeInterval {
@@ -940,7 +993,7 @@ private struct BandwidthSettingsView: View {
 					}
 
 					#if os(iOS)
-						NavigationLink(destination: BackgroundSettingsView(userSettings: userSettings)) {
+						NavigationLink(destination: BackgroundSettingsView(userSettings: userSettings, backgroundManager: appState.backgroundManager)) {
 							Text("Background synchronization").badge(
 								userSettings.longBackgroundSyncEnabled || userSettings.shortBackgroundSyncEnabled ? "On" : "Off")
 						}
