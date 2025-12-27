@@ -8,6 +8,7 @@ package sushitrain
 import (
 	"context"
 	"crypto/ed25519"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
@@ -72,20 +73,25 @@ func (srv *StreamingServer) signURL(u *url.URL) {
 	// Sign full URL
 	partToVerify := u.RawPath + "/" + u.RawQuery
 	signature := ed25519.Sign(srv.privateKey, []byte(partToVerify))
-	qs.Add(signatureQueryParameter, string(signature))
+	qs.Add(signatureQueryParameter, base64.StdEncoding.EncodeToString(signature))
 	u.RawQuery = qs.Encode()
 }
 
 func (srv *StreamingServer) verifyURL(u *url.URL) bool {
 	qs := u.Query()
-	signature := qs.Get(signatureQueryParameter)
-	if len(signature) == 0 {
+	signatureBase64 := qs.Get(signatureQueryParameter)
+	if len(signatureBase64) == 0 {
 		return false
 	}
 	qs.Del(signatureQueryParameter)
+	signature, err := base64.StdEncoding.DecodeString(signatureBase64)
+	if err != nil {
+		return false
+	}
+
 	u.RawQuery = qs.Encode()
 	partToVerify := u.RawPath + "/" + u.RawQuery
-	return ed25519.Verify(srv.publicKey, []byte(partToVerify), []byte(signature))
+	return ed25519.Verify(srv.publicKey, []byte(partToVerify), signature)
 }
 
 func (srv *StreamingServer) Listen() error {
