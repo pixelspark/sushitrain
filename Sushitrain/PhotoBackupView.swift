@@ -107,7 +107,7 @@ struct PhotoBackupSettingsView: View {
 		Form {
 			Section {
 				Text(
-					"Synctrain can automatically export photos and videos from your photo library as files to a synchronized folder. This can be useful if you want to back up your photos to other devices. Exported photos will take up storage space on your device as long as these files remain selected for synchronization."
+					"Synctrain can automatically export photos and videos from your photo library as files to a regular folder, which can then be synchronized. This can be useful if you want to back up your photos to other devices. Exported photos will take up storage space on your device as long as these files remain selected for synchronization."
 				)
 			}
 
@@ -281,10 +281,22 @@ struct PhotoBackupSettingsView: View {
 						value: photoBackup.$purgeAfterDays, in: 0...30)
 				}
 			} footer: {
+				if photoBackup.purgeEnabled {
+					if photoBackup.purgeAfterDays <= 0 {
+						Text("Photos will be automatically removed from your photo library and iCloud after they have been backed up.")
+					}
+					else {
+						Text("Photos will be automatically removed from your photo library and iCloud \(photoBackup.purgeAfterDays) days after they have been backed up.")
+					}
+				}
+				else {
+					Text("When this option is enabled, photos will be automatically removed from your photo library and iCloud after they have been backed up.")
+				}
+				
 				#if os(iOS)
 					if photoBackup.purgeEnabled && photoBackup.enableBackgroundCopy {
 						Text(
-							"Photos will only be removed when photo back-up is started manually from inside the app, because a permission screen will be shown before the app is able to remove photos."
+							"Photos will only be removed when photo back-up is started manually from inside the app."
 						)
 					}
 				#endif

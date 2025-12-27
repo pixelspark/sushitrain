@@ -23320,48 +23320,140 @@
         }
       }
     },
-    "Photos will only be removed when photo back-up is started manually from inside the app, because a permission screen will be shown before the app is able to remove photos." : {
+    "Photos will be automatically removed from your photo library and iCloud %lld days after they have been backed up." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fotos werden nur entfernt, wenn die Fotosynchronisation manuell in der App gestartet wird, da eine separate Berechtigung erteilt werden muss, bevor die App Fotos entfernen kann."
+            "value" : "Fotos werden automatisch aus deiner Fotobibliothek und iCloud gelöscht %lld Tage, nachdem sie gesichert wurden."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Las fotos solo se eliminarán cuando la copia de seguridad de fotos se inicie manualmente desde dentro de la aplicación, porque se mostrará una pantalla de permisos antes de que la aplicación pueda eliminar fotos."
+            "value" : "Las fotos se eliminarán automáticamente de tu biblioteca de fotos e iCloud %lld días después de haber sido respaldadas."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Le foto verranno rimosse solo quando il backup foto viene avviato manualmente dall'interno dell'app, poiché verrà mostrata una schermata di autorizzazione prima che l'app possa rimuovere le foto."
+            "value" : "Le foto verranno automaticamente rimosse dalla tua libreria foto e da iCloud %lld giorni dopo essere state salvate."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アプリが写真を削除する前に許可画面が表示されるため、アプリ内から手動で写真のバックアップを開始した場合のみ、写真が削除されます。"
+            "value" : "バックアップされた後、%lld 日後に写真ライブラリと iCloud から写真が自動的に削除されます。"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Foto's worden alleen verwijderd wanneer de foto-back-up handmatig vanuit de app wordt gestart, omdat er een toestemmingsscherm wordt getoond voordat de app foto's kan verwijderen."
+            "value" : "Foto's worden automatisch verwijderd uit je fotobibliotheek en iCloud %lld dagen nadat ze zijn geback-upt."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Фотографії будуть видалені лише тоді, коли резервне копіювання фотографій буде розпочато вручну зсередини додатка, оскільки перед тим, як додаток зможе видалити фотографії, буде показано екран дозволу."
+            "value" : "Фотографії автоматично видалятимуться з вашої бібліотеки фотографій та iCloud через %lld днів після резервного копіювання."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "只有在应用内手动启动照片备份时才会删除照片，因为在应用能够删除照片之前会显示一个权限屏幕。"
+            "value" : "照片会在备份后的 %lld 天后自动从您的照片库和 iCloud 中删除。"
+          }
+        }
+      }
+    },
+    "Photos will be automatically removed from your photo library and iCloud after they have been backed up." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotos werden automatisch aus Ihrer Fotobibliothek und iCloud entfernt, nachdem sie gesichert wurden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las fotos se eliminarán automáticamente de tu biblioteca de fotos y de iCloud después de haberse respaldado."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le foto verranno automaticamente rimosse dalla tua libreria fotografica e da iCloud dopo essere state salvate."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真はバックアップされた後、自動的に写真ライブラリとiCloudから削除されます。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto's worden automatisch verwijderd uit je fotobibliotheek en iCloud nadat ze zijn geback-upt."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Фотографії будуть автоматично видалені з вашої бібліотеки фотографій і iCloud після створення резервної копії."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片会在备份后自动从您的照片库和iCloud中删除。"
+          }
+        }
+      }
+    },
+    "Photos will only be removed when photo back-up is started manually from inside the app." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotos werden nur entfernt, wenn das Fotobackup manuell aus der App gestartet wird."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las fotos solo se eliminarán cuando la copia de seguridad de fotos se inicie manualmente desde dentro de la aplicación."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le foto verranno rimosse solo quando il backup delle foto viene avviato manualmente dall'interno dell'app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真は、アプリ内から手動でバックアップを開始した場合にのみ削除されます。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto's worden alleen verwijderd wanneer de fotoback-up handmatig vanuit de app wordt gestart."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Фотографії будуть видалені лише тоді, коли резервне копіювання фотографій буде запущено вручну через додаток."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片只有在从应用内手动启动照片备份时才会被删除。"
           }
         }
       }
@@ -31688,48 +31780,48 @@
         }
       }
     },
-    "Synctrain can automatically export photos and videos from your photo library as files to a synchronized folder. This can be useful if you want to back up your photos to other devices. Exported photos will take up storage space on your device as long as these files remain selected for synchronization." : {
+    "Synctrain can automatically export photos and videos from your photo library as files to a regular folder, which can then be synchronized. This can be useful if you want to back up your photos to other devices. Exported photos will take up storage space on your device as long as these files remain selected for synchronization." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synctrain kann automatisch Fotos und Videos aus Ihrer Fotobibliothek als Dateien in einen synchronisierten Ordner exportieren. Dies kann nützlich sein, wenn Sie Ihre Fotos auf anderen Geräten sichern möchten. Exportierte Fotos belegen Speicherplatz auf Ihrem Gerät, solange diese Dateien für die Synchronisierung ausgewählt bleiben."
+            "value" : "Synctrain kann Fotos und Videos aus deiner Fotobibliothek automatisch als Dateien in einen regulären Ordner exportieren, der dann synchronisiert werden kann. Dies kann nützlich sein, wenn du deine Fotos auf andere Geräte sichern möchtest. Exportierte Fotos belegen Speicherplatz auf deinem Gerät, solange diese Dateien für die Synchronisation ausgewählt bleiben."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synctrain puede exportar automáticamente fotos y videos de tu biblioteca de fotos como archivos a una carpeta sincronizada. Esto puede ser útil si quieres hacer una copia de seguridad de tus fotos en otros dispositivos. Las fotos exportadas ocuparán espacio de almacenamiento en tu dispositivo mientras estos archivos permanezcan seleccionados para sincronización."
+            "value" : "Synctrain puede exportar automáticamente fotos y videos de tu biblioteca de fotos como archivos a una carpeta normal, que luego se puede sincronizar. Esto puede ser útil si deseas respaldar tus fotos en otros dispositivos. Las fotos exportadas ocuparán espacio de almacenamiento en tu dispositivo mientras estos archivos permanezcan seleccionados para la sincronización."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synctrain può esportare automaticamente foto e video dalla tua libreria fotografica come file in una cartella sincronizzata. Questo può essere utile se desideri fare il backup delle tue foto su altri dispositivi. Le foto esportate occuperanno spazio di archiviazione sul tuo dispositivo finché questi file rimarranno selezionati per la sincronizzazione."
+            "value" : "Synctrain può esportare automaticamente foto e video dalla tua libreria delle foto come file in una cartella regolare, che può essere quindi sincronizzata. Questo può essere utile se vuoi eseguire il backup delle tue foto su altri dispositivi. Le foto esportate occuperanno spazio di archiviazione sul tuo dispositivo fintanto che questi file resteranno selezionati per la sincronizzazione."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synctrainは、写真ライブラリから写真やビデオを同期フォルダにファイルとして自動的にエクスポートできます。これは、写真を他のデバイスにバックアップしたい場合に便利です。エクスポートされた写真は、これらのファイルが同期のために選択されたままである限り、デバイスのストレージ容量を占有します。"
+            "value" : "Synctrainは、写真ライブラリから写真やビデオを自動的に通常のフォルダにファイルとしてエクスポートし、そのフォルダを同期できます。これは、写真を他のデバイスにバックアップしたい場合に便利です。エクスポートされた写真は、これらのファイルが同期のために選択されている限り、デバイス上のストレージスペースを占有します。"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synctrain kan automatisch foto's en video's vanuit je fotobibliotheek exporteren als bestanden naar een gesynchroniseerde map. Dit kan handig zijn als je een back-up van je foto's naar andere apparaten wilt maken. Geëxporteerde foto's nemen opslagruimte op je apparaat in zolang deze bestanden geselecteerd blijven voor synchronisatie."
+            "value" : "Synctrain kan automatisch foto's en video's uit je fotobibliotheek exporteren als bestanden naar een gewone map, die vervolgens gesynchroniseerd kan worden. Dit kan handig zijn als je foto's wilt back-uppen naar andere apparaten. Geëxporteerde foto's nemen opslagruimte in op je apparaat zolang deze bestanden geselecteerd blijven voor synchronisatie."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synctrain може автоматично експортувати фото та відео з вашої бібліотеки як файли до синхронізованої папки. Це може бути корисно, якщо ви хочете зробити резервну копію своїх фото на інші пристрої. Експортовані фото займатимуть простір на вашому пристрої, поки ці файли залишаються вибраними для синхронізації."
+            "value" : "Synctrain може автоматично експортувати фото та відео з вашої фототеки як файли у звичайну папку, яку потім можна синхронізувати. Це може бути корисно, якщо ви хочете створити резервну копію фотографій на інших пристроях. Експортовані фото займатимуть місце в пам’яті вашого пристрою, доки ці файли залишаються вибраними для синхронізації."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synctrain可以自动将您的照片库中的照片和视频导出为文件到一个同步文件夹。如果您想将照片备份到其他设备，这可能会很有用。只要这些文件仍然选择同步，导出的照片就会占用您设备上的存储空间。"
+            "value" : "Synctrain可以自动将照片库中的照片和视频导出为文件到常规文件夹，然后可以进行同步。如果您想将照片备份到其他设备，这可能会非常有用。只要这些文件仍被选中进行同步，导出的照片就会占用设备上的存储空间。"
           }
         }
       }
@@ -39884,6 +39976,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "当文件夹结构更改时，已保存的照片将重新保存在新位置。"
+          }
+        }
+      }
+    },
+    "When this option is enabled, photos will be automatically removed from your photo library and iCloud after they have been backed up." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn diese Option aktiviert ist, werden Fotos nach der Sicherung automatisch aus Ihrer Fotobibliothek und iCloud entfernt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando esta opción está habilitada, las fotos se eliminarán automáticamente de tu biblioteca de fotos y de iCloud después de haber sido respaldadas."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando questa opzione è abilitata, le foto verranno automaticamente rimosse dalla tua libreria fotografica e da iCloud dopo essere state salvate."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このオプションを有効にすると、写真はバックアップ後にフォトライブラリおよびiCloudから自動的に削除されます。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer deze optie is ingeschakeld, worden foto's automatisch uit je fotobibliotheek en iCloud verwijderd nadat ze zijn geback-upt."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли ця опція увімкнена, фотографії автоматично видалятимуться з вашої бібліотеки фотографій та iCloud після створення резервної копії."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "启用此选项后，照片将在备份后自动从您的照片库和iCloud中删除。"
           }
         }
       }
