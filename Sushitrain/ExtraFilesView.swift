@@ -62,12 +62,15 @@ struct ExtraFilesView: View {
 								else {
 									Image(systemName: "plus.square.fill").tag(true).help("Keep file")
 								}
-							}.pickerStyle(.segmented).frame(width: 100)
+							}
+							.pickerStyle(.segmented)
+							.frame(width: 100)
+							.labelsHidden()
 						}
 					}
 
 					Section {
-						PathsOutlineGroup(paths: extraFiles) { path, isIntermediate in
+						PathsOutlineGroup(paths: extraFiles, disableIntermediateSelection: false) { path, isIntermediate in
 							if !isIntermediate {
 								ExtraFileView(
 									path: path, folder: folder,
@@ -81,7 +84,7 @@ struct ExtraFilesView: View {
 										}))
 							}
 							else {
-								Label(path.components(separatedBy: "/").last ?? "", systemImage: "folder.fill")
+								ExtraSubdirectoryView(path: path, folder: folder, onChange: self.onChangeSubdirectory)
 							}
 						}
 					}
@@ -94,7 +97,21 @@ struct ExtraFilesView: View {
 				}
 			}
 		}
-		.task { await reload() }
+		.refreshable {
+			Task {
+				await reload()
+			}
+		}
+		.contextMenu {
+			Button("Refresh", systemImage: "arrow.clockwise") {
+				Task {
+					await reload()
+				}
+			}
+		}
+		.task {
+			await reload()
+		}
 		.navigationTitle("Extra files in folder \(folder.label())")
 		#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)
@@ -132,6 +149,39 @@ struct ExtraFilesView: View {
 		}
 	}
 
+	private func onChangeSubdirectory(_ prefix: String, _ verdict: SubdirectoryVerdict) {
+		let prefixWithSlash = prefix.withoutEndingSlash + "/"
+		for path in self.extraFiles where path.hasPrefix(prefixWithSlash) {
+			switch verdict {
+			case .keepAllChildren:
+				self.verdicts[path] = true
+			case .deleteAllChildren:
+				self.verdicts[path] = false
+			case .addSubdirectory:
+				self.verdicts.removeValue(forKey: path)
+			}
+		}
+
+		switch verdict {
+		case .addSubdirectory:
+			do {
+				let json = try JSONEncoder().encode([
+					prefix.withoutEndingSlash: true
+				])
+				try folder.setExplicitlySelectedJSON(json)
+				Task {
+					await self.reload()
+				}
+			}
+			catch {
+				self.errorMessage = error.localizedDescription
+			}
+
+		case .keepAllChildren, .deleteAllChildren:
+			break
+		}
+	}
+
 	private var keepCount: Int {
 		var count = 0
 		for (_, i) in self.verdicts {
@@ -154,7 +204,14 @@ struct ExtraFilesView: View {
 
 	private func apply() async {
 		do {
-			let json = try JSONEncoder().encode(self.verdicts)
+			var currentVerdicts: [String: Bool] = [:]
+			for path in extraFiles {
+				if let verdict = verdicts[path] {
+					currentVerdicts[path] = verdict
+				}
+			}
+
+			let json = try JSONEncoder().encode(currentVerdicts)
 			try folder.setExplicitlySelectedJSON(json)
 			verdicts = [:]
 			allVerdict = nil
@@ -192,11 +249,7 @@ private struct ExtraFileView: View {
 			VStack(alignment: .leading) {
 				Text(path.lastPathComponent).multilineTextAlignment(.leading).dynamicTypeSize(.small).foregroundStyle(
 					verdict == false ? .red : verdict == true ? .green : .primary
-				).onTapGesture {
-					if let folderNativePath = folder.localNativeURL {
-						self.localItemURL = folderNativePath.appending(path: path)
-					}
-				}.disabled(folder.localNativeURL == nil)
+				)
 			}.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
 
 			Picker("Action", selection: $verdict) {
@@ -212,7 +265,93 @@ private struct ExtraFileView: View {
 						Image(systemName: "plus.square.fill").tag(true).help("Keep file")
 					}
 				}
-			}.pickerStyle(.segmented).frame(width: 100)
+			}
+			.pickerStyle(.segmented)
+			.labelsHidden()
+			.frame(maxWidth: 100)
 		}.quickLookPreview(self.$localItemURL)
+			.contextMenu {
+				let globalEntry = try? folder.getFileInformation(path)
+
+				if let ge = globalEntry, !ge.isDeleted() {
+					Button("Replace existing file", systemImage: "rectangle.2.swap") {
+						verdict = true
+					}
+				}
+				else {
+					Button("Keep files", systemImage: "plus.square.fill") {
+						verdict = true
+					}
+				}
+
+				Button("Delete file", systemImage: "trash", role: .destructive) {
+					verdict = false
+				}
+
+				Divider()
+
+				Button("Show preview", systemImage: "text.page.badge.magnifyingglass") {
+					if let folderNativePath = folder.localNativeURL {
+						self.localItemURL = folderNativePath.appending(path: path)
+					}
+				}
+
+				Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
+					if let localItemURL = localItemURL {
+						openURLInSystemFilesApp(url: localItemURL)
+					}
+				}
+			}
+	}
+}
+
+private enum SubdirectoryVerdict {
+	case keepAllChildren
+	case deleteAllChildren
+	case addSubdirectory
+}
+
+// Controls the verdicts for all children (recursively)
+private struct ExtraSubdirectoryView: View {
+	let path: String
+	let folder: SushitrainFolder
+	let onChange: (_ path: String, _ verdict: SubdirectoryVerdict) -> Void
+
+	var body: some View {
+		HStack {
+			VStack(alignment: .leading) {
+				Text(path.lastPathComponent)
+					.multilineTextAlignment(.leading)
+					.dynamicTypeSize(.small)
+					.foregroundStyle(.primary)
+			}.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+		}.contextMenu {
+			Button(
+				"Keep all files in here",
+				systemImage: folder.folderType() == SushitrainFolderTypeReceiveOnly ? "trash.slash" : "plus.square.fill"
+			) {
+				self.onChange(self.path, .keepAllChildren)
+			}
+
+			Button("Delete all files in here", systemImage: "trash", role: .destructive) {
+				self.onChange(self.path, .deleteAllChildren)
+			}
+
+			if folder.isSelective() {
+				Divider()
+
+				Button("Always keep this subdirectory", systemImage: "pin.fill") {
+					self.onChange(self.path, .addSubdirectory)
+				}
+			}
+
+			Divider()
+
+			Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
+				if let localURL = folder.localNativeURL?.appending(path: self.path, directoryHint: .isDirectory) {
+					openURLInSystemFilesApp(url: localURL)
+				}
+			}
+		}
 	}
 }

@@ -9,15 +9,22 @@ import SwiftUI
 /// nodes are automatically generated. This view takes care of sorting the paths.
 struct PathsOutlineGroup<Content: View>: View {
 	let paths: [String]
+	let disableIntermediateSelection: Bool
+
 	@ViewBuilder var content: (_ path: String, _ intermediate: Bool) -> Content
 
 	@State private var tree: TreeNode = TreeNode(value: "", intermediate: true)
 
 	var body: some View {
-		TreeNodeView(tree: self.tree, unroll: true, content: self.content)
-			.onChange(of: paths, initial: true) { _, nv in
-				self.tree = TreeNode.build(from: nv)
-			}
+		TreeNodeView(
+			tree: self.tree,
+			disableIntermediateSelection: disableIntermediateSelection,
+			unroll: true,
+			content: self.content
+		)
+		.onChange(of: paths, initial: true) { _, nv in
+			self.tree = TreeNode.build(from: nv)
+		}
 	}
 }
 
@@ -88,6 +95,7 @@ private struct TreeNode: Hashable, Identifiable {
 
 private struct TreeNodeView<Content: View>: View {
 	let tree: TreeNode
+	let disableIntermediateSelection: Bool
 
 	/// Whether to place children in the parent instead of creating a disclosure group
 	/// (this is used to prevent the root node from creating a top-level disclosure group)
@@ -102,6 +110,7 @@ private struct TreeNodeView<Content: View>: View {
 				ForEach(children) { childTree in
 					TreeNodeView(
 						tree: childTree,
+						disableIntermediateSelection: self.disableIntermediateSelection,
 						unroll: false,
 						content: self.content,
 						expanded: (childTree.children?.count ?? 0) == 1
@@ -116,6 +125,7 @@ private struct TreeNodeView<Content: View>: View {
 							ForEach(children) { childTree in
 								TreeNodeView(
 									tree: childTree,
+									disableIntermediateSelection: self.disableIntermediateSelection,
 									unroll: false,
 									content: self.content,
 									expanded: (childTree.children?.count ?? 0) == 1
@@ -128,15 +138,15 @@ private struct TreeNodeView<Content: View>: View {
 					}
 				) {
 					self.content(tree.value, tree.intermediate)
-						.selectionDisabled(tree.intermediate)
-						.disabled(tree.intermediate)
+						.selectionDisabled(self.disableIntermediateSelection && tree.intermediate)
+						.disabled(self.disableIntermediateSelection && tree.intermediate)
 				}
 			}
 		}
 		else {
 			self.content(tree.value, tree.intermediate)
-				.selectionDisabled(tree.intermediate)
-				.disabled(tree.intermediate)
+				.selectionDisabled(self.disableIntermediateSelection && tree.intermediate)
+				.disabled(self.disableIntermediateSelection && tree.intermediate)
 		}
 	}
 }

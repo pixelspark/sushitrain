@@ -50,7 +50,7 @@ struct SelectiveFolderView: View {
 
 			List(selection: $listSelection) {
 				Section(self.prefix.isEmpty ? "Files kept on device" : "Files in '\(self.prefix)' kept on this device") {
-					PathsOutlineGroup(paths: self.selectedFilteredPaths) { item, isIntermediate in
+					PathsOutlineGroup(paths: self.selectedFilteredPaths, disableIntermediateSelection: true) { item, isIntermediate in
 						if item.isEmpty {
 							EmptyView()
 						}

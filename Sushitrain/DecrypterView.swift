@@ -301,7 +301,7 @@ import SwiftUI
 
 		var body: some View {
 			List(selection: $selectedDecryptedPaths) {
-				PathsOutlineGroup(paths: decryptedPaths) { decryptedPath, isIntermediate in
+				PathsOutlineGroup(paths: decryptedPaths, disableIntermediateSelection: true) { decryptedPath, isIntermediate in
 					Text(decryptedPath.lastPathComponent)
 				}
 			}
