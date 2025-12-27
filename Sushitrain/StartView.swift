@@ -359,8 +359,15 @@ struct StartView: View {
 					}
 
 				#if os(iOS)
-					if backgroundManager.runningContinuedTask != nil {
-						Label("Will continue in the background", systemImage: "gearshape.2.fill")
+					if #available(iOS 26, *) {
+						if backgroundManager.runningContinuedTask != nil {
+							Button(
+								"Will continue in the background",
+								systemImage: backgroundManager.stopRunningContinuedTask ? "stop.circle.fill" : "stop.circle"
+							) {
+								backgroundManager.stopContinuedSync()
+							}.disabled(backgroundManager.stopRunningContinuedTask)
+						}
 					}
 				#endif
 

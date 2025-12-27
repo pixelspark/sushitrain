@@ -65,6 +65,7 @@ enum ContinuedTaskType {
 		private var currentRun: BackgroundSyncRun? = nil
 		fileprivate unowned var appState: AppState
 		@Published private(set) var runningContinuedTask: ContinuedTaskType? = nil
+		@Published private(set) var stopRunningContinuedTask = false
 
 		// Using this to store background information instead of AppStorage because it comes with observers that seem to
 		// trigger SwiftUI hangs when the app comes back to the foreground.
@@ -148,6 +149,12 @@ enum ContinuedTaskType {
 			}
 		}
 
+		@available(iOS 26, *) func stopContinuedSync() {
+			if self.runningContinuedTask != nil {
+				self.stopRunningContinuedTask = true
+			}
+		}
+
 		@available(iOS 26, *) private func continuedBackgroundLaunchHandler(_ task: BGTask) {
 			guard let taskType = self.runningContinuedTask else {
 				Log.warn("could not find task type")
@@ -189,6 +196,12 @@ enum ContinuedTaskType {
 
 					do {
 						while shouldContinue {
+							if self.stopRunningContinuedTask {
+								shouldContinue = false
+								self.stopRunningContinuedTask = false
+								break
+							}
+
 							if stopWhenFinished && appState.isFinished {
 								// Wait another second to see if we're still finished
 								continuedTask.updateTitle(continuedTask.title, subtitle: String(localized: "Finished"))
