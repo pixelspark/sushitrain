@@ -8,6 +8,10 @@
 		<string>nl.t-shaped.Sushitrain.background-sync</string>
 		<string>nl.t-shaped.Sushitrain.short-background-sync</string>
 	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>vlc-x-callback</string>
+	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>

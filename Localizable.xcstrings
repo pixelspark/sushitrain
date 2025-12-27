@@ -8268,52 +8268,6 @@
         }
       }
     },
-    "Copy to Clipboard" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In Zwischenablage kopieren"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Copiar al portapapeles"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Copia negli appunti"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "クリップボードにコピー"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kopieer naar klembord"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Скопіювати в буфер обміну"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "复制到剪贴板"
-          }
-        }
-      }
-    },
     "Could not add device" : {
       "localizations" : {
         "de" : {
@@ -26540,48 +26494,48 @@
         }
       }
     },
-    "Run app for an hour" : {
+    "Run in the background for an hour" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "App für eine Stunde ausführen"
+            "value" : "Eine Stunde im Hintergrund ausführen"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ejecutar la aplicación durante una hora"
+            "value" : "Ejecutar en segundo plano durante una hora"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Esegui l'app per un'ora"
+            "value" : "Esegui in background per un'ora"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アプリを1時間実行"
+            "value" : "バックグラウンドで1時間実行"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "App voor een uur uitvoeren"
+            "value" : "Op de achtergrond draaien voor een uur"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Запустити додаток на годину"
+            "value" : "Запуск у фоновому режимі на годину"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "运行应用程序一小时"
+            "value" : "在后台运行一小时"
           }
         }
       }
@@ -30764,6 +30718,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "流"
+          }
+        }
+      }
+    },
+    "Stream file in VLC" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei in VLC streamen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transmitir archivo en VLC"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riproduci file in VLC"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VLCでファイルをストリーム再生"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stream bestand in VLC"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Трансляція файлу у VLC"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在VLC中流式传输文件"
           }
         }
       }
@@ -36710,6 +36710,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "要访问此页面，您需要登录"
+          }
+        }
+      }
+    },
+    "To allow other apps to stream this file from Synctrain, it must remain running in the background." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Damit andere Apps diese Datei von Synctrain streamen können, muss es im Hintergrund weiterlaufen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para permitir que otras aplicaciones transmitan este archivo desde Synctrain, debe seguir funcionando en segundo plano."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per consentire ad altre app di trasmettere questo file da Synctrain, deve rimanere in esecuzione in background."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "他のアプリがSynctrainからこのファイルをストリームできるようにするには、バックグラウンドで動作し続ける必要があります。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om andere apps toe te staan dit bestand te streamen van Synctrain, moet het op de achtergrond blijven draaien."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Щоб дозволити іншим додаткам передавати цей файл із Synctrain, його необхідно залишити працюючим у фоновому режимі."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要允许其他应用从Synctrain流式传输此文件，必须保持其在后台运行。"
           }
         }
       }

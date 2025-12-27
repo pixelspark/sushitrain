@@ -477,9 +477,17 @@ struct FileView: View {
 		}
 	}
 
+	private func streamingURLView() -> some View {
+		#if os(iOS)
+			return StreamingURLView(entry: self.file, backgroundManager: appState.backgroundManager)
+		#else
+			return StreamingURLView(entry: self.file)
+		#endif
+	}
+
 	@ViewBuilder private func copyStreamingURLSheet() -> some View {
 		NavigationStack {
-			StreamingURLView(entry: self.file)
+			self.streamingURLView()
 				.navigationTitle("Stream in another app")
 				.toolbar {
 					SheetButton(role: .done) {
@@ -530,6 +538,13 @@ struct FileView: View {
 			}
 		}
 		else {
+			let streamInOtherAppButton = Button("Stream in another app...", systemImage: "arrow.down.app.fill") {
+				self.showCopyStreamingURL = true
+			}.disabled(folder.connectedPeerCount() == 0)
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
+
 			let streamButton = Button(
 				"Stream", systemImage: file.isVideo ? "tv" : "music.note",
 				action: {
@@ -543,16 +558,6 @@ struct FileView: View {
 			).disabled(folder.connectedPeerCount() == 0)
 				#if os(macOS)
 					.buttonStyle(.link)
-				#endif
-
-				#if os(iOS)
-					.contextMenu {
-						if #available(iOS 26, *) {
-							Button("Stream in another app...") {
-								self.showCopyStreamingURL = true
-							}
-						}
-					}
 				#endif
 
 			let quickViewButton = Button(
@@ -576,13 +581,17 @@ struct FileView: View {
 						// Stream button
 						#if os(macOS)
 							HStack {
-								streamButton
 								quickViewButton
+								streamButton
+								streamInOtherAppButton
 								openInSafariButton
 							}
 						#else
-							streamButton
 							quickViewButton
+							streamButton
+							if #available(iOS 26, *) {
+								streamInOtherAppButton
+							}
 						#endif
 					}
 					else {
@@ -825,39 +834,78 @@ struct FileSharingLinksView: View {
 private struct StreamingURLView: View {
 	let entry: SushitrainEntry
 
+	#if os(iOS)
+		@ObservedObject var backgroundManager: BackgroundManager
+	#endif
+
 	@State private var url: String = ""
+	@State private var copied = false
 	@Environment(AppState.self) private var appState
 
 	var body: some View {
 		Form {
 			Section {
-				#if os(macOS)
-					Text(
-						"The URL shown below can be used in other applications that support streaming (such as VLC) until Synctrain is closed."
-					).listRowBackground(Color.clear)
-				#endif
-
-				#if os(iOS)
-					Text(
-						"The URL shown below can be used in other applications that support streaming (such as VLC) while Synctrain is running in the background."
-					).listRowBackground(Color.clear)
-				#endif
+				Text("To allow other apps to stream this file from Synctrain, it must remain running in the background.")
+					.listRowBackground(Color.clear)
 			}
 
-			Section {
-				Text(self.url).monospaced().textSelection(.enabled)
+			#if os(iOS)
+				if #available(iOS 26, *) {
+					Section {
+						Button(
+							"Run in the background for an hour",
+							systemImage: backgroundManager.runningContinuedTask != nil ? "stop.circle" : "play.circle"
+						) {
+							withAnimation {
+								if backgroundManager.runningContinuedTask != nil {
+									backgroundManager.stopContinuedSync()
+								}
+								else {
+									try? backgroundManager.startContinuedSync(.time(seconds: 3600))
+								}
+							}
+						}.disabled(backgroundManager.stopRunningContinuedTask)
+					}
+				}
+			#endif
 
-				Button("Copy to Clipboard", systemImage: "doc.on.doc") {
-					writeTextToPasteboard(self.url)
+			if canStream {
+				if hasVLC {
+					Section {
+						Button("Stream file in VLC", systemImage: "cone") {
+							self.streamWithVLC()
+						}
+						#if os(macOS)
+							.buttonStyle(.link)
+						#endif
+					}
 				}
 
-				#if os(iOS)
-					if #available(iOS 26, *) {
-						Button("Run app for an hour", systemImage: "play.fill") {
-							try? appState.backgroundManager.startContinuedSync(.time(seconds: 3600))
-						}.disabled(appState.backgroundManager.runningContinuedTask != nil)
-					}
-				#endif
+				Section {
+					#if os(macOS)
+						Text(
+							"The URL shown below can be used in other applications that support streaming (such as VLC) until Synctrain is closed."
+						).listRowBackground(Color.clear)
+					#endif
+
+					#if os(iOS)
+						Text(
+							"The URL shown below can be used in other applications that support streaming (such as VLC) while Synctrain is running in the background."
+						)
+					#endif
+
+					Text(self.url).monospaced().textSelection(.enabled)
+
+					Button("Copy to clipboard", systemImage: copied ? "checkmark.circle.dotted" : "doc.on.doc") {
+						writeTextToPasteboard(self.url)
+						withAnimation {
+							self.copied = true
+						}
+					}.disabled(copied)
+						#if os(macOS)
+							.buttonStyle(.link)
+						#endif
+				}
 			}
 		}
 		#if os(macOS)
@@ -867,4 +915,46 @@ private struct StreamingURLView: View {
 			self.url = entry.onDemandURL()
 		}
 	}
+
+	private func streamWithVLC() {
+		#if os(iOS)
+			UIApplication.shared.open(vlcURL, options: [:], completionHandler: nil)
+		#else
+			if let vlcAppURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "org.videolan.vlc") {
+				NSWorkspace.shared.open(
+					[URL(string: self.url)!], withApplicationAt: vlcAppURL, configuration: NSWorkspace.OpenConfiguration())
+			}
+		#endif
+	}
+
+	private var hasVLC: Bool {
+		#if os(iOS)
+			UIApplication.shared.canOpenURL(self.vlcURL)
+		#else
+			return NSWorkspace.shared.urlForApplication(withBundleIdentifier: "org.videolan.vlc") != nil
+		#endif
+	}
+
+	private var canStream: Bool {
+		#if os(iOS)
+			return backgroundManager.runningContinuedTask != nil
+		#else
+			return true
+		#endif
+	}
+
+	private var vlcURL: URL {
+		return vlcStreamingURL(for: self.url)
+	}
+}
+
+func vlcStreamingURL(for url: String) -> URL {
+	// VLC wants to see 'http%3A%2F%2F' at the start of the URL parameter for it to interpret
+	// the whole think as percent-encoded URL. Therefore, we need to percent-encode '://' but *not*
+	// the 'http'-part.
+	// See https://github.com/videolan/vlc-ios/blob/33a8cc42e73e9126432c4b614f62da02a1c70a64/Sources/Helpers/Network/URLHandler.swift#L95
+	return URL(
+		string:
+			"vlc-x-callback://x-callback-url/stream?url=\(url.addingPercentEncoding(withAllowedCharacters: CharacterSet.alphanumerics)!)"
+	)!
 }
