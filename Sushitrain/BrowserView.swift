@@ -805,7 +805,13 @@ private struct BrowserItemsView: View {
 						self.listView()
 
 					case .web:
-						BrowserWebView(folderID: folder.folderID, path: self.prefix)
+						if #available(macOS 26, *) {
+							BrowserWebView(folderID: folder.folderID, path: self.prefix)
+								.backgroundExtensionEffect()
+						}
+						else {
+							BrowserWebView(folderID: folder.folderID, path: self.prefix)
+						}
 					}
 				}
 				else {
