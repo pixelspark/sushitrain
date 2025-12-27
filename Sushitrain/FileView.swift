@@ -18,6 +18,7 @@ struct FileView: View {
 	@State private var localItemURL: URL? = nil
 	@State private var showFullScreenViewer = false
 	@State private var showSheetViewer = false
+	@State private var showCopyStreamingURL: Bool = false
 	@State private var showRemoveConfirmation = false
 	@State private var showDownloader = false
 	@State private var selfIndex: Int? = nil
@@ -36,7 +37,6 @@ struct FileView: View {
 	#if os(macOS)
 		@Environment(\.openURL) private var openURL
 		@Environment(\.openWindow) private var openWindow
-		@State private var showCopyStreamingURL: Bool = false
 	#endif
 
 	var localIsOnlyCopy: Bool {
@@ -159,11 +159,9 @@ struct FileView: View {
 				self.downloaderSheet()
 			}
 
-			#if os(macOS)
-				.sheet(isPresented: $showCopyStreamingURL) {
-					self.copyStreamingURLSheet()
-				}
-			#endif
+			.sheet(isPresented: $showCopyStreamingURL) {
+				self.copyStreamingURLSheet()
+			}
 
 			.sheet(isPresented: $showEncryptionSheet) {
 				EncryptionView(entry: self.file)
@@ -195,7 +193,7 @@ struct FileView: View {
 							}
 							.disabled(!file.isArchive())
 
-							Button("Stream this file...", systemImage: "link") {
+							Button("Stream in another app...", systemImage: "link") {
 								showCopyStreamingURL = true
 							}.disabled(file.isDirectory() || file.isDeleted())
 
@@ -479,19 +477,17 @@ struct FileView: View {
 		}
 	}
 
-	#if os(macOS)
-		@ViewBuilder private func copyStreamingURLSheet() -> some View {
-			NavigationStack {
-				StreamingURLView(entry: self.file)
-					.navigationTitle("URL for streaming")
-					.toolbar {
-						SheetButton(role: .done) {
-							showCopyStreamingURL = false
-						}
+	@ViewBuilder private func copyStreamingURLSheet() -> some View {
+		NavigationStack {
+			StreamingURLView(entry: self.file)
+				.navigationTitle("Stream in another app")
+				.toolbar {
+					SheetButton(role: .done) {
+						showCopyStreamingURL = false
 					}
-			}
+				}
 		}
-	#endif
+	}
 
 	@ViewBuilder private func viewButtons() -> some View {
 		#if os(macOS)
@@ -547,6 +543,16 @@ struct FileView: View {
 			).disabled(folder.connectedPeerCount() == 0)
 				#if os(macOS)
 					.buttonStyle(.link)
+				#endif
+
+				#if os(iOS)
+					.contextMenu {
+						if #available(iOS 26, *) {
+							Button("Stream in another app...") {
+								self.showCopyStreamingURL = true
+							}
+						}
+					}
 				#endif
 
 			let quickViewButton = Button(
@@ -816,34 +822,49 @@ struct FileSharingLinksView: View {
 	}
 }
 
-#if os(macOS)
-	private struct StreamingURLView: View {
-		let entry: SushitrainEntry
+private struct StreamingURLView: View {
+	let entry: SushitrainEntry
 
-		@State private var url: String = ""
+	@State private var url: String = ""
+	@Environment(AppState.self) private var appState
 
-		var body: some View {
-			Form {
-				Section {
+	var body: some View {
+		Form {
+			Section {
+				#if os(macOS)
 					Text(
 						"The URL shown below can be used in other applications that support streaming (such as VLC) until Synctrain is closed."
 					).listRowBackground(Color.clear)
-				}
-				Section {
-					Text(self.url).monospaced().textSelection(.enabled)
+				#endif
 
-					Button(action: {
-						writeTextToPasteboard(self.url)
-					}) {
-						Text("Copy to clipboard")
-						Image(systemName: "doc.on.doc")
-					}
-				}
+				#if os(iOS)
+					Text(
+						"The URL shown below can be used in other applications that support streaming (such as VLC) while Synctrain is running in the background."
+					).listRowBackground(Color.clear)
+				#endif
 			}
-			.formStyle(.grouped)
-			.task {
-				self.url = entry.onDemandURL()
+
+			Section {
+				Text(self.url).monospaced().textSelection(.enabled)
+
+				Button("Copy to Clipboard", systemImage: "doc.on.doc") {
+					writeTextToPasteboard(self.url)
+				}
+
+				#if os(iOS)
+					if #available(iOS 26, *) {
+						Button("Run app for an hour", systemImage: "play.fill") {
+							try? appState.backgroundManager.startContinuedSync(.time(seconds: 3600))
+						}.disabled(appState.backgroundManager.runningContinuedTask != nil)
+					}
+				#endif
 			}
 		}
+		#if os(macOS)
+			.formStyle(.grouped)
+		#endif
+		.task {
+			self.url = entry.onDemandURL()
+		}
 	}
-#endif
+}
