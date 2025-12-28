@@ -15,6 +15,9 @@ struct SushitrainApp: App {
 
 	@State fileprivate var appState: AppState
 
+	// Reference to appState.userSettings. This is needed because `body` needs to observe this
+	@ObservedObject private var userSettings: AppUserSettings
+
 	fileprivate var delegate: SushitrainDelegate?
 	private let qaService = QuickActionService.shared
 
@@ -73,6 +76,7 @@ struct SushitrainApp: App {
 
 		let appState = AppState(client: client, documentsDirectory: documentsDirectory, configDirectory: configDirectory)
 		self.appState = appState
+		self.userSettings = appState.userSettings
 
 		AppDependencyManager.shared.add(dependency: appState)
 		appState.isLoggingToFile = enableLoggingToFile
