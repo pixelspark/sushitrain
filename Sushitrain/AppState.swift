@@ -980,6 +980,7 @@ extension SushitrainDelegate: SushitrainClientDelegateProtocol {
 	func onEvent(_ event: String?) {
 		let appState = self.appState
 		DispatchQueue.main.async {
+			appState.update()
 			appState.changePublisher.send()
 		}
 	}

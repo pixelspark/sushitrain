@@ -14343,7 +14343,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Afronden..."
+            "value" : "Afronden…."
           }
         },
         "uk" : {
@@ -24884,6 +24884,52 @@
         }
       }
     },
+    "Receiving files (%lld%%" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien empfangen (%lld%%)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recibiendo archivos (%lld%%)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ricezione file (%lld%%)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイルを受信中 (%lld%%)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestanden ontvangen (%lld%%)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отримання файлів (%lld%%)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接收文件 (%lld%%)"
+          }
+        }
+      }
+    },
     "Receiving files..." : {
       "localizations" : {
         "de" : {
@@ -28786,6 +28832,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "正在发送文件"
+          }
+        }
+      }
+    },
+    "Sending files (%lld%%" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien senden (%lld%%)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviando archivos (%lld%%)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invio file (%lld%%)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイル送信中 (%lld%%)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestanden verzenden (%lld%%)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Надсилання файлів (%lld%%)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在发送文件 (%lld%%)"
           }
         }
       }
@@ -37492,6 +37584,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "文件总数"
+          }
+        }
+      }
+    },
+    "Transferring files (%lld%%)..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien werden übertragen (%lld%%)..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transferencia de archivos (%lld%%)..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trasferimento file (%lld%%)..."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイルを転送中 (%lld%%)..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestanden overzetten (%lld%%)..."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Передача файлів (%lld%%)..."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在传输文件 (%lld%%)..."
           }
         }
       }

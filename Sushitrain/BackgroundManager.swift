@@ -179,6 +179,7 @@ enum ContinuedTaskType {
 			Task {
 				self.currentBackgroundTask = continuedTask
 				var run = BackgroundSyncRun(started: Date.now, taskType: .continued)
+				
 				// Perform the requested continued task
 				switch taskType {
 				case .time(seconds: let duration), .timeOrFinished(seconds: let duration):
@@ -188,6 +189,7 @@ enum ContinuedTaskType {
 						stopWhenFinished = true
 					}
 
+					// When the system signals our task should end, ensure we end it
 					var shouldContinue = true
 					task.expirationHandler = {
 						Log.info("Continued processing task expired")
@@ -196,33 +198,37 @@ enum ContinuedTaskType {
 
 					do {
 						while shouldContinue {
+							// Stop the task if requested from inside the app (i.e. user pressed a button to cancel)
 							if self.stopRunningContinuedTask {
 								shouldContinue = false
 								self.stopRunningContinuedTask = false
 								break
 							}
 
+							// If we are finished syncing, and this is a 'until finished' task, end the task
 							if stopWhenFinished && appState.isFinished {
 								// Wait another second to see if we're still finished
-								continuedTask.updateTitle(continuedTask.title, subtitle: String(localized: "Finished"))
+								continuedTask.updateTitle(continuedTask.title, subtitle: String(localized: "Finishing up..."))
 								try await Task.sleep(for: .seconds(1))
 								if appState.isFinished {
 									shouldContinue = false
-									continuedTask.updateTitle(continuedTask.title, subtitle: String(localized: "Finishing up..."))
+									continuedTask.updateTitle(continuedTask.title, subtitle: String(localized: "Finished"))
 									break
 								}
 							}
 
+							// Update the task title and progress
 							let remaining = Int64(duration - Date.now.timeIntervalSince(start))
 							if remaining <= 0 {
 								shouldContinue = false
-								continuedTask.updateTitle(continuedTask.title, subtitle: String(localized: "Finishing up..."))
+								continuedTask.updateTitle(continuedTask.title, subtitle: String(localized: "Finished"))
 							}
 							else {
+								// Determine subtitle
+								let subtitle = self.localizedStatusText ?? String(localized: "\(remaining)s remaining...")
 								continuedTask.progress.totalUnitCount = Int64(duration)
 								continuedTask.progress.completedUnitCount = Int64(Date.now.timeIntervalSince(start))
-
-								continuedTask.updateTitle(continuedTask.title, subtitle: String(localized: "\(remaining)s remaining..."))
+								continuedTask.updateTitle(continuedTask.title, subtitle: subtitle)
 								try await Task.sleep(for: .seconds(1))
 							}
 						}
@@ -248,6 +254,35 @@ enum ContinuedTaskType {
 			}
 		}
 
+		private var localizedStatusText: String? {
+			if appState.photoBackup.isBackingUp {
+				return appState.photoBackup.progress.localizedDescription
+			}
+			else if appState.syncState.isDownloading && appState.syncState.isUploading {
+				let upProgress = appState.client.getTotalUploadProgress()?.percentage ?? 0
+				let downProgress = appState.client.getTotalDownloadProgress()?.percentage ?? 0
+				let progress = Int((upProgress + downProgress) / 2.0 * 100.0)
+				return String(localized: "Transferring files (\(progress)%)...")
+			}
+			else if appState.syncState.isUploading {
+				if let progress = appState.client.getTotalUploadProgress() {
+					return String(localized: "Sending files (\(Int(100 * progress.percentage))%")
+				}
+				else {
+					return String(localized: "Sending files...")
+				}
+			}
+			else if appState.syncState.isDownloading {
+				if let progress = appState.client.getTotalDownloadProgress() {
+					return String(localized: "Receiving files (\(Int(100 * progress.percentage))%")
+				}
+				else {
+					return String(localized: "Receiving files...")
+				}
+			}
+			return nil
+		}
+		
 		private func backgroundLaunchHandler(_ task: BGTask) {
 			Log.info("Background launch handler: \(task.identifier)")
 			Task { @MainActor in
