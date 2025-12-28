@@ -106,7 +106,8 @@ import SwiftUI
 							DecrypterItemsView(
 								folderID: folderID, folderPassword: folderPassword,
 								entries: searchText.isEmpty ? allEntries : foundEntries,
-								selectedDecryptedPaths: $selectedDecryptedPaths)
+								selectedDecryptedPaths: $selectedDecryptedPaths
+							)
 							.id(searchText)
 						}
 						else {

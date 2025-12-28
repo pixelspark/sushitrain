@@ -179,7 +179,7 @@ enum ContinuedTaskType {
 			Task {
 				self.currentBackgroundTask = continuedTask
 				var run = BackgroundSyncRun(started: Date.now, taskType: .continued)
-				
+
 				// Perform the requested continued task
 				switch taskType {
 				case .time(seconds: let duration), .timeOrFinished(seconds: let duration):
@@ -282,7 +282,7 @@ enum ContinuedTaskType {
 			}
 			return nil
 		}
-		
+
 		private func backgroundLaunchHandler(_ task: BGTask) {
 			Log.info("Background launch handler: \(task.identifier)")
 			Task { @MainActor in
