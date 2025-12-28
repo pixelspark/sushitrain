@@ -30,8 +30,13 @@ struct SushitrainApp: App {
 	#endif
 
 	init() {
+		// Install uncaught exception handler
+		NSSetUncaughtExceptionHandler { e in
+			Log.warn("Uncaught exception: \(e.name) reason=\(e.reason ?? "unknown") returnAddress=\(e.callStackReturnAddresses) symbols=\(e.callStackSymbols)")
+		}
+		
+		// Find out all the relevant locations we need to access
 		let configDirectory = Self.configDirectoryURL()
-
 		let documentsDirectory = try! FileManager.default.url(
 			for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
 		let documentsPath = documentsDirectory.path(percentEncoded: false)
