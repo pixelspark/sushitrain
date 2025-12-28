@@ -398,7 +398,7 @@ struct StartView: View {
 			self.folderIssuesSection()
 
 			Section("Manage files and folders") {
-				NavigationLink(destination: ChangesView()) {
+				NavigationLink(destination: ChangesView(userSettings: appState.userSettings)) {
 					Label("Recent changes", systemImage: "clock.arrow.2.circlepath").badge(changesCount)
 				}.disabled(changesCount == 0)
 			}

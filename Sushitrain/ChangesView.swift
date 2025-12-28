@@ -19,6 +19,8 @@ struct ChangesView: View {
 		var peer: SushitrainPeer?
 	}
 
+	@ObservedObject var userSettings: AppUserSettings
+
 	@State private var changes: [ChangeInfo] = []
 	@Environment(AppState.self) private var appState
 
@@ -68,6 +70,11 @@ struct ChangesView: View {
 			)
 			.task {
 				await self.update()
+			}
+			.onChange(of: userSettings.hideHiddenFolders) { _, _ in
+				Task {
+					await self.update()
+				}
 			}
 			.onChange(of: appState.lastChanges) { _, _ in
 				Task {
@@ -121,8 +128,11 @@ struct ChangesView: View {
 	#endif
 
 	private func update() async {
-		self.changes = appState.lastChanges.map { change in
+		self.changes = appState.lastChanges.compactMap { change in
 			let folder = appState.client.folder(withID: change.folderID)
+			if let f = folder, f.isHidden == true && userSettings.hideHiddenFolders {
+				return nil
+			}
 			let entry = try? folder?.getFileInformation(change.path)
 			let peer = appState.client.peer(withShortID: change.shortID)
 			return ChangeInfo(
