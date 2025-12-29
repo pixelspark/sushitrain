@@ -369,7 +369,9 @@ struct BrowserView: View {
 			}.pickerStyle(.inline)
 		} label: {
 			Label("Filter", systemImage: "line.3.horizontal.decrease")
-		}.disabled(self.currentViewStyle().wrappedValue == .web)
+				.tint(self.currentFilterAvailability == .all ? nil : Color.accentColor)
+		}
+		.disabled(self.currentViewStyle().wrappedValue == .web)
 	}
 
 	private func addFilesFromImporter(result: Result<[URL], any Error>) {
