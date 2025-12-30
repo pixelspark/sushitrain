@@ -934,9 +934,14 @@ func (clt *Client) AddSpecialFolder(folderID string, fsType string, folderPath s
 }
 
 // Leave path empty to add folder at default location
-func (clt *Client) AddFolder(folderID string, folderPath string, createAsOnDemand bool) error {
+func (clt *Client) AddFolder(folderID string, folderPath string, createAsOnDemand bool, createAsReceiveEncrypted bool) error {
 	if clt.app == nil || clt.app.Internals == nil {
 		return ErrStillLoading
+	}
+
+	if createAsReceiveEncrypted && createAsOnDemand {
+		// This is not allowed
+		panic("invalid combination of createAsReceiveEncrypted and createAsOnDemand specified")
 	}
 
 	folderConfig := clt.config.DefaultFolder()
@@ -949,6 +954,10 @@ func (clt *Client) AddFolder(folderID string, folderPath string, createAsOnDeman
 	}
 	folderConfig.Paused = false
 
+	if createAsReceiveEncrypted {
+		folderConfig.Type = config.FolderTypeReceiveEncrypted
+	}
+
 	// Add to configuration
 	err := clt.changeConfiguration(func(cfg *config.Configuration) {
 		cfg.SetFolder(folderConfig)
@@ -957,12 +966,16 @@ func (clt *Client) AddFolder(folderID string, folderPath string, createAsOnDeman
 		return err
 	}
 
-	// Set default ignores for on-demand sync
-	if createAsOnDemand {
-		return clt.app.Internals.SetIgnores(folderID, []string{"*"})
+	if !createAsReceiveEncrypted {
+		// Set default ignores for on-demand sync
+		if createAsOnDemand {
+			return clt.app.Internals.SetIgnores(folderID, []string{"*"})
+		} else {
+			// Create empty .stignore anyway because there may be an old one lingering around
+			return clt.app.Internals.SetIgnores(folderID, []string{})
+		}
 	} else {
-		// Create empty .stignore anyway because there may be an old one lingering around
-		return clt.app.Internals.SetIgnores(folderID, []string{})
+		return nil
 	}
 }
 
@@ -1348,6 +1361,39 @@ func (clt *Client) SetListening(listening bool) error {
 			cfg.Options.RawListenAddresses = []string{NoListenAddress}
 		}
 	})
+}
+
+/** Returns true if any device is currently offering the folder with the specified ID as encrypted folder. */
+func (clt *Client) IsPendingFolderOfferedReceiveEncrypted(folderID string) (isOffered bool, err error) {
+	if clt.app == nil || clt.app.Internals == nil {
+		return false, ErrStillLoading
+	}
+
+	var anyOffers = false
+	var anyOfferReceiveEncrypted = false
+	peers := clt.config.DeviceList()
+	for _, peer := range peers {
+		peerPendingFolderIDs, err := clt.app.Internals.PendingFolders(peer.DeviceID)
+		if err != nil {
+			continue
+		}
+
+		if peerPendingFolder, ok := peerPendingFolderIDs[folderID]; ok {
+			for _, offeringPeer := range peerPendingFolder.OfferedBy {
+				anyOffers = true
+				if offeringPeer.ReceiveEncrypted {
+					anyOfferReceiveEncrypted = true
+					break
+				}
+			}
+		}
+
+		if anyOfferReceiveEncrypted {
+			break
+		}
+	}
+
+	return anyOfferReceiveEncrypted && anyOffers, nil
 }
 
 func (clt *Client) pendingFolders() (map[string][]string, error) {

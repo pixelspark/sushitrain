@@ -34,8 +34,12 @@ struct AddFolderView: View {
 	@State private var showPathSelector: Bool = false
 	@State private var isSelective = true
 	@State private var isPhotoFolder = false
+	@State private var isReceiveEncryptedFolder = false
 	@State private var photoFolderConfig = PhotoFSConfiguration()
 	@State private var showAlert: ShowAlert? = nil
+
+	// Whether any device offers this folder as receive encrypted
+	@State private var isOfferedReceiveEncrypted = false
 
 	var folderExists: Bool {
 		appState.client.folder(withID: self.folderID) != nil
@@ -75,6 +79,7 @@ struct AddFolderView: View {
 			if !folderIDReadOnly {
 				Button("Photo folder", systemImage: self.isPhotoFolder ? "checkmark.circle.fill" : "circle") {
 					self.isPhotoFolder = true
+					self.isReceiveEncryptedFolder = false
 				}
 				#if os(macOS)
 					.buttonStyle(.link)
@@ -169,11 +174,23 @@ struct AddFolderView: View {
 
 				self.folderTypeSection()
 
+				if !isPhotoFolder && isOfferedReceiveEncrypted {
+					Section {
+						Toggle("Receive encrypted", isOn: $isReceiveEncryptedFolder)
+					} footer: {
+						if isReceiveEncryptedFolder {
+							Text(
+								"This device will receive encrypted files from other devices. The files are stored on this device, but cannot be accessed from this device."
+							)
+						}
+					}
+				}
+
 				if isPhotoFolder {
 					PhotoFolderConfigurationView(config: $photoFolderConfig)
 				}
 
-				if !isPhotoFolder {
+				if !isPhotoFolder && !isReceiveEncryptedFolder {
 					self.folderSyncTypeSection()
 				}
 
@@ -267,6 +284,15 @@ struct AddFolderView: View {
 		if self.shareWithPendingPeersByDefault && sharedWith.isEmpty {
 			sharedWith = Set(pendingPeers.filter { !(appState.client.peer(withID: $0)?.isUntrusted() ?? false) })
 		}
+
+		do {
+			var isOffered: ObjCBool = false
+			try appState.client.isPendingFolderOfferedReceiveEncrypted(self.folderID, isOffered: &isOffered)
+			self.isOfferedReceiveEncrypted = isOffered.boolValue
+		}
+		catch {
+			self.isOfferedReceiveEncrypted = false
+		}
 	}
 
 	private func add() {
@@ -289,12 +315,19 @@ struct AddFolderView: View {
 					try BookmarkManager.shared.saveBookmark(folderID: self.folderID, url: fp)
 
 					try appState.client.addFolder(
-						self.folderID, folderPath: fp.path(percentEncoded: false),
-						createAsOnDemand: self.isSelective)
+						self.folderID,
+						folderPath: fp.path(percentEncoded: false),
+						createAsOnDemand: self.isSelective && !isReceiveEncryptedFolder,
+						createAsReceiveEncrypted: isReceiveEncryptedFolder
+					)
 				}
 				else {
 					try appState.client.addFolder(
-						self.folderID, folderPath: "", createAsOnDemand: self.isSelective)
+						self.folderID,
+						folderPath: "",
+						createAsOnDemand: self.isSelective && !isReceiveEncryptedFolder,
+						createAsReceiveEncrypted: isReceiveEncryptedFolder
+					)
 				}
 			}
 

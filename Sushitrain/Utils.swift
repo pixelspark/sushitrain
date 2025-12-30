@@ -171,11 +171,24 @@ extension SushitrainFolder {
 		return self.folderType() == SushitrainFolderTypeSendOnly
 	}
 
-	var isReceiveOnlyFolder: Bool {
-		return self.folderType() == SushitrainFolderTypeReceiveOnly
+	var isReceiveEncryptedFolder: Bool {
+		return self.folderType() == SushitrainFolderTypeReceiveEncrypted
 	}
 
+	var isReceiveOnlyFolder: Bool {
+		let ft = self.folderType()
+		return ft == SushitrainFolderTypeReceiveOnly || ft == SushitrainFolderTypeReceiveEncrypted
+	}
+
+	/** A folder is 'regular' if it is backed by a file system where paths in the index correspond to paths in that file
+	system.*/
 	var isRegularFolder: Bool {
+		// Receive-encrypted folders are not regular
+		let folderType = self.folderType()
+		if folderType == SushitrainFolderTypeReceiveEncrypted {
+			return false
+		}
+
 		let fsType = self.filesystemType()
 		return fsType == "basic" || fsType == ""
 	}
@@ -219,7 +232,16 @@ extension SushitrainFolder {
 	}
 
 	var systemImage: String {
-		if self.isPhotoFolder {
+		if self.isReceiveEncryptedFolder {
+			return "lock.circle.dotted"
+		}
+		if self.isReceiveOnlyFolder {
+			return "arrow.forward.folder.fill.rtl"
+		}
+		else if self.isSendOnlyFolder {
+			return "arrow.forward.folder.fill"
+		}
+		else if self.isPhotoFolder {
 			return "photo.stack"
 		}
 		return "folder.fill"

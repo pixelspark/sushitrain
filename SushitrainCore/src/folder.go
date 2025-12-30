@@ -512,9 +512,10 @@ func (fld *Folder) HasSelectedPaths() bool {
 }
 
 const (
-	FolderTypeSendReceive = "sendrecieve"
-	FolderTypeReceiveOnly = "receiveonly"
-	FolderTypeSendOnly    = "sendonly"
+	FolderTypeSendReceive      = "sendrecieve"
+	FolderTypeReceiveOnly      = "receiveonly"
+	FolderTypeSendOnly         = "sendonly"
+	FolderTypeReceiveEncrypted = "receiveencrypted"
 )
 
 func (fld *Folder) FolderType() string {
@@ -526,12 +527,14 @@ func (fld *Folder) FolderType() string {
 	switch fc.Type {
 	case config.FolderTypeReceiveOnly:
 		return FolderTypeReceiveOnly
-	default:
-		fallthrough
 	case config.FolderTypeSendReceive:
 		return FolderTypeSendReceive
 	case config.FolderTypeSendOnly:
 		return FolderTypeSendOnly
+	case config.FolderTypeReceiveEncrypted:
+		return FolderTypeReceiveEncrypted
+	default:
+		return ""
 	}
 }
 
@@ -587,6 +590,8 @@ func (fld *Folder) SetFolderType(folderType string) error {
 			fc.Type = config.FolderTypeSendReceive
 		case FolderTypeSendOnly:
 			fc.Type = config.FolderTypeSendOnly
+		case FolderTypeReceiveEncrypted:
+			fc.Type = config.FolderTypeReceiveEncrypted
 		default:
 			// Don't change
 			return
@@ -605,9 +610,9 @@ func (fld *Folder) IsSelective() bool {
 		return false
 	}
 
-	// Send-only folders cannot be selective
-	// They can still have the '*' in the ignore file, but we refuse to do our selective magic
-	if fc.Type == config.FolderTypeSendOnly {
+	// Send-only and receive-encrypted folders cannot be selective. For receive-encrypted folders, the ignore file is
+	// ignored. Send-only folders can still have the '*' in the ignore file, but we refuse to do our selective magic.
+	if fc.Type == config.FolderTypeSendOnly || fc.Type == config.FolderTypeReceiveEncrypted {
 		return false
 	}
 

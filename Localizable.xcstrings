@@ -24884,6 +24884,52 @@
         }
       }
     },
+    "Receive encrypted" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verschlüsselt empfangen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recibir cifrado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ricevi crittografato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暗号化を受信"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ontvang versleuteld"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отримати зашифровано"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接收加密"
+          }
+        }
+      }
+    },
     "Receive only" : {
       "localizations" : {
         "de" : {
@@ -33850,6 +33896,52 @@
         }
       }
     },
+    "The files in this folder cannot be shown" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Dateien in diesem Ordner können nicht angezeigt werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los archivos de esta carpeta no se pueden mostrar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I file in questa cartella non possono essere visualizzati"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このフォルダのファイルは表示できません"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De bestanden in deze map kunnen niet worden getoond"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файли в цій папці не можуть бути відображені"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此文件夹中的文件无法显示"
+          }
+        }
+      }
+    },
     "The files to download" : {
       "localizations" : {
         "de" : {
@@ -36070,6 +36162,52 @@
         }
       }
     },
+    "This device will receive encrypted files from other devices. The files are stored on this device, but cannot be accessed from this device." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Gerät empfängt verschlüsselte Dateien von anderen Geräten. Die Dateien werden auf diesem Gerät gespeichert, können jedoch von diesem Gerät aus nicht darauf zugegriffen werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este dispositivo recibirá archivos cifrados de otros dispositivos. Los archivos se almacenan en este dispositivo, pero no se pueden acceder desde este dispositivo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo dispositivo riceverà file crittografati da altri dispositivi. I file sono archiviati su questo dispositivo, ma non possono essere accessibili da questo dispositivo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このデバイスは、他のデバイスから暗号化されたファイルを受信します。ファイルはこのデバイスに保存されますが、このデバイスからはアクセスできません。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dit apparaat ontvangt versleutelde bestanden van andere apparaten. De bestanden worden op dit apparaat opgeslagen, maar zijn niet toegankelijk vanaf dit apparaat."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цей пристрій отримуватиме зашифровані файли з інших пристроїв. Файли зберігаються на цьому пристрої, але не можуть бути доступними з цього пристрою."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此设备将从其他设备接收加密文件。文件存储在此设备上，但无法从此设备访问。"
+          }
+        }
+      }
+    },
     "This device's identifier" : {
       "localizations" : {
         "de" : {
@@ -36480,6 +36618,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "此文件夹不在默认位置，可能属于其他应用。"
+          }
+        }
+      }
+    },
+    "This folder is receiving encrypted files. While these files are stored on this device, they cannot be accessed from this device." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Ordner empfängt verschlüsselte Dateien. Solange diese Dateien auf diesem Gerät gespeichert sind, können sie nicht von diesem Gerät aus zugegriffen werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta carpeta está recibiendo archivos cifrados. Mientras estos archivos estén almacenados en este dispositivo, no se podrán acceder desde este dispositivo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa cartella riceve file crittografati. Finché questi file sono archiviati su questo dispositivo, non possono essere accessibili da questo dispositivo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このフォルダは暗号化されたファイルを受信しています。これらのファイルはこのデバイスに保存されている間、このデバイスからアクセスすることはできません。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze map ontvangt versleutelde bestanden. Zolang deze bestanden op dit apparaat zijn opgeslagen, kunnen ze niet vanaf dit apparaat worden geopend."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ця папка отримує зашифровані файли. Поки ці файли зберігаються на цьому пристрої, вони не можуть бути доступні з цього пристрою."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此文件夹正在接收加密文件。这些文件存储在此设备上时，无法从此设备访问。"
           }
         }
       }

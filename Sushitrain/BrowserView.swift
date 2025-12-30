@@ -443,14 +443,14 @@ struct BrowserView: View {
 		} label: {
 			Label("Add...", systemImage: "plus")
 		}.disabled(
-			!folderExists || !self.folder.isRegularFolder || self.folder.folderType() == SushitrainFolderTypeReceiveOnly)
+			!folderExists || !self.folder.isRegularFolder || self.folder.isReceiveOnlyFolder)
 	}
 
 	@ViewBuilder private func addMenuContents() -> some View {
 		Button("Add files...", systemImage: "plus") {
 			showAddFilePicker = true
 		}.disabled(
-			!folderExists || !self.folder.isRegularFolder || self.folder.folderType() == SushitrainFolderTypeReceiveOnly)
+			!folderExists || !self.folder.isRegularFolder || self.folder.isReceiveOnlyFolder)
 
 		#if os(iOS)
 			Button("Paste files...", systemImage: "document.on.clipboard") {
@@ -510,17 +510,20 @@ struct BrowserView: View {
 	}
 
 	@ViewBuilder private func folderMenu() -> some View {
+		let isReceiveEncrypted = folder.isReceiveEncryptedFolder
 		Menu {
 			if folderExists {
 				#if os(iOS)
-					BrowserViewStylePickerView(
-						webViewAvailable: self.webViewAvailable,
-						viewStyle: self.currentViewStyle()
-					).pickerStyle(.inline)
+					if !isReceiveEncrypted {
+						BrowserViewStylePickerView(
+							webViewAvailable: self.webViewAvailable,
+							viewStyle: self.currentViewStyle()
+						).pickerStyle(.inline)
 
-					self.filterMenu()
+						self.filterMenu()
 
-					self.addMenu()
+						self.addMenu()
+					}
 
 					Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
 						self.showInFinder()
@@ -530,14 +533,16 @@ struct BrowserView: View {
 				#endif
 
 				#if os(iOS)
-					Toggle(
-						"Search here...",
-						systemImage: "magnifyingglass",
-						isOn: $showSearch
-					).disabled(!folderExists)
+					if !isReceiveEncrypted {
+						Toggle(
+							"Search here...",
+							systemImage: "magnifyingglass",
+							isOn: $showSearch
+						).disabled(!folderExists)
+					}
 				#endif
 
-				if folderExists && !self.prefix.isEmpty {
+				if folderExists && !self.prefix.isEmpty && !isReceiveEncrypted {
 					if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
 						NavigationLink(destination: FileView(file: entry, showPath: false, siblings: nil)) {
 							Label("Subdirectory properties...", systemImage: "folder.badge.gearshape")
@@ -546,8 +551,10 @@ struct BrowserView: View {
 				}
 
 				#if os(iOS)
-					Toggle(isOn: Binding(get: { self.isBookmarked }, set: { self.setBookmarked($0) })) {
-						Label("Bookmark", systemImage: self.isBookmarked ? "bookmark.fill" : "bookmark")
+					if !isReceiveEncrypted {
+						Toggle(isOn: Binding(get: { self.isBookmarked }, set: { self.setBookmarked($0) })) {
+							Label("Bookmark", systemImage: self.isBookmarked ? "bookmark.fill" : "bookmark")
+						}
 					}
 				#endif
 
@@ -1074,7 +1081,16 @@ private struct BrowserItemsView: View {
 					}
 				}
 				else {
-					if filterAvailability != .all {
+					if folder.isReceiveEncryptedFolder {
+						ContentUnavailableView(
+							"The files in this folder cannot be shown",
+							systemImage: "lock.circle.dotted",
+							description: Text(
+								"This folder is receiving encrypted files. While these files are stored on this device, they cannot be accessed from this device."
+							)
+						)
+					}
+					else if filterAvailability != .all {
 						ContentUnavailableView(
 							"There are no files in this folder to show",
 							systemImage: "line.3.horizontal.decrease",

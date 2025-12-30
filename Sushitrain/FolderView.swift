@@ -291,8 +291,8 @@ struct FolderSyncTypePicker: View {
 			Text("All files").tag(FolderSyncType.allFiles)
 
 			Text("Selected files").tag(FolderSyncType.selectedFiles)
-				.disabled(folder.isSendOnlyFolder)
-				.selectionDisabled(folder.isSendOnlyFolder)
+				.disabled(folder.isSendOnlyFolder || folder.isReceiveEncryptedFolder)
+				.selectionDisabled(folder.isSendOnlyFolder || folder.isReceiveEncryptedFolder)
 
 			if folderSyncType == nil {
 				Text("(Unknown)").tag(nil as FolderSyncType?).disabled(true).selectionDisabled()
@@ -362,21 +362,28 @@ struct FolderDirectionPicker: View {
 					)
 					.tag(SushitrainFolderTypeReceiveOnly as String?)
 
-				if folderType == nil {
-					Text("(Unknown)").tag(nil as String?)
-						.disabled(true)
-						.selectionDisabled()
-				}
-
 				Text("Send only").tag(SushitrainFolderTypeSendOnly as String?)
 					.help(
 						"Changes made on this device will be sent to other devices. Changes from other devices will not be accepted."
 					)
 					.disabled(folder.isSelective())
 					.selectionDisabled(folder.isSelective())
+
+				if folderType == nil {
+					Text("(Unknown)").tag(nil as String?)
+						.disabled(true)
+						.selectionDisabled()
+				}
+
+				if folderType == SushitrainFolderTypeReceiveEncrypted {
+					Text("Receive encrypted")
+						.tag(SushitrainFolderTypeReceiveEncrypted as String?)
+						.disabled(true)
+						.selectionDisabled()
+				}
 			}
 			.pickerStyle(.menu)
-			.disabled(changeProhibited)
+			.disabled(changeProhibited || folderType == SushitrainFolderTypeReceiveOnly)
 			.onAppear {
 				self.update()
 			}
@@ -670,9 +677,11 @@ struct FolderView: View {
 						Text("Display name")
 					}
 
-					FolderDirectionPicker(folder: folder).disabled(isPhotoFolder).id(appState.eventCounter)
+					FolderDirectionPicker(folder: folder).disabled(isPhotoFolder || folder.isReceiveEncryptedFolder).id(
+						appState.eventCounter)
 
-					FolderSyncTypePicker(folder: folder).disabled(isPhotoFolder).id(appState.eventCounter)
+					FolderSyncTypePicker(folder: folder).disabled(isPhotoFolder || folder.isReceiveEncryptedFolder).id(
+						appState.eventCounter)
 				} header: {
 					Text("Folder settings")
 				} footer: {
@@ -704,7 +713,7 @@ struct FolderView: View {
 					}
 				}
 
-				if folder.isRegularFolder || folder.isPhotoFolder {
+				if folder.isRegularFolder || folder.isPhotoFolder || folder.isReceiveEncryptedFolder {
 					NavigationLink(destination: AdvancedFolderSettingsView(folder: self.folder)) {
 						Label("Advanced folder settings", systemImage: "gear")
 					}
@@ -781,7 +790,7 @@ struct ShareWithDeviceToggleView: View {
 					editEncryptionPasswordDeviceID = peer.deviceID()
 					showEditEncryptionPassword = true
 				}
-			).labelStyle(.iconOnly).disabled(self.isShared == nil)
+			).labelStyle(.iconOnly).disabled(self.isShared == nil || self.folder.isReceiveEncryptedFolder)
 		}
 		.sheet(isPresented: $showEditEncryptionPassword) {
 			NavigationStack {
@@ -1197,7 +1206,7 @@ private struct AdvancedFolderSettingsView: View {
 
 		Form {
 			#if os(iOS)
-				if !folder.isSelective() && !folder.isPhotoFolder {
+				if !folder.isSelective() && !folder.isPhotoFolder && !folder.isReceiveEncryptedFolder {
 					Section {
 						NavigationLink(
 							destination: IgnoresView(folder: self.folder)
@@ -1214,20 +1223,22 @@ private struct AdvancedFolderSettingsView: View {
 				}
 			#endif
 
-			Section {
-				NavigationLink(
-					destination:
-						FolderThumbnailSettingsView(folder: folder)
-				) {
-					Label("Thumbnails", systemImage: "photo.stack")
+			if !folder.isReceiveEncryptedFolder {
+				Section {
+					NavigationLink(
+						destination:
+							FolderThumbnailSettingsView(folder: folder)
+					) {
+						Label("Thumbnails", systemImage: "photo.stack")
+					}
 				}
-			}
 
-			Section {
-				NavigationLink(
-					destination: ExternalSharingSettingsView(folder: self.folder)
-				) {
-					Label("External sharing", systemImage: "link.circle.fill")
+				Section {
+					NavigationLink(
+						destination: ExternalSharingSettingsView(folder: self.folder)
+					) {
+						Label("External sharing", systemImage: "link.circle.fill")
+					}
 				}
 			}
 
@@ -1263,41 +1274,43 @@ private struct AdvancedFolderSettingsView: View {
 				}
 			}
 
-			Section("File handling") {
-				LabeledContent {
-					TextField(
-						"",
-						text: Binding(
-							get: {
-								let interval: Int = folder.rescanIntervalSeconds() / 60
-								return "\(interval)"
-							},
-							set: { (lbl: String) in
-								if !lbl.isEmpty {
-									let interval = Int(lbl) ?? 0
-									try? folder.setRescanInterval(interval * 60)
-								}
-							}), prompt: Text("")
-					)
-					.multilineTextAlignment(.trailing)
-				} label: {
-					Text("Rescan interval (minutes)")
-				}
+			if !folder.isReceiveEncryptedFolder {
+				Section("File handling") {
+					LabeledContent {
+						TextField(
+							"",
+							text: Binding(
+								get: {
+									let interval: Int = folder.rescanIntervalSeconds() / 60
+									return "\(interval)"
+								},
+								set: { (lbl: String) in
+									if !lbl.isEmpty {
+										let interval = Int(lbl) ?? 0
+										try? folder.setRescanInterval(interval * 60)
+									}
+								}), prompt: Text("")
+						)
+						.multilineTextAlignment(.trailing)
+					} label: {
+						Text("Rescan interval (minutes)")
+					}
 
-				if !folder.isPhotoFolder && !folder.isSendOnlyFolder {
-					Toggle(
-						"Keep conflicting versions",
-						isOn: Binding(
-							get: {
-								return folder.maxConflicts() != 0
-							},
-							set: { nv in
-								try? folder.setMaxConflicts(nv ? -1 : 0)
-							}))
+					if !folder.isPhotoFolder && !folder.isSendOnlyFolder {
+						Toggle(
+							"Keep conflicting versions",
+							isOn: Binding(
+								get: {
+									return folder.maxConflicts() != 0
+								},
+								set: { nv in
+									try? folder.setMaxConflicts(nv ? -1 : 0)
+								}))
+					}
 				}
 			}
 
-			if !folder.isPhotoFolder && !folder.isReceiveOnlyFolder {
+			if !folder.isPhotoFolder && !folder.isReceiveOnlyFolder && !folder.isReceiveEncryptedFolder {
 				Section {
 					Toggle(
 						"Watch for changes",
