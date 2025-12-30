@@ -167,6 +167,14 @@ extension SushitrainFolder {
 		}
 	}
 
+	var isSendOnlyFolder: Bool {
+		return self.folderType() == SushitrainFolderTypeSendOnly
+	}
+
+	var isReceiveOnlyFolder: Bool {
+		return self.folderType() == SushitrainFolderTypeReceiveOnly
+	}
+
 	var isRegularFolder: Bool {
 		let fsType = self.filesystemType()
 		return fsType == "basic" || fsType == ""

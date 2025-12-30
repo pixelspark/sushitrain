@@ -585,6 +585,8 @@ func (fld *Folder) SetFolderType(folderType string) error {
 			fc.Type = config.FolderTypeReceiveOnly
 		case FolderTypeSendReceive:
 			fc.Type = config.FolderTypeSendReceive
+		case FolderTypeSendOnly:
+			fc.Type = config.FolderTypeSendOnly
 		default:
 			// Don't change
 			return
@@ -600,6 +602,12 @@ func (fld *Folder) IsSelective() bool {
 
 	fc := fld.folderConfiguration()
 	if fc == nil {
+		return false
+	}
+
+	// Send-only folders cannot be selective
+	// They can still have the '*' in the ignore file, but we refuse to do our selective magic
+	if fc.Type == config.FolderTypeSendOnly {
 		return false
 	}
 

@@ -7256,6 +7256,144 @@
         }
       }
     },
+    "Changes from other devices will be accepted, and changes made on this device will be sent to other devices." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Änderungen von anderen Geräten werden akzeptiert, und Änderungen, die auf diesem Gerät vorgenommen werden, werden an andere Geräte gesendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los cambios de otros dispositivos serán aceptados y los cambios realizados en este dispositivo se enviarán a otros dispositivos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le modifiche provenienti da altri dispositivi verranno accettate e le modifiche apportate su questo dispositivo verranno inviate agli altri dispositivi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "他のデバイスからの変更は受け入れられ、このデバイスで行われた変更は他のデバイスに送信されます。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wijzigingen van andere apparaten zullen worden geaccepteerd en wijzigingen die op dit apparaat zijn gemaakt, zullen naar andere apparaten worden verzonden."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зміни з інших пристроїв будуть прийняті, а зміни, внесені на цьому пристрої, будуть надіслані на інші пристрої."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "来自其他设备的更改将被接受，并且在此设备上进行的更改将发送到其他设备。"
+          }
+        }
+      }
+    },
+    "Changes from other devices will be accepted. Changes made on this device will not be sent to other devices." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Änderungen von anderen Geräten werden akzeptiert. Änderungen, die auf diesem Gerät vorgenommen wurden, werden nicht an andere Geräte gesendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los cambios de otros dispositivos serán aceptados. Los cambios realizados en este dispositivo no se enviarán a otros dispositivos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le modifiche da altri dispositivi verranno accettate. Le modifiche apportate su questo dispositivo non verranno inviate ad altri dispositivi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "他のデバイスからの変更は受け入れられます。このデバイスで行われた変更は他のデバイスに送信されません。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wijzigingen van andere apparaten worden geaccepteerd. Wijzigingen gemaakt op dit apparaat worden niet naar andere apparaten verzonden."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зміни з інших пристроїв будуть прийняті. Зміни, внесені на цьому пристрої, не будут відправлені на інші пристрої."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "来自其他设备的更改将被接受。在此设备上所做的更改将不会发送到其他设备。"
+          }
+        }
+      }
+    },
+    "Changes made on this device will be sent to other devices. Changes from other devices will not be accepted." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Änderungen, die auf diesem Gerät vorgenommen werden, werden an andere Geräte gesendet. Änderungen von anderen Geräten werden nicht akzeptiert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los cambios realizados en este dispositivo se enviarán a otros dispositivos. No se aceptarán cambios de otros dispositivos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le modifiche apportate su questo dispositivo verranno inviate ad altri dispositivi. Le modifiche provenienti da altri dispositivi non verranno accettate."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このデバイスで行われた変更は他のデバイスに送信されます。他のデバイスからの変更は受け付けられません。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wijzigingen die op dit apparaat zijn aangebracht, worden naar andere apparaten verzonden. Wijzigingen van andere apparaten worden niet geaccepteerd."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зміни, внесені на цьому пристрої, будуть надіслані на інші пристрої. Зміни з інших пристроїв не будуть прийняті."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此设备上的更改将发送到其他设备。来自其他设备的更改将不被接受。"
+          }
+        }
+      }
+    },
     "Checking availability on other devices..." : {
       "localizations" : {
         "de" : {
@@ -32052,6 +32190,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在后台同步"
+          }
+        }
+      }
+    },
+    "Synchronize with other devices" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit anderen Geräten synchronisieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizar con otros dispositivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizza con altri dispositivi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "他のデバイスと同期"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchroniseer met andere apparaten"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Синхронізувати з іншими пристроями"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "与其他设备同步"
           }
         }
       }

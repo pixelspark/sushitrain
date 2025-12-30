@@ -289,10 +289,13 @@ struct FolderSyncTypePicker: View {
 	var body: some View {
 		Picker("Selection", selection: $folderSyncType) {
 			Text("All files").tag(FolderSyncType.allFiles)
+
 			Text("Selected files").tag(FolderSyncType.selectedFiles)
+				.disabled(folder.isSendOnlyFolder)
+				.selectionDisabled(folder.isSendOnlyFolder)
 
 			if folderSyncType == nil {
-				Text("(Unknown)").tag(nil as FolderSyncType?).disabled(true)
+				Text("(Unknown)").tag(nil as FolderSyncType?).disabled(true).selectionDisabled()
 			}
 		}
 		.onChange(of: folderSyncType) { ov, nv in
@@ -347,17 +350,30 @@ struct FolderDirectionPicker: View {
 	var body: some View {
 		if folder.exists() {
 			Picker("Direction", selection: $folderType) {
-				Text("Send and receive").tag(SushitrainFolderTypeSendReceive as String?)
-				Text("Receive only").tag(SushitrainFolderTypeReceiveOnly as String?)
+				Text("Send and receive")
+					.help(
+						"Changes from other devices will be accepted, and changes made on this device will be sent to other devices."
+					)
+					.tag(SushitrainFolderTypeSendReceive as String?)
+
+				Text("Receive only")
+					.help(
+						"Changes from other devices will be accepted. Changes made on this device will not be sent to other devices."
+					)
+					.tag(SushitrainFolderTypeReceiveOnly as String?)
 
 				if folderType == nil {
-					Text("(Unknown)").tag(nil as String?).disabled(true)
+					Text("(Unknown)").tag(nil as String?)
+						.disabled(true)
+						.selectionDisabled()
 				}
 
-				// Cannot be selected, but should be here when it is set
-				if folder.folderType() == SushitrainFolderTypeSendOnly {
-					Text("Send only").tag(SushitrainFolderTypeSendOnly as String?)
-				}
+				Text("Send only").tag(SushitrainFolderTypeSendOnly as String?)
+					.help(
+						"Changes made on this device will be sent to other devices. Changes from other devices will not be accepted."
+					)
+					.disabled(folder.isSelective())
+					.selectionDisabled(folder.isSelective())
 			}
 			.pickerStyle(.menu)
 			.disabled(changeProhibited)
@@ -654,9 +670,9 @@ struct FolderView: View {
 						Text("Display name")
 					}
 
-					FolderDirectionPicker(folder: folder).disabled(isPhotoFolder)
+					FolderDirectionPicker(folder: folder).disabled(isPhotoFolder).id(appState.eventCounter)
 
-					FolderSyncTypePicker(folder: folder).disabled(isPhotoFolder)
+					FolderSyncTypePicker(folder: folder).disabled(isPhotoFolder).id(appState.eventCounter)
 				} header: {
 					Text("Folder settings")
 				} footer: {
@@ -1268,7 +1284,7 @@ private struct AdvancedFolderSettingsView: View {
 					Text("Rescan interval (minutes)")
 				}
 
-				if !folder.isPhotoFolder {
+				if !folder.isPhotoFolder && !folder.isSendOnlyFolder {
 					Toggle(
 						"Keep conflicting versions",
 						isOn: Binding(
@@ -1281,7 +1297,7 @@ private struct AdvancedFolderSettingsView: View {
 				}
 			}
 
-			if !folder.isPhotoFolder {
+			if !folder.isPhotoFolder && !folder.isReceiveOnlyFolder {
 				Section {
 					Toggle(
 						"Watch for changes",

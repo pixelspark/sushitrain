@@ -366,7 +366,9 @@ private struct ItemSelectSwipeView<Content: View>: View {
 						Button {
 							Task { self.errorMessage = await self.file.setSelectedFromToggle(s: false) }
 						} label: {
-							Label("Do not synchronize with this device", systemImage: "pin.slash")
+							Label(
+								file.folder!.isSendOnlyFolder ? "Synchronize with other devices" : "Do not synchronize with this device",
+								systemImage: "pin.slash")
 						}.tint(.red)
 					}
 					else {
@@ -374,7 +376,9 @@ private struct ItemSelectSwipeView<Content: View>: View {
 						Button {
 							Task { self.errorMessage = await self.file.setSelectedFromToggle(s: true) }
 						} label: {
-							Label("Synchronize with this device", systemImage: "pin")
+							Label(
+								file.folder!.isSendOnlyFolder ? "Synchronize with other devices" : "Synchronize with this device",
+								systemImage: "pin")
 						}
 					}
 				}
