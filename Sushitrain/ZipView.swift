@@ -164,7 +164,7 @@ private struct ZipFileView: View {
 					"Could not view file", systemImage: "exclamationmark.triangle", description: Text(e.localizedDescription))
 			}
 			else if let file = file {
-				FileQuickLookView(file: file, dismissAfterClose: false)
+				EntryDownloaderView(file: file, action: .quickLook(dismissAfterClose: false))
 			}
 			else {
 				EmptyView()

@@ -134,11 +134,7 @@ struct FileViewerView: View {
 				}
 			#endif
 		}
-
-		ToolbarItem(placement: .automatic) {
-			FileShareLink(file: file)
-		}
-
+		
 		#if os(macOS)
 			if let siblings = siblings, let selfIndex = selfIndex {
 				ToolbarItemGroup(placement: .automatic) {

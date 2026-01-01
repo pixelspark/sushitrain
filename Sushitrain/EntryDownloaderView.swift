@@ -6,6 +6,7 @@
 import Foundation
 import SwiftUI
 import SushitrainCore
+import UniformTypeIdentifiers
 
 private class DownloadOperation: NSObject, ObservableObject, SushitrainDownloadDelegateProtocol, @unchecked Sendable {
 	@Published var error: String? = nil
@@ -13,6 +14,10 @@ private class DownloadOperation: NSObject, ObservableObject, SushitrainDownloadD
 	@Published var downloadedFileURL: URL? = nil
 	private var lock = NSLock()
 	private var cancelled = false
+	
+	deinit {
+		self.cancel()
+	}
 
 	func onError(_ error: String?) {
 		DispatchQueue.main.async {
@@ -47,16 +52,32 @@ private class DownloadOperation: NSObject, ObservableObject, SushitrainDownloadD
 	}
 }
 
-struct FileQuickLookView: View {
-	@Environment(AppState.self) private var appState
+/** A view that downloads an item and then performs a configurable action, such as quick look.  */
+struct EntryDownloaderView: View {
+	enum AfterDownloadAction: Identifiable {
+		case quickLook(dismissAfterClose: Bool)
+		case share
+		
+		var id: String {
+			switch self {
+			case .quickLook(dismissAfterClose: let a):
+				return a ? "quickLookWithDismiss" : "quickLook"
+			case .share:
+				return "share"
+			}
+		}
+	}
 
 	let file: SushitrainDownloadableProtocol
-	let dismissAfterClose: Bool
+	let action: AfterDownloadAction
+	
+	@Environment(AppState.self) private var appState
 
 	@StateObject private var downloadOperation: DownloadOperation = DownloadOperation()
 	@State private var quicklookHidden = false
 	@State private var filePath: URL? = nil
 	@State private var tempDirPath: URL? = nil
+	@State private var showFileExporter = false
 	@Environment(\.dismiss) private var dismiss
 
 	var body: some View {
@@ -70,13 +91,8 @@ struct FileQuickLookView: View {
 							"Could not download file", systemImage: "exclamationmark.triangle",
 							description: Text(error))
 					}
-					else if downloadOperation.downloadedFileURL != nil {
-						ContentUnavailableView(
-							"Downloaded", systemImage: "checkmark.circle",
-							description: Text("Tap here to view the downloaded file")
-						).onTapGesture {
-							quicklookHidden = false
-						}
+					else if let downloadedFileURL = downloadOperation.downloadedFileURL {
+						self.actionView(downloadedFileURL)
 					}
 					else {
 						ContentUnavailableView {
@@ -92,11 +108,17 @@ struct FileQuickLookView: View {
 		}
 		.quickLookPreview(
 			Binding(
-				get: { quicklookHidden ? nil : self.downloadOperation.downloadedFileURL },
+				get: {
+					if case .quickLook(_) = action, !quicklookHidden {
+						return self.downloadOperation.downloadedFileURL
+					}
+					
+					return nil
+				},
 				set: { p in
 					if p == nil {
 						quicklookHidden = true
-						if dismissAfterClose {
+						if case .quickLook(let dismissAfterClose) = action, dismissAfterClose {
 							dismiss()
 						}
 					}
@@ -121,6 +143,33 @@ struct FileQuickLookView: View {
 		}
 		.onDisappear {
 			self.cancelAndDeleteFiles()
+		}
+	}
+	
+	@ViewBuilder private func actionView(_ url: URL) -> some View {
+		switch self.action {
+		case .quickLook(dismissAfterClose: _):
+			ContentUnavailableView(
+				"Downloaded", systemImage: "checkmark.circle",
+				description: Text("Tap here to view the downloaded file")
+			).onTapGesture {
+				quicklookHidden = false
+			}
+			
+		case .share:
+			ShareLink(item: url)
+			Button("Save a copy...", systemImage: "square.and.arrow.down") {
+				showFileExporter = true
+			}
+			.fileMover(isPresented: $showFileExporter, file: url) { result in
+				switch result {
+				case .success(_):
+					dismiss()
+				case .failure(let e):
+					Log.warn("could not move downloaded file: \(e)")
+					break
+				}
+			}
 		}
 	}
 

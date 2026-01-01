@@ -20,7 +20,7 @@ struct FileView: View {
 	@State private var showSheetViewer = false
 	@State private var showCopyStreamingURL: Bool = false
 	@State private var showRemoveConfirmation = false
-	@State private var showDownloader = false
+	@State private var showDownloader: EntryDownloaderView.AfterDownloadAction? = nil
 	@State private var selfIndex: Int? = nil
 	@State private var fullyAvailableOnDevices: [SushitrainPeer]? = nil
 	@State private var availabilityError: Error? = nil
@@ -155,8 +155,8 @@ struct FileView: View {
 				self.zipSheet()
 			}
 
-			.sheet(isPresented: $showDownloader) {
-				self.downloaderSheet()
+			.sheet(item: $showDownloader) { action in
+				self.downloaderSheet(action: action)
 			}
 
 			.sheet(isPresented: $showCopyStreamingURL) {
@@ -181,7 +181,7 @@ struct FileView: View {
 
 				#if os(macOS)
 					ToolbarItemGroup(placement: .primaryAction) {
-						FileShareLink(file: file)
+						self.shareButton()
 
 						// Menu for advanced actions
 						Menu {
@@ -206,7 +206,7 @@ struct FileView: View {
 					}
 				#else
 					ToolbarItem {
-						FileShareLink(file: file)
+						self.shareButton()
 					}
 				#endif
 			}
@@ -230,6 +230,17 @@ struct FileView: View {
 		}
 	}
 
+	@ViewBuilder private func shareButton() -> some View {
+		if file.isLocallyPresent() {
+			FileShareLink(file: file)
+		}
+		else {
+			Button("Share", systemImage: "square.and.arrow.up") {
+				self.showDownloader = .share
+			}
+		}
+	}
+	
 	@ViewBuilder private func fileDetailsSection() -> some View {
 		Section {
 			if !file.isDirectory() && !file.isSymlink() {
@@ -458,17 +469,17 @@ struct FileView: View {
 		}
 	}
 
-	@ViewBuilder private func downloaderSheet() -> some View {
+	@ViewBuilder private func downloaderSheet(action: EntryDownloaderView.AfterDownloadAction) -> some View {
 		NavigationStack {
-			FileQuickLookView(file: file, dismissAfterClose: true)
-				#if os(iOS)
-					.navigationBarTitleDisplayMode(.inline)
-				#endif
-				.toolbar {
-					SheetButton(role: .cancel) {
-						showDownloader = false
-					}
+			EntryDownloaderView(file: file, action: action)
+			#if os(iOS)
+				.navigationBarTitleDisplayMode(.inline)
+			#endif
+			.toolbar {
+				SheetButton(role: .cancel) {
+					showDownloader = nil
 				}
+			}
 		}
 	}
 
@@ -562,7 +573,7 @@ struct FileView: View {
 						showSheetViewer = true
 					}
 					else {
-						showDownloader = true
+						showDownloader = .quickLook(dismissAfterClose: true)
 					}
 				}
 			).disabled(folder.connectedPeerCount() == 0)
