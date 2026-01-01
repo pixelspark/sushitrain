@@ -54,7 +54,9 @@ struct EncryptionView: View {
 				}
 
 				Section("Encrypted file path") {
-					Text(self.folderPassword.isEmpty ? "" : self.fileEncryptedPath).monospaced()
+					Text(self.folderPassword.isEmpty ? "" : self.fileEncryptedPath)
+						.monospaced()
+						.textSelection(.enabled)
 
 					Button("Copy", systemImage: "document.on.document") {
 						writeTextToPasteboard(self.fileEncryptedPath)
@@ -66,7 +68,13 @@ struct EncryptionView: View {
 				}
 
 				Section("File encryption key") {
-					Text(self.folderPassword.isEmpty || self.fileKey.isEmpty ? "" : self.fileKey).monospaced()
+					Text(self.folderPassword.isEmpty || self.fileKey.isEmpty ? "" : self.fileKey)
+						.monospaced()
+						.textSelection(.enabled)
+					Button("Copy", systemImage: "document.on.document") {
+						writeTextToPasteboard(self.fileKey)
+					}
+					.disabled(self.folderPassword.isEmpty || self.fileKey.isEmpty)
 				}
 			}
 			.task {
