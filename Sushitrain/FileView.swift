@@ -240,7 +240,7 @@ struct FileView: View {
 			}
 		}
 	}
-	
+
 	@ViewBuilder private func fileDetailsSection() -> some View {
 		Section {
 			if !file.isDirectory() && !file.isSymlink() {
@@ -472,14 +472,14 @@ struct FileView: View {
 	@ViewBuilder private func downloaderSheet(action: EntryDownloaderView.AfterDownloadAction) -> some View {
 		NavigationStack {
 			EntryDownloaderView(file: file, action: action)
-			#if os(iOS)
-				.navigationBarTitleDisplayMode(.inline)
-			#endif
-			.toolbar {
-				SheetButton(role: .cancel) {
-					showDownloader = nil
+				#if os(iOS)
+					.navigationBarTitleDisplayMode(.inline)
+				#endif
+				.toolbar {
+					SheetButton(role: .cancel) {
+						showDownloader = nil
+					}
 				}
-			}
 		}
 	}
 

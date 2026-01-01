@@ -14,7 +14,7 @@ private class DownloadOperation: NSObject, ObservableObject, SushitrainDownloadD
 	@Published var downloadedFileURL: URL? = nil
 	private var lock = NSLock()
 	private var cancelled = false
-	
+
 	deinit {
 		self.cancel()
 	}
@@ -52,12 +52,12 @@ private class DownloadOperation: NSObject, ObservableObject, SushitrainDownloadD
 	}
 }
 
-/** A view that downloads an item and then performs a configurable action, such as quick look.  */
+/// A view that downloads an item and then performs a configurable action, such as quick look.
 struct EntryDownloaderView: View {
 	enum AfterDownloadAction: Identifiable {
 		case quickLook(dismissAfterClose: Bool)
 		case share
-		
+
 		var id: String {
 			switch self {
 			case .quickLook(dismissAfterClose: let a):
@@ -70,7 +70,7 @@ struct EntryDownloaderView: View {
 
 	let file: SushitrainDownloadableProtocol
 	let action: AfterDownloadAction
-	
+
 	@Environment(AppState.self) private var appState
 
 	@StateObject private var downloadOperation: DownloadOperation = DownloadOperation()
@@ -112,7 +112,7 @@ struct EntryDownloaderView: View {
 					if case .quickLook(_) = action, !quicklookHidden {
 						return self.downloadOperation.downloadedFileURL
 					}
-					
+
 					return nil
 				},
 				set: { p in
@@ -145,7 +145,7 @@ struct EntryDownloaderView: View {
 			self.cancelAndDeleteFiles()
 		}
 	}
-	
+
 	@ViewBuilder private func actionView(_ url: URL) -> some View {
 		switch self.action {
 		case .quickLook(dismissAfterClose: _):
@@ -155,7 +155,7 @@ struct EntryDownloaderView: View {
 			).onTapGesture {
 				quicklookHidden = false
 			}
-			
+
 		case .share:
 			ShareLink(item: url)
 			Button("Save a copy...", systemImage: "square.and.arrow.down") {

@@ -134,7 +134,7 @@ struct FileViewerView: View {
 				}
 			#endif
 		}
-		
+
 		#if os(macOS)
 			if let siblings = siblings, let selfIndex = selfIndex {
 				ToolbarItemGroup(placement: .automatic) {

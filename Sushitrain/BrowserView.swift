@@ -367,11 +367,11 @@ struct BrowserView: View {
 				Label("All files and folders", systemImage: "folder").tag(BrowserViewFilterAvailability.all)
 				Label("Only files on this device", systemImage: "folder.fill").tag(BrowserViewFilterAvailability.localOnly)
 			}.pickerStyle(.inline)
-			
+
 			Divider()
-			
+
 			Toggle("Hide dotfiles", isOn: userSettings.$dotFilesHidden)
-			
+
 		} label: {
 			Label("Filter", systemImage: "line.3.horizontal.decrease")
 				.tint(self.currentFilterAvailability == .all ? nil : Color.accentColor)
