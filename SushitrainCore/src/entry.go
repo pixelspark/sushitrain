@@ -407,6 +407,11 @@ type progressWriter struct {
 }
 
 func (pw *progressWriter) Write(buf []byte) (n int, err error) {
+	if pw.delegate.IsCancelled() {
+		slog.Info("download delegate was cancelled; cancel context")
+		return 0, context.Canceled
+	}
+
 	n, err = pw.out.Write(buf)
 	pw.written += n
 	pw.delegate.OnProgress(float64(pw.written) / float64(pw.total))
@@ -451,6 +456,7 @@ func (entry *Entry) Download(toPath string, delegate DownloadDelegate) {
 			total:    int(info.Size),
 			written:  0,
 		}
+
 		err = mp.downloadInto(context, &pw, folderID, info)
 		if err != nil {
 			delegate.OnError(err.Error())
