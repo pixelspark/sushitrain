@@ -468,6 +468,12 @@ struct BrowserView: View {
 
 	@ViewBuilder private func folderOperationsMenu() -> some View {
 		Menu {
+			#if os(iOS)
+				Button("Folder statistics...", systemImage: "chart.pie") {
+					showFolderStatistics = true
+				}
+			#endif
+
 			Button("Re-scan folder", systemImage: "sparkle.magnifyingglass", action: rescanFolder)
 				#if os(macOS)
 					.buttonStyle(.link)
@@ -564,12 +570,6 @@ struct BrowserView: View {
 				#endif
 
 				Divider()
-
-				#if os(iOS)
-					Button("Folder statistics...", systemImage: "chart.pie") {
-						showFolderStatistics = true
-					}
-				#endif
 
 				if folderIsSelective && folder.isRegularFolder {
 					NavigationLink(destination: SelectiveFolderView(folder: folder, prefix: "")) {
