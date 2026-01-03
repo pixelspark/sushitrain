@@ -79,7 +79,7 @@ struct SearchView: View {
 				.searchFocused($isSearchFieldFocused)
 				.onAppear {
 					isSearchFieldFocused = true
-					if  searchText.isEmpty {
+					if searchText.isEmpty {
 						searchText = initialSearchText
 					}
 				}
