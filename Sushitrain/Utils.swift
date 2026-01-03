@@ -238,11 +238,11 @@ extension SushitrainFolder {
 		if self.isReceiveOnlyFolder {
 			return "arrow.forward.folder.fill.rtl"
 		}
-		else if self.isSendOnlyFolder {
-			return "arrow.forward.folder.fill"
-		}
 		else if self.isPhotoFolder {
 			return "photo.stack"
+		}
+		else if self.isSendOnlyFolder {
+			return "arrow.forward.folder.fill"
 		}
 		return "folder.fill"
 	}
