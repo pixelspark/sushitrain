@@ -22,7 +22,7 @@ struct AboutView: View {
 			}.listRowBackground(Color.clear)
 
 			Section {
-				Text("Synctrain is © 2024-2025, Tommy van der Vorst")
+				Text("Synctrain is © 2024-2026, Tommy van der Vorst")
 				Link(
 					"End User License Agreement",
 					destination: URL(

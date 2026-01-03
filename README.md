@@ -230,7 +230,7 @@ specific need, you may contact the developers to discuss a commercial developmen
 
 ## License
 
-Sushitrain, Synctrain are (C) Tommy van der Vorst (tommy@t-shaped.nl), 2024-2025.
+Sushitrain, Synctrain are (C) Tommy van der Vorst (tommy@t-shaped.nl), 2024-2026.
 
 Except when explicitly noted otherwise, the code in this repository is licensed under the Mozilla Public License 2.0.
 Read the license [here](./LICENSE). Contributors to this repository agree to license their contributions under this license.

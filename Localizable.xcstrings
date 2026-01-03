@@ -32838,48 +32838,48 @@
         }
       }
     },
-    "Synctrain is © 2024-2025, Tommy van der Vorst" : {
+    "Synctrain is © 2024-2026, Tommy van der Vorst" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synctrain ist © 2024-2025, Tommy van der Vorst"
+            "value" : "Synctrain ist © 2024-2026, Tommy van der Vorst"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synctrain es © 2024-2025, Tommy van der Vorst"
+            "value" : "Synctrain es © 2024-2026, Tommy van der Vorst"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synctrain è © 2024-2025, Tommy van der Vorst"
+            "value" : "Synctrain è © 2024-2026, Tommy van der Vorst"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synctrainは© 2024–2025, Tommy van der Vorst"
+            "value" : "SyncTrain は © 2024-2026、Tommy van der Vorst"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synctrain is © 2024-2025, Tommy van der Vorst"
+            "value" : "Synctrain is © 2024-2026, Tommy van der Vorst"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synctrain є © 2024-2025, Tommy van der Vorst"
+            "value" : "Synctrain є © 2024-2026, Tommy van der Vorst"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synctrain 是 © 2024-2025，Tommy van der Vorst"
+            "value" : "Synctrain 是 © 2024-2026, Tommy van der Vorst"
           }
         }
       }
