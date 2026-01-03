@@ -152,13 +152,8 @@ struct SearchResultsView: View, SearchViewDelegate {
 				if !results.isEmpty {
 					Section {
 						ForEach(results, id: \.self) { (item: SushitrainEntry) in
-							if showHiddenFolderEntries || self.folderID != "" || !(item.folder?.isHidden ?? false) {
-								EntryView(
-									entry: item,
-									folder: nil,
-									siblings: results,
-									showThumbnail: self.appState.userSettings.showThumbnailsInSearchResults
-								)
+							if let folder = item.folder, showHiddenFolderEntries || self.folderID != "" || !(folder.isHidden ?? false) {
+								SearchResultItemView(folder: folder, item: item, siblings: results)
 							}
 						}
 
@@ -288,6 +283,36 @@ struct SearchResultsView: View, SearchViewDelegate {
 			DispatchQueue.main.async {
 				sr.view.setStatus(searching: false, from: sr)
 			}
+		}
+	}
+}
+
+private struct SearchResultItemView: View {
+	@Environment(AppState.self) var appState
+	let folder: SushitrainFolder
+	let item: SushitrainEntry
+	let siblings: [SushitrainEntry]
+
+	var body: some View {
+		if item.isDirectory() {
+			let fileName = item.path()
+			NavigationLink(destination: BrowserView(folder: folder, prefix: "\(fileName)/", userSettings: appState.userSettings))
+			{
+				HStack(spacing: 9.0) {
+					Image(systemName: item.systemImage).foregroundStyle(item.color ?? Color.accentColor)
+					Text(item.fileName()).multilineTextAlignment(.leading).foregroundStyle(Color.primary).opacity(
+						item.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
+					Spacer()
+				}.frame(maxWidth: .infinity).padding(0)
+			}
+		}
+		else {
+			EntryView(
+				entry: item,
+				folder: nil,
+				siblings: siblings,
+				showThumbnail: self.appState.userSettings.showThumbnailsInSearchResults
+			)
 		}
 	}
 }
