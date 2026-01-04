@@ -50,7 +50,7 @@ struct SelectiveFolderView: View {
 
 			List(selection: $listSelection) {
 				Section(self.prefix.isEmpty ? "Files kept on device" : "Files in '\(self.prefix)' kept on this device") {
-					PathsOutlineGroup(paths: self.selectedFilteredPaths, disableIntermediateSelection: true) { item, isIntermediate in
+					PathsOutlineGroup(paths: self.selectedFilteredPaths, disableIntermediateSelection: false) { item, isIntermediate in
 						if item.isEmpty {
 							EmptyView()
 						}
@@ -60,7 +60,13 @@ struct SelectiveFolderView: View {
 								folder: folder,
 								deselect: {
 									Task {
-										await self.deselectItems([item])
+										let entry = try folder.getFileInformation(item)
+										if entry.isExplicitlySelected() {
+											await self.deselectItems([item])
+										}
+										else {
+											await self.deselectPrefix(item)
+										}
 									}
 								}
 							)
@@ -334,14 +340,22 @@ struct SelectiveFolderView: View {
 
 	private nonisolated func deselect(paths: Set<String>, includingLastCopy: Bool) async throws {
 		var paths = paths
-		// If we should not delete if our copy is the only one available, check availability for each file first
-		if !includingLastCopy {
-			for path in paths {
-				let entry = try folder.getFileInformation(path)
+		
+		for path in paths {
+			let entry = try folder.getFileInformation(path)
+			if !entry.isExplicitlySelected() {
+				Log.info("Not deselecting \(path), it is not explicitly selected")
+				paths.remove(path)
+				continue
+			}
+			
+			// If we should not delete if our copy is the only one available, check availability for each file first
+			if !includingLastCopy {
 				let peersWithFullCopy = try entry.peersWithFullCopy()
 				if peersWithFullCopy.count() == 0 {
 					Log.info("Not removing \(path), it is the last copy")
 					paths.remove(path)
+					continue
 				}
 			}
 		}
@@ -358,6 +372,18 @@ struct SelectiveFolderView: View {
 		}
 	}
 
+	// Deselects all items contained here that are explicitly selected, and available on at least one other device
+	private func deselectPrefix(_ path: String) async {
+		do {
+			let prefix = path.withoutEndingSlash + "/"
+			let items = Set(self.selectedFilteredPaths.filter { $0.starts(with: prefix) })
+			try await self.deselect(paths: items, includingLastCopy: false)
+		}
+		catch {
+			Log.warn("Could not deselect prefix \(path): \(error.localizedDescription)")
+		}
+	}
+	
 	private func deselectItems(_ paths: [String]) async {
 		do {
 			let verdicts = paths.reduce(into: [:]) { dict, p in
@@ -393,7 +419,7 @@ private struct SelectiveFileView: View {
 					Label(entry.fileName(), systemImage: entry.systemImage).strikethrough()
 				}
 				else if !entry.isExplicitlySelected() {
-					Label(entry.fileName(), systemImage: entry.systemImage).opacity(0.8)
+					IntermediateSelectiveFileView(entry: entry, deselect: deselect)
 				}
 				else {
 					SelectedFileView(entry: entry, folder: folder, deselect: deselect)
@@ -416,6 +442,29 @@ private struct SelectiveFileView: View {
 	}
 }
 
+/** Entry in the list that is not explicitly selected itself, but can deselect a whole prefix  */
+private struct IntermediateSelectiveFileView: View {
+	let entry: SushitrainEntry
+	let deselect: () -> Void
+	
+	var body: some View {
+		HStack {
+			Label(entry.fileName(), systemImage: entry.systemImage).opacity(0.8)
+			Spacer()
+			Menu {
+				Section("For all files in here") {
+					Button("Remove from this device if available on other devices") {
+						self.deselect()
+					}
+				}
+			} label: {
+				Label("", systemImage: "pin.slash.fill").accessibilityLabel("Actions")
+			}.buttonStyle(.borderless)
+		}
+	}
+}
+
+/** Entry in the list that is explicitly selected itself */
 private struct SelectedFileView: View {
 	@Environment(AppState.self) private var appState
 	let entry: SushitrainEntry
