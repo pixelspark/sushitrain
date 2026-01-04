@@ -238,7 +238,7 @@ struct SyncState {
 	}
 
 	@MainActor func start() async {
-		if self.startupState != .notStarted || self.startupState != .onboarding {
+		if self.startupState != .notStarted && self.startupState != .onboarding {
 			assertionFailure("cannot start again")
 		}
 
