@@ -11,7 +11,7 @@ require (
 	github.com/gotd/contrib v0.21.1
 	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/miscreant/miscreant.go v0.0.0-20200214223636-26d376326b75
-	github.com/syncthing/syncthing v1.30.0-rc.1.0.20251124154942-ce884e5d7253
+	github.com/syncthing/syncthing v1.30.0-rc.1.0.20251223081048-962b91715039
 	golang.org/x/exp v0.0.0-20251125195548-87e1e737ad39
 	google.golang.org/protobuf v1.36.10
 )
@@ -56,7 +56,7 @@ require (
 	github.com/quic-go/quic-go v0.57.1 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	github.com/shirou/gopsutil/v4 v4.25.11 // indirect
+	github.com/shirou/gopsutil/v4 v4.25.12 // indirect
 	github.com/stretchr/objx v0.5.3 // indirect
 	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/syncthing/notify v0.0.0-20250528144937-c7027d4f7465 // indirect
@@ -70,13 +70,13 @@ require (
 	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.uber.org/mock v0.5.2 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
-	golang.org/x/crypto v0.45.0 // indirect
+	golang.org/x/crypto v0.46.0 // indirect
 	golang.org/x/mobile v0.0.0-20251113184115-a159579294ab // indirect
 	golang.org/x/mod v0.30.0 // indirect
-	golang.org/x/net v0.47.0 // indirect
-	golang.org/x/sync v0.18.0 // indirect
-	golang.org/x/sys v0.38.0 // indirect
-	golang.org/x/text v0.31.0 // indirect
+	golang.org/x/net v0.48.0 // indirect
+	golang.org/x/sync v0.19.0 // indirect
+	golang.org/x/sys v0.40.0 // indirect
+	golang.org/x/text v0.32.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.39.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
