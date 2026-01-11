@@ -1251,3 +1251,13 @@ extension Binding where Value == Bool {
 			get: { underlying.wrappedValue != nil }, set: { underlying.wrappedValue = $0 ? underlying.wrappedValue : nil })
 	}
 }
+
+/// Translate version tags appended by Syncthing in a .stversions folder to a date
+/// These look like '20260102-030405' and are in *local time* at the point of creation
+/// So we can only assume here that that matches our local time.
+func dateFromVersionString(_ version: String) -> Date? {
+	let dateFormatter = DateFormatter()
+	dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+	dateFormatter.dateFormat = "yyyyMMdd-HHmmss"
+	return dateFormatter.date(from: version)
+}

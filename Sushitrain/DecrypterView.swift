@@ -29,7 +29,7 @@ import SwiftUI
 		@State private var folderPassword: String = ""
 		@State private var searchText: String = ""
 		@State private var destURL: URL? = nil
-		@State private var selectedDecryptedPaths: Set<String> = []
+		@State private var selectedURLs: Set<String> = []
 		@State private var showSuccessMessage = false
 		@State private var keepFolderStructure = true
 
@@ -63,7 +63,7 @@ import SwiftUI
 							.disabled(folderPassword.isEmpty || folderID.isEmpty || sourceURL == nil)
 						}
 
-						Section("\(selectedDecryptedPaths.count) files selected") {
+						Section("\(selectedURLs.count) files selected") {
 							LabeledContent("Folder") {
 								HStack {
 									Text(destURL?.lastPathComponent ?? "")
@@ -78,12 +78,12 @@ import SwiftUI
 								Text("Recreate folder structure")
 							}
 
-							Button("Decrypt \(selectedDecryptedPaths.count) files") {
+							Button("Decrypt \(selectedURLs.count) files") {
 								Task {
 									await self.decryptSelection()
 								}
 							}.disabled(destURL == nil)
-						}.disabled(folderPassword.isEmpty || folderID.isEmpty || sourceURL == nil || selectedDecryptedPaths.isEmpty)
+						}.disabled(folderPassword.isEmpty || folderID.isEmpty || sourceURL == nil || selectedURLs.isEmpty)
 					}
 					.formStyle(.grouped)
 					.disabled(loading)
@@ -106,7 +106,7 @@ import SwiftUI
 							DecrypterItemsView(
 								folderID: folderID, folderPassword: folderPassword,
 								entries: searchText.isEmpty ? allEntries : foundEntries,
-								selectedDecryptedPaths: $selectedDecryptedPaths
+								selectedURLs: $selectedURLs
 							)
 							.id(searchText)
 						}
@@ -176,11 +176,13 @@ import SwiftUI
 					if trimmedPath.starts(with: ".stfolder") {
 						continue
 					}
-					let decryptedPath = folderKey.decryptedFilePath(trimmedPath, error: &error)
+
+					let encryptedFilePath = EncryptedFilePath(trimmedPath)
+					let decryptedPath = folderKey.decryptedFilePath(encryptedFilePath.pathWithoutVersion, error: &error)
 					if let e = error {
 						throw e
 					}
-					entries.append(EncryptedFileEntry(decryptedPath: decryptedPath, url: c))
+					entries.append(EncryptedFileEntry(decryptedPath: decryptedPath, url: c, version: encryptedFilePath.version))
 				}
 			}
 		}
@@ -193,7 +195,7 @@ import SwiftUI
 			let folderID = self.folderID
 			let folderPassword = self.folderPassword
 			let destURL = self.destURL
-			let selectedDecryptedPaths = self.selectedDecryptedPaths
+			let selectedURLs = self.selectedURLs
 			let sourceURL = self.sourceURL
 			let keepFolderStructure = self.keepFolderStructure
 			let entries = self.allEntries
@@ -204,16 +206,19 @@ import SwiftUI
 					try withExtendedLifetime(try BookmarkManager.Accessor(url: destURL!)) {
 						let folderKey = SushitrainNewFolderKey(folderID, folderPassword)
 						for entry in entries {
-							if !selectedDecryptedPaths.contains(entry.decryptedPath) {
+							if !selectedURLs.contains(entry.url.absoluteString) {
 								continue
 							}
 
 							let rootPath = sourceURL!.path(percentEncoded: false)
 							let filePath = entry.url.path(percentEncoded: false)
 							let trimmedPath = String(filePath.trimmingPrefix(rootPath))
-							Log.info("Decrypt \(trimmedPath) \(sourceURL!) \(destURL!)")
+							let encryptedPath = EncryptedFilePath(trimmedPath)
+							Log.info("Decrypt \(trimmedPath) \(sourceURL!) \(destURL!) \(entry.version ?? "current version")")
 							try folderKey?.decryptFile(
-								sourceURL?.path(percentEncoded: false), encryptedPath: trimmedPath,
+								sourceURL?.path(percentEncoded: false),
+								encryptedPathWithVersion: encryptedPath.actualPath,
+								encryptedPathWithoutVersion: encryptedPath.pathWithoutVersion,
 								destRoot: destURL?.path(percentEncoded: false),
 								keepFolderStructure: keepFolderStructure
 							)
@@ -291,6 +296,7 @@ import SwiftUI
 
 		var decryptedPath: String
 		var url: URL
+		var version: String?
 	}
 
 	private struct DecrypterItemsView: View {
@@ -298,13 +304,42 @@ import SwiftUI
 		let folderPassword: String
 		let entries: [EncryptedFileEntry]
 		@State private var decryptedPaths: [String] = []
+		@State private var entriesByDecryptedPath: [String: [EncryptedFileEntry]] = [:]
 
-		@Binding var selectedDecryptedPaths: Set<String>
+		@Binding var selectedURLs: Set<String>
 
 		var body: some View {
-			List(selection: $selectedDecryptedPaths) {
+			List(selection: $selectedURLs) {
 				PathsOutlineGroup(paths: decryptedPaths, disableIntermediateSelection: true) { decryptedPath, isIntermediate in
-					Text(decryptedPath.lastPathComponent)
+					if let entries = self.entriesByDecryptedPath[decryptedPath] {
+						if entries.count > 1 || (entries.count == 1 && entries[0].version != nil) {
+							DisclosureGroup {
+								ForEach(entries) { entry in
+									if let version = entry.version {
+										if let date = dateFromVersionString(version) {
+											Label(
+												date.formatted(date: .abbreviated, time: .complete),
+												systemImage: "clock.arrow.trianglehead.2.counterclockwise.rotate.90"
+											).tag(entry.url)
+										}
+										else {
+											Label(version, systemImage: "clock.arrow.trianglehead.2.counterclockwise.rotate.90").tag(entry.url)
+										}
+									}
+									else {
+										Label("Current version", systemImage: "clock.fill").tag(entry.url)
+									}
+								}
+							} label: {
+								let currentEntry = entries.first(where: { $0.version == nil })
+								Label(decryptedPath.lastPathComponent, systemImage: "doc").tag(currentEntry?.url).disabled(currentEntry == nil)
+							}
+						}
+						else {
+							let entry = entries[0]
+							Label(decryptedPath.lastPathComponent, systemImage: "doc").tag(entry.url)
+						}
+					}
 				}
 			}
 			.task {
@@ -314,7 +349,32 @@ import SwiftUI
 
 		private func update() async {
 			self.decryptedPaths = self.entries.map { $0.decryptedPath }
+			self.entriesByDecryptedPath = Dictionary(grouping: self.entries, by: { $0.decryptedPath })
 		}
 	}
 
 #endif
+
+private struct EncryptedFilePath {
+	let version: String?
+	let pathWithoutVersion: String
+	let actualPath: String
+
+	// A versioned encrypted path will look like:
+	// .stversions/A.syncthing-enc/BC/DEFXYZ~20260102-030405
+	init(_ originalPath: String) {
+		self.actualPath = originalPath
+		if originalPath.starts(with: ".stversions/") {
+			// Trim off '.stversions/', decrypt the path, and store the version
+			if let tildeIndex = originalPath.lastIndex(of: "~"), tildeIndex != originalPath.endIndex {
+				self.version = String(originalPath[originalPath.index(after: tildeIndex)...])
+				self.pathWithoutVersion = String(
+					String(originalPath[...originalPath.index(before: tildeIndex)]).trimmingPrefix(".stversions/"))
+				return
+			}
+		}
+
+		self.pathWithoutVersion = originalPath
+		self.version = nil
+	}
+}

@@ -125,8 +125,8 @@ func (fk *FolderKey) DecryptedFilePath(path string) (string, error) {
 	return decryptName(path, fk.key)
 }
 
-func (fk *FolderKey) DecryptFile(encryptedRoot string, encryptedPath string, destRoot string, keepFolderStructure bool) error {
-	destPath, err := fk.DecryptedFilePath(encryptedPath)
+func (fk *FolderKey) DecryptFile(encryptedRoot string, encryptedPathWithVersion string, encryptedPathWithoutVersion string, destRoot string, keepFolderStructure bool) error {
+	destPath, err := fk.DecryptedFilePath(encryptedPathWithoutVersion)
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func (fk *FolderKey) DecryptFile(encryptedRoot string, encryptedPath string, des
 
 	// Load encrypted file info
 	srcFs := fs.NewFilesystem(fs.FilesystemTypeBasic, encryptedRoot)
-	encFd, err := srcFs.Open(encryptedPath)
+	encFd, err := srcFs.Open(encryptedPathWithVersion)
 	if err != nil {
 		return err
 	}
@@ -159,13 +159,13 @@ func (fk *FolderKey) DecryptFile(encryptedRoot string, encryptedPath string, des
 
 	encryptedBlocks, encryptedFileInfoBytes, err := loadBlocks(encFd)
 	if err != nil {
-		return fmt.Errorf("%s: loading metadata trailer: %w", encryptedPath, err)
+		return fmt.Errorf("%s: loading metadata trailer: %w", encryptedPathWithVersion, err)
 	}
 
 	// Construct a fake FileInfo object that satisfies protocol.DecryptFileInfo just enough to trick it into decrypting
 	// the Encrypted field.
 	encryptedFileInfo := protocol.FileInfo{
-		Name:      encryptedPath,
+		Name:      encryptedPathWithoutVersion,
 		Encrypted: encryptedFileInfoBytes,
 	}
 
