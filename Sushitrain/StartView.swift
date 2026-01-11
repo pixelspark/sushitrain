@@ -675,6 +675,11 @@ struct StartView: View {
 			guard let folder = appState.client.folder(withID: change.folderID) else {
 				return false
 			}
+
+			if appState.userSettings.hideHiddenFolders && folder.isHidden == true {
+				return false
+			}
+
 			guard let entry = try? folder.getFileInformation(change.path) else {
 				return false
 			}
