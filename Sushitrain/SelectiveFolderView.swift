@@ -9,6 +9,8 @@ import SushitrainCore
 
 struct SelectiveFolderView: View {
 	@Environment(AppState.self) private var appState
+	@Environment(\.showToast) private var showToast
+
 	var folder: SushitrainFolder
 	let prefix: String
 
@@ -331,7 +333,16 @@ struct SelectiveFolderView: View {
 				return st.isEmpty || item.lowercased().contains(st)
 			})
 
-		try await self.deselect(paths: paths, includingLastCopy: includingLastCopy)
+		if !paths.isEmpty {
+			try await self.deselect(paths: paths, includingLastCopy: includingLastCopy)
+
+			DispatchQueue.main.async {
+				showToast(
+					Toast(
+						title: "\(paths.count) items deselected", image: "pin.slash",
+						subtitle: "The items will not be synchronized with this device anymore"))
+			}
+		}
 	}
 
 	private nonisolated func deselectListSelection(includingLastCopy: Bool) async throws {
@@ -340,7 +351,7 @@ struct SelectiveFolderView: View {
 
 	private nonisolated func deselect(paths: Set<String>, includingLastCopy: Bool) async throws {
 		var paths = paths
-		
+
 		for path in paths {
 			let entry = try folder.getFileInformation(path)
 			if !entry.isExplicitlySelected() {
@@ -348,7 +359,7 @@ struct SelectiveFolderView: View {
 				paths.remove(path)
 				continue
 			}
-			
+
 			// If we should not delete if our copy is the only one available, check availability for each file first
 			if !includingLastCopy {
 				let peersWithFullCopy = try entry.peersWithFullCopy()
@@ -368,6 +379,10 @@ struct SelectiveFolderView: View {
 		try folder.setExplicitlySelectedJSON(json)
 
 		Task { @MainActor in
+			showToast(
+				Toast(
+					title: "\(verdicts.count) items deselected", image: "pin.slash",
+					subtitle: "The items will not be synchronized with this device anymore"))
 			await self.update()
 		}
 	}
@@ -383,7 +398,7 @@ struct SelectiveFolderView: View {
 			Log.warn("Could not deselect prefix \(path): \(error.localizedDescription)")
 		}
 	}
-	
+
 	private func deselectItems(_ paths: [String]) async {
 		do {
 			let verdicts = paths.reduce(into: [:]) { dict, p in
@@ -442,11 +457,11 @@ private struct SelectiveFileView: View {
 	}
 }
 
-/** Entry in the list that is not explicitly selected itself, but can deselect a whole prefix  */
+/// Entry in the list that is not explicitly selected itself, but can deselect a whole prefix
 private struct IntermediateSelectiveFileView: View {
 	let entry: SushitrainEntry
 	let deselect: () -> Void
-	
+
 	var body: some View {
 		HStack {
 			Label(entry.fileName(), systemImage: entry.systemImage).opacity(0.8)
@@ -464,7 +479,7 @@ private struct IntermediateSelectiveFileView: View {
 	}
 }
 
-/** Entry in the list that is explicitly selected itself */
+/// Entry in the list that is explicitly selected itself
 private struct SelectedFileView: View {
 	@Environment(AppState.self) private var appState
 	let entry: SushitrainEntry

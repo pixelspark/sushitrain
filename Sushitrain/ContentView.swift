@@ -31,6 +31,7 @@ struct MainView: View {
 			}
 		case .started:
 			ContentView(topLevelRoute: topLevelRoute)
+				.showsToast()  // Back-up
 				#if os(iOS)
 					.handleOpenURLInApp()
 				#endif
@@ -81,19 +82,23 @@ private struct ContentView: View {
 				// Me
 				NavigationStack {
 					StartOrSearchView(topLevelRoute: $topLevelRoute)
-				}.tabItem {
+				}
+				.showsToast()
+				.tabItem {
 					Label("Start", systemImage: self.appState.syncState.systemImage)
 				}.tag(Route.start)
 
 				// Folders
-				self.foldersTab().tabItem {
+				self.foldersTab().showsToast().tabItem {
 					Label("Folders", systemImage: "folder.fill")
 				}.tag(Route.folders)
 
 				// Peers
 				NavigationStack {
 					DevicesView()
-				}.tabItem {
+				}
+				.showsToast()
+				.tabItem {
 					Label("Devices", systemImage: "externaldrive.fill")
 				}.tag(Route.devices)
 			}
@@ -112,24 +117,24 @@ private struct ContentView: View {
 						#else
 							StartView(topLevelRoute: $topLevelRoute)
 						#endif
-					}
+					}.showsToast()
 				}
 
 				// Folders
 				Tab("Folders", systemImage: "folder.fill", value: Route.folders) {
-					self.foldersTab()
+					self.foldersTab().showsToast()
 				}
 
 				// Peers
 				Tab("Devices", systemImage: "externaldrive.fill", value: Route.devices) {
 					NavigationStack {
 						DevicesView()
-					}
+					}.showsToast()
 				}
 
 				// Search (iOS 26)
 				Tab(value: Route.search(for: ""), role: .search) {
-					self.searchView(inSheet: false)
+					self.searchView(inSheet: false).showsToast()
 				}
 			}
 		}
@@ -198,22 +203,22 @@ private struct ContentView: View {
 				case .start:
 					NavigationStack {
 						StartOrSearchView(topLevelRoute: $topLevelRoute)
-					}
+					}.showsToast()
 
 				case .search:
 					NavigationStack {
 						self.searchView(inSheet: false)
-					}
+					}.showsToast()
 
 				case .devices:
 					NavigationStack {
 						DevicesView()
-					}
+					}.showsToast()
 
 				case .folders:
 					NavigationStack(path: $foldersTabRouteManager.route) {
 						FoldersView()
-					}
+					}.showsToast()
 
 				case .folder(let folderID, let prefix):
 					NavigationStack(path: $foldersTabRouteManager.route) {
@@ -221,7 +226,7 @@ private struct ContentView: View {
 							.navigationDestination(for: Route.self) { r in
 								RouteView(route: r)
 							}
-					}.id(folderID + ":" + (prefix ?? ""))
+					}.id(folderID + ":" + (prefix ?? "")).showsToast()
 
 				case .file(let folderID, let path):
 					NavigationStack(path: $foldersTabRouteManager.route) {
@@ -229,13 +234,14 @@ private struct ContentView: View {
 							.navigationDestination(for: Route.self) { r in
 								RouteView(route: r)
 							}
-					}.id(folderID + ":" + path)
+					}.id(folderID + ":" + path).showsToast()
 
 				case nil:
 					ContentUnavailableView("Select a folder", systemImage: "folder")
 						.onTapGesture {
 							columnVisibility = .doubleColumn
 						}
+						.showsToast()
 				}
 			}
 		)

@@ -26,6 +26,7 @@
 		6550DFE82D6A645300D8DCC9 /* EncryptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6550DFE72D6A644E00D8DCC9 /* EncryptionView.swift */; };
 		6551053A2D7CB0A700F96814 /* BrowserTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655105392D7CB0A300F96814 /* BrowserTableView.swift */; };
 		6551053C2D7D8F8E00F96814 /* BrowserListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6551053B2D7D8F8A00F96814 /* BrowserListView.swift */; };
+		656802662F13A59000C9FA5D /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656802652F13A58E00C9FA5D /* ToastView.swift */; };
 		6575B3DF2C6012480057686E /* ChangesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6575B3DE2C6012480057686E /* ChangesView.swift */; };
 		657603EF2D0457B400B36D78 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657603EE2D0457B300B36D78 /* Intents.swift */; };
 		657603F12D045D0B00B36D78 /* QuickActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657603F02D045D0900B36D78 /* QuickActions.swift */; };
@@ -115,6 +116,7 @@
 		6550DFE72D6A644E00D8DCC9 /* EncryptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionView.swift; sourceTree = "<group>"; };
 		655105392D7CB0A300F96814 /* BrowserTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserTableView.swift; sourceTree = "<group>"; };
 		6551053B2D7D8F8A00F96814 /* BrowserListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserListView.swift; sourceTree = "<group>"; };
+		656802652F13A58E00C9FA5D /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
 		6575B3DE2C6012480057686E /* ChangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangesView.swift; sourceTree = "<group>"; };
 		657603EE2D0457B300B36D78 /* Intents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intents.swift; sourceTree = "<group>"; };
 		657603F02D045D0900B36D78 /* QuickActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActions.swift; sourceTree = "<group>"; };
@@ -258,6 +260,7 @@
 				65C9E1462C3DB67C00EDCE6C /* Sushitrain.entitlements */,
 				65A3D2212CCEEEA200117501 /* ThumbnailImage.swift */,
 				6505643E2CA98D1F009FFFB9 /* ThumbnailView.swift */,
+				656802652F13A58E00C9FA5D /* ToastView.swift */,
 				65F15C002CA06B2100E13DDD /* UploadsView.swift */,
 				65AE12622C3AF50900E721D4 /* Utils.swift */,
 				659010952E3E6276000B767E /* ZipView.swift */,
@@ -425,6 +428,7 @@
 				65AF4C0B2D4FA58A00A77899 /* ExternalSharingView.swift in Sources */,
 				65C9E1542C42B9AE00EDCE6C /* ExtraFilesView.swift in Sources */,
 				650B7B5B2D85D4A300F370AE /* IdenticonView.swift in Sources */,
+				656802662F13A59000C9FA5D /* ToastView.swift in Sources */,
 				65F15C032CA1F85E00E13DDD /* SafariView.swift in Sources */,
 				65C8BFD62C864A6A00DF5EB0 /* PhotoBackupView.swift in Sources */,
 				652763C02C49589200250D3C /* OnboardingView.swift in Sources */,

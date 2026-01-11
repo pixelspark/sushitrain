@@ -60,17 +60,16 @@ struct BrowserView: View {
 
 	private enum ShowAlert: Identifiable {
 		case error(String)
-		case removeSuperfluousCompleted
 
 		var id: String {
 			switch self {
 			case .error(let e): return e
-			case .removeSuperfluousCompleted: return "removeSuperfluousCompleted"
 			}
 		}
 	}
 
 	@Environment(AppState.self) private var appState
+	@Environment(\.showToast) private var showToast
 
 	var folder: SushitrainFolder
 	var prefix: String
@@ -269,15 +268,6 @@ struct BrowserView: View {
 					message: Text(err),
 					dismissButton: .default(Text("OK"))
 				)
-
-			case .removeSuperfluousCompleted:
-				Alert(
-					title: Text("Unsynchronized empty subdirectories removed"),
-					message: Text(
-						"Subdirectories that were empty and had no files in them were removed from this device."
-					),
-					dismissButton: .default(Text("OK"))
-				)
 			}
 		}
 		.confirmationDialog(
@@ -380,6 +370,7 @@ struct BrowserView: View {
 	}
 
 	private func addFilesFromImporter(result: Result<[URL], any Error>) {
+		var numFilesAdded = 0
 		switch result {
 		case .success(let fu):
 			for url in fu {
@@ -394,6 +385,7 @@ struct BrowserView: View {
 				Log.warn("failed to drop file: \(error)")
 				self.showAlert = .error(error.localizedDescription)
 			}
+			numFilesAdded += 1
 			for url in fu {
 				url.stopAccessingSecurityScopedResource()
 			}
@@ -401,6 +393,8 @@ struct BrowserView: View {
 		case .failure(_):
 			break
 		}
+
+		self.showToast(Toast(title: "\(numFilesAdded) files added", image: "document.badge.plus.fill"))
 	}
 
 	private func showInFinder() {
@@ -645,6 +639,8 @@ struct BrowserView: View {
 	}
 
 	private func rescanFolder() {
+		showToast(Toast(title: "Folder re-scan started", image: "sparkle.magnifyingglass"))
+
 		do {
 			try folder.rescan()
 		}
@@ -662,7 +658,7 @@ struct BrowserView: View {
 					try folder.removeSuperfluousSelectionEntries()
 				}.value
 				self.isWorking = false
-				self.showAlert = .removeSuperfluousCompleted
+				showToast(Toast(title: "Unsynchronized empty subdirectories removed", image: "eraser"))
 			}
 			catch {
 				self.showAlert = .error(error.localizedDescription)
@@ -759,6 +755,7 @@ struct BrowserView: View {
 
 		if FileManager.default.fileExists(atPath: localNativeURL.path) {
 			var retainedError: Error? = nil
+			var numFilesAdded = 0
 			for url in urls {
 				do {
 					// Copy source to folder
@@ -770,6 +767,7 @@ struct BrowserView: View {
 					if folder.isSelective() {
 						let localURL = (self.prefix.withoutEndingSlash + "/" + url.lastPathComponent).withoutStartingSlash
 						pathsToSelect.append(localURL)
+						numFilesAdded += 1
 					}
 				}
 				catch {
@@ -783,6 +781,10 @@ struct BrowserView: View {
 			}
 
 			try self.folder.rescanSubdirectory(self.prefix)
+
+			DispatchQueue.main.async {
+				showToast(Toast(title: "\(numFilesAdded) files added", image: "plus"))
+			}
 
 			if let re = retainedError {
 				throw re

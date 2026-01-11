@@ -13,6 +13,7 @@ struct ExtraFilesView: View {
 
 	var folder: SushitrainFolder
 	@Environment(AppState.self) private var appState
+	@Environment(\.showToast) private var showToast
 
 	@State private var extraFiles: [String] = []
 	@Environment(\.dismiss) private var dismiss
@@ -170,6 +171,7 @@ struct ExtraFilesView: View {
 				])
 				try folder.setExplicitlySelectedJSON(json)
 				Task {
+					showToast(Toast(title: "Subdirectory will be kept on this device", image: "folder.fill.badge.plus"))
 					await self.reload()
 				}
 			}
@@ -205,9 +207,18 @@ struct ExtraFilesView: View {
 	private func apply() async {
 		do {
 			var currentVerdicts: [String: Bool] = [:]
+			var numKeeping = 0
+			var numRemoving = 0
+
 			for path in extraFiles {
 				if let verdict = verdicts[path] {
 					currentVerdicts[path] = verdict
+					if verdict {
+						numKeeping += 1
+					}
+					else {
+						numRemoving += 1
+					}
 				}
 			}
 
@@ -215,6 +226,8 @@ struct ExtraFilesView: View {
 			try folder.setExplicitlySelectedJSON(json)
 			verdicts = [:]
 			allVerdict = nil
+			showToast(
+				Toast(title: "Keeping \(numKeeping), removing \(numRemoving) files", image: "plus.square.fill.on.square.fill"))
 			dismiss()
 		}
 		catch {
