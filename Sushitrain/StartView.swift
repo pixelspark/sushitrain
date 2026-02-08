@@ -207,7 +207,11 @@ private struct NetworkStatusView: View {
 			self.showInfo = true
 		}
 		.alert(isPresented: $showInfo) {
-			Alert(title: Text("Internet connection quality"), message: Text("The internet connection status is determined by the system. When the internet connection is limited or degraded, file synchronization and streaming over the internet may be slower than usual, or not work at all. File streaming and synchronization with devices that are on the same local network is expected to work as usual."))
+			Alert(
+				title: Text("Internet connection quality"),
+				message: Text(
+					"The internet connection status is determined by the system. When the internet connection is limited or degraded, file synchronization and streaming over the internet may be slower than usual, or not work at all. File streaming and synchronization with devices that are on the same local network is expected to work as usual."
+				))
 		}
 	}
 }
@@ -311,7 +315,7 @@ struct StartView: View {
 	@Environment(AppState.self) private var appState
 	@Environment(\.navigateTo) private var navigateTo
 	@Binding var topLevelRoute: Route?
-	
+
 	@ObservedObject var userSettings: AppUserSettings
 
 	#if os(iOS)
@@ -413,7 +417,7 @@ struct StartView: View {
 					Label("Recent changes", systemImage: "clock.arrow.2.circlepath").badge(changesCount)
 				}.disabled(changesCount == 0)
 			}
-			
+
 			self.bookmarksSection()
 
 			if appState.photoBackup.isReady {
@@ -554,7 +558,7 @@ struct StartView: View {
 			}
 		}
 	}
-	
+
 	@ViewBuilder private func gettingStartedFolders() -> some View {
 		Section("Getting started") {
 			VStack(alignment: .leading, spacing: 5) {

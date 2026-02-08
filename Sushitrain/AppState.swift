@@ -109,7 +109,7 @@ class SushitrainDelegate: NSObject {
 
 	// Whether to show the onboarding on the next startup, regardless of whether it has been shown before
 	@AppStorage("forceOnboardingOnNextStartup") var forceOnboardingOnNextStartup = false
-	
+
 	// Bookmarked places in the app
 	@AppStorage("bookmarkedRoutes") var bookmarkedRoutes: [URL] = []
 

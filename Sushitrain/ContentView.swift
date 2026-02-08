@@ -126,7 +126,9 @@ private struct ContentView: View {
 					// Me
 					NavigationStack {
 						#if os(iOS)
-						StartView(topLevelRoute: $topLevelRoute, userSettings: appState.userSettings, backgroundManager: appState.backgroundManager)
+							StartView(
+								topLevelRoute: $topLevelRoute, userSettings: appState.userSettings,
+								backgroundManager: appState.backgroundManager)
 						#else
 							StartView(topLevelRoute: $topLevelRoute, userSettings: appState.userSettings)
 						#endif
@@ -654,7 +656,8 @@ private struct StartOrSearchView: View {
 			}
 			else {
 				#if os(iOS)
-					StartView(topLevelRoute: $topLevelRoute, userSettings: appState.userSettings, backgroundManager: appState.backgroundManager)
+					StartView(
+						topLevelRoute: $topLevelRoute, userSettings: appState.userSettings, backgroundManager: appState.backgroundManager)
 				#else
 					StartView(topLevelRoute: $topLevelRoute, userSettings: appState.userSettings)
 				#endif

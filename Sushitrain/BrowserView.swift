@@ -211,17 +211,23 @@ struct BrowserView: View {
 				}
 			}
 		#endif
-		
+
 		#if os(macOS)
-			.alert("This location has been added to your bookmarks. Bookmarked locations can be accessed quickly from the start page.", isPresented: $showNewBookmarkInfo) {
+			.alert(
+				"This location has been added to your bookmarks. Bookmarked locations can be accessed quickly from the start page.",
+				isPresented: $showNewBookmarkInfo
+			) {
 				Button("OK") {}
 			}
 		#else
-			.alert("This location has been added to your bookmarks. Bookmarked locations can be accessed quickly from the start page, or by long-tapping the app icon om the home screen.", isPresented: $showNewBookmarkInfo) {
+			.alert(
+				"This location has been added to your bookmarks. Bookmarked locations can be accessed quickly from the start page, or by long-tapping the app icon om the home screen.",
+				isPresented: $showNewBookmarkInfo
+			) {
 				Button("OK") {}
 			}
 		#endif
-		
+
 		.task {
 			self.update()
 		}
@@ -623,7 +629,7 @@ struct BrowserView: View {
 		}
 		Log.info("New bookmarks: \(userSettings.bookmarkedRoutes)")
 		self.update()
-		
+
 		if fav {
 			self.showNewBookmarkInfo = true
 		}
