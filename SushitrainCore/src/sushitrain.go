@@ -634,8 +634,9 @@ func (clt *Client) Load(resetDeltaIdxs bool) error {
 		NoUpgrade:      false,
 		ProfilerAddr:   "",
 		ResetDeltaIdxs: resetDeltaIdxs,
-		// Syncthing default is 8h, we'll do 24h as mobile devices are likely on the charger once a day only
-		DBMaintenanceInterval: time.Hour * time.Duration(24),
+
+		// Disable periodic database maintenance, we will schedule it ourselves at a convenient time
+		DBMaintenanceInterval: 0,
 	}
 
 	// Load database
@@ -678,6 +679,22 @@ func (clt *Client) Start() error {
 	}
 
 	return nil
+}
+
+func (clt *Client) PerformMaintenanceBlocking() error {
+	return <-clt.app.StartMaintenance()
+}
+
+func (clt *Client) LastMaintenanceTime() *Date {
+	if clt.app == nil {
+		return nil
+	}
+
+	t := clt.app.LastMaintenanceTime()
+	if t.IsZero() {
+		return nil
+	}
+	return &Date{time: t}
 }
 
 func (clt *Client) SetFSWatchingEnabledForAllFolders(enabled bool) {

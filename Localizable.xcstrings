@@ -13406,6 +13406,98 @@
         }
       }
     },
+    "Every once in a while, Synctrain needs to clean up its internal database. No database maintenance has been performed yet. Tap the above button to start maintenance now." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hin und wieder muss Synctrain seine interne Datenbank bereinigen. Bisher wurde keine Datenbankwartung durchgeführt. Tippen Sie auf die obige Schaltfläche, um die Wartung jetzt zu starten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De vez en cuando, Synctrain necesita limpiar su base de datos interna. Aún no se ha realizado mantenimiento de base de datos. Toca el botón de arriba para iniciar el mantenimiento ahora."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di tanto in tanto, Synctrain deve ripulire il suo database interno. Non è stata ancora effettuata alcuna manutenzione del database. Tocca il pulsante sopra per avviare la manutenzione ora."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "時々、Synctrainは内部データベースをクリーンアップする必要があります。まだデータベースメンテナンスは実施されていません。今すぐメンテナンスを始めるには、上のボタンをタップしてください。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Af en toe moet Synctrain zijn interne database opschonen. Er is nog geen database-onderhoud uitgevoerd. Tik op de bovenstaande knop om het onderhoud nu te starten."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Час від часу Synctrain потрібно очистити свою внутрішню базу даних. Ще не виконувалося жодного обслуговування бази даних. Натисніть вищевказану кнопку, щоб розпочати обслуговування зараз."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "偶尔，Synctrain 需要清理其内部数据库。尚未进行任何数据库维护。请点击上方按钮立即开始维护。"
+          }
+        }
+      }
+    },
+    "Every once in a while, Synctrain needs to clean up its internal database. The last database maintenance was performed at %@. Tap the above button to start maintenance now." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von Zeit zu Zeit muss Synctrain seine interne Datenbank bereinigen. Die letzte Datenbankwartung wurde am %@ durchgeführt. Tippen Sie auf die obige Schaltfläche, um die Wartung jetzt zu starten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De vez en cuando, Synctrain necesita limpiar su base de datos interna. El último mantenimiento de la base de datos se realizó el %@. Toca el botón de arriba para iniciar el mantenimiento ahora."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ogni tanto Synctrain deve pulire il suo database interno. L'ultima manutenzione del database è stata effettuata il %@. Tocca il pulsante sopra per avviare la manutenzione ora."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "時々、Synctrainは内部データベースをクリーンアップする必要があります。最後のデータベースメンテナンスは%@に実施されました。今すぐメンテナンスを開始するには、上のボタンをタップしてください。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Af en toe moet Synctrain zijn interne database opschonen. Het laatste database-onderhoud vond plaats op %@. Tik op de bovenstaande knop om nu het onderhoud te starten."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Час від часу Synctrain має чистити свою внутрішню базу даних. Останнє обслуговування бази даних було виконано %@. Натисніть на кнопку вище, щоб розпочати обслуговування зараз."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每隔一段时间，Synctrain 需要清理其内部数据库。上次数据库维护是在 %@ 进行的。点击上面的按钮立即开始维护。"
+          }
+        }
+      }
+    },
     "Example file location in folder: " : {
       "localizations" : {
         "de" : {
@@ -20256,6 +20348,52 @@
         }
       }
     },
+    "Last maintenance" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzte Wartung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Último mantenimiento"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima manutenzione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最終メンテナンス"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laatste onderhoud"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Останнє обслуговування"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上次维护"
+          }
+        }
+      }
+    },
     "Last modified" : {
       "localizations" : {
         "de" : {
@@ -24392,6 +24530,144 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "设备上的百分比"
+          }
+        }
+      }
+    },
+    "Perform database maintenance" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datenbankwartung durchführen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Realizar mantenimiento de base de datos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esegui manutenzione del database"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "データベースのメンテナンスを実行する"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voer database-onderhoud uit"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Виконати обслуговування бази даних"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "执行数据库维护"
+          }
+        }
+      }
+    },
+    "Perform database maintenance now" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datenbankwartung jetzt durchführen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Realizar mantenimiento de la base de datos ahora"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esegui ora la manutenzione del database"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "データベースのメンテナンスを今すぐ実行"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onderhoud database nu uitvoeren"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Виконати обслуговування бази даних зараз"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "立即执行数据库维护"
+          }
+        }
+      }
+    },
+    "Performing database maintenance..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datenbankwartung wird durchgeführt..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Realizando mantenimiento de la base de datos..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manutenzione del database in corso..."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "データベースのメンテナンスを実行中..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Database-onderhoud wordt uitgevoerd..."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Виконується обслуговування бази даних..."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在进行数据库维护..."
           }
         }
       }

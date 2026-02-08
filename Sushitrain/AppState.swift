@@ -125,6 +125,9 @@ class SushitrainDelegate: NSObject {
 		// The action to perform when a user clicks a folder in the dock menu
 		@AppStorage("menuFolderAction") var menuFolderAction: MenuFolderAction = .finderExceptSelective
 	#endif
+
+	// First run time
+	@AppStorage("firstRunAt") var firstRunAt: Double = 0.0
 }
 
 struct SyncState {
@@ -168,6 +171,7 @@ struct SyncState {
 	private(set) var isMigratedToNewDatabase: Bool = false
 	private(set) var syncState: SyncState = SyncState(isDownloading: false, isUploading: false, connectedPeerCount: 0)
 	private(set) var launchedAt = Date.now
+	private(set) var maintenanceManager: MaintenanceManager!
 
 	fileprivate(set) var discoveredDevices: [String: [String]] = [:]
 	fileprivate(set) var resolvedListenAddresses = Set<String>()
@@ -201,6 +205,8 @@ struct SyncState {
 			self.backgroundManager = BackgroundManager(appState: self)
 			self.lingerManager = LingerManager(appState: self)
 		#endif
+
+		self.maintenanceManager = MaintenanceManager(appState: self)
 
 		self.changeCancellable = self.changePublisher.throttle(
 			for: .seconds(0.5), scheduler: RunLoop.main, latest: true
@@ -365,6 +371,10 @@ struct SyncState {
 			self.startNetworkMonitor()
 			self.startupState = .started
 			Log.info("Ready to go")
+
+			#if os(macOS)
+				self.maintenanceManager.scheduleDatabaseMaintenance()
+			#endif
 		}
 		catch let error {
 			Log.warn("Could not start: \(error.localizedDescription)")
@@ -587,6 +597,10 @@ struct SyncState {
 		let lastRunBuild = UserDefaults.standard.integer(forKey: "lastRunBuild")
 		let currentBuild = Int(Bundle.main.buildVersionNumber ?? "0") ?? 0
 		Log.info("Migrations: current build is \(currentBuild), last run build \(lastRunBuild)")
+
+		if self.userSettings.firstRunAt <= 0.0 {
+			self.userSettings.firstRunAt = Date.timeIntervalSinceReferenceDate
+		}
 
 		if lastRunBuild < currentBuild {
 			#if os(macOS)

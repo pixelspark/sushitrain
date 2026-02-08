@@ -349,6 +349,16 @@ enum ContinuedTaskType {
 				return
 			}
 
+			// Perform database maintenance, if necessary
+			if self.appState.maintenanceManager.isDatabaseMaintenanceRequired(warning: false) {
+				do {
+					try await self.appState.maintenanceManager.performDatabaseMaintenance()
+				}
+				catch {
+					Log.warn("Database maintenance failed: \(error)")
+				}
+			}
+
 			// Feed the watchdog
 			Log.info("Rescheduling watchdog")
 			await self.rescheduleWatchdogNotification()
