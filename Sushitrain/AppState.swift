@@ -113,6 +113,9 @@ class SushitrainDelegate: NSObject {
 	// Bookmarked places in the app
 	@AppStorage("bookmarkedRoutes") var bookmarkedRoutes: [URL] = []
 
+	// Default sort preference for (non-table) browsers
+	@AppStorage("browserSort") var defaultBrowserSort: AsJSON<BrowserViewSort> = AsJSON(BrowserViewSort())
+
 	#if os(iOS)
 		// Whether to re-enable hideHiddenFolders when app comes to the foreground
 		@AppStorage("rehideHiddenFoldersOnActivate") var rehideHiddenFoldersOnActivate: Bool = false

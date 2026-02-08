@@ -20,6 +20,38 @@ enum BrowserViewFilterAvailability: String, Codable {
 	case localOnly = "localOnly"
 }
 
+enum BrowserViewSortAttribute: String, Codable {
+	case name = "name"
+	case size = "size"
+	case dateModified = "dateModified"
+}
+
+struct BrowserViewSort: Codable, Equatable {
+	var attribute: BrowserViewSortAttribute = .name
+	var ascending: Bool = true
+
+	func isOrderedBefore(_ lhs: SushitrainEntry, _ rhs: SushitrainEntry) -> Bool {
+		let r: Bool
+		switch self.attribute {
+		case .name:
+			r = lhs.fileName().compare(rhs.fileName(), options: .numeric) == .orderedAscending
+		case .size:
+			r = lhs.size() < rhs.size()
+		case .dateModified:
+			if let lhd = lhs.modifiedAt()?.date(), let rhd = rhs.modifiedAt()?.date() {
+				r = lhd.compare(rhd) == .orderedAscending
+			}
+			else if lhs.modifiedAt() == nil {
+				r = rhs.modifiedAt() == nil ? true : false
+			}
+			else {
+				r = lhs.modifiedAt() == nil ? false : true
+			}
+		}
+		return ascending ? r : !r
+	}
+}
+
 private struct FolderPopoverView: View {
 	let folder: SushitrainFolder
 
@@ -86,6 +118,7 @@ struct BrowserView: View {
 	@State private var webViewAvailable = false
 	@State private var viewStyle: BrowserViewStyle? = nil
 	@State private var filterAvailability: BrowserViewFilterAvailability? = nil
+	@State private var entriesSort: BrowserViewSort? = nil
 	@State private var showAlert: ShowAlert? = nil
 	@State private var showConfirmable: ConfirmableAction? = nil
 	@State private var isWorking = false
@@ -117,6 +150,10 @@ struct BrowserView: View {
 		return self.filterAvailability ?? appState.userSettings.defaultBrowserViewFilterAvailability
 	}
 
+	private var currentSort: BrowserViewSort {
+		return self.entriesSort ?? appState.userSettings.defaultBrowserSort.value ?? BrowserViewSort()
+	}
+
 	private var folderName: String {
 		if prefix.isEmpty {
 			return self.folder.label()
@@ -135,6 +172,7 @@ struct BrowserView: View {
 			// Note: this binding does *not* set appState.defaultBrowserViewStyle, because this one is primarily set programmatically
 			viewStyle: $viewStyle,
 			filterAvailability: currentFilterAvailability,
+			sortOrder: currentSort,
 			searchText: $searchText,
 			showSettings: $showSettings
 		)
@@ -378,10 +416,47 @@ struct BrowserView: View {
 
 			Divider()
 
-			Toggle("Hide dotfiles", isOn: userSettings.$dotFilesHidden)
+			// Sort options
+			Picker(
+				"Sort",
+				selection: Binding(
+					get: { self.currentSort.attribute },
+					set: {
+						self.entriesSort = self.currentSort
+						self.entriesSort?.attribute = $0
+						userSettings.defaultBrowserSort = AsJSON(self.entriesSort)
+					})
+			) {
+				Label("By name", systemImage: "textformat.size").tag(BrowserViewSortAttribute.name)
+				Label("By size", systemImage: "scalemass.fill").tag(BrowserViewSortAttribute.size)
+				Label("By date", systemImage: "calendar").tag(BrowserViewSortAttribute.dateModified)
+			}.pickerStyle(.inline)
+				#if os(macOS)
+					.disabled(self.viewStyle != .grid)
+				#endif
+
+			Toggle(
+				"Descending", systemImage: "chart.bar.xaxis.descending",
+				isOn: Binding(
+					get: {
+						return !self.currentSort.ascending
+					},
+					set: {
+						self.entriesSort = self.currentSort
+						self.entriesSort?.ascending = !$0
+						userSettings.defaultBrowserSort = AsJSON(self.entriesSort)
+					})
+			)
+			#if os(macOS)
+				.disabled(self.viewStyle != .grid)
+			#endif
+
+			Divider()
+
+			Toggle("Hide dotfiles", systemImage: "eye.slash", isOn: userSettings.$dotFilesHidden)
 
 		} label: {
-			Label("Filter", systemImage: "line.3.horizontal.decrease")
+			Label("Filter and sort", systemImage: "line.3.horizontal.decrease")
 				.tint(self.currentFilterAvailability == .all ? nil : Color.accentColor)
 		}
 		.disabled(self.currentViewStyle().wrappedValue == .web)
@@ -845,6 +920,7 @@ private struct BrowserItemsView: View {
 	let prefix: String
 	@Binding var viewStyle: BrowserViewStyle?
 	let filterAvailability: BrowserViewFilterAvailability
+	let sortOrder: BrowserViewSort
 
 	@Binding var searchText: String
 	@Binding var showSettings: Bool
@@ -933,7 +1009,12 @@ private struct BrowserItemsView: View {
 				await self.reload()
 			}
 		}
-		.onChange(of: filterAvailability) {
+		.onChange(of: self.filterAvailability) {
+			Task {
+				await self.reload()
+			}
+		}
+		.onChange(of: self.sortOrder) {
 			Task {
 				await self.reload()
 			}
@@ -1186,6 +1267,8 @@ private struct BrowserItemsView: View {
 			return []
 		}.value
 
+		let sortSpec = self.sortOrder
+
 		var newFiles: [SushitrainEntry] = await Task.detached {
 			dispatchPrecondition(condition: .notOnQueue(.main))
 			if !folder.exists() {
@@ -1193,7 +1276,7 @@ private struct BrowserItemsView: View {
 			}
 			do {
 				var entries = try folder.listEntries(prefix: self.prefix, directories: false, hideDotFiles: dotFilesHidden)
-				entries.sort(by: { $0.fileName().compare($1.fileName(), options: .numeric) == .orderedAscending })
+				entries.sort(by: sortSpec.isOrderedBefore)
 				return entries
 			}
 			catch let error {

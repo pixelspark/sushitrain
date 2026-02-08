@@ -1261,3 +1261,32 @@ func dateFromVersionString(_ version: String) -> Date? {
 	dateFormatter.dateFormat = "yyyyMMdd-HHmmss"
 	return dateFormatter.date(from: version)
 }
+
+/// Utility for storing codable values in @AppStorage
+public struct AsJSON<Value: Codable>: RawRepresentable {
+	public var value: Value?
+
+	public init(_ value: Value? = nil) {
+		self.value = value
+	}
+
+	public init?(rawValue: String) {
+		guard
+			let data = rawValue.data(using: .utf8),
+			let result = try? JSONDecoder().decode(Value.self, from: data)
+		else { return nil }
+		self = .init(result)
+	}
+
+	public var hasValue: Bool {
+		value != nil
+	}
+
+	public var rawValue: String {
+		guard
+			let data = try? JSONEncoder().encode(value),
+			let result = String(data: data, encoding: .utf8)
+		else { return "" }
+		return result
+	}
+}
