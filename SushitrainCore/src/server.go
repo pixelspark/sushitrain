@@ -290,7 +290,7 @@ func (e *entryReadSeeker) Read(p []byte) (n int, err error) {
 
 		// Fetch block
 		block := e.info.Blocks[blockIndex]
-		buf, err := e.puller.downloadBlock(e.context, folderID, int(blockIndex), e.info, 1)
+		buf, err := e.puller.downloadBlock(e.context, folderID, int(blockIndex), e.info)
 		if err != nil {
 			slog.Warn("error downloading block", "blockIndex", blockIndex, "blockCount", len(e.info.Blocks), "cause", err)
 			// We are now sending less content than we promised in the header. The client should reject our response

@@ -32,7 +32,8 @@ func ClearBlockCache() {
 	blockCache.Purge()
 }
 
-func (mp *miniPuller) downloadRange(ctx context.Context, m *syncthing.Internals, folderID string, file protocol.FileInfo, dest []byte, offset int64, retry int) (n int64, e error) {
+// Download a range. Will retry until cancelled, and fail if there is no way a peer will come online to provide us the range
+func (mp *miniPuller) downloadRange(ctx context.Context, m *syncthing.Internals, folderID string, file protocol.FileInfo, dest []byte, offset int64) (n int64, e error) {
 	blockSize := int64(file.BlockSize())
 	startBlock := offset / int64(blockSize)
 	blockCount := min(ceilDiv(int64(len(dest)), blockSize), int64(len(file.Blocks)))
@@ -51,7 +52,7 @@ func (mp *miniPuller) downloadRange(ctx context.Context, m *syncthing.Internals,
 
 		// Fetch block
 		block := file.Blocks[blockIndex]
-		buf, err := mp.downloadBlock(ctx, folderID, int(blockIndex), file, retry)
+		buf, err := mp.downloadBlock(ctx, folderID, int(blockIndex), file)
 		if err != nil {
 			slog.Warn("error downloading block", "index", blockIndex, "total", len(file.Blocks), "cause", err)
 			return 0, err
@@ -105,7 +106,8 @@ func (exp *experiences) set(device protocol.DeviceID, wasGood bool) {
 	exp.data[device] = wasGood
 }
 
-func (mp *miniPuller) downloadBlock(ctx context.Context, folderID string, blockIndex int, file protocol.FileInfo, retry int) ([]byte, error) {
+// Download a block. Will retry until cancelled, and fail if there is no way a peer will come online to provide us the block
+func (mp *miniPuller) downloadBlock(ctx context.Context, folderID string, blockIndex int, file protocol.FileInfo) ([]byte, error) {
 	block := file.Blocks[blockIndex]
 	blockHashString := base64.StdEncoding.EncodeToString([]byte(block.Hash))
 
@@ -145,8 +147,10 @@ func (mp *miniPuller) downloadBlock(ctx context.Context, folderID string, blockI
 	})
 
 	// Attempt to download the block from an available and 'known good' peers first
-	for attempt := range retry {
-		slog.Debug("downloadBlock", "attempt", attempt, "retry", retry)
+	var attempt = 0
+	for {
+		attempt += 1
+		slog.Debug("downloadBlock", "attempt", attempt)
 
 		for _, available := range availables {
 			// Check if we were cancelled
@@ -249,9 +253,6 @@ func (mp *miniPuller) downloadBlock(ctx context.Context, folderID string, blockI
 		slog.Debug("waiting for retry", "retryTime", retryTime)
 		time.Sleep(retryTime)
 	}
-
-	slog.Warn("download block giving up", "retry", retry, "timeoutForBlock", mp.timeoutFor(&block), "availables", availables)
-	return nil, errors.New("no peer to download this block from")
 }
 
 func newMiniPuller(measurements *Measurements, internals *syncthing.Internals) *miniPuller {
@@ -265,7 +266,6 @@ func newMiniPuller(measurements *Measurements, internals *syncthing.Internals) *
 func (mp *miniPuller) downloadInto(ctx context.Context, w io.Writer, folderID string, info protocol.FileInfo) error {
 	var wg sync.WaitGroup
 	parallellism := 2
-	retry := 3
 
 	chans := make([]chan []byte, parallellism)
 	errChan := make(chan error, 1)
@@ -288,7 +288,7 @@ func (mp *miniPuller) downloadInto(ctx context.Context, w io.Writer, folderID st
 				}
 
 				slog.Debug("download block", "index", i, "threadIndex", threadIndex)
-				buf, err := mp.downloadBlock(ctx, folderID, i, info, retry)
+				buf, err := mp.downloadBlock(ctx, folderID, i, info)
 				if err != nil {
 					slog.Debug("download block error", "cause", err, "index", i, "threadIndex", threadIndex)
 					errChan <- err
