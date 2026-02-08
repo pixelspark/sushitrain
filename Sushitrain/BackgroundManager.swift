@@ -266,7 +266,7 @@ enum ContinuedTaskType {
 			}
 			else if appState.syncState.isUploading {
 				if let progress = appState.client.getTotalUploadProgress() {
-					return String(localized: "Sending files (\(Int(100 * progress.percentage))%")
+					return String(localized: "Sending files (\(Int(100 * progress.percentage))%)")
 				}
 				else {
 					return String(localized: "Sending files...")
@@ -274,7 +274,7 @@ enum ContinuedTaskType {
 			}
 			else if appState.syncState.isDownloading {
 				if let progress = appState.client.getTotalDownloadProgress() {
-					return String(localized: "Receiving files (\(Int(100 * progress.percentage))%")
+					return String(localized: "Receiving files (\(Int(100 * progress.percentage))%)")
 				}
 				else {
 					return String(localized: "Receiving files...")

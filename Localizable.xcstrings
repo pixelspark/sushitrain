@@ -25914,12 +25914,12 @@
         }
       }
     },
-    "Receiving files (%lld%%" : {
+    "Receiving files (%lld%%)" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dateien empfangen (%lld%%)"
+            "value" : "Dateien werden empfangen (%lld%%)"
           }
         },
         "es" : {
@@ -25955,7 +25955,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "接收文件 (%lld%%)"
+            "value" : "接收文件（%lld%%）"
           }
         }
       }
@@ -30004,7 +30004,7 @@
         }
       }
     },
-    "Sending files (%lld%%" : {
+    "Sending files (%lld%%)" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -30027,7 +30027,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ファイル送信中 (%lld%%)"
+            "value" : "ファイルを送信中 (%lld%%)"
           }
         },
         "nl" : {
