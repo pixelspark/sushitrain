@@ -109,13 +109,13 @@ class SushitrainDelegate: NSObject {
 
 	// Whether to show the onboarding on the next startup, regardless of whether it has been shown before
 	@AppStorage("forceOnboardingOnNextStartup") var forceOnboardingOnNextStartup = false
+	
+	// Bookmarked places in the app
+	@AppStorage("bookmarkedRoutes") var bookmarkedRoutes: [URL] = []
 
 	#if os(iOS)
 		// Whether to re-enable hideHiddenFolders when app comes to the foreground
 		@AppStorage("rehideHiddenFoldersOnActivate") var rehideHiddenFoldersOnActivate: Bool = false
-
-		// Bookmarked places in the app
-		@AppStorage("bookmarkedRoutes") var bookmarkedRoutes: [URL] = []
 	#endif
 
 	#if os(macOS)
@@ -747,13 +747,11 @@ struct SyncState {
 		#endif
 	}
 
-	#if os(iOS)
-		private var bookmarkedRoutesAsRoute: [Route] {
-			return self.userSettings.bookmarkedRoutes.compactMap { url in
-				return Route(url: url)
-			}
+	var bookmarkedRoutesAsRoute: [Route] {
+		return self.userSettings.bookmarkedRoutes.compactMap { url in
+			return Route(url: url)
 		}
-	#endif
+	}
 
 	func sleep() async {
 		self.stopNetworkMonitor()

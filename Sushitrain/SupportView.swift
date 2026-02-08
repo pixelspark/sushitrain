@@ -432,16 +432,14 @@ struct TroubleshootingView: View {
 				}
 			}
 
-			#if os(iOS)
-				Section {
-					Button("Remove all bookmarks", role: .destructive) {
-						self.removeAllBookmarks()
-					}
-					.alert("All bookmarks have been removed", isPresented: $showAllBookmarksRemoved) {
-						Button("OK") {}
-					}
+			Section {
+				Button("Remove all bookmarks", role: .destructive) {
+					self.removeAllBookmarks()
 				}
-			#endif
+				.alert("All bookmarks have been removed", isPresented: $showAllBookmarksRemoved) {
+					Button("OK") {}
+				}
+			}
 
 			Section {
 				Button("Reset device identity", role: .destructive) {
@@ -481,12 +479,10 @@ struct TroubleshootingView: View {
 		#endif
 	}
 
-	#if os(iOS)
-		private func removeAllBookmarks() {
-			userSettings.bookmarkedRoutes.removeAll()
-			showAllBookmarksRemoved = true
-		}
-	#endif
+	private func removeAllBookmarks() {
+		userSettings.bookmarkedRoutes.removeAll()
+		showAllBookmarksRemoved = true
+	}
 
 	private func updateDatabaseInfo() async {
 		self.hasLegacyDatabase = appState.client.hasLegacyDatabase()

@@ -309,7 +309,10 @@ private struct OverallUploadStatusView: View {
 
 struct StartView: View {
 	@Environment(AppState.self) private var appState
+	@Environment(\.navigateTo) private var navigateTo
 	@Binding var topLevelRoute: Route?
+	
+	@ObservedObject var userSettings: AppUserSettings
 
 	#if os(iOS)
 		@ObservedObject var backgroundManager: BackgroundManager
@@ -410,6 +413,8 @@ struct StartView: View {
 					Label("Recent changes", systemImage: "clock.arrow.2.circlepath").badge(changesCount)
 				}.disabled(changesCount == 0)
 			}
+			
+			self.bookmarksSection()
 
 			if appState.photoBackup.isReady {
 				#if os(iOS)
@@ -525,6 +530,31 @@ struct StartView: View {
 		}
 	#endif
 
+	@ViewBuilder private func bookmarksSection() -> some View {
+		if !self.userSettings.bookmarkedRoutes.isEmpty {
+			Section("Bookmarks") {
+				ForEach(self.appState.bookmarkedRoutesAsRoute, id: \.url.absoluteString) { bookmark in
+					Button(bookmark.localizedTitle, systemImage: "bookmark.fill") {
+						self.navigateTo(bookmark)
+					}.contextMenu {
+						Button("Remove bookmark", role: .destructive) {
+							self.userSettings.bookmarkedRoutes.removeAll(where: { bookmarkedURL in
+								guard let bookmarkedRoute = Route(url: bookmarkedURL) else {
+									return true
+								}
+
+								return bookmarkedRoute == bookmark
+							})
+						}
+					}
+					#if os(macOS)
+						.buttonStyle(.link)
+					#endif
+				}
+			}
+		}
+	}
+	
 	@ViewBuilder private func gettingStartedFolders() -> some View {
 		Section("Getting started") {
 			VStack(alignment: .leading, spacing: 5) {

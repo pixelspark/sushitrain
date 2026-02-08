@@ -89,6 +89,8 @@ struct BrowserView: View {
 	@State private var showAlert: ShowAlert? = nil
 	@State private var showConfirmable: ConfirmableAction? = nil
 	@State private var isWorking = false
+	@State private var isBookmarked = false
+	@State private var showNewBookmarkInfo = false
 
 	#if os(macOS)
 		@State private var showIgnores = false
@@ -98,7 +100,6 @@ struct BrowserView: View {
 
 	#if os(iOS)
 		@State private var showFolderStatistics = false
-		@State private var isBookmarked = false
 	#endif
 
 	private func currentViewStyle() -> Binding<BrowserViewStyle> {
@@ -210,6 +211,17 @@ struct BrowserView: View {
 				}
 			}
 		#endif
+		
+		#if os(macOS)
+			.alert("This location has been added to your bookmarks. Bookmarked locations can be accessed quickly from the start page.", isPresented: $showNewBookmarkInfo) {
+				Button("OK") {}
+			}
+		#else
+			.alert("This location has been added to your bookmarks. Bookmarked locations can be accessed quickly from the start page, or by long-tapping the app icon om the home screen.", isPresented: $showNewBookmarkInfo) {
+				Button("OK") {}
+			}
+		#endif
+		
 		.task {
 			self.update()
 		}
@@ -418,12 +430,10 @@ struct BrowserView: View {
 		self.folderIsSelective = folderExists && folder.isSelective()
 
 		// Determine whether this view is bookmarked
-		#if os(iOS)
-			let route = self.route
-			self.isBookmarked = userSettings.bookmarkedRoutes.contains(where: {
-				Route(url: $0) == route
-			})
-		#endif
+		let route = self.route
+		self.isBookmarked = userSettings.bookmarkedRoutes.contains(where: {
+			Route(url: $0) == route
+		})
 
 		// Check for presence of index.html to enable web view
 		if folderExists, let entry = try? folder.getFileInformation(self.prefix + "index.html"),
@@ -555,13 +565,11 @@ struct BrowserView: View {
 					}
 				}
 
-				#if os(iOS)
-					if !isReceiveEncrypted {
-						Toggle(isOn: Binding(get: { self.isBookmarked }, set: { self.setBookmarked($0) })) {
-							Label("Bookmark", systemImage: self.isBookmarked ? "bookmark.fill" : "bookmark")
-						}
+				if !isReceiveEncrypted {
+					Toggle(isOn: Binding(get: { self.isBookmarked }, set: { self.setBookmarked($0) })) {
+						Label("Bookmark", systemImage: self.isBookmarked ? "bookmark.fill" : "bookmark")
 					}
-				#endif
+				}
 
 				Divider()
 
@@ -599,25 +607,27 @@ struct BrowserView: View {
 		return Route.folder(folderID: self.folder.folderID, prefix: self.prefix)
 	}
 
-	#if os(iOS)
-		private func setBookmarked(_ fav: Bool) {
-			let newRoute = self.route
+	private func setBookmarked(_ fav: Bool) {
+		let newRoute = self.route
 
-			userSettings.bookmarkedRoutes.removeAll(where: { bookmarkedURL in
-				guard let bookmarkedRoute = Route(url: bookmarkedURL) else {
-					return true
-				}
-
-				return bookmarkedRoute == newRoute
-			})
-
-			if fav {
-				userSettings.bookmarkedRoutes.append(newRoute.url)
+		userSettings.bookmarkedRoutes.removeAll(where: { bookmarkedURL in
+			guard let bookmarkedRoute = Route(url: bookmarkedURL) else {
+				return true
 			}
-			Log.info("New bookmarks: \(userSettings.bookmarkedRoutes)")
-			self.update()
+
+			return bookmarkedRoute == newRoute
+		})
+
+		if fav {
+			userSettings.bookmarkedRoutes.append(newRoute.url)
 		}
-	#endif
+		Log.info("New bookmarks: \(userSettings.bookmarkedRoutes)")
+		self.update()
+		
+		if fav {
+			self.showNewBookmarkInfo = true
+		}
+	}
 
 	private func confirmedAction() {
 		do {

@@ -39,6 +39,19 @@ struct MainView: View {
 	}
 }
 
+struct NavigateToAction {
+	typealias Action = (Route) -> Void
+	let action: Action
+
+	func callAsFunction(_ route: Route) {
+		action(route)
+	}
+}
+
+extension EnvironmentValues {
+	@Entry var navigateTo = NavigateToAction(action: { _ in })
+}
+
 private struct ContentView: View {
 	@Environment(AppState.self) private var appState
 	@Environment(\.scenePhase) var scenePhase
@@ -113,9 +126,9 @@ private struct ContentView: View {
 					// Me
 					NavigationStack {
 						#if os(iOS)
-							StartView(topLevelRoute: $topLevelRoute, backgroundManager: appState.backgroundManager)
+						StartView(topLevelRoute: $topLevelRoute, userSettings: appState.userSettings, backgroundManager: appState.backgroundManager)
 						#else
-							StartView(topLevelRoute: $topLevelRoute)
+							StartView(topLevelRoute: $topLevelRoute, userSettings: appState.userSettings)
 						#endif
 					}.showsToast()
 				}
@@ -328,6 +341,7 @@ private struct ContentView: View {
 				}
 			}
 		}
+		.environment(\.navigateTo, NavigateToAction(action: { route in self.navigate(to: route) }))
 	}
 
 	private func exists(route: Route) -> Bool {
@@ -640,9 +654,9 @@ private struct StartOrSearchView: View {
 			}
 			else {
 				#if os(iOS)
-					StartView(topLevelRoute: $topLevelRoute, backgroundManager: appState.backgroundManager)
+					StartView(topLevelRoute: $topLevelRoute, userSettings: appState.userSettings, backgroundManager: appState.backgroundManager)
 				#else
-					StartView(topLevelRoute: $topLevelRoute)
+					StartView(topLevelRoute: $topLevelRoute, userSettings: appState.userSettings)
 				#endif
 			}
 		}

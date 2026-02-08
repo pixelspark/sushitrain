@@ -6762,6 +6762,52 @@
         }
       }
     },
+    "Bookmarks" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lesezeichen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcadores"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segnalibri"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ブックマーク"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bladwijzers"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закладки"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "书签"
+          }
+        }
+      }
+    },
     "Briefly after leaving app" : {
       "localizations" : {
         "de" : {
@@ -26236,6 +26282,52 @@
         }
       }
     },
+    "Remove bookmark" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lesezeichen entfernen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar marcador"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi segnalibro"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ブックマークを削除"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bladwijzer verwijderen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видалити закладку"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除书签"
+          }
+        }
+      }
+    },
     "Remove file from all devices" : {
       "localizations" : {
         "de" : {
@@ -37694,6 +37786,98 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "此项目与此设备同步，因为父文件夹与此设备同步。"
+          }
+        }
+      }
+    },
+    "This location has been added to your bookmarks. Bookmarked locations can be accessed quickly from the start page, or by long-tapping the app icon om the home screen." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Ort wurde zu Ihren Lesezeichen hinzugefügt. Markierte Orte können schnell von der Startseite aus oder durch langes Tippen auf das App-Symbol auf dem Homescreen aufgerufen werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta ubicación ha sido añadida a tus marcadores. Las ubicaciones marcadas se pueden acceder rápidamente desde la página de inicio, o manteniendo presionado el ícono de la aplicación en la pantalla de inicio."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa posizione è stata aggiunta ai tuoi segnalibri. Le posizioni nei segnalibri possono essere accedute rapidamente dalla pagina iniziale o tenendo premuto a lungo l'icona dell'app nella schermata principale."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このロケーションはブックマークに追加されました。ブックマークしたロケーションは、スタートページから、またはホーム画面でアプリアイコンを長押ししてすばやくアクセスできます。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze locatie is aan je bladwijzers toegevoegd. Bladwijzerlocaties kunnen snel worden geopend vanaf de startpagina of door lang op het app-pictogram op het startscherm te tikken."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Це місце додано до ваших закладок. До закладених місць можна швидко отримати доступ з головної сторінки або шляхом довгого натискання на іконку додатку на домашньому екрані."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此位置已添加到您的书签。可以通过快速访问页面或长按主屏幕上的应用图标快速访问书签位置。"
+          }
+        }
+      }
+    },
+    "This location has been added to your bookmarks. Bookmarked locations can be accessed quickly from the start page." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Standort wurde zu deinen Lesezeichen hinzugefügt. Lesezeichen-Standorte können schnell von der Startseite aus aufgerufen werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta ubicación ha sido añadida a tus favoritos. Las ubicaciones marcadas se pueden acceder rápidamente desde la página de inicio."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa posizione è stata aggiunta ai tuoi segnalibri. Le posizioni con segnalibro possono essere rapidamente accessibili dalla pagina iniziale."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この場所がブックマークに追加されました。ブックマークした場所はスタートページから素早くアクセスできます。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze locatie is aan je bladwijzers toegevoegd. Bladwijzerlocaties kunnen snel worden geopend vanaf de startpagina."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Це місце було додано до ваших закладок. Доступ до закладених місць можна швидко отримати з початкової сторінки."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此位置已添加到您的书签中。可以从起始页快速访问书签位置。"
           }
         }
       }
