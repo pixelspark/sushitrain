@@ -19174,6 +19174,52 @@
         }
       }
     },
+    "Internet connection quality" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internetverbindungsqualität"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calidad de la conexión a Internet"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qualità della connessione Internet"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "インターネット接続品質"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kwaliteit van de internetverbinding"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Якість підключення до Інтернету"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "互联网连接质量"
+          }
+        }
+      }
+    },
     "Introduced by" : {
       "localizations" : {
         "de" : {
@@ -35198,6 +35244,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "您选择的文件夹位于应用文件夹内。只能选择应用文件夹外的文件夹。"
+          }
+        }
+      }
+    },
+    "The internet connection status is determined by the system. When the internet connection is limited or degraded, file synchronization and streaming over the internet may be slower than usual, or not work at all. File streaming and synchronization with devices that are on the same local network is expected to work as usual." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Internetverbindungsstatus wird vom System bestimmt. Wenn die Internetverbindung eingeschränkt oder verschlechtert ist, kann die Dateisynchronisation und das Streaming über das Internet langsamer als üblich sein oder möglicherweise gar nicht funktionieren. Streaming und Synchronisation von Dateien mit Geräten, die sich im selben lokalen Netzwerk befinden, sollten wie gewohnt funktionieren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El estado de la conexión a Internet lo determina el sistema. Cuando la conexión a Internet está limitada o degradada, la sincronización de archivos y la transmisión por Internet pueden ser más lentas de lo habitual o no funcionar en absoluto. Se espera que la transmisión y sincronización de archivos con dispositivos que están en la misma red local funcionen con normalidad."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo stato della connessione Internet è determinato dal sistema. Quando la connessione Internet è limitata o degradata, la sincronizzazione dei file e lo streaming su Internet possono essere più lenti del solito o non funzionare affatto. L'acquisizione e la sincronizzazione dei file con dispositivi sulla stessa rete locale dovrebbero funzionare come al solito."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "インターネット接続の状態はシステムによって決定されます。インターネット接続が制限されている場合や劣化している場合、インターネットを介したファイルの同期やストリーミングが通常より遅くなったり、全く動作しなくなることがあります。同じローカルネットワーク上のデバイスとのファイルのストリーミングと同期は通常通り機能することが期待されます。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De status van de internetverbinding wordt door het systeem bepaald. Wanneer de internetverbinding beperkt is, kan bestandssynchronisatie en -streaming via internet trager zijn dan normaal, of helemaal niet werken. Streaming en synchronisatie met apparaten die op hetzelfde lokale netwerk zitten, zou normaal moeten werken."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стан підключення до інтернету визначається системою. Коли інтернет-з'єднання обмежене або погіршене, синхронізація файлів і потокове передавання через інтернет можуть бути повільнішими, ніж зазвичай, або не працювати взагалі. Очікується, що потокове передавання та синхронізація файлів з пристроями, які знаходяться в одній локальній мережі, працюватимуть у звичному режимі."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "系统确定互联网连接状态。当互联网连接受限或质量下降时，文件同步和互联网流媒体可能会比平时更慢，甚至无法正常工作。与同一本地网络上的设备进行的文件流和同步应正常运行。"
           }
         }
       }

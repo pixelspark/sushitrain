@@ -178,28 +178,36 @@ private struct OverallDownloadProgressView: View {
 
 private struct NetworkStatusView: View {
 	@Environment(AppState.self) private var appState
+	@State private var showInfo: Bool = false
 
 	var body: some View {
-		if let path = appState.currentNetworkPath {
-			if path.status == .satisfied {
-				if #available(iOS 26, macOS 26, *) {
-					if path.linkQuality == .minimal {
-						Label("Slow internet connection", systemImage: "antenna.radiowaves.left.and.right").foregroundStyle(.orange)
+		Group {
+			if let path = appState.currentNetworkPath {
+				if path.status == .satisfied {
+					if #available(iOS 26, macOS 26, *) {
+						if path.linkQuality == .minimal {
+							Label("Slow internet connection", systemImage: "antenna.radiowaves.left.and.right").foregroundStyle(.orange)
+						}
 					}
-				}
-				else if path.isConstrained || path.isExpensive {
-					Label("Limited internet connection", systemImage: "antenna.radiowaves.left.and.right").foregroundStyle(.orange)
-				}
-				else if #available(iOS 26, macOS 26, *) {
-					if path.isUltraConstrained {
+					else if path.isConstrained || path.isExpensive {
 						Label("Limited internet connection", systemImage: "antenna.radiowaves.left.and.right").foregroundStyle(.orange)
 					}
+					else if #available(iOS 26, macOS 26, *) {
+						if path.isUltraConstrained {
+							Label("Limited internet connection", systemImage: "antenna.radiowaves.left.and.right").foregroundStyle(.orange)
+						}
+					}
+				}
+				else if path.status == .unsatisfied {
+					Label("No internet connection available", systemImage: "antenna.radiowaves.left.and.right.slash").foregroundStyle(
+						.red)
 				}
 			}
-			else if path.status == .unsatisfied {
-				Label("No internet connection available", systemImage: "antenna.radiowaves.left.and.right.slash").foregroundStyle(
-					.red)
-			}
+		}.onTapGesture {
+			self.showInfo = true
+		}
+		.alert(isPresented: $showInfo) {
+			Alert(title: Text("Internet connection quality"), message: Text("The internet connection status is determined by the system. When the internet connection is limited or degraded, file synchronization and streaming over the internet may be slower than usual, or not work at all. File streaming and synchronization with devices that are on the same local network is expected to work as usual."))
 		}
 	}
 }
