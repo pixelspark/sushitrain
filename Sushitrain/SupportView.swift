@@ -285,6 +285,67 @@ struct SupportView: View {
 	}
 }
 
+/// This view performs database maintenance when it appears, and disappears automatically.
+/// When an error occurs, it shows the message before dismissing.
+struct MaintenanceView: View {
+	@Environment(AppState.self) private var appState
+	@Environment(\.dismiss) private var dismiss
+	@State private var errorMessage: ErrorMessage? = nil
+
+	struct ErrorMessage: Identifiable {
+		let message: String
+		var id: String {
+			return self.message
+		}
+	}
+
+	var body: some View {
+		VStack {
+			HStack {
+				Spacer()
+				ContentUnavailableView {
+					ProgressView().controlSize(.extraLarge)
+				} description: {
+					Text("Performing database maintenance...")
+				}
+				Spacer()
+			}
+		}
+		.alert(item: $errorMessage) { err in
+			Alert(
+				title: Text("An error occurred"), message: Text(err.message),
+				dismissButton: .default(Text("OK")) {
+					errorMessage = nil
+					dismiss()
+				})
+		}
+		.task {
+			await self.performDatabaseMaintenance()
+		}
+		#if os(iOS)
+			.onAppear {
+				Log.info("Asserting idle timer disable")
+				UIApplication.shared.isIdleTimerDisabled = true
+			}
+			.onDisappear {
+				Log.info("Deasserting idle timer disable")
+				UIApplication.shared.isIdleTimerDisabled = false
+			}
+		#endif
+	}
+
+	private func performDatabaseMaintenance() async {
+		do {
+			try await self.appState.maintenanceManager.performDatabaseMaintenance()
+			self.dismiss()
+		}
+		catch {
+			Log.warn("Database maintenance failed: \(error)")
+			self.errorMessage = ErrorMessage(message: error.localizedDescription)
+		}
+	}
+}
+
 struct TroubleshootingView: View {
 	@ObservedObject var userSettings: AppUserSettings
 
@@ -300,6 +361,7 @@ struct TroubleshootingView: View {
 	@State private var showLog = false
 	@State private var showAllBookmarksRemoved = false
 	@State private var showResetDeviceIdentity = false
+	@State private var showMaintenance = false
 
 	private static let formatter = ByteCountFormatter()
 
@@ -375,6 +437,20 @@ struct TroubleshootingView: View {
 								date: .abbreviated, time: .shortened))
 					}
 				}
+
+				LabeledContent("Last maintenance") {
+					if let time = appState.client.lastMaintenanceTime()?.date() {
+						Text(time.formatted(date: .abbreviated, time: .shortened))
+					}
+					else {
+						Text("Unknown")
+					}
+				}
+
+				Button("Perform database maintenance now") {
+					showMaintenance = true
+				}
+
 			} header: {
 				Text("Database maintenance")
 			}
@@ -477,6 +553,9 @@ struct TroubleshootingView: View {
 		#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)
 		#endif
+		.sheet(isPresented: $showMaintenance) {
+			MaintenanceView()
+		}
 	}
 
 	private func removeAllBookmarks() {

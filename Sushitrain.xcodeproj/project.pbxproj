@@ -27,6 +27,7 @@
 		6551053A2D7CB0A700F96814 /* BrowserTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655105392D7CB0A300F96814 /* BrowserTableView.swift */; };
 		6551053C2D7D8F8E00F96814 /* BrowserListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6551053B2D7D8F8A00F96814 /* BrowserListView.swift */; };
 		656802662F13A59000C9FA5D /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656802652F13A58E00C9FA5D /* ToastView.swift */; };
+		656802682F389C9C00C9FA5D /* MaintenanceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656802672F389C9800C9FA5D /* MaintenanceManager.swift */; };
 		6575B3DF2C6012480057686E /* ChangesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6575B3DE2C6012480057686E /* ChangesView.swift */; };
 		657603EF2D0457B400B36D78 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657603EE2D0457B300B36D78 /* Intents.swift */; };
 		657603F12D045D0B00B36D78 /* QuickActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657603F02D045D0900B36D78 /* QuickActions.swift */; };
@@ -117,6 +118,7 @@
 		655105392D7CB0A300F96814 /* BrowserTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserTableView.swift; sourceTree = "<group>"; };
 		6551053B2D7D8F8A00F96814 /* BrowserListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserListView.swift; sourceTree = "<group>"; };
 		656802652F13A58E00C9FA5D /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
+		656802672F389C9800C9FA5D /* MaintenanceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaintenanceManager.swift; sourceTree = "<group>"; };
 		6575B3DE2C6012480057686E /* ChangesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangesView.swift; sourceTree = "<group>"; };
 		657603EE2D0457B300B36D78 /* Intents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intents.swift; sourceTree = "<group>"; };
 		657603F02D045D0900B36D78 /* QuickActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActions.swift; sourceTree = "<group>"; };
@@ -236,6 +238,7 @@
 				6586863C2CE892100023B1DA /* IgnoresView.swift */,
 				65C9E1452C3DB5C000EDCE6C /* Info.plist */,
 				657603EE2D0457B300B36D78 /* Intents.swift */,
+				656802672F389C9800C9FA5D /* MaintenanceManager.swift */,
 				652EA4142CBA60AA009EC5FE /* notices.html */,
 				652763BF2C49589200250D3C /* OnboardingView.swift */,
 				65B42ADF2EF81B670079518F /* PathsOutlineView.swift */,
@@ -398,6 +401,7 @@
 				65F825EC2CAF1E0900564F57 /* AddressesView.swift in Sources */,
 				65C9E14C2C3F341F00EDCE6C /* StartView.swift in Sources */,
 				65F15C012CA06B2300E13DDD /* UploadsView.swift in Sources */,
+				656802682F389C9C00C9FA5D /* MaintenanceManager.swift in Sources */,
 				6586863D2CE892130023B1DA /* IgnoresView.swift in Sources */,
 				65AF4C092D4FA46900A77899 /* ExternalSharing.swift in Sources */,
 				65BBF8452C4BFB9300EC59C4 /* AboutView.swift in Sources */,

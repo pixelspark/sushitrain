@@ -341,6 +341,8 @@ struct StartView: View {
 	@State private var isDiskSpaceSufficient = true
 	@State private var longTimeNotSeenDevices: [SushitrainPeer] = []
 	@State private var changesCount = 0
+	@State private var showMaintenance = false
+	@State private var lastDatabaseMaintenance: Date? = nil
 
 	@State private var showError: Error? = nil
 
@@ -412,6 +414,8 @@ struct StartView: View {
 			}
 			self.folderIssuesSection()
 
+			self.maintenanceIssuesSection()
+
 			Section("Manage files and folders") {
 				NavigationLink(destination: ChangesView(userSettings: appState.userSettings)) {
 					Label("Recent changes", systemImage: "clock.arrow.2.circlepath").badge(changesCount)
@@ -467,6 +471,9 @@ struct StartView: View {
 				}
 			}
 		}
+		.sheet(isPresented: $showMaintenance) {
+			MaintenanceView()
+		}
 		.alert(
 			"An error has occurred", isPresented: Binding.isNotNil($showError),
 			actions: {
@@ -487,6 +494,11 @@ struct StartView: View {
 			}
 		}
 		.onChange(of: appState.eventCounter) { _, _ in
+			Task {
+				await self.update()
+			}
+		}
+		.onChange(of: showMaintenance) {
 			Task {
 				await self.update()
 			}
@@ -588,6 +600,32 @@ struct StartView: View {
 				)
 			}.onTapGesture {
 				topLevelRoute = .devices
+			}
+		}
+	}
+
+	@ViewBuilder private func maintenanceIssuesSection() -> some View {
+		if self.appState.maintenanceManager.isDatabaseMaintenanceRequired(warning: true) {
+			Section {
+				Button("Perform database maintenance", systemImage: "bubbles.and.sparkles") {
+					showMaintenance = true
+				}
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
+			} header: {
+				Text("Database maintenance")
+			} footer: {
+				if let lastDatabaseMaintenance = lastDatabaseMaintenance {
+					Text(
+						"Every once in a while, Synctrain needs to clean up its internal database. The last database maintenance was performed at \(lastDatabaseMaintenance.formatted(date: .abbreviated, time: .standard)). Tap the above button to start maintenance now."
+					)
+				}
+				else {
+					Text(
+						"Every once in a while, Synctrain needs to clean up its internal database. No database maintenance has been performed yet. Tap the above button to start maintenance now."
+					)
+				}
 			}
 		}
 	}
@@ -702,6 +740,7 @@ struct StartView: View {
 	}
 
 	private func update() async {
+		self.lastDatabaseMaintenance = appState.client.lastMaintenanceTime()?.date()
 		await self.updateFoldersWithIssues()
 
 		// Check to see if there are peers connected
