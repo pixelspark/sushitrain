@@ -59,7 +59,7 @@ struct AddFolderView: View {
 			Text("Folder ID")
 		} footer: {
 			Text(
-				"The folder ID must be the same on each device for his folder, and cannot be changed later. You can customize the display name of the folder after creation."
+				"The folder ID must be the same on each device for this folder, and cannot be changed later. You can customize the display name of the folder after creation."
 			)
 		}
 	}
