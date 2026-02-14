@@ -456,7 +456,7 @@ struct BrowserView: View {
 			Divider()
 
 			Toggle("Hide dotfiles", systemImage: "eye.slash", isOn: userSettings.$dotFilesHidden)
-			
+
 			Toggle("Show files in subdirectories", systemImage: "text.insert", isOn: $recursive)
 
 		} label: {
@@ -1285,7 +1285,8 @@ private struct BrowserItemsView: View {
 				return []
 			}
 			do {
-				var entries = try folder.listEntries(prefix: self.prefix, directories: false, hideDotFiles: dotFilesHidden, recursive: self.recursive)
+				var entries = try folder.listEntries(
+					prefix: self.prefix, directories: false, hideDotFiles: dotFilesHidden, recursive: self.recursive)
 				entries.sort(by: sortSpec.isOrderedBefore)
 				return entries
 			}
@@ -1335,7 +1336,9 @@ private struct BrowserItemsView: View {
 
 		if self.viewStyle == nil {
 			// Do we have an index.html? If so switch to web view
-			if appState.userSettings.automaticallyShowWebpages && !recursive && self.files.contains(where: { $0.fileName() == "index.html" }) {
+			if appState.userSettings.automaticallyShowWebpages && !recursive
+				&& self.files.contains(where: { $0.fileName() == "index.html" })
+			{
 				self.viewStyle = .web
 			}
 			else if appState.userSettings.automaticallySwitchViewStyle {
