@@ -274,14 +274,27 @@ func (fld *Folder) listEntries(prefix string, directories bool, recurse bool) ([
 	return fld.client.app.Internals.GlobalTree(fld.FolderID, prefix, levels, directories)
 }
 
+func flatten(entries []*model.TreeEntry, recurse bool, prefix string) []string {
+	newEntries := make([]string, 0)
+	for e := range entries {
+		entry := entries[e]
+		newEntries = append(newEntries, prefix+entry.Name)
+		if recurse {
+			newEntries = append(newEntries, flatten(entry.Children, recurse, prefix+entry.Name+"/")...)
+		}
+	}
+	return newEntries
+}
+
 func (fld *Folder) List(prefix string, directories bool, recurse bool) (*ListOfStrings, error) {
 	entries, err := fld.listEntries(prefix, directories, recurse)
 	if err != nil {
 		return nil, err
 	}
-	return List(Map(entries, func(entry *model.TreeEntry) string {
-		return entry.Name
-	})), nil
+
+	// Flatten the tree
+	names := flatten(entries, recurse, "")
+	return List(names), nil
 }
 
 func (fld *Folder) ShareWithDevice(deviceID string, toggle bool, encryptionPassword string) error {

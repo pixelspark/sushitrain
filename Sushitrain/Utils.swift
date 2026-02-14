@@ -213,8 +213,8 @@ extension SushitrainFolder {
 		try self.unlink()
 	}
 
-	func listEntries(prefix: String, directories: Bool, hideDotFiles: Bool) throws -> [SushitrainEntry] {
-		let list = try self.list(prefix, directories: directories, recurse: false)
+	func listEntries(prefix: String, directories: Bool, hideDotFiles: Bool, recursive: Bool) throws -> [SushitrainEntry] {
+		let list = try self.list(prefix, directories: directories, recurse: recursive)
 		var entries: [SushitrainEntry] = []
 		for i in 0..<list.count() {
 			let path = list.item(at: i)

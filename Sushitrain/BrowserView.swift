@@ -124,6 +124,7 @@ struct BrowserView: View {
 	@State private var isWorking = false
 	@State private var isBookmarked = false
 	@State private var showNewBookmarkInfo = false
+	@State private var recursive = false
 
 	#if os(macOS)
 		@State private var showIgnores = false
@@ -173,6 +174,7 @@ struct BrowserView: View {
 			viewStyle: $viewStyle,
 			filterAvailability: currentFilterAvailability,
 			sortOrder: currentSort,
+			recursive: recursive,
 			searchText: $searchText,
 			showSettings: $showSettings
 		)
@@ -454,6 +456,8 @@ struct BrowserView: View {
 			Divider()
 
 			Toggle("Hide dotfiles", systemImage: "eye.slash", isOn: userSettings.$dotFilesHidden)
+			
+			Toggle("Show files in subdirectories", systemImage: "text.insert", isOn: $recursive)
 
 		} label: {
 			Label("Filter and sort", systemImage: "line.3.horizontal.decrease")
@@ -517,7 +521,7 @@ struct BrowserView: View {
 		})
 
 		// Check for presence of index.html to enable web view
-		if folderExists, let entry = try? folder.getFileInformation(self.prefix + "index.html"),
+		if folderExists, !recursive, let entry = try? folder.getFileInformation(self.prefix + "index.html"),
 			!entry.isDirectory() && !entry.isDeleted()
 		{
 			self.webViewAvailable = true
@@ -921,6 +925,7 @@ private struct BrowserItemsView: View {
 	@Binding var viewStyle: BrowserViewStyle?
 	let filterAvailability: BrowserViewFilterAvailability
 	let sortOrder: BrowserViewSort
+	let recursive: Bool
 
 	@Binding var searchText: String
 	@Binding var showSettings: Bool
@@ -1022,6 +1027,11 @@ private struct BrowserItemsView: View {
 		.onChange(of: appState.eventCounter) {
 			Task {
 				await self.updateExtraneousFiles()
+			}
+		}
+		.onChange(of: recursive) {
+			Task {
+				await self.reload()
 			}
 		}
 	}
@@ -1275,7 +1285,7 @@ private struct BrowserItemsView: View {
 				return []
 			}
 			do {
-				var entries = try folder.listEntries(prefix: self.prefix, directories: false, hideDotFiles: dotFilesHidden)
+				var entries = try folder.listEntries(prefix: self.prefix, directories: false, hideDotFiles: dotFilesHidden, recursive: self.recursive)
 				entries.sort(by: sortSpec.isOrderedBefore)
 				return entries
 			}
@@ -1325,7 +1335,7 @@ private struct BrowserItemsView: View {
 
 		if self.viewStyle == nil {
 			// Do we have an index.html? If so switch to web view
-			if appState.userSettings.automaticallyShowWebpages && self.files.contains(where: { $0.fileName() == "index.html" }) {
+			if appState.userSettings.automaticallyShowWebpages && !recursive && self.files.contains(where: { $0.fileName() == "index.html" }) {
 				self.viewStyle = .web
 			}
 			else if appState.userSettings.automaticallySwitchViewStyle {
