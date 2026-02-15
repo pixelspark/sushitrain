@@ -58,7 +58,8 @@ import SwiftUI
 					let parentPath = e.parentPath()
 					self.siblings = try folder.listEntries(
 						prefix: parentPath, directories: false,
-						hideDotFiles: appState.userSettings.dotFilesHidden)
+						hideDotFiles: appState.userSettings.dotFilesHidden,
+						recursive: false)
 					self.entry = e
 				}
 			}
