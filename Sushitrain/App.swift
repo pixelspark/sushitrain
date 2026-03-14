@@ -31,6 +31,8 @@ struct SushitrainApp: App {
 		@Environment(\.openWindow) private var openWindow
 		@AppStorage("hideInDock") var hideInDock: Bool = false
 	#endif
+	
+	@Environment(\.refresh) private var refreshAction: RefreshAction?
 
 	init() {
 		// Install uncaught exception handler
@@ -257,8 +259,18 @@ struct SushitrainApp: App {
 	@CommandsBuilder private func commands() -> some Commands {
 		CommandGroup(after: .sidebar) {
 			Toggle("Hide dotfiles", isOn: appState.userSettings.$dotFilesHidden)
+				.keyboardShortcut(".", modifiers: [.command, .shift])
 
 			Toggle("Hide hidden folders", isOn: appState.userSettings.$hideHiddenFolders)
+				.keyboardShortcut("P", modifiers: [.command, .shift])
+			
+			Button("Refresh", systemImage: "arrow.clockwise") {
+				Task {
+					await refreshAction?()
+				}
+			}
+			.disabled(refreshAction == nil)
+			.keyboardShortcut("R", modifiers: .command)
 		}
 
 		#if os(macOS)
