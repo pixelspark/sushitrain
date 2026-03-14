@@ -31,7 +31,7 @@ struct SushitrainApp: App {
 		@Environment(\.openWindow) private var openWindow
 		@AppStorage("hideInDock") var hideInDock: Bool = false
 	#endif
-	
+
 	@Environment(\.refresh) private var refreshAction: RefreshAction?
 
 	init() {
@@ -263,7 +263,7 @@ struct SushitrainApp: App {
 
 			Toggle("Hide hidden folders", isOn: appState.userSettings.$hideHiddenFolders)
 				.keyboardShortcut("P", modifiers: [.command, .shift])
-			
+
 			Button("Refresh", systemImage: "arrow.clockwise") {
 				Task {
 					await refreshAction?()

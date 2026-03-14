@@ -1429,6 +1429,9 @@ struct ItemSelectToggleView: View {
 								// We can't use our own alert since by the time we get here, the context menu is gone
 								appState.alert(message: em)
 							}
+							else if s && self.file.isDirectory() {
+								appState.alert(message: String(localized: "You have selected a subdirectory for synchronisation. All files contained in this subdirectory will be synchronized, including new files. If you delete files from this subdirectory, the deletion will propagate to other devices."))
+							}
 						}
 					})
 			)

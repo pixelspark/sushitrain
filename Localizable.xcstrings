@@ -43540,6 +43540,52 @@
         }
       }
     },
+    "You have selected a subdirectory for synchronisation. All files contained in this subdirectory will be synchronized, including new files. If you delete files from this subdirectory, the deletion will propagate to other devices." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie haben ein Unterverzeichnis zur Synchronisation ausgewählt. Alle Dateien in diesem Unterverzeichnis werden synchronisiert, einschließlich neuer Dateien. Wenn Sie Dateien aus diesem Unterverzeichnis löschen, wird die Löschung auf andere Geräte übertragen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Has seleccionado un subdirectorio para la sincronización. Todos los archivos contenidos en este subdirectorio serán sincronizados, incluidos los archivos nuevos. Si eliminas archivos de este subdirectorio, la eliminación se propagará a otros dispositivos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hai selezionato una sottodirectory per la sincronizzazione. Tutti i file contenuti in questa sottodirectory verranno sincronizzati, inclusi i nuovi file. Se elimini file da questa sottodirectory, l'eliminazione si propagherà agli altri dispositivi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同期するサブディレクトリを選択しました。このサブディレクトリ内のすべてのファイルは同期され、新しいファイルも含まれます。このサブディレクトリからファイルを削除すると、削除は他のデバイスにも反映されます。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je hebt een submap geselecteerd voor synchronisatie. Alle bestanden in deze submap worden gesynchroniseerd, inclusief nieuwe bestanden. Als je bestanden uit deze submap verwijdert, zal de verwijdering zich naar andere apparaten verspreiden."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ви обрали підкаталог для синхронізації. Усі файли, що містяться в цьому підкаталозі, будуть синхронізовані, включаючи нові файли. Якщо ви видалите файли з цього підкаталогу, видалення пошириться на інші пристрої."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您已选择一个子目录进行同步。此子目录中包含的所有文件都将被同步，包括新文件。如果您从此子目录中删除文件，删除操作将传播到其他设备。"
+          }
+        }
+      }
+    },
     "Your devices, your data, your responsibility" : {
       "localizations" : {
         "de" : {
