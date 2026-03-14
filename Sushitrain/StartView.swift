@@ -464,7 +464,7 @@ struct StartView: View {
 						.navigationTitle(fe.displayName)
 						.frame(minHeight: 300)
 						.toolbar {
-							SheetButton(role: .cancel) {
+							SheetButton(role: .done) {
 								self.fixingInaccessibleExternalFolder = nil
 							}
 						}
