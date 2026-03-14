@@ -102,6 +102,7 @@ struct BrowserView: View {
 
 	@Environment(AppState.self) private var appState
 	@Environment(\.showToast) private var showToast
+	@Environment(\.refresh) private var refreshAction: RefreshAction?
 
 	var folder: SushitrainFolder
 	var prefix: String
@@ -372,15 +373,19 @@ struct BrowserView: View {
 				Picker("View as", selection: self.currentViewStyle()) {
 					Image(systemName: "list.bullet").tag(BrowserViewStyle.list)
 						.accessibilityLabel(Text("List"))
+						.keyboardShortcut("1", modifiers: .command)
 					Image(systemName: "checklist.unchecked").tag(BrowserViewStyle.thumbnailList)
 						.accessibilityLabel(Text("List with previews"))
+						.keyboardShortcut("2", modifiers: .command)
 					Image(systemName: "square.grid.2x2").tag(BrowserViewStyle.grid)
 						.accessibilityLabel(Text("Grid"))
+						.keyboardShortcut("3", modifiers: .command)
 
 					if webViewAvailable {
 						Image(systemName: "doc.text.image")
 							.tag(BrowserViewStyle.web)
 							.accessibilityLabel(Text("Web page"))
+							.keyboardShortcut("4", modifiers: .command)
 					}
 				}
 				.pickerStyle(.segmented)
@@ -394,7 +399,9 @@ struct BrowserView: View {
 			#if os(macOS)
 				Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
 					self.showInFinder()
-				}.disabled(!canShowInFinder || isSearching)
+				}
+				.disabled(!canShowInFinder || isSearching)
+				.keyboardShortcut("G", modifiers: .command)
 			#endif
 
 			self.folderMenu()
@@ -567,6 +574,14 @@ struct BrowserView: View {
 				#if os(macOS)
 					.buttonStyle(.link)
 				#endif
+				.keyboardShortcut("R", modifiers: [.command, .shift])
+
+			Button("Refresh", systemImage: "arrow.clockwise") {
+				Task {
+					Log.info("Refresh from menu")
+					await self.refreshAction?()
+				}
+			}.keyboardShortcut("R", modifiers: .command)
 
 			Divider()
 
