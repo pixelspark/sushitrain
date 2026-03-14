@@ -261,7 +261,7 @@ struct BrowserView: View {
 			}
 		#else
 			.alert(
-				"This location has been added to your bookmarks. Bookmarked locations can be accessed quickly from the start page, or by long-tapping the app icon om the home screen.",
+				"This location has been added to your bookmarks. Bookmarked locations can be accessed quickly from the start page, or by long-tapping the app icon on the home screen.",
 				isPresented: $showNewBookmarkInfo
 			) {
 				Button("OK") {}

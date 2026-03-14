@@ -38342,48 +38342,48 @@
         }
       }
     },
-    "This location has been added to your bookmarks. Bookmarked locations can be accessed quickly from the start page, or by long-tapping the app icon om the home screen." : {
+    "This location has been added to your bookmarks. Bookmarked locations can be accessed quickly from the start page, or by long-tapping the app icon on the home screen." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dieser Ort wurde zu Ihren Lesezeichen hinzugefügt. Markierte Orte können schnell von der Startseite aus oder durch langes Tippen auf das App-Symbol auf dem Homescreen aufgerufen werden."
+            "value" : "Dieser Ort wurde zu Ihren Lesezeichen hinzugefügt. Mit Lesezeichen versehene Orte können schnell über die Startseite oder durch langes Drücken des App-Symbols auf dem Startbildschirm aufgerufen werden."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Esta ubicación ha sido añadida a tus marcadores. Las ubicaciones marcadas se pueden acceder rápidamente desde la página de inicio, o manteniendo presionado el ícono de la aplicación en la pantalla de inicio."
+            "value" : "Esta ubicación se ha añadido a tus marcadores. Las ubicaciones marcadas se pueden acceder rápidamente desde la página de inicio o manteniendo pulsado el icono de la aplicación en la pantalla de inicio."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Questa posizione è stata aggiunta ai tuoi segnalibri. Le posizioni nei segnalibri possono essere accedute rapidamente dalla pagina iniziale o tenendo premuto a lungo l'icona dell'app nella schermata principale."
+            "value" : "Questa posizione è stata aggiunta ai tuoi segnalibri. Le posizioni nei segnalibri possono essere rapidamente accessibili dalla pagina iniziale o tenendo premuta l'icona dell'app nella schermata iniziale."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このロケーションはブックマークに追加されました。ブックマークしたロケーションは、スタートページから、またはホーム画面でアプリアイコンを長押ししてすばやくアクセスできます。"
+            "value" : "この場所がブックマークに追加されました。ブックマークした場所は、スタートページから、またはホーム画面のアプリアイコンを長押しすることで素早くアクセスできます。"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Deze locatie is aan je bladwijzers toegevoegd. Bladwijzerlocaties kunnen snel worden geopend vanaf de startpagina of door lang op het app-pictogram op het startscherm te tikken."
+            "value" : "Deze locatie is aan je bladwijzers toegevoegd. Bladwijzerlocaties zijn snel toegankelijk vanaf de startpagina of door het app-pictogram lang in te drukken op het startscherm."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Це місце додано до ваших закладок. До закладених місць можна швидко отримати доступ з головної сторінки або шляхом довгого натискання на іконку додатку на домашньому екрані."
+            "value" : "Це місце додано до ваших закладок. Місця з закладками можна швидко отримати з початкової сторінки або довгим натисканням на значок програми на головному екрані."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "此位置已添加到您的书签。可以通过快速访问页面或长按主屏幕上的应用图标快速访问书签位置。"
+            "value" : "该位置已添加到您的书签中。可以从开始页面快速访问书签位置，或通过长按主屏幕上的应用图标进行访问。"
           }
         }
       }
