@@ -98,6 +98,14 @@ func (sel *Selection) SetExplicitlySelected(paths map[string]bool) error {
 			return errors.New("cannot change selection: the path is already implicitly selected")
 		}
 
+		// Is this entry a prefix of another explicitly selected entry? Then refuse changes
+		childrenSelectedImplicitly := slices.ContainsFunc(sel.lines, func(existingLine string) bool {
+			return existingLine != line && strings.HasPrefix(existingLine, line)
+		})
+		if childrenSelectedImplicitly {
+			return errors.New("cannot change selection: an item in this subdirectory is already selected")
+		}
+
 		// To deselect, remove the relevant ignore line
 		countBefore := len(sel.lines)
 		if !selected {
