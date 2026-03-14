@@ -19,8 +19,37 @@ type Selection struct {
 
 func NewSelection(lines []string) *Selection {
 	return &Selection{
-		lines: lines,
+		lines: removeNestedSelections(lines),
 	}
+}
+
+func removeNestedSelections(lines []string) []string {
+	slices.Sort(lines)
+
+	result := make([]string, 0)
+
+	// FIXME: this is O(n^2).
+	for _, line := range lines {
+		foundIndex := slices.IndexFunc(lines, func(otherLine string) bool {
+			return otherLine != line && strings.HasPrefix(line, otherLine)
+		})
+
+		// foundIndex, found := slices.BinarySearchFunc(lines, func(otherLine string) int {
+		// 	if otherLine != line && strings.HasPrefix(otherLine, line) {
+		// 		return 0
+		// 	}
+		// 	return strings.Compare(otherLine, line)
+		// })
+
+		if foundIndex >= 0 {
+			// Some other line has this line as a prefix; skip it
+			slog.Warn("selection contains a path that is also selected by a parent; removing", "prefix", lines[foundIndex], "path", line)
+			continue
+		}
+
+		result = append(result, line)
+	}
+	return result
 }
 
 // Returns whether the provided set of ignore lines are valid for 'selective' mode
@@ -46,7 +75,7 @@ func (sel *Selection) isSelectiveIgnore() bool {
 }
 
 func (sel *Selection) Lines() []string {
-	return sel.lines
+	return removeNestedSelections(sel.lines)
 }
 
 func (sel *Selection) SetExplicitlySelected(paths map[string]bool) error {
@@ -55,10 +84,18 @@ func (sel *Selection) SetExplicitlySelected(paths map[string]bool) error {
 		slog.Info("Edit ignore line", "selected", selected, "line", line)
 
 		// Is this entry currently selected explicitly?
-		currentlySelected := slices.Contains(sel.lines, line)
-		if currentlySelected == selected {
+		currentlySelectedExplicitly := slices.Contains(sel.lines, line)
+		if currentlySelectedExplicitly == selected {
 			// not changing selecting status for path, it is the status quo
 			continue
+		}
+
+		// Is this entry currently selected implicitly? (i.e. due to a parent path being selected)
+		currentlySelectedImplicitly := slices.ContainsFunc(sel.lines, func(existingLine string) bool {
+			return existingLine != line && strings.HasPrefix(line, existingLine)
+		})
+		if currentlySelectedImplicitly {
+			return errors.New("cannot change selection: the path is already implicitly selected")
 		}
 
 		// To deselect, remove the relevant ignore line
