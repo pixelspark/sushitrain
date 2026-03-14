@@ -102,7 +102,6 @@ struct BrowserView: View {
 
 	@Environment(AppState.self) private var appState
 	@Environment(\.showToast) private var showToast
-	@Environment(\.refresh) private var refreshAction: RefreshAction?
 
 	var folder: SushitrainFolder
 	var prefix: String
@@ -575,13 +574,6 @@ struct BrowserView: View {
 					.buttonStyle(.link)
 				#endif
 				.keyboardShortcut("R", modifiers: [.command, .shift])
-
-			Button("Refresh", systemImage: "arrow.clockwise") {
-				Task {
-					Log.info("Refresh from menu")
-					await self.refreshAction?()
-				}
-			}.keyboardShortcut("R", modifiers: .command)
 
 			Divider()
 
@@ -1256,6 +1248,7 @@ private struct BrowserItemsView: View {
 	}
 
 	private func reload() async {
+		Log.info("Reload \(self.prefix)")
 		self.isLoading = true
 		self.showSpinner = false
 		let loadingSpinnerTask = Task {
@@ -1430,7 +1423,11 @@ struct ItemSelectToggleView: View {
 								appState.alert(message: em)
 							}
 							else if s && self.file.isDirectory() {
-								appState.alert(message: String(localized: "You have selected a subdirectory for synchronisation. All files contained in this subdirectory will be synchronized, including new files. If you delete files from this subdirectory, the deletion will propagate to other devices."))
+								appState.alert(
+									message: String(
+										localized:
+											"You have selected a subdirectory for synchronisation. All files contained in this subdirectory will be synchronized, including new files. If you delete files from this subdirectory, the deletion will propagate to other devices."
+									))
 							}
 						}
 					})

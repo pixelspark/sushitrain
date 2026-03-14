@@ -32,8 +32,6 @@ struct SushitrainApp: App {
 		@AppStorage("hideInDock") var hideInDock: Bool = false
 	#endif
 
-	@Environment(\.refresh) private var refreshAction: RefreshAction?
-
 	init() {
 		// Install uncaught exception handler
 		NSSetUncaughtExceptionHandler { e in
@@ -263,14 +261,6 @@ struct SushitrainApp: App {
 
 			Toggle("Hide hidden folders", isOn: appState.userSettings.$hideHiddenFolders)
 				.keyboardShortcut("P", modifiers: [.command, .shift])
-
-			Button("Refresh", systemImage: "arrow.clockwise") {
-				Task {
-					await refreshAction?()
-				}
-			}
-			.disabled(refreshAction == nil)
-			.keyboardShortcut("R", modifiers: .command)
 		}
 
 		#if os(macOS)
