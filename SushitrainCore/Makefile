@@ -30,3 +30,6 @@ install: build
 
 clean:
 	rm -rf build/* notices.html
+
+test:
+	go test ./... -tags noassets
