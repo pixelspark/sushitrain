@@ -14556,48 +14556,48 @@
         }
       }
     },
-    "Files and subdirectories whose paths match any of the patterns above will not be synchronized with other devices. Existing items matching the patterns will not be updated. " : {
+    "Files and subdirectories whose paths match any of the patterns above will not be synchronized with other devices. Existing items matching the patterns will not be updated." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dateien und Unterverzeichnisse, deren Pfade mit einem der oben genannten Muster übereinstimmen, werden nicht mit anderen Geräten synchronisiert. Vorhandene Elemente, die den Mustern entsprechen, werden nicht aktualisiert."
+            "value" : "Dateien und Unterverzeichnisse, deren Pfade mit einem der obigen Muster übereinstimmen, werden nicht mit anderen Geräten synchronisiert. Vorhandene Elemente, die den Mustern entsprechen, werden nicht aktualisiert."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Los archivos y subdirectorios cuyos caminos coincidan con alguno de los patrones anteriores no se sincronizarán con otros dispositivos. Los elementos existentes que coincidan con los patrones no se actualizarán."
+            "value" : "Los archivos y subdirectorios cuyos caminos coincidan con cualquiera de los patrones anteriores no se sincronizarán con otros dispositivos. Los elementos existentes que coincidan con los patrones no se actualizarán."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "I file e le sottodirectory i cui percorsi corrispondono a uno dei modelli sopra indicati non verranno sincronizzati con altri dispositivi. Gli elementi esistenti che corrispondono ai modelli non verranno aggiornati."
+            "value" : "I file e le sottodirectory i cui percorsi corrispondono a uno dei modelli sopra non verranno sincronizzati con altri dispositivi. Gli elementi esistenti corrispondenti ai modelli non verranno aggiornati."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "上記パターンにパスが一致するファイルおよびサブフォルダは他デバイスと同期されません。パターンに一致する既存の項目は更新されません。"
+            "value" : "上記のパターンのいずれかに一致するパスを持つファイルおよびサブディレクトリは、他のデバイスと同期されません。パターンに一致する既存のアイテムは更新されません。"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bestanden en submappen waarvan de paden overeenkomen met een van de bovenstaande patronen zullen niet worden gesynchroniseerd met andere apparaten. Bestaande items die overeenkomen met de patronen zullen niet worden bijgewerkt."
+            "value" : "Bestanden en subdirectories waarvan de paden overeenkomen met een van de bovenstaande patronen, worden niet gesynchroniseerd met andere apparaten. Bestaande items die overeenkomen met de patronen worden niet bijgewerkt."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Файли та підкаталоги, шляхи яких збігаються з будь-яким із наведених вище шаблонів, не будуть синхронізовані з іншими пристроями. Існуючі елементи, що відповідають шаблонам, не будуть оновлюватися."
+            "value" : "Файли та вкладені теки, шляхи яких відповідають будь-яким із наведених вище шаблонів, не будуть синхронізовані з іншими пристроями. Існуючі елементи, що відповідають цим шаблонам, не будуть оновлені."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "路径与上述模式匹配的文件和子目录将不会与其他设备同步。与模式匹配的现有项目将不会更新。"
+            "value" : "路径与上述任一模式匹配的文件和子目录将不会与其他设备同步。符合模式的现有项目将不会更新。"
           }
         }
       }

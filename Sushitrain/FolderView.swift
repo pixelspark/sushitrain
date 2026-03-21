@@ -703,6 +703,12 @@ struct FolderView: View {
 					PhotoFolderSettingsView(folder: self.folder)
 				}
 
+				if folder.isRegularFolder || folder.isPhotoFolder || folder.isReceiveEncryptedFolder {
+					NavigationLink(destination: AdvancedFolderSettingsView(folder: self.folder)) {
+						Label("Advanced folder settings", systemImage: "gear")
+					}
+				}
+
 				if !possiblePeers.isEmpty {
 					Section(header: Text("Shared with")) {
 						ForEach(self.possiblePeers, id: \.self.id) { (addr: SushitrainPeer) in
@@ -710,12 +716,6 @@ struct FolderView: View {
 								peer: addr, folder: folder,
 								showFolderName: false)
 						}
-					}
-				}
-
-				if folder.isRegularFolder || folder.isPhotoFolder || folder.isReceiveEncryptedFolder {
-					NavigationLink(destination: AdvancedFolderSettingsView(folder: self.folder)) {
-						Label("Advanced folder settings", systemImage: "gear")
 					}
 				}
 			}
@@ -1205,6 +1205,7 @@ private struct AdvancedFolderSettingsView: View {
 		let isExternal = folder.isExternal
 
 		Form {
+			// Ignore patterns editor (on macOS, this is accessible directly from the folder menu)
 			#if os(iOS)
 				if !folder.isSelective() && !folder.isPhotoFolder && !folder.isReceiveEncryptedFolder {
 					Section {
@@ -1222,6 +1223,17 @@ private struct AdvancedFolderSettingsView: View {
 					}
 				}
 			#endif
+
+			// Selective folder ignore patterns (accessible both on iOS and macOS from this place)
+			if folder.isSelective() && !folder.isPhotoFolder && !folder.isReceiveEncryptedFolder {
+				Section {
+					NavigationLink(destination: self.selectiveIgnoresView()) {
+						Label(
+							"Files to ignore",
+							systemImage: "rectangle.dashed")
+					}
+				}
+			}
 
 			if !folder.isReceiveEncryptedFolder {
 				Section {
@@ -1353,5 +1365,15 @@ private struct AdvancedFolderSettingsView: View {
 		#if os(macOS)
 			.formStyle(.grouped)
 		#endif
+	}
+
+	@ViewBuilder private func selectiveIgnoresView() -> some View {
+		SelectiveIgnoresView(folder: self.folder).navigationTitle("Files to ignore")
+			#if os(iOS)
+				.navigationBarTitleDisplayMode(.inline)
+			#endif
+			#if os(macOS)
+				.presentationSizing(.form)
+			#endif
 	}
 }
