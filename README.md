@@ -182,6 +182,14 @@ and future) file in the folder:
 
 Current and future files in the folder will be synced and considered 'implicitly selected'.
 
+Synctrain enables selective synchronisation features in the UI when the `.stignore` file conforms to the following rules:
+
+* The last pattern in the file is `*`
+* The file starts with zero or more patterns that start with `(?d)` and that do not contain `/` or `**` (these allow for 
+  global ignores of certain files like `.DS_Store` when synchronizing subdirectories)
+* The file otherwise contains only patterns that start with `!/` and that do not contain `*`. These indicate paths to be 'selected' (un-ignored)
+* Empty lines are allowed
+
 ### On-demand downloads
 
 In Sushitrain, files can be accessed on demand. The user can select a file to view, and it will be downloaded from one of

@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Tommy van der Vorst
+// Copyright (C) 2024-2026 Tommy van der Vorst
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
@@ -8,6 +8,7 @@ package sushitrain
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log/slog"
 	"path"
 	"path/filepath"
@@ -631,6 +632,7 @@ func (fld *Folder) IsSelective() bool {
 
 	ignores, err := fld.loadIgnores()
 	if err != nil {
+		slog.Warn("error loading ignore file", "error", err.Error())
 		return false
 	}
 
@@ -712,8 +714,14 @@ func (fld *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 		return &ListOfStrings{}, nil
 	}
 
-	extraFiles := make([]string, 0)
+	// Selective folders can have global ignores. If a file is ignored due to one of those rules, do not report it as
+	// extraneous, but keep ignoring it.
+	alwaysIgnoreGlobs, err := selection.globalIgnoreGlobs()
+	if err != nil {
+		return nil, fmt.Errorf("in globalIgnoreGlobs: %w", err)
+	}
 
+	extraFiles := make([]string, 0)
 	ffs := fld.folderConfiguration().Filesystem()
 	foundOneError := errors.New("found one")
 	err = ffs.Walk("", func(path string, info fs.FileInfo, err error) error {
@@ -727,10 +735,12 @@ func (fld *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 			return nil
 		}
 
+		// Ignore Syncthing internal and temporary files at all times
 		if strings.HasPrefix(filepath.Base(path), fs.UnixTempPrefix) {
 			return nil
 		}
 
+		// Ignore the folder marker
 		if strings.HasPrefix(path, cfg.MarkerName) {
 			return nil
 		}
@@ -741,6 +751,13 @@ func (fld *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 		// Ignore whatever is on the 'extraneous ignore' list (used to ignore .DS_Store and similar)
 		if fld.client.isExtraneousIgnored(filepath.Base(path)) {
 			return nil
+		}
+
+		// Ignore anything that is ignored by global ignore patterns in a selective folder
+		for _, globPattern := range alwaysIgnoreGlobs {
+			if globPattern.Match(path) {
+				return nil
+			}
 		}
 
 		// Check ignore status
@@ -1046,6 +1063,68 @@ func (fld *Folder) SetIgnoreLines(lines *ListOfStrings) error {
 	return nil
 }
 
+// Returns the list of global ignore patterns in a selective folder
+func (fld *Folder) GetSelectiveGlobalIgnorePatterns() (*ListOfStrings, error) {
+	// Load ignores from file
+	ignores, err := fld.loadIgnores()
+	if err != nil {
+		return nil, err
+	}
+
+	selection := NewSelection(ignores.Lines())
+	if !selection.isSelectiveIgnore() {
+		return nil, errors.New("folder is not a selective folder")
+	}
+
+	return List(selection.GlobalIgnorePatterns()), nil
+}
+
+func (fld *Folder) SetSelectiveGlobalIgnorePatterns(patterns *ListOfStrings) error {
+	slog.Info("changing selective folder global ignores", "patterns", patterns)
+	_, err := fld.changeSelection(func(sel *Selection) error {
+		return sel.SetGlobalIgnorePatterns(patterns.data)
+	})
+	return err
+}
+
+func (fld *Folder) changeSelection(block func(sel *Selection) error) (*ignore.Matcher, error) {
+	// Load ignores from file
+	ignores, err := fld.loadIgnores()
+	if err != nil {
+		return nil, err
+	}
+
+	selection := NewSelection(ignores.Lines())
+	if !selection.isSelectiveIgnore() {
+		return nil, errors.New("folder is not a selective folder")
+	}
+
+	hashBefore := ignores.Hash()
+	err = block(selection)
+	if err != nil {
+		return nil, err
+	}
+
+	// Save new ignores (this triggers a reload of ignores and eventually a scan)
+	err = fld.client.app.Internals.SetIgnores(fld.FolderID, selection.Lines())
+	if err != nil {
+		return nil, err
+	}
+
+	// Delete files if necessary
+	ignores, err = fld.loadIgnores()
+	if err != nil {
+		return nil, err
+	}
+
+	hashAfter := ignores.Hash()
+	if hashAfter == hashBefore {
+		slog.Warn("ignore file did not change after edits")
+	}
+	slog.Debug("ignore hash", "before", hashBefore, "after", hashAfter)
+	return ignores, nil
+}
+
 func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
 	slog.Info("set explicitly selected", "paths", paths)
 
@@ -1083,45 +1162,16 @@ func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
 		}
 	}
 
-	// Load ignores from file
-	ignores, err := fld.loadIgnores()
+	ignores, err := fld.changeSelection(func(selection *Selection) error {
+		// Edit lines
+		return selection.SetExplicitlySelected(paths)
+	})
 	if err != nil {
 		return err
 	}
 
-	selection := NewSelection(ignores.Lines())
-	if !selection.isSelectiveIgnore() {
-		return errors.New("folder is not a selective folder")
-	}
-
-	hashBefore := ignores.Hash()
-
-	// Edit lines
-	err = selection.SetExplicitlySelected(paths)
-	if err != nil {
-		return err
-	}
-
-	// Save new ignores (this triggers a reload of ignores and eventually a scan)
-	err = fld.client.app.Internals.SetIgnores(fld.FolderID, selection.Lines())
-	if err != nil {
-		return err
-	}
-
-	// Delete files if necessary
-	ignores, err = fld.loadIgnores()
-	if err != nil {
-		return err
-	}
-
-	hashAfter := ignores.Hash()
-	if hashAfter == hashBefore {
-		slog.Warn("ignore file did not change after edits")
-	}
-	slog.Debug("ignore hash", "before", hashBefore, "after", hashAfter)
-
+	// Delete local files that are not selected anymore
 	for path, selected := range paths {
-		// Delete local file if it is not selected anymore
 		if !selected {
 			// Check if not still implicitly selected
 			res := ignores.Match(path)
@@ -1133,6 +1183,7 @@ func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
 			}
 		}
 	}
+
 	return nil
 }
 
