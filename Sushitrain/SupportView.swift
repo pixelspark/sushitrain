@@ -355,9 +355,12 @@ struct TroubleshootingView: View {
 	@State private var hasLegacyDatabase = false
 	@State private var performingDatabaseMaintenance = false
 	@State private var databaseSize: Int64? = nil
+	@State private var cacheSize: Int64? = nil
+	@State private var tempSize: Int64? = nil
 	@State private var showIgnoredDiscoveredReset = false
 	@State private var showV1BackupRemoved = false
 	@State private var showCacheCleared = false
+	@State private var showTempCleared = false
 	@State private var showLog = false
 	@State private var showAllBookmarksRemoved = false
 	@State private var showResetDeviceIdentity = false
@@ -499,11 +502,38 @@ struct TroubleshootingView: View {
 				}
 			}
 
-			Section {
+			Section("Cache directory") {
+				LabeledContent("Cache directory size") {
+					if let size = self.cacheSize {
+						Text(Self.formatter.string(fromByteCount: size))
+					}
+					else {
+						Text("Unknown")
+					}
+				}
+
 				Button("Clear cache directory", role: .destructive) {
 					self.clearCacheDirectory()
 				}
 				.alert("Cache directory cleared", isPresented: $showCacheCleared) {
+					Button("OK") {}
+				}
+			}
+
+			Section("Temporary files") {
+				LabeledContent("Temporary files size") {
+					if let size = self.tempSize {
+						Text(Self.formatter.string(fromByteCount: size))
+					}
+					else {
+						Text("Unknown")
+					}
+				}
+
+				Button("Remove temporary files", role: .destructive) {
+					self.clearTempDirectory()
+				}
+				.alert("Temporary files removed", isPresented: $showTempCleared) {
 					Button("OK") {}
 				}
 			}
@@ -569,9 +599,33 @@ struct TroubleshootingView: View {
 
 		let path = SushitrainApp.configDirectoryURL().appending(path: "index-v2", directoryHint: .isDirectory)
 		do {
-			let size = try await FileManager.default.sizeOfFolder(path: path)
+			// Calculate database size
+			let fileManager = FileManager.default
+			let size = try await fileManager.sizeOfFolder(path: path)
 			self.databaseSize = Int64(size)
 			Log.info("size of database is \(size) at path \(path)")
+
+			// Calculate cache directory size
+			if let cacheURL = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first {
+				let cacheSize = try await fileManager.sizeOfFolder(path: cacheURL)
+				self.cacheSize = Int64(cacheSize)
+			}
+			else {
+				self.cacheSize = nil
+			}
+
+			// Calculate cache directory size
+			if let cacheURL = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first {
+				let cacheSize = try await fileManager.sizeOfFolder(path: cacheURL)
+				self.cacheSize = Int64(cacheSize)
+			}
+			else {
+				self.cacheSize = nil
+			}
+
+			// Calculate temp directory size
+			let tempURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+			self.tempSize = Int64(try await fileManager.sizeOfFolder(path: tempURL))
 		}
 		catch {
 			Log.warn("could not determine database size at path \(path): \(error.localizedDescription)")
@@ -597,6 +651,31 @@ struct TroubleshootingView: View {
 		}
 	}
 
+	private func clearTempDirectory() {
+		let fileManager = FileManager.default
+		let tempURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+		do {
+			let directoryContents = try fileManager.contentsOfDirectory(
+				at: tempURL, includingPropertiesForKeys: nil, options: [])
+			for file in directoryContents {
+				do {
+					try fileManager.removeItem(at: file)
+				}
+				catch {
+					Log.warn("failed to remove temp file: \(error.localizedDescription)")
+				}
+			}
+			Task {
+				await self.updateDatabaseInfo()
+			}
+		}
+		catch let error as NSError {
+			print(error.localizedDescription)
+		}
+
+		self.showTempCleared = true
+	}
+
 	private func clearCacheDirectory() {
 		let fileManager = FileManager.default
 		if let cacheURL = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first {
@@ -614,6 +693,9 @@ struct TroubleshootingView: View {
 			}
 			catch let error as NSError {
 				print(error.localizedDescription)
+			}
+			Task {
+				await self.updateDatabaseInfo()
 			}
 		}
 		self.showCacheCleared = true
