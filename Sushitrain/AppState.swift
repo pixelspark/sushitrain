@@ -516,12 +516,24 @@ struct SyncState {
 		return !self.client.isDownloading() && !self.client.isUploading() && !self.photoBackup.isBackingUp
 	}
 
-	func alert(message: String) {
-		Self.modalAlert(message: message)
+	enum AlertType {
+		case error
+		case informational
+
+		var title: String? {
+			switch self {
+			case .error: return String(localized: "An error has occurred")
+			case .informational: return nil
+			}
+		}
+	}
+
+	func alert(message: String, type: AlertType = .error) {
+		Self.modalAlert(message: message, type: type)
 	}
 
 	@MainActor
-	static func modalAlert(message: String) {
+	private static func modalAlert(message: String, type: AlertType) {
 		#if os(macOS)
 			let nsa = NSAlert()
 			nsa.messageText = message
@@ -535,11 +547,10 @@ struct SyncState {
 				.last(where: { $0.isKeyWindow })
 			{
 				if let trc = twnd.rootViewController {
-					let uac = UIAlertController(
-						title: String(localized: "An error has occurred"), message: message,
-						preferredStyle: .alert)
+					let uac = UIAlertController(title: type.title, message: message, preferredStyle: .alert)
 					uac.addAction(
-						UIAlertAction(title: String(localized: "Dismiss"), style: .default))
+						UIAlertAction(title: String(localized: "Dismiss"), style: .default)
+					)
 					trc.present(uac, animated: true)
 				}
 			}

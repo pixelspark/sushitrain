@@ -1427,7 +1427,9 @@ struct ItemSelectToggleView: View {
 									message: String(
 										localized:
 											"You have selected a subdirectory for synchronisation. All files contained in this subdirectory will be synchronized, including new files. If you delete files from this subdirectory, the deletion will propagate to other devices."
-									))
+									),
+									type: .informational
+								)
 							}
 						}
 					})
