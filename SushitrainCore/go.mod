@@ -9,8 +9,8 @@ require (
 	github.com/gofrs/flock v0.13.0
 	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/miscreant/miscreant.go v0.0.0-20200214223636-26d376326b75
-	github.com/syncthing/syncthing v1.30.0-rc.1.0.20260211104138-dc2a77ab8e5b
-	golang.org/x/exp v0.0.0-20260209203927-2842357ff358
+	github.com/syncthing/syncthing v1.30.0-rc.1.0.20260326003734-1106e2e332ff
+	golang.org/x/exp v0.0.0-20260218203240-3dfff04db8fa
 	google.golang.org/protobuf v1.36.11
 )
 
@@ -43,7 +43,7 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kevinburke/ssh_config v0.0.0-20190725054713-01f96b0aa0cd // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/lufia/plan9stats v0.0.0-20260216142805-b3301c5f2a88 // indirect
+	github.com/lufia/plan9stats v0.0.0-20260324052639-156f7da3f749 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-sqlite3 v1.14.34 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -97,7 +97,8 @@ require (
 	modernc.org/libc v1.67.6 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
-	modernc.org/sqlite v1.45.0 // indirect
+	modernc.org/sqlite v1.46.1 // indirect
+	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
 tool (
