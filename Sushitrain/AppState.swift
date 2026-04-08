@@ -186,8 +186,9 @@ struct SyncState {
 	#if os(iOS)
 		@ObservationIgnored var backgroundManager: BackgroundManager!
 		@ObservationIgnored private var lingerManager: LingerManager!
-		private(set) var isSuspended = false
 	#endif
+
+	private(set) var isSuspended = false
 
 	static private var defaultIgnoredExtraneousFiles = [
 		".DS_Store", "Thumbs.db", "desktop.ini", ".Trashes", ".Spotlight-V100",
@@ -369,6 +370,15 @@ struct SyncState {
 			}
 			self.protectFiles()
 			self.startNetworkMonitor()
+
+			#if os(macOS)
+				// Add observers for device sleep/wake
+				NSWorkspace.shared.notificationCenter.addObserver(
+					self, selector: #selector(self.deviceWakeListener), name: NSWorkspace.didWakeNotification, object: nil)
+				NSWorkspace.shared.notificationCenter.addObserver(
+					self, selector: #selector(self.deviceSleepListener), name: NSWorkspace.willSleepNotification, object: nil)
+			#endif
+
 			self.startupState = .started
 			Log.info("Ready to go")
 
@@ -396,6 +406,22 @@ struct SyncState {
 			self.pingTimer = nil
 		}
 	}
+
+	#if os(macOS)
+		@MainActor @objc private func deviceWakeListener() {
+			Task {
+				Log.info("Device did wake")
+				await self.awake()
+			}
+		}
+
+		@MainActor @objc private func deviceSleepListener() {
+			Task {
+				Log.info("Device will sleep")
+				await self.sleep()
+			}
+		}
+	#endif
 
 	@MainActor private func startNetworkMonitor() {
 		self.stopNetworkMonitor()
@@ -715,24 +741,21 @@ struct SyncState {
 		}
 	}
 
-	#if os(iOS)
-		func suspend(_ suspended: Bool) async {
-			self.isSuspended = suspended
-			await self.updateDeviceSuspension()
-		}
-	#endif
+	func suspend(_ suspended: Bool) async {
+		self.isSuspended = suspended
+		await self.updateDeviceSuspension()
+	}
 
 	nonisolated func updateDeviceSuspension() async {
 		do {
 			let client = self.client
-			// On iOS, all devices are paused when the app is suspended (and unpaused when we get back to the foreground)
+			// All devices are paused when the app is suspended (and unpaused when we get back to the foreground)
 			// This is a trick to force Syncthing to start connecting immediately when we are foregrounded
-			#if os(iOS)
-				if await self.isSuspended {
-					try client.setDevicesPaused(SushitrainListOfStrings.from(Array()), pause: false)
-					return
-				}
-			#endif
+			// On macOS, we do this when the device awakens from sleep
+			if await self.isSuspended {
+				try client.setDevicesPaused(SushitrainListOfStrings.from(Array()), pause: false)
+				return
+			}
 
 			// On macOS and when the app is in the foreground, we unpause any device that is not explicitly suspended
 			// by the user
@@ -742,11 +765,7 @@ struct SyncState {
 			}
 		}
 		catch {
-			#if os(iOS)
-				Log.warn("Failed to update device suspension (isSuspended=\(await self.isSuspended): \(error.localizedDescription)")
-			#else
-				Log.warn("Failed to update device suspension: \(error.localizedDescription)")
-			#endif
+			Log.warn("Failed to update device suspension (isSuspended=\(await self.isSuspended): \(error.localizedDescription)")
 		}
 	}
 
@@ -770,6 +789,16 @@ struct SyncState {
 				await self.suspend(false)
 				await self.backgroundManager.rescheduleWatchdogNotification()
 				await self.rebindServer()
+			}
+			self.client.ignoreEvents = false
+		#endif
+
+		#if os(macOS)
+			// Unsuspend devices
+			Task.detached {
+				dispatchPrecondition(condition: .notOnQueue(.main))
+				try? self.client.setReconnectIntervalS(1)
+				await self.suspend(false)
 			}
 			self.client.ignoreEvents = false
 		#endif
@@ -805,6 +834,12 @@ struct SyncState {
 					SushitrainClearBlockCache()
 				}
 			}
+		#endif
+
+		#if os(macOS)
+			await self.suspend(true)
+			try? self.client.setReconnectIntervalS(60)
+			self.client.ignoreEvents = true
 		#endif
 
 		Task {
