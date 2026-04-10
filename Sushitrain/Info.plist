@@ -34,6 +34,10 @@
 		<string>audio</string>
 		<string>processing</string>
 	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<true/>
+	<key>ITSEncryptionExportComplianceCode</key>
+	<string>c725a5cb-2954-4d01-9fe0-cb53e270346e</string>
 	<key>UIFileSharingEnabled</key>
 	<true/>
 </dict>
