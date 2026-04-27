@@ -37,21 +37,13 @@ extension SushitrainFolderStats {
 			return 1.0
 		}
 
-		if let global = self.global, global.bytes > 0 {
-			var totalNeed = 0.0
-			for completion in completions {
-				switch progressType {
-				case .needs, .stores:
-					// ! FIXME: we can't know what the other devices store?
-					totalNeed += Double(completion.needBytes)
-				}
-
-			}
-			totalNeed /= Double(completions.count)
-
-			return Double(max(0, Double(global.bytes) - totalNeed)) / Double(global.bytes)
+		var completionPercentageSum = 0.0
+		for completion in completions {
+			completionPercentageSum += completion.completionPct
 		}
-		return 0.0
+
+		let averageCompletion = completionPercentageSum / Double(completions.count)
+		return max(0.0, min(1.0, averageCompletion / 100.0))
 	}
 }
 
