@@ -1063,6 +1063,9 @@ func (fld *Folder) GetSelectiveGlobalIgnorePatterns() (*ListOfStrings, error) {
 func (fld *Folder) SetSelectiveGlobalIgnorePatterns(patterns *ListOfStrings) error {
 	slog.Info("changing selective folder global ignores", "patterns", patterns)
 	_, err := fld.changeSelection(func(sel *selection) error {
+		if !sel.isSelectiveIgnore() {
+			return errors.New("folder is not a selective folder")
+		}
 		return sel.setGlobalIgnorePatterns(patterns.data)
 	})
 	return err
@@ -1076,9 +1079,6 @@ func (fld *Folder) changeSelection(block func(sel *selection) error) (*ignore.Ma
 	}
 
 	selection := newSelection(ignores.Lines())
-	if !selection.isSelectiveIgnore() {
-		return nil, errors.New("folder is not a selective folder")
-	}
 
 	hashBefore := ignores.Hash()
 	err = block(selection)
@@ -1146,9 +1146,14 @@ func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
 	}
 
 	ignores, err := fld.changeSelection(func(selection *selection) error {
+		if !selection.isSelectiveIgnore() {
+			return errors.New("folder is not a selective folder")
+		}
+
 		// Edit lines
 		return selection.setExplicitlySelected(paths)
 	})
+
 	if err != nil {
 		return err
 	}

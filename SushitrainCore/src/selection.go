@@ -84,6 +84,7 @@ func cleanSelectiveSelection(lines []string) ([]string, error) {
 func (sel *selection) setSelective(selective bool) error {
 	isSelective := sel.isSelectiveIgnore()
 	if selective == isSelective {
+		slog.Warn("selection SetSelective called, but selectivity is already the desired value")
 		// Nothing to be changed
 		return nil
 	}
@@ -98,6 +99,8 @@ func (sel *selection) setSelective(selective bool) error {
 	} else {
 		// We're making a selective folder non-selective. Copy over any global ignores, but ignore nothing else
 	}
+
+	slog.Info("selection setSelective", "selective", selective, "newLines", newLines)
 
 	sel.lines = newLines
 	if sel.isSelectiveIgnore() != selective {
