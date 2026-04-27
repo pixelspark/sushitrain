@@ -18,8 +18,8 @@ sleeve:
 - **Selective file synchronization**: only keep specific files or subdirectories from a larger folder on your device.
 - **On-demand access to files**: download or stream files that are not available locally from another peer through the Syncthing protocol. This allows access to your files, from your own devices, without setting up a VPN.
 - [**Remote thumbnails**](./Docs/thumbnails.md): the app can generate thumbnails for files on other devices (images or videos). You can even synchronize thumbnails between devices, so previews can be generated on a device that has all the files for use on other devices.
-
-* **Photo back-up** (automatically export photos from the system album to a folder) as well as [**photo folders**](./Docs/photo-fs.md) (directly synchronize a system photo album as a send-only folder, without exporting).
+- **Photo back-up** (automatically export photos from the system album to a folder) as well as [**photo folders**](./Docs/photo-fs.md) (directly synchronize a system photo album as a send-only folder, without exporting).
+- **Tight iOS/macOS integration** to enable background synchronization (to the extent possible), as well as Shortcuts integration and Continuity support.
 
 ## Building
 
@@ -93,8 +93,7 @@ To select a specific version:
 1. Update the version number in [go.mod](./go.mod)
 2. Run `go get -u ./...` in the `SushitrainCore` directory
 3. Run `go mod tidy`
-4. Run `go get golang.org/x/mobile/cmd/gomobile`
-5. Update version number in [sushitrain.go](./SushitrainCore/src/sushitrain.go)
+4. Update version number in [sushitrain.go](./SushitrainCore/src/sushitrain.go)
 
 To use the `main` branch, run `go get -u github.com/syncthing/syncthing@main` in the `SushitrainCore` directory.
 
@@ -243,7 +242,7 @@ Sushitrain, Synctrain are (C) Tommy van der Vorst (tommy@t-shaped.nl), 2024-2026
 Except when explicitly noted otherwise, the code in this repository is licensed under the Mozilla Public License 2.0.
 Read the license [here](./LICENSE). Contributors to this repository agree to license their contributions under this license.
 
-The inital [3D logo model](./Assets/Sushitrain%20glass%20icon.blend) was made by [Kai Werder](https://werder.fyi) in 2025 with
+The initial [3D logo model](./Assets/Sushitrain%20glass%20icon.blend) was made by [Kai Werder](https://werder.fyi) in 2025 with
 Blender 4.5.1 LTS, and is distributed under the Mozilla Public License 2.0.
 
 The following items are explicitly _not_ licensed under the abovementioned license. Instead all rights are reserved by the
