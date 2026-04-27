@@ -5,7 +5,6 @@
 # You can obtain one at https://mozilla.org/MPL/2.0/.
 PATH := $(shell pwd):/opt/homebrew/bin:$(HOME)/go/bin:$(PATH)
 SHELL := env PATH="$(PATH)" /bin/bash
-GOMOBILE_VERSION := $(shell gomobile version)
 GO_VERSION := $(shell go version)
 
 .PHONY: clean install deps

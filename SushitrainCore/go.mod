@@ -1,6 +1,6 @@
 module t-shaped.nl/sushitrain/v2
 
-go 1.25.0
+go 1.26.0
 
 replace github.com/gobwas/glob v0.2.3 => github.com/calmh/glob v0.0.0-20220615080505-1d823af5017b
 
