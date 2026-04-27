@@ -45,10 +45,6 @@ jobs:
         run: |
           make core
 
-      - name: Obtain certificate
-        run: |
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o "./Assets/developer-certificate.p12"
-
       - name: Build for iOS and macOS
         run: |
           make ios mac
@@ -61,7 +57,3 @@ jobs:
           path: ./Build
           retention-days: 3
 
-      # - name: Generate artifact attestation
-      #   uses: actions/attest-build-provenance@v2
-      #   with:
-      #     subject-path: ./Build/synctrain.ipa
