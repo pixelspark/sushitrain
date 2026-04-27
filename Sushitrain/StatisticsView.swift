@@ -44,11 +44,14 @@ struct TotalStatisticsView: View {
 						)
 					}
 				}
-				
+
 				if appState.userSettings.firstRunAt > 0.0 {
 					Section("App usage") {
-						Text("First time").badge(Date(timeIntervalSinceReferenceDate: appState.userSettings.firstRunAt).formatted(date: .abbreviated, time: .omitted))
-						let durationSections = Duration.seconds(Date.now.timeIntervalSince(Date(timeIntervalSinceReferenceDate: appState.userSettings.firstRunAt)))
+						Text("First time").badge(
+							Date(timeIntervalSinceReferenceDate: appState.userSettings.firstRunAt).formatted(
+								date: .abbreviated, time: .omitted))
+						let durationSections = Duration.seconds(
+							Date.now.timeIntervalSince(Date(timeIntervalSinceReferenceDate: appState.userSettings.firstRunAt)))
 						Text("Used for").badge(durationSections.formatted())
 					}
 				}
