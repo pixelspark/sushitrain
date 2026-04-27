@@ -453,8 +453,20 @@ func (fld *Folder) SetSelective(selective bool) error {
 	})
 }
 
+// This deselects all files, but (importantly) keeps global ignore patterns
 func (fld *Folder) ClearSelection() error {
-	fld.cachedIgnore.matcher = nil // Purge our cache
+	fld.changeSelection(func(selection *Selection) error {
+		if !selection.isSelectiveIgnore() {
+			return errors.New("folder is not a selective sync folder")
+		}
+
+		selection.FilterSelectedPaths(func(path string) bool {
+			// Deselect all
+			return false
+		})
+		return nil
+	})
+
 	err := fld.client.app.Internals.SetIgnores(fld.FolderID, []string{"*"})
 	if err != nil {
 		return err
@@ -1011,6 +1023,7 @@ func (fld *Folder) IgnoreLines() (*ListOfStrings, error) {
 	return List(ignores.Lines()), nil
 }
 
+// This overwrites the ignore file with the selected lines. Note that this should not be used on selective folders
 func (fld *Folder) SetIgnoreLines(lines *ListOfStrings) error {
 	slog.Info("set ignore", "lines", len(lines.data))
 	fld.cachedIgnore.matcher = nil // Purge our cache
@@ -1079,6 +1092,8 @@ func (fld *Folder) changeSelection(block func(sel *Selection) error) (*ignore.Ma
 	if err != nil {
 		return nil, err
 	}
+
+	fld.cachedIgnore.matcher = nil // Purge our cache
 
 	// Delete files if necessary
 	ignores, err = fld.loadIgnores()
