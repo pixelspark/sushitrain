@@ -446,8 +446,8 @@ func (fld *Folder) SetSelective(selective bool) error {
 	fld.cachedIgnore.matcher = nil // Purge our cache
 
 	return fld.whilePaused(func() error {
-		_, err := fld.changeSelection(func(selection *Selection) error {
-			return selection.SetSelective(selective)
+		_, err := fld.changeSelection(func(selection *selection) error {
+			return selection.setSelective(selective)
 		})
 		return err
 	})
@@ -455,12 +455,12 @@ func (fld *Folder) SetSelective(selective bool) error {
 
 // This deselects all files, but (importantly) keeps global ignore patterns
 func (fld *Folder) ClearSelection() error {
-	fld.changeSelection(func(selection *Selection) error {
+	fld.changeSelection(func(selection *selection) error {
 		if !selection.isSelectiveIgnore() {
 			return errors.New("folder is not a selective sync folder")
 		}
 
-		selection.FilterSelectedPaths(func(path string) bool {
+		selection.filterSelectedPaths(func(path string) bool {
 			// Deselect all
 			return false
 		})
@@ -490,8 +490,8 @@ func (fld *Folder) SelectedPaths(onlyExisting bool) (*ListOfStrings, error) {
 		return nil, err
 	}
 
-	selection := NewSelection(lines)
-	paths := selection.SelectedPaths()
+	selection := newSelection(lines)
+	paths := selection.selectedPaths()
 
 	if onlyExisting {
 		ffs, err := fld.filesystem()
@@ -617,7 +617,7 @@ func (fld *Folder) IsSelective() bool {
 		return false
 	}
 
-	return NewSelection(ignores.Lines()).isSelectiveIgnore()
+	return newSelection(ignores.Lines()).isSelectiveIgnore()
 }
 
 func (fld *Folder) LocalNativePath() (string, error) {
@@ -688,7 +688,7 @@ func (fld *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 		return nil, err
 	}
 
-	selection := NewSelection(ignores.Lines())
+	selection := newSelection(ignores.Lines())
 
 	// Can't have extraneous files when you are not a selective ignore folder
 	if !selection.isSelectiveIgnore() {
@@ -826,7 +826,7 @@ func (fld *Folder) RemoveSuperfluousSelectionEntries() error {
 		return err
 	}
 
-	selection := NewSelection(ignores.Lines())
+	selection := newSelection(ignores.Lines())
 	if !selection.isSelectiveIgnore() {
 		return errors.New("folder is not a selective folder")
 	}
@@ -839,7 +839,7 @@ func (fld *Folder) RemoveSuperfluousSelectionEntries() error {
 	ffs := fc.Filesystem()
 
 	// Enumerate selection entries, find out if we need them
-	selection.FilterSelectedPaths(func(path string) bool {
+	selection.filterSelectedPaths(func(path string) bool {
 		// Find entry
 		entry, err := fld.GetFileInformation(path)
 		if err != nil || entry == nil {
@@ -862,7 +862,7 @@ func (fld *Folder) RemoveSuperfluousSelectionEntries() error {
 	})
 
 	// Save new ignores (this triggers a reload of ignores and eventually a scan)
-	err = fld.client.app.Internals.SetIgnores(fld.FolderID, selection.Lines())
+	err = fld.client.app.Internals.SetIgnores(fld.FolderID, selection.patterns())
 	if err != nil {
 		return err
 	}
@@ -1053,30 +1053,30 @@ func (fld *Folder) GetSelectiveGlobalIgnorePatterns() (*ListOfStrings, error) {
 		return nil, err
 	}
 
-	selection := NewSelection(ignores.Lines())
+	selection := newSelection(ignores.Lines())
 	if !selection.isSelectiveIgnore() {
 		return nil, errors.New("folder is not a selective folder")
 	}
 
-	return List(selection.GlobalIgnorePatterns()), nil
+	return List(selection.globalIgnorePatterns()), nil
 }
 
 func (fld *Folder) SetSelectiveGlobalIgnorePatterns(patterns *ListOfStrings) error {
 	slog.Info("changing selective folder global ignores", "patterns", patterns)
-	_, err := fld.changeSelection(func(sel *Selection) error {
-		return sel.SetGlobalIgnorePatterns(patterns.data)
+	_, err := fld.changeSelection(func(sel *selection) error {
+		return sel.setGlobalIgnorePatterns(patterns.data)
 	})
 	return err
 }
 
-func (fld *Folder) changeSelection(block func(sel *Selection) error) (*ignore.Matcher, error) {
+func (fld *Folder) changeSelection(block func(sel *selection) error) (*ignore.Matcher, error) {
 	// Load ignores from file
 	ignores, err := fld.loadIgnores()
 	if err != nil {
 		return nil, err
 	}
 
-	selection := NewSelection(ignores.Lines())
+	selection := newSelection(ignores.Lines())
 	if !selection.isSelectiveIgnore() {
 		return nil, errors.New("folder is not a selective folder")
 	}
@@ -1088,7 +1088,7 @@ func (fld *Folder) changeSelection(block func(sel *Selection) error) (*ignore.Ma
 	}
 
 	// Save new ignores (this triggers a reload of ignores and eventually a scan)
-	err = fld.client.app.Internals.SetIgnores(fld.FolderID, selection.Lines())
+	err = fld.client.app.Internals.SetIgnores(fld.FolderID, selection.patterns())
 	if err != nil {
 		return nil, err
 	}
@@ -1146,9 +1146,9 @@ func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
 		}
 	}
 
-	ignores, err := fld.changeSelection(func(selection *Selection) error {
+	ignores, err := fld.changeSelection(func(selection *selection) error {
 		// Edit lines
-		return selection.SetExplicitlySelected(paths)
+		return selection.setExplicitlySelected(paths)
 	})
 	if err != nil {
 		return err

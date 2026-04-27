@@ -242,8 +242,8 @@ func (entry *Entry) IsExplicitlySelected() bool {
 		return false
 	}
 
-	selection := NewSelection(lines)
-	return selection.IsEntryExplicitlySelected(entry)
+	selection := newSelection(lines)
+	return selection.isEntryExplicitlySelected(entry)
 }
 
 func (entry *Entry) SetExplicitlySelected(selected bool) error {

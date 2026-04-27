@@ -14,12 +14,12 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-type Selection struct {
+type selection struct {
 	lines []string
 }
 
-func NewSelection(lines []string) *Selection {
-	sel := &Selection{
+func newSelection(lines []string) *selection {
+	sel := &selection{
 		lines: lines,
 	}
 
@@ -49,7 +49,7 @@ func cleanSelectiveSelection(lines []string) ([]string, error) {
 			continue
 		} else if isSelectionPattern(line) {
 			selectionPatterns = append(selectionPatterns, line)
-		} else if IsGlobalIgnorePattern(line) {
+		} else if isGlobalIgnorePattern(line) {
 			result = append(result, line)
 		} else if isCommentPattern(line) {
 			// Throw these out
@@ -81,7 +81,7 @@ func cleanSelectiveSelection(lines []string) ([]string, error) {
 	return result, nil
 }
 
-func (sel *Selection) SetSelective(selective bool) error {
+func (sel *selection) setSelective(selective bool) error {
 	isSelective := sel.isSelectiveIgnore()
 	if selective == isSelective {
 		// Nothing to be changed
@@ -89,7 +89,7 @@ func (sel *Selection) SetSelective(selective bool) error {
 	}
 
 	newLines := Filter(sel.lines, func(line string) bool {
-		return IsGlobalIgnorePattern(line)
+		return isGlobalIgnorePattern(line)
 	})
 
 	if selective {
@@ -108,7 +108,7 @@ func (sel *Selection) SetSelective(selective bool) error {
 }
 
 // Returns whether the provided set of ignore lines are valid for 'selective' mode
-func (sel *Selection) isSelectiveIgnore() bool {
+func (sel *selection) isSelectiveIgnore() bool {
 	if len(sel.lines) == 0 {
 		return false
 	}
@@ -133,7 +133,7 @@ func (sel *Selection) isSelectiveIgnore() bool {
 					return false
 				}
 				inSelectionPatterns = true
-			} else if IsGlobalIgnorePattern(pattern) {
+			} else if isGlobalIgnorePattern(pattern) {
 				if inSelectionPatterns {
 					return false
 				} else {
@@ -152,24 +152,24 @@ func isSelectionPattern(pattern string) bool {
 	return strings.HasPrefix(pattern, "!/") && !strings.Contains(pattern, "*")
 }
 
-func IsGlobalIgnorePattern(pattern string) bool {
+func isGlobalIgnorePattern(pattern string) bool {
 	return strings.HasPrefix(pattern, "(?d)") && !strings.Contains(pattern, "**") && !strings.Contains(pattern, "/")
 }
 
-func (sel *Selection) GlobalIgnorePatterns() []string {
+func (sel *selection) globalIgnorePatterns() []string {
 	patterns := make([]string, 0)
 	for _, pattern := range sel.lines {
-		if IsGlobalIgnorePattern(pattern) {
+		if isGlobalIgnorePattern(pattern) {
 			patterns = append(patterns, pathForIgnoreLine(pattern))
 		}
 	}
 	return patterns
 }
 
-func (sel *Selection) SetGlobalIgnorePatterns(patterns []string) error {
+func (sel *selection) setGlobalIgnorePatterns(patterns []string) error {
 	// Check whether the patterns supplied are valid global ignores
 	for _, pattern := range patterns {
-		if !IsGlobalIgnorePattern(pattern) {
+		if !isGlobalIgnorePattern(pattern) {
 			return fmt.Errorf("pattern is not a valid global ignore pattern: '%s'", pattern)
 		}
 	}
@@ -179,7 +179,7 @@ func (sel *Selection) SetGlobalIgnorePatterns(patterns []string) error {
 	newSel := make([]string, 0)
 	newSel = append(newSel, patterns...)
 	for _, pattern := range sel.lines {
-		if !IsGlobalIgnorePattern(pattern) {
+		if !isGlobalIgnorePattern(pattern) {
 			newSel = append(newSel, pattern)
 		}
 	}
@@ -193,11 +193,11 @@ func globPatternFromGlobalIgnorePattern(pattern string) string {
 }
 
 // Returns a set of globs that correspond to the global ignores in a selective folder.
-func (sel *Selection) globalIgnoreGlobs() ([]glob.Glob, error) {
+func (sel *selection) globalIgnoreGlobs() ([]glob.Glob, error) {
 	globs := make([]glob.Glob, 0)
 
 	for _, pattern := range sel.lines {
-		if IsGlobalIgnorePattern(pattern) {
+		if isGlobalIgnorePattern(pattern) {
 			globPattern := globPatternFromGlobalIgnorePattern(pattern)
 			gl, err := glob.Compile(globPattern, '/')
 			if err != nil {
@@ -218,9 +218,9 @@ func (sel *Selection) globalIgnoreGlobs() ([]glob.Glob, error) {
 	return globs, nil
 }
 
-func (sel *Selection) IsGloballyIgnored(path string) (bool, error) {
+func (sel *selection) isGloballyIgnored(path string) (bool, error) {
 	for _, pattern := range sel.lines {
-		if IsGlobalIgnorePattern(pattern) {
+		if isGlobalIgnorePattern(pattern) {
 			globPattern := globPatternFromGlobalIgnorePattern(pattern)
 			gl, err := glob.Compile(globPattern, '/')
 			if err != nil {
@@ -234,11 +234,11 @@ func (sel *Selection) IsGloballyIgnored(path string) (bool, error) {
 	return false, nil
 }
 
-func (sel *Selection) Lines() []string {
+func (sel *selection) patterns() []string {
 	return sel.lines
 }
 
-func (sel *Selection) SetExplicitlySelected(paths map[string]bool) error {
+func (sel *selection) setExplicitlySelected(paths map[string]bool) error {
 	// This requires a (valid) selective ignore file
 	if !sel.isSelectiveIgnore() {
 		return fmt.Errorf("ignore file is not valid for selective sync")
@@ -317,12 +317,12 @@ func (sel *Selection) SetExplicitlySelected(paths map[string]bool) error {
 	return nil
 }
 
-func (sel *Selection) IsEntryExplicitlySelected(entry *Entry) bool {
+func (sel *selection) isEntryExplicitlySelected(entry *Entry) bool {
 	path := entry.info.FileName()
-	return sel.IsPathExplicitlySelected(path)
+	return sel.isPathExplicitlySelected(path)
 }
 
-func (sel *Selection) IsPathExplicitlySelected(path string) bool {
+func (sel *selection) isPathExplicitlySelected(path string) bool {
 	ignoreLine := ignoreLineForSelectingPath(path)
 
 	for _, line := range sel.lines {
@@ -336,7 +336,7 @@ func (sel *Selection) IsPathExplicitlySelected(path string) bool {
 	return false
 }
 
-func (sel *Selection) SelectedPaths() []string {
+func (sel *selection) selectedPaths() []string {
 	paths := make([]string, 0)
 	for _, pattern := range sel.lines {
 		if len(pattern) > 0 && pattern[0] == '!' {
@@ -346,7 +346,7 @@ func (sel *Selection) SelectedPaths() []string {
 	return paths
 }
 
-func (sel *Selection) FilterSelectedPaths(retain func(string) bool) {
+func (sel *selection) filterSelectedPaths(retain func(string) bool) {
 	newLines := make([]string, 0)
 
 	for _, pattern := range sel.lines {

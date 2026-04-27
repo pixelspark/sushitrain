@@ -16,7 +16,7 @@ func TestRemoveNested(t *testing.T) {
 	}
 
 	for _, ba := range beforeAfter {
-		sel := NewSelection(ba[0])
+		sel := newSelection(ba[0])
 		if !slices.Equal(sel.lines, ba[1]) {
 			t.Errorf("mismatch: %s %s", sel.lines, ba[1])
 		}
@@ -34,7 +34,7 @@ func TestIsSelective(t *testing.T) {
 	}
 
 	for _, file := range goodFiles {
-		if !NewSelection(file).isSelectiveIgnore() {
+		if !newSelection(file).isSelectiveIgnore() {
 			t.Errorf("file is not selective ignore: %s", file)
 		}
 	}
@@ -49,7 +49,7 @@ func TestIsSelective(t *testing.T) {
 	}
 
 	for _, file := range badFiles {
-		if NewSelection(file).isSelectiveIgnore() {
+		if newSelection(file).isSelectiveIgnore() {
 			t.Errorf("file is selective ignore: %s", file)
 		}
 	}
@@ -58,13 +58,13 @@ func TestIsSelective(t *testing.T) {
 func TestChanges(t *testing.T) {
 	lines := []string{"(?d).DS_Store", "(?d)*.json", "(?d)*.json", "!/a/b", "*"}
 
-	sel := NewSelection(lines)
+	sel := newSelection(lines)
 	if !sel.isSelectiveIgnore() {
 		t.Errorf("file is not selective ignore but it should be")
 	}
 
 	// Remove invalid file selection and check if we are still selective
-	sel.SetExplicitlySelected(map[string]bool{
+	sel.setExplicitlySelected(map[string]bool{
 		"!/x/y/z": false,
 	})
 
@@ -73,7 +73,7 @@ func TestChanges(t *testing.T) {
 	}
 
 	// Remove file selection and check if we are still selective
-	sel.SetExplicitlySelected(map[string]bool{
+	sel.setExplicitlySelected(map[string]bool{
 		"!/a/b": false,
 	})
 
@@ -82,7 +82,7 @@ func TestChanges(t *testing.T) {
 	}
 
 	// Add a file selection and check if we are still selective
-	sel.SetExplicitlySelected(map[string]bool{
+	sel.setExplicitlySelected(map[string]bool{
 		"!/q/w/e/r": true,
 	})
 
@@ -91,7 +91,7 @@ func TestChanges(t *testing.T) {
 	}
 
 	// Set global patterns and check if we are still selective
-	err := sel.SetGlobalIgnorePatterns([]string{"(?d)*.json", "(?d)*.txt", "(?d).DS_Store"})
+	err := sel.setGlobalIgnorePatterns([]string{"(?d)*.json", "(?d)*.txt", "(?d).DS_Store"})
 	if err != nil {
 		t.Errorf("SetGlobalIgnorePatterns failed: %e", err)
 	}
