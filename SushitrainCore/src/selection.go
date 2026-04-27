@@ -213,10 +213,17 @@ func (sel *Selection) Lines() []string {
 }
 
 func (sel *Selection) SetExplicitlySelected(paths map[string]bool) error {
+	// This requires a (valid) selective ignore file
+	if !sel.isSelectiveIgnore() {
+		return fmt.Errorf("ignore file is not valid for selective sync")
+	}
+
 	globalIgnoreGlobs, err := sel.globalIgnoreGlobs()
 	if err != nil {
 		return fmt.Errorf("ignore file contains invalid global ignores: %w", err)
 	}
+
+	newLines := sel.lines
 
 	for path, selectPath := range paths {
 		line := ignoreLineForSelectingPath(path)
@@ -233,14 +240,14 @@ func (sel *Selection) SetExplicitlySelected(paths map[string]bool) error {
 		}
 
 		// Is this entry currently selected explicitly?
-		currentlySelectedExplicitly := slices.Contains(sel.lines, line)
+		currentlySelectedExplicitly := slices.Contains(newLines, line)
 		if currentlySelectedExplicitly == selectPath {
 			// not changing selecting status for path, it is the status quo
 			continue
 		}
 
 		// Is this entry currently selected implicitly? (i.e. due to a parent path being selected)
-		currentlySelectedImplicitly := slices.ContainsFunc(sel.lines, func(existingLine string) bool {
+		currentlySelectedImplicitly := slices.ContainsFunc(newLines, func(existingLine string) bool {
 			return existingLine != line && strings.HasPrefix(line, existingLine)
 		})
 
@@ -249,7 +256,7 @@ func (sel *Selection) SetExplicitlySelected(paths map[string]bool) error {
 		}
 
 		// Is this entry a prefix of another explicitly selected entry? Then refuse changes
-		childrenSelectedImplicitly := slices.ContainsFunc(sel.lines, func(existingLine string) bool {
+		childrenSelectedImplicitly := slices.ContainsFunc(newLines, func(existingLine string) bool {
 			return existingLine != line && strings.HasPrefix(existingLine, line)
 		})
 
@@ -258,19 +265,29 @@ func (sel *Selection) SetExplicitlySelected(paths map[string]bool) error {
 		}
 
 		// To deselect, remove the relevant ignore line
-		countBefore := len(sel.lines)
+		countBefore := len(newLines)
 		if !selectPath {
-			sel.lines = Filter(sel.lines, func(l string) bool {
+			newLines = Filter(newLines, func(l string) bool {
 				return l != line
 			})
-			if len(sel.lines) != countBefore-1 {
+			if len(newLines) != countBefore-1 {
 				return fmt.Errorf("failed to remove ignore line '%s'", line)
 			}
 		} else {
-			// To select, prepend it
-			sel.lines = append([]string{line}, sel.lines...)
+			// To select, append it (but before the last '*')
+			slog.Info("adding", "before", newLines)
+			newLines = append(newLines[:len(newLines)-1], line, "*")
+			slog.Info("adding", "after", newLines)
 		}
 	}
+
+	sel.lines = newLines
+
+	// We should end up with a valid ignore file
+	if !sel.isSelectiveIgnore() {
+		panic("ignore file is not selective anymore after SetExplicitlySelected")
+	}
+
 	return nil
 }
 

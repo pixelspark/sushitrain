@@ -54,3 +54,49 @@ func TestIsSelective(t *testing.T) {
 		}
 	}
 }
+
+func TestChanges(t *testing.T) {
+	lines := []string{"(?d).DS_Store", "(?d)*.json", "(?d)*.json", "!/a/b", "*"}
+
+	sel := NewSelection(lines)
+	if !sel.isSelectiveIgnore() {
+		t.Errorf("file is not selective ignore but it should be")
+	}
+
+	// Remove invalid file selection and check if we are still selective
+	sel.SetExplicitlySelected(map[string]bool{
+		"!/x/y/z": false,
+	})
+
+	if !sel.isSelectiveIgnore() {
+		t.Errorf("file is not selective ignore after change 1 but it should be")
+	}
+
+	// Remove file selection and check if we are still selective
+	sel.SetExplicitlySelected(map[string]bool{
+		"!/a/b": false,
+	})
+
+	if !sel.isSelectiveIgnore() {
+		t.Errorf("file is not selective ignore after change 2 but it should be")
+	}
+
+	// Add a file selection and check if we are still selective
+	sel.SetExplicitlySelected(map[string]bool{
+		"!/q/w/e/r": true,
+	})
+
+	if !sel.isSelectiveIgnore() {
+		t.Errorf("file is not selective ignore after change 3 but it should be")
+	}
+
+	// Set global patterns and check if we are still selective
+	err := sel.SetGlobalIgnorePatterns([]string{"(?d)*.json", "(?d)*.txt", "(?d).DS_Store"})
+	if err != nil {
+		t.Errorf("SetGlobalIgnorePatterns failed: %e", err)
+	}
+
+	if !sel.isSelectiveIgnore() {
+		t.Errorf("file is not selective ignore after change 4 but it should be")
+	}
+}
