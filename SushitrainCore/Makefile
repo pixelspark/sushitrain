@@ -17,6 +17,7 @@ ifndef GO_VERSION
 endif
 	go get -tool golang.org/x/mobile/cmd/gomobile
 	go get -tool golang.org/x/mobile/cmd/gobind
+	go tool gomobile init
 
 notices.html: notices.template.html go.mod go.sum
 	go get -tool github.com/google/go-licenses@latest
