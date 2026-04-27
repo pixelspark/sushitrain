@@ -496,35 +496,6 @@ func (fld *Folder) SelectedPaths(onlyExisting bool) (*ListOfStrings, error) {
 	return &ListOfStrings{data: paths}, nil
 }
 
-func (fld *Folder) HasSelectedPaths() bool {
-	if fld.client.app == nil || fld.client.app.Internals == nil {
-		return false
-	}
-
-	fc := fld.folderConfiguration()
-	if fc == nil {
-		return false
-	}
-
-	if !fld.IsSelective() {
-		return false
-	}
-
-	lines, _, err := fld.client.app.Internals.Ignores(fld.FolderID)
-	if err != nil {
-		return false
-	}
-
-	// All except the last pattern must start with '!', the last pattern must be  '*'
-	for _, pattern := range lines {
-		if len(pattern) > 0 && pattern[0] == '!' {
-			return true
-		}
-	}
-
-	return false
-}
-
 const (
 	FolderTypeSendReceive      = "sendrecieve"
 	FolderTypeReceiveOnly      = "receiveonly"
