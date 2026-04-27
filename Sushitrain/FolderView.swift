@@ -281,9 +281,17 @@ struct FolderSyncTypePicker: View {
 		case selectedFiles = "selectedFiles"
 	}
 
+	private struct ErrorMessage: Identifiable {
+		var message: String
+		var id: String {
+			return self.message
+		}
+	}
+
 	@Environment(AppState.self) private var appState
 	@State private var changeProhibited = true
 	@State private var folderSyncType: FolderSyncType? = nil
+	@State private var error: ErrorMessage? = nil
 	var folder: SushitrainFolder
 
 	var body: some View {
@@ -300,8 +308,19 @@ struct FolderSyncTypePicker: View {
 		}
 		.onChange(of: folderSyncType) { ov, nv in
 			if let nv = nv, ov != nv && ov != nil {
-				try? self.folder.setSelective(nv == .selectedFiles)
+				do {
+					try self.folder.setSelective(nv == .selectedFiles)
+				}
+				catch {
+					self.error = ErrorMessage(message: error.localizedDescription)
+				}
 			}
+		}
+		.alert(item: self.$error) { err in
+			Alert(
+				title: Text("Could not change folder type"), message: Text(err.message),
+				dismissButton: .default(Text("OK"))
+			)
 		}
 		.pickerStyle(.menu)
 		.disabled(changeProhibited)
