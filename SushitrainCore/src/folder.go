@@ -439,19 +439,17 @@ func (fld *Folder) whilePaused(block func() error) error {
 }
 
 func (fld *Folder) SetSelective(selective bool) error {
-	fld.cachedIgnore.matcher = nil // Purge our cache
+	slog.Info("SetSelective", "folder", fld.FolderID, "selective", selective)
 	if fld.client.app == nil || fld.client.app.Internals == nil {
 		return errNoClient
 	}
+	fld.cachedIgnore.matcher = nil // Purge our cache
 
 	return fld.whilePaused(func() error {
-		if selective {
-			fld.cachedIgnore.matcher = nil // Purge our cache
-			return fld.client.app.Internals.SetIgnores(fld.FolderID, []string{"*"})
-		} else {
-			fld.cachedIgnore.matcher = nil // Purge our cache
-			return fld.client.app.Internals.SetIgnores(fld.FolderID, []string{})
-		}
+		_, err := fld.changeSelection(func(selection *Selection) error {
+			return selection.SetSelective(selective)
+		})
+		return err
 	})
 }
 

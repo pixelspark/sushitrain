@@ -81,6 +81,32 @@ func cleanSelectiveSelection(lines []string) ([]string, error) {
 	return result, nil
 }
 
+func (sel *Selection) SetSelective(selective bool) error {
+	isSelective := sel.isSelectiveIgnore()
+	if selective == isSelective {
+		// Nothing to be changed
+		return nil
+	}
+
+	newLines := Filter(sel.lines, func(line string) bool {
+		return IsGlobalIgnorePattern(line)
+	})
+
+	if selective {
+		// We're making an existing folder selective. We're going to copy over any existing old global ignores and append the "*" pattern
+		newLines = append(newLines, "*")
+	} else {
+		// We're making a selective folder non-selective. Copy over any global ignores, but ignore nothing else
+	}
+
+	sel.lines = newLines
+	if sel.isSelectiveIgnore() != selective {
+		panic(fmt.Sprintf("SetSelective failed (selective=%t)", selective))
+	}
+
+	return nil
+}
+
 // Returns whether the provided set of ignore lines are valid for 'selective' mode
 func (sel *Selection) isSelectiveIgnore() bool {
 	if len(sel.lines) == 0 {
