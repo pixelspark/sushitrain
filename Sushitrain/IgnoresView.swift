@@ -372,7 +372,7 @@ struct SelectiveIgnoresView: View {
 		do {
 			self.error = nil
 			self.loading = true
-			var lines = (try self.folder.getSelectiveGlobalIgnorePatterns()).asArray()
+			let lines = (try self.folder.getSelectiveGlobalIgnorePatterns()).asArray()
 			Log.info("Got patterns: \(lines)")
 			self.ignorePatterns = lines
 		}
