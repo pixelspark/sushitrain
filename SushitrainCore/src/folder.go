@@ -455,7 +455,7 @@ func (fld *Folder) SetSelective(selective bool) error {
 
 // This deselects all files, but (importantly) keeps global ignore patterns
 func (fld *Folder) ClearSelection() error {
-	fld.changeSelection(func(selection *selection) error {
+	_, err := fld.changeSelection(func(selection *selection) error {
 		if !selection.isSelectiveIgnore() {
 			return errors.New("folder is not a selective sync folder")
 		}
@@ -467,7 +467,6 @@ func (fld *Folder) ClearSelection() error {
 		return nil
 	})
 
-	err := fld.client.app.Internals.SetIgnores(fld.FolderID, []string{"*"})
 	if err != nil {
 		return err
 	}
