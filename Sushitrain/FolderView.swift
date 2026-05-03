@@ -1368,20 +1368,7 @@ private struct AdvancedFolderSettingsView: View {
 			}
 
 			Section {
-				Toggle(
-					"Enable block index",
-					isOn: Binding(
-						get: {
-							return folder.isBlockIndexingEnabled()
-						},
-						set: {
-							do {
-								try folder.setBlockIndexingEnabled($0)
-							}
-							catch {
-								self.showError = ErrorMessage(error)
-							}
-						}))
+				BlockIndexToggle(folder: folder)
 			} footer: {
 				Text(
 					"When receiving files from other peers, the block index can be used to find pieces of a file that are already on the device, which reduced data transfer. However, the block index takes up space on the disk. It is recommended to only enable the block index when this folder contains files that are present in other folders as well, and/or appear multiple times."
@@ -1406,5 +1393,47 @@ private struct AdvancedFolderSettingsView: View {
 			#if os(macOS)
 				.presentationSizing(.form)
 			#endif
+	}
+}
+
+private struct BlockIndexToggle: View {
+	let folder: SushitrainFolder
+
+	@State private var indexEnabled: Bool? = nil
+	@State private var showError: ErrorMessage? = nil
+
+	var body: some View {
+		Toggle(
+			"Enable block index",
+			isOn: Binding(
+				get: {
+					return self.indexEnabled == true
+				},
+				set: {
+					setEnabled($0)
+				})
+		)
+		.disabled(self.indexEnabled == nil)
+		.errorAlert($showError)
+		.task {
+			self.update()
+		}
+	}
+
+	private func setEnabled(_ enabled: Bool) {
+		self.indexEnabled = enabled
+		Task {
+			do {
+				try folder.setBlockIndexingEnabled(enabled)
+				self.update()
+			}
+			catch {
+				self.showError = ErrorMessage(error)
+			}
+		}
+	}
+
+	private func update() {
+		self.indexEnabled = self.folder.isBlockIndexingEnabled()
 	}
 }
