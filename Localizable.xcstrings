@@ -6716,6 +6716,52 @@
         }
       }
     },
+    "Block index disabled for all folders" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indexierung für alle Ordner deaktiviert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Índice de bloqueo desactivado para todas las carpetas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indicizzazione disabilitata per tutte le cartelle"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべてのフォルダーのインデックスが無効になっています"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indexeren uitgeschakeld voor alle mappen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Індексацію вимкнено для всіх папок"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有文件夹的索引已停用"
+          }
+        }
+      }
+    },
     "Bookmark" : {
       "localizations" : {
         "de" : {
@@ -9246,52 +9292,6 @@
         }
       }
     },
-    "Could not change folder type" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ordner-Typ konnte nicht geändert werden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No se pudo cambiar el tipo de carpeta"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossibile modificare il tipo di cartella"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "フォルダの種類を変更できませんでした"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Type map kon niet worden gewijzigd"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Не вдалося змінити тип папки"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "无法更改文件夹类型"
-          }
-        }
-      }
-    },
     "Could not change synchronization setting" : {
       "localizations" : {
         "de" : {
@@ -11704,6 +11704,52 @@
         }
       }
     },
+    "Disable block index for all folders" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blockindex für alle Ordner deaktivieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactivar el índice de bloqueo para todas las carpetas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disabilita l'indice di blocco per tutte le cartelle"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべてのフォルダのブロックインデックスを無効にする"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schakel blokindexering uit voor alle mappen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вимкнути індексування блоків для всіх папок"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "禁用所有文件夹的块索引"
+          }
+        }
+      }
+    },
     "Disabling 'watch for changes' for this folder may resolve the issue." : {
       "localizations" : {
         "de" : {
@@ -11893,13 +11939,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verwerfen"
+            "value" : "Schließen "
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Descartar"
+            "value" : "Cerrar"
           }
         },
         "it" : {
@@ -11917,7 +11963,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Afwijzen"
+            "value" : "Sluiten"
           }
         },
         "uk" : {
@@ -12666,6 +12712,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "启用所有设备"
+          }
+        }
+      }
+    },
+    "Enable block index" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Block-Index aktivieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habilitar índice de bloques"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abilita indice blocchi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ブロックインデックスを有効にする"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blokindex inschakelen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Увімкнути індекс блоків"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "启用块索引"
           }
         }
       }
@@ -42938,6 +43030,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "上次同步已经是很久以前的事了"
+          }
+        }
+      }
+    },
+    "When receiving files from other peers, the block index can be used to find pieces of a file that are already on the device, which reduced data transfer. However, the block index takes up space on the disk. It is recommended to only enable the block index when this folder contains files that are present in other folders as well, and/or appear multiple times." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beim Empfangen von Dateien von anderen Peers kann der Blockindex verwendet werden, um Teile einer Datei zu finden, die bereits auf dem Gerät vorhanden sind, wodurch der Datenübertragungsaufwand reduziert wird. Der Blockindex belegt jedoch Speicherplatz auf der Festplatte. Es wird empfohlen, den Blockindex nur zu aktivieren, wenn dieser Ordner Dateien enthält, die auch in anderen Ordnern vorhanden sind und/oder mehrmals vorkommen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al recibir archivos de otros pares, el índice de bloques se puede usar para encontrar piezas de un archivo que ya están en el dispositivo, lo que reduce la transferencia de datos. Sin embargo, el índice de bloques ocupa espacio en el disco. Se recomienda habilitar el índice de bloques solo cuando esta carpeta contiene archivos que están presentes en otras carpetas y/o aparecen varias veces."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando si ricevono file da altri peer, l'indice dei blocchi può essere utilizzato per trovare parti di un file già presenti sul dispositivo, riducendo così il trasferimento dei dati. Tuttavia, l'indice dei blocchi occupa spazio sul disco. È consigliabile abilitare l'indice dei blocchi solo quando questa cartella contiene file presenti anche in altre cartelle e/o che appaiono più volte."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "他のピアからファイルを受信する際、ブロックインデックスを使用して、デバイスに既にあるファイルの一部を見つけることができ、データ転送を削減します。ただし、ブロックインデックスはディスク上のスペースを占有します。このフォルダに他のフォルダにも存在するファイルや、複数回出現するファイルが含まれている場合にのみ、ブロックインデックスを有効にすることをお勧めします。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bij het ontvangen van bestanden van andere peers kan de blokindex worden gebruikt om stukken van een bestand te vinden die al op het apparaat staan, wat de gegevensoverdracht vermindert. De blokindex neemt echter ruimte in beslag op de schijf. Het wordt aanbevolen om de blokindex alleen in te schakelen wanneer deze map bestanden bevat die ook in andere mappen aanwezig zijn en/of meerdere keren voorkomen."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "При отриманні файлів від інших пірів, індекс блоків може бути використаний для виявлення частин файлу, які вже є на пристрої, що зменшує передачу даних. Однак, індекс блоків займає місце на диску. Рекомендується вмикати індекс блоків лише тоді, коли ця папка містить файли, які присутні також в інших папках і/або зустрічаються кілька разів."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从其他节点接收文件时，可以使用块索引找到设备上已有的文件片段，从而减少数据传输。然而，块索引会占用磁盘空间。当该文件夹中包含其他文件夹中也存在和/或多次出现的文件时，建议仅启用块索引。"
           }
         }
       }
