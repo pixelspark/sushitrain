@@ -5567,7 +5567,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Weet je zeker dat je %#@arg1@  %2$lld bestanden wilt toevoegen voor synchronisatie met andere apparaten?"
+            "value" : "Weet je zeker dat je %#@arg1@ %2$lld bestanden wilt toevoegen voor synchronisatie met andere apparaten?"
           },
           "substitutions" : {
             "arg1" : {
@@ -5578,13 +5578,13 @@
                   "one" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "één bestand permanent wil verwijderen van dit apparaat, en"
+                      "value" : "één bestand permanent wil verwijderen van dit apparaat, en "
                     }
                   },
                   "other" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "%arg bestanden permanent wil verwijderen van dit apparaat, en"
+                      "value" : "%arg bestanden permanent wil verwijderen van dit apparaat, en "
                     }
                   },
                   "zero" : {
