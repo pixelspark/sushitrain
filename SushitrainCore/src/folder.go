@@ -423,7 +423,8 @@ func (fld *Folder) SetLabel(label string) error {
 }
 
 var (
-	errNoClient = errors.New("client not started up yet")
+	errNoClient             = errors.New("client not started up yet")
+	errFolderConfigNotFound = errors.New("folder config not founnd")
 )
 
 func (fld *Folder) whilePaused(block func() error) error {
@@ -1326,4 +1327,39 @@ func (fld *Folder) IsDiskSpaceSufficient() bool {
 	}
 
 	return fld.client.IsDiskSpaceSufficient()
+}
+
+func (fld *Folder) IsBlockIndexingEnabled() bool {
+	fc := fld.folderConfiguration()
+	if fc == nil {
+		return false
+	}
+	return fc.BlockIndexing
+}
+
+func (fld *Folder) changeFolderConfiguration(modifier func(*config.FolderConfiguration)) error {
+	var innerErr error = nil
+	err := fld.client.changeConfiguration(func(cfg *config.Configuration) {
+		config := fld.folderConfiguration()
+		if config != nil {
+			modifier(config)
+			cfg.SetFolder(*config)
+		} else {
+			innerErr = errFolderConfigNotFound
+		}
+	})
+	if err != nil {
+		return err
+	}
+	if innerErr != nil {
+		return innerErr
+	}
+	return nil
+}
+
+func (fld *Folder) SetBlockIndexingEnabled(enabled bool) error {
+	return fld.changeFolderConfiguration(func(config *config.FolderConfiguration) {
+		slog.Info("setting folder block indexing", "enabled", enabled, "folderID", fld.FolderID)
+		config.BlockIndexing = enabled
+	})
 }

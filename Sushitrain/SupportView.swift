@@ -365,6 +365,8 @@ struct TroubleshootingView: View {
 	@State private var showAllBookmarksRemoved = false
 	@State private var showResetDeviceIdentity = false
 	@State private var showMaintenance = false
+	@State private var showBlockIndexDisabledForAllFolders = false
+	@State private var errorMessage: ErrorMessage? = nil
 
 	private static let formatter = ByteCountFormatter()
 
@@ -500,6 +502,24 @@ struct TroubleshootingView: View {
 				.alert("Ignored discovered devices reset", isPresented: $showIgnoredDiscoveredReset) {
 					Button("OK") {}
 				}
+
+				Button("Disable block index for all folders", role: .destructive) {
+					Task {
+						do {
+							for folder in await appState.folders() {
+								try folder.setBlockIndexingEnabled(false)
+							}
+							showBlockIndexDisabledForAllFolders = true
+						}
+						catch {
+							self.errorMessage = ErrorMessage(error)
+						}
+					}
+				}
+				.alert("Block index disabled for all folders", isPresented: $showBlockIndexDisabledForAllFolders) {
+					Button("OK") {}
+				}
+				.errorAlert($errorMessage)
 			}
 
 			Section("Cache directory") {

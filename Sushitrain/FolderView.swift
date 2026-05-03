@@ -281,13 +281,6 @@ struct FolderSyncTypePicker: View {
 		case selectedFiles = "selectedFiles"
 	}
 
-	private struct ErrorMessage: Identifiable {
-		var message: String
-		var id: String {
-			return self.message
-		}
-	}
-
 	@Environment(AppState.self) private var appState
 	@State private var changeProhibited = true
 	@State private var folderSyncType: FolderSyncType? = nil
@@ -312,21 +305,16 @@ struct FolderSyncTypePicker: View {
 					try self.folder.setSelective(nv == .selectedFiles)
 				}
 				catch {
-					self.error = ErrorMessage(message: error.localizedDescription)
+					self.error = ErrorMessage(error)
 				}
 			}
-		}
-		.alert(item: self.$error) { err in
-			Alert(
-				title: Text("Could not change folder type"), message: Text(err.message),
-				dismissButton: .default(Text("OK"))
-			)
 		}
 		.pickerStyle(.menu)
 		.disabled(changeProhibited)
 		.onAppear {
 			self.update()
 		}
+		.errorAlert($error)
 	}
 
 	private func update() {
@@ -1220,6 +1208,8 @@ private struct AdvancedFolderSettingsView: View {
 	@Environment(AppState.self) private var appState
 	let folder: SushitrainFolder
 
+	@State private var showError: ErrorMessage? = nil
+
 	var body: some View {
 		let isExternal = folder.isExternal
 
@@ -1376,7 +1366,29 @@ private struct AdvancedFolderSettingsView: View {
 					#endif
 				}
 			}
+
+			Section {
+				Toggle(
+					"Enable block index",
+					isOn: Binding(
+						get: {
+							return folder.isBlockIndexingEnabled()
+						},
+						set: {
+							do {
+								try folder.setBlockIndexingEnabled($0)
+							}
+							catch {
+								self.showError = ErrorMessage(error)
+							}
+						}))
+			} footer: {
+				Text(
+					"When receiving files from other peers, the block index can be used to find pieces of a file that are already on the device, which reduced data transfer. However, the block index takes up space on the disk. It is recommended to only enable the block index when this folder contains files that are present in other folders as well, and/or appear multiple times."
+				)
+			}
 		}
+		.errorAlert($showError)
 		.navigationTitle(Text("Advanced folder settings"))
 		#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)

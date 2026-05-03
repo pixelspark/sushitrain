@@ -1290,3 +1290,34 @@ public struct AsJSON<Value: Codable>: RawRepresentable {
 		return result
 	}
 }
+
+struct ErrorMessage: Identifiable {
+	let error: Error
+
+	init(_ error: Error) {
+		self.error = error
+	}
+
+	var id: String {
+		return self.error.localizedDescription
+	}
+}
+
+private struct ErrorViewModifier: ViewModifier {
+	@Binding var errorMessage: ErrorMessage?
+
+	func body(content: Content) -> some View {
+		content
+			.alert(item: $errorMessage) { error in
+				Alert(
+					title: Text("An error has occurred"), message: Text(error.error.localizedDescription),
+					dismissButton: .default(Text("OK")))
+			}
+	}
+}
+
+extension View {
+	func errorAlert(_ errorMessage: Binding<ErrorMessage?>) -> some View {
+		modifier(ErrorViewModifier(errorMessage: errorMessage))
+	}
+}

@@ -730,6 +730,7 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 		conf.Defaults.Folder.RescanIntervalS = 3600          // Force default rescan interval
 		conf.Options.RelayReconnectIntervalM = 1             // Set this to one minute (from the default 10) because on mobile networks this is more often necessary
 		conf.Defaults.Folder.FSWatcherEnabled = !build.IsIOS // Enable watching by default but not on iOS
+		conf.Defaults.Folder.BlockIndexing = false           // Save space by default
 
 		// On iOS and probably macOS, the absolute path to the apps container that has the synchronized folders changes on each
 		// run. Therefore we re-set the absolute folder path here to [app documents directory]/[folder ID] if we don't have
