@@ -76,13 +76,8 @@ func (fld *Folder) RescanIntervalSeconds() int {
 }
 
 func (fld *Folder) SetRescanInterval(seconds int) error {
-	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
-		config := fld.folderConfiguration()
-		if config == nil {
-			return
-		}
+	return fld.changeFolderConfiguration(func(config *config.FolderConfiguration) {
 		config.RescanIntervalS = seconds
-		cfg.SetFolder(*config)
 	})
 }
 
@@ -96,13 +91,8 @@ func (fld *Folder) WatcherDelaySeconds() int {
 }
 
 func (fld *Folder) SetWatcherDelaySeconds(seconds int) error {
-	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
-		config := fld.folderConfiguration()
-		if config == nil {
-			return
-		}
+	return fld.changeFolderConfiguration(func(config *config.FolderConfiguration) {
 		config.FSWatcherDelayS = float64(seconds)
-		cfg.SetFolder(*config)
 	})
 }
 
@@ -165,13 +155,8 @@ func (fld *Folder) IsPaused() bool {
 }
 
 func (fld *Folder) SetPaused(paused bool) error {
-	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
-		config := fld.folderConfiguration()
-		if config == nil {
-			return
-		}
+	return fld.changeFolderConfiguration(func(config *config.FolderConfiguration) {
 		config.Paused = paused
-		cfg.SetFolder(*config)
 	})
 }
 
@@ -185,13 +170,8 @@ func (fld *Folder) IsWatcherEnabled() bool {
 }
 
 func (fld *Folder) SetWatcherEnabled(enabled bool) error {
-	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
-		config := fld.folderConfiguration()
-		if config == nil {
-			return
-		}
+	return fld.changeFolderConfiguration(func(config *config.FolderConfiguration) {
 		config.FSWatcherEnabled = enabled
-		cfg.SetFolder(*config)
 	})
 }
 
@@ -206,13 +186,8 @@ func (fld *Folder) MaxConflicts() int {
 }
 
 func (fld *Folder) SetMaxConflicts(mx int) error {
-	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
-		config := fld.folderConfiguration()
-		if config == nil {
-			return
-		}
+	return fld.changeFolderConfiguration(func(config *config.FolderConfiguration) {
 		config.MaxConflicts = mx
-		cfg.SetFolder(*config)
 	})
 }
 
@@ -413,12 +388,8 @@ func (fld *Folder) Label() string {
 }
 
 func (fld *Folder) SetLabel(label string) error {
-	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
-		config := fld.folderConfiguration()
-		if config != nil {
-			config.Label = label
-			cfg.SetFolder(*config)
-		}
+	return fld.changeFolderConfiguration(func(config *config.FolderConfiguration) {
+		config.Label = label
 	})
 }
 
@@ -553,13 +524,8 @@ func (fld *Folder) Path() string {
 }
 
 func (fld *Folder) SetPath(path string) error {
-	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
-		fc := fld.folderConfiguration()
-		if fc == nil {
-			return
-		}
-		fc.Path = path
-		cfg.SetFolder(*fc)
+	return fld.changeFolderConfiguration(func(config *config.FolderConfiguration) {
+		config.Path = path
 	})
 }
 
@@ -572,12 +538,7 @@ func (fld *Folder) FilesystemType() string {
 }
 
 func (fld *Folder) SetFolderType(folderType string) error {
-	return fld.client.changeConfiguration(func(cfg *config.Configuration) {
-		fc := fld.folderConfiguration()
-		if fc == nil {
-			return
-		}
-
+	return fld.changeFolderConfiguration(func(fc *config.FolderConfiguration) {
 		switch folderType {
 		case FolderTypeReceiveOnly:
 			fc.Type = config.FolderTypeReceiveOnly
@@ -591,7 +552,6 @@ func (fld *Folder) SetFolderType(folderType string) error {
 			// Don't change
 			return
 		}
-		cfg.SetFolder(*fc)
 	})
 }
 
