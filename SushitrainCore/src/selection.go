@@ -64,8 +64,10 @@ func cleanSelectiveSelection(lines []string) ([]string, error) {
 	// Write new ignore lines for selection patterns
 	for _, line := range lines {
 		if isSelectionPattern(line) {
+			// Note: given an existing selection of "/a/some", a new line "/a/something" is *not* implicitly selected,
+			// but "/a/some/thing" is.
 			foundIndex := slices.IndexFunc(selectionPatterns, func(otherLine string) bool {
-				return otherLine != line && strings.HasPrefix(line, otherLine)
+				return otherLine != line && strings.HasPrefix(line, otherLine) && strings.Contains(line[len(otherLine):], "/")
 			})
 
 			if foundIndex >= 0 {
@@ -276,8 +278,10 @@ func (sel *selection) setExplicitlySelected(paths map[string]bool) error {
 		}
 
 		// Is this entry currently selected implicitly? (i.e. due to a parent path being selected)
+		// Note: given an existing selection of "/a/some", a new line "/a/something" is *not* implicitly selected,
+		// but "/a/some/thing" is.
 		currentlySelectedImplicitly := slices.ContainsFunc(newLines, func(existingLine string) bool {
-			return existingLine != line && strings.HasPrefix(line, existingLine)
+			return existingLine != line && strings.HasPrefix(line, existingLine) && strings.Contains(line[len(existingLine):], "/")
 		})
 
 		if currentlySelectedImplicitly {
@@ -285,11 +289,17 @@ func (sel *selection) setExplicitlySelected(paths map[string]bool) error {
 		}
 
 		// Is this entry a prefix of another explicitly selected entry? Then refuse changes
+		prefixLine := line + "/"
 		childrenSelectedImplicitly := slices.ContainsFunc(newLines, func(existingLine string) bool {
-			return existingLine != line && strings.HasPrefix(existingLine, line)
+			return existingLine != prefixLine && strings.HasPrefix(existingLine, prefixLine)
 		})
 
 		if childrenSelectedImplicitly {
+			matches := Filter(newLines, func(existingLine string) bool {
+				return existingLine != line && strings.HasPrefix(existingLine, line)
+			})
+			slog.Info("selecting", "path", path, "line", line, "matchesExisting", matches)
+
 			return fmt.Errorf("cannot change selection: an item in the subdirectory '%s' is already selected", path)
 		}
 
@@ -304,9 +314,7 @@ func (sel *selection) setExplicitlySelected(paths map[string]bool) error {
 			}
 		} else {
 			// To select, append it (but before the last '*')
-			slog.Info("adding", "before", newLines)
 			newLines = append(newLines[:len(newLines)-1], line, "*")
-			slog.Info("adding", "after", newLines)
 		}
 	}
 
