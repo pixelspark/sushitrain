@@ -965,7 +965,7 @@ func localFormattedPercentage(_ fraction: Double) -> String {
 	let formatter = NumberFormatter()
 	formatter.numberStyle = .percent
 	formatter.minimumFractionDigits = 0
-	formatter.maximumFractionDigits = 2
+	formatter.maximumFractionDigits = 0
 	formatter.locale = Locale.current
 	return formatter.string(from: fraction as NSNumber)!
 }
