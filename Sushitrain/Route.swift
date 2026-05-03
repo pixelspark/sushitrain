@@ -35,7 +35,21 @@ enum Route: Hashable, Equatable {
 			return nil
 		}
 
-		switch url.path {
+		var type = url.path
+		if type.isEmpty {
+			// On iOS < 26, and presumably macOS < 26, it is possible that `path` is not filled for URLs of the form
+			// `sushitrain:path`. As a workaround, we fill it ourselves here using simple prefix matching.
+			let urlString = url.absoluteString
+			let validTypes = ["start", "folder", "folders", "file", "devices", "search"]
+			for validType in validTypes {
+				if urlString.starts(with: "\(Self.urlScheme):\(validType)") {
+					type = validType
+					break
+				}
+			}
+		}
+
+		switch type {
 		case "start":
 			self = Route.start
 		case "devices":
@@ -44,6 +58,7 @@ enum Route: Hashable, Equatable {
 			self = Route.folders
 		default:
 			guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
+				Log.warn("invalid route URL: \(url)")
 				return nil
 			}
 			let params =
@@ -51,23 +66,26 @@ enum Route: Hashable, Equatable {
 					result[item.name] = item.value
 				} ?? [:]
 
-			switch url.path {
+			switch type {
 			case "search":
 				self = .search(for: params["for"] ?? "")
 
 			case "folder":
 				guard let folderID = params["folderID"] else {
+					Log.warn("invalid folder route URL: \(url)")
 					return nil
 				}
 				self = .folder(folderID: folderID, prefix: params["prefix"])
 
 			case "file":
 				guard let folderID = params["folderID"], let path = params["path"] else {
+					Log.warn("invalid file route URL: \(url)")
 					return nil
 				}
 
 				self = .file(folderID: folderID, path: path)
 			default:
+				Log.warn("invalid route URL path: \(type) (url: \(url))")
 				return nil
 			}
 
