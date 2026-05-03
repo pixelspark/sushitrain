@@ -79,7 +79,7 @@ struct FolderProgressChartView: View {
 				)
 				.annotation(position: .overlay) {  // Places the annotation above the bar
 					if otherPercentage > thresholdForOverlay {
-						Text("\(Int(otherPercentage * 100.0))%").font(.caption).lineLimit(nil)
+						Text(localFormattedPercentage(otherPercentage)).font(.caption).lineLimit(nil)
 					}
 					else {
 						Text("")
@@ -87,7 +87,7 @@ struct FolderProgressChartView: View {
 				}
 				.annotation(position: .leading) {
 					if otherPercentage <= thresholdForOverlay {
-						Text("\(Int(ownPercentage * 100.0))%").font(.caption).lineLimit(nil)
+						Text(localFormattedPercentage(ownPercentage)).font(.caption).lineLimit(nil)
 					}
 					else {
 						Text("")
@@ -102,7 +102,7 @@ struct FolderProgressChartView: View {
 				)
 				.annotation(position: .overlay) {  // Places the annotation above the bar
 					if ownPercentage > thresholdForOverlay {
-						Text("\(Int(ownPercentage * 100.0))%").font(.caption).lineLimit(nil)
+						Text(localFormattedPercentage(ownPercentage)).font(.caption).lineLimit(nil)
 					}
 					else {
 						Text("")
@@ -110,7 +110,7 @@ struct FolderProgressChartView: View {
 				}
 				.annotation(position: .trailing) {
 					if ownPercentage <= thresholdForOverlay {
-						Text("\(Int(ownPercentage * 100.0))%").font(.caption).lineLimit(nil)
+						Text(localFormattedPercentage(ownPercentage)).font(.caption).lineLimit(nil)
 					}
 					else {
 						Text("")
@@ -209,8 +209,9 @@ struct FolderStatisticsView: View {
 
 				// Local stats
 				let totalLocal = Double(stats.global!.bytes)
-				let myPercentage = Int(
-					totalLocal > 0 ? (100.0 * Double(stats.local!.bytes) / totalLocal) : 100)
+				let myPercentage = Double(
+					totalLocal > 0 ? (Double(stats.local!.bytes) / totalLocal) : 1
+				)
 
 				if let local = stats.local {
 					Section {
@@ -225,7 +226,7 @@ struct FolderStatisticsView: View {
 								Text("On this device")
 							}
 							else {
-								Text("On this device: \(myPercentage)% of the full folder")
+								Text("On this device: \(localFormattedPercentage(myPercentage)) of the full folder")
 							}
 						}
 					}
@@ -243,10 +244,7 @@ struct FolderStatisticsView: View {
 											systemImage: "externaldrive"
 										)
 										Spacer()
-									}.badge(
-										Text(
-											"\(Int(completion.completionPct))%"
-										))
+									}.badge(Text(localFormattedPercentage(Double(completion.completionPct) / 100.0)))
 								}
 							}
 						}

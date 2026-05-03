@@ -960,6 +960,16 @@ extension String {
 	}
 }
 
+/// Format a percentage using the system locale. Fraction needs to be between 0..=1
+func localFormattedPercentage(_ fraction: Double) -> String {
+	let formatter = NumberFormatter()
+	formatter.numberStyle = .percent
+	formatter.minimumFractionDigits = 0
+	formatter.maximumFractionDigits = 2
+	formatter.locale = Locale.current
+	return formatter.string(from: fraction as NSNumber)!
+}
+
 extension CGImage {
 	func resize(size: CGSize) -> CGImage? {
 		let width = Int(size.width)

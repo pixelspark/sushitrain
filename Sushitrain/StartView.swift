@@ -110,7 +110,7 @@ private struct OverallDownloadProgressView: View {
 								)
 								.foregroundStyle(.green)
 								.symbolEffect(.pulse, value: date)
-								.badge("\(Int(progress.percentage * 100))%")
+								.badge(localFormattedPercentage(Double(progress.percentage)))
 								.frame(maxWidth: .infinity)
 								Spacer()
 							}
@@ -289,7 +289,7 @@ private struct OverallUploadStatusView: View {
 					)
 					.foregroundStyle(.green)
 					.symbolEffect(.pulse, value: progress.percentage)
-					.badge("\(Int(progress.percentage * 100))%")
+					.badge(localFormattedPercentage(Double(progress.percentage)))
 					.frame(maxWidth: .infinity)
 				}.tint(.green)
 			}

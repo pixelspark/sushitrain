@@ -259,14 +259,15 @@ enum ContinuedTaskType {
 				return appState.photoBackup.progress.localizedDescription
 			}
 			else if appState.syncState.isDownloading && appState.syncState.isUploading {
+				// Show the average of the upload and download progress
 				let upProgress = appState.client.getTotalUploadProgress()?.percentage ?? 0
 				let downProgress = appState.client.getTotalDownloadProgress()?.percentage ?? 0
-				let progress = Int((upProgress + downProgress) / 2.0 * 100.0)
-				return String(localized: "Transferring files (\(progress)%)...")
+				let progress = Double((upProgress + downProgress) / 2.0)
+				return String(localized: "Transferring files (\(localFormattedPercentage(Double(progress)))...")
 			}
 			else if appState.syncState.isUploading {
 				if let progress = appState.client.getTotalUploadProgress() {
-					return String(localized: "Sending files (\(Int(100 * progress.percentage))%)")
+					return String(localized: "Sending files (\(localFormattedPercentage(Double(progress.percentage)))")
 				}
 				else {
 					return String(localized: "Sending files...")
@@ -274,7 +275,7 @@ enum ContinuedTaskType {
 			}
 			else if appState.syncState.isDownloading {
 				if let progress = appState.client.getTotalDownloadProgress() {
-					return String(localized: "Receiving files (\(Int(100 * progress.percentage))%)")
+					return String(localized: "Receiving files (\(localFormattedPercentage(Double(progress.percentage))))")
 				}
 				else {
 					return String(localized: "Receiving files...")

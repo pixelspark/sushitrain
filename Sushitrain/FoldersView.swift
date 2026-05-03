@@ -71,11 +71,11 @@ private struct FolderMetricView: View {
 				if let local = stats.local, let global = stats.global {
 					let p =
 						global.bytes > 0
-						? Int(Double(local.bytes) / Double(global.bytes) * 100) : 100
+						? (Double(local.bytes) / Double(global.bytes)) : 1.0
 					if p <= 0 {
 						return Text("-")
 					}
-					return Text("\(p)%")
+					return Text(localFormattedPercentage(p))
 				}
 				return Text("")
 

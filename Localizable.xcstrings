@@ -1874,52 +1874,6 @@
         }
       }
     },
-    "%lld%%" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld%%"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld%%"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld%%"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld%%"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld%%"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld%%"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld%%"
-          }
-        }
-      }
-    },
     "%llds remaining..." : {
       "localizations" : {
         "de" : {
@@ -23522,48 +23476,48 @@
         }
       }
     },
-    "On this device: %lld%% of the full folder" : {
+    "On this device: %@ of the full folder" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Auf diesem Gerät: %lld%% des gesamten Ordners"
+            "value" : "Auf diesem Gerät: %@ des vollständigen Ordners"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "En este dispositivo: %lld%% de la carpeta completa"
+            "value" : "En este dispositivo: %@ de la carpeta completa"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Su questo dispositivo: %lld%% della cartella completa"
+            "value" : "Su questo dispositivo: %@ della cartella completa"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このデバイスでは、フォルダの%lld%%が同期済みです。"
+            "value" : "このデバイスで: フォルダ全体の %@"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Op dit apparaat: %lld%% van de volledige map"
+            "value" : "Op dit apparaat: %@ van de volledige map"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "На цьому пристрої: %lld%% від усієї папки"
+            "value" : "На цьому пристрої: %@ з повної папки"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在此设备上：%lld%%的完整文件夹"
+            "value" : "在此设备上：%@ 完整文件夹"
           }
         }
       }
@@ -26420,48 +26374,48 @@
         }
       }
     },
-    "Receiving files (%lld%%)" : {
+    "Receiving files (%@)" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dateien werden empfangen (%lld%%)"
+            "value" : "Dateien empfangen (%@)"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recibiendo archivos (%lld%%)"
+            "value" : "Recibiendo archivos (%@)"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ricezione file (%lld%%)"
+            "value" : "Ricezione file (%@)"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ファイルを受信中 (%lld%%)"
+            "value" : "ファイルを受信中 (%@)"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bestanden ontvangen (%lld%%)"
+            "value" : "Ontvangen van bestanden (%@)"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Отримання файлів (%lld%%)"
+            "value" : "Отримання файлів (%@)"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "接收文件（%lld%%）"
+            "value" : "接收文件（%@）"
           }
         }
       }
@@ -30556,48 +30510,48 @@
         }
       }
     },
-    "Sending files (%lld%%)" : {
+    "Sending files (%@" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dateien senden (%lld%%)"
+            "value" : "Dateien senden (%@)"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enviando archivos (%lld%%)"
+            "value" : "Enviando archivos (%@)"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Invio file (%lld%%)"
+            "value" : "Invio file (%@)"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ファイルを送信中 (%lld%%)"
+            "value" : "ファイルを送信中 (%@)"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bestanden verzenden (%lld%%)"
+            "value" : "Bestanden verzenden (%@)"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Надсилання файлів (%lld%%)"
+            "value" : "Надсилання файлів (%@)"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "正在发送文件 (%lld%%)"
+            "value" : "发送文件（%@）"
           }
         }
       }
@@ -39952,48 +39906,48 @@
         }
       }
     },
-    "Transferring files (%lld%%)..." : {
+    "Transferring files (%@..." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dateien werden übertragen (%lld%%)..."
+            "value" : "Dateien übertragen (%@..."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Transferencia de archivos (%lld%%)..."
+            "value" : "Transfiriendo archivos (%@..."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trasferimento file (%lld%%)..."
+            "value" : "Trasferimento file (%@..."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ファイルを転送中 (%lld%%)..."
+            "value" : "ファイルを転送中（%@..."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bestanden overzetten (%lld%%)..."
+            "value" : "Bestanden overdragen (%@..."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Передача файлів (%lld%%)..."
+            "value" : "Передача файлів (%@..."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "正在传输文件 (%lld%%)..."
+            "value" : "正在传输文件（%@..."
           }
         }
       }

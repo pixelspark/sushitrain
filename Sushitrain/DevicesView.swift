@@ -82,7 +82,7 @@ private struct DeviceMetricView: View {
 
 			case .completionPercentage:
 				if let pct = self.measurement, !pct.isNaN {
-					Text("\(Int(pct))%")
+					Text(localFormattedPercentage(Double(pct) / 100.0))
 				}
 				else {
 					EmptyView()
@@ -766,7 +766,9 @@ struct LatencyView: View {
 				case .percentageOfGlobal:
 					if isShared {
 						if let c = self.completion {
-							Text("\(Int(c.completionPct))%").foregroundStyle(c.completionPct < 100 ? .red : .primary).bold(
+							Text(localFormattedPercentage(Double(c.completionPct) / 100.0)).foregroundStyle(
+								c.completionPct < 100 ? .red : .primary
+							).bold(
 								c.completionPct < 100
 							).help(
 								c.completionPct < 100
