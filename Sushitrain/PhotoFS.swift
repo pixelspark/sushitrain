@@ -386,7 +386,8 @@ extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 		}
 
 		// Ensure we are registered for photo library notifications
-		Task { @MainActor in
+		Task.detached {
+			// Apparently the PHPhotoLibrary.shared().register call can take a while, so we really don't want to do this on the main thread
 			PhotoFSLibraryObserver.shared.registerForNotifications()
 		}
 
@@ -397,15 +398,22 @@ extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 private final class PhotoFSLibraryObserver: NSObject, PHPhotoLibraryChangeObserver, Sendable {
 	nonisolated(unsafe) var changeCounter: Int = 0
 	private let lock = DispatchSemaphore(value: 1)
-	@MainActor private var registeredForNotifications = false
+	nonisolated(unsafe) private var registeredForNotifications = false
 
 	static let shared = PhotoFSLibraryObserver()
 
-	@MainActor func registerForNotifications() {
+	nonisolated func registerForNotifications() {
+		var register = false
+		self.lock.wait()
 		if !self.registeredForNotifications {
 			self.registeredForNotifications = true
+			register = true
 		}
-		PHPhotoLibrary.shared().register(self)
+		self.lock.signal()
+		
+		if register {
+			PHPhotoLibrary.shared().register(self)
+		}
 	}
 
 	func photoLibraryDidChange(_ changeInstance: PHChange) {
