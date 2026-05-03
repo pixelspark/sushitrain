@@ -410,7 +410,7 @@ private final class PhotoFSLibraryObserver: NSObject, PHPhotoLibraryChangeObserv
 			register = true
 		}
 		self.lock.signal()
-		
+
 		if register {
 			PHPhotoLibrary.shared().register(self)
 		}
