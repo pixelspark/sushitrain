@@ -553,6 +553,17 @@ struct StartView: View {
 					Button(bookmark.localizedTitle, systemImage: "bookmark.fill") {
 						self.navigateTo(bookmark)
 					}.contextMenu {
+						if case .folder(folderID: let folderID, prefix: let prefix) = bookmark {
+							// Rescan (sub)directory
+							Button("Rescan subdirectory") {
+								if let folder = self.appState.client.folder(withID: folderID) {
+									try? folder.rescanSubdirectory(prefix)
+								}
+							}
+
+							Divider()
+						}
+
 						Button("Remove bookmark", role: .destructive) {
 							self.userSettings.bookmarkedRoutes.removeAll(where: { bookmarkedURL in
 								guard let bookmarkedRoute = Route(url: bookmarkedURL) else {
