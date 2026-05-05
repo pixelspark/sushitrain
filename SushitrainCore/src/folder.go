@@ -854,18 +854,18 @@ func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string, direc
 			return err
 		}
 
-		slog.Info("remove redundant children", "childPath", path)
+		slog.Debug("remove redundant children", "childPath", childPath)
 
 		// Leave internal files alone
 		if fs.IsInternal(childPath) || childPath == ignoreFileName {
-			slog.Info("remove redundant children skip, is internal", "childPath", childPath)
+			slog.Debug("remove redundant children skip, is internal", "childPath", childPath)
 			return nil
 		}
 
 		// Delete items that match the 'extraneous ignore' list (used to ignore .DS_Store and similar)
 		// *also* when directoriesAndAlwaysIgnoredOnly is set!
 		if fld.client.isExtraneousIgnored(filepath.Base(childPath)) {
-			slog.Info("ignoring always ignored extraneous file", "childPath", childPath, "base", filepath.Base(childPath))
+			slog.Info("deleting always ignored extraneous file", "childPath", childPath, "base", filepath.Base(childPath))
 			toDelete = append(toDelete, childPath)
 			return nil
 		}
@@ -897,6 +897,7 @@ func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string, direc
 					toDelete = append(toDelete, childPath)
 				} else {
 					// File is not available elsewhere, skip it
+					slog.Info("refusing to delete file because there are no peers with a full copy", "path", childPath)
 				}
 			}
 		}
@@ -911,11 +912,14 @@ func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string, direc
 	sort.Strings(toDelete)
 	slices.Reverse(toDelete)
 
-	slog.Info("delete", "toDelete", toDelete)
+	slog.Info("delete", "toDeleteLen", len(toDelete))
 
 	for _, delPath := range toDelete {
 		// Swallow delete errors. Parent directories may have been removed before we get to them
-		_ = ffs.Remove(delPath)
+		err = ffs.Remove(delPath)
+		if err != nil {
+			slog.Warn("could not delete", "path", delPath, "error", err)
+		}
 		deleteEmptyParentDirectories(ffs, delPath)
 	}
 	return nil
