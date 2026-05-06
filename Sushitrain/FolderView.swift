@@ -963,16 +963,14 @@ private struct FolderThumbnailSettingsView: View {
 
 			if self.canClear {
 				Section {
+					// Open cache directory in Finder
 					if case .inside(_) = settings {
-						Button(
-							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
-							action: {
-								let ic = ImageCache.forFolder(self.folder)
-								if let url = ic.customCacheDirectory {
-									openURLInSystemFilesApp(url: url)
-								}
+						Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
+							let ic = ImageCache.forFolder(self.folder)
+							if let url = ic.customPersistentCache?.localPath {
+								openURLInSystemFilesApp(url: url)
 							}
-						)
+						}
 					}
 
 					Button("Clear thumbnail cache", systemImage: "eraser.line.dashed.fill") {

@@ -487,13 +487,13 @@ struct SyncState {
 			let folder = self.client.folder(withID: self.userSettings.cacheThumbnailsToFolderID)
 		{
 			// Check if we have this folder
-			ImageCache.shared.customCacheDirectory = folder.localNativeURL
+			ImageCache.shared.customPersistentCache = .folder(folder: folder, path: "")
 		}
 		else {
-			ImageCache.shared.customCacheDirectory = nil
+			ImageCache.shared.customPersistentCache = nil
 		}
 		Log.info(
-			"Apply settings: image cache enabled \(ImageCache.shared.diskCacheEnabled) dir: \(ImageCache.shared.customCacheDirectory.debugDescription)"
+			"Apply settings: image cache enabled \(ImageCache.shared.diskCacheEnabled) dir: \(ImageCache.shared.customPersistentCache.debugDescription)"
 		)
 
 		self.client.server?.maxMbitsPerSecondsStreaming = Int64(self.userSettings.streamingLimitMbitsPerSec)
