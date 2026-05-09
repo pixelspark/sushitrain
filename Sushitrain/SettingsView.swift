@@ -851,11 +851,10 @@ private struct BandwidthSettingsView: View {
 			}
 
 			Section {
-				#if os(iOS)
-					// Macs can't have a cellular connection
-					// FIXME: replace with some check of actual connection types available on the device, some iPads don't have cellular either
+				if deviceHasCellularCapability() {
 					Toggle("On cellular networks", isOn: userSettings.$disableDevicesOnCellular)
-				#endif
+				}
+
 				Toggle("On metered networks", isOn: userSettings.$disableDevicesOnMetered)
 				Toggle("In low power mode", isOn: userSettings.$disableDevicesInLowPowerMode)
 			} header: {

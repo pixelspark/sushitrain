@@ -809,7 +809,7 @@ struct SyncState {
 
 		if userSettings.disableDevicesOnCellular || userSettings.disableDevicesOnMetered {
 			if let path = self.currentNetworkPath {
-				return (userSettings.disableDevicesOnCellular && path.usesInterfaceType(.cellular))
+				return (deviceHasCellularCapability() && userSettings.disableDevicesOnCellular && path.usesInterfaceType(.cellular))
 					|| (userSettings.disableDevicesOnMetered && path.isExpensive)
 			}
 			else {

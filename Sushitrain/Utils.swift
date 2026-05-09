@@ -1331,3 +1331,14 @@ extension View {
 		modifier(ErrorViewModifier(errorMessage: errorMessage))
 	}
 }
+
+// Returns whether the device has cellular connectivity (i.e. has a modem). Currently there seems to be no reliable way
+// to detect this, so we simply return true on iOS and false on macOS. This notably returns true for iPads that have no
+// modem.
+func deviceHasCellularCapability() -> Bool {
+	#if os(macOS)
+		return false
+	#else
+		return true
+	#endif
+}
