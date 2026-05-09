@@ -54,9 +54,10 @@ struct TotalStatisticsView: View {
 						Text("First time").badge(
 							Date(timeIntervalSinceReferenceDate: appState.userSettings.firstRunAt).formatted(
 								date: .abbreviated, time: .omitted))
-						let durationSections = Duration.seconds(
-							Date.now.timeIntervalSince(Date(timeIntervalSinceReferenceDate: appState.userSettings.firstRunAt)))
-						Text("Used for").badge(durationSections.formatted())
+						let durationDays = Int(
+							Double(
+								Date.now.timeIntervalSince(Date(timeIntervalSinceReferenceDate: appState.userSettings.firstRunAt))) / 86400.0)
+						Text("Used for").badge("\(durationDays) days")
 					}
 				}
 			}
