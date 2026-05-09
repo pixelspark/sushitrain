@@ -14787,6 +14787,7 @@
       }
     },
     "Files and subdirectories whose paths match any of the patterns above will not be synchronized with other devices. Existing items matching the patterns will not be updated." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -14828,6 +14829,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "路径与上述任一模式匹配的文件和子目录将不会与其他设备同步。符合模式的现有项目将不会更新。"
+          }
+        }
+      }
+    },
+    "Files and subdirectories whose paths match any of the patterns above will not be synchronized with other devices. Existing items matching the patterns will not be updated. [Learn more about the pattern syntax...](https://docs.syncthing.net/users/ignoring.html#patterns)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien und Unterverzeichnisse, deren Pfade einem der obigen Muster entsprechen, werden nicht mit anderen Geräten synchronisiert. Bestehende Elemente, die den Mustern entsprechen, werden nicht aktualisiert. [Erfahren Sie mehr über die Mustersyntax...](https://docs.syncthing.net/users/ignoring.html#patterns)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los archivos y subdirectorios cuyos caminos coincidan con cualquiera de los patrones anteriores no se sincronizarán con otros dispositivos. Los elementos existentes que coincidan con los patrones no se actualizarán. [Aprende más sobre la sintaxis de patrones...](https://docs.syncthing.net/users/ignoring.html#patterns)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I file e le sottodirectory i cui percorsi corrispondono a uno dei modelli sopra non verranno sincronizzati con altri dispositivi. Gli elementi esistenti che corrispondono ai modelli non verranno aggiornati. [Scopri di più sulla sintassi dei modelli...](https://docs.syncthing.net/users/ignoring.html#patterns)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上記のパターンのいずれかに一致するパスを持つファイルとサブディレクトリは、他のデバイスと同期されません。パターンに一致する既存の項目は更新されません。 [パターンの構文について詳しくはこちら...](https://docs.syncthing.net/users/ignoring.html#patterns)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestanden en submappen waarvan de paden overeenkomen met een van de bovenstaande patronen, worden niet gesynchroniseerd met andere apparaten. Bestaande items die overeenkomen met de patronen worden niet bijgewerkt. [Meer informatie over de patroonnotatie...](https://docs.syncthing.net/users/ignoring.html#patterns)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файли та підкаталоги, шлях яких відповідає будь-якому з наведених вище шаблонів, не будуть синхронізовані з іншими пристроями. Існуючі елементи, які відповідають шаблонам, не будуть оновлені. [Дізнатися більше про синтаксис шаблонів...](https://docs.syncthing.net/users/ignoring.html#patterns)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "路径与上述模式中的任何模式匹配的文件和子目录将不会与其他设备同步。与模式匹配的现有项目将不会更新。 [了解更多有关模式语法的信息...](https://docs.syncthing.net/users/ignoring.html#patterns)"
           }
         }
       }
