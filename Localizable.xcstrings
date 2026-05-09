@@ -8786,6 +8786,99 @@
         }
       }
     },
+    "Connections to other devices have been temporarily disabled, because you have configured Synctrain to not use the type of network connection that is currently available, and/or to disable connectivity when in low power mode." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbindungen zu anderen Geräten wurden vorübergehend deaktiviert, da Sie Synctrain so konfiguriert haben, dass der derzeit verfügbare Verbindungstyp nicht verwendet wird und/oder die Konnektivität im Energiesparmodus deaktiviert wird."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las conexiones con otros dispositivos se han desactivado temporalmente porque has configurado Synctrain para no usar el tipo de conexión de red que está actualmente disponible y/o para desactivar la conectividad en modo de bajo consumo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le connessioni ad altri dispositivi sono state temporaneamente disabilitate perché hai configurato Synctrain per non utilizzare il tipo di connessione di rete attualmente disponibile e/o per disabilitare la connettività in modalità a basso consumo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "他のデバイスへの接続は一時的に無効化されています。これは、現在利用可能なネットワーク接続の種類を使用しないようにSynctrainを設定したため、または低電力モード時に接続を無効にするよう設定したためです。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbindingen met andere apparaten zijn tijdelijk uitgeschakeld, omdat je Synctrain hebt ingesteld om het type netwerkverbinding dat momenteel beschikbaar is niet te gebruiken en/of om connectiviteit uit te schakelen wanneer de energiebesparingsmodus is ingeschakeld."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "З'єднання з іншими пристроями тимчасово відключено, оскільки ви налаштували Synctrain так, щоб не використовувати тип мережевого підключення, який наразі доступний, і/або відключити підключення в режимі низького енергоспоживання."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "与其他设备的连接已暂时禁用，因为您已将Synctrain配置为不使用当前可用的网络连接类型和/或在低电量模式下禁用连接。"
+          }
+        }
+      }
+    },
+    "Connections to other devices have been temporarily disabled, because you have configured Synctrain to not use the type of network connection that is currently available." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbindungen zu anderen Geräten wurden vorübergehend deaktiviert, da Sie Synctrain so konfiguriert haben, dass die derzeit verfügbare Netzwerkverbindung nicht verwendet wird."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las conexiones a otros dispositivos se han deshabilitado temporalmente porque has configurado Synctrain para no usar el tipo de conexión de red que está actualmente disponible."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le connessioni ad altri dispositivi sono state temporaneamente disabilitate perché hai configurato Synctrain per non utilizzare il tipo di connessione di rete attualmente disponibile."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrainを現在利用可能なネットワーク接続タイプを使用しないように設定したため、他のデバイスとの接続が一時的に無効になっています。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbindingen met andere apparaten zijn tijdelijk uitgeschakeld omdat je Synctrain zo hebt geconfigureerd dat het het type netwerkverbinding dat momenteel beschikbaar is, niet gebruikt."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Підключення до інших пристроїв тимчасово вимкнено, оскільки ви налаштували Synctrain так, щоб не використовувати тип мережевого з'єднання, який зараз доступний."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "与其他设备的连接已暂时禁用，因为您已将Synctrain配置为不使用当前可用的网络连接类型。"
+          }
+        }
+      }
+    },
     "Connectivity" : {
       "localizations" : {
         "de" : {
@@ -19589,6 +19682,52 @@
         }
       }
     },
+    "In low power mode" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im Energiesparmodus"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En modo de bajo consumo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In modalità a basso consumo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低電力モード"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In energiebesparende modus"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У режимі енергозбереження"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低电量模式"
+          }
+        }
+      }
+    },
     "Inaccessible external folder" : {
       "localizations" : {
         "de" : {
@@ -21085,6 +21224,52 @@
         }
       }
     },
+    "Limit connectivity" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konnektivität begrenzen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limitar conectividad"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limita connettività"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接続を制限"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beperk connectiviteit"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обмежити підключення"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "限制连接"
+          }
+        }
+      }
+    },
     "Limit file transfer bandwidth" : {
       "localizations" : {
         "de" : {
@@ -22511,6 +22696,52 @@
         }
       }
     },
+    "Network connectivity temporarily disabled" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Netzwerkverbindung vorübergehend deaktiviert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conectividad de red desactivada temporalmente"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connettività di rete temporaneamente disabilitata"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ネットワーク接続が一時的に無効になっています"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Netwerkverbinding tijdelijk uitgeschakeld"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Підключення до мережі тимчасово вимкнено"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "网络连接暂时禁用"
+          }
+        }
+      }
+    },
     "Network traversal" : {
       "localizations" : {
         "de" : {
@@ -23565,6 +23796,98 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "开启"
+          }
+        }
+      }
+    },
+    "On cellular networks" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Über Mobilfunknetze"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En redes celulares"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su reti cellulari"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "セルラー通信ネットワークで"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op mobiele netwerken"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На стільникових мережах"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在蜂窝网络上"
+          }
+        }
+      }
+    },
+    "On metered networks" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auf getakteten Netzwerken"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En redes medidas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su reti a consumo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "従量制ネットワークで"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op bemeterde netwerken"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На вимірюваних мережах"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在计量网络上"
           }
         }
       }
@@ -43215,6 +43538,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "从其他节点接收文件时，可以使用块索引找到设备上已有的文件片段，从而减少数据传输。然而，块索引会占用磁盘空间。当该文件夹中包含其他文件夹中也存在和/或多次出现的文件时，建议仅启用块索引。"
+          }
+        }
+      }
+    },
+    "When the app detects that the system's internet connection is of the selected types, it will temporarily disable network connections to other devices. This will cause synchronization to be paused, and on-demand access to be disabled." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn die App erkennt, dass die Internetverbindung des Systems von den ausgewählten Typen ist, werden die Netzwerkverbindungen zu anderen Geräten vorübergehend deaktiviert. Dadurch wird die Synchronisierung pausiert und der On-Demand-Zugriff deaktiviert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando la aplicación detecta que la conexión a Internet del sistema es de los tipos seleccionados, desactivará temporalmente las conexiones de red a otros dispositivos. Esto hará que la sincronización se pause y el acceso bajo demanda se deshabilite."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando l'app rileva che la connessione internet del sistema è di uno dei tipi selezionati, disabiliterà temporaneamente le connessioni di rete ad altri dispositivi. Questo causerà la pausa della sincronizzazione e la disabilitazione dell'accesso su richiesta."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリがシステムのインターネット接続が選択されたタイプであることを検出すると、他のデバイスへのネットワーク接続が一時的に無効になります。これにより、同期が一時停止され、オンデマンドアクセスが無効になります。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer de app detecteert dat de internetverbinding van het systeem een van de geselecteerde typen is, worden netwerkverbindingen met andere apparaten tijdelijk uitgeschakeld. Dit zorgt ervoor dat synchronisatie wordt gepauzeerd en on-demand toegang wordt uitgeschakeld."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли додаток виявляє, що підключення до Інтернету системи належить до вибраних типів, воно тимчасово відключає мережеві з'єднання з іншими пристроями. Це призведе до призупинення синхронізації та відключення доступу за запитом."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当应用检测到系统的互联网连接属于所选类型时，将暂时禁用与其他设备的网络连接。这将导致同步暂停，并禁用按需访问。"
           }
         }
       }

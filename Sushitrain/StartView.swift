@@ -182,7 +182,11 @@ private struct NetworkStatusView: View {
 
 	var body: some View {
 		Group {
-			if let path = appState.currentNetworkPath {
+			if appState.shouldDisableConnectivity {
+				Label("Network connectivity temporarily disabled", systemImage: "antenna.radiowaves.left.and.right")
+					.foregroundStyle(.orange)
+			}
+			else if let path = appState.currentNetworkPath {
 				if path.status == .satisfied {
 					if #available(iOS 26, macOS 26, *) {
 						if path.linkQuality == .minimal {
@@ -207,11 +211,21 @@ private struct NetworkStatusView: View {
 			self.showInfo = true
 		}
 		.alert(isPresented: $showInfo) {
-			Alert(
-				title: Text("Internet connection quality"),
-				message: Text(
-					"The internet connection status is determined by the system. When the internet connection is limited or degraded, file synchronization and streaming over the internet may be slower than usual, or not work at all. File streaming and synchronization with devices that are on the same local network is expected to work as usual."
-				))
+			if appState.shouldDisableConnectivity {
+				Alert(
+					title: Text("Network connectivity temporarily disabled"),
+					message: Text(
+						"Connections to other devices have been temporarily disabled, because you have configured Synctrain to not use the type of network connection that is currently available, and/or to disable connectivity when in low power mode."
+					)
+				)
+			}
+			else {
+				Alert(
+					title: Text("Internet connection quality"),
+					message: Text(
+						"The internet connection status is determined by the system. When the internet connection is limited or degraded, file synchronization and streaming over the internet may be slower than usual, or not work at all. File streaming and synchronization with devices that are on the same local network is expected to work as usual."
+					))
+			}
 		}
 	}
 }

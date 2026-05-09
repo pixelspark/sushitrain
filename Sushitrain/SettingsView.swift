@@ -849,6 +849,22 @@ private struct BandwidthSettingsView: View {
 			Section {
 				Toggle("Show video previews", isOn: userSettings.$previewVideos)
 			}
+
+			Section {
+				#if os(iOS)
+					// Macs can't have a cellular connection
+					// FIXME: replace with some check of actual connection types available on the device, some iPads don't have cellular either
+					Toggle("On cellular networks", isOn: userSettings.$disableDevicesOnCellular)
+				#endif
+				Toggle("On metered networks", isOn: userSettings.$disableDevicesOnMetered)
+				Toggle("In low power mode", isOn: userSettings.$disableDevicesInLowPowerMode)
+			} header: {
+				Text("Limit connectivity")
+			} footer: {
+				Text(
+					"When the app detects that the system's internet connection is of the selected types, it will temporarily disable network connections to other devices. This will cause synchronization to be paused, and on-demand access to be disabled."
+				)
+			}
 		}
 		.navigationTitle("Bandwidth limitations")
 		#if os(macOS)
@@ -969,6 +985,9 @@ private struct BandwidthSettingsView: View {
 			return self.appState.userSettings.streamingLimitMbitsPerSec > 0
 				|| self.appState.client.getBandwidthLimitUpMbitsPerSec() > 0
 				|| self.appState.client.getBandwidthLimitDownMbitsPerSec() > 0
+				|| self.userSettings.disableDevicesOnMetered
+				|| self.userSettings.disableDevicesOnCellular
+				|| self.userSettings.disableDevicesInLowPowerMode
 		}
 
 		var body: some View {

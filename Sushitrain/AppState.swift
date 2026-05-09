@@ -128,6 +128,15 @@ class SushitrainDelegate: NSObject {
 
 	// First run time
 	@AppStorage("firstRunAt") var firstRunAt: Double = 0.0
+
+	// Whether to disable connections when on cellular
+	@AppStorage("disableDevicesOnCellular") var disableDevicesOnCellular = false
+
+	// Whether to disable connections when on metered Wi-Fi
+	@AppStorage("disableDevicesOnMetered") var disableDevicesOnMetered = false
+
+	// Whether to disable connections when on low power mode
+	@AppStorage("disableDevicesInLowPowerMode") var disableDevicesInLowPowerMode = false
 }
 
 struct SyncState {
@@ -182,6 +191,7 @@ struct SyncState {
 	private let documentsDirectory: URL
 	private let configDirectory: URL
 	private var changeCancellable: AnyCancellable? = nil
+	private var settingsCancellable: AnyCancellable? = nil
 
 	#if os(iOS)
 		@ObservationIgnored var backgroundManager: BackgroundManager!
@@ -217,6 +227,50 @@ struct SyncState {
 				s.update()
 			}
 		}
+
+		// Listen for changes in user settings
+		self.settingsCancellable = self.userSettings.objectWillChange.sink { [weak self] in
+			self?.onSettingsWillChange()
+		}
+
+		// Listen for power state changes
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(self.powerStateChanged),
+			name: Notification.Name.NSProcessInfoPowerStateDidChange,
+			object: nil
+		)
+	}
+
+	@objc nonisolated public func powerStateChanged(_ notification: Notification) {
+		Task {
+			Log.info("Power state change detected: isLowPowerModeEnabled=\(ProcessInfo.processInfo.isLowPowerModeEnabled)")
+			// Update device suspension, it may change device state if userSettings.disableDevicesInLowPowerMode is enabled
+			await self.updateDeviceSuspension()
+
+			// Trigger global UI app update
+			await MainActor.run {
+				self.eventCounter += 1
+				self.update()
+			}
+		}
+	}
+
+	// Called whenever changes are made to the user settings. Technically it is called before such a change, but in
+	// reality, new values will have been set already on userSettings.
+	private func onSettingsWillChange() {
+		Log.info(
+			"App settings will change disableMetered=\(userSettings.disableDevicesOnMetered) disableCellular=\(userSettings.disableDevicesOnCellular)"
+		)
+
+		// Update device suspension to account for possibly new disableDevicesOnMetered/disableDevicesOnCellular setting
+		Task {
+			await self.updateDeviceSuspension()
+		}
+
+		// Trigger global UI app update
+		self.eventCounter += 1
+		self.update()
 	}
 
 	private func resolveBookmarks() {
@@ -746,6 +800,26 @@ struct SyncState {
 		await self.updateDeviceSuspension()
 	}
 
+	// Whether the app should disable connectivity because of the network connection type in use and/or low power mode
+	var shouldDisableConnectivity: Bool {
+		// Disable because we are on low power mode
+		if userSettings.disableDevicesInLowPowerMode && ProcessInfo.processInfo.isLowPowerModeEnabled {
+			return true
+		}
+
+		if userSettings.disableDevicesOnCellular || userSettings.disableDevicesOnMetered {
+			if let path = self.currentNetworkPath {
+				return (userSettings.disableDevicesOnCellular && path.usesInterfaceType(.cellular))
+					|| (userSettings.disableDevicesOnMetered && path.isExpensive)
+			}
+			else {
+				// Disable, just to be sure
+				return true
+			}
+		}
+		return false
+	}
+
 	nonisolated func updateDeviceSuspension() async {
 		do {
 			let client = self.client
@@ -753,6 +827,14 @@ struct SyncState {
 			// This is a trick to force Syncthing to start connecting immediately when we are foregrounded
 			// On macOS, we do this when the device awakens from sleep
 			if await self.isSuspended {
+				// This pauses all devices ("pause: false" only applies to the supplied list of devices, the other devices are set to the opposite)
+				try client.setDevicesPaused(SushitrainListOfStrings.from(Array()), pause: false)
+				return
+			}
+
+			// Disable devies if the user wants to disable connectivity depending on the network connection type
+			if await self.shouldDisableConnectivity {
+				// This pauses all devices ("pause: false" only applies to the supplied list of devices, the other devices are set to the opposite)
 				try client.setDevicesPaused(SushitrainListOfStrings.from(Array()), pause: false)
 				return
 			}
