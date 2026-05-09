@@ -482,8 +482,13 @@ struct AddressesView: View {
 						) {
 							HStack {
 								#if os(macOS)
-									Button("Delete", systemImage: "trash") { addresses.remove(at: idx.offset) }.labelStyle(.iconOnly)
-										.buttonStyle(.borderless)
+									Button("Delete", systemImage: "trash") {
+										var newAddresses = addresses
+										newAddresses.remove(at: idx.offset)
+										self.save(newAddresses)
+									}
+									.labelStyle(.iconOnly)
+									.buttonStyle(.borderless)
 								#endif
 								Text(idx.element)
 
