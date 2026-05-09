@@ -1117,19 +1117,20 @@ private struct AsyncAddressesView: View {
 
 	var body: some View {
 		ZStack {
-			AddressesView(
-				addresses: addresses,
-				onChange: {
-					if !self.loading {
-						self.addresses = $0
-						self.write()
-					}
-				},
-				addressType: self.addressType
-			).disabled(self.loading)
-
 			if self.loading {
 				ProgressView()
+			}
+			else {
+				AddressesView(
+					addresses: addresses,
+					onChange: {
+						if !self.loading {
+							self.addresses = $0
+							self.write()
+						}
+					},
+					addressType: self.addressType
+				)
 			}
 		}
 		.task {
