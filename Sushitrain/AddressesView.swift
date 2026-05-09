@@ -312,23 +312,50 @@ private struct AddressView: View {
 
 struct AddressesView: View {
 	@Environment(AppState.self) private var appState
-	@State var addresses: [String]
+	let addresses: [String]
 	let onChange: ([String]) -> ()?
 	var addressType: AddressType
 
 	// The 'default' option (includes listening addresses and relays for listening address type)
 	private func setUseDefaultOption(_ newValue: Bool) {
 		if newValue && !self.addresses.contains(self.addressType.defaultOption) {
-			self.addresses.append(self.addressType.defaultOption)
+			self.save(self.addresses + [self.addressType.defaultOption])
 		}
 		else {
-			self.addresses.removeAll { $0 == self.addressType.defaultOption }
+			self.save(self.addresses.filter { $0 != self.addressType.defaultOption })
 		}
-		self.mergeListeningAddressesIntoDefaultOption()
 	}
 
 	private var useDefaultOption: Bool {
 		return self.addresses.contains(self.addressType.defaultOption)
+	}
+
+	private func save(_ addresses: [String]) {
+		// Remove duplicates
+		var newAddresses = Array(Set(addresses))
+
+		// Merge default addresses into 'default'
+		if self.addressType == .listening {
+			let containsDefaultRelay = newAddresses.contains(AddressType.defaultRelayAddress)
+			let containsDefaultAddresses = AddressType.defaultListeningAddresses.allSatisfy({ newAddresses.contains($0) })
+			let containsDefault = newAddresses.contains(AddressType.listening.defaultOption)
+
+			if containsDefault {
+				newAddresses.removeAll(where: {
+					$0 == AddressType.defaultRelayAddress || AddressType.defaultListeningAddresses.contains($0)
+				})
+			}
+			// Merge default relays and listening addresses to 'default' option
+			else if containsDefaultRelay && containsDefaultAddresses {
+				newAddresses.removeAll {
+					$0 == AddressType.defaultRelayAddress || AddressType.defaultListeningAddresses.contains($0)
+						|| $0 == AddressType.listening.defaultOption
+				}
+				newAddresses.append(AddressType.listening.defaultOption)
+			}
+		}
+
+		self.onChange(newAddresses)
 	}
 
 	// Default listening addresses
@@ -344,18 +371,18 @@ struct AddressesView: View {
 		}
 
 		if newValue {
-			self.addresses.append(contentsOf: AddressType.defaultListeningAddresses)
+			self.save(self.addresses + AddressType.defaultListeningAddresses)
 		}
 		else {
-			self.addresses.removeAll(where: { AddressType.defaultListeningAddresses.contains($0) })
+			var newAddresses = self.addresses
+			newAddresses.removeAll(where: { AddressType.defaultListeningAddresses.contains($0) })
 			// If we have the 'default' option, split it
-			if self.addresses.contains(AddressType.listening.defaultOption) {
-				self.addresses.removeAll(where: { $0 == AddressType.listening.defaultOption })
-				self.addresses.append(AddressType.defaultRelayAddress)
+			if newAddresses.contains(AddressType.listening.defaultOption) {
+				newAddresses.removeAll(where: { $0 == AddressType.listening.defaultOption })
+				newAddresses.append(AddressType.defaultRelayAddress)
 			}
+			self.save(newAddresses)
 		}
-
-		self.mergeListeningAddressesIntoDefaultOption()
 	}
 
 	// Default relays
@@ -370,47 +397,20 @@ struct AddressesView: View {
 			return
 		}
 
+		var newAddresses = self.addresses
 		if newValue {
 			// Just append, will deduplicate later on
-			self.addresses.append(AddressType.defaultRelayAddress)
+			newAddresses.append(AddressType.defaultRelayAddress)
 		}
 		else {
-			self.addresses.removeAll(where: { $0 == AddressType.defaultRelayAddress })
+			newAddresses.removeAll(where: { $0 == AddressType.defaultRelayAddress })
 			// If we have the 'default' option, split it
-			if self.addresses.contains(AddressType.listening.defaultOption) {
-				self.addresses.removeAll(where: { $0 == AddressType.listening.defaultOption })
-				self.addresses.append(contentsOf: AddressType.defaultListeningAddresses)
+			if newAddresses.contains(AddressType.listening.defaultOption) {
+				newAddresses.removeAll(where: { $0 == AddressType.listening.defaultOption })
+				newAddresses.append(contentsOf: AddressType.defaultListeningAddresses)
 			}
 		}
-
-		self.mergeListeningAddressesIntoDefaultOption()
-	}
-
-	private func mergeListeningAddressesIntoDefaultOption() {
-		if self.addressType != .listening {
-			return
-		}
-
-		// Remove duplicates
-		self.addresses = Array(Set(self.addresses))
-
-		let containsDefaultRelay = self.addresses.contains(AddressType.defaultRelayAddress)
-		let containsDefaultAddresses = AddressType.defaultListeningAddresses.allSatisfy({ self.addresses.contains($0) })
-		let containsDefault = self.addresses.contains(AddressType.listening.defaultOption)
-
-		if containsDefault {
-			self.addresses.removeAll(where: {
-				$0 == AddressType.defaultRelayAddress || AddressType.defaultListeningAddresses.contains($0)
-			})
-		}
-		// Merge default relays and listening addresses to 'default' option
-		else if containsDefaultRelay && containsDefaultAddresses {
-			self.addresses.removeAll {
-				$0 == AddressType.defaultRelayAddress || AddressType.defaultListeningAddresses.contains($0)
-					|| $0 == AddressType.listening.defaultOption
-			}
-			self.addresses.append(AddressType.listening.defaultOption)
-		}
+		self.save(newAddresses)
 	}
 
 	private func isAddressHidden(_ address: String) -> Bool {
@@ -475,7 +475,9 @@ struct AddressesView: View {
 								address: addresses[idx.offset],
 								addressType: addressType,
 								onChange: {
-									addresses[idx.offset] = $0
+									var newAddresses = addresses
+									newAddresses[idx.offset] = $0
+									self.save(newAddresses)
 								})
 						) {
 							HStack {
@@ -488,19 +490,23 @@ struct AddressesView: View {
 							}
 						}
 					}
-				}.onDelete(perform: { indexSet in addresses.remove(atOffsets: indexSet) })
+				}.onDelete(perform: { indexSet in
+					var newAddresses = addresses
+					newAddresses.remove(atOffsets: indexSet)
+					self.save(newAddresses)
+				})
 
 				Button("Add address") {
-					self.addresses.append(self.addressType.templateAddress)
+					// Uses self.onChange instead of self.save because .save deduplicates
+					var newAddresses = self.addresses + [self.addressType.templateAddress]
+					newAddresses.sort()
+					self.onChange(newAddresses)
 				}
 				.deleteDisabled(true)
 				#if os(macOS)
 					.buttonStyle(.link)
 				#endif
 			}
-		}
-		.onChange(of: self.addresses) { _, nv in
-			self.onChange(nv)
 		}
 		#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)

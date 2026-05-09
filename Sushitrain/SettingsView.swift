@@ -1094,19 +1094,28 @@ private struct AsyncAddressesView: View {
 
 	let addressType: AddressType
 
+	@State private var loading = true
 	@State private var addresses: [String] = []
 
 	var body: some View {
-		AddressesView(
-			addresses: addresses,
-			onChange: { self.addresses = $0 },
-			addressType: self.addressType
-		)
+		ZStack {
+			AddressesView(
+				addresses: addresses,
+				onChange: {
+					if !self.loading {
+						self.addresses = $0
+						self.write()
+					}
+				},
+				addressType: self.addressType
+			).disabled(self.loading)
+
+			if self.loading {
+				ProgressView()
+			}
+		}
 		.task {
 			await self.update()
-		}
-		.onChange(of: self.addresses) { _, _ in
-			self.write()
 		}
 		.onDisappear {
 			self.write()
@@ -1117,6 +1126,7 @@ private struct AsyncAddressesView: View {
 	}
 
 	private func update() async {
+		self.loading = true
 		let client = self.appState.client
 		let addressType = self.addressType
 		self.addresses = await Task.detached {
@@ -1132,6 +1142,9 @@ private struct AsyncAddressesView: View {
 				return client.stunAddresses()?.asArray() ?? []
 			}
 		}.value
+		self.addresses.sort()
+		Log.info("Loaded addresses \(self.addresses)")
+		self.loading = false
 	}
 
 	private func write() {
@@ -1143,6 +1156,7 @@ private struct AsyncAddressesView: View {
 				try appState.client.setDiscoveryAddresses(
 					SushitrainListOfStrings.from(addresses))
 			case .listening:
+				Log.info("Writing listening addresses: \(addresses)")
 				try appState.client.setListenAddresses(SushitrainListOfStrings.from(addresses))
 			case .device:
 				// not supported

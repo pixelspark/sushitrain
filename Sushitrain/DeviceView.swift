@@ -13,25 +13,25 @@ private struct DeviceAddressesView: View {
 	@State private var error: String? = nil
 
 	var body: some View {
-		AddressesView(addresses: self.addresses, onChange: { self.addresses = $0 }, addressType: .device)
-			#if os(iOS)
-				.navigationBarTitleDisplayMode(.inline)
-			#endif
-			.navigationTitle("Device addresses")
-			.task {
-				await self.update()
-			}
-			.onChange(of: self.addresses) { _, _ in
+		AddressesView(
+			addresses: self.addresses,
+			onChange: {
+				self.addresses = $0
 				self.write()
-			}
-			.onDisappear {
-				self.write()
-			}
-			.alert(isPresented: Binding.isNotNil($error)) {
-				Alert(
-					title: Text("Could not change addresses"), message: Text(self.error ?? ""),
-					dismissButton: .default(Text("OK")))
-			}
+			}, addressType: .device
+		)
+		#if os(iOS)
+			.navigationBarTitleDisplayMode(.inline)
+		#endif
+		.navigationTitle("Device addresses")
+		.task {
+			await self.update()
+		}
+		.alert(isPresented: Binding.isNotNil($error)) {
+			Alert(
+				title: Text("Could not change addresses"), message: Text(self.error ?? ""),
+				dismissButton: .default(Text("OK")))
+		}
 	}
 
 	private func update() async {
@@ -39,6 +39,7 @@ private struct DeviceAddressesView: View {
 		self.addresses = await Task.detached {
 			return device.addresses()?.asArray() ?? []
 		}.value
+		self.addresses.sort()
 	}
 
 	private func write() {
