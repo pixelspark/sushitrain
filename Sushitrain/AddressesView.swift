@@ -20,6 +20,15 @@ enum AddressType {
 		}
 	}
 
+	var defaultScheme: String {
+		switch self {
+		case .listening: return "tcp"
+		case .device: return "tcp"
+		case .stun: return "stun"
+		case .discovery: return "https"
+		}
+	}
+
 	var templateAddress: String {
 		switch self {
 		// Must not be equal to defaultListeningAddresses
@@ -45,6 +54,10 @@ private struct AddressView: View {
 	@State var address: String = ""
 	var addressType: AddressType
 	let onChange: (_ address: String) -> Void
+
+	// When filled, takes precedence over URL(address).host
+	// When setting address, either this is filled, or when URL(address).host == new host, it can be set to nil
+	@State private var editingHost: String? = nil
 
 	private var url: URL? {
 		get {
@@ -135,14 +148,40 @@ private struct AddressView: View {
 						"",
 						text: Binding(
 							get: {
-								let url = self.url
-								return url?.host() ?? ""
+								if let host = self.editingHost {
+									return host
+								}
+								if let url = self.url, let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false),
+									let host = urlComponents.host
+								{
+									return host
+								}
+								return ""
 							},
 							set: { nv in
+								// Try to create a new URL and edit the host
 								var url =
-									URLComponents(url: self.url ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false) ?? URLComponents()
+									URLComponents(
+										url: self.url ?? URL(string: "\(self.addressType.defaultScheme)://")!, resolvingAgainstBaseURL: false)
+									?? URLComponents()
 								url.host = nv
-								self.url = url.url
+
+								// If the host remains stable, set the URL and clear self.editingHost
+								if let createdURL = url.url,
+									let createdComponents = URLComponents(url: createdURL, resolvingAgainstBaseURL: false),
+									createdComponents.host == nv
+								{
+									self.url = url.url
+									self.editingHost = nil
+								}
+								else {
+									// We're editing some hostname that is not yet valid
+									// Still set self.url but also keep self.editingHost filled
+									self.editingHost = nv
+									if let createdURL = url.url {
+										self.url = createdURL
+									}
+								}
 							}), prompt: Text("0.0.0.0")
 					).multilineTextAlignment(.trailing)
 						#if os(iOS)
@@ -152,6 +191,7 @@ private struct AddressView: View {
 					Text("IP address or host name")
 				}
 
+				// Port
 				LabeledContent {
 					TextField(
 						"",
@@ -180,6 +220,7 @@ private struct AddressView: View {
 					URLComponents(url: self.url ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false) ?? URLComponents()
 
 				if urlComponents.scheme == "relay" {
+					// Relay ID
 					LabeledContent {
 						TextField(
 							"",
@@ -208,6 +249,7 @@ private struct AddressView: View {
 						Text("Relay ID")
 					}
 
+					// Access token
 					LabeledContent {
 						TextField(
 							"",
@@ -234,11 +276,24 @@ private struct AddressView: View {
 						Text("Access token")
 					}
 				}
+			} footer: {
+				Text("To use IPv6 addresses, enter it in the host name between brackets, e.g. as `[c0ff:ff33::1]`.")
 			}
 
 			if self.addressType != .stun {
 				Section("URL") {
-					TextField("", text: $address).frame(maxWidth: .infinity).monospaced().multilineTextAlignment(.leading)
+					TextField(
+						"",
+						text: Binding(
+							get: {
+								return self.address
+							},
+							set: {
+								// If the user is editing the URL, throw away any pending host name edit
+								self.editingHost = nil
+								self.address = $0
+							})
+					).frame(maxWidth: .infinity).monospaced().multilineTextAlignment(.leading)
 						#if os(iOS)
 							.autocorrectionDisabled().autocapitalization(.none)
 						#endif
@@ -257,7 +312,8 @@ private struct AddressView: View {
 
 struct AddressesView: View {
 	@Environment(AppState.self) private var appState
-	@Binding var addresses: [String]
+	@State var addresses: [String]
+	let onChange: ([String]) -> ()?
 	var addressType: AddressType
 
 	// The 'default' option (includes listening addresses and relays for listening address type)
@@ -442,6 +498,9 @@ struct AddressesView: View {
 					.buttonStyle(.link)
 				#endif
 			}
+		}
+		.onChange(of: self.addresses) { _, nv in
+			self.onChange(nv)
 		}
 		#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)

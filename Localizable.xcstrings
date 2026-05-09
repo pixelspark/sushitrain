@@ -39814,6 +39814,52 @@
         }
       }
     },
+    "To use IPv6 addresses, enter it in the host name between brackets, e.g. as `[c0ff:ff33::1]`." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um IPv6-Adressen zu verwenden, geben Sie diese in den Hostnamen in eckigen Klammern ein, z. B. als `[c0ff:ff33::1]`."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para usar direcciones IPv6, introdúzcalas en el nombre de host entre corchetes, por ejemplo, como `[c0ff:ff33::1]`."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per utilizzare gli indirizzi IPv6, inserirlo nel nome host tra parentesi, ad esempio come `[c0ff:ff33::1]`."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IPv6アドレスを使用するには、ホスト名で角括弧で囲んで入力します。例: `[c0ff:ff33::1]`。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om IPv6-adressen te gebruiken voer je deze in tussen blokhaken, bijvoorbeeld als `[c0ff:ff33::1]`."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Щоб використовувати адреси IPv6, введіть їх у ім’я хоста у квадратних дужках, наприклад, як `[c0ff:ff33::1]`."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要使用IPv6地址，请在主机名中用方括号括起来，例如 `[c0ff:ff33::1]`。"
+          }
+        }
+      }
+    },
     "Too many files (%lld) to display." : {
       "localizations" : {
         "de" : {

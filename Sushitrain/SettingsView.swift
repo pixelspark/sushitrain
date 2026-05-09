@@ -1098,7 +1098,8 @@ private struct AsyncAddressesView: View {
 
 	var body: some View {
 		AddressesView(
-			addresses: $addresses,
+			addresses: addresses,
+			onChange: { self.addresses = $0 },
 			addressType: self.addressType
 		)
 		.task {

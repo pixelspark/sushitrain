@@ -13,7 +13,7 @@ private struct DeviceAddressesView: View {
 	@State private var error: String? = nil
 
 	var body: some View {
-		AddressesView(addresses: $addresses, addressType: .device)
+		AddressesView(addresses: self.addresses, onChange: { self.addresses = $0 }, addressType: .device)
 			#if os(iOS)
 				.navigationBarTitleDisplayMode(.inline)
 			#endif
