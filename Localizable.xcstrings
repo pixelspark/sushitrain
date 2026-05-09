@@ -37365,6 +37365,52 @@
         }
       }
     },
+    "There are currently no devices connected that have a full copy of this file." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Derzeit sind keine Geräte verbunden, die eine vollständige Kopie dieser Datei haben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualmente no hay dispositivos conectados que tengan una copia completa de este archivo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attualmente non ci sono dispositivi collegati che dispongano di una copia completa di questo file."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在、このファイルの完全なコピーを持っている接続デバイスはありません。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er zijn momenteel geen apparaten verbonden die een volledige kopie van dit bestand hebben."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На даний момент немає підключених пристроїв, які мають повну копію цього файлу."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前没有设备连接拥有该文件的完整副本。"
+          }
+        }
+      }
+    },
     "There are currently no files in this folder." : {
       "localizations" : {
         "de" : {

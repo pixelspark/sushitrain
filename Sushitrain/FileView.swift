@@ -346,8 +346,13 @@ struct FileView: View {
 				}
 				else {
 					Section("This file is fully available on") {
-						ForEach(availability, id: \.self) { device in
-							Label(device.displayName, systemImage: "externaldrive")
+						if availability.isEmpty {
+							Text("There are currently no devices connected that have a full copy of this file.")
+						}
+						else {
+							ForEach(availability, id: \.self) { device in
+								Label(device.displayName, systemImage: "externaldrive")
+							}
 						}
 					}
 				}
