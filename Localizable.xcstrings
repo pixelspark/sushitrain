@@ -8832,53 +8832,6 @@
         }
       }
     },
-    "Connections to other devices have been temporarily disabled, because you have configured Synctrain to not use the type of network connection that is currently available." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verbindungen zu anderen Geräten wurden vorübergehend deaktiviert, da Sie Synctrain so konfiguriert haben, dass die derzeit verfügbare Netzwerkverbindung nicht verwendet wird."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Las conexiones a otros dispositivos se han deshabilitado temporalmente porque has configurado Synctrain para no usar el tipo de conexión de red que está actualmente disponible."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le connessioni ad altri dispositivi sono state temporaneamente disabilitate perché hai configurato Synctrain per non utilizzare il tipo di connessione di rete attualmente disponibile."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synctrainを現在利用可能なネットワーク接続タイプを使用しないように設定したため、他のデバイスとの接続が一時的に無効になっています。"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verbindingen met andere apparaten zijn tijdelijk uitgeschakeld omdat je Synctrain zo hebt geconfigureerd dat het het type netwerkverbinding dat momenteel beschikbaar is, niet gebruikt."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Підключення до інших пристроїв тимчасово вимкнено, оскільки ви налаштували Synctrain так, щоб не використовувати тип мережевого з'єднання, який зараз доступний."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "与其他设备的连接已暂时禁用，因为您已将Synctrain配置为不使用当前可用的网络连接类型。"
-          }
-        }
-      }
-    },
     "Connectivity" : {
       "localizations" : {
         "de" : {
@@ -14875,53 +14828,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "文件"
-          }
-        }
-      }
-    },
-    "Files and subdirectories whose paths match any of the patterns above will not be synchronized with other devices. Existing items matching the patterns will not be updated." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dateien und Unterverzeichnisse, deren Pfade mit einem der obigen Muster übereinstimmen, werden nicht mit anderen Geräten synchronisiert. Vorhandene Elemente, die den Mustern entsprechen, werden nicht aktualisiert."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los archivos y subdirectorios cuyos caminos coincidan con cualquiera de los patrones anteriores no se sincronizarán con otros dispositivos. Los elementos existentes que coincidan con los patrones no se actualizarán."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "I file e le sottodirectory i cui percorsi corrispondono a uno dei modelli sopra non verranno sincronizzati con altri dispositivi. Gli elementi esistenti corrispondenti ai modelli non verranno aggiornati."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上記のパターンのいずれかに一致するパスを持つファイルおよびサブディレクトリは、他のデバイスと同期されません。パターンに一致する既存のアイテムは更新されません。"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bestanden en subdirectories waarvan de paden overeenkomen met een van de bovenstaande patronen, worden niet gesynchroniseerd met andere apparaten. Bestaande items die overeenkomen met de patronen worden niet bijgewerkt."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Файли та вкладені теки, шляхи яких відповідають будь-яким із наведених вище шаблонів, не будуть синхронізовані з іншими пристроями. Існуючі елементи, що відповідають цим шаблонам, не будуть оновлені."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "路径与上述任一模式匹配的文件和子目录将不会与其他设备同步。符合模式的现有项目将不会更新。"
           }
         }
       }
@@ -26142,6 +26048,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "公共 URL"
+          }
+        }
+      }
+    },
+    "Purgeable by the system" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vom System löschbar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purgable por el sistema"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminabile dal sistema"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "システムによる削除可能"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Door het systeem te wissen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Може бути очищено системою"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可被系统清除"
           }
         }
       }

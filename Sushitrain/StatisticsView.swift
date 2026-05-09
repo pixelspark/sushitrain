@@ -11,6 +11,7 @@ struct TotalStatisticsView: View {
 	@Environment(AppState.self) private var appState
 	@State private var stats: SushitrainFolderStats? = nil
 	@State private var diskSpaceFree: Int64? = nil
+	@State private var diskSpaceFreeOpportunistic: Int64? = nil
 	@State private var diskSpaceTotal: Int64? = nil
 
 	var body: some View {
@@ -37,6 +38,9 @@ struct TotalStatisticsView: View {
 				if let free = self.diskSpaceFree, let total = self.diskSpaceTotal {
 					Section {
 						Text("Available disk space").badge(formatter.string(fromByteCount: free))
+						if let oppFree = self.diskSpaceFreeOpportunistic, oppFree > free {
+							Text("Purgeable by the system").badge(formatter.string(fromByteCount: oppFree - free))
+						}
 						Text("Total disk space").badge(formatter.string(fromByteCount: total))
 					} footer: {
 						Text(
@@ -66,6 +70,17 @@ struct TotalStatisticsView: View {
 
 			self.diskSpaceFree = Int64(SushitrainGetFreeDiskSpaceMegaBytes()) * 1024 * 1024
 			self.diskSpaceTotal = Int64(SushitrainGetTotalDiskSpaceMegaBytes()) * 1024 * 1024
+
+			// Obtain purgeable disk space
+			if let url = try? FileManager.default.url(
+				for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil,
+				create: false), let values = try? url.resourceValues(forKeys: [.volumeAvailableCapacityForOpportunisticUsageKey])
+			{
+				self.diskSpaceFreeOpportunistic = values.volumeAvailableCapacityForOpportunisticUsage
+			}
+			else {
+				self.diskSpaceFreeOpportunistic = nil
+			}
 		}
 		.navigationTitle("Statistics")
 		#if os(iOS)
