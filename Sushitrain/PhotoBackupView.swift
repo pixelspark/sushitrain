@@ -207,6 +207,13 @@ struct PhotoBackupSettingsView: View {
 							photoBackup.categories.toggle(.video, s)
 						})
 				).disabled(photoBackup.isBackingUp || photoBackup.selectedAlbumID.isEmpty)
+
+				Toggle(
+					"Burst photos (include all frames)",
+					isOn: photoBackup.$includeAllBurstAssets
+				)
+				.disabled(photoBackup.isBackingUp || photoBackup.selectedAlbumID.isEmpty)
+				.onChange(of: photoBackup.includeAllBurstAssets) { _, _ in photoBackup.resetLastSuccessfulChangeToken() }
 			}
 
 			Section {

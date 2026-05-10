@@ -190,6 +190,9 @@ enum PhotoBackupProgress {
 	// Whether to replace or append the ".MOV" file extension for live photos
 	@AppStorage("photoBackupLivePhotoReplaceExtension") var livePhotoReplaceExtension: Bool = false
 
+	// Whether to include all burst photos or just the main one
+	@AppStorage("photoBackupIncludeAllBurstAssets") var includeAllBurstAssets: Bool = false
+
 	@Published private(set) var isBackingUp = false
 	@Published private(set) var progress: PhotoBackupProgress = .notStarted
 	@Published private(set) var photoBackupTask: Task<(), Error>? = nil
@@ -413,10 +416,11 @@ enum PhotoBackupProgress {
 	) async throws {
 		// Fetch assets to export
 		var cancellingError: Error? = nil
-		var options: PHFetchOptions? = nil
+		let options = PHFetchOptions()
+		let includeBurst = await self.includeAllBurstAssets
+		options.includeAllBurstAssets = includeBurst
 		if let ids = onlyTheseLocalIdentifiers {
-			options = PHFetchOptions()
-			options!.predicate = NSPredicate(format: "localIdentifier IN %@", Array(ids))
+			options.predicate = NSPredicate(format: "localIdentifier IN %@", Array(ids))
 		}
 		let assets = PHAsset.fetchAssets(in: album, options: options)
 
@@ -462,19 +466,21 @@ enum PhotoBackupProgress {
 				let assetDirectoryPath = asset.directoryPathInFolder(
 					structure: structure, subdirectoryPath: subDirectoryPath, timeZone: timeZone)
 				let dirInFolder = folderURL.appending(path: assetDirectoryPath.pathInFolder, directoryHint: .isDirectory)
-				let inFolderPath = asset.pathInFolder(structure: structure, subdirectoryPath: subDirectoryPath, timeZone: timeZone)
-				Log.info("- \(inFolderPath) \(dirInFolder) \(subDirectoryPath)")
+				let destinationPath = asset.pathInFolder(structure: structure, subdirectoryPath: subDirectoryPath, timeZone: timeZone)
+				let fileURL = folderURL.appending(path: destinationPath.pathInFolder, directoryHint: .notDirectory)
+				Log.info("- \(destinationPath) \(dirInFolder) \(subDirectoryPath)")
 
 				// Check if this photo was saved or deleted before
 				if purgeEnabled || !fullExport {
-					if let entry = try? folder.getFileInformation(inFolderPath.pathInFolder) {
+					let entry = try? folder.getFileInformation(destinationPath.pathInFolder)
+					if let entry = entry {
 						// If purging is enabled, check if we should remove the photo from the source
 						if purgeEnabled {
 							if let mTime = entry.modifiedAt()?.date(), mTime < purgeCutoffDate {
 								let lastModifiedByShortDeviceID = entry.modifiedByShortDeviceID()
 								if lastModifiedByShortDeviceID == myShortDeviceID {
 									// The photo is already saved and was last modified by this device; we can delete from source
-									Log.info("Purge entry: \(inFolderPath) \(mTime) \(lastModifiedByShortDeviceID)")
+									Log.info("Purge entry: \(destinationPath) \(mTime) \(lastModifiedByShortDeviceID)")
 									originalsToPurge.append(asset)
 								}
 								else {
@@ -489,10 +495,10 @@ enum PhotoBackupProgress {
 						// If the photo was saved then deleted, do not try to save again (unless we are in full export)
 						if !fullExport {
 							if entry.isDeleted() {
-								Log.info("Entry at \(inFolderPath) was deleted, not saving again")
+								Log.info("Entry at \(destinationPath) was deleted, not saving again")
 							}
 							else {
-								Log.info("Entry at \(inFolderPath) exists, not saving again")
+								Log.info("Entry at \(destinationPath) exists, not saving again")
 							}
 							return
 						}
@@ -503,13 +509,12 @@ enum PhotoBackupProgress {
 				try FileManager.default.createDirectory(at: dirInFolder, withIntermediateDirectories: true)
 
 				// Save asset if it doesn't exist already locally
-				let fileURL = folderURL.appending(path: inFolderPath.pathInFolder, directoryHint: .notDirectory)
 				if !FileManager.default.fileExists(atPath: fileURL.path) || fullExport {
 					// If a video: queue video export session
 					if asset.mediaType == .video {
 						if categories.contains(.video) {
 							Log.info("Requesting video export session for \(asset.originalFilename)")
-							videosToExport.append((asset, fileURL, inFolderPath))
+							videosToExport.append((asset, fileURL, destinationPath))
 						}
 					}
 					else {
@@ -527,7 +532,7 @@ enum PhotoBackupProgress {
 								if let data = data {
 									do {
 										try data.write(to: fileURL)
-										selectPaths.append(inFolderPath)
+										selectPaths.append(destinationPath)
 
 										// Set file creation and modified date to photo creation date. The modified date is what is synced
 										if let cd = asset.creationDate {
