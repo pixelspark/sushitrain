@@ -28950,6 +28950,52 @@
         }
       }
     },
+    "Save all photos in a burst" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Fotos in einer Serie speichern"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar todas las fotos en una ráfaga"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salva tutte le foto in una raffica"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "連写のすべての写真を保存"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sla alle foto's in een burst op"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зберегти всі фото в серії"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存连拍中的所有照片"
+          }
+        }
+      }
+    },
     "Save support bundle" : {
       "localizations" : {
         "de" : {
@@ -43674,6 +43720,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "当文件夹结构更改时，已保存的照片将重新保存在新位置。"
+          }
+        }
+      }
+    },
+    "When this option is enabled, every photo in a burst will be exported instead of only the representative photo." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn diese Option aktiviert ist, wird jedes Foto einer Serie exportiert, statt nur das repräsentative Foto."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando esta opción está activada, se exportará cada foto de una ráfaga en lugar de solo la foto representativa."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando questa opzione è abilitata, verrà esportata ogni foto di una sequenza anziché solo la foto rappresentativa."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このオプションを有効にすると、代表写真だけでなく、バースト内のすべての写真がエクスポートされます。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer deze optie is ingeschakeld, worden alle foto’s in een fotoburst geëxporteerd, in plaats van alleen de representatieve foto."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли ця опція увімкнена, буде експортовано кожне фото зі серії, а не лише представницьке фото."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "启用此选项时，将导出连拍中的每张照片，而不仅仅是代表性照片。"
           }
         }
       }

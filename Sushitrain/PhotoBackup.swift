@@ -181,6 +181,7 @@ enum PhotoBackupProgress {
 	@AppStorage("photoSyncCategories") var categories: Set<PhotoBackupCategory> = Set([.photo, .video, .livePhoto])
 	@AppStorage("photoSyncPurgeEnabled") var purgeEnabled = false
 	@AppStorage("photoSyncPurgeAfterDays") var purgeAfterDays = 7
+	@AppStorage("photoBackupIncludeAllBurstAssets") var includeAllBurstAssets = false
 	@AppStorage("PhotoBackupFolderStructure") var folderStructure = PhotoBackupFolderStructure.byDateAndType
 	@AppStorage("photoSyncSubdirectoryPath") var subDirectoryPath = ""
 	@AppStorage("photoSyncMaxAgeDays") var maxAgeDays = 6 * 30  // The maximum age for assets to be considered for export
@@ -222,6 +223,7 @@ enum PhotoBackupProgress {
 		let selectedAlbumID = self.selectedAlbumID
 		let selectedFolderID = self.selectedFolderID
 		let categories = self.categories
+		let includeAllBurstAssets = self.includeAllBurstAssets
 
 		// Start the actual synchronization task
 		self.photoBackupTask = Task.detached(priority: .background) {
@@ -344,6 +346,7 @@ enum PhotoBackupProgress {
 				subDirectoryPath: subDirectoryPath,
 				fullExport: fullExport,
 				categories: categories,
+				includeAllBurstAssets: includeAllBurstAssets,
 				isInBackground: isInBackground,
 				onlyTheseLocalIdentifiers: onlyTheseLocalIdentifiers
 			)
@@ -408,16 +411,25 @@ enum PhotoBackupProgress {
 		subDirectoryPath: EntryPath,
 		fullExport: Bool,
 		categories: Set<PhotoBackupCategory>,
+		includeAllBurstAssets: Bool,
 		isInBackground: Bool,
 		onlyTheseLocalIdentifiers: Set<String>?
 	) async throws {
 		// Fetch assets to export
 		var cancellingError: Error? = nil
-		var options: PHFetchOptions? = nil
-		if let ids = onlyTheseLocalIdentifiers {
-			options = PHFetchOptions()
-			options!.predicate = NSPredicate(format: "localIdentifier IN %@", Array(ids))
+		let options: PHFetchOptions?
+		if includeAllBurstAssets || onlyTheseLocalIdentifiers != nil {
+			let fetchOptions = PHFetchOptions()
+			fetchOptions.includeAllBurstAssets = includeAllBurstAssets
+			if let ids = onlyTheseLocalIdentifiers {
+				fetchOptions.predicate = NSPredicate(format: "localIdentifier IN %@", Array(ids))
+			}
+			options = fetchOptions
 		}
+		else {
+			options = nil
+		}
+
 		let assets = PHAsset.fetchAssets(in: album, options: options)
 
 		// Update the progress to show the number of assets we will be exporting this time

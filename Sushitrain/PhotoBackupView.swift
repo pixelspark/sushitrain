@@ -322,6 +322,19 @@ struct PhotoBackupSettingsView: View {
 				)
 			}.disabled(photoBackup.isBackingUp || photoBackup.selectedAlbumID.isEmpty)
 
+			// Burst photo export
+			Section {
+				Toggle("Save all photos in a burst", isOn: photoBackup.$includeAllBurstAssets)
+					.disabled(photoBackup.isBackingUp || photoBackup.selectedAlbumID.isEmpty)
+					.onChange(of: photoBackup.includeAllBurstAssets) { _, _ in
+						photoBackup.resetLastSuccessfulChangeToken()
+					}
+			} footer: {
+				Text(
+					"When this option is enabled, every photo in a burst will be exported instead of only the representative photo."
+				)
+			}
+
 			// Live photo extension selector
 			Section {
 				Picker("Live photo file extension", selection: $photoBackup.livePhotoReplaceExtension) {
