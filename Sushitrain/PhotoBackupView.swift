@@ -209,6 +209,7 @@ struct PhotoBackupSettingsView: View {
 				).disabled(photoBackup.isBackingUp || photoBackup.selectedAlbumID.isEmpty)
 			}
 
+			// Path in folder
 			Section {
 				LabeledContent {
 					TextField("", text: photoBackup.$subDirectoryPath, prompt: Text("(Top level)"))
@@ -237,6 +238,7 @@ struct PhotoBackupSettingsView: View {
 				)
 			}
 
+			// Time zone settings
 			if photoBackup.folderStructure.usesTimeZone {
 				Section {
 					PhotoBackupTimeZoneView(timeZone: photoBackup.$timeZone)
@@ -247,6 +249,7 @@ struct PhotoBackupSettingsView: View {
 				}
 			}
 
+			// Add to album
 			Section {
 				Picker("Add to album", selection: $photoBackup.savedAlbumID) {
 					Text("None").tag("")
@@ -270,6 +273,7 @@ struct PhotoBackupSettingsView: View {
 				}
 			}
 
+			// Remove from source
 			Section {
 				Toggle("Remove saved photos from source", isOn: photoBackup.$purgeEnabled)
 					.onChange(of: photoBackup.purgeEnabled) { _, _ in photoBackup.resetLastSuccessfulChangeToken() }
@@ -306,6 +310,7 @@ struct PhotoBackupSettingsView: View {
 				#endif
 			}.disabled(photoBackup.isBackingUp || photoBackup.selectedAlbumID.isEmpty)
 
+			// Time limit
 			Section {
 				Toggle(
 					"Do not save photos older than six months",
