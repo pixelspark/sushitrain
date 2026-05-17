@@ -416,7 +416,7 @@ struct EntryShareButton: View {
 						FileShareLink(file: entry)
 					}
 					else {
-						Button("Download...", systemImage: "square.and.arrow.up") {
+						Button("Download...", systemImage: "square.and.arrow.down") {
 							self.showDownloader = true
 						}
 					}

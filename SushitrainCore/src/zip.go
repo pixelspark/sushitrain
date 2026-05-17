@@ -11,10 +11,12 @@ import (
 	"errors"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 
 	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slog"
 )
 
 type ArchiveFile interface {
@@ -153,46 +155,127 @@ func (ea *entryArchive) ReadAt(p []byte, off int64) (n int, err error) {
 }
 
 func (ea *entryArchiveFile) FileName() string {
-	ps := strings.Split(ea.file.Name, "/")
+	// Subdirectory entries have a slash at the end, if we don't trim that the file name will be ""
+	path := strings.TrimSuffix(ea.file.Name, "/")
+	ps := strings.Split(path, "/")
 	return ps[len(ps)-1]
 }
 
 func (ea *entryArchiveFile) Download(toPath string, delegate DownloadDelegate) {
 	go func() {
-		// Create file to download to
-		outFile, err := os.Create(toPath)
-		if err != nil {
-			delegate.OnError("could not open file for downloading to: " + err.Error())
-			return
+		if ea.file.FileInfo().IsDir() {
+			// Enumerate all files in this directory and run downloadFile on them
+			delegate.OnProgress(0.0)
+			ea.downloadDirectory(toPath, delegate)
+		} else {
+			ea.downloadFile(toPath, delegate)
 		}
-		// close fi on exit and check for its returned error
-		defer func() {
-			if err := outFile.Close(); err != nil {
-				panic(err)
-			}
-		}()
-
-		delegate.OnProgress(0.0)
-
-		reader, err := ea.reader()
-		if err != nil {
-			delegate.OnError("could not open file for downloading to: " + err.Error())
-			return
-		}
-
-		cReader := cancelableReader{
-			reader:     reader,
-			delegate:   delegate,
-			totalBytes: ea.file.UncompressedSize64,
-			readBytes:  0,
-		}
-		_, err = io.Copy(outFile, &cReader)
-		if err != nil {
-			delegate.OnError("could not open file for downloading to: " + err.Error())
-			return
-		}
-		delegate.OnFinished(toPath)
 	}()
+}
+
+/** Recursively download the directory to the spcified location */
+func (ea *entryArchiveFile) downloadDirectory(toPath string, delegate DownloadDelegate) {
+	childPaths, err := ea.archive.Files(ea.file.Name)
+	if err != nil {
+		delegate.OnError(err.Error())
+		return
+	}
+	slog.Info("zip downloadDirectory", "toPath", toPath, "childPaths", childPaths)
+
+	err = os.MkdirAll(toPath, 0o700)
+	if err != nil {
+		delegate.OnError(err.Error())
+		return
+	}
+
+	entryCount := len(childPaths.data)
+	perEntryFraction := 1.0 / float64(entryCount)
+
+	for pathIndex, path := range childPaths.data {
+		strippedPath, found := strings.CutPrefix(path, ea.file.Name)
+		if !found {
+			slog.Warn("invalid prefix", "path", path, "self", ea.file.Name)
+			return
+		}
+
+		entryToPath := filepath.Join(toPath, strippedPath)
+		slog.Info("zip entry", "path", path, "strippedPath", strippedPath, "toPath", entryToPath)
+
+		archiveFile, err := ea.archive.File(path)
+		if err != nil {
+			delegate.OnError(err.Error())
+			return
+		}
+		archiveEntry := archiveFile.(*entryArchiveFile)
+
+		var failed = false
+		subDelegate := &subDownloadDelegate{
+			parent: delegate,
+			errorCallback: func(err string) {
+				if !failed {
+					failed = true
+					slog.Warn("zip file download failed", "error", err)
+					delegate.OnError(err)
+				}
+			},
+			progressCallback: func(fraction float64) {
+				delegate.OnProgress((float64(pathIndex) + fraction) * perEntryFraction)
+			},
+		}
+
+		// Subdirectory: create and recurse!
+		if strings.HasSuffix(path, "/") {
+			slog.Info("zip subdirectory", "path", path, "toPath", entryToPath)
+			archiveEntry.downloadDirectory(entryToPath, subDelegate)
+		} else {
+			// File: just download
+			archiveEntry.downloadFile(entryToPath, subDelegate)
+		}
+
+		if failed {
+			return
+		}
+
+		delegate.OnProgress(float64(pathIndex+1) / float64(entryCount))
+	}
+
+	delegate.OnFinished(toPath)
+}
+
+func (ea *entryArchiveFile) downloadFile(toPath string, delegate DownloadDelegate) {
+	// Create file to download to
+	outFile, err := os.Create(toPath)
+	if err != nil {
+		delegate.OnError("could not open file for downloading to: " + err.Error())
+		return
+	}
+	// close fi on exit and check for its returned error
+	defer func() {
+		if err := outFile.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
+	delegate.OnProgress(0.0)
+
+	reader, err := ea.reader()
+	if err != nil {
+		delegate.OnError("could not open file for downloading to: " + err.Error())
+		return
+	}
+
+	cReader := cancelableReader{
+		reader:     reader,
+		delegate:   delegate,
+		totalBytes: ea.file.UncompressedSize64,
+		readBytes:  0,
+	}
+	_, err = io.Copy(outFile, &cReader)
+	if err != nil {
+		delegate.OnError("could not open file for downloading to: " + err.Error())
+		return
+	}
+	delegate.OnFinished(toPath)
 }
 
 func (ea *entryArchiveFile) Size() int64 {

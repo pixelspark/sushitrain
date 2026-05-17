@@ -22,6 +22,7 @@ struct ZipView: View {
 	@State private var loading = false
 	@State private var error: String? = nil
 	@State private var files: [ZipFileName] = []
+	@State private var showDownloaderFor: ZipFileName? = nil
 
 	#if os(macOS)
 		@State private var inspectedFile: String? = nil
@@ -73,10 +74,18 @@ struct ZipView: View {
 						Label(fileName, systemImage: "doc.fill")
 					}
 				}
-			}.contextMenu(
+			}
+			.contextMenu(
 				forSelectionType: ZipFileName.ID.self,
 				menu: { items in
-					Text("\(items.count) selected")
+					if items.count == 1 {
+						Button("Download...", systemImage: "square.and.arrow.down") {
+							showDownloaderFor = ZipFileName(name: items.first!)
+						}
+					}
+					else {
+						Text("\(items.count) selected")
+					}
 				}, primaryAction: self.doubleClick
 			)
 			.navigationDestination(item: $inspectedFile) { filePath in
@@ -87,11 +96,30 @@ struct ZipView: View {
 					ZipFileView(archive: archive, path: filePath)
 				}
 			}
+			.sheet(item: $showDownloaderFor) { downloadFile in
+				self.downloaderSheet(zipFileName: downloadFile)
+			}
 		}
 
 		private func doubleClick(_ items: Set<ZipFileName.ID>) {
 			if let fileName = items.first, items.count == 1 {
 				self.inspectedFile = fileName
+			}
+		}
+
+		@ViewBuilder private func downloaderSheet(zipFileName: ZipFileName) -> some View {
+			if let downloadable = try? archive.file(zipFileName.name).asDownloadable() {
+				NavigationStack {
+					EntryDownloaderView(file: downloadable, action: .share)
+						#if os(iOS)
+							.navigationBarTitleDisplayMode(.inline)
+						#endif
+						.toolbar {
+							SheetButton(role: .cancel) {
+								showDownloaderFor = nil
+							}
+						}
+				}
 			}
 		}
 	#endif
