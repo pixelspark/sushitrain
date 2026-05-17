@@ -14924,6 +14924,52 @@
         }
       }
     },
+    "Files and subdirectories whose paths match any of the patterns above will not be synchronized with other devices. Existing items matching the patterns will not be updated. **When selective synchronization is enabled, ignore patterns must start with `(?d)`.** [Learn more about the pattern syntax...](https://docs.syncthing.net/users/ignoring.html#patterns)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateien und Unterverzeichnisse, deren Pfade mit einem der obigen Muster übereinstimmen, werden nicht mit anderen Geräten synchronisiert. Bereits vorhandene Elemente, die den Mustern entsprechen, werden nicht aktualisiert. **Wenn die selektive Synchronisierung aktiviert ist, müssen Ignoriermuster mit `(?d)` beginnen.** [Erfahren Sie mehr über die Mustersyntax...](https://docs.syncthing.net/users/ignoring.html#patterns)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los archivos y subdirectorios cuyos caminos coinciden con cualquiera de los patrones anteriores no se sincronizarán con otros dispositivos. Los elementos existentes que coincidan con los patrones no se actualizarán. **Cuando la sincronización selectiva está habilitada, los patrones de ignorar deben comenzar con `(?d)`.** [Aprende más sobre la sintaxis del patrón...](https://docs.syncthing.net/users/ignoring.html#patterns)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I file e le sottodirectory i cui percorsi corrispondono a uno dei modelli sopra non verranno sincronizzati con altri dispositivi. Gli elementi esistenti che corrispondono ai modelli non verranno aggiornati. **Quando la sincronizzazione selettiva è abilitata, i modelli di ignorare devono iniziare con `(?d)`.** [Ulteriori informazioni sulla sintassi dei modelli...](https://docs.syncthing.net/users/ignoring.html#patterns)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上記のパターンに一致するファイルとサブディレクトリは、他のデバイスと同期されません。パターンに一致する既存の項目は更新されません。**選択的同期が有効な場合、無視パターンは `(?d)` で始まらなければなりません。** [パターンの文法について詳しく学ぶ...](https://docs.syncthing.net/users/ignoring.html#patterns)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestanden en submappen waarvan de paden overeenkomen met een van de bovenstaande patronen, worden niet gesynchroniseerd met andere apparaten. Bestaande items die overeenkomen met de patronen, worden niet bijgewerkt. **Bij ingeschakelde selectieve synchronisatie moeten negeerpatronen beginnen met `(?d)`.** [Meer informatie over de pattern-syntaxis...](https://docs.syncthing.net/users/ignoring.html#patterns)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файли та підкаталоги, шляхи яких відповідають будь-яким з наведених вище шаблонів, не будуть синхронізуватися з іншими пристроями. Існуючі елементи, що відповідають шаблонам, не будуть оновлюватися. **Коли увімкнено вибіркову синхронізацію, шаблони ігнорування мають починатися з `(?d)`.** [Дізнатися більше про синтаксис шаблонів...](https://docs.syncthing.net/users/ignoring.html#patterns)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "路径与上述模式中的任何一个匹配的文件和子目录将不会与其他设备同步。与这些模式匹配的现有项目不会被更新。**当启用选择性同步时，忽略模式必须以 `(?d)` 开头。** [了解更多关于模式语法的信息...](https://docs.syncthing.net/users/ignoring.html#patterns)"
+          }
+        }
+      }
+    },
     "Files in '%@' kept on this device" : {
       "localizations" : {
         "de" : {

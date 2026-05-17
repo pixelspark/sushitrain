@@ -275,7 +275,7 @@ struct SelectiveIgnoresView: View {
 					#endif
 			} footer: {
 				Text(
-					"Files and subdirectories whose paths match any of the patterns above will not be synchronized with other devices. Existing items matching the patterns will not be updated. [Learn more about the pattern syntax...](https://docs.syncthing.net/users/ignoring.html#patterns)"
+					"Files and subdirectories whose paths match any of the patterns above will not be synchronized with other devices. Existing items matching the patterns will not be updated. **When selective synchronization is enabled, ignore patterns must start with `(?d)`.** [Learn more about the pattern syntax...](https://docs.syncthing.net/users/ignoring.html#patterns)"
 				)
 				#if os(macOS)
 					.lineLimit(3, reservesSpace: true)
