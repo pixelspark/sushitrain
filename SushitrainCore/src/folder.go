@@ -262,6 +262,11 @@ func flatten(entries []*model.TreeEntry, recurse bool, prefix string) []string {
 	return newEntries
 }
 
+/*
+Returns a list of paths that appear in the folder withn the given prefix, optionally also returning paths for directories,
+and optionally recursing. If recursing, the containing directory entries are guaranteed to occur in the list before their
+children entries.
+*/
 func (fld *Folder) List(prefix string, directories bool, recurse bool) (*ListOfStrings, error) {
 	entries, err := fld.listEntries(prefix, directories, recurse)
 	if err != nil {

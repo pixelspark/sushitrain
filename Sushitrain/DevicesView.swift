@@ -789,7 +789,7 @@ struct LatencyView: View {
 				}
 			}
 			.contextMenu {
-				Button("Show info...") {
+				Button("Show info", systemImage: "info.circle") {
 					self.showEditEncryptionPassword = true
 				}
 			}

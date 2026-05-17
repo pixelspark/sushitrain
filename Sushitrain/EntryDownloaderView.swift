@@ -35,6 +35,9 @@ private class DownloadOperation: NSObject, ObservableObject, SushitrainDownloadD
 
 	func onProgress(_ fraction: Double) {
 		DispatchQueue.main.async {
+			if fraction < self.progressFraction {
+				Log.warn("progress degressed: \(self.progressFraction) -> \(fraction)")
+			}
 			self.progressFraction = fraction
 		}
 	}
@@ -48,6 +51,22 @@ private class DownloadOperation: NSObject, ObservableObject, SushitrainDownloadD
 	func cancel() {
 		self.lock.withLock {
 			self.cancelled = true
+		}
+	}
+}
+
+private struct CenteredView<Content: View>: View {
+	@ViewBuilder let contents: () -> Content
+
+	var body: some View {
+		HStack {
+			Spacer()
+			VStack {
+				Spacer()
+				self.contents()
+				Spacer()
+			}
+			Spacer()
 		}
 	}
 }
@@ -78,32 +97,26 @@ struct EntryDownloaderView: View {
 	@State private var filePath: URL? = nil
 	@State private var tempDirPath: URL? = nil
 	@State private var showFileExporter = false
+
 	@Environment(\.dismiss) private var dismiss
+	@Environment(\.showToast) private var showToast
 
 	var body: some View {
 		ZStack {
-			HStack {
-				Spacer()
-				VStack {
-					Spacer()
-					if let error = downloadOperation.error {
-						ContentUnavailableView(
-							"Could not download file", systemImage: "exclamationmark.triangle",
-							description: Text(error))
+			if let error = downloadOperation.error {
+				self.errorView(error: error)
+			}
+			else if let downloadedFileURL = downloadOperation.downloadedFileURL {
+				self.actionView(downloadedFileURL)
+			}
+			else {
+				CenteredView {
+					ContentUnavailableView {
+						ProgressView(value: downloadOperation.progressFraction, total: 1.0)
+					} description: {
+						Text("Downloading file...")
 					}
-					else if let downloadedFileURL = downloadOperation.downloadedFileURL {
-						self.actionView(downloadedFileURL)
-					}
-					else {
-						ContentUnavailableView {
-							ProgressView(value: downloadOperation.progressFraction, total: 1.0)
-						} description: {
-							Text("Downloading file...")
-						}
-					}
-					Spacer()
 				}
-				Spacer()
 			}
 		}
 		.quickLookPreview(
@@ -125,6 +138,7 @@ struct EntryDownloaderView: View {
 				})
 		)
 		.navigationTitle(file.fileName())
+		.presentationDetents([.medium])
 		.task {
 			do {
 				let tempDir = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
@@ -141,35 +155,62 @@ struct EntryDownloaderView: View {
 				downloadOperation.error = error.localizedDescription
 			}
 		}
+		#if os(macOS)
+			.presentationSizing(.fitted)
+			.frame(minWidth: 640, minHeight: 240)
+		#endif
 		.onDisappear {
 			self.cancelAndDeleteFiles()
+		}
+	}
+
+	@ViewBuilder private func errorView(error: String) -> some View {
+		CenteredView {
+			ContentUnavailableView(
+				"Could not download file", systemImage: "exclamationmark.triangle",
+				description: Text(error))
 		}
 	}
 
 	@ViewBuilder private func actionView(_ url: URL) -> some View {
 		switch self.action {
 		case .quickLook(dismissAfterClose: _):
-			ContentUnavailableView(
-				"Downloaded", systemImage: "checkmark.circle",
-				description: Text("Tap here to view the downloaded file")
-			).onTapGesture {
-				quicklookHidden = false
+			CenteredView {
+				ContentUnavailableView(
+					"Downloaded", systemImage: "checkmark.circle",
+					description: Text("Tap here to view the downloaded file")
+				).onTapGesture {
+					quicklookHidden = false
+				}
 			}
 
 		case .share:
-			ShareLink(item: url)
-			Button("Save a copy...", systemImage: "square.and.arrow.down") {
-				showFileExporter = true
-			}
-			.fileMover(isPresented: $showFileExporter, file: url) { result in
-				switch result {
-				case .success(_):
-					dismiss()
-				case .failure(let e):
-					Log.warn("could not move downloaded file: \(e)")
-					break
+			Form {
+				ShareLink(item: url)
+					#if os(macOS)
+						.buttonStyle(.link)
+					#endif
+
+				Button("Save a copy...", systemImage: "square.and.arrow.down") {
+					showFileExporter = true
 				}
+				.fileMover(isPresented: $showFileExporter, file: url) { result in
+					switch result {
+					case .success(_):
+						self.showToast(Toast(title: "Saved a copy of '\(file.fileName())'", image: "square.and.arrow.down"))
+						dismiss()
+					case .failure(let e):
+						Log.warn("could not move downloaded file: \(e)")
+						break
+					}
+				}
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
 			}
+			#if os(macOS)
+				.formStyle(.grouped)
+			#endif
 		}
 	}
 

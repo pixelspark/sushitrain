@@ -7,423 +7,468 @@ import SwiftUI
 import QuickLook
 @preconcurrency import SushitrainCore
 
-struct BrowserTableView: View {
-	let folder: SushitrainFolder
-	let files: [SushitrainEntry]
-	let subdirectories: [SushitrainEntry]
-	let viewStyle: BrowserViewStyle
+#if os(macOS)
+	struct BrowserTableView: View {
+		let folder: SushitrainFolder
+		let files: [SushitrainEntry]
+		let subdirectories: [SushitrainEntry]
+		let viewStyle: BrowserViewStyle
 
-	@State private var selection = Set<SushitrainEntry.ID>()
-	@State private var openedEntry: (SushitrainEntry, Bool)? = nil
-	@State private var sortOrder = [EntryComparator(order: .forward, sortBy: .name)]
-	@State private var entries: [SushitrainEntry] = []
+		@State private var selection = Set<SushitrainEntry.ID>()
+		@State private var openedEntry: (SushitrainEntry, Bool)? = nil
+		@State private var sortOrder = [EntryComparator(order: .forward, sortBy: .name)]
+		@State private var entries: [SushitrainEntry] = []
+		@State private var showDownloaderFor: SushitrainEntry? = nil
 
-	@SceneStorage("BrowserTableViewConfig") private var columnCustomization: TableColumnCustomization<SushitrainEntry>
-	@Environment(\.openURL) private var openURL
-	@Environment(AppState.self) private var appState
+		@SceneStorage("BrowserTableViewConfig") private var columnCustomization: TableColumnCustomization<SushitrainEntry>
+		@Environment(\.openURL) private var openURL
+		@Environment(AppState.self) private var appState
 
-	#if os(macOS)
-		@Environment(\.openWindow) private var openWindow
-	#endif
+		#if os(macOS)
+			@Environment(\.openWindow) private var openWindow
+		#endif
 
-	private static let formatter = ByteCountFormatter()
+		private static let formatter = ByteCountFormatter()
 
-	private func entryById(_ id: SushitrainEntry.ID) -> SushitrainEntry? {
-		if let found = subdirectories.first(where: { $0.id == id }) {
-			return found
+		private func entryById(_ id: SushitrainEntry.ID) -> SushitrainEntry? {
+			if let found = subdirectories.first(where: { $0.id == id }) {
+				return found
+			}
+			if let found = files.first(where: { $0.id == id }) {
+				return found
+			}
+			return nil
 		}
-		if let found = files.first(where: { $0.id == id }) {
-			return found
+
+		private func entriesForIds(_ ids: Set<SushitrainEntry.ID>) -> [SushitrainEntry] {
+			return self.entries.filter { ids.contains($0.id) }
 		}
-		return nil
-	}
 
-	private func entriesForIds(_ ids: Set<SushitrainEntry.ID>) -> [SushitrainEntry] {
-		return self.entries.filter { ids.contains($0.id) }
-	}
-
-	private func copy(_ entry: SushitrainEntry) {
-		if let url = entry.localNativeFileURL as? NSURL, let refURL = url.fileReferenceURL() {
-			writeURLToPasteboard(url: refURL)
+		private func copy(_ entry: SushitrainEntry) {
+			if let url = entry.localNativeFileURL as? NSURL, let refURL = url.fileReferenceURL() {
+				writeURLToPasteboard(url: refURL)
+			}
+			else if let url = URL(string: entry.onDemandURL()) {
+				writeURLToPasteboard(url: url)
+			}
 		}
-		else if let url = URL(string: entry.onDemandURL()) {
-			writeURLToPasteboard(url: url)
-		}
-	}
 
-	var body: some View {
-		Table(
-			of: SushitrainEntry.self,
-			selection: self.$selection,
-			sortOrder: $sortOrder,
-			columnCustomization: $columnCustomization,
-			columns: {
-				// Name and icon
-				TableColumn("Name", sortUsing: EntryComparator(order: .forward, sortBy: .name)) {
-					(entry: SushitrainEntry) in
-					EntryNameView(entry: entry, viewStyle: self.viewStyle)
-						.environment(self.appState)  // Needed because for some reason it does not propagate
-				}
-				.defaultVisibility(.visible)
-				.customizationID("name")
+		var body: some View {
+			Table(
+				of: SushitrainEntry.self,
+				selection: self.$selection,
+				sortOrder: $sortOrder,
+				columnCustomization: $columnCustomization,
+				columns: {
+					// Name and icon
+					TableColumn("Name", sortUsing: EntryComparator(order: .forward, sortBy: .name)) {
+						(entry: SushitrainEntry) in
+						EntryNameView(entry: entry, viewStyle: self.viewStyle)
+							.environment(self.appState)  // Needed because for some reason it does not propagate
+					}
+					.defaultVisibility(.visible)
+					.customizationID("name")
 
-				// File extension
-				TableColumn(
-					"File type", sortUsing: EntryComparator(order: .forward, sortBy: .fileExtension)
-				) {
-					(entry: SushitrainEntry) in
-					Text(entry.extension())
-						.foregroundStyle(Color.primary)
-						.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
-				}
-				.width(min: 32, max: 64)
-				.defaultVisibility(.hidden)
-				.customizationID("extension")
-
-				// File size
-				TableColumn(
-					"Size",
-					sortUsing: EntryComparator(order: .forward, sortBy: .size)
-				) { entry in
-					if !entry.isDirectory() {
-						Text(Self.formatter.string(fromByteCount: entry.size()))
+					// File extension
+					TableColumn(
+						"File type", sortUsing: EntryComparator(order: .forward, sortBy: .fileExtension)
+					) {
+						(entry: SushitrainEntry) in
+						Text(entry.extension())
 							.foregroundStyle(Color.primary)
 							.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
 					}
-				}
-				.width(min: 100, max: 120)
-				.defaultVisibility(.hidden)
-				.alignment(.trailing)
-				.customizationID("size")
+					.width(min: 32, max: 64)
+					.defaultVisibility(.hidden)
+					.customizationID("extension")
 
-				// Last modified date
-				TableColumn(
-					"Last modified",
-					sortUsing: EntryComparator(order: .forward, sortBy: .lastModifiedDate)
-				) { (entry: SushitrainEntry) in
-					if let md = entry.modifiedAt()?.date(), !entry.isSymlink() {
-						Text(md.formatted(date: .numeric, time: .shortened))
-							.foregroundStyle(Color.primary)
-							.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
+					// File size
+					TableColumn(
+						"Size",
+						sortUsing: EntryComparator(order: .forward, sortBy: .size)
+					) { entry in
+						if !entry.isDirectory() {
+							Text(Self.formatter.string(fromByteCount: entry.size()))
+								.foregroundStyle(Color.primary)
+								.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
+						}
+					}
+					.width(min: 100, max: 120)
+					.defaultVisibility(.hidden)
+					.alignment(.trailing)
+					.customizationID("size")
+
+					// Last modified date
+					TableColumn(
+						"Last modified",
+						sortUsing: EntryComparator(order: .forward, sortBy: .lastModifiedDate)
+					) { (entry: SushitrainEntry) in
+						if let md = entry.modifiedAt()?.date(), !entry.isSymlink() {
+							Text(md.formatted(date: .numeric, time: .shortened))
+								.foregroundStyle(Color.primary)
+								.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
+						}
+					}
+					.width(min: 150, max: 180)
+					.defaultVisibility(.hidden)
+					.alignment(.leading)
+					.customizationID("lastModifiedDate")
+
+				},
+				rows: {
+					ForEach(entries) { entry in
+						TableRow(entry).draggable(entry)
 					}
 				}
-				.width(min: 150, max: 180)
-				.defaultVisibility(.hidden)
-				.alignment(.leading)
-				.customizationID("lastModifiedDate")
-
-			},
-			rows: {
-				ForEach(entries) { entry in
-					TableRow(entry).draggable(entry)
+			)
+			.task {
+				await self.update()
+			}
+			.onChange(of: self.sortOrder, initial: false) { _, _ in
+				Task {
+					await self.update()
 				}
 			}
-		)
-		.task {
-			await self.update()
-		}
-		.onChange(of: self.sortOrder, initial: false) { _, _ in
-			Task {
-				await self.update()
-			}
-		}
-		.onChange(of: self.files, initial: false) { _, _ in
-			Task {
-				await self.update()
-			}
-		}
-		.onChange(of: self.subdirectories, initial: false) { _, _ in
-			Task {
-				await self.update()
-			}
-		}
-		.contextMenu(
-			forSelectionType: SushitrainEntry.ID.self,
-			menu: { items in
-				if items.isEmpty {
-
+			.onChange(of: self.files, initial: false) { _, _ in
+				Task {
+					await self.update()
 				}
-				else if let item = items.first, items.count == 1 {
-					// Single item selected
-					if let oe = self.entryById(item) {
-						if !oe.isDirectory() && !oe.isSymlink() {
-							#if os(macOS)
-								Button("Show preview", systemImage: "doc.text.magnifyingglass") {
-									openWindow(
-										id: "preview",
-										value: Preview(folderID: self.folder.folderID, path: oe.path())
-									)
-								}.disabled(!oe.canPreview)
+			}
+			.onChange(of: self.subdirectories, initial: false) { _, _ in
+				Task {
+					await self.update()
+				}
+			}
+			.contextMenu(
+				forSelectionType: SushitrainEntry.ID.self,
+				menu: { items in
+					if items.isEmpty {
 
-								// Copy
-								Button("Copy", systemImage: "document.on.document") {
-									self.copy(oe)
-								}.disabled(!oe.isLocallyPresent())
-							#endif
-						}
-
-						if oe.hasExternalSharingURL {
-							FileSharingLinksView(entry: oe, sync: true)
-						}
-
-						// Show file in Finder
-						if oe.canShowInFinder {
-							Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
-								try? oe.showInFinder()
+					}
+					else if let item = items.first, items.count == 1 {
+						// Single item selected
+						if let oe = self.entryById(item) {
+							if oe.isDirectory() {
+								Button("Subdirectory properties", systemImage: "folder.badge.gearshape") {
+									self.openedEntry = (oe, false)
+								}
 							}
-						}
+							else {
+								Button("Show info", systemImage: "info.circle") {
+									self.openedEntry = (oe, false)
+								}
+							}
 
-						Divider()
-						ItemSelectToggleView(file: oe)
+							// Preview and copy (only for files, not folders)
+							if !oe.isDirectory() && !oe.isSymlink() {
+								#if os(macOS)
+									Button("Show preview", systemImage: "doc.text.magnifyingglass") {
+										openWindow(
+											id: "preview",
+											value: Preview(folderID: self.folder.folderID, path: oe.path())
+										)
+									}.disabled(!oe.canPreview)
 
-						Divider()
-						Button("Show info") {
-							self.openedEntry = (oe, false)
-						}
-					}
-				}
-				else {
-					// Multiple items selected
-					Text("\(items.count) items selected")
+									// Copy
+									Button("Copy", systemImage: "document.on.document") {
+										self.copy(oe)
+									}.disabled(!oe.isLocallyPresent())
+								#endif
+							}
 
-					MultiItemSelectToggleView(files: self.entriesForIds(items))
-				}
-			},
-			primaryAction: self.doubleClick
-		)
-		.navigationDestination(isPresented: Binding.isNotNil($openedEntry)) {
-			self.nextView()
-		}
-	}
+							// Regular sharing
+							EntryShareButton(
+								entry: oe,
+								showDownloader: Binding(
+									get: {
+										self.showDownloaderFor != nil
+									},
+									set: { nv in
+										if nv {
+											self.showDownloaderFor = oe
+										}
+										else {
+											self.showDownloaderFor = nil
+										}
+									}))
 
-	@ViewBuilder private func nextView() -> some View {
-		if let (oe, honorTapToPreview) = openedEntry {
-			if oe.isSymlink() {
-				if !honorTapToPreview {
-					// Just show symlink properties
-					FileView(file: oe, showPath: false, siblings: self.entries)
-				}
-				else if let targetEntry = try? oe.symlinkTargetEntry() {
-					// Symlink to a directory
-					if targetEntry.isDirectory() {
-						if let targetFolder = targetEntry.folder {
-							BrowserView(folder: targetFolder, prefix: targetEntry.path() + "/", userSettings: appState.userSettings)
+							// Show item in Finder
+							if oe.canShowInFinder {
+								Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
+									try? oe.showInFinder()
+								}
+							}
+
+							// External sharing
+							if oe.hasExternalSharingURL {
+								Divider()
+								FileSharingLinksView(entry: oe, sync: true)
+							}
+
+							Divider()
+							ItemSelectToggleView(file: oe)
 						}
 					}
 					else {
-						// Symlink to file
-						if honorTapToPreview && appState.userSettings.tapFileToPreview {
-							FileViewerView(
-								file: targetEntry,
-								siblings: entries,
-								inSheet: false,
-								isShown: .constant(true)
-							)
-							.navigationTitle(targetEntry.fileName())
+						// Multiple items selected
+						Text("\(items.count) items selected")
+
+						MultiItemSelectToggleView(files: self.entriesForIds(items))
+					}
+				},
+				primaryAction: self.doubleClick
+			)
+			.navigationDestination(isPresented: Binding.isNotNil($openedEntry)) {
+				self.nextView()
+			}
+			.sheet(item: $showDownloaderFor) { downloadEntry in
+				self.downloaderSheet(entry: downloadEntry)
+			}
+		}
+
+		@ViewBuilder private func downloaderSheet(entry: SushitrainEntry) -> some View {
+			NavigationStack {
+				EntryDownloaderView(file: entry, action: .share)
+					#if os(iOS)
+						.navigationBarTitleDisplayMode(.inline)
+					#endif
+					.toolbar {
+						SheetButton(role: .cancel) {
+							showDownloaderFor = nil
+						}
+					}
+			}
+		}
+
+		@ViewBuilder private func nextView() -> some View {
+			if let (oe, honorTapToPreview) = openedEntry {
+				if oe.isSymlink() {
+					if !honorTapToPreview {
+						// Just show symlink properties
+						FileView(file: oe, showPath: false, siblings: self.entries)
+					}
+					else if let targetEntry = try? oe.symlinkTargetEntry() {
+						// Symlink to a directory
+						if targetEntry.isDirectory() {
+							if let targetFolder = targetEntry.folder {
+								BrowserView(folder: targetFolder, prefix: targetEntry.path() + "/", userSettings: appState.userSettings)
+							}
 						}
 						else {
-							FileView(file: targetEntry, showPath: false, siblings: self.entries)
+							// Symlink to file
+							if honorTapToPreview && appState.userSettings.tapFileToPreview {
+								FileViewerView(
+									file: targetEntry,
+									siblings: entries,
+									inSheet: false,
+									isShown: .constant(true)
+								)
+								.navigationTitle(targetEntry.fileName())
+							}
+							else {
+								FileView(file: targetEntry, showPath: false, siblings: self.entries)
+							}
 						}
+					}
+					else {
+						// Symlink to URL, case is handled elsewhere
+						EmptyView()
+					}
+				}
+				else if oe.isDirectory() {
+					if honorTapToPreview {
+						BrowserView(folder: folder, prefix: oe.path() + "/", userSettings: appState.userSettings)
+					}
+					else {
+						FileView(file: oe, showPath: false, siblings: self.entries)
 					}
 				}
 				else {
-					// Symlink to URL, case is handled elsewhere
-					EmptyView()
-				}
-			}
-			else if oe.isDirectory() {
-				if honorTapToPreview {
-					BrowserView(folder: folder, prefix: oe.path() + "/", userSettings: appState.userSettings)
-				}
-				else {
-					FileView(file: oe, showPath: false, siblings: self.entries)
+					// Only on iOS
+					if honorTapToPreview && appState.userSettings.tapFileToPreview {
+						FileViewerView(
+							file: oe, siblings: entries,
+							inSheet: false,
+							isShown: .constant(true)
+						)
+						.navigationTitle(oe.fileName())
+					}
+					else {
+						FileView(file: oe, showPath: false, siblings: self.entries)
+					}
 				}
 			}
 			else {
-				// Only on iOS
-				if honorTapToPreview && appState.userSettings.tapFileToPreview {
-					FileViewerView(
-						file: oe, siblings: entries,
-						inSheet: false,
-						isShown: .constant(true)
-					)
-					.navigationTitle(oe.fileName())
-				}
-				else {
-					FileView(file: oe, showPath: false, siblings: self.entries)
-				}
+				EmptyView()
 			}
 		}
-		else {
-			EmptyView()
-		}
-	}
 
-	private func doubleClick(_ items: Set<SushitrainEntry.ID>) {
-		if let item = items.first, items.count == 1 {
-			if let oe = self.entryById(item) {
-				// Symlink to URLs should be opened externally
-				if oe.isSymlink() {
-					if let targetURL = oe.symlinkTargetURL {
-						openURL(targetURL)
-						return
-					}
-				}
-
-				#if os(macOS)
-					// Tap to preview on macOS opens a new window
-					if appState.userSettings.tapFileToPreview {
-						if oe.canPreview {
-							openWindow(
-								id: "preview",
-								value: Preview(
-									folderID: self.folder.folderID,
-									path: oe.path()
-								))
+		private func doubleClick(_ items: Set<SushitrainEntry.ID>) {
+			if let item = items.first, items.count == 1 {
+				if let oe = self.entryById(item) {
+					// Symlink to URLs should be opened externally
+					if oe.isSymlink() {
+						if let targetURL = oe.symlinkTargetURL {
+							openURL(targetURL)
 							return
 						}
 					}
-				#endif
 
-				// Regular case: just open the entry in a next view
-				self.openedEntry = (oe, true)
-			}
-		}
-	}
+					#if os(macOS)
+						// Tap to preview on macOS opens a new window
+						if appState.userSettings.tapFileToPreview {
+							if oe.canPreview {
+								openWindow(
+									id: "preview",
+									value: Preview(
+										folderID: self.folder.folderID,
+										path: oe.path()
+									))
+								return
+							}
+						}
+					#endif
 
-	private func update() async {
-		self.entries = await Task.detached {
-			var a = self.subdirectories + self.files
-			await a.sort(using: self.sortOrder)
-			return a
-		}.value
-	}
-}
-
-struct MultiItemSelectToggleView: View {
-	@Environment(AppState.self) private var appState
-	let files: [SushitrainEntry]
-
-	private var isAvailable: Bool {
-		return files.allSatisfy {
-			$0.isSelectionToggleAvailable && !$0.isSelectionToggleShallowDisabled
-		}
-	}
-
-	private var allSelected: Bool? {
-		var anySelected: Bool = false
-		var anyDeselected: Bool = false
-
-		for file in files {
-			if !file.isSelectionToggleAvailable || file.isSelectionToggleShallowDisabled {
-				return false
-			}
-
-			let s = (file.isExplicitlySelected() || file.isSelected())
-			anySelected = anySelected || s
-			anyDeselected = anyDeselected || !s
-		}
-
-		switch (anySelected, anyDeselected) {
-		case (true, true): return nil
-		case (true, false): return true
-		case (false, true): return false
-		case (false, false): return false
-		}
-
-	}
-
-	private func selectAll(_ s: Bool) async {
-		// [folderID: [path: selected]]
-		var filesPerFolder: [String: [String: Bool]] = [:]
-
-		// Sort files by folder
-		for file in files {
-			if file.isSelected() && !file.isExplicitlySelected() {
-				continue  // File is implicitly selected
-			}
-
-			if let fid = file.folder?.folderID {
-				if var ff = filesPerFolder[fid] {
-					ff[file.path()] = s
-					filesPerFolder[fid] = ff
-				}
-				else {
-					filesPerFolder[fid] = [file.path(): s]
+					// Regular case: just open the entry in a next view
+					self.openedEntry = (oe, true)
 				}
 			}
 		}
 
-		// Batch select by folder
-		do {
-			for (folderID, selection) in filesPerFolder {
-				if let folder = appState.client.folder(withID: folderID) {
-					let json = try JSONEncoder().encode(selection)
-					try folder.setExplicitlySelectedJSON(json)
-				}
-			}
-		}
-		catch {
-			// We can't use our own alert since by the time we get here, the context menu is gone
-			appState.alert(message: error.localizedDescription)
+		private func update() async {
+			self.entries = await Task.detached {
+				var a = self.subdirectories + self.files
+				await a.sort(using: self.sortOrder)
+				return a
+			}.value
 		}
 	}
 
-	var body: some View {
-		Toggle(
-			"Synchronize with this device", systemImage: "pin",
-			isOn: Binding(
-				get: { allSelected == true },
-				set: { s in
-					Task {
-						await selectAll(s)
+	struct MultiItemSelectToggleView: View {
+		@Environment(AppState.self) private var appState
+		let files: [SushitrainEntry]
+
+		private var isAvailable: Bool {
+			return files.allSatisfy {
+				$0.isSelectionToggleAvailable && !$0.isSelectionToggleShallowDisabled
+			}
+		}
+
+		private var allSelected: Bool? {
+			var anySelected: Bool = false
+			var anyDeselected: Bool = false
+
+			for file in files {
+				if !file.isSelectionToggleAvailable || file.isSelectionToggleShallowDisabled {
+					return false
+				}
+
+				let s = (file.isExplicitlySelected() || file.isSelected())
+				anySelected = anySelected || s
+				anyDeselected = anyDeselected || !s
+			}
+
+			switch (anySelected, anyDeselected) {
+			case (true, true): return nil
+			case (true, false): return true
+			case (false, true): return false
+			case (false, false): return false
+			}
+
+		}
+
+		private func selectAll(_ s: Bool) async {
+			// [folderID: [path: selected]]
+			var filesPerFolder: [String: [String: Bool]] = [:]
+
+			// Sort files by folder
+			for file in files {
+				if file.isSelected() && !file.isExplicitlySelected() {
+					continue  // File is implicitly selected
+				}
+
+				if let fid = file.folder?.folderID {
+					if var ff = filesPerFolder[fid] {
+						ff[file.path()] = s
+						filesPerFolder[fid] = ff
 					}
-				})
-		)
-		.disabled(!self.isAvailable)
-	}
-}
-
-private struct EntryNameView: View {
-	let entry: SushitrainEntry
-	let viewStyle: BrowserViewStyle
-
-	@Environment(AppState.self) private var appState
-
-	private var showThumbnail: Bool {
-		return self.viewStyle == .thumbnailList
-	}
-
-	var body: some View {
-		if self.showThumbnail && !self.entry.isDirectory() {
-			// Thubmnail view shows thumbnail image next to the file name
-			HStack(alignment: .center, spacing: 9.0) {
-				ThumbnailView(file: entry, showFileName: false, showErrorMessages: false)
-					.frame(width: 60, height: 40)
-					.cornerRadius(6.0)
-					.help(entry.fileName())
-
-				// The entry name (grey when not locally present)
-				Text(entry.fileName())
-					.multilineTextAlignment(.leading)
-					.foregroundStyle(entry.isConflictCopy() ? Color.red : Color.primary)
-					.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
-				Spacer()
+					else {
+						filesPerFolder[fid] = [file.path(): s]
+					}
+				}
 			}
-			.frame(maxWidth: .infinity)
-			.padding(0)
+
+			// Batch select by folder
+			do {
+				for (folderID, selection) in filesPerFolder {
+					if let folder = appState.client.folder(withID: folderID) {
+						let json = try JSONEncoder().encode(selection)
+						try folder.setExplicitlySelectedJSON(json)
+					}
+				}
+			}
+			catch {
+				// We can't use our own alert since by the time we get here, the context menu is gone
+				appState.alert(message: error.localizedDescription)
+			}
 		}
-		else {
-			HStack {
-				Image(systemName: entry.systemImage)
-					.foregroundStyle(entry.color ?? Color.accentColor)
-				Text(entry.fileName())
-					.multilineTextAlignment(.leading)
-					.foregroundStyle(entry.isConflictCopy() ? Color.red : Color.primary)
-					.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
-				Spacer()
-			}
-			.frame(maxWidth: .infinity)
+
+		var body: some View {
+			Toggle(
+				"Synchronize with this device", systemImage: "pin",
+				isOn: Binding(
+					get: { allSelected == true },
+					set: { s in
+						Task {
+							await selectAll(s)
+						}
+					})
+			)
+			.disabled(!self.isAvailable)
 		}
 	}
-}
+
+	private struct EntryNameView: View {
+		let entry: SushitrainEntry
+		let viewStyle: BrowserViewStyle
+
+		@Environment(AppState.self) private var appState
+
+		private var showThumbnail: Bool {
+			return self.viewStyle == .thumbnailList
+		}
+
+		var body: some View {
+			if self.showThumbnail && !self.entry.isDirectory() {
+				// Thubmnail view shows thumbnail image next to the file name
+				HStack(alignment: .center, spacing: 9.0) {
+					ThumbnailView(file: entry, showFileName: false, showErrorMessages: false)
+						.frame(width: 60, height: 40)
+						.cornerRadius(6.0)
+						.help(entry.fileName())
+
+					// The entry name (grey when not locally present)
+					Text(entry.fileName())
+						.multilineTextAlignment(.leading)
+						.foregroundStyle(entry.isConflictCopy() ? Color.red : Color.primary)
+						.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
+					Spacer()
+				}
+				.frame(maxWidth: .infinity)
+				.padding(0)
+			}
+			else {
+				HStack {
+					Image(systemName: entry.systemImage)
+						.foregroundStyle(entry.color ?? Color.accentColor)
+					Text(entry.fileName())
+						.multilineTextAlignment(.leading)
+						.foregroundStyle(entry.isConflictCopy() ? Color.red : Color.primary)
+						.opacity(entry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
+					Spacer()
+				}
+				.frame(maxWidth: .infinity)
+			}
+		}
+	}
+#endif

@@ -418,52 +418,162 @@ func (pw *progressWriter) Write(buf []byte) (n int, err error) {
 	return
 }
 
-/** Download this file to the specific location (should be outside the synced folder!) **/
+/** Download this entry to the specific location (should be outside the synced folder!) **/
 func (entry *Entry) Download(toPath string, delegate DownloadDelegate) {
 	go func() {
-		context := context.WithoutCancel(context.Background())
-		m := entry.Folder.client.app.Internals
-		folderID := entry.Folder.FolderID
-		info, ok, err := m.GlobalFileInfo(folderID, entry.info.FileName())
-		if err != nil {
-			delegate.OnError(err.Error())
-			return
+		if entry.IsDirectory() {
+			entry.downloadDirectory(toPath, delegate)
+		} else {
+			entry.downloadFile(toPath, delegate)
 		}
+	}()
+}
 
-		if !ok {
-			delegate.OnError("file not found")
-			return
-		}
-
-		// Create file to download to
-		outFile, err := os.Create(toPath)
-		if err != nil {
-			delegate.OnError("could not open file for downloading to: " + err.Error())
-			return
-		}
-		// close fi on exit and check for its returned error
-		defer func() {
-			if err := outFile.Close(); err != nil {
-				panic(err)
-			}
-		}()
-
+func (entry *Entry) downloadDirectory(toPath string, delegate DownloadDelegate) {
+	go func() {
+		myPrefix := entry.Path() + "/"
+		slog.Info("downloadDirectory", "toPath", toPath, "prefix", myPrefix)
 		delegate.OnProgress(0.0)
-		mp := newMiniPuller(entry.Folder.client.Measurements, m)
-		pw := progressWriter{
-			out:      outFile,
-			delegate: delegate,
-			total:    int(info.Size),
-			written:  0,
-		}
 
-		err = mp.downloadInto(context, &pw, folderID, info)
+		// Find all containedPaths in this subdirectory
+		containedPaths, err := entry.Folder.List(myPrefix, false, true)
 		if err != nil {
 			delegate.OnError(err.Error())
 			return
 		}
+
+		// Ensure the toPath is a directory
+		err = os.MkdirAll(toPath, 0o700)
+		if err != nil {
+			delegate.OnError(err.Error())
+			return
+		}
+		slog.Info("downloadDirectory entries", "len", len(containedPaths.data))
+
+		for containedFileIndex, containedPath := range containedPaths.data {
+			if delegate.IsCancelled() {
+				return
+			}
+			slog.Info("contained", "path", containedPath)
+			subEntry, err := entry.Folder.GetFileInformation(myPrefix + containedPath)
+			if err != nil {
+				slog.Warn("downloadDirectory failed to get entry information", "path", containedPath)
+				delegate.OnError(err.Error())
+				return
+			}
+			slog.Info("contained", "entry", subEntry.info)
+
+			if subEntry.IsDeleted() {
+				continue
+			}
+
+			subEntryToPath := path.Join(toPath, containedPath)
+
+			if subEntry.IsDirectory() {
+				slog.Info("creating subdir", "entry", containedPath, "subEntryToPath", subEntryToPath)
+				err = os.MkdirAll(subEntryToPath, 0o700)
+				if err != nil {
+					delegate.OnError(err.Error())
+					return
+				}
+				continue
+			}
+
+			slog.Info("downloading", "entry", containedPath, "subEntryToPath", subEntryToPath)
+			var failed = false
+			subDelegate := &subDownloadDelegate{
+				parent: delegate,
+				errorCallback: func(err string) {
+					if !failed {
+						failed = true
+						delegate.OnError(err)
+					}
+				},
+				progressCallback: func(fraction float64) {
+					perFileFraction := 1.0 / float64(len(containedPaths.data))
+					delegate.OnProgress((float64(containedFileIndex) + fraction) * perFileFraction)
+				},
+			}
+			subEntry.downloadFile(subEntryToPath, subDelegate)
+			if failed {
+				return
+			}
+
+			delegate.OnProgress(float64(containedFileIndex+1) / float64(len(containedPaths.data)))
+		}
+
 		delegate.OnFinished(toPath)
 	}()
+}
+
+type subDownloadDelegate struct {
+	parent           DownloadDelegate
+	progressCallback func(fraction float64)
+	errorCallback    func(err string)
+}
+
+func (s *subDownloadDelegate) IsCancelled() bool {
+	return s.parent.IsCancelled()
+}
+
+func (s *subDownloadDelegate) OnError(err string) {
+	s.errorCallback(err)
+}
+
+func (s *subDownloadDelegate) OnFinished(path string) {
+	// Swallow
+}
+
+func (s *subDownloadDelegate) OnProgress(fraction float64) {
+	s.progressCallback(fraction)
+}
+
+var _ DownloadDelegate = &subDownloadDelegate{}
+
+/** Download this file to the specific location (should be outside the synced folder!) **/
+func (entry *Entry) downloadFile(toPath string, delegate DownloadDelegate) {
+	context := context.WithoutCancel(context.Background())
+	m := entry.Folder.client.app.Internals
+	folderID := entry.Folder.FolderID
+	info, ok, err := m.GlobalFileInfo(folderID, entry.info.FileName())
+	if err != nil {
+		delegate.OnError(err.Error())
+		return
+	}
+
+	if !ok {
+		delegate.OnError("file not found")
+		return
+	}
+
+	// Create file to download to
+	outFile, err := os.Create(toPath)
+	if err != nil {
+		delegate.OnError("could not open file for downloading to: " + err.Error())
+		return
+	}
+	// close fi on exit and check for its returned error
+	defer func() {
+		if err := outFile.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
+	delegate.OnProgress(0.0)
+	mp := newMiniPuller(entry.Folder.client.Measurements, m)
+	pw := progressWriter{
+		out:      outFile,
+		delegate: delegate,
+		total:    int(info.Size),
+		written:  0,
+	}
+
+	err = mp.downloadInto(context, &pw, folderID, info)
+	if err != nil {
+		delegate.OnError(err.Error())
+		return
+	}
+	delegate.OnFinished(toPath)
 }
 
 func (entry *Entry) OnDemandURL() string {

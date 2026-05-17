@@ -51,30 +51,19 @@ struct BrowserListView: View {
 						destination: BrowserView(folder: folder, prefix: "\(prefix)\(fileName)/", userSettings: appState.userSettings)
 					) {
 						ItemSelectSwipeView(file: subDirEntry) {
-							// Subdirectory name
-							HStack(spacing: 9.0) {
-								Image(systemName: subDirEntry.systemImage).foregroundStyle(subDirEntry.color ?? Color.accentColor)
-								Text(subDirEntry.fileName()).multilineTextAlignment(.leading).foregroundStyle(Color.primary).opacity(
-									subDirEntry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
-								Spacer()
-							}.frame(maxWidth: .infinity).padding(0)
-						}
-					}.contextMenu(
-						ContextMenu(menuItems: {
-							if let file = try? folder.getFileInformation(self.prefix + fileName) {
-								NavigationLink(destination: FileView(file: file, showPath: false, siblings: nil)) {
-									Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
-								}
-
-								ItemSelectToggleView(file: file)
-
-								NavigationLink(destination: SelectiveFolderView(folder: folder, prefix: "\(self.prefix)\(fileName)/")) {
-									Label("Files kept on this device", systemImage: "pin")
-								}
-
-								if file.hasExternalSharingURL { FileSharingLinksView(entry: file, sync: true) }
+							EntryContextMenuWrapper(
+								appState: appState, entry: subDirEntry, inFolder: self.folder, siblings: files, honorTapToPreview: false
+							) {
+								// Subdirectory name with a nice icon
+								HStack(spacing: 9.0) {
+									Image(systemName: subDirEntry.systemImage).foregroundStyle(subDirEntry.color ?? Color.accentColor)
+									Text(subDirEntry.fileName()).multilineTextAlignment(.leading).foregroundStyle(Color.primary).opacity(
+										subDirEntry.isLocallyPresent() ? 1.0 : EntryView.remoteFileOpacity)
+									Spacer()
+								}.frame(maxWidth: .infinity).padding(0)
 							}
-						}))
+						}
+					}
 				}
 			}
 
@@ -160,7 +149,7 @@ struct EntryView: View {
 					}
 				}
 				else {
-					FileEntryLink(appState: appState, entry: targetEntry, inFolder: self.folder, siblings: [], honorTapToPreview: true)
+					EntryLinkView(appState: appState, entry: targetEntry, inFolder: self.folder, siblings: [], honorTapToPreview: true)
 					{
 						self.entryView(entry: targetEntry)
 					}.contextMenu {
@@ -194,14 +183,51 @@ struct EntryView: View {
 			}
 		}
 		else {
-			FileEntryLink(appState: appState, entry: entry, inFolder: self.folder, siblings: siblings, honorTapToPreview: true) {
+			EntryLinkView(appState: appState, entry: entry, inFolder: self.folder, siblings: siblings, honorTapToPreview: true) {
 				self.entryView(entry: entry)
 			}
 		}
 	}
 }
 
-struct FileEntryLink<Content: View>: View {
+struct EntryLinkView<Content: View>: View {
+	let appState: AppState
+	let entry: SushitrainEntry
+	let inFolder: SushitrainFolder?
+	let siblings: [SushitrainEntry]
+	let honorTapToPreview: Bool
+	@ViewBuilder var content: () -> Content
+
+	@State private var canPreview: Bool = false
+
+	#if os(macOS)
+		@Environment(\.openWindow) private var openWindow
+	#endif
+
+	var body: some View {
+		EntryContextMenuWrapper(
+			appState: appState, entry: entry, inFolder: inFolder, siblings: siblings, honorTapToPreview: honorTapToPreview
+		) {
+			Group {
+				if canPreview && honorTapToPreview && appState.userSettings.tapFileToPreview {
+					// Tap to preview
+					self.content()
+				}
+				else {
+					// Tap to go to file view
+					NavigationLink(
+						destination: FileView(file: entry, showPath: self.inFolder == nil, siblings: siblings)
+					) { self.content() }
+				}
+			}
+		}
+		.task {
+			self.canPreview = entry.canPreview
+		}
+	}
+}
+
+struct EntryContextMenuWrapper<Content: View>: View {
 	let appState: AppState
 	let entry: SushitrainEntry
 	let inFolder: SushitrainFolder?
@@ -212,6 +238,7 @@ struct FileEntryLink<Content: View>: View {
 	@State private var quickLookURL: URL? = nil
 	@State private var showPreviewSheet: Bool = false
 	@State private var canPreview: Bool = false
+	@State private var showDownloader = false
 
 	#if os(macOS)
 		@Environment(\.openWindow) private var openWindow
@@ -231,109 +258,132 @@ struct FileEntryLink<Content: View>: View {
 		#endif
 	}
 
-	private var inner: some View {
-		Group {
-			if canPreview && honorTapToPreview && appState.userSettings.tapFileToPreview {
-				Button(action: { self.previewFile() }) { self.content() }
-					#if os(macOS)
-						.buttonStyle(.link)
-					#endif
-					.foregroundStyle(.primary)
-					.frame(maxWidth: .infinity)
-					.quickLookPreview(self.$quickLookURL)
-			}
-			else {
-				// Tap to go to file view
-				NavigationLink(
-					destination: FileView(file: entry, showPath: self.inFolder == nil, siblings: siblings)
-				) { self.content() }
-			}
-		}
-		#if os(macOS)
-			.sheet(isPresented: $showPreviewSheet) {
-				FileViewerView(file: entry, siblings: siblings, inSheet: true, isShown: $showPreviewSheet)
-				.presentationSizing(.fitted)
-				.frame(minWidth: 640, minHeight: 480)
-				.navigationTitle(entry.fileName())
-				.toolbar {
-					ToolbarItem(placement: .confirmationAction) { Button("Done") { showPreviewSheet = false } }
+	@ViewBuilder private func inner() -> some View {
+		self.content()
+			.quickLookPreview(self.$quickLookURL)
+			#if os(macOS)
+				.sheet(isPresented: $showPreviewSheet) {
+					FileViewerView(file: entry, siblings: siblings, inSheet: true, isShown: $showPreviewSheet)
+					.presentationSizing(.fitted)
+					.frame(minWidth: 640, minHeight: 480)
+					.navigationTitle(entry.fileName())
+					.toolbar {
+						ToolbarItem(placement: .confirmationAction) { Button("Done") { showPreviewSheet = false } }
+					}
 				}
+			#else
+				.fullScreenCover(isPresented: $showPreviewSheet) {
+					FileViewerView(file: entry, siblings: siblings, inSheet: true, isShown: $showPreviewSheet)
+				}
+			#endif
+			.sheet(isPresented: $showDownloader) {
+				self.downloaderSheet()
 			}
-		#else
-			.fullScreenCover(isPresented: $showPreviewSheet) {
-				FileViewerView(file: entry, siblings: siblings, inSheet: true, isShown: $showPreviewSheet)
+	}
+
+	@ViewBuilder private func downloaderSheet() -> some View {
+		NavigationStack {
+			EntryDownloaderView(file: entry, action: .share)
+				#if os(iOS)
+					.navigationBarTitleDisplayMode(.inline)
+				#endif
+				.toolbar {
+					SheetButton(role: .cancel) {
+						showDownloader = false
+					}
+				}
+		}
+	}
+
+	@ViewBuilder private func innerTapToViewable() -> some View {
+		if self.honorTapToPreview && self.canPreview && appState.userSettings.tapFileToPreview {
+			Button(action: { self.previewFile() }) {
+				self.inner()
 			}
-		#endif
+			#if os(macOS)
+				.buttonStyle(.link)
+			#endif
+			.foregroundStyle(.primary)
+			.frame(maxWidth: .infinity)
+		}
+		else {
+			self.inner()
+		}
 	}
 
 	var body: some View {
-		self.inner.draggable(entry).contextMenu {
-			#if os(iOS)
-				NavigationLink(
-					destination: FileView(file: entry, showPath: self.inFolder == nil, siblings: siblings)
-				) { Label(entry.fileName(), systemImage: entry.systemImage) }
-			#else
-				if appState.userSettings.tapFileToPreview {
+		self.innerTapToViewable()
+			.draggable(entry)
+			.contextMenu {
+				#if os(iOS)
 					NavigationLink(
 						destination: FileView(file: entry, showPath: self.inFolder == nil, siblings: siblings)
-					) { Label("Show info", systemImage: entry.systemImage) }
+					) { Label(entry.fileName(), systemImage: entry.systemImage) }
+				#else
+					if appState.userSettings.tapFileToPreview {
+						NavigationLink(
+							destination: FileView(file: entry, showPath: self.inFolder == nil, siblings: siblings)
+						) { Label("Show info", systemImage: entry.systemImage) }
+					}
+				#endif
+
+				if !appState.userSettings.tapFileToPreview {
+					Button("Show preview", systemImage: "doc.text.magnifyingglass") { self.previewFile() }.disabled(!canPreview)
 				}
-			#endif
 
-			if !appState.userSettings.tapFileToPreview {
-				Button("Show preview", systemImage: "doc.text.magnifyingglass") { self.previewFile() }.disabled(!canPreview)
-			}
-
-			// Show file in Finder
-			if entry.canShowInFinder {
-				Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
-					try? entry.showInFinder()
+				// Show file in Finder
+				if entry.canShowInFinder {
+					Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
+						try? entry.showInFinder()
+					}
 				}
-			}
 
-			#if os(macOS)
-				Button("Copy", systemImage: "document.on.document") {
-					self.copy()
-				}.disabled(!entry.isLocallyPresent())
-			#endif
+				#if os(macOS)
+					Button("Copy", systemImage: "document.on.document") {
+						self.copy()
+					}.disabled(!entry.isLocallyPresent())
+				#endif
 
-			// Show 'go to location' in list if we are not in the file's folder already
-			if self.inFolder == nil {
-				if let folder = entry.folder {
-					NavigationLink(
-						destination: BrowserView(folder: folder, prefix: entry.parentPath(), userSettings: appState.userSettings)
-					) {
-						let parentFolderName = entry.parentFolderName
-						if parentFolderName.isEmpty {
-							Label("Go to location", systemImage: "document.circle")
-						}
-						else {
-							Label("Go to directory '\(parentFolderName)'", systemImage: "document.circle")
+				// Regular sharing
+				EntryShareButton(entry: entry, showDownloader: $showDownloader)
+
+				// Show 'go to location' in list if we are not in the file's folder already
+				if self.inFolder == nil {
+					if let folder = entry.folder {
+						NavigationLink(
+							destination: BrowserView(folder: folder, prefix: entry.parentPath(), userSettings: appState.userSettings)
+						) {
+							let parentFolderName = entry.parentFolderName
+							if parentFolderName.isEmpty {
+								Label("Go to location", systemImage: "document.circle")
+							}
+							else {
+								Label("Go to directory '\(parentFolderName)'", systemImage: "document.circle")
+							}
 						}
 					}
 				}
-			}
 
-			if entry.hasExternalSharingURL {
+				if entry.hasExternalSharingURL {
+					Divider()
+					FileSharingLinksView(entry: entry, sync: true)
+				}
+
 				Divider()
-				FileSharingLinksView(entry: entry, sync: true)
-			}
 
-			Divider()
-
-			ItemSelectToggleView(file: entry)
-		} preview: {
-			NavigationStack {  // to force the image to take up all available space
-				VStack {
-					ThumbnailView(file: entry, showFileName: false, showErrorMessages: false)
-						.frame(minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
-						.environment(appState)  // Necessary because for some reason environment is not inherited
+				ItemSelectToggleView(file: entry)
+			} preview: {
+				NavigationStack {  // to force the image to take up all available space
+					VStack {
+						ThumbnailView(file: entry, showFileName: false, showErrorMessages: false)
+							.frame(minWidth: 240, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
+							.environment(appState)  // Necessary because for some reason environment is not inherited
+					}
 				}
 			}
-		}
-		.task {
-			self.canPreview = entry.canPreview
-		}
+			.task {
+				self.canPreview = entry.canPreview
+			}
 	}
 
 	private func copy() {
@@ -342,6 +392,36 @@ struct FileEntryLink<Content: View>: View {
 		}
 		else if let url = URL(string: entry.onDemandURL()) {
 			writeURLToPasteboard(url: url)
+		}
+	}
+}
+
+/// Shows the right share button depending on the entry's state. Note that because this is used inside context menus,
+/// we can't be presenting the EntryDownloaderView here (hence the @Binding showDownloader, so the wrapping view can do it).
+struct EntryShareButton: View {
+	let entry: SushitrainEntry
+	@Binding var showDownloader: Bool
+
+	var body: some View {
+		// Regular sharing
+		if !entry.isSymlink() && !entry.isDeleted() {
+			if let folder = entry.folder, !folder.isReceiveEncryptedFolder {
+				Group {
+					// Check if the file is locally available. If it is, show a regular share link.
+					// When the entry is a folder, this does not guarantee it is available locally fully (it may be a
+					// 'leftover' empty folder). Therefore, check if we are in a selective folder when the entry is a
+					// directory. If we are, the entry must be selected. (Note that while syncing this *still* could be
+					// a half synced folder).
+					if entry.isLocallyPresent() && (!entry.isDirectory() || !folder.isSelective() || entry.isSelected()) {
+						FileShareLink(file: entry)
+					}
+					else {
+						Button("Download...", systemImage: "square.and.arrow.up") {
+							self.showDownloader = true
+						}
+					}
+				}
+			}
 		}
 	}
 }

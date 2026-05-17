@@ -81,7 +81,7 @@ struct FileShareLink: View {
 
 	var body: some View {
 		self.shareLink
-			.disabled(file.isDirectory() || file.isSymlink() || file.isDeleted())
+			.disabled(file.isSymlink() || file.isDeleted())
 			.task {
 				self.image = await ImageCache.shared.getThumbnail(file: file, forceCache: false)
 			}

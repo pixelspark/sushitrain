@@ -111,31 +111,19 @@ struct GridFilesView: View {
 				// List subdirectories
 				ForEach(subdirectories, id: \.self.id) { (subDirEntry: SushitrainEntry) in
 					GeometryReader { geo in
-						let fileName = subDirEntry.fileName()
 						NavigationLink(
 							destination: BrowserView(
-								folder: folder, prefix: "\(self.prefix)\(fileName)/", userSettings: appState.userSettings)
+								folder: folder, prefix: "\(self.prefix)\(subDirEntry.fileName())/", userSettings: appState.userSettings
+							)
 						) {
-							GridItemView(size: geo.size.width, file: subDirEntry).id(subDirEntry.id)
+							EntryContextMenuWrapper(
+								appState: appState,
+								entry: subDirEntry, inFolder: self.folder, siblings: files, honorTapToPreview: true
+							) {
+								GridItemView(size: geo.size.width, file: subDirEntry).id(subDirEntry.id)
+							}
 						}
 						.buttonStyle(PlainButtonStyle())
-						.contextMenu(
-							ContextMenu(menuItems: {
-								if let file = try? folder.getFileInformation(
-									self.prefix + fileName)
-								{
-									NavigationLink(destination: FileView(file: file, showPath: false, siblings: nil)) {
-										Label("Subdirectory properties", systemImage: "folder.badge.gearshape")
-									}
-									ItemSelectToggleView(file: file)
-
-									NavigationLink(destination: SelectiveFolderView(folder: folder, prefix: "\(self.prefix)\(fileName)/")) {
-										Label("Files kept on this device", systemImage: "pin")
-									}
-
-									if file.hasExternalSharingURL { FileSharingLinksView(entry: file, sync: true) }
-								}
-							}))
 					}
 					.aspectRatio(1, contentMode: .fit)
 					.clipShape(.rect)
@@ -145,7 +133,7 @@ struct GridFilesView: View {
 				// List files
 				ForEach(files, id: \.self.id) { file in
 					GeometryReader { geo in
-						FileEntryLink(
+						EntryLinkView(
 							appState: appState,
 							entry: file, inFolder: self.folder, siblings: files, honorTapToPreview: true
 						) {
