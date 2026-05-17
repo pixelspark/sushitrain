@@ -8,12 +8,15 @@ import SwiftUI
 
 /// View for editing the ignore file for non-selective folders (i.e. edits the *whole* ignore file)
 struct IgnoresView: View {
-	@Environment(AppState.self) private var appState
 	var folder: SushitrainFolder
+
+	@Environment(AppState.self) private var appState
+	@Environment(\.dismiss) private var dismiss
+
 	@State var ignoreLines: [String] = []
-	@State var error: Error? = nil
+	@State var error: ErrorMessage? = nil
 	@State var loading = true
-	@State var showUpdateCleanConfirmation = false
+	@State var showSaveConfirmation = false
 
 	private static let prependedLine = "# Synctrain user-defined ignore file"
 	private static let defaultIgnoreLines = [
@@ -71,6 +74,13 @@ struct IgnoresView: View {
 					ignoreLines.remove(atOffsets: indexSet)
 				})
 				.disabled(self.loading)
+
+				Button("Add line", systemImage: "plus") {
+					self.ignoreLines.append("")
+				}.disabled(self.loading)
+					#if os(macOS)
+						.buttonStyle(.link)
+					#endif
 			} header: {
 				Text("Ignore patterns")
 			} footer: {
@@ -90,19 +100,12 @@ struct IgnoresView: View {
 					.buttonStyle(.link)
 				#endif
 
-				Button("Remove all patterns") {
+				Button("Remove all patterns", role: .destructive) {
 					self.ignoreLines = []
 				}.disabled(self.ignoreLines.isEmpty)
 					#if os(macOS)
 						.buttonStyle(.link)
 					#endif
-
-				Button("Apply and clean folder") {
-					showUpdateCleanConfirmation = true
-				}
-				#if os(macOS)
-					.buttonStyle(.link)
-				#endif
 			}.disabled(self.loading)
 		}
 		#if os(macOS)
@@ -111,40 +114,56 @@ struct IgnoresView: View {
 		.task {
 			self.update()
 		}
+		.navigationTitle("Files to ignore")
+		#if os(iOS)
+			.navigationBarTitleDisplayMode(.inline)
+		#endif
 		.toolbar {
-			ToolbarItem(placement: .primaryAction) {
-				Button("Add line", systemImage: "plus") {
-					self.ignoreLines.append("")
-				}
-			}
-		}
-		.onDisappear {
-			Log.info("writing ignore lines")
-			self.write()
-		}
-		.alert(isPresented: Binding.isNotNil($error)) {
-			Alert(
-				title: Text("Error loading ignore settings"),
-				message: error != nil ? Text(error!.localizedDescription) : nil,
-				dismissButton: .default(Text("OK")) {
-					self.error = nil
+			ToolbarItem(
+				placement: .confirmationAction,
+				content: {
+					Button("Save") {
+						showSaveConfirmation = true
+					}
+					.disabled(self.loading)
+					.confirmationDialog(
+						"Are you sure you want to save the patterns? Files and subdirectories that match the patterns will not be synchronized with other devices. If you choose to also clean the folder now, files and folders matching the patterns will be permanently removed from this device. Files may be lost if they are not available on other devices.",
+						isPresented: $showSaveConfirmation, titleVisibility: .visible
+					) {
+						Button("Apply patterns") {
+							Task {
+								await self.write()
+								if self.error == nil {
+									self.showSaveConfirmation = false
+									self.dismiss()
+								}
+							}
+						}.disabled(self.loading)
+
+						Button("Apply patterns and clean folder", role: .destructive) {
+							Task {
+								await self.applyAndClean()
+								if self.error == nil {
+									self.dismiss()
+									self.showSaveConfirmation = false
+								}
+							}
+						}.disabled(self.loading)
+					}
 				})
-		}
-		.confirmationDialog(
-			"Are you sure you want to apply the patterns and to clean the folder? Files and subdirectories that match the patterns will be permanently removed from this device. Files may be lost if they are not available on other devices.",
-			isPresented: $showUpdateCleanConfirmation, titleVisibility: .visible
-		) {
-			Button("Apply patterns and clean folder", role: .destructive) {
-				self.applyAndClean()
+
+			SheetButton(role: .cancel) {
+				dismiss()
 			}
 		}
+		.errorAlert($error)
 	}
 
-	private func applyAndClean() {
+	private func applyAndClean() async {
 		self.loading = true
-		self.write()
+		await self.write()
 		if self.error == nil {
-			Task {
+			await Task {
 				do {
 					try await Task.detached(priority: .userInitiated) {
 						try self.folder.cleanSelection()
@@ -152,17 +171,17 @@ struct IgnoresView: View {
 				}
 				catch {
 					Log.warn("failed to clean selection: \(error)")
-					self.error = error
+					self.error = ErrorMessage(error)
 				}
 				self.loading = false
-			}
+			}.value
 		}
 		else {
 			self.loading = false
 		}
 	}
 
-	private func write() {
+	private func write() async {
 		do {
 			Log.info("writing ignore lines \(self.ignoreLines)")
 			if self.error == nil {
@@ -174,7 +193,7 @@ struct IgnoresView: View {
 		}
 		catch {
 			Log.warn("failed to write ignore file: \(error)")
-			self.error = error
+			self.error = ErrorMessage(error)
 		}
 	}
 
@@ -192,7 +211,7 @@ struct IgnoresView: View {
 		catch {
 			self.ignoreLines = []
 			Log.warn("failed to read ignore file: \(error)")
-			self.error = error
+			self.error = ErrorMessage(error)
 		}
 		self.loading = false
 	}
@@ -200,12 +219,15 @@ struct IgnoresView: View {
 
 /// View for editing global ignore patterns for a selective folder (i.e. edits part of the ignore file)
 struct SelectiveIgnoresView: View {
-	@Environment(AppState.self) private var appState
 	var folder: SushitrainFolder
+
+	@Environment(AppState.self) private var appState
+	@Environment(\.dismiss) private var dismiss
+
 	@State var ignorePatterns: [String] = []
-	@State var error: Error? = nil
+	@State var error: ErrorMessage? = nil
 	@State var loading = true
-	@State var showUpdateCleanConfirmation = false
+	@State var showSaveConfirmation = false
 
 	private static let defaultPatterns = [
 		"(?d).DS_Store", "(?d)Thumbs.db", "(?d)desktop.ini", "(?d).AppleDB", "(?d).AppleDesktop", "(?d).Trashes",
@@ -262,17 +284,15 @@ struct SelectiveIgnoresView: View {
 					ignorePatterns.remove(atOffsets: indexSet)
 				})
 				.disabled(self.loading)
-			} header: {
-				Text("Ignore patterns")
-			}
 
-			Section {
 				Button("Add line", systemImage: "plus") {
 					self.ignorePatterns.append("(?d)")
 				}.disabled(self.loading)
 					#if os(macOS)
 						.buttonStyle(.link)
 					#endif
+			} header: {
+				Text("Ignore patterns")
 			} footer: {
 				Text(
 					"Files and subdirectories whose paths match any of the patterns above will not be synchronized with other devices. Existing items matching the patterns will not be updated. **When selective synchronization is enabled, ignore patterns must start with `(?d)`.** [Learn more about the pattern syntax...](https://docs.syncthing.net/users/ignoring.html#patterns)"
@@ -290,17 +310,8 @@ struct SelectiveIgnoresView: View {
 					.buttonStyle(.link)
 				#endif
 
-				Button("Remove all patterns") {
+				Button("Remove all patterns", role: .destructive) {
 					self.ignorePatterns = []
-				}
-				#if os(macOS)
-					.buttonStyle(.link)
-				#endif
-			}.disabled(self.loading)
-
-			Section {
-				Button("Apply and clean folder", role: .destructive) {
-					showUpdateCleanConfirmation = true
 				}
 				#if os(macOS)
 					.buttonStyle(.link)
@@ -313,29 +324,56 @@ struct SelectiveIgnoresView: View {
 		.task {
 			self.update()
 		}
-		.alert(isPresented: Binding.isNotNil($error)) {
-			Alert(
-				title: Text("Error loading ignore settings"),
-				message: error != nil ? Text(error!.localizedDescription) : nil,
-				dismissButton: .default(Text("OK")) {
-					self.error = nil
+		.navigationTitle("Files to ignore")
+		#if os(iOS)
+			.navigationBarTitleDisplayMode(.inline)
+		#endif
+		.toolbar {
+			ToolbarItem(
+				placement: .confirmationAction,
+				content: {
+					Button("Save") {
+						showSaveConfirmation = true
+					}
+					.disabled(self.loading)
+					.confirmationDialog(
+						"Are you sure you want to save the patterns? Files and subdirectories that match the patterns will not be synchronized with other devices. If you choose to also clean the folder now, files and folders matching the patterns will be permanently removed from this device. Files may be lost if they are not available on other devices.",
+						isPresented: $showSaveConfirmation, titleVisibility: .visible
+					) {
+						Button("Apply patterns") {
+							Task {
+								await self.write()
+								if self.error == nil {
+									self.showSaveConfirmation = false
+									self.dismiss()
+								}
+							}
+						}.disabled(self.loading)
+
+						Button("Apply patterns and clean folder", role: .destructive) {
+							Task {
+								await self.applyAndClean()
+								if self.error == nil {
+									self.dismiss()
+									self.showSaveConfirmation = false
+								}
+							}
+						}.disabled(self.loading)
+					}
 				})
-		}
-		.confirmationDialog(
-			"Are you sure you want to apply the patterns and to clean the folder? Files and subdirectories that match the patterns will be permanently removed from this device. Files may be lost if they are not available on other devices.",
-			isPresented: $showUpdateCleanConfirmation, titleVisibility: .visible
-		) {
-			Button("Apply patterns and clean folder", role: .destructive) {
-				self.applyAndClean()
+
+			SheetButton(role: .cancel) {
+				dismiss()
 			}
 		}
+		.errorAlert($error)
 	}
 
-	private func applyAndClean() {
+	private func applyAndClean() async {
 		self.loading = true
-		self.write()
+		await self.write()
 		if self.error == nil {
-			Task {
+			await Task {
 				do {
 					try await Task.detached(priority: .userInitiated) {
 						try self.folder.cleanSelection()
@@ -343,18 +381,19 @@ struct SelectiveIgnoresView: View {
 				}
 				catch {
 					Log.warn("failed to clean selection: \(error)")
-					self.error = error
+					self.error = ErrorMessage(error)
 				}
 				self.loading = false
-			}
+			}.value
 		}
 		else {
 			self.loading = false
 		}
 	}
 
-	private func write() {
+	private func write() async {
 		do {
+			self.loading = true
 			Log.info("writing ignore patterns \(self.ignorePatterns)")
 			if self.error == nil {
 				var lines = self.ignorePatterns
@@ -364,8 +403,9 @@ struct SelectiveIgnoresView: View {
 		}
 		catch {
 			Log.warn("failed to write ignore patterns: \(error)")
-			self.error = error
+			self.error = ErrorMessage(error)
 		}
+		self.loading = false
 	}
 
 	private func update() {
@@ -379,7 +419,7 @@ struct SelectiveIgnoresView: View {
 		catch {
 			self.ignorePatterns = []
 			Log.warn("failed to read ignore file: \(error)")
-			self.error = error
+			self.error = ErrorMessage(error)
 		}
 		self.loading = false
 	}

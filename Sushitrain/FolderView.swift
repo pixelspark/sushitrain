@@ -1208,6 +1208,11 @@ private struct AdvancedFolderSettingsView: View {
 
 	@State private var showError: ErrorMessage? = nil
 
+	#if os(iOS)
+		@State private var showSelectiveIgnores: Bool = false
+		@State private var showIgnores: Bool = false
+	#endif
+
 	var body: some View {
 		let isExternal = folder.isExternal
 
@@ -1216,43 +1221,33 @@ private struct AdvancedFolderSettingsView: View {
 			#if os(iOS)
 				if !folder.isSelective() && !folder.isPhotoFolder && !folder.isReceiveEncryptedFolder {
 					Section {
-						NavigationLink(
-							destination: IgnoresView(folder: self.folder)
-								.navigationTitle("Files to ignore")
-								#if os(iOS)
-									.navigationBarTitleDisplayMode(.inline)
-								#endif
-						) {
-							Label(
-								"Files to ignore",
-								systemImage: "rectangle.dashed")
+						Button("Files to ignore", systemImage: "rectangle.dashed") {
+							showIgnores = true
+						}
+					}
+				}
+
+				// Selective folder ignore patterns (accessible both on iOS and macOS from this place)
+				if folder.isSelective() && !folder.isPhotoFolder && !folder.isReceiveEncryptedFolder {
+					Section {
+						Button("Files to ignore", systemImage: "rectangle.dashed") {
+							showSelectiveIgnores = true
 						}
 					}
 				}
 			#endif
 
-			// Selective folder ignore patterns (accessible both on iOS and macOS from this place)
-			if folder.isSelective() && !folder.isPhotoFolder && !folder.isReceiveEncryptedFolder {
-				Section {
-					NavigationLink(destination: self.selectiveIgnoresView()) {
-						Label(
-							"Files to ignore",
-							systemImage: "rectangle.dashed")
-					}
-				}
-			}
-
-			if !folder.isReceiveEncryptedFolder {
-				Section {
+			// Sub screens for editing advanced settings
+			Section {
+				// Thumbnail settings
+				if !folder.isReceiveEncryptedFolder {
 					NavigationLink(
 						destination:
 							FolderThumbnailSettingsView(folder: folder)
 					) {
 						Label("Thumbnails", systemImage: "photo.stack")
 					}
-				}
 
-				Section {
 					NavigationLink(
 						destination: ExternalSharingSettingsView(folder: self.folder)
 					) {
@@ -1261,6 +1256,7 @@ private struct AdvancedFolderSettingsView: View {
 				}
 			}
 
+			// System settings
 			if !folder.isPhotoFolder {
 				Section("System settings") {
 					#if os(iOS)
@@ -1294,7 +1290,7 @@ private struct AdvancedFolderSettingsView: View {
 			}
 
 			if !folder.isReceiveEncryptedFolder {
-				Section("File handling") {
+				Section("Change detection") {
 					LabeledContent {
 						TextField(
 							"",
@@ -1313,18 +1309,6 @@ private struct AdvancedFolderSettingsView: View {
 						.multilineTextAlignment(.trailing)
 					} label: {
 						Text("Rescan interval (minutes)")
-					}
-
-					if !folder.isPhotoFolder && !folder.isSendOnlyFolder {
-						Toggle(
-							"Keep conflicting versions",
-							isOn: Binding(
-								get: {
-									return folder.maxConflicts() != 0
-								},
-								set: { nv in
-									try? folder.setMaxConflicts(nv ? -1 : 0)
-								}))
 					}
 				}
 			}
@@ -1365,6 +1349,20 @@ private struct AdvancedFolderSettingsView: View {
 				}
 			}
 
+			if !folder.isReceiveEncryptedFolder && !folder.isPhotoFolder && !folder.isSendOnlyFolder {
+				Section {
+					Toggle(
+						"Keep conflicting versions",
+						isOn: Binding(
+							get: {
+								return folder.maxConflicts() != 0
+							},
+							set: { nv in
+								try? folder.setMaxConflicts(nv ? -1 : 0)
+							}))
+				}
+			}
+
 			Section {
 				BlockIndexToggle(folder: folder)
 			} footer: {
@@ -1373,6 +1371,18 @@ private struct AdvancedFolderSettingsView: View {
 				)
 			}
 		}
+		#if os(iOS)
+			.sheet(isPresented: $showSelectiveIgnores) {
+				NavigationStack {
+					SelectiveIgnoresView(folder: self.folder)
+				}
+			}
+			.sheet(isPresented: $showIgnores) {
+				NavigationStack {
+					IgnoresView(folder: self.folder)
+				}
+			}
+		#endif
 		.errorAlert($showError)
 		.navigationTitle(Text("Advanced folder settings"))
 		#if os(iOS)
@@ -1381,16 +1391,6 @@ private struct AdvancedFolderSettingsView: View {
 		#if os(macOS)
 			.formStyle(.grouped)
 		#endif
-	}
-
-	@ViewBuilder private func selectiveIgnoresView() -> some View {
-		SelectiveIgnoresView(folder: self.folder).navigationTitle("Files to ignore")
-			#if os(iOS)
-				.navigationBarTitleDisplayMode(.inline)
-			#endif
-			#if os(macOS)
-				.presentationSizing(.form)
-			#endif
 	}
 }
 

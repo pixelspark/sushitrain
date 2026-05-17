@@ -239,15 +239,7 @@ struct BrowserView: View {
 		#if os(macOS)
 			.sheet(isPresented: $showIgnores) {
 				NavigationStack {
-					IgnoresView(folder: self.folder)
-					.navigationTitle("Files to ignore")
-					.presentationSizing(.fitted)
-					.frame(minWidth: 640, minHeight: 480)
-					.toolbar {
-						SheetButton(role: .done) {
-							showIgnores = false
-						}
-					}
+					self.ignoreSheetView()
 				}
 			}
 		#endif
@@ -406,6 +398,23 @@ struct BrowserView: View {
 			self.folderMenu()
 		}
 	}
+
+	#if os(macOS)
+		@ViewBuilder private func ignoreSheetView() -> some View {
+			if folder.isSelective() {
+				SelectiveIgnoresView(folder: self.folder)
+					.navigationTitle("Files to ignore")
+					.presentationSizing(.form)
+					.frame(minWidth: 640, minHeight: 480)
+			}
+			else {
+				IgnoresView(folder: self.folder)
+					.navigationTitle("Files to ignore")
+					.presentationSizing(.form)
+					.frame(minWidth: 640, minHeight: 480)
+			}
+		}
+	#endif
 
 	@ViewBuilder private func filterMenu() -> some View {
 		Menu {
@@ -676,9 +685,9 @@ struct BrowserView: View {
 				showSettings = true
 			}
 
+			// On iOS this is in the folder settings screen
 			#if os(macOS)
-				if !folder.isSelective() && folder.isRegularFolder {
-					// On iOS this is in the folder settings screen
+				if folder.isRegularFolder {
 					Button("Files to ignore...", systemImage: "rectangle.dashed") {
 						showIgnores = true
 					}

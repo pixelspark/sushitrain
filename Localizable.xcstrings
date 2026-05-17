@@ -5394,48 +5394,48 @@
         }
       }
     },
-    "Apply and clean folder" : {
+    "Apply patterns" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Anwenden und Ordner bereinigen"
+            "value" : "Muster anwenden"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aplicar y limpiar carpeta"
+            "value" : "Aplicar patrones"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Applica e pulisci cartella"
+            "value" : "Applica modelli"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "適用してフォルダをクリーン"
+            "value" : "パターンを適用"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Toepassen en map schoonmaken"
+            "value" : "Patronen toepassen"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Застосувати та очистити папку"
+            "value" : "Застосувати шаблони"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "应用并清理文件夹"
+            "value" : "应用模式"
           }
         }
       }
@@ -5482,52 +5482,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "应用模式并清理文件夹"
-          }
-        }
-      }
-    },
-    "Are you sure you want to apply the patterns and to clean the folder? Files and subdirectories that match the patterns will be permanently removed from this device. Files may be lost if they are not available on other devices." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Möchten Sie die Muster wirklich anwenden und den Ordner bereinigen? Dateien und Unterverzeichnisse, die den Mustern entsprechen, werden dauerhaft von diesem Gerät entfernt. Dateien können verloren gehen, wenn sie auf anderen Geräten nicht verfügbar sind."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Estás seguro de que deseas aplicar los patrones y limpiar la carpeta? Los archivos y subdirectorios que coincidan con los patrones se eliminarán permanentemente de este dispositivo. Los archivos pueden perderse si no están disponibles en otros dispositivos."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sei sicuro di voler applicare i modelli e pulire la cartella? I file e le sottocartelle che corrispondono ai modelli verranno rimossi permanentemente da questo dispositivo. I file potrebbero essere persi se non sono disponibili su altri dispositivi."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "パターンを適用してフォルダをクリーンしますか？パターンに一致するファイルやサブフォルダはこのデバイスから完全に削除されます。他のデバイスに存在しないファイルは失われます。"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weet je zeker dat je de patronen wilt toepassen en de map wilt opschonen? Bestanden en submappen die overeenkomen met de patronen worden permanent van dit apparaat verwijderd. Bestanden kunnen verloren gaan als ze niet op andere apparaten beschikbaar zijn."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ви впевнені, що хочете застосувати шаблони та очистити папку? Файли та підкаталоги, що відповідають шаблонам, будуть назавжди видалені з цього пристрою. Файли можуть бути втрачені, якщо вони недоступні на інших пристроях."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "您确定要应用这些模式并清理文件夹吗？与模式匹配的文件和子目录将从此设备中永久删除。如果文件在其他设备上不可用，可能会丢失。"
           }
         }
       }
@@ -5792,6 +5746,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "您确定要删除此文件夹吗？请仔细考虑。此文件夹中的所有文件都将从此设备中删除。尚未同步到其他设备的文件将无法恢复。"
+          }
+        }
+      }
+    },
+    "Are you sure you want to save the patterns? Files and subdirectories that match the patterns will not be synchronized with other devices. If you choose to also clean the folder now, files and folders matching the patterns will be permanently removed from this device. Files may be lost if they are not available on other devices." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sind Sie sicher, dass Sie die Muster speichern möchten? Dateien und Unterverzeichnisse, die den Mustern entsprechen, werden nicht mit anderen Geräten synchronisiert. Wenn Sie sich dafür entscheiden, den Ordner jetzt zu bereinigen, werden Dateien und Ordner, die den Mustern entsprechen, dauerhaft von diesem Gerät entfernt. Dateien können verloren gehen, wenn sie auf anderen Geräten nicht verfügbar sind."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Estás seguro de que deseas guardar los patrones? Los archivos y subdirectorios que coincidan con los patrones no se sincronizarán con otros dispositivos. Si decides limpiar la carpeta ahora, los archivos y carpetas que coincidan con los patrones se eliminarán permanentemente de este dispositivo. Es posible que los archivos se pierdan si no están disponibles en otros dispositivos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sei sicuro di voler salvare i modelli? I file e le sottodirectory che corrispondono ai modelli non verranno sincronizzati con altri dispositivi. Se scegli di pulire anche la cartella ora, i file e le cartelle che corrispondono ai modelli verranno rimossi definitivamente da questo dispositivo. I file potrebbero andare persi se non sono disponibili su altri dispositivi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "パターンを保存してもよろしいですか？ パターンに一致するファイルおよびサブディレクトリは、他のデバイスと同期されなくなります。今すぐフォルダをクリーンアップすることを選択した場合、パターンに一致するファイルとフォルダはこのデバイスから完全に削除されます。他のデバイスにファイルが存在しない場合、ファイルが失われる可能性があります。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weet je zeker dat je de patronen wilt opslaan? Bestanden en submappen die overeenkomen met de patronen worden niet gesynchroniseerd met andere apparaten. Als je ervoor kiest om nu ook de map op te schonen, worden bestanden en mappen die overeenkomen met de patronen permanent van dit apparaat verwijderd. Bestanden kunnen verloren gaan als ze niet beschikbaar zijn op andere apparaten."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ви впевнені, що хочете зберегти шаблони? Файли та підкаталоги, що відповідають шаблонам, не будуть синхронізовані з іншими пристроями. Якщо ви виберете також очистити папку зараз, файли та папки, що відповідають шаблонам, будуть безповоротно видалені з цього пристрою. Файли можуть бути втрачені, якщо вони недоступні на інших пристроях."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您确定要保存这些模式吗？与模式匹配的文件和子目录将不会与其他设备同步。如果您现在选择清理文件夹，与模式匹配的文件和文件夹将从此设备中永久删除。如果文件在其他设备上不可用，可能会丢失。"
           }
         }
       }
@@ -7862,6 +7862,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "类别"
+          }
+        }
+      }
+    },
+    "Change detection" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Änderungserkennung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detección de cambios"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rilevamento delle modifiche"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "変更検出"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wijzigingsdetectie"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Виявлення змін"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "变更检测"
           }
         }
       }
@@ -13682,52 +13728,6 @@
         }
       }
     },
-    "Error loading ignore settings" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fehler beim Laden der Ignorier-Einstellungen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Error al cargar la configuración de ignorar"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Errore nel caricamento delle impostazioni di ignorare"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "無視設定の読み込みエラー"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fout bij laden van negeerinstellingen"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Помилка завантаження налаштувань ігнорування"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "加载忽略设置时出错"
-          }
-        }
-      }
-    },
     "Every once in a while, Synctrain needs to clean up its internal database. No database maintenance has been performed yet. Tap the above button to start maintenance now." : {
       "localizations" : {
         "de" : {
@@ -14460,52 +14460,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "文件加密密钥"
-          }
-        }
-      }
-    },
-    "File handling" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dateiverwaltung"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gestión de archivos"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gestione file"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ファイル管理"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Omgang met bestanden"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Операції з файлами"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "文件处理"
           }
         }
       }
