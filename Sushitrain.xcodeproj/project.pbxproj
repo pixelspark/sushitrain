@@ -61,7 +61,7 @@
 		65C9E1422C3C96E400EDCE6C /* FoldersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E1412C3C96E400EDCE6C /* FoldersView.swift */; };
 		65C9E1482C3F2FEF00EDCE6C /* DevicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E1472C3F2FEF00EDCE6C /* DevicesView.swift */; };
 		65C9E14C2C3F341F00EDCE6C /* StartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E14B2C3F341F00EDCE6C /* StartView.swift */; };
-		65C9E1502C419FCA00EDCE6C /* FileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E14F2C419FCA00EDCE6C /* FileView.swift */; };
+		65C9E1502C419FCA00EDCE6C /* EntryInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E14F2C419FCA00EDCE6C /* EntryInfoView.swift */; };
 		65C9E1542C42B9AE00EDCE6C /* ExtraFilesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9E1532C42B9AE00EDCE6C /* ExtraFilesView.swift */; };
 		65D40FCC2CBDB10600CAE91A /* SelectiveFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D40FCB2CBDB10300CAE91A /* SelectiveFolderView.swift */; };
 		65DE11A72D69CC60002FDB08 /* PreviewWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DE11A62D69CC5E002FDB08 /* PreviewWindow.swift */; };
@@ -157,7 +157,7 @@
 		65C9E1462C3DB67C00EDCE6C /* Sushitrain.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sushitrain.entitlements; sourceTree = "<group>"; };
 		65C9E1472C3F2FEF00EDCE6C /* DevicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevicesView.swift; sourceTree = "<group>"; };
 		65C9E14B2C3F341F00EDCE6C /* StartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartView.swift; sourceTree = "<group>"; };
-		65C9E14F2C419FCA00EDCE6C /* FileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileView.swift; sourceTree = "<group>"; };
+		65C9E14F2C419FCA00EDCE6C /* EntryInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryInfoView.swift; sourceTree = "<group>"; };
 		65C9E1532C42B9AE00EDCE6C /* ExtraFilesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraFilesView.swift; sourceTree = "<group>"; };
 		65D40FCB2CBDB10300CAE91A /* SelectiveFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectiveFolderView.swift; sourceTree = "<group>"; };
 		65DE11A62D69CC5E002FDB08 /* PreviewWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewWindow.swift; sourceTree = "<group>"; };
@@ -227,7 +227,7 @@
 				65AF4C082D4FA46400A77899 /* ExternalSharing.swift */,
 				65AF4C0A2D4FA58600A77899 /* ExternalSharingView.swift */,
 				65C9E1532C42B9AE00EDCE6C /* ExtraFilesView.swift */,
-				65C9E14F2C419FCA00EDCE6C /* FileView.swift */,
+				65C9E14F2C419FCA00EDCE6C /* EntryInfoView.swift */,
 				65361E692D18360800BCC52C /* FileViewerView.swift */,
 				6510F19D2DAA52CB003E4D3C /* FolderSettings.swift */,
 				6539EB6A2DD132EC00C35617 /* FolderStatisticsView.swift */,
@@ -405,7 +405,7 @@
 				6586863D2CE892130023B1DA /* IgnoresView.swift in Sources */,
 				65AF4C092D4FA46900A77899 /* ExternalSharing.swift in Sources */,
 				65BBF8452C4BFB9300EC59C4 /* AboutView.swift in Sources */,
-				65C9E1502C419FCA00EDCE6C /* FileView.swift in Sources */,
+				65C9E1502C419FCA00EDCE6C /* EntryInfoView.swift in Sources */,
 				65C9E1482C3F2FEF00EDCE6C /* DevicesView.swift in Sources */,
 				65AE126B2C3B066F00E721D4 /* DeviceView.swift in Sources */,
 				65AE126F2C3B14CC00E721D4 /* AddFolderView.swift in Sources */,

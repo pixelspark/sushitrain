@@ -140,10 +140,10 @@ struct EntryView: View {
 								folder: targetFolder, prefix: targetEntry.path() + "/", userSettings: appState.userSettings)
 						) { self.entryView(entry: entry) }.contextMenu {
 							NavigationLink(
-								destination: FileView(file: targetEntry, showPath: self.folder == nil, siblings: nil)
+								destination: EntryInfoView(entry: targetEntry, showPath: self.folder == nil, siblings: nil)
 							) { Label(targetEntry.fileName(), systemImage: targetEntry.systemImage) }
 							NavigationLink(
-								destination: FileView(file: entry, showPath: self.folder == nil, siblings: siblings)
+								destination: EntryInfoView(entry: entry, showPath: self.folder == nil, siblings: siblings)
 							) { Label(entry.fileName(), systemImage: entry.systemImage) }
 						}
 					}
@@ -154,10 +154,10 @@ struct EntryView: View {
 						self.entryView(entry: targetEntry)
 					}.contextMenu {
 						NavigationLink(
-							destination: FileView(file: targetEntry, showPath: self.folder == nil, siblings: nil)
+							destination: EntryInfoView(entry: targetEntry, showPath: self.folder == nil, siblings: nil)
 						) { Label(targetEntry.fileName(), systemImage: targetEntry.systemImage) }
 						NavigationLink(
-							destination: FileView(file: entry, showPath: self.folder == nil, siblings: siblings)
+							destination: EntryInfoView(entry: entry, showPath: self.folder == nil, siblings: siblings)
 						) { Label(entry.fileName(), systemImage: entry.systemImage) }
 					} preview: {
 						NavigationStack {  // to force the image to take up all available space
@@ -174,7 +174,7 @@ struct EntryView: View {
 				Link(destination: targetURL) { self.entryView(entry: entry) }.contextMenu {
 					Link(destination: targetURL) { Label(targetURL.absoluteString, systemImage: "globe") }
 					NavigationLink(
-						destination: FileView(file: entry, showPath: self.folder == nil, siblings: siblings)
+						destination: EntryInfoView(entry: entry, showPath: self.folder == nil, siblings: siblings)
 					) { Label(entry.fileName(), systemImage: entry.systemImage) }
 				}
 			}
@@ -216,7 +216,7 @@ struct EntryLinkView<Content: View>: View {
 				else {
 					// Tap to go to file view
 					NavigationLink(
-						destination: FileView(file: entry, showPath: self.inFolder == nil, siblings: siblings)
+						destination: EntryInfoView(entry: entry, showPath: self.inFolder == nil, siblings: siblings)
 					) { self.content() }
 				}
 			}
@@ -317,12 +317,12 @@ struct EntryContextMenuWrapper<Content: View>: View {
 			.contextMenu {
 				#if os(iOS)
 					NavigationLink(
-						destination: FileView(file: entry, showPath: self.inFolder == nil, siblings: siblings)
+						destination: EntryInfoView(entry: entry, showPath: self.inFolder == nil, siblings: siblings)
 					) { Label(entry.fileName(), systemImage: entry.systemImage) }
 				#else
 					if appState.userSettings.tapFileToPreview {
 						NavigationLink(
-							destination: FileView(file: entry, showPath: self.inFolder == nil, siblings: siblings)
+							destination: EntryInfoView(entry: entry, showPath: self.inFolder == nil, siblings: siblings)
 						) { Label("Show info", systemImage: entry.systemImage) }
 					}
 				#endif

@@ -530,8 +530,8 @@ private struct SelectedFileView: View {
 				}
 				.contextMenu {
 					NavigationLink(
-						destination: FileView(
-							file: entry,
+						destination: EntryInfoView(
+							entry: entry,
 							showPath: false,
 							siblings: nil
 						)
@@ -540,7 +540,7 @@ private struct SelectedFileView: View {
 					}
 				}
 			#else
-				NavigationLink(destination: FileView(file: entry, showPath: false, siblings: nil)) {
+				NavigationLink(destination: EntryInfoView(entry: entry, showPath: false, siblings: nil)) {
 					Label(entry.fileName(), systemImage: entry.systemImage)
 				}
 			#endif

@@ -245,7 +245,7 @@ import QuickLook
 				if oe.isSymlink() {
 					if !honorTapToPreview {
 						// Just show symlink properties
-						FileView(file: oe, showPath: false, siblings: self.entries)
+						EntryInfoView(entry: oe, showPath: false, siblings: self.entries)
 					}
 					else if let targetEntry = try? oe.symlinkTargetEntry() {
 						// Symlink to a directory
@@ -266,7 +266,7 @@ import QuickLook
 								.navigationTitle(targetEntry.fileName())
 							}
 							else {
-								FileView(file: targetEntry, showPath: false, siblings: self.entries)
+								EntryInfoView(entry: targetEntry, showPath: false, siblings: self.entries)
 							}
 						}
 					}
@@ -280,7 +280,7 @@ import QuickLook
 						BrowserView(folder: folder, prefix: oe.path() + "/", userSettings: appState.userSettings)
 					}
 					else {
-						FileView(file: oe, showPath: false, siblings: self.entries)
+						EntryInfoView(entry: oe, showPath: false, siblings: self.entries)
 					}
 				}
 				else {
@@ -294,7 +294,7 @@ import QuickLook
 						.navigationTitle(oe.fileName())
 					}
 					else {
-						FileView(file: oe, showPath: false, siblings: self.entries)
+						EntryInfoView(entry: oe, showPath: false, siblings: self.entries)
 					}
 				}
 			}

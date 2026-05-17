@@ -8,10 +8,10 @@ import SwiftUI
 import QuickLook
 import AVKit
 
-struct FileView: View {
+struct EntryInfoView: View {
 	private static let formatter = ByteCountFormatter()
 
-	@State var file: SushitrainEntry
+	@State var entry: SushitrainEntry
 	let showPath: Bool
 	let siblings: [SushitrainEntry]?
 
@@ -40,16 +40,16 @@ struct FileView: View {
 	#endif
 
 	var localIsOnlyCopy: Bool {
-		return file.isLocallyPresent()
+		return entry.isLocallyPresent()
 			&& (self.fullyAvailableOnDevices == nil || (self.fullyAvailableOnDevices ?? []).isEmpty)
 	}
 
 	private var folder: SushitrainFolder {
-		return self.file.folder!
+		return self.entry.folder!
 	}
 
 	var body: some View {
-		if file.isDeleted() {
+		if entry.isDeleted() {
 			ContentUnavailableView("File was deleted", systemImage: "trash", description: Text("This file was deleted."))
 		}
 		else {
@@ -57,7 +57,7 @@ struct FileView: View {
 				self.thumbnailView()
 
 				// Symbolic link: show link target
-				if file.isSymlink() { Section("Link destination") { Text(file.symlinkTarget()) } }
+				if entry.isSymlink() { Section("Link destination") { Text(entry.symlinkTarget()) } }
 
 				self.fileDetailsSection()
 				self.conflictsSection()
@@ -65,18 +65,18 @@ struct FileView: View {
 				if showPath {
 					Section("Location") {
 						NavigationLink(
-							destination: BrowserView(folder: folder, prefix: file.parentPath(), userSettings: appState.userSettings)
+							destination: BrowserView(folder: folder, prefix: entry.parentPath(), userSettings: appState.userSettings)
 						) {
-							Label("\(folder.label()): \(file.parentPath())", systemImage: "folder")
+							Label("\(folder.label()): \(entry.parentPath())", systemImage: "folder")
 						}
 					}
 				}
 
-				if !file.isDirectory() && !file.isSymlink() {
+				if !entry.isDirectory() && !entry.isSymlink() {
 					self.viewButtons()
 
 					// Zip
-					if file.isArchive() {
+					if entry.isArchive() {
 						Section {
 							self.zipButton()
 						}
@@ -84,21 +84,21 @@ struct FileView: View {
 
 					// Sharing
 					Section {
-						FileSharingLinksView(entry: file, sync: false)
+						FileSharingLinksView(entry: entry, sync: false)
 					}
 
 					// Devices that have this file
 					self.availabilitySection()
 
 					// Remove file
-					if file.isSelected() && file.isLocallyPresent() && folder.folderType() == SushitrainFolderTypeSendReceive {
+					if entry.isSelected() && entry.isLocallyPresent() && folder.folderType() == SushitrainFolderTypeSendReceive {
 						Section {
 							self.removeButton()
 						}
 					}
 				}
 
-				if file.isDirectory() {
+				if entry.isDirectory() {
 					// Devices that have this folder and all its contents
 					if let availability = self.fullyAvailableOnDevices {
 						if !availability.isEmpty {
@@ -112,13 +112,13 @@ struct FileView: View {
 			#if os(macOS)
 				.formStyle(.grouped)
 			#endif
-			.navigationTitle(file.fileName())
+			.navigationTitle(entry.fileName())
 			.quickLookPreview(self.$localItemURL)
 
 			.userActivity(SushitrainApp.viewRouteActivityID) { ua in
-				let route = Route.file(folderID: self.folder.folderID, path: self.file.path())
+				let route = Route.file(folderID: self.folder.folderID, path: self.entry.path())
 				let routeURL = route.url
-				ua.title = file.fileName()
+				ua.title = entry.fileName()
 				ua.isEligibleForHandoff = true
 				ua.targetContentIdentifier = routeURL.absoluteString
 				ua.userInfo = [
@@ -130,7 +130,7 @@ struct FileView: View {
 
 			// Sheet viewer
 			.sheet(isPresented: $showSheetViewer) {
-				FileViewerView(file: file, siblings: siblings, inSheet: true, isShown: $showSheetViewer)
+				FileViewerView(file: entry, siblings: siblings, inSheet: true, isShown: $showSheetViewer)
 					#if os(macOS)
 						.presentationSizing(.fitted).frame(minWidth: 640, minHeight: 480)
 					#endif
@@ -141,12 +141,12 @@ struct FileView: View {
 				.fullScreenCover(
 					isPresented: $showFullScreenViewer,
 					content: {
-						FileViewerView(file: file, siblings: siblings, inSheet: true, isShown: $showFullScreenViewer)
+						FileViewerView(file: entry, siblings: siblings, inSheet: true, isShown: $showFullScreenViewer)
 							.ignoresSafeArea()
 					})
 			#elseif os(macOS)
 				.sheet(isPresented: $showFullScreenViewer) {
-					FileViewerView(file: file, siblings: siblings, inSheet: true, isShown: $showFullScreenViewer)
+					FileViewerView(file: entry, siblings: siblings, inSheet: true, isShown: $showFullScreenViewer)
 					.presentationSizing(.fitted).frame(minWidth: 640, minHeight: 480)
 				}
 			#endif
@@ -164,7 +164,7 @@ struct FileView: View {
 			}
 
 			.sheet(isPresented: $showEncryptionSheet) {
-				EncryptionView(entry: self.file)
+				EncryptionView(entry: self.entry)
 			}
 
 			.toolbar {
@@ -186,12 +186,12 @@ struct FileView: View {
 						// Menu for advanced actions
 						Menu {
 							Button("Encryption details...", systemImage: "lock.document.fill") { showEncryptionSheet = true }
-								.disabled(!(file.folder?.hasEncryptedPeers ?? false))
+								.disabled(!(self.entry.folder?.hasEncryptedPeers ?? false))
 
 							Button("Explore archive contents...", systemImage: "doc.zipper") {
 								showArchive = true
 							}
-							.disabled(!file.isArchive())
+							.disabled(!self.entry.isArchive())
 						} label: {
 							Label("Advanced", systemImage: "ellipsis.circle")
 						}
@@ -212,14 +212,14 @@ struct FileView: View {
 			}
 
 			.onAppear {
-				selfIndex = self.siblings?.firstIndex(of: file)
+				selfIndex = self.siblings?.firstIndex(of: entry)
 			}
 
 			.task {
 				await self.update()
 			}
 
-			.onChange(of: file, initial: true) { _, _ in
+			.onChange(of: entry, initial: true) { _, _ in
 				self.fullyAvailableOnDevices = nil
 				self.update()
 			}
@@ -231,8 +231,8 @@ struct FileView: View {
 	}
 
 	@ViewBuilder private func shareButton() -> some View {
-		if file.isLocallyPresent() {
-			FileShareLink(file: file)
+		if entry.isLocallyPresent() {
+			FileShareLink(file: entry)
 		}
 		else {
 			Button("Share", systemImage: "square.and.arrow.up") {
@@ -243,18 +243,18 @@ struct FileView: View {
 
 	@ViewBuilder private func fileDetailsSection() -> some View {
 		Section {
-			if !file.isDirectory() && !file.isSymlink() {
-				Text("File size").badge(Self.formatter.string(fromByteCount: file.size()))
+			if !entry.isDirectory() && !entry.isSymlink() {
+				Text("File size").badge(Self.formatter.string(fromByteCount: entry.size()))
 			}
 
-			if let subDirSize = self.subdirectorySizeBytes, file.isDirectory() {
+			if let subDirSize = self.subdirectorySizeBytes, entry.isDirectory() {
 				Text("Subdirectory size").badge(Self.formatter.string(fromByteCount: subDirSize))
 			}
 
-			if let md = file.modifiedAt()?.date(), !file.isSymlink() {
+			if let md = entry.modifiedAt()?.date(), !entry.isSymlink() {
 				Text("Last modified").badge(md.formatted(date: .abbreviated, time: .shortened))
 
-				let mby = file.modifiedByShortDeviceID()
+				let mby = entry.modifiedByShortDeviceID()
 				if !mby.isEmpty {
 					if let modifyingDevice = appState.client.peer(withShortID: mby) {
 						if modifyingDevice.deviceID() == appState.localDeviceID {
@@ -267,24 +267,24 @@ struct FileView: View {
 				}
 			}
 
-			if self.folder.isSelective() && !file.isSymlink() {
-				let isExplicitlySelected = file.isExplicitlySelected()
+			if self.folder.isSelective() && !entry.isSymlink() {
+				let isExplicitlySelected = entry.isExplicitlySelected()
 
 				Toggle(
 					"Synchronize with this device", systemImage: "pin",
 					isOn: Binding(
-						get: { file.isExplicitlySelected() || file.isSelected() },
-						set: { s in try? file.setExplicitlySelected(s) }
+						get: { entry.isExplicitlySelected() || entry.isSelected() },
+						set: { s in try? entry.setExplicitlySelected(s) }
 					)
 				).disabled(
 					// We're doing something weird
 					!folder.isIdleOrSyncing
 						// Selected implicitly by parent
-						|| (file.isSelected() && !isExplicitlySelected)
+						|| (entry.isSelected() && !isExplicitlySelected)
 						// We have the only copy
 						|| (isExplicitlySelected && localIsOnlyCopy)
 						// File is selected but is not local, we are probably still downloading it
-						|| (file.isSelected() && !file.isLocallyPresent())
+						|| (entry.isSelected() && !entry.isLocallyPresent())
 				)
 			}
 		} footer: {
@@ -297,7 +297,7 @@ struct FileView: View {
 		if let ce = conflictingEntries, !ce.isEmpty {
 			Section("Conflicting versions of this file") {
 				ForEach(ce) { (conflictingEntry: SushitrainEntry) in
-					if conflictingEntry.path() != self.file.path() {
+					if conflictingEntry.path() != self.entry.path() {
 						EntryLinkView(
 							appState: appState, entry: conflictingEntry, inFolder: self.folder, siblings: ce, honorTapToPreview: false
 						) {
@@ -311,9 +311,9 @@ struct FileView: View {
 	}
 
 	@ViewBuilder private func thumbnailView() -> some View {
-		if !file.isDirectory() && !file.isSymlink() && file.canThumbnail {
+		if !entry.isDirectory() && !entry.isSymlink() && entry.canThumbnail {
 			ThumbnailView(
-				file: file,
+				file: entry,
 				showFileName: false,
 				showErrorMessages: true,
 				onTap: {
@@ -334,7 +334,7 @@ struct FileView: View {
 
 	@ViewBuilder private func availabilitySection() -> some View {
 		// Devices that have this file
-		if !self.file.isSymlink() {
+		if !self.entry.isSymlink() {
 			if let availability = self.fullyAvailableOnDevices {
 				if availability.isEmpty && self.folder.connectedPeerCount() > 0 {
 					Section {
@@ -378,7 +378,7 @@ struct FileView: View {
 
 	private func update() async {
 		self.subdirectorySizeBytes = nil
-		let file = self.file
+		let file = self.entry
 		self.subdirectorySizeBytes = await Task.detached {
 			if file.isDirectory() {
 				var size: Int64 = 0
@@ -410,7 +410,7 @@ struct FileView: View {
 		) {
 			Button("Remove the file from all devices", role: .destructive) {
 				dismiss()
-				try? file.remove()
+				try? entry.remove()
 			}
 		}
 	}
@@ -425,12 +425,12 @@ struct FileView: View {
 	}
 
 	@ViewBuilder private func selectiveSyncFooter() -> some View {
-		if !file.isSymlink() && self.folder.isSelective() && (file.isSelected() && !file.isExplicitlySelected()) {
+		if !entry.isSymlink() && self.folder.isSelective() && (entry.isSelected() && !entry.isExplicitlySelected()) {
 			Text("This item is synchronized with this device because a parent folder is synchronized with this device.")
 		}
 
-		if !file.isSymlink() {
-			if file.isExplicitlySelected() {
+		if !entry.isSymlink() {
+			if entry.isExplicitlySelected() {
 				if localIsOnlyCopy {
 					if self.folder.connectedPeerCount() > 0 {
 						Text("There are currently no other devices connected that have a full copy of this file.")
@@ -442,7 +442,7 @@ struct FileView: View {
 					}
 				}
 			}
-			else if !self.file.isLocallyPresent() {
+			else if !self.entry.isLocallyPresent() {
 				if self.folder.connectedPeerCount() == 0 {
 					Text(
 						"When you select this file, it will not become immediately available on this device, because there are no other devices connected to download the file from."
@@ -459,9 +459,9 @@ struct FileView: View {
 
 	@ViewBuilder private func zipSheet() -> some View {
 		NavigationStack {
-			if let ar = file.archive() {
+			if let ar = entry.archive() {
 				ZipView(archive: ar, prefix: "")
-					.navigationTitle(file.fileName())
+					.navigationTitle(entry.fileName())
 					.toolbar {
 						SheetButton(role: .done) {
 							showArchive = false
@@ -476,7 +476,7 @@ struct FileView: View {
 
 	@ViewBuilder private func downloaderSheet(action: EntryDownloaderView.AfterDownloadAction) -> some View {
 		NavigationStack {
-			EntryDownloaderView(file: file, action: action)
+			EntryDownloaderView(file: entry, action: action)
 				#if os(iOS)
 					.navigationBarTitleDisplayMode(.inline)
 				#endif
@@ -490,9 +490,9 @@ struct FileView: View {
 
 	private func streamingURLView() -> some View {
 		#if os(iOS)
-			return StreamingURLView(entry: self.file, backgroundManager: appState.backgroundManager)
+			return StreamingURLView(entry: self.entry, backgroundManager: appState.backgroundManager)
 		#else
-			return StreamingURLView(entry: self.file)
+			return StreamingURLView(entry: self.entry)
 		#endif
 	}
 
@@ -510,14 +510,17 @@ struct FileView: View {
 
 	@ViewBuilder private func viewButtons() -> some View {
 		#if os(macOS)
-			let openInSafariButton = Button(
-				"Open in Safari", systemImage: "safari", action: { if let u = URL(string: file.onDemandURL()) { openURL(u) } }
-			).buttonStyle(.link).disabled(folder.connectedPeerCount() == 0)
+			let openInSafariButton = Button("Open in Safari", systemImage: "safari") {
+				if let u = URL(string: self.entry.onDemandURL()) {
+					openURL(u)
+				}
+			}
+			.buttonStyle(.link).disabled(folder.connectedPeerCount() == 0)
 		#endif
 
-		if file.isSelected() {
+		if entry.isSelected() {
 			// Selective sync uses copy in working dir
-			if file.isLocallyPresent() {
+			if entry.isLocallyPresent() {
 				if let localPathActual = localPath {
 					Section {
 						Button("View file", systemImage: "eye", action: { localItemURL = URL(fileURLWithPath: localPathActual) })
@@ -545,7 +548,7 @@ struct FileView: View {
 			}
 			else {
 				// Waiting for sync
-				Section { DownloadProgressView(file: file, folder: folder) }
+				Section { DownloadProgressView(file: entry, folder: folder) }
 			}
 		}
 		else {
@@ -557,12 +560,12 @@ struct FileView: View {
 				#endif
 
 			let streamButton = Button(
-				"Stream", systemImage: file.isVideo ? "tv" : "music.note",
+				"Stream", systemImage: entry.isVideo ? "tv" : "music.note",
 				action: {
-					if file.isVideo {
+					if entry.isVideo {
 						showFullScreenViewer = true
 					}
-					else if file.isAudio {
+					else if entry.isAudio {
 						showSheetViewer = true
 					}
 				}
@@ -574,7 +577,7 @@ struct FileView: View {
 			let quickViewButton = Button(
 				"View file", systemImage: "arrow.down.circle",
 				action: {
-					if file.isWebPreviewable {
+					if entry.isWebPreviewable {
 						showSheetViewer = true
 					}
 					else {
@@ -586,9 +589,9 @@ struct FileView: View {
 					.buttonStyle(.link)
 				#endif
 
-			if !file.isArchive() {
+			if !entry.isArchive() {
 				Section {
-					if file.isMedia {
+					if entry.isMedia {
 						// Stream button
 						#if os(macOS)
 							HStack {
@@ -629,11 +632,11 @@ struct FileView: View {
 		}
 
 		Task {
-			let fileEntry = self.file
+			let fileEntry = self.entry
 
 			// Obtain local paths
 			var error: NSError? = nil
-			self.localPath = file.isLocallyPresent() ? file.localNativePath(&error) : nil
+			self.localPath = entry.isLocallyPresent() ? entry.localNativePath(&error) : nil
 			#if os(macOS)
 				if let localPathActual = self.localPath {
 					self.openWithAppURL =
@@ -663,14 +666,14 @@ struct FileView: View {
 	private func onTapThumbnail() {
 		#if os(macOS)
 			// On macOS prefer local QuickLook
-			if let localPath = localPath, file.isLocallyPresent() {
+			if let localPath = localPath, self.entry.isLocallyPresent() {
 				localItemURL = URL(fileURLWithPath: localPath)
 			}
-			else if file.isVideo || file.isImage || file.isWebPreviewable {
+			else if self.entry.isVideo || self.entry.isImage || self.entry.isWebPreviewable {
 				#if os(macOS)
 					// Cmd-click to open preview window directory
 					if NSEvent.modifierFlags.contains(.command) {
-						openWindow(id: "preview", value: Preview(folderID: file.folder!.folderID, path: file.path()))
+						openWindow(id: "preview", value: Preview(folderID: self.entry.folder!.folderID, path: self.entry.path()))
 					}
 					else {
 						showFullScreenViewer = true
@@ -681,13 +684,13 @@ struct FileView: View {
 			}
 		#elseif os(iOS)
 			// On iOS prefer streaming view over QuickLook
-			if file.isVideo || file.isImage {
+			if entry.isVideo || entry.isImage {
 				showFullScreenViewer = true
 			}
-			else if let localPath = localPath, file.isLocallyPresent() {
+			else if let localPath = localPath, entry.isLocallyPresent() {
 				localItemURL = URL(fileURLWithPath: localPath)
 			}
-			else if file.isWebPreviewable {
+			else if entry.isWebPreviewable {
 				showFullScreenViewer = true
 			}
 		#endif
@@ -695,7 +698,7 @@ struct FileView: View {
 
 	private func updateConflicts() async {
 		self.conflictingEntries = []
-		let file = self.file
+		let file = self.entry
 		let folder = self.folder
 		do {
 			self.conflictingEntries = try await Task.detached {
@@ -723,11 +726,11 @@ struct FileView: View {
 
 	private func next(_ offset: Int) {
 		if let siblings = siblings {
-			if let idx = siblings.firstIndex(of: self.file) {
+			if let idx = siblings.firstIndex(of: self.entry) {
 				let newIndex = idx + offset
 				if newIndex >= 0 && newIndex < siblings.count {
-					file = siblings[newIndex]
-					selfIndex = self.siblings?.firstIndex(of: file)
+					entry = siblings[newIndex]
+					selfIndex = self.siblings?.firstIndex(of: entry)
 				}
 			}
 		}

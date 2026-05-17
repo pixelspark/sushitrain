@@ -474,7 +474,7 @@ struct RouteView: View {
 			if let folder = self.appState.client.folder(withID: folderID) {
 				if folder.exists() {
 					if let entry = try? folder.getFileInformation(path) {
-						FileView(file: entry, showPath: false, siblings: nil)
+						EntryInfoView(entry: entry, showPath: false, siblings: nil)
 					}
 					else {
 						ContentUnavailableView("File not found", systemImage: "document")

@@ -84,7 +84,7 @@ struct ChangesView: View {
 			.navigationTitle("Recent changes")
 			.navigationDestination(item: $inspectedChange) { change in
 				if let entry = change.entry {
-					FileView(file: entry, showPath: true, siblings: nil)
+					EntryInfoView(entry: entry, showPath: true, siblings: nil)
 				}
 			}
 		#else
@@ -94,7 +94,7 @@ struct ChangesView: View {
 						// Skip modifications of directories
 						if let entry = change.entry, !entry.isDirectory() {
 							if !entry.isDeleted() {
-								NavigationLink(destination: FileView(file: entry, showPath: true, siblings: nil)) {
+								NavigationLink(destination: EntryInfoView(entry: entry, showPath: true, siblings: nil)) {
 									self.changeDetails(change: change.change, folder: folder)
 								}
 							}
