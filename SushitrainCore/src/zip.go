@@ -41,6 +41,11 @@ type entryArchiveFile struct {
 	file    *zip.File
 }
 
+type archiveDirectoryFile struct {
+	archive *entryArchive
+	path    string
+}
+
 type entryArchive struct {
 	entry  *Entry
 	puller *miniPuller
@@ -119,6 +124,19 @@ func (ea *entryArchive) File(path string) (ArchiveFile, error) {
 			}, nil
 		}
 	}
+
+	if ea.IsDirectory(path) {
+		childPaths, err := ea.Files(path)
+		if err != nil {
+			return nil, err
+		}
+		if len(childPaths.data) > 0 {
+			return &archiveDirectoryFile{
+				archive: ea,
+				path:    path,
+			}, nil
+		}
+	}
 	return nil, errors.New("file not found in archive")
 }
 
@@ -175,7 +193,11 @@ func (ea *entryArchiveFile) Download(toPath string, delegate DownloadDelegate) {
 
 /** Recursively download the directory to the spcified location */
 func (ea *entryArchiveFile) downloadDirectory(toPath string, delegate DownloadDelegate) {
-	childPaths, err := ea.archive.Files(ea.file.Name)
+	ea.archive.downloadDirectoryPath(ea.file.Name, toPath, delegate)
+}
+
+func (ea *entryArchive) downloadDirectoryPath(archivePath string, toPath string, delegate DownloadDelegate) {
+	childPaths, err := ea.Files(archivePath)
 	if err != nil {
 		delegate.OnError(err.Error())
 		return
@@ -192,21 +214,14 @@ func (ea *entryArchiveFile) downloadDirectory(toPath string, delegate DownloadDe
 	perEntryFraction := 1.0 / float64(entryCount)
 
 	for pathIndex, path := range childPaths.data {
-		strippedPath, found := strings.CutPrefix(path, ea.file.Name)
+		strippedPath, found := strings.CutPrefix(path, archivePath)
 		if !found {
-			slog.Warn("invalid prefix", "path", path, "self", ea.file.Name)
+			slog.Warn("invalid prefix", "path", path, "self", archivePath)
 			return
 		}
 
 		entryToPath := filepath.Join(toPath, strippedPath)
 		slog.Info("zip entry", "path", path, "strippedPath", strippedPath, "toPath", entryToPath)
-
-		archiveFile, err := ea.archive.File(path)
-		if err != nil {
-			delegate.OnError(err.Error())
-			return
-		}
-		archiveEntry := archiveFile.(*entryArchiveFile)
 
 		var failed = false
 		subDelegate := &subDownloadDelegate{
@@ -223,12 +238,16 @@ func (ea *entryArchiveFile) downloadDirectory(toPath string, delegate DownloadDe
 			},
 		}
 
-		// Subdirectory: create and recurse!
 		if strings.HasSuffix(path, "/") {
 			slog.Info("zip subdirectory", "path", path, "toPath", entryToPath)
-			archiveEntry.downloadDirectory(entryToPath, subDelegate)
+			ea.downloadDirectoryPath(path, entryToPath, subDelegate)
 		} else {
-			// File: just download
+			archiveFile, err := ea.File(path)
+			if err != nil {
+				delegate.OnError(err.Error())
+				return
+			}
+			archiveEntry := archiveFile.(*entryArchiveFile)
 			archiveEntry.downloadFile(entryToPath, subDelegate)
 		}
 
@@ -288,6 +307,27 @@ func (ea *entryArchiveFile) reader() (io.Reader, error) {
 
 func (ea *entryArchiveFile) AsDownloadable() Downloadable {
 	return ea
+}
+
+func (ea *archiveDirectoryFile) FileName() string {
+	path := strings.TrimSuffix(ea.path, "/")
+	ps := strings.Split(path, "/")
+	return ps[len(ps)-1]
+}
+
+func (ea *archiveDirectoryFile) Download(toPath string, delegate DownloadDelegate) {
+	go func() {
+		delegate.OnProgress(0.0)
+		ea.archive.downloadDirectoryPath(ea.path, toPath, delegate)
+	}()
+}
+
+func (ea *archiveDirectoryFile) AsDownloadable() Downloadable {
+	return ea
+}
+
+func (ea *archiveDirectoryFile) Size() int64 {
+	return 0
 }
 
 type cancelableReader struct {
