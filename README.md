@@ -12,8 +12,7 @@ Securely synchronize files on-demand using Syncthing on iOS and macOS.
 
 [Download on the App Store](https://apps.apple.com/nl/app/synctrain/id6553985316) | [Test beta versions through TestFlight](https://testflight.apple.com/join/2f54I4CM)
 
-Sushitrain brings Syncthing to iOS and macOS. In addition to the very powerful file synchronization features offered by Syncthing, this app has some extra tricks up it
-sleeve:
+Sushitrain brings Syncthing to iOS and macOS. In addition to the very powerful file synchronization features offered by Syncthing, this app has some extra tricks up its sleeve:
 
 - **Selective file synchronization**: only keep specific files or subdirectories from a larger folder on your device.
 - **On-demand access to files**: download or stream files that are not available locally from another peer through the Syncthing protocol. This allows access to your files, from your own devices, without setting up a VPN.
@@ -43,15 +42,15 @@ This should not show any errors and lead to a built framework in the `build` dir
 Note that the Makefile assumes you installed Go through Homebrew in `/opt/homebrew`. Change accordingly if your environment
 is different.
 
-When the framework is succesfully built, open XCode and follow the following steps:
+When the framework is successfully built, open XCode and follow the following steps:
 
 1. Remove the `com.apple.developer.device-information.user-assigned-device-name` entitlement from the project configuration
    for iOS. This entitlement allows the app to set the Syncthing device name to match the device's actual hostname. The
    entitlement can only be obtained from Apple and for distributed apps only. Without the entitlement, the app will receive
    `localhost` from iOS as host name and will set that as peer name upon first startup. You can of course change the device
    name from the settings screen or in the configuration.
-2. Set up signing (change the 'team ID' in the project settings you a team or developer ID you have access to, then let
-   XCode autoamtically provision certificates for you). You may have to change the bundle ID to something else.
+2. Set up signing (change the 'team ID' in the project settings to a team or developer ID you have access to, then let
+   XCode automatically provision certificates for you). You may have to change the bundle ID to something else.
 3. Finally, pressing Cmd-B should be all that is needed to build the app.
 
 Note that XCode will, by default, invoke the aforementioned Makefile for the Go framework as part of the build process. In
@@ -112,7 +111,7 @@ Then, run `go mod tidy`.
 The Sushitrain app is written in Swift and uses SwiftUI. It embeds a framework called SushitrainCore, which is written
 in Go. This framework embeds the Syncthing code and provides an interface that is usable from the Swift side.
 
-The Go and Swift sides are bridged by a tool/framework called 'gomobile'. This tool generated bindings for Go code to be
+The Go and Swift sides are bridged by a tool/framework called 'gomobile'. This tool generates bindings for Go code to be
 called from Objective-C (and hence from Swift). Gomobile does not support all Go types, however - in particular, slices
 (arrays) and therefore almost all of the more complicated data types in Syncthing are not supported. The SushitrainCore
 framework papers over this by only exposing the bits necessary for the app to work. To expose arrays, we use a very simple
@@ -141,10 +140,10 @@ Typically, mobile devices are constrained in the amount of storage they have. Wh
 synchronising larger folders using Syncthing, it is often undesirable. Current clients do not offer any other way to access
 files through Syncthing without synchronising first.
 
-One solution is _selective synchronisation_. This feature allows the user to select a subset of files and directories in the folder
+One solution is _selective synchronisation_. This feature allows the user to select a subset of files and directories within the folder
 that should be synchronised. In Sushitrain, this is implemented using the existing 'ignore' capabilities in Syncthing. When
-a folder is set into 'selective' mode, an `.stignore` file will be created with a single pattern: `*`. This causes all files
-to be ignored for synchronisation. At this point, the folder global index will still be synchronized like normal, but the
+a folder is set to 'selective' mode, an `.stignore` file will be created with a single pattern: `*`. This causes all files
+to be ignored for synchronisation. At this point, the folder global index will still be synchronized normally, but the
 client will not 'pull' files from other peers, nor will it 'push' any new files or changes to files. Because the global
 index is available and the client does have the ability to pull files, it can still download files 'on demand' (see below).
 
@@ -157,7 +156,7 @@ all `*` pattern, e.g.:
 ```
 
 This will cause the file to be synchronised (depending on the mode of the folder, changes made locally will also be pushed,
-and deleting the file is propagated as well).
+and the file deletion is propagated as well).
 
 There are a few issues with this:
 
@@ -165,7 +164,7 @@ There are a few issues with this:
   to other nodes (if the folder is 'send receive'), the new file will be ignored because of the `*` pattern. For this reason,
   the app checks for files that exist in the local directory, but are not 'selected', and offers the user a choice to either
   'select' the file and synchronize it, or delete it locally. Files that exist locally but aren't 'selected' are termed 'extraneous files'.
-- When a new file is created locally that has the same name of a file that also exists in the global index, but is not selected,
+- When a new file is created locally that has the same name as a file that also exists in the global index, but is not selected,
   the file is not synced until it is 'selected', at which point it might overwrite the existing global file. This situation
   is also handled by providing the user a choice.
 - When a file is renamed remotely, it is also a removal and creation. The removal is processed by the client (the selected
@@ -183,11 +182,11 @@ Current and future files in the folder will be synced and considered 'implicitly
 
 Synctrain enables selective synchronisation features in the UI when the `.stignore` file conforms to the following rules:
 
-* The last pattern in the file is `*`
-* The file starts with zero or more patterns that start with `(?d)` and that do not contain `/` or `**` (these allow for 
+- The last pattern in the file is `*`
+- The file starts with zero or more patterns that start with `(?d)` and that do not contain `/` or `**` (these allow for
   global ignores of certain files like `.DS_Store` when synchronizing subdirectories)
-* The file otherwise contains only patterns that start with `!/` and that do not contain `*`. These indicate paths to be 'selected' (un-ignored)
-* Empty lines are allowed
+- The file otherwise contains only patterns that start with `!/` and that do not contain `*`. These indicate paths to be 'selected' (un-ignored)
+- Empty lines are allowed
 
 ### On-demand downloads
 
@@ -232,7 +231,7 @@ copyright to your contribution.
 
 If you have found an issue, please notify us through the TestFlight testing program. If this is not possible, you can use
 the discussions section on this repository. The developers are not obliged to answer any questions or fix any issues -
-remember this is free software. The planning of releases and the roadmap is solely up to the developers. If you have a
+remember this is free software. The planning of releases and the roadmap are solely up to the developers. If you have a
 specific need, you may contact the developers to discuss a commercial development project.
 
 ## License
@@ -245,7 +244,7 @@ Read the license [here](./LICENSE). Contributors to this repository agree to lic
 The initial [3D logo model](./Assets/Sushitrain%20glass%20icon.blend) was made by [Kai Werder](https://werder.fyi) in 2025 with
 Blender 4.5.1 LTS, and is distributed under the Mozilla Public License 2.0.
 
-The following items are explicitly _not_ licensed under the abovementioned license. Instead all rights are reserved by the
+The following items are explicitly _not_ licensed under the aforementioned license. Instead all rights are reserved by the
 author / the respective owners:
 
 - The name 'Sushitrain' and the name 'Synctrain'
@@ -255,5 +254,5 @@ author / the respective owners:
   - [Sushitrain.icon](./Assets/Sushitrain.icon/)
   - [logo.png](./Docs/logo.png)
 
-Syncthing is a trademark of the Syncthing Foundation. Read more over at [syncthing.net](https://syncthing.net). This project
-is not endorsed by, nor affiliated with, neither Syncthing contributors nor the Syncthing Foundation.
+Syncthing is a trademark of the Syncthing Foundation. Read more at [syncthing.net](https://syncthing.net). This project
+is neither endorsed by, nor affiliated with, either the Syncthing contributors or the Syncthing Foundation.
