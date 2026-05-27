@@ -424,6 +424,40 @@ enum PersistentCacheType {
 		}
 	}
 
+	func memoryImage(for cacheKey: String) -> Image? {
+		if cacheKey.count < 3 {
+			return nil
+		}
+		if let img = self.cache[cacheKey] {
+			return img
+		}
+		if self !== Self.shared {
+			return Self.shared.memoryImage(for: cacheKey)
+		}
+		return nil
+	}
+
+	func hasCachedThumbnail(for cacheKey: String) async -> Bool {
+		if self.memoryImage(for: cacheKey) != nil {
+			return true
+		}
+
+		if self.diskCacheEnabled,
+			let url = self.persistentCache.localPathFor(cacheKey: cacheKey)
+		{
+			let path = url.path(percentEncoded: false)
+			if await Task.detached(operation: { FileManager.default.fileExists(atPath: path) }).value {
+				return true
+			}
+		}
+
+		if self !== Self.shared {
+			return await Self.shared.hasCachedThumbnail(for: cacheKey)
+		}
+
+		return false
+	}
+
 	fileprivate func writeToDiskCache(image: Image, cacheKey: String) {
 		if diskCacheEnabled && self.persistentCache.isWritable && diskHasSpace,
 			let url = self.persistentCache.localPathFor(cacheKey: cacheKey)

@@ -16,6 +16,7 @@ struct ThumbnailView: View {
 
 	@Environment(AppState.self) private var appState
 	@State private var showPreview = false
+	@State private var hasCachedThumbnail = false
 
 	private var imageCache: ImageCache {
 		return ImageCache.forFolder(file.folder)
@@ -57,41 +58,58 @@ struct ThumbnailView: View {
 	}
 
 	var body: some View {
-		if file.canThumbnail {
-			let isLocallyPresent = file.isLocallyPresent()
-			if isLocallyPresent || showPreview || self.imageCache[file.cacheKey] != nil
-				|| (generateOnDemand
-					&& (file.size() <= appState.userSettings.maxBytesForPreview
-						|| (appState.userSettings.previewVideos && file.isVideo)))
-			{
-				if let onTap = self.onTap {
-					self.thumbnailView
-						.onTapGesture {
-							onTap()
-						}
+		Group {
+			if file.canThumbnail {
+				let isLocallyPresent = file.isLocallyPresent()
+				if isLocallyPresent || showPreview || hasCachedThumbnail || self.imageCache.memoryImage(for: file.cacheKey) != nil
+					|| (generateOnDemand
+						&& (file.size() <= appState.userSettings.maxBytesForPreview
+							|| (appState.userSettings.previewVideos && file.isVideo)))
+				{
+					if let onTap = self.onTap {
+						self.thumbnailView
+							.onTapGesture {
+								onTap()
+							}
+					}
+					else {
+						self.thumbnailView
+					}
 				}
 				else {
-					self.thumbnailView
+					if self.showErrorMessages {
+						Button("Show preview for large files") {
+							showPreview = true
+						}
+						.padding(10)
+						#if os(macOS)
+							.buttonStyle(.link)
+						#endif
+					}
+					else {
+						self.iconAndTextBody
+					}
 				}
 			}
 			else {
-				if self.showErrorMessages {
-					Button("Show preview for large files") {
-						showPreview = true
-					}
-					.padding(10)
-					#if os(macOS)
-						.buttonStyle(.link)
-					#endif
-				}
-				else {
-					self.iconAndTextBody
-				}
+				self.iconAndTextBody
 			}
 		}
-		else {
-			self.iconAndTextBody
+		.task(id: thumbnailCacheTaskID) {
+			if let cacheKey = thumbnailCacheTaskID {
+				self.hasCachedThumbnail = await self.imageCache.hasCachedThumbnail(for: cacheKey)
+			}
+			else {
+				self.hasCachedThumbnail = false
+			}
 		}
+	}
+
+	private var thumbnailCacheTaskID: String? {
+		if !file.canThumbnail {
+			return nil
+		}
+		return file.cacheKey
 	}
 
 	private var iconAndTextBody: some View {
