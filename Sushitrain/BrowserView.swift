@@ -482,7 +482,6 @@ struct BrowserView: View {
 	}
 
 	private func addFilesFromImporter(result: Result<[URL], any Error>) {
-		var numFilesAdded = 0
 		switch result {
 		case .success(let fu):
 			for url in fu {
@@ -490,23 +489,27 @@ struct BrowserView: View {
 					Log.warn("failed to access security scoped URL from file importer: \(url)")
 				}
 			}
-			do {
-				try self.dropFiles(fu)
-			}
-			catch {
-				Log.warn("failed to drop file: \(error)")
-				self.showAlert = .error(error.localizedDescription)
-			}
-			numFilesAdded += 1
-			for url in fu {
-				url.stopAccessingSecurityScopedResource()
+
+			Task {
+				defer {
+					for url in fu {
+						url.stopAccessingSecurityScopedResource()
+					}
+				}
+
+				do {
+					let numFilesAdded = try await self.dropFilesInBackground(fu)
+					self.showToast(Toast(title: "\(numFilesAdded) files added", image: "document.badge.plus.fill"))
+				}
+				catch {
+					Log.warn("failed to drop file: \(error)")
+					self.showAlert = .error(error.localizedDescription)
+				}
 			}
 
 		case .failure(_):
 			break
 		}
-
-		self.showToast(Toast(title: "\(numFilesAdded) files added", image: "document.badge.plus.fill"))
 	}
 
 	private func showInFinder() {
@@ -800,7 +803,8 @@ struct BrowserView: View {
 			}
 		}
 
-		try self.dropFiles(urls)
+		let numFilesAdded = try await self.dropFilesInBackground(urls)
+		self.showToast(Toast(title: "\(numFilesAdded) files added", image: "plus"))
 	}
 
 	private func dropItemProviders(_ items: [NSItemProvider]) async {
@@ -832,7 +836,8 @@ struct BrowserView: View {
 
 		// Process the files
 		do {
-			try self.dropFiles(urls)
+			let numFilesAdded = try await self.dropFilesInBackground(urls)
+			self.showToast(Toast(title: "\(numFilesAdded) files added", image: "plus"))
 		}
 		catch {
 			Log.warn("failed to drop files: \(error)")
@@ -840,28 +845,36 @@ struct BrowserView: View {
 		}
 	}
 
-	private func dropFiles(_ urls: [URL]) throws {
+	private func dropFilesInBackground(_ urls: [URL]) async throws -> Int {
+		let folder = self.folder
+		let prefix = self.prefix
+		return try await Task.detached(priority: .utility) {
+			return try await Self.dropFiles(urls, folder: folder, prefix: prefix)
+		}.value
+	}
+
+	private static func dropFiles(_ urls: [URL], folder: SushitrainFolder, prefix: String) throws -> Int {
 		// Find out the native location of our folder
 		var error: NSError? = nil
-		let localNativePath = self.folder.localNativePath(&error)
+		let localNativePath = folder.localNativePath(&error)
 		if let error = error {
 			throw error
 		}
 
 		// If we are in a subdirectory, and the folder is selective, ensure the folder is materialized
-		if !self.prefix.isEmpty && self.folder.isSelective() {
-			let entry = try self.folder.getFileInformation(self.prefix.withoutEndingSlash)
+		if !prefix.isEmpty && folder.isSelective() {
+			let entry = try folder.getFileInformation(prefix.withoutEndingSlash)
 			if entry.isDirectory() && !entry.isDeleted() {
 				try entry.materializeSubdirectory()
 			}
 			else {
 				// Somehow not a directory...
-				return
+				return 0
 			}
 		}
 
 		let localNativeURL = URL(fileURLWithPath: localNativePath).appendingPathComponent(
-			self.prefix)
+			prefix)
 		var pathsToSelect: [String] = []
 
 		if FileManager.default.fileExists(atPath: localNativeURL.path) {
@@ -873,12 +886,12 @@ struct BrowserView: View {
 					let targetURL = localNativeURL.appendingPathComponent(
 						url.lastPathComponent, isDirectory: false)
 					try FileManager.default.copyItem(at: url, to: targetURL)
+					numFilesAdded += 1
 
 					// Select the dropped file
 					if folder.isSelective() {
-						let localURL = (self.prefix.withoutEndingSlash + "/" + url.lastPathComponent).withoutStartingSlash
+						let localURL = (prefix.withoutEndingSlash + "/" + url.lastPathComponent).withoutStartingSlash
 						pathsToSelect.append(localURL)
-						numFilesAdded += 1
 					}
 				}
 				catch {
@@ -888,19 +901,19 @@ struct BrowserView: View {
 			}
 
 			if folder.isSelective() {
-				try self.folder.setLocalPathsExplicitlySelected(SushitrainListOfStrings.from(pathsToSelect))
+				try folder.setLocalPathsExplicitlySelected(SushitrainListOfStrings.from(pathsToSelect))
 			}
 
-			try self.folder.rescanSubdirectory(self.prefix)
-
-			DispatchQueue.main.async {
-				showToast(Toast(title: "\(numFilesAdded) files added", image: "plus"))
-			}
+			try folder.rescanSubdirectory(prefix)
 
 			if let re = retainedError {
 				throw re
 			}
+
+			return numFilesAdded
 		}
+
+		return 0
 	}
 
 	private func updateLocalURL() {

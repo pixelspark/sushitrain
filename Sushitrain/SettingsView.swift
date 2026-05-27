@@ -390,8 +390,10 @@ struct AdvancedSettingsView: View {
 						isPresented: $confirmClearThumbnailCache, titleVisibility: .visible
 					) {
 						Button("Clear thumbnail cache", role: .destructive) {
-							ImageCache.shared.clear()
-							self.diskCacheSizeBytes = nil
+							Task {
+								await ImageCache.shared.clear()
+								self.diskCacheSizeBytes = nil
+							}
 						}
 					}
 				}

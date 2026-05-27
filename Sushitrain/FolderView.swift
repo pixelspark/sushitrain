@@ -987,8 +987,10 @@ private struct FolderThumbnailSettingsView: View {
 						Button("Delete thumbnails") {
 							let ic = ImageCache.forFolder(self.folder)
 							if ic !== ImageCache.shared {
-								ic.clear()
-								self.diskCacheSizeBytes = nil
+								Task {
+									await ic.clear()
+									self.diskCacheSizeBytes = nil
+								}
 							}
 						}
 					}
@@ -1081,7 +1083,7 @@ private struct FolderThumbnailSettingsView: View {
 					try await self.deleteFromSharedCache(prefix: file.path())
 				}
 
-				try? ImageCache.shared.remove(cacheKey: file.cacheKey)
+				try? await ImageCache.shared.remove(cacheKey: file.cacheKey)
 			}
 			else {
 				Log.warn("Could not get file entry for path \(filePath)")
@@ -1109,7 +1111,8 @@ private struct FolderGenerateThumbnailsView: View {
 		self.generatingTask = Task {
 			Log.info("Start generating thumbnails")
 			let ic = ImageCache.forFolder(self.folder)
-			if !ic.diskCacheEnabled || !ic.diskHasSpace {
+			let diskHasSpace = await ic.diskHasSpace()
+			if !ic.diskCacheEnabled || !diskHasSpace {
 				self.error = String(
 					localized:
 						"There is very little disk space available. Free up some space and try again."
@@ -1122,7 +1125,10 @@ private struct FolderGenerateThumbnailsView: View {
 			#endif
 
 			do {
-				let stats = try self.folder.statistics()
+				let folder = self.folder
+				let stats = try await Task.detached(priority: .utility) {
+					try folder.statistics()
+				}.value
 				self.totalFiles = stats.global?.files ?? 0
 				self.processedFiles = 0
 				try await self.generateFor(prefix: nil)
@@ -1131,6 +1137,7 @@ private struct FolderGenerateThumbnailsView: View {
 			catch {
 				self.error = error.localizedDescription
 			}
+
 			#if os(iOS)
 				UIApplication.shared.isIdleTimerDisabled = false
 			#endif

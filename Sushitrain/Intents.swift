@@ -115,7 +115,7 @@ struct GenerateThumbnailsIntent: AppIntent {
 			if !ic.diskCacheEnabled {
 				throw GenerateThumbnailsError.notEnabled
 			}
-			if !ic.diskHasSpace {
+			if !(await ic.diskHasSpace()) {
 				throw GenerateThumbnailsError.insufficientDiskSpace
 			}
 

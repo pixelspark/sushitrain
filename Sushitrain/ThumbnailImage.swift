@@ -295,11 +295,18 @@ enum PersistentCacheType {
 			url: URL.cachesDirectory.appendingPathComponent("thumbnails", isDirectory: true))
 	}
 
-	var diskHasSpace: Bool {
-		if let localPath = self.persistentCache.localPath {
+	func diskHasSpace() async -> Bool {
+		let localPath = self.persistentCache.localPath
+		let minDiskFreeBytes = self.minDiskFreeBytes
+		return await Task.detached(priority: .utility) {
+			guard let localPath = localPath else {
+				Log.warn("Could not get free disk space - there is no local path")
+				return true
+			}
+
 			if let vals = try? localPath.resourceValues(forKeys: [.volumeAvailableCapacityKey]) {
 				if let f = vals.volumeAvailableCapacity {
-					return f > self.minDiskFreeBytes
+					return f > minDiskFreeBytes
 				}
 				else {
 					Log.warn("Did not get volume capacity")
@@ -308,11 +315,8 @@ enum PersistentCacheType {
 			else {
 				Log.warn("Could not get free disk space - resourceValues call failed")
 			}
-		}
-		else {
-			Log.warn("Could not get free disk space - there is no local path")
-		}
-		return true
+			return true
+		}.value
 	}
 
 	// Clears in-memory image caches
@@ -323,12 +327,16 @@ enum PersistentCacheType {
 		}
 	}
 
-	func clear() {
-		do {
-			self.cache.removeAll()
+	func clear() async {
+		let localPath = self.persistentCache.localPath
+		self.cache.removeAll()
 
-			if let localPath = self.persistentCache.localPath {
-				//try FileManager.default.removeItem(at: self.cacheDirectory)
+		await Task.detached(priority: .utility) {
+			guard let localPath = localPath else {
+				return
+			}
+
+			do {
 				// Remove folders inside the cache path that have a name that consists of just one character
 				let fileManager = FileManager.default
 				let fileURLs = try fileManager.contentsOfDirectory(
@@ -339,10 +347,10 @@ enum PersistentCacheType {
 					}
 				}
 			}
-		}
-		catch {
-			Log.warn("Could not clear cache: \(error.localizedDescription)")
-		}
+			catch {
+				Log.warn("Could not clear cache: \(error.localizedDescription)")
+			}
+		}.value
 	}
 
 	nonisolated func diskCacheSizeBytes() async throws -> UInt {
@@ -354,74 +362,90 @@ enum PersistentCacheType {
 		}.value
 	}
 
-	func remove(cacheKey: String) throws {
+	func remove(cacheKey: String) async throws {
 		if cacheKey.count < 3 {
 			return
 		}
 		self.cache.removeValue(forKey: cacheKey)
-		if self.diskCacheEnabled {
-			if let localPath = self.persistentCache.localPathFor(cacheKey: cacheKey) {
+		let diskCacheEnabled = self.diskCacheEnabled
+		let localPath = self.persistentCache.localPathFor(cacheKey: cacheKey)
+		if diskCacheEnabled, let localPath = localPath {
+			try await Task.detached(priority: .utility) {
 				try FileManager.default.removeItem(atPath: localPath.path(percentEncoded: false))
-			}
+			}.value
 		}
 	}
 
 	subscript(cacheKey: String) -> Image? {
 		get {
-			if cacheKey.count < 3 {
-				return nil
-			}
-			// Attempt to retrieve from memory cache first
-			if let img = self.cache[cacheKey] {
-				return img
-			}
-
-			if self.diskCacheEnabled {
-				if let url = self.persistentCache.localPathFor(cacheKey: cacheKey) {
-					let path = url.path(percentEncoded: false)
-					if FileManager.default.fileExists(atPath: path) {
-						#if os(iOS)
-							if let img = UIImage(contentsOfFile: path) {
-								return Image(uiImage: img)
-							}
-							else {
-								Log.warn("Cached thumbnail exists but failed to load: for \(cacheKey) at \(path)")
-							}
-						#elseif os(macOS)
-							if let img = NSImage(byReferencingFile: path), img.isValid {
-								return Image(nsImage: img)
-							}
-							else {
-								Log.warn("Cached thumbnail exists but failed to load: for \(cacheKey) at \(path)")
-							}
-						#endif
-					}
-				}
-			}
-
-			// If we are not the shared cache, try the shared cache
-			if self !== Self.shared {
-				return Self.shared[cacheKey]
-			}
-
-			return nil
+			return self.memoryImage(for: cacheKey)
 		}
 		set {
-			if cacheKey.count < 3 {
+			guard let image = newValue else {
+				self.cache.removeValue(forKey: cacheKey)
 				return
 			}
-
-			// Memory cache (always enabled)
-			while cache.count >= maxCacheSize {
-				// This is a rather random way to remove items from the cache, investigate using an ordered map
-				_ = self.cache.popFirst()
-			}
-			self.cache[cacheKey] = newValue
-
-			if let image = newValue {
-				self.writeToDiskCache(image: image, cacheKey: cacheKey)
+			self.setMemoryCacheOnly(image: image, cacheKey: cacheKey)
+			Task {
+				await self.writeToDiskCache(image: image, cacheKey: cacheKey)
 			}
 		}
+	}
+
+	func cachedImage(for cacheKey: String) async -> Image? {
+		if let img = self.memoryImage(for: cacheKey) {
+			return img
+		}
+
+		if self.diskCacheEnabled, let url = self.persistentCache.localPathFor(cacheKey: cacheKey) {
+			let path = url.path(percentEncoded: false)
+			if await Self.diskImageExists(path: path) {
+				if let image = await Self.loadDiskImage(path: path) {
+					self.setMemoryCacheOnly(image: image, cacheKey: cacheKey)
+					return image
+				}
+				else {
+					Log.warn("Could not load cached thumbnail: for \(cacheKey) at \(path)")
+				}
+			}
+		}
+
+		if self !== Self.shared {
+			return await Self.shared.cachedImage(for: cacheKey)
+		}
+
+		return nil
+	}
+
+	private nonisolated static func diskImageExists(path: String) async -> Bool {
+		return await Task.detached(priority: .utility) {
+			FileManager.default.fileExists(atPath: path)
+		}.value
+	}
+
+	private nonisolated static func loadDiskImage(path: String) async -> Image? {
+		guard
+			let data = await Task.detached(
+				priority: .utility,
+				operation: {
+					try? Data(contentsOf: URL(fileURLWithPath: path))
+				}
+			).value
+		else {
+			return nil
+		}
+
+		#if os(iOS)
+			if let img = UIImage(data: data) {
+				return Image(uiImage: img)
+			}
+		#elseif os(macOS)
+			if let img = NSImage(data: data), img.isValid {
+				return Image(nsImage: img)
+			}
+		#endif
+
+		return nil
 	}
 
 	func memoryImage(for cacheKey: String) -> Image? {
@@ -437,6 +461,17 @@ enum PersistentCacheType {
 		return nil
 	}
 
+	private func setMemoryCacheOnly(image: Image, cacheKey: String) {
+		if cacheKey.count < 3 {
+			return
+		}
+
+		while cache.count >= maxCacheSize {
+			_ = self.cache.popFirst()
+		}
+		self.cache[cacheKey] = image
+	}
+
 	func hasCachedThumbnail(for cacheKey: String) async -> Bool {
 		if self.memoryImage(for: cacheKey) != nil {
 			return true
@@ -446,7 +481,7 @@ enum PersistentCacheType {
 			let url = self.persistentCache.localPathFor(cacheKey: cacheKey)
 		{
 			let path = url.path(percentEncoded: false)
-			if await Task.detached(operation: { FileManager.default.fileExists(atPath: path) }).value {
+			if await Task.detached(priority: .utility, operation: { FileManager.default.fileExists(atPath: path) }).value {
 				return true
 			}
 		}
@@ -458,8 +493,9 @@ enum PersistentCacheType {
 		return false
 	}
 
-	fileprivate func writeToDiskCache(image: Image, cacheKey: String) {
-		if diskCacheEnabled && self.persistentCache.isWritable && diskHasSpace,
+	fileprivate func writeToDiskCache(image: Image, cacheKey: String) async {
+		let hasSpace = await diskHasSpace()
+		if diskCacheEnabled && self.persistentCache.isWritable && hasSpace,
 			let url = self.persistentCache.localPathFor(cacheKey: cacheKey)
 		{
 			let dirURL = url.deletingLastPathComponent()
@@ -469,19 +505,7 @@ enum PersistentCacheType {
 			#if os(iOS)
 				// We're using JPEG for now, because HEIC leads to distorted thumbnails for HDR videos
 				if let data = renderer.uiImage?.jpegData(compressionQuality: 0.8) {
-					do {
-						// Create the directory (tree) we're about to place the thumbnail in, if it doesn't exist yet
-						try FileManager.default.createDirectory(at: dirURL, withIntermediateDirectories: true)
-						try data.write(to: url)
-
-						// If we're using the default thumbnails directory, set complete protection for thumbnails
-						if self.customPersistentCache == nil {
-							try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
-						}
-					}
-					catch {
-						Log.warn("Could not write to cache file \(url.path()): \(error.localizedDescription)")
-					}
+					await self.writeDiskCacheData(data, dirURL: dirURL, url: url)
 				}
 			#else
 				// Let's do things the more old-fashioned way on macOS
@@ -490,18 +514,7 @@ enum PersistentCacheType {
 						let rep = NSBitmapImageRep(data: tiff),
 						let jpegData = rep.representation(using: .jpeg, properties: [.compressionFactor: 0.8])
 					{
-						do {
-							try FileManager.default.createDirectory(at: dirURL, withIntermediateDirectories: true)
-							try jpegData.write(to: url)
-
-							// If we're using the default thumbnails directory, set complete protection for thumbnails
-							if self.customPersistentCache == nil {
-								try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
-							}
-						}
-						catch {
-							Log.warn("Could not write to cache file \(url.path()): \(error.localizedDescription)")
-						}
+						await self.writeDiskCacheData(jpegData, dirURL: dirURL, url: url)
 					}
 					else {
 						Log.warn("Could not generate JPEG")
@@ -509,6 +522,24 @@ enum PersistentCacheType {
 				}
 			#endif
 		}
+	}
+
+	private func writeDiskCacheData(_ data: Data, dirURL: URL, url: URL) async {
+		let shouldSetFileProtection = self.customPersistentCache == nil
+		await Task.detached(priority: .utility) {
+			do {
+				try FileManager.default.createDirectory(at: dirURL, withIntermediateDirectories: true)
+				try data.write(to: url)
+
+				// If we're using the default thumbnails directory, set complete protection for thumbnails
+				if shouldSetFileProtection {
+					try (url as NSURL).setResourceValue(URLFileProtection.complete, forKey: .fileProtectionKey)
+				}
+			}
+			catch {
+				Log.warn("Could not write to cache file \(url.path()): \(error.localizedDescription)")
+			}
+		}.value
 	}
 
 	let remoteThumbnailDownloadLimiter = ConcurrentActor<AsyncImagePhase>(maxConcurrent: 5)
@@ -520,7 +551,7 @@ enum PersistentCacheType {
 		}
 
 		// If we have a cached thumbnail, use that
-		if let cached = await self[cacheKey] {
+		if let cached = await self.cachedImage(for: cacheKey) {
 			if forceCache {
 				await self.writeToDiskCache(image: cached, cacheKey: cacheKey)
 			}
@@ -583,9 +614,7 @@ enum PersistentCacheType {
 
 		// Save remote thumbnail to in-memory cache
 		if case .success(let image) = ph {
-			DispatchQueue.main.async {
-				self[cacheKey] = image
-			}
+			await self.setMemoryCacheOnly(image: image, cacheKey: cacheKey)
 		}
 		return ph
 	}
@@ -633,19 +662,20 @@ actor ConcurrentActor<Result: Sendable> {
 	}
 }
 
-typealias GenerateStatusCallback = (_ thumbnail: AsyncImagePhase?) -> Void
+typealias GenerateStatusCallback = @MainActor (_ thumbnail: AsyncImagePhase?) -> Void
 
-@MainActor func generateThumbnailsFor(
+func generateThumbnailsFor(
 	folder: SushitrainFolder, prefix: String?, userSettings: AppUserSettings, generation tg: ThumbnailGeneration,
 	callback: GenerateStatusCallback? = nil
 ) async throws {
-	let ic = ImageCache.forFolder(folder)
+	let ic = await ImageCache.forFolder(folder)
+	let cacheThumbnailsToFolderID = await userSettings.cacheThumbnailsToFolderID
 
 	// If thumbnails are written to a custom folder, also write thumbnails for local images
 	let forceCachingLocalFiles: Bool
 	switch tg {
 	case .global:
-		forceCachingLocalFiles = !userSettings.cacheThumbnailsToFolderID.isEmpty
+		forceCachingLocalFiles = !cacheThumbnailsToFolderID.isEmpty
 	case .disabled:
 		forceCachingLocalFiles = false
 	case .deviceLocal:
@@ -683,10 +713,10 @@ typealias GenerateStatusCallback = (_ thumbnail: AsyncImagePhase?) -> Void
 			// another from local files)
 			if file.canThumbnail && (forceCachingLocalFiles || !file.isLocallyPresent()) {
 				let thumb = await ic.getThumbnail(file: file, forceCache: forceCachingLocalFiles)
-				callback?(thumb)
+				await callback?(thumb)
 			}
 			else {
-				callback?(nil)
+				await callback?(nil)
 			}
 		}
 		else {
