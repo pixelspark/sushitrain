@@ -198,8 +198,6 @@ struct EntryLinkView<Content: View>: View {
 	let honorTapToPreview: Bool
 	@ViewBuilder var content: () -> Content
 
-	@State private var canPreview: Bool = false
-
 	#if os(macOS)
 		@Environment(\.openWindow) private var openWindow
 	#endif
@@ -209,7 +207,7 @@ struct EntryLinkView<Content: View>: View {
 			appState: appState, entry: entry, inFolder: inFolder, siblings: siblings, honorTapToPreview: honorTapToPreview
 		) {
 			Group {
-				if canPreview && honorTapToPreview && appState.userSettings.tapFileToPreview {
+				if entry.canAttemptPreview && honorTapToPreview && appState.userSettings.tapFileToPreview {
 					// Tap to preview
 					self.content()
 				}
@@ -220,9 +218,6 @@ struct EntryLinkView<Content: View>: View {
 					) { self.content() }
 				}
 			}
-		}
-		.task {
-			self.canPreview = entry.canPreview
 		}
 	}
 }
@@ -237,7 +232,6 @@ struct EntryContextMenuWrapper<Content: View>: View {
 
 	@State private var quickLookURL: URL? = nil
 	@State private var showPreviewSheet: Bool = false
-	@State private var canPreview: Bool = false
 	@State private var showDownloader = false
 
 	#if os(macOS)
@@ -296,7 +290,7 @@ struct EntryContextMenuWrapper<Content: View>: View {
 	}
 
 	@ViewBuilder private func innerTapToViewable() -> some View {
-		if self.honorTapToPreview && self.canPreview && appState.userSettings.tapFileToPreview {
+		if self.honorTapToPreview && self.entry.canAttemptPreview && appState.userSettings.tapFileToPreview {
 			Button(action: { self.previewFile() }) {
 				self.inner()
 			}
@@ -328,7 +322,8 @@ struct EntryContextMenuWrapper<Content: View>: View {
 				#endif
 
 				if !appState.userSettings.tapFileToPreview {
-					Button("Show preview", systemImage: "doc.text.magnifyingglass") { self.previewFile() }.disabled(!canPreview)
+					Button("Show preview", systemImage: "doc.text.magnifyingglass") { self.previewFile() }
+						.disabled(!entry.canAttemptPreview)
 				}
 
 				// Show file in Finder
@@ -380,9 +375,6 @@ struct EntryContextMenuWrapper<Content: View>: View {
 							.environment(appState)  // Necessary because for some reason environment is not inherited
 					}
 				}
-			}
-			.task {
-				self.canPreview = entry.canPreview
 			}
 	}
 
