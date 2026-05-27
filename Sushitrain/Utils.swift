@@ -415,6 +415,14 @@ extension SushitrainEntry {
 		return false
 	}
 
+	var canAttemptPreview: Bool {
+		if self.isDirectory() || self.isSymlink() || self.isDeleted() {
+			return false
+		}
+
+		return self.isLocallyPresent() || self.isStreamable
+	}
+
 	// Shared functionality for swipe and toggle selection views
 	var isSelectionToggleAvailable: Bool {
 		if let folder = self.folder {
