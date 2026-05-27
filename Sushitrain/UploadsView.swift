@@ -8,25 +8,60 @@ import SwiftUI
 
 struct UploadsView: View {
 	@Environment(AppState.self) private var appState
-	@State private var isLoading = false
-	@State private var uploadingToPeers: [SushitrainPeer] = []
+	@State private var uploads: [UploadingPeer] = []
 
-	private func update() async {
-		self.isLoading = true
-		if let utp = appState.client.uploadingToPeers() {
-			self.uploadingToPeers = utp.asArray().compactMap { peerID in appState.client.peer(withID: peerID) }.sorted {
-				$0.displayName < $1.displayName
+	private struct UploadingPeer: Identifiable {
+		let peer: SushitrainPeer
+		let folders: [UploadingFolder]
+
+		var id: SushitrainPeer.ID { peer.id }
+	}
+
+	private struct UploadingFolder: Identifiable {
+		let folder: SushitrainFolder
+		let files: [UploadingFile]
+
+		var id: SushitrainFolder.ID { folder.id }
+	}
+
+	private struct UploadingFile: Identifiable {
+		let path: String
+		let progress: SushitrainProgress?
+
+		var id: String { path }
+	}
+
+	private func update() {
+		let peers = (appState.client.uploadingToPeers()?.asArray() ?? []).compactMap {
+			appState.client.peer(withID: $0)
+		}.sorted()
+
+		self.uploads = peers.compactMap { peer in
+			let folders = (appState.client.uploadingFolders(forPeer: peer.deviceID())?.asArray() ?? []).compactMap {
+				appState.client.folder(withID: $0)
+			}.sorted()
+
+			let uploadingFolders = folders.compactMap { folder in
+				let files =
+					(appState.client.uploadingFiles(forPeerAndFolder: peer.deviceID(), folderID: folder.folderID)?.asArray() ?? [])
+					.sorted()
+					.map { filePath in
+						UploadingFile(
+							path: filePath,
+							progress: appState.client.uploadProgress(
+								forPeerFolderPath: peer.deviceID(), folderID: folder.folderID, path: filePath)
+						)
+					}
+				return files.isEmpty ? nil : UploadingFolder(folder: folder, files: files)
 			}
+
+			return uploadingFolders.isEmpty ? nil : UploadingPeer(peer: peer, folders: uploadingFolders)
 		}
-		else {
-			self.uploadingToPeers = []
-		}
-		self.isLoading = false
 	}
 
 	var body: some View {
 		List {
-			if uploadingToPeers.isEmpty {
+			if uploads.isEmpty {
 				ContentUnavailableView(
 					"Not uploading", systemImage: "pause.circle",
 					description: Text("Currently no files are being sent to other devices.")
@@ -34,29 +69,19 @@ struct UploadsView: View {
 			}
 			else {
 				// Grouped by peers we are uploading to
-				ForEach(uploadingToPeers, id: \.id) { peer in
-					Section(peer.displayName) {
-						if let uploadingFolders = appState.client.uploadingFolders(forPeer: peer.deviceID()) {
-							// For each folder we are uploading files from to this peer
-							ForEach(uploadingFolders.asArray().sorted(), id: \.self) { folderID in
-								if let folder = appState.client.folder(withID: folderID) {
-									if let uploadingFiles = appState.client.uploadingFiles(forPeerAndFolder: peer.deviceID(), folderID: folderID) {
-										// For each file that is being uploaded...
-										ForEach(uploadingFiles.asArray().sorted(), id: \.self) { filePath in
-											if let progress = appState.client.uploadProgress(
-												forPeerFolderPath: peer.deviceID(), folderID: folderID, path: filePath)
-											{
-												ProgressView(value: progress.percentage, total: 1.0) {
-													Label("\(folder.displayName): \(filePath)", systemImage: "arrow.up").foregroundStyle(.green)
-														.symbolEffect(.pulse, value: progress.percentage).frame(maxWidth: .infinity, alignment: .leading)
-														.multilineTextAlignment(.leading)
-												}.tint(.green)
-											}
-											else {
-												Text("\(folder.displayName): \(filePath)")
-											}
-										}
-									}
+				ForEach(uploads) { peer in
+					Section(peer.peer.displayName) {
+						ForEach(peer.folders) { folder in
+							ForEach(folder.files) { file in
+								if let progress = file.progress {
+									ProgressView(value: progress.percentage, total: 1.0) {
+										Label("\(folder.folder.displayName): \(file.path)", systemImage: "arrow.up").foregroundStyle(.green)
+											.symbolEffect(.pulse, value: progress.percentage).frame(maxWidth: .infinity, alignment: .leading)
+											.multilineTextAlignment(.leading)
+									}.tint(.green)
+								}
+								else {
+									Text("\(folder.folder.displayName): \(file.path)")
 								}
 							}
 						}
@@ -66,12 +91,10 @@ struct UploadsView: View {
 		}
 		.navigationTitle("Sending files")
 		.task {
-			await self.update()
+			self.update()
 		}
 		.onChange(of: appState.eventCounter) {
-			Task {
-				await self.update()
-			}
+			self.update()
 		}
 	}
 }

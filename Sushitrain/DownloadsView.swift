@@ -8,7 +8,21 @@ import SwiftUI
 
 struct DownloadsView: View {
 	@Environment(AppState.self) private var appState
-	@State private var downloading: [SushitrainFolder: [String: SushitrainProgress]] = [:]
+	@State private var downloading: [DownloadingFolder] = []
+
+	private struct DownloadingFolder: Identifiable {
+		let folder: SushitrainFolder
+		let files: [DownloadingFile]
+
+		var id: SushitrainFolder.ID { folder.id }
+	}
+
+	private struct DownloadingFile: Identifiable {
+		let path: String
+		let progress: SushitrainProgress
+
+		var id: String { path }
+	}
 
 	var body: some View {
 		List {
@@ -19,15 +33,13 @@ struct DownloadsView: View {
 				).frame(maxWidth: .infinity, alignment: .center)
 			}
 			else {
-				// Grouped by peers we are uploading to
-				ForEach(Array(downloading.keys.sorted()), id: \.self) { folder in
-					let paths = downloading[folder]!
-					Section(folder.displayName) {
-						ForEach(Array(paths.keys.sorted()), id: \.self) { path in
-							let progress = paths[path]!
-							ProgressView(value: progress.percentage, total: 1.0) {
-								Label("\(path)", systemImage: "arrow.down").foregroundStyle(.green)
-									.symbolEffect(.pulse, value: progress.percentage).frame(maxWidth: .infinity, alignment: .leading)
+				// Grouped by folder.
+				ForEach(downloading) { folder in
+					Section(folder.folder.displayName) {
+						ForEach(folder.files) { file in
+							ProgressView(value: file.progress.percentage, total: 1.0) {
+								Label("\(file.path)", systemImage: "arrow.down").foregroundStyle(.green)
+									.symbolEffect(.pulse, value: file.progress.percentage).frame(maxWidth: .infinity, alignment: .leading)
 									.multilineTextAlignment(.leading)
 							}.tint(.green)
 						}
@@ -45,21 +57,19 @@ struct DownloadsView: View {
 	}
 
 	private func update() {
-		var filesByFolder: [SushitrainFolder: [String: SushitrainProgress]] = [:]
-		let folders = appState.client.downloadingFolders()?.asArray() ?? []
+		let folders = (appState.client.downloadingFolders()?.asArray() ?? []).compactMap {
+			appState.client.folder(withID: $0)
+		}.sorted()
 
-		for folderID in folders {
-			let folder = appState.client.folder(withID: folderID)!
-			let paths = appState.client.downloadingPaths(forFolder: folderID)?.asArray() ?? []
-			var progress: [String: SushitrainProgress] = [:]
-
-			for path in paths {
-				if let p = appState.client.getDownloadProgress(forFile: path, folder: folderID) {
-					progress[path] = p
+		self.downloading = folders.compactMap { folder in
+			let paths = (appState.client.downloadingPaths(forFolder: folder.folderID)?.asArray() ?? []).sorted()
+			let files: [DownloadingFile] = paths.compactMap { path in
+				guard let progress = appState.client.getDownloadProgress(forFile: path, folder: folder.folderID) else {
+					return nil
 				}
+				return DownloadingFile(path: path, progress: progress)
 			}
-			filesByFolder[folder] = progress
+			return files.isEmpty ? nil : DownloadingFolder(folder: folder, files: files)
 		}
-		self.downloading = filesByFolder
 	}
 }
