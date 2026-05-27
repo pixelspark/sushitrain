@@ -163,13 +163,9 @@ struct ThumbnailImage<Content>: View where Content: View {
 
 	var body: some View {
 		self.content(phase)
-			.task {
+			.task(id: self.entry.cacheKey) {
+				self.phase = .empty
 				self.phase = await fetchOrCached()
-			}
-			.onChange(of: self.entry) { (ov, nv) in
-				Task {
-					self.phase = await fetchOrCached()
-				}
 			}
 	}
 
