@@ -1025,11 +1025,6 @@ private struct BrowserItemsView: View {
 				await self.reload()
 			}
 		}
-		.onChange(of: self.folder.folderStateForUpdating) {
-			Task {
-				await self.reload()
-			}
-		}
 		.onChange(of: self.filterAvailability) {
 			Task {
 				await self.reload()
