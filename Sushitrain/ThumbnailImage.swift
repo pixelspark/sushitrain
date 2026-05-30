@@ -388,7 +388,7 @@ enum PersistentCacheType {
 				return
 			}
 			self.setMemoryCacheOnly(image: image, cacheKey: cacheKey)
-			Task {
+			Task.detached(priority: .background) {
 				await self.writeToDiskCache(image: image, cacheKey: cacheKey)
 			}
 		}
@@ -571,9 +571,14 @@ enum PersistentCacheType {
 							height: maxThumbnailDimensionsInPixels))
 				}.value
 
-				// If caching is forced, save successful result to disk cache
+				// For local files: save successful result to disk cache only if forceCache is set
+				// Normally, asking QuickLook for local files is fast and we don't need to waste space
+				// but if we are writing to a custom folder (that is shared as thumbnail cache with other
+				// devices) then we should write.
 				if case .success(let image) = result, forceCache {
-					await self.writeToDiskCache(image: image, cacheKey: cacheKey)
+					Task.detached(priority: .background) {
+						await self.writeToDiskCache(image: image, cacheKey: cacheKey)
+					}
 				}
 
 				return result
@@ -617,6 +622,11 @@ enum PersistentCacheType {
 		// Save remote thumbnail to in-memory cache
 		if case .success(let image) = ph {
 			await self.setMemoryCacheOnly(image: image, cacheKey: cacheKey)
+
+			// Always write to disk cache: remote thumbnails are expensive to generate
+			Task.detached(priority: .background) {
+				await self.writeToDiskCache(image: image, cacheKey: cacheKey)
+			}
 		}
 		return ph
 	}
