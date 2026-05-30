@@ -147,7 +147,8 @@ struct EntryInfoView: View {
 			#elseif os(macOS)
 				.sheet(isPresented: $showFullScreenViewer) {
 					FileViewerView(file: entry, siblings: siblings, inSheet: true, isShown: $showFullScreenViewer)
-					.presentationSizing(.fitted).frame(minWidth: 640, minHeight: 480)
+					.presentationSizing(.fitted)
+					.frame(minWidth: 640, idealWidth: 960, minHeight: 480, idealHeight: 580)
 				}
 			#endif
 
