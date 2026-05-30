@@ -842,6 +842,7 @@ private struct FolderThumbnailSettingsView: View {
 	@State private var showClearThumbnailsConfirm = false
 	@State private var diskCacheSizeBytes: UInt? = nil
 	@State private var deletingFromSharedCache = false
+	@State private var deletedFromSharedCache = false
 	@State private var settings = ThumbnailGeneration.disabled
 
 	private var insidePathBinding: Binding<String> {
@@ -1000,6 +1001,7 @@ private struct FolderThumbnailSettingsView: View {
 			if appState.userSettings.cacheThumbnailsToDisk {
 				Section {
 					Button("Remove thumbnails from app-wide cache", systemImage: "eraser.line.dashed.fill") {
+						deletedFromSharedCache = false
 						deletingFromSharedCache = true
 						Task.detached {
 							do {
@@ -1014,9 +1016,15 @@ private struct FolderThumbnailSettingsView: View {
 									self.diskCacheSizeBytes = nil
 									await self.updateSize()
 									deletingFromSharedCache = false
+									deletedFromSharedCache = true
 								}
 							}
 						}
+					}
+					.alert(isPresented: $deletedFromSharedCache) {
+						Alert(
+							title: Text("Thumbnails deleted"), message: Text("Thumbnails have been deleted from the app-wide cache"),
+							dismissButton: .default(Text("OK")))
 					}
 					.disabled(deletingFromSharedCache)
 					.foregroundStyle(.red)
