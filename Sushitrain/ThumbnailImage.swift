@@ -52,7 +52,7 @@ private func fetchVideoThumbnail(url: URL, maxDimensionsInPixels: Int) async -> 
 			let avAssetImageGenerator = AVAssetImageGenerator(asset: asset)
 			avAssetImageGenerator.appliesPreferredTrackTransform = true
 			avAssetImageGenerator.requestedTimeToleranceAfter = CMTime(seconds: 30, preferredTimescale: 600)
-			avAssetImageGenerator.requestedTimeToleranceBefore = CMTime(seconds: 5, preferredTimescale: 600)
+			avAssetImageGenerator.requestedTimeToleranceBefore = CMTime(seconds: 15, preferredTimescale: 600)
 			let thumbnailTime = CMTimeMake(value: 15, timescale: 1)
 			do {
 				let (cgThumbImage, _) = try await avAssetImageGenerator.image(at: thumbnailTime)
