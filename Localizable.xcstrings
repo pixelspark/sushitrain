@@ -22326,6 +22326,52 @@
         }
       }
     },
+    "Low priority traffic" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niedrige Priorität Verkehr"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tráfico de baja prioridad"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Traffico a bassa priorità"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低優先度トラフィック"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lage prioriteit verkeer"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Низький пріоритет трафіку"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低优先级流量"
+          }
+        }
+      }
+    },
     "Manage files and folders" : {
       "localizations" : {
         "de" : {
@@ -43858,6 +43904,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "当文件夹结构更改时，已保存的照片将重新保存在新位置。"
+          }
+        }
+      }
+    },
+    "When this is enabled, other network traffic may be prioritized over this app's traffic by supported networks. This may help on congested networks." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn diese Option aktiviert ist, kann anderer Netzwerkverkehr von unterstützten Netzwerken gegenüber dem Verkehr dieser App priorisiert werden. Dies kann bei überlasteten Netzwerken hilfreich sein."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando esta opción está habilitada, las redes compatibles pueden priorizar otro tráfico de red sobre el tráfico de esta aplicación. Esto puede ayudar en redes congestionadas."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando questa opzione è abilitata, il traffico di rete potrebbe essere prioritizzato rispetto al traffico di questa app dalle reti supportate. Questo potrebbe essere utile su reti congestionate."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これを有効にすると、対応ネットワークによっては、他のネットワークトラフィックがこのアプリのトラフィックよりも優先される場合があります。これにより、ネットワークの混雑時に役立つ可能性があります。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer dit is ingeschakeld, kan ander netwerkverkeer voorrang krijgen boven het verkeer van deze app door ondersteunde netwerken. Dit kan helpen op drukke netwerken."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли це увімкнено, інший мережевий трафік може мати пріоритет над трафіком цього додатка підтримуваними мережами. Це може допомогти в умовах перевантажених мереж."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "启用此功能后，受支持的网络可能会优先处理其他网络流量，而不是此应用的流量。这可能有助于在网络拥堵时使用。"
           }
         }
       }

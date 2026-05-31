@@ -1721,6 +1721,24 @@ func (c *Client) getRedactedConfigFile() config.Configuration {
 	return rawConf
 }
 
+func (clt *Client) IsNetworkTrafficLowPriority() bool {
+	return clt.config.Options().TrafficClass == 4
+}
+
+func (clt *Client) SetNetworkTrafficLowPriority(lowPrio bool) error {
+	return clt.changeConfiguration(func(cfg *config.Configuration) {
+		if lowPrio {
+			// This sets Syncthing traffic as DSCP 'lower effort'. The DSCP value for lower effort traffic is 1, but
+			// the trafficClass setting is the full ToS / Traffic Class byte in IP, so we need to shift the desired
+			// DSCP value to the left by 2 bits to account for the two least significant ECN (Explicit Congestion
+			// Notification) bits: 1<<2 = 4.
+			cfg.Options.TrafficClass = 4
+		} else {
+			cfg.Options.TrafficClass = 0
+		}
+	})
+}
+
 /** Returns the free disk space on the volume where the database is stored */
 func GetFreeDiskSpaceMegaBytes() int {
 	dbPath := locations.Get(locations.Database)

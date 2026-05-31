@@ -731,14 +731,17 @@ private struct BandwidthSettingsView: View {
 
 	@State private var downLimitMbitsPerSec: Int = 0
 	@State private var upLimitMbitsPerSec: Int = 0
+	@State private var isNetworkTrafficLowPriority = false
 
 	private func update() {
 		self.downLimitMbitsPerSec = appState.client.getBandwidthLimitDownMbitsPerSec()
 		self.upLimitMbitsPerSec = appState.client.getBandwidthLimitUpMbitsPerSec()
+		self.isNetworkTrafficLowPriority = appState.client.isNetworkTrafficLowPriority()
 	}
 
 	private func save() {
 		try! appState.client.setBandwidthLimitsMbitsPerSec(downLimitMbitsPerSec, up: upLimitMbitsPerSec)
+		try! appState.client.setNetworkTrafficLowPriority(self.isNetworkTrafficLowPriority)
 	}
 
 	var body: some View {
@@ -864,6 +867,17 @@ private struct BandwidthSettingsView: View {
 			} footer: {
 				Text(
 					"When the app detects that the system's internet connection is of the selected types, it will temporarily disable network connections to other devices. This will cause synchronization to be paused, and on-demand access to be disabled."
+				)
+			}
+
+			Section {
+				Toggle("Low priority traffic", isOn: $isNetworkTrafficLowPriority).onChange(of: self.isNetworkTrafficLowPriority) {
+					_, _ in
+					self.save()
+				}
+			} footer: {
+				Text(
+					"When this is enabled, other network traffic may be prioritized over this app's traffic by supported networks. This may help on congested networks."
 				)
 			}
 		}
