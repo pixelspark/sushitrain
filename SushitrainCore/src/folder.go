@@ -384,6 +384,20 @@ func (fld *Folder) ConnectedPeerCount() int {
 	return connected
 }
 
+func (fld *Folder) Group() string {
+	fc := fld.folderConfiguration()
+	if fc == nil {
+		return ""
+	}
+	return fc.Group
+}
+
+func (fld *Folder) SetGroup(group string) error {
+	return fld.changeFolderConfiguration(func(config *config.FolderConfiguration) {
+		config.Group = group
+	})
+}
+
 func (fld *Folder) Label() string {
 	fc := fld.folderConfiguration()
 	if fc == nil {

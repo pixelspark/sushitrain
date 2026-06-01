@@ -107,20 +107,15 @@ private struct FolderMetricView: View {
 	}
 }
 
-struct FoldersSections: View {
-	@Environment(AppState.self) private var appState
+private struct FoldersSection: View {
+	let groupName: String
+	let folders: [SushitrainFolder]
 	@ObservedObject var userSettings: AppUserSettings
 
-	@State private var showingAddFolderPopup = false
-	@State private var pendingFolderIds: [String] = []
-	@State private var addFolderID = ""
-	@State private var addFolderIDReadOnly = false
-	@State private var addFolderShareDefault = false
-	@State private var folders: [SushitrainFolder] = []
-	@State private var showFolderProperties: SushitrainFolder? = nil
+	@State private var isExpanded: Bool = true
 
 	var body: some View {
-		Section {
+		Section(isExpanded: $isExpanded) {
 			ForEach(folders, id: \.self.folderID) { (folder: SushitrainFolder) in
 				if !userSettings.hideHiddenFolders || folder.isHidden == false {
 					NavigationLink(value: Route.folder(folderID: folder.folderID, prefix: nil)) {
@@ -154,13 +149,55 @@ struct FoldersSections: View {
 				}
 			}
 		} header: {
-			#if os(macOS)
-				Text("Folders")
-			#endif
+			Text(groupName)
+		}
+	}
+}
+
+struct FoldersSections: View {
+	@Environment(AppState.self) private var appState
+	@ObservedObject var userSettings: AppUserSettings
+
+	@State private var showingAddFolderPopup = false
+	@State private var pendingFolderIds: [String] = []
+	@State private var addFolderID = ""
+	@State private var addFolderIDReadOnly = false
+	@State private var addFolderShareDefault = false
+	@State private var foldersByGroup: [String: [SushitrainFolder]] = [:]
+	@State private var showFolderProperties: SushitrainFolder? = nil
+
+	@SceneStorage("discoveredFoldersExpanded") private var discoveredFoldersExpanded = false
+
+	private struct FolderGroup: Identifiable {
+		var id: String
+	}
+
+	private var folderGroups: [FolderGroup] {
+		return foldersByGroup.keys.sorted().map { FolderGroup(id: $0) }
+	}
+
+	var body: some View {
+		ForEach(self.folderGroups) { folderGroup in
+			FoldersSection(
+				groupName: folderGroup.id, folders: self.foldersByGroup[folderGroup.id]!, userSettings: self.userSettings)
 		}
 
+		self.pendingFoldersView()
+
+		self.addFolderView()
+			.task {
+				await self.update()
+			}
+			.onChange(of: appState.eventCounter) {
+				Task {
+					await self.update()
+				}
+			}
+	}
+
+	@ViewBuilder private func pendingFoldersView() -> some View {
 		if !pendingFolderIds.isEmpty {
-			Section("Discovered folders") {
+			Section("Discovered folders", isExpanded: $discoveredFoldersExpanded) {
 				ForEach(pendingFolderIds, id: \.self) { folderID in
 					Button(
 						folderID, systemImage: "plus",
@@ -177,7 +214,9 @@ struct FoldersSections: View {
 				}
 			}
 		}
+	}
 
+	@ViewBuilder private func addFolderView() -> some View {
 		Section {
 			Button(
 				"Add folder...", systemImage: "plus",
@@ -202,20 +241,17 @@ struct FoldersSections: View {
 				)
 			}
 		)
-		.task {
-			await self.update()
-		}
-		.onChange(of: appState.eventCounter) {
-			Task {
-				await self.update()
-			}
-		}
 	}
 
 	private func update() async {
-		folders = await appState.folders().sorted(by: {
+		let folders = await appState.folders().sorted(by: {
 			$0.displayName.compare($1.displayName, options: .numeric) == .orderedAscending
 		})
+		self.foldersByGroup = Dictionary(grouping: folders, by: { $0.group() })
+
+		if let emptyGroup = self.foldersByGroup[""] {
+			self.foldersByGroup[String(localized: "Folders")] = self.foldersByGroup.removeValue(forKey: "")
+		}
 
 		let addedFolders = Set(folders.map({ f in f.folderID }))
 		self.pendingFolderIds = ((try? self.appState.client.pendingFolderIDs())?.asArray() ?? []).filter({

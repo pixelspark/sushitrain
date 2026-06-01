@@ -1232,6 +1232,19 @@ private struct AdvancedFolderSettingsView: View {
 		let isExternal = folder.isExternal
 
 		Form {
+			Section {
+				LabeledContent {
+					TextField(
+						"",
+						text: Binding(get: { folder.group() }, set: { lbl in try? folder.setGroup(lbl) }),
+						prompt: Text("(Default group)")
+					)
+					.multilineTextAlignment(.trailing)
+				} label: {
+					Text("Folder group")
+				}
+			}
+
 			// Ignore patterns editor (on macOS, this is accessible directly from the folder menu)
 			#if os(iOS)
 				if !folder.isSelective() && !folder.isPhotoFolder && !folder.isReceiveEncryptedFolder {
