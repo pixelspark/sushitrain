@@ -322,7 +322,7 @@ struct EntryInfoView: View {
 				}
 			)
 			.padding(.all, 0)
-			.frame(minHeight: 48, maxHeight: 200)
+			.frame(height: 200)
 			// Fixes issue where image is still tappable outside its rectangle
 			.contentShape(Rectangle().inset(by: 0))
 			.cornerRadius(8.0)
