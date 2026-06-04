@@ -58,7 +58,7 @@ struct ThumbnailView: View {
 	}
 
 	var body: some View {
-		Group {
+		ZStack {
 			if file.canThumbnail {
 				let isLocallyPresent = file.isLocallyPresent()
 				if isLocallyPresent || showPreview || hasCachedThumbnail || self.imageCache.memoryImage(for: file.cacheKey) != nil
@@ -95,6 +95,8 @@ struct ThumbnailView: View {
 				self.iconAndTextBody
 			}
 		}
+		// Ensure this task is attached to a ZStack instead of a Group, otherwise it keeps getting reattached to whatever
+		// is inside the group, and runs way too often.
 		.task(id: thumbnailCacheTaskID) {
 			if let cacheKey = thumbnailCacheTaskID {
 				self.hasCachedThumbnail = await self.imageCache.hasCachedThumbnail(for: cacheKey)
