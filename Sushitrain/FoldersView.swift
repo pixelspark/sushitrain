@@ -249,7 +249,7 @@ struct FoldersSections: View {
 		})
 		self.foldersByGroup = Dictionary(grouping: folders, by: { $0.group() })
 
-		if let emptyGroup = self.foldersByGroup[""] {
+		if self.foldersByGroup[""] != nil {
 			self.foldersByGroup[String(localized: "Folders")] = self.foldersByGroup.removeValue(forKey: "")
 		}
 
