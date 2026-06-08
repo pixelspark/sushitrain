@@ -356,6 +356,11 @@ extension SushitrainEntry {
 			return false
 		}
 
+		// Empty files never have a thumbnail (there is nothing to show)
+		if self.size() == 0 {
+			return false
+		}
+
 		return !Self.excludedThumbnailMIMETypes.contains(self.mimeType())
 	}
 

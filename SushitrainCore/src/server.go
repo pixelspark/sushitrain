@@ -337,6 +337,11 @@ func serveEntry(w http.ResponseWriter, r *http.Request, folderID string, entry *
 	w.Header().Add("Pragma", "no-cache")
 	w.Header().Add("Expires", "0")
 
+	if entry.Size() == 0 {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
 	mp := newMiniPuller(measurements, m)
 	readSeeker := newEntryReadSeeker(info, mp, entry, r.Context(), callback)
 	http.ServeContent(w, r, entry.info.Name, entry.info.ModTime(), readSeeker)
