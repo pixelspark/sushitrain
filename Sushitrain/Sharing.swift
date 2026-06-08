@@ -10,7 +10,7 @@ import UniformTypeIdentifiers
 extension SushitrainEntry: @retroactive Transferable {
 	static public var transferRepresentation: some TransferRepresentation {
 		FileRepresentation(exportedContentType: .data, exporting: Self.sentTransferredFile).exportingCondition {
-			!$0.isSymlink() && !$0.isDirectory() && !$0.isDeleted()
+			!$0.isSymlink() && !$0.isDirectory() && !$0.isDeleted() && $0.size() != 0
 		}
 	}
 
@@ -81,7 +81,7 @@ struct FileShareLink: View {
 
 	var body: some View {
 		self.shareLink
-			.disabled(file.isSymlink() || file.isDeleted())
+			.disabled(file.isSymlink() || file.isDeleted() || file.size() == 0)
 			.task {
 				self.image = await ImageCache.shared.getThumbnail(file: file, forceCache: false)
 			}

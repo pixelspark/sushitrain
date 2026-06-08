@@ -72,7 +72,7 @@ struct EntryInfoView: View {
 					}
 				}
 
-				if !entry.isDirectory() && !entry.isSymlink() {
+				if !entry.isDirectory() && !entry.isSymlink() && entry.size() != 0 {
 					self.viewButtons()
 
 					// Zip
