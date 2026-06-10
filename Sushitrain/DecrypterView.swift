@@ -320,24 +320,26 @@ import SwiftUI
 											Label(
 												date.formatted(date: .abbreviated, time: .complete),
 												systemImage: "clock.arrow.trianglehead.2.counterclockwise.rotate.90"
-											).tag(entry.url)
+											).tag(entry.url.absoluteString)
 										}
 										else {
-											Label(version, systemImage: "clock.arrow.trianglehead.2.counterclockwise.rotate.90").tag(entry.url)
+											Label(version, systemImage: "clock.arrow.trianglehead.2.counterclockwise.rotate.90").tag(
+												entry.url.absoluteString)
 										}
 									}
 									else {
-										Label("Current version", systemImage: "clock.fill").tag(entry.url)
+										Label("Current version", systemImage: "clock.fill").tag(entry.url.absoluteString)
 									}
 								}
 							} label: {
 								let currentEntry = entries.first(where: { $0.version == nil })
-								Label(decryptedPath.lastPathComponent, systemImage: "doc").tag(currentEntry?.url).disabled(currentEntry == nil)
+								Label(decryptedPath.lastPathComponent, systemImage: "doc").tag(currentEntry?.url.absoluteString).disabled(
+									currentEntry == nil)
 							}
 						}
 						else {
 							let entry = entries[0]
-							Label(decryptedPath.lastPathComponent, systemImage: "doc").tag(entry.url)
+							Label(decryptedPath.lastPathComponent, systemImage: "doc").tag(entry.url.absoluteString)
 						}
 					}
 				}
