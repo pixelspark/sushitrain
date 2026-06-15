@@ -9,6 +9,7 @@ import SushitrainCore
 import VisionKit
 import WebKit
 import CoreTransferable
+import UniformTypeIdentifiers
 import SwiftUI
 import Combine
 
@@ -54,6 +55,10 @@ struct WebView: UIViewRepresentable {
 	// With thanks to https://www.swiftyplace.com/blog/loading-a-web-view-in-swiftui-with-wkwebview
 	class WebViewCoordinator: NSObject, WKNavigationDelegate, WKDownloadDelegate, WKUIDelegate {
 		var parent: WebView
+
+		#if os(iOS)
+			private var openPanelContinuation: CheckedContinuation<[URL]?, Never>?
+		#endif
 
 		init(_ parent: WebView) {
 			self.parent = parent
@@ -224,6 +229,23 @@ struct WebView: UIViewRepresentable {
 				}
 
 				return viewController
+			}
+
+			@available(iOS 18.4, *)
+			func webView(
+				_ webView: WKWebView, runOpenPanelWith parameters: WKOpenPanelParameters, initiatedByFrame frame: WKFrameInfo
+			) async -> [URL]? {
+				guard let presenter = Self.presenter(for: webView), openPanelContinuation == nil else {
+					return nil
+				}
+
+				return await withCheckedContinuation { continuation in
+					let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.item], asCopy: true)
+					picker.delegate = self
+					picker.allowsMultipleSelection = parameters.allowsMultipleSelection
+					openPanelContinuation = continuation
+					presenter.present(picker, animated: true)
+				}
 			}
 		#endif
 
@@ -436,6 +458,18 @@ struct WebView: UIViewRepresentable {
 			let nsError = error as NSError
 			return nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorCancelled
 		}
+
+		#if os(iOS)
+			func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+				openPanelContinuation?.resume(returning: nil)
+				openPanelContinuation = nil
+			}
+
+			func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+				openPanelContinuation?.resume(returning: urls)
+				openPanelContinuation = nil
+			}
+		#endif
 	}
 
 	func makeCoordinator() -> WebViewCoordinator {
@@ -497,3 +531,7 @@ struct WebView: UIViewRepresentable {
 		}
 	#endif
 }
+
+#if os(iOS)
+	extension WebView.WebViewCoordinator: UIDocumentPickerDelegate {}
+#endif
