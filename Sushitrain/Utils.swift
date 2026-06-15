@@ -725,7 +725,18 @@ func openURLInSystemFilesApp(url: URL) {
 	#endif
 
 	#if os(macOS)
-		NSWorkspace.shared.activateFileViewerSelecting([url])
+		let fm = FileManager.default
+		let path = url.path(percentEncoded: false)
+		var isDirectory: ObjCBool = false
+
+		// If the path points at a directory, open a Finder window inside that directory (not selecting the directory)
+		if fm.fileExists(atPath: path, isDirectory: &isDirectory) && isDirectory.boolValue {
+			NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: url.path(percentEncoded: false))
+		}
+		else {
+			// The path likely points to a file, tell Finder to open a window selecting that file
+			NSWorkspace.shared.activateFileViewerSelecting([url])
+		}
 	#endif
 }
 
