@@ -255,14 +255,28 @@ private struct PhotoFolderAlbumSettingsView: View {
 			}
 
 			Section {
-				Toggle("Photos", isOn: .constant(true)).disabled(true)
-				Toggle("Live photos", isOn: .constant(false)).disabled(true)
-				Toggle("Videos", isOn: .constant(false)).disabled(true)
+				Toggle("Photos", isOn: self.categoryBinding(.photo))
+				Toggle("Live photos", isOn: self.categoryBinding(.livePhoto))
+				Toggle("Videos", isOn: self.categoryBinding(.video))
 			} header: {
 				Text("Save the following media types")
+			}
+
+			if self.config.effectiveCategories.contains(.livePhoto) {
+				Section {
+					Picker("Live photo file extension", selection: self.livePhotoReplaceExtensionBinding) {
+						Text(".HEIC.MOV").tag(false)
+						Text(".MOV").tag(true)
+					}
+					.pickerStyle(.menu)
+				}
+			}
+
+			Section {
+				Toggle("Download from iCloud if needed", isOn: self.allowNetworkAccessBinding)
 			} footer: {
 				Text(
-					"Photo folders can only synchronize photos in the current version of the app. To save videos and/or live photos, use the photo back-up function, available in the settings screen."
+					"When enabled, photos and videos that are only stored in iCloud are downloaded when synchronized. This may use mobile data and can be slow. When disabled, iCloud-only items are skipped."
 				)
 			}
 		}
@@ -273,6 +287,33 @@ private struct PhotoFolderAlbumSettingsView: View {
 			authorizationStatus = PHPhotoLibrary.authorizationStatus()
 		}
 		.navigationTitle(dirName.isEmpty ? "Add album" : "Settings for '\(dirName)'")
+	}
+
+	private var livePhotoReplaceExtensionBinding: Binding<Bool> {
+		Binding(
+			get: { self.config.livePhotoReplaceExtension ?? false },
+			set: { self.config.livePhotoReplaceExtension = $0 })
+	}
+
+	private var allowNetworkAccessBinding: Binding<Bool> {
+		Binding(
+			get: { self.config.effectiveAllowNetworkAccess },
+			set: { self.config.allowNetworkAccess = $0 })
+	}
+
+	private func categoryBinding(_ category: PhotoBackupCategory) -> Binding<Bool> {
+		Binding(
+			get: { self.config.effectiveCategories.contains(category) },
+			set: { isOn in
+				var categories = self.config.effectiveCategories
+				if isOn {
+					categories.insert(category)
+				}
+				else {
+					categories.remove(category)
+				}
+				self.config.categories = categories
+			})
 	}
 
 	private func requestAuthorization() {

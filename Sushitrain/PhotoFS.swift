@@ -69,6 +69,18 @@ private class CustomFSEntry: NSObject, SushitrainCustomFileEntryProtocol {
 	func bytes(_ ret: UnsafeMutablePointer<Int>?) throws {
 		throw CustomFSError.notAFile
 	}
+
+	// By default entries are fully loaded into memory once (through data()). Large entries
+	// (e.g. videos) override streams() to return true and implement read(at:length:) so they
+	// can be read lazily in ranges without loading the whole file into memory.
+	func streams() -> Bool {
+		return false
+	}
+
+	func read(at offset: Int64, length: Int) throws -> Data {
+		// Only invoked for streaming entries; non-streaming entries are served from data().
+		throw CustomFSError.notAFile
+	}
 }
 
 private protocol CustomFSDirectory {
@@ -151,10 +163,12 @@ private class StaticCustomFSEntry: CustomFSEntry {
 
 private class PhotoFSAssetEntry: CustomFSEntry {
 	let asset: PHAsset
+	private let allowNetworkAccess: Bool
 	private var cachedSize: Int? = nil
 
-	init(_ name: String, asset: PHAsset) {
+	init(_ name: String, asset: PHAsset, allowNetworkAccess: Bool) {
 		self.asset = asset
+		self.allowNetworkAccess = allowNetworkAccess
 		super.init(name)
 	}
 
@@ -181,7 +195,7 @@ private class PhotoFSAssetEntry: CustomFSEntry {
 		options.isSynchronous = true
 		options.resizeMode = .none
 		options.deliveryMode = .highQualityFormat
-		options.isNetworkAccessAllowed = false
+		options.isNetworkAccessAllowed = self.allowNetworkAccess
 		options.allowSecondaryDegradedImage = false
 		options.version = .current
 
@@ -207,6 +221,243 @@ private class PhotoFSAssetEntry: CustomFSEntry {
 			return exported
 		}
 		throw PhotoFSError.assetUnavailable
+	}
+}
+
+// Base for file system entries whose contents are exported once to a cached file on disk and then
+// read lazily in ranges through read(at:length:). Unlike images (small enough to be loaded into
+// memory through data()), this avoids ever holding a whole video in memory, which would get the app
+// killed by iOS, especially in the background. Subclasses provide which asset resource to export.
+private class PhotoFSExportedMediaEntry: CustomFSEntry {
+	fileprivate let asset: PHAsset
+	private let allowNetworkAccess: Bool
+	private let exportLock = NSLock()
+	private var exportedURL: URL? = nil
+	private var cachedSize: Int? = nil
+
+	init(_ name: String, asset: PHAsset, allowNetworkAccess: Bool) {
+		self.asset = asset
+		self.allowNetworkAccess = allowNetworkAccess
+		super.init(name)
+	}
+
+	override func isDir() -> Bool {
+		return false
+	}
+
+	// Read lazily in ranges instead of being preloaded into memory.
+	override func streams() -> Bool {
+		return true
+	}
+
+	override func modifiedTime() -> Int64 {
+		return Int64(asset.creationDate?.timeIntervalSince1970 ?? 0.0)
+	}
+
+	// The asset resource to export to disk. Overridden by subclasses (e.g. the original video, or the
+	// paired video of a live photo). Returning nil makes the entry unavailable.
+	fileprivate func resourceToExport() -> PHAssetResource? {
+		return nil
+	}
+
+	// Discriminator added to the cache file name so different exports of the same asset (e.g. a video
+	// versus a live photo's paired video) never collide.
+	fileprivate var cacheDiscriminator: String {
+		return ""
+	}
+
+	override func bytes(_ ret: UnsafeMutablePointer<Int>?) throws {
+		let url = try self.ensureExported()
+		self.exportLock.lock()
+		defer { self.exportLock.unlock() }
+		if let s = self.cachedSize {
+			ret?.pointee = s
+			return
+		}
+		let attrs = try FileManager.default.attributesOfItem(atPath: url.path(percentEncoded: false))
+		let size = (attrs[.size] as? Int) ?? 0
+		self.cachedSize = size
+		ret?.pointee = size
+	}
+
+	override func read(at offset: Int64, length: Int) throws -> Data {
+		let url = try self.ensureExported()
+		let handle = try FileHandle(forReadingFrom: url)
+		defer { try? handle.close() }
+		try handle.seek(toOffset: UInt64(max(0, offset)))
+		return try handle.read(upToCount: length) ?? Data()
+	}
+
+	// Exports the asset resource to a cached file exactly once. Subsequent calls (including across tree
+	// rebuilds, since the cache is keyed by asset identity and modification date) reuse the existing
+	// file. Guarded by a lock so concurrent Syncthing reads never export twice.
+	private func ensureExported() throws -> URL {
+		self.exportLock.lock()
+		defer { self.exportLock.unlock() }
+
+		if let url = self.exportedURL, FileManager.default.fileExists(atPath: url.path(percentEncoded: false)) {
+			return url
+		}
+
+		guard let resource = self.resourceToExport() else {
+			throw PhotoFSError.assetUnavailable
+		}
+
+		let cacheDir = try PhotoFSExportedMediaEntry.cacheDirectory()
+		let destURL = cacheDir.appendingPathComponent(
+			PhotoFSExportedMediaEntry.cacheKey(for: asset, resource: resource, discriminator: self.cacheDiscriminator))
+
+		// Reuse a previously exported file if it is still present. Touch its modification date so the
+		// cache eviction (which is LRU by modification date) treats it as recently used.
+		if FileManager.default.fileExists(atPath: destURL.path(percentEncoded: false)) {
+			try? FileManager.default.setAttributes(
+				[.modificationDate: Date()], ofItemAtPath: destURL.path(percentEncoded: false))
+			self.exportedURL = destURL
+			return destURL
+		}
+
+		// Export to a unique temporary file first, then move it into place, so an interrupted export
+		// can never be mistaken for a complete cache entry. writeData streams to disk, so the whole
+		// file is never held in memory.
+		let tmpURL = cacheDir.appendingPathComponent("tmp-" + UUID().uuidString)
+		let options = PHAssetResourceRequestOptions()
+		options.isNetworkAccessAllowed = self.allowNetworkAccess  // download iCloud-only assets if enabled
+
+		let semaphore = DispatchSemaphore(value: 0)
+		var exportError: Error? = nil
+		PHAssetResourceManager.default().writeData(for: resource, toFile: tmpURL, options: options) { error in
+			exportError = error
+			semaphore.signal()
+		}
+
+		// Safety net: never block a Syncthing worker thread indefinitely (e.g. on a stuck iCloud fetch).
+		if semaphore.wait(timeout: .now() + 120.0) == .timedOut {
+			try? FileManager.default.removeItem(at: tmpURL)
+			Log.warn("Timed out exporting media '\(asset.localIdentifier)'")
+			throw PhotoFSError.assetUnavailable
+		}
+
+		if let exportError = exportError {
+			try? FileManager.default.removeItem(at: tmpURL)
+			Log.warn("Could not export media '\(asset.localIdentifier)': \(exportError.localizedDescription)")
+			throw PhotoFSError.assetUnavailable
+		}
+
+		try? FileManager.default.removeItem(at: destURL)
+		try FileManager.default.moveItem(at: tmpURL, to: destURL)
+		self.exportedURL = destURL
+
+		// Keep the on-disk cache bounded. pruneCache() returns immediately (work runs on its own queue).
+		PhotoFSExportedMediaEntry.pruneCache()
+		return destURL
+	}
+
+	private static func cacheDirectory() throws -> URL {
+		let base = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+		let dir = base.appendingPathComponent("photofs-media", isDirectory: true)
+		try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+		return dir
+	}
+
+	private static func cacheKey(for asset: PHAsset, resource: PHAssetResource, discriminator: String) -> String {
+		let id = asset.localIdentifier.replacingOccurrences(of: "/", with: "_")
+		let mod = Int(asset.modificationDate?.timeIntervalSince1970 ?? 0.0)
+		let ext = (resource.originalFilename as NSString).pathExtension
+		let disc = discriminator.isEmpty ? "" : "-\(discriminator)"
+		return "\(id)\(disc)-\(mod).\(ext.isEmpty ? "mov" : ext)"
+	}
+
+	// Soft cap on the on-disk export cache. A single asset larger than this is still kept (it is needed
+	// to serve the file); iOS may additionally purge the Caches directory under storage pressure.
+	private static let maxCacheBytes: Int64 = 2 * 1024 * 1024 * 1024  // 2 GB
+
+	// Files used (exported or touched) within this window are never evicted, to avoid deleting a file
+	// that is currently being read, and to drop only genuinely orphaned temporary files.
+	private static let evictionGrace: TimeInterval = 5 * 60
+
+	// Serial queue that serializes cache pruning so concurrent exports never prune at the same time.
+	private static let pruneQueue = DispatchQueue(label: "nl.t-shaped.sushitrain.photofs.prune", qos: .utility)
+
+	// Asynchronously bounds the export cache (LRU by modification date) and removes orphaned temporary
+	// files. Returns immediately; the work runs on a dedicated serial queue. A file deleted while still
+	// being read either keeps serving its open handle or is transparently re-exported.
+	fileprivate static func pruneCache() {
+		PhotoFSExportedMediaEntry.pruneQueue.async {
+			PhotoFSExportedMediaEntry.pruneCacheNow()
+		}
+	}
+
+	private static func pruneCacheNow() {
+		guard let dir = try? PhotoFSExportedMediaEntry.cacheDirectory() else { return }
+		let keys: Set<URLResourceKey> = [.contentModificationDateKey, .fileSizeKey, .isRegularFileKey]
+		guard
+			let urls = try? FileManager.default.contentsOfDirectory(
+				at: dir, includingPropertiesForKeys: Array(keys))
+		else { return }
+
+		let now = Date()
+		var items: [(url: URL, size: Int64, modified: Date)] = []
+		var total: Int64 = 0
+
+		for url in urls {
+			guard let values = try? url.resourceValues(forKeys: keys), values.isRegularFile == true else {
+				continue
+			}
+			let size = Int64(values.fileSize ?? 0)
+			let modified = values.contentModificationDate ?? .distantPast
+
+			// Drop orphaned temporary files left behind by interrupted or crashed exports.
+			if url.lastPathComponent.hasPrefix("tmp-") {
+				if now.timeIntervalSince(modified) > Self.evictionGrace {
+					try? FileManager.default.removeItem(at: url)
+				}
+				continue
+			}
+
+			items.append((url: url, size: size, modified: modified))
+			total += size
+		}
+
+		if total <= Self.maxCacheBytes {
+			return
+		}
+
+		for item in items.sorted(by: { $0.modified < $1.modified }) {
+			if total <= Self.maxCacheBytes {
+				break
+			}
+			// Never evict very recently used files (likely in active use).
+			if now.timeIntervalSince(item.modified) <= Self.evictionGrace {
+				continue
+			}
+			if (try? FileManager.default.removeItem(at: item.url)) != nil {
+				total -= item.size
+			}
+		}
+	}
+}
+
+// A single video asset, exported as its original video resource.
+private final class PhotoFSVideoEntry: PhotoFSExportedMediaEntry {
+	fileprivate override func resourceToExport() -> PHAssetResource? {
+		return asset.primaryResource
+	}
+
+	fileprivate override var cacheDiscriminator: String {
+		return "video"
+	}
+}
+
+// The paired video of a live photo, exported as a separate .MOV entry alongside the still image.
+private final class PhotoFSLivePhotoEntry: PhotoFSExportedMediaEntry {
+	fileprivate override func resourceToExport() -> PHAssetResource? {
+		let resources = PHAssetResource.assetResources(for: asset)
+		return resources.first(where: { $0.type == .fullSizePairedVideo })
+			?? resources.first(where: { $0.type == .pairedVideo })
+	}
+
+	fileprivate override var cacheDiscriminator: String {
+		return "live"
 	}
 }
 
@@ -251,13 +502,33 @@ private class PhotoFSAlbumEntry: CustomFSEntry {
 			// Faux directory used to give folderStructure.place a CustomFSDirectory interface for the root directory
 			let fauxRoot = StaticCustomFSDirectory("", children: [])
 			let structure = self.config.folderStructure ?? .singleFolder
+			let timeZone = self.config.timeZone ?? .specific(timeZone: TimeZone.gmt.identifier)
+			let categories = self.config.effectiveCategories
+			let replaceExtension = self.config.livePhotoReplaceExtension ?? false
+			let allowNetworkAccess = self.config.effectiveAllowNetworkAccess
 
 			// Enumerate relevant assets
 			let assets = PHAsset.fetchAssets(in: album, options: nil)
 			assets.enumerateObjects { asset, index, stop in
-				if asset.mediaType == .image {
-					structure.place(
-						asset: asset, root: fauxRoot, timeZone: self.config.timeZone ?? .specific(timeZone: TimeZone.gmt.identifier))
+				switch asset.mediaType {
+				case .image:
+					if categories.contains(.photo) {
+						structure.place(
+							asset: asset, root: fauxRoot, timeZone: timeZone, allowNetworkAccess: allowNetworkAccess)
+					}
+					// A live photo is an image asset with a paired video, exposed as a separate .MOV entry.
+					if categories.contains(.livePhoto) && asset.mediaSubtypes.contains(.photoLive) {
+						structure.placeLivePhoto(
+							asset: asset, root: fauxRoot, timeZone: timeZone, replaceExtension: replaceExtension,
+							allowNetworkAccess: allowNetworkAccess)
+					}
+				case .video:
+					if categories.contains(.video) {
+						structure.place(
+							asset: asset, root: fauxRoot, timeZone: timeZone, allowNetworkAccess: allowNetworkAccess)
+					}
+				default:
+					break
 				}
 			}
 
@@ -290,6 +561,27 @@ struct PhotoFSAlbumConfiguration: Codable, Equatable {
 
 	var timeZone: PhotoBackupTimeZone? = nil
 
+	// Media types to expose. Optional/nil for backward compatibility with configurations written
+	// by older versions, which only ever synchronized photos.
+	var categories: Set<PhotoBackupCategory>? = nil
+
+	// Whether the paired video of a live photo replaces (IMG.MOV) or appends (IMG.HEIC.MOV) the .MOV
+	// extension. Optional for backward compatibility; defaults to appending.
+	var livePhotoReplaceExtension: Bool? = nil
+
+	// Whether assets stored only in iCloud may be downloaded on access. When false (the default),
+	// iCloud-only assets are skipped rather than downloaded. Optional for backward compatibility.
+	var allowNetworkAccess: Bool? = nil
+
+	var effectiveAllowNetworkAccess: Bool {
+		return self.allowNetworkAccess ?? false
+	}
+
+	// The effective set of media types, defaulting to photos only (the historical behavior).
+	var effectiveCategories: Set<PhotoBackupCategory> {
+		return self.categories ?? [.photo]
+	}
+
 	var isValid: Bool {
 		return !self.albumID.isEmpty
 	}
@@ -300,7 +592,9 @@ struct PhotoFSConfiguration: Codable, Equatable {
 }
 
 extension PhotoBackupFolderStructure {
-	fileprivate func place(asset: PHAsset, root: CustomFSDirectory, timeZone: PhotoBackupTimeZone) {
+	fileprivate func place(
+		asset: PHAsset, root: CustomFSDirectory, timeZone: PhotoBackupTimeZone, allowNetworkAccess: Bool
+	) {
 		let translatedFileName = asset.fileNameInFolder(structure: self)
 		let subdirs = asset.subdirectoriesInFolder(structure: self, timeZone: timeZone)
 
@@ -309,7 +603,30 @@ extension PhotoBackupFolderStructure {
 			dir = dir.getOrCreateSubdirectory(dirName)
 		}
 
-		dir.place(PhotoFSAssetEntry(translatedFileName, asset: asset))
+		switch asset.mediaType {
+		case .video:
+			// Videos are read lazily in ranges from a cached export (see PhotoFSVideoEntry).
+			dir.place(PhotoFSVideoEntry(translatedFileName, asset: asset, allowNetworkAccess: allowNetworkAccess))
+		default:
+			dir.place(PhotoFSAssetEntry(translatedFileName, asset: asset, allowNetworkAccess: allowNetworkAccess))
+		}
+	}
+
+	// Places the paired video of a live photo as a separate .MOV entry, using the same naming as the
+	// photo back-up (optionally in a "Live" subdirectory for type-grouped folder structures).
+	fileprivate func placeLivePhoto(
+		asset: PHAsset, root: CustomFSDirectory, timeZone: PhotoBackupTimeZone, replaceExtension: Bool,
+		allowNetworkAccess: Bool
+	) {
+		let fileName = asset.livePhotoFileName(structure: self, replaceExtension: replaceExtension)
+		let subdirs = asset.livePhotoSubdirectories(structure: self, timeZone: timeZone)
+
+		var dir = root
+		for dirName in subdirs {
+			dir = dir.getOrCreateSubdirectory(dirName)
+		}
+
+		dir.place(PhotoFSLivePhotoEntry(fileName, asset: asset, allowNetworkAccess: allowNetworkAccess))
 	}
 }
 
@@ -389,6 +706,9 @@ extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 		Task.detached {
 			// Apparently the PHPhotoLibrary.shared().register call can take a while, so we really don't want to do this on the main thread
 			PhotoFSLibraryObserver.shared.registerForNotifications()
+
+			// Opportunistically bound the export cache and clean up orphaned temporary files on load.
+			PhotoFSExportedMediaEntry.pruneCache()
 		}
 
 		return folderRoot
