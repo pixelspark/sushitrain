@@ -152,6 +152,38 @@ func TestCustomFilesystemStreamingChunkedRead(t *testing.T) {
 	}
 }
 
+// ReadAt is io.ReaderAt and must not move the sequential read position: a random ReadAt followed by
+// a full sequential read must still return the whole content from the start.
+func TestCustomFilesystemReadAtKeepsPosition(t *testing.T) {
+	content := []byte("0123456789abcdefghijABCDEFGHIJ") // 30 bytes
+	for _, streaming := range []bool{true, false} {
+		file := &fakeEntry{entryName: "f.bin", content: content, streaming: streaming}
+		cfs := newTestFS(file)
+		fh, err := cfs.Open("f.bin")
+		if err != nil {
+			t.Fatalf("streaming=%v open: %v", streaming, err)
+		}
+
+		ra, ok := fh.(io.ReaderAt)
+		if !ok {
+			t.Fatal("custom file does not implement io.ReaderAt")
+		}
+		buf := make([]byte, 4)
+		if _, err := ra.ReadAt(buf, 20); err != nil && err != io.EOF {
+			t.Fatalf("streaming=%v readAt: %v", streaming, err)
+		}
+
+		got, err := io.ReadAll(fh)
+		if err != nil {
+			t.Fatalf("streaming=%v read all: %v", streaming, err)
+		}
+		if !bytes.Equal(got, content) {
+			t.Fatalf("streaming=%v: read = %q, want full content %q", streaming, got, content)
+		}
+		fh.Close()
+	}
+}
+
 func TestCustomFilesystemNonStreamingRead(t *testing.T) {
 	content := []byte("hello world")
 	file := &fakeEntry{entryName: "photo.jpg", content: content, streaming: false}

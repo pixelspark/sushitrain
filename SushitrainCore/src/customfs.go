@@ -323,14 +323,22 @@ func (p *customFile) Name() string {
 }
 
 func (cf *customFile) Read(p []byte) (n int, err error) {
-	n, err = cf.ReadAt(p, cf.position)
+	cf.mut.Lock()
+	defer cf.mut.Unlock()
+	n, err = cf.readAtLocked(p, cf.position)
+	cf.position += int64(n)
 	return
 }
 
+// ReadAt is position-independent (io.ReaderAt): it must not affect nor be affected by the seek offset.
 func (cf *customFile) ReadAt(p []byte, offset int64) (n int, err error) {
 	cf.mut.Lock()
 	defer cf.mut.Unlock()
+	return cf.readAtLocked(p, offset)
+}
 
+// readAtLocked performs a read at offset without touching the seek position. The caller must hold mut.
+func (cf *customFile) readAtLocked(p []byte, offset int64) (n int, err error) {
 	if cf.stream {
 		size := cf.info.Size()
 		if size >= 0 && offset >= size {
@@ -348,7 +356,6 @@ func (cf *customFile) ReadAt(p []byte, offset int64) (n int, err error) {
 			}
 			n += copy(p[n:], chunk)
 		}
-		cf.position = offset + int64(n)
 		return n, nil
 	}
 
@@ -357,7 +364,6 @@ func (cf *customFile) ReadAt(p []byte, offset int64) (n int, err error) {
 	}
 
 	n = copy(p, cf.data[int(offset):])
-	cf.position = offset + int64(n)
 	return n, nil
 }
 
