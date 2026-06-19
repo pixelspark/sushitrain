@@ -36,7 +36,9 @@ enum PhotoFSError: LocalizedError {
 }
 
 private class CustomFSEntry: NSObject, SushitrainCustomFileEntryProtocol {
-	let entryName: String
+	// Mutable so a containing directory can rename an entry to resolve a name collision (see
+	// StaticCustomFSDirectory.place).
+	var entryName: String
 
 	internal init(_ name: String, _ children: [CustomFSEntry]? = nil) {
 		self.entryName = name
@@ -90,10 +92,13 @@ private protocol CustomFSDirectory {
 
 private class StaticCustomFSDirectory: CustomFSEntry {
 	var children: [CustomFSEntry]
+	// Names already present among the children, kept in sync with `children` for O(1) collision checks.
+	fileprivate var usedNames: Set<String>
 	let modTime: Date
 
 	init(_ name: String, children: [CustomFSEntry]) {
 		self.children = children
+		self.usedNames = Set(children.map { $0.name() })
 		self.modTime = Date()
 		super.init(name)
 	}
@@ -129,12 +134,36 @@ extension StaticCustomFSDirectory: CustomFSDirectory {
 			// Create
 			let subDir = StaticCustomFSDirectory(name, children: [])
 			self.children.append(subDir)
+			self.usedNames.insert(name)
 			return subDir
 		}
 	}
 
 	func place(_ entry: CustomFSEntry) {
+		// Two assets can map to the same file name (e.g. re-imported photos, or a live photo's .MOV
+		// colliding with a real video). Rename on collision so every child in a directory is unique;
+		// otherwise the bridge would only ever resolve the first one and list the name twice.
+		if self.usedNames.contains(entry.name()) {
+			entry.entryName = self.uniqueName(for: entry.name())
+		}
+		self.usedNames.insert(entry.name())
 		self.children.append(entry)
+	}
+
+	// Returns `name` if free, otherwise inserts a numeric suffix before the extension (IMG.MOV ->
+	// IMG-1.MOV) until an unused name is found.
+	private func uniqueName(for name: String) -> String {
+		let ns = name as NSString
+		let base = ns.deletingPathExtension
+		let ext = ns.pathExtension
+		var i = 1
+		while true {
+			let candidate = ext.isEmpty ? "\(base)-\(i)" : "\(base)-\(i).\(ext)"
+			if !self.usedNames.contains(candidate) {
+				return candidate
+			}
+			i += 1
+		}
 	}
 }
 
@@ -234,6 +263,7 @@ private class PhotoFSExportedMediaEntry: CustomFSEntry {
 	private let exportLock = NSLock()
 	private var exportedURL: URL? = nil
 	private var cachedSize: Int? = nil
+	private var lastTouched: Date? = nil
 
 	init(_ name: String, asset: PHAsset, allowNetworkAccess: Bool) {
 		self.asset = asset
@@ -267,17 +297,57 @@ private class PhotoFSExportedMediaEntry: CustomFSEntry {
 	}
 
 	override func bytes(_ ret: UnsafeMutablePointer<Int>?) throws {
-		let url = try self.ensureExported()
+		// Fast path: size already known in memory.
 		self.exportLock.lock()
-		defer { self.exportLock.unlock() }
-		if let s = self.cachedSize {
+		let cached = self.cachedSize
+		self.exportLock.unlock()
+		if let s = cached {
 			ret?.pointee = s
 			return
 		}
+
+		// Avoid exporting the whole file just to report its size (Syncthing calls this on every scan):
+		// use the persisted size sidecar if present, even when the media file itself has been evicted.
+		let key = self.currentCacheKey()
+		if let key = key, let s = PhotoFSExportedMediaEntry.persistedSize(forKey: key) {
+			self.exportLock.lock()
+			self.cachedSize = s
+			self.exportLock.unlock()
+			ret?.pointee = s
+			return
+		}
+
+		// Unknown size: export, measure, and persist it so future scans don't need to export again.
+		let url = try self.ensureExported()
 		let attrs = try FileManager.default.attributesOfItem(atPath: url.path(percentEncoded: false))
 		let size = (attrs[.size] as? Int) ?? 0
+		self.exportLock.lock()
 		self.cachedSize = size
+		self.exportLock.unlock()
+		if let key = key {
+			PhotoFSExportedMediaEntry.persistSize(size, forKey: key)
+		}
 		ret?.pointee = size
+	}
+
+	// The cache key for this entry's export, or nil if no resource is available. Does not export.
+	private func currentCacheKey() -> String? {
+		guard let resource = self.resourceToExport() else { return nil }
+		return PhotoFSExportedMediaEntry.cacheKey(for: asset, resource: resource, discriminator: self.cacheDiscriminator)
+	}
+
+	// Refresh the cached file's modification date (LRU marker), at most once a minute. Caller holds exportLock.
+	private func touchIfNeeded(_ url: URL) {
+		if let last = self.lastTouched, Date().timeIntervalSince(last) < 60.0 {
+			return
+		}
+		self.touch(url)
+	}
+
+	private func touch(_ url: URL) {
+		try? FileManager.default.setAttributes(
+			[.modificationDate: Date()], ofItemAtPath: url.path(percentEncoded: false))
+		self.lastTouched = Date()
 	}
 
 	override func read(at offset: Int64, length: Int) throws -> Data {
@@ -296,6 +366,8 @@ private class PhotoFSExportedMediaEntry: CustomFSEntry {
 		defer { self.exportLock.unlock() }
 
 		if let url = self.exportedURL, FileManager.default.fileExists(atPath: url.path(percentEncoded: false)) {
+			// Keep an actively-read file out of the LRU eviction window during a long transfer.
+			self.touchIfNeeded(url)
 			return url
 		}
 
@@ -310,8 +382,7 @@ private class PhotoFSExportedMediaEntry: CustomFSEntry {
 		// Reuse a previously exported file if it is still present. Touch its modification date so the
 		// cache eviction (which is LRU by modification date) treats it as recently used.
 		if FileManager.default.fileExists(atPath: destURL.path(percentEncoded: false)) {
-			try? FileManager.default.setAttributes(
-				[.modificationDate: Date()], ofItemAtPath: destURL.path(percentEncoded: false))
+			self.touch(destURL)
 			self.exportedURL = destURL
 			return destURL
 		}
@@ -346,6 +417,7 @@ private class PhotoFSExportedMediaEntry: CustomFSEntry {
 		try? FileManager.default.removeItem(at: destURL)
 		try FileManager.default.moveItem(at: tmpURL, to: destURL)
 		self.exportedURL = destURL
+		self.lastTouched = Date()  // freshly written
 
 		// Keep the on-disk cache bounded. pruneCache() returns immediately (work runs on its own queue).
 		PhotoFSExportedMediaEntry.pruneCache()
@@ -365,6 +437,31 @@ private class PhotoFSExportedMediaEntry: CustomFSEntry {
 		let ext = (resource.originalFilename as NSString).pathExtension
 		let disc = discriminator.isEmpty ? "" : "-\(discriminator)"
 		return "\(id)\(disc)-\(mod).\(ext.isEmpty ? "mov" : ext)"
+	}
+
+	// Persisted exported-size sidecars (`<cacheKey>.size`). They are tiny, deterministic for a given
+	// cache key (same original resource bytes), and outlive the media file so a scan can report a size
+	// without re-exporting an evicted file. A missing/corrupt sidecar simply falls back to exporting.
+	private static func sizeSidecarURL(forKey key: String) throws -> URL {
+		return try cacheDirectory().appendingPathComponent(key + ".size")
+	}
+
+	private static func persistedSize(forKey key: String) -> Int? {
+		guard let url = try? sizeSidecarURL(forKey: key),
+			let data = try? Data(contentsOf: url),
+			let text = String(data: data, encoding: .utf8),
+			let size = Int(text.trimmingCharacters(in: .whitespacesAndNewlines))
+		else {
+			return nil
+		}
+		return size
+	}
+
+	private static func persistSize(_ size: Int, forKey key: String) {
+		guard let url = try? sizeSidecarURL(forKey: key), let data = "\(size)".data(using: .utf8) else {
+			return
+		}
+		try? data.write(to: url, options: .atomic)
 	}
 
 	// Soft cap on the on-disk export cache. A single asset larger than this is still kept (it is needed
@@ -405,6 +502,11 @@ private class PhotoFSExportedMediaEntry: CustomFSEntry {
 			}
 			let size = Int64(values.fileSize ?? 0)
 			let modified = values.contentModificationDate ?? .distantPast
+
+			// Size sidecars are tiny and must outlive the media they describe: never count or evict them.
+			if url.pathExtension == "size" {
+				continue
+			}
 
 			// Drop orphaned temporary files left behind by interrupted or crashed exports.
 			if url.lastPathComponent.hasPrefix("tmp-") {
@@ -467,6 +569,9 @@ private class PhotoFSAlbumEntry: CustomFSEntry {
 	private let config: PhotoFSAlbumConfiguration
 	private var lastUpdate: Date? = nil
 	private var lastChangeCounter = -1
+	// Serializes update()/children access: the bridge calls childCount()/child(at:) from concurrent
+	// Syncthing worker threads, and update() replaces `children` wholesale on library changes.
+	private let lock = NSLock()
 
 	init(_ name: String, config: PhotoFSAlbumConfiguration) throws {
 		self.config = config
@@ -543,13 +648,23 @@ private class PhotoFSAlbumEntry: CustomFSEntry {
 	}
 
 	override func child(at index: Int) throws -> any SushitrainCustomFileEntryProtocol {
+		self.lock.lock()
+		defer { self.lock.unlock() }
 		try self.update()
-		return self.children![index]
+		let children = self.children ?? []
+		// The library may have changed (and the tree shrunk) between the caller's childCount() and this
+		// call; guard against an out-of-range index rather than crashing.
+		guard index >= 0 && index < children.count else {
+			throw CustomFSError.notAFile
+		}
+		return children[index]
 	}
 
 	override func childCount(_ ret: UnsafeMutablePointer<Int>?) throws {
+		self.lock.lock()
+		defer { self.lock.unlock() }
 		try self.update()
-		ret?.pointee = self.children!.count
+		ret?.pointee = self.children?.count ?? 0
 	}
 }
 
