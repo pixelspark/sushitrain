@@ -7,9 +7,10 @@ Synctrain provides two mechanisms for synchronizing photos from the iOS photo li
   selective synchronization the exported photos can be deselected again once other devices have received the photos. The
   downside of this approach is that as long as other devices have not synchronized the photos yet, they take up disk space.
 - The **photo folder** feature exposes one or more photo albums from the system photo library to Syncthing as if they
-  existed in an actual (send-only) folder. Photos are never exported to disk, but instead read from the system photo library
-  directly. This also means that whenever a photo is deleted from the system photo library, it will disappear from the
-  synchronized folder as well.
+  existed in an actual (send-only) folder. Photos, videos and live photos can be exposed. Still images are read from the
+  system photo library directly and never written to disk; videos and live photos are exported to a temporary on-disk cache
+  on demand (and evicted automatically). Whenever an item is deleted from the system photo library, it will disappear from
+  the synchronized folder as well.
 
 The photo folder feature is implemented by tricking Syncthing into thinking that it is accessing a folder containing
 the photos as files, which is not actually the case. Instead our code 'simulates' a file system, and the photo files are
@@ -49,15 +50,16 @@ object from and to JSON format in the folder's `path`.
 
 ## Limitations
 
-- Photo folders currently cannot be used to synchronize live photos or videos. This is because the file system interface
-  is based around blocking calls, whereas exporting videos is an asynchronous operation on the Swift side. If you need to
-  export videos and/or live photos, use the _photo back-up_ feature instead.
+- Videos and live photos are supported, but are exported on demand to a temporary cache (`Caches/photofs-media/`) the first
+  time they are read, because the file system interface is based around blocking calls. The cache is bounded by a
+  least-recently-used eviction and is reused across rebuilds (keyed by asset identity and modification date), but scanning a
+  large video still requires reading its full exported copy.
 - Photo folders can currently only be synchronized in 'send only' mode, as the underlying virtual file system implementation
   does not implement writing operations.
-- The current implementation assumes that exporting photos from the library is not an expensive operation (it will ask for
-  the current version of a photo asset, without any re-encoding or resizing). This may not always be the case (i.e. when
-  photos are stored in iCloud). As photo export happens each time a virtual 'photo file' is accessed this may degrade
-  performance significantly.
+- Exporting media from the library can be expensive. Still images are re-exported each time a virtual 'photo file' is
+  accessed (without re-encoding or resizing); videos and live photos are exported once and then served from the cache.
+  Assets stored only in iCloud are skipped unless the per-folder "download from iCloud" option is enabled, in which case
+  they are downloaded on access (which may be slow and use mobile data).
 - The virtual photo files will have their creation and last modified date set to the creation date provided by iOS for that
   asset.
 - When a photo is deleted from a photo album, the deletion will of course be propagated to other peers. Due to this the
