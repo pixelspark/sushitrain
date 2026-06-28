@@ -10258,53 +10258,6 @@
         }
       }
     },
-    "Custom configuration detected" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Benutzerdefinierte Konfiguration erkannt"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Configuración personalizada detectada"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Configurazione personalizzata rilevata"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "カスタム設定が検出されました"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aangepaste configuratie gevonden"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Виявлено власну конфігурацію"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "检测到自定义配置"
-          }
-        }
-      }
-    },
     "Custom configuration saved" : {
       "localizations" : {
         "de" : {
@@ -19079,53 +19032,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "HTTPS"
-          }
-        }
-      }
-    },
-    "I understand and agree" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ich verstehe und stimme zu"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entiendo y acepto"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Capisco e sono d'accordo"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "同意します"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ik begrijp het en ga akkoord"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Я розумію і погоджуюсь"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "我理解并同意"
           }
         }
       }
@@ -45014,95 +44920,48 @@
         }
       }
     },
-    "You are using a custom configuration. This may be used for testing only, and at your own risk. Not all configuration options may be supported. To disable the custom configuration, remove the configuration files from the app's folder and restart the app. The makers of the app cannot be held liable for any data loss that may occur!" : {
-      "extractionState" : "stale",
+    "You can export the current configuration to the application directory. When a configuration file exists in the application directory (config.xml) when the app starts, it will be used instead of the internal configuration." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sie verwenden eine benutzerdefinierte Konfiguration. Diese darf nur zu Testzwecken und auf eigenes Risiko verwendet werden. Es werden möglicherweise nicht alle Konfigurationsoptionen unterstützt. Um die benutzerdefinierte Konfiguration zu deaktivieren, entfernen Sie die Konfigurationsdateien aus dem Ordner der App und starten Sie die App neu. Die Entwickler der App können nicht für Datenverlust haftbar gemacht werden!"
+            "value" : "Sie können die aktuelle Konfiguration in das Anwendungsverzeichnis exportieren. Wenn beim Start der App eine Konfigurationsdatei (config.xml) im Anwendungsverzeichnis vorhanden ist, wird diese anstelle der internen Konfiguration verwendet."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Está utilizando una configuración personalizada. Esto solo puede usarse para pruebas, bajo su propio riesgo. Es posible que no se admitan todas las opciones de configuración. Para desactivar la configuración personalizada, elimine los archivos de configuración de la carpeta de la aplicación y reinicie la aplicación. ¡Los creadores de la aplicación no pueden ser responsables de ninguna pérdida de datos que pueda ocurrir!"
+            "value" : "Puedes exportar la configuración actual al directorio de la aplicación. Cuando exista un archivo de configuración (config.xml) en el directorio de la aplicación al iniciar la aplicación, se usará en lugar de la configuración interna."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stai utilizzando una configurazione personalizzata. Questa può essere utilizzata solo a scopo di test, a tuo rischio e pericolo. Non tutte le opzioni di configurazione potrebbero essere supportate. Per disabilitare la configurazione personalizzata, rimuovi i file di configurazione dalla cartella dell'app e riavvia l'app. I creatori dell'app non possono essere ritenuti responsabili per eventuali perdite di dati che potrebbero verificarsi!"
+            "value" : "Puoi esportare la configurazione corrente nella directory dell'applicazione. Quando esiste un file di configurazione (config.xml) nella directory dell'applicazione all'avvio dell'app, questo verrà utilizzato al posto della configurazione interna."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "カスタム設定を使用しています。これはテストにのみ使用することができ、自己責任で行ってください。すべての設定オプションがサポートされているわけではありません。カスタム設定を無効にするには、アプリのフォルダから設定ファイルを削除し、アプリを再起動してください。アプリのメーカーは、発生する可能性のあるデータ損失に対して責任を負いません！"
+            "value" : "現在の設定をアプリケーションディレクトリにエクスポートできます。アプリ起動時にアプリケーションディレクトリに設定ファイル（config.xml）が存在する場合、内部設定の代わりにそれが使用されます。"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Je gebruikt een aangepaste configuratie. Dit mag alleen voor testdoeleinden worden gebruikt, en op eigen risico. Niet alle aangepaste configuratieopties worden ondersteund. Om de aangepaste configuratie ongedaan te maken, verwijder je de configuratiebestanden uit de map van de app, en herstart je de app. De makers van de app kunnen niet aansprakelijk worden gehouden voor enig dataverlies!"
+            "value" : "U kunt de huidige configuratie exporteren naar de applicatiemap. Als er een configuratiebestand (config.xml) in de applicatiemap bestaat wanneer de app start, zal dit worden gebruikt in plaats van de interne configuratie."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ви використовуєте користувацьку конфігурацію. Це може використовуватись лише для тестування та на ваш власний ризик. Не всі параметри конфігурації можуть бути підтримані. Щоб вимкнути користувацьку конфігурацію, видаліть файли конфігурації з папки додатка і перезапустіть додаток. Розробники додатку не несуть відповідальності за можливу втрату даних!"
+            "value" : "Ви можете експортувати поточну конфігурацію до каталогу додатку. Якщо під час запуску додатку у каталозі є файл конфігурації (config.xml), він буде використаний замість внутрішньої конфігурації."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "您正在使用自定义配置。这仅可用于测试，并需自行承担风险。并非所有配置选项都可能受支持。要禁用自定义配置，请从应用程序的文件夹中删除配置文件并重新启动应用程序。应用程序的开发者不对可能发生的数据丢失负责！"
-          }
-        }
-      }
-    },
-    "You can export the current configuration to the application directory (config.xml). When a configuration file exists in the application directory when the app starts, it will be used instead of the internal configuration." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sie können die aktuelle Konfiguration in das Anwendungsverzeichnis (config.xml) exportieren. Wenn beim Start der App eine Konfigurationsdatei im Anwendungsverzeichnis vorhanden ist, wird diese anstelle der internen Konfiguration verwendet."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Puedes exportar la configuración actual al directorio de la aplicación (config.xml). Cuando exista un archivo de configuración en el directorio de la aplicación al iniciar la app, se utilizará en lugar de la configuración interna."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "È possibile esportare la configurazione corrente nella directory dell'applicazione (config.xml). Se esiste un file di configurazione nella directory dell'applicazione quando l'app viene avviata, verrà utilizzato al posto della configurazione interna."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "現在の設定をアプリケーションディレクトリ（config.xml）にエクスポートできます。アプリが起動する際にアプリケーションディレクトリに設定ファイルが存在する場合、内部設定の代わりにこの設定ファイルが使用されます。"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "U kunt de huidige configuratie exporteren naar de toepassingsdirectory (config.xml). Wanneer er een configuratiebestand aanwezig is in de toepassingsdirectory wanneer de app start, wordt dit in plaats van de interne configuratie gebruikt."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ви можете експортувати поточну конфігурацію до каталогу програми (config.xml). Якщо при запуску програми існує файл конфігурації в каталозі програми, він буде використаний замість внутрішньої конфігурації."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "您可以将当前配置导出到应用程序目录（config.xml）。当应用程序启动时，如果应用程序目录中存在配置文件，将使用该配置文件而不是内部配置。"
+            "value" : "您可以将当前配置导出到应用程序目录。当应用程序目录中存在配置文件（config.xml）时，应用启动时将使用该配置文件，而不是内部配置。"
           }
         }
       }

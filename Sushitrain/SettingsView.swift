@@ -413,7 +413,7 @@ struct AdvancedSettingsView: View {
 						)
 					}
 					else {
-						Text("You can export the current configuration to the application directory (config.xml). When a configuration file exists in the application directory when the app starts, it will be used instead of the internal configuration.")
+						Text("You can export the current configuration to the application directory. When a configuration file exists in the application directory (config.xml) when the app starts, it will be used instead of the internal configuration.")
 					}
 				}
 			#endif
