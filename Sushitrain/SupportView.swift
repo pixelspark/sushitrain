@@ -78,6 +78,8 @@ private struct AppSupportBundle: Encodable {
 	var userSettings: [String: PrefValue]
 	var secondsSinceLaunch: Double?
 	var isUsingCustomConfiguration: Bool
+	var osName: String
+	var osVersion: String
 }
 
 extension AppState {
@@ -93,7 +95,25 @@ extension AppState {
 				UserDefaults.standard.persistentDomain(forName: mainBundle.bundleIdentifier!) ?? [:]),
 			secondsSinceLaunch: Date.now.timeIntervalSince(self.launchedAt),
 			isUsingCustomConfiguration: self.client.isUsingCustomConfiguration,
+			osName: self.osName,
+			osVersion: self.osVersion
 		)
+	}
+	
+	private var osVersion: String {
+		#if os(iOS)
+			return UIDevice.current.systemVersion
+		#else
+			return ProcessInfo.processInfo.operatingSystemVersion
+		#endif
+	}
+	
+	private var osName: String {
+		#if os(iOS)
+			return UIDevice.current.systemName
+		#else
+			return "macOS"
+		#endif
 	}
 }
 
