@@ -405,12 +405,15 @@ struct AdvancedSettingsView: View {
 
 			#if os(iOS)
 				Section {
-					ExportButtonView()
+					ExportButtonView().disabled(self.appState.client.isUsingCustomConfiguration)
 				} footer: {
 					if self.appState.client.isUsingCustomConfiguration {
 						Text(
 							"The app is currently using a custom configuration from config.xml in the application directory. Remove it and restart the app to revert back to the default configuration."
 						)
+					}
+					else {
+						Text("You can export the current configuration to the application directory (config.xml). When a configuration file exists in the application directory when the app starts, it will be used instead of the internal configuration.")
 					}
 				}
 			#endif

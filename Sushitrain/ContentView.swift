@@ -303,25 +303,8 @@ private struct ContentView: View {
 				})
 		}
 
-		.alert(isPresented: $showCustomConfigWarning) {
-			Alert(
-				title: Text("Custom configuration detected"),
-				message: Text(
-					"You are using a custom configuration. This may be used for testing only, and at your own risk. Not all configuration options may be supported. To disable the custom configuration, remove the configuration files from the app's folder and restart the app. The makers of the app cannot be held liable for any data loss that may occur!"
-				),
-				dismissButton: .default(Text("I understand and agree")) {
-					// Further consent and warning stuff
-					AppState.requestNotificationPermissionIfNecessary()
-				})
-		}
 		.onAppear {
-			// Consent and warning stuff
-			if self.appState.client.isUsingCustomConfiguration {
-				self.showCustomConfigWarning = true
-			}
-			else {
-				AppState.requestNotificationPermissionIfNecessary()
-			}
+			AppState.requestNotificationPermissionIfNecessary()
 		}
 		#if os(iOS)
 			// Search sheet for quick action
