@@ -352,14 +352,34 @@ extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 
 		// Go over all configured albums and place them at the right locations in the entry tree
 		for (folderPath, albumConfig) in config.folders {
-			if folderPath.isEmpty {
+			let trimmedPath = folderPath.trimmingCharacters(in: .whitespacesAndNewlines)
+			if trimmedPath.isEmpty {
 				// Must have a path (can't place at root)
 				Log.warn("Can't place folder album at root")
 				continue
 			}
 
-			var subdirs = folderPath.split(separator: "/")
-			let first = subdirs.first!
+			var subdirs = trimmedPath.split(separator: "/")
+			guard let first = subdirs.first else {
+				Log.warn("PhotoFS: skipping invalid subdirectory; folderPath was '\(folderPath)'")
+				continue
+			}
+
+			// Check path components; they cannot be empty or just be "." or ".."
+			var invalid = false
+			for component in subdirs {
+				let trimmedComponent = component.trimmingCharacters(in: .whitespacesAndNewlines.union(CharacterSet(["."])))
+				if trimmedComponent.isEmpty {
+					Log.warn("PhotoFS: invalid path component: '\(component)'")
+					invalid = true
+					break
+				}
+			}
+
+			if invalid {
+				continue
+			}
+
 			if first.lowercased().starts(with: ".st") {
 				// Can't place anything in .stfolder or over .stignore
 				Log.warn("Can't place folder album over reserved subdirectory name: \(folderPath) \(first)")
