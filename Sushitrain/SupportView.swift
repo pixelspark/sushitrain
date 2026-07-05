@@ -104,7 +104,8 @@ extension AppState {
 		#if os(iOS)
 			return UIDevice.current.systemVersion
 		#else
-			return ProcessInfo.processInfo.operatingSystemVersion
+			let ver = ProcessInfo.processInfo.operatingSystemVersion
+			return "\(ver.majorVersion).\(ver.minorVersion).\(ver.patchVersion)"
 		#endif
 	}
 	
