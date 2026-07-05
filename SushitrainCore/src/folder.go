@@ -27,7 +27,16 @@ import (
 )
 
 const (
-	ignoreFileName string = ".stignore"
+	ignoreFileName  string = ".stignore"
+	versionsDirName string = ".stversions"
+)
+
+const (
+	VersioningTypeNone      = ""
+	VersioningTypeSimple    = "simple"
+	VersioningTypeTrashcan  = "trashcan"
+	VersioningTypeStaggered = "staggered"
+	VersioningTypeExternal  = "external"
 )
 
 type CachedIgnore struct {
@@ -188,6 +197,86 @@ func (fld *Folder) MaxConflicts() int {
 func (fld *Folder) SetMaxConflicts(mx int) error {
 	return fld.changeFolderConfiguration(func(config *config.FolderConfiguration) {
 		config.MaxConflicts = mx
+	})
+}
+
+func (fld *Folder) VersioningType() string {
+	fc := fld.folderConfiguration()
+	if fc == nil {
+		return ""
+	}
+
+	return fc.Versioning.Type
+}
+
+func (fld *Folder) VersioningParam(name string) string {
+	fc := fld.folderConfiguration()
+	if fc == nil || fc.Versioning.Params == nil {
+		return ""
+	}
+
+	return fc.Versioning.Params[name]
+}
+
+func (fld *Folder) VersioningCleanupIntervalSeconds() int {
+	fc := fld.folderConfiguration()
+	if fc == nil {
+		return 0
+	}
+
+	return fc.Versioning.CleanupIntervalS
+}
+
+func (fld *Folder) VersioningPath() string {
+	fc := fld.folderConfiguration()
+	if fc == nil || fc.Versioning.Type == "" {
+		return ""
+	}
+
+	ffs := fc.Filesystem()
+	if fc.Versioning.FSPath == "" {
+		return filepath.Join(ffs.URI(), versionsDirName)
+	}
+
+	if fc.Versioning.FSType == config.FilesystemTypeBasic {
+		path, err := fs.ExpandTilde(fc.Versioning.FSPath)
+		if err != nil {
+			path = fc.Versioning.FSPath
+		}
+		if !filepath.IsAbs(path) {
+			path = filepath.Join(ffs.URI(), path)
+		}
+		return path
+	}
+
+	return ""
+}
+
+func (fld *Folder) SetVersioning(versioningType string, keep int, cleanoutDays int, maxAgeDays int, cleanupIntervalSeconds int) error {
+	return fld.changeFolderConfiguration(func(fc *config.FolderConfiguration) {
+		if versioningType == VersioningTypeNone {
+			fc.Versioning.Reset()
+			return
+		}
+
+		params := make(map[string]string)
+		switch versioningType {
+		case VersioningTypeSimple:
+			params["keep"] = fmt.Sprintf("%d", keep)
+			params["cleanoutDays"] = fmt.Sprintf("%d", cleanoutDays)
+		case VersioningTypeTrashcan:
+			params["cleanoutDays"] = fmt.Sprintf("%d", cleanoutDays)
+		case VersioningTypeStaggered:
+			params["maxAge"] = fmt.Sprintf("%d", maxAgeDays*24*60*60)
+		default:
+			return
+		}
+
+		fc.Versioning.Type = versioningType
+		fc.Versioning.Params = params
+		fc.Versioning.CleanupIntervalS = cleanupIntervalSeconds
+		fc.Versioning.FSPath = ""
+		fc.Versioning.FSType = config.FilesystemTypeBasic
 	})
 }
 

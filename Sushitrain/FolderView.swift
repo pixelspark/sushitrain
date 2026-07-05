@@ -1217,6 +1217,160 @@ private struct FolderGenerateThumbnailsView: View {
 	}
 }
 
+private struct FolderVersioningSettingsView: View {
+	private enum VersioningType: String, CaseIterable {
+		case disabled = ""
+		case simple = "simple"
+		case trashcan = "trashcan"
+		case staggered = "staggered"
+	}
+
+	let folder: SushitrainFolder
+
+	@State private var versioningType = VersioningType.disabled
+	@State private var keep = 5
+	@State private var cleanoutDays = 0
+	@State private var maxAgeDays = 365
+	@State private var cleanupIntervalMinutes = 60
+	@State private var loaded = false
+	@State private var error: ErrorMessage? = nil
+
+	private var versioningDescription: String {
+		switch versioningType {
+		case .disabled:
+			return String(localized: "Synctrain will not keep old copies of files for this folder.")
+		case .simple:
+			return String(
+				localized:
+					"Synctrain moves files replaced or deleted by remote changes into the versions folder and keeps the configured number of old versions per file."
+			)
+		case .trashcan:
+			return String(
+				localized:
+					"Synctrain moves files replaced or deleted by remote changes into the versions folder, replacing any older version with the same name."
+			)
+		case .staggered:
+			return String(
+				localized:
+					"Synctrain moves files replaced or deleted by remote changes into the versions folder, then keeps fewer versions as they age."
+			)
+		}
+	}
+
+	var body: some View {
+		Form {
+			Section {
+				Picker("Versioning", selection: $versioningType) {
+					Text("Disabled").tag(VersioningType.disabled)
+					Text("Simple").tag(VersioningType.simple)
+					Text("Trash can").tag(VersioningType.trashcan)
+					Text("Staggered").tag(VersioningType.staggered)
+				}
+				.pickerStyle(.menu)
+			} footer: {
+				Text(versioningDescription)
+			}
+
+			if versioningType == .simple {
+				Section {
+					Stepper("Keep \(keep) versions", value: $keep, in: 1...999)
+
+					LabeledContent {
+						TextField("", value: $cleanoutDays, format: .number)
+							.multilineTextAlignment(.trailing)
+					} label: {
+						Text("Maximum age (days)")
+					}
+				} footer: {
+					Text("Set maximum age to 0 to keep versions regardless of age.")
+				}
+			}
+			else if versioningType == .trashcan {
+				Section {
+					LabeledContent {
+						TextField("", value: $cleanoutDays, format: .number)
+							.multilineTextAlignment(.trailing)
+					} label: {
+						Text("Maximum age (days)")
+					}
+				} footer: {
+					Text("Set maximum age to 0 to keep deleted files until you remove them manually.")
+				}
+			}
+			else if versioningType == .staggered {
+				Section {
+					LabeledContent {
+						TextField("", value: $maxAgeDays, format: .number)
+							.multilineTextAlignment(.trailing)
+					} label: {
+						Text("Maximum age (days)")
+					}
+				}
+			}
+
+			if versioningType != .disabled {
+				Section {
+					LabeledContent {
+						TextField("", value: $cleanupIntervalMinutes, format: .number)
+							.multilineTextAlignment(.trailing)
+					} label: {
+						Text("Cleanup interval (minutes)")
+					}
+				}
+			}
+		}
+		#if os(macOS)
+			.formStyle(.grouped)
+		#endif
+		.navigationTitle("File versioning")
+		#if os(iOS)
+			.navigationBarTitleDisplayMode(.inline)
+		#endif
+		.onAppear {
+			load()
+		}
+		.onChange(of: versioningType) { _, _ in saveIfLoaded() }
+		.onChange(of: keep) { _, _ in saveIfLoaded() }
+		.onChange(of: cleanoutDays) { _, _ in saveIfLoaded() }
+		.onChange(of: maxAgeDays) { _, _ in saveIfLoaded() }
+		.onChange(of: cleanupIntervalMinutes) { _, _ in saveIfLoaded() }
+		.errorAlert($error)
+	}
+
+	private func load() {
+		let rawVersioningType = folder.versioningType()
+		versioningType = VersioningType(rawValue: rawVersioningType) ?? .disabled
+		keep = intVersioningParam("keep", defaultValue: 5)
+		cleanoutDays = intVersioningParam("cleanoutDays", defaultValue: 0)
+		maxAgeDays = max(1, intVersioningParam("maxAge", defaultValue: 365 * 24 * 60 * 60) / (24 * 60 * 60))
+		cleanupIntervalMinutes = max(1, folder.versioningCleanupIntervalSeconds() / 60)
+		loaded = true
+	}
+
+	private func intVersioningParam(_ name: String, defaultValue: Int) -> Int {
+		let value = folder.versioningParam(name)
+		return Int(value) ?? defaultValue
+	}
+
+	private func saveIfLoaded() {
+		if !loaded {
+			return
+		}
+
+		do {
+			try folder.setVersioning(
+				versioningType.rawValue,
+				keep: max(1, keep),
+				cleanoutDays: max(0, cleanoutDays),
+				maxAgeDays: max(1, maxAgeDays),
+				cleanupIntervalSeconds: max(1, cleanupIntervalMinutes) * 60)
+		}
+		catch {
+			self.error = ErrorMessage(error)
+		}
+	}
+}
+
 private struct AdvancedFolderSettingsView: View {
 	@Environment(AppState.self) private var appState
 	let folder: SushitrainFolder
@@ -1274,6 +1428,12 @@ private struct AdvancedFolderSettingsView: View {
 							FolderThumbnailSettingsView(folder: folder)
 					) {
 						Label("Thumbnails", systemImage: "photo.stack")
+					}
+
+					NavigationLink(
+						destination: FolderVersioningSettingsView(folder: folder)
+					) {
+						Label("File versioning", systemImage: "clock.arrow.circlepath")
 					}
 
 					NavigationLink(

@@ -8326,6 +8326,52 @@
         }
       }
     },
+    "Cleanup interval (minutes)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereinigungsintervall (Minuten)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intervalo de limpieza (minutos)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intervallo di pulizia (minuti)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "クリーンアップ間隔（分）"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opschooninterval (minuten)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Інтервал очищення (хвилини)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清理间隔（分钟）"
+          }
+        }
+      }
+    },
     "Clear cache directory" : {
       "localizations" : {
         "de" : {
@@ -11888,6 +11934,52 @@
         }
       }
     },
+    "Disabled" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deaktiviert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactivado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disattivato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無効"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uitgeschakeld"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вимкнено"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已禁用"
+          }
+        }
+      }
+    },
     "Disabling 'watch for changes' for this folder may resolve the issue." : {
       "localizations" : {
         "de" : {
@@ -14828,6 +14920,98 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "文件类型"
+          }
+        }
+      }
+    },
+    "File versioning" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateiversionierung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versionado de archivos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versionamento dei file"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイルのバージョニング"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestandsversies"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Версія файлу"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件版本控制"
+          }
+        }
+      }
+    },
+    "File versions..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dateiversionen..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versiones de archivos..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versioni dei file..."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイルのバージョン..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestandsversies..."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Версії файлів..."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件版本..."
           }
         }
       }
@@ -20480,6 +20664,52 @@
         }
       }
     },
+    "Keep %lld versions" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Versionen behalten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantener %lld versiones"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantieni %lld versioni"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld バージョンを保持"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bewaar %lld versies"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зберігати %lld версій"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保留 %lld 个版本"
+          }
+        }
+      }
+    },
     "Keep all files in here" : {
       "localizations" : {
         "de" : {
@@ -22506,6 +22736,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "管理文件和文件夹"
+          }
+        }
+      }
+    },
+    "Maximum age (days)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximales Alter (Tage)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edad máxima (días)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Età massima (giorni)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最大年齢（日数）"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximale leeftijd (dagen)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Максимальний вік (дні)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最大年龄（天）"
           }
         }
       }
@@ -31384,6 +31660,98 @@
         }
       }
     },
+    "Set maximum age to 0 to keep deleted files until you remove them manually." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setzen Sie das maximale Alter auf 0, um gelöschte Dateien zu behalten, bis Sie sie manuell entfernen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Establezca la edad máxima en 0 para mantener los archivos eliminados hasta que los elimine manualmente."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imposta l'età massima su 0 per conservare i file eliminati fino a quando non li rimuovi manualmente."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手動で削除するまで削除済みファイルを保持するには、最大年齢を0に設定してください。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stel de maximale leeftijd in op 0 om verwijderde bestanden te behouden totdat u ze handmatig verwijdert."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Установіть максимальний вік на 0, щоб зберігати видалені файли, поки ви не видалите їх вручну."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将最大年龄设置为 0，以保留已删除的文件，直到您手动删除它们。"
+          }
+        }
+      }
+    },
+    "Set maximum age to 0 to keep versions regardless of age." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legen Sie das Höchstalter auf 0 fest, um Versionen unabhängig vom Alter zu behalten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Establezca la edad máxima en 0 para mantener las versiones independientemente de la edad."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imposta l'età massima a 0 per mantenere le versioni indipendentemente dall'età."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "年齢に関係なくバージョンを保持するには、最大年齢を0に設定してください。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stel maximale leeftijd in op 0 om versies te behouden, ongeacht de leeftijd."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Встановіть максимальний вік на 0, щоб зберігати версії незалежно від віку."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将最大年龄设置为0以保留版本，无论年龄如何。"
+          }
+        }
+      }
+    },
     "Settings" : {
       "localizations" : {
         "de" : {
@@ -32856,6 +33224,52 @@
         }
       }
     },
+    "Simple" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einfach"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simple"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semplice"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "シンプル"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eenvoudig"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Просто"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "简单"
+          }
+        }
+      }
+    },
     "Single folder" : {
       "localizations" : {
         "de" : {
@@ -33174,6 +33588,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "排序"
+          }
+        }
+      }
+    },
+    "Staggered" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestaffelt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escalonado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scaglionato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "段階的"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestaffeld"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ступінчастий"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分阶段"
           }
         }
       }
@@ -35156,6 +35616,144 @@
         }
       }
     },
+    "Synctrain moves files replaced or deleted by remote changes into the versions folder and keeps the configured number of old versions per file." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain verschiebt Dateien, die durch remote Änderungen ersetzt oder gelöscht wurden, in den Versionsordner und behält die konfigurierte Anzahl alter Versionen pro Datei bei."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain mueve los archivos reemplazados o eliminados por cambios remotos a la carpeta de versiones y mantiene el número configurado de versiones antiguas por archivo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain sposta i file sostituiti o eliminati da modifiche remote nella cartella delle versioni e mantiene il numero configurato di vecchie versioni per file."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrainは、リモートの変更によって置き換えられたり削除されたファイルをバージョンフォルダに移動し、ファイルごとに設定された古いバージョンの数を保持します。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain verplaatst bestanden die zijn vervangen of verwijderd door externe wijzigingen naar de versiemap en bewaart het ingestelde aantal oude versies per bestand."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain переміщує файли, замінені або видалені віддаленими змінами, до папки з версіями та зберігає налаштовану кількість старих версій на файл."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain 将被远程更改替换或删除的文件移动到版本文件夹，并保留每个文件的配置旧版本数量。"
+          }
+        }
+      }
+    },
+    "Synctrain moves files replaced or deleted by remote changes into the versions folder, replacing any older version with the same name." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain verschiebt Dateien, die durch Remote-Änderungen ersetzt oder gelöscht wurden, in den Versionsordner und ersetzt ältere Versionen mit demselben Namen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain mueve los archivos reemplazados o eliminados por cambios remotos a la carpeta de versiones, reemplazando cualquier versión anterior con el mismo nombre."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain sposta i file sostituiti o eliminati da modifiche remote nella cartella versioni, sostituendo eventuali versioni precedenti con lo stesso nome."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrainは、リモートの変更で置き換えられたり削除されたファイルをバージョンフォルダに移動し、同じ名前の古いバージョンを置き換えます。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain verplaatst bestanden die zijn vervangen of verwijderd door externe wijzigingen naar de versiemap en vervangt alle oudere versies met dezelfde naam."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain переміщує файли, замінені або видалені віддаленими змінами, в папку версій, замінюючи будь-яку старішу версію з такою ж назвою."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain 会将因远程更改而替换或删除的文件移动到版本文件夹中，替换同名的任何旧版本。"
+          }
+        }
+      }
+    },
+    "Synctrain moves files replaced or deleted by remote changes into the versions folder, then keeps fewer versions as they age." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain verschiebt Dateien, die durch entfernte Änderungen ersetzt oder gelöscht wurden, in den Versionsordner und behält im Laufe der Zeit weniger Versionen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain mueve los archivos reemplazados o eliminados por cambios remotos a la carpeta de versiones y luego conserva menos versiones a medida que envejecen."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain sposta i file sostituiti o eliminati da modifiche remote nella cartella delle versioni e mantiene meno versioni man mano che invecchiano."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain は、リモートの変更によって置き換えまたは削除されたファイルをバージョンフォルダに移動し、経時的にバージョンを減らして保管します。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain verplaatst bestanden die vervangen of verwijderd zijn door externe wijzigingen naar de versies map en houdt na verloop van tijd minder versies bij."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain переміщує файли, що були замінені або видалені через віддалені зміни, у папку з версіями і з часом зберігає менше версій."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain 将被远程更改替换或删除的文件移动到版本文件夹，然后随着时间的推移保留较少的版本。"
+          }
+        }
+      }
+    },
     "Synctrain will be able to automatically find and connect other devices on your local network as well as the internet, as long as the other devices are also configured to use Syncthing services." : {
       "localizations" : {
         "de" : {
@@ -35244,6 +35842,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Synctrain可以找到并连接到您本地网络上的其他设备，但在您手动配置设备地址、发现、STUN和/或中继服务器之前，它将无法通过互联网找到和连接到其他设备。"
+          }
+        }
+      }
+    },
+    "Synctrain will not keep old copies of files for this folder." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain wird keine alten Kopien von Dateien für diesen Ordner speichern."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain no mantendrá copias antiguas de archivos para esta carpeta."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain non conserverà copie vecchie dei file per questa cartella."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain は、このフォルダの古いファイルのコピーを保持しません。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain zal geen oude kopieën van bestanden bewaren voor deze map."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain не зберігатиме старі копії файлів для цієї папки."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synctrain 不会为该文件夹保留旧文件副本。"
           }
         }
       }
@@ -40826,6 +41470,52 @@
         }
       }
     },
+    "Trash can" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Papierkorb"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Papelera"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cestino"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゴミ箱"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prullenbak"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кошик"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "垃圾桶"
+          }
+        }
+      }
+    },
     "Troubleshooting" : {
       "localizations" : {
         "de" : {
@@ -42294,6 +42984,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "版本信息"
+          }
+        }
+      }
+    },
+    "Versioning" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versionierung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Control de versiones"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versionamento"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バージョン管理"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versiebeheer"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Керування версіями"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版本控制"
           }
         }
       }

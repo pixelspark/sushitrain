@@ -682,6 +682,13 @@ struct BrowserView: View {
 						Label("Files kept on this device...", systemImage: "pin")
 					}
 				}
+
+				if let versioningArchiveURL = folder.versioningArchiveURL {
+					Button("File versions...", systemImage: "clock.arrow.circlepath") {
+						openURLInSystemFilesApp(url: versioningArchiveURL)
+					}
+					.disabled(!folder.versioningArchiveExists)
+				}
 			}
 
 			Button("Folder settings...", systemImage: "folder.badge.gearshape") {

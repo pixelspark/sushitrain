@@ -201,6 +201,28 @@ extension SushitrainFolder {
 		return (self.sharedEncryptedWithDeviceIDs()?.count() ?? 0) > 0
 	}
 
+	var versioningArchiveURL: URL? {
+		if self.versioningType().isEmpty {
+			return nil
+		}
+
+		let path = self.versioningPath()
+		if path.isEmpty {
+			return nil
+		}
+		return URL(fileURLWithPath: path)
+	}
+
+	var versioningArchiveExists: Bool {
+		guard let url = self.versioningArchiveURL else {
+			return false
+		}
+
+		var isDirectory: ObjCBool = false
+		return FileManager.default.fileExists(atPath: url.path(percentEncoded: false), isDirectory: &isDirectory)
+			&& isDirectory.boolValue
+	}
+
 	@MainActor
 	func removeFolderAndSettings() throws {
 		FolderSettingsManager.shared.removeSettingsFor(folderID: self.folderID)

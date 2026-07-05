@@ -99,7 +99,7 @@ extension AppState {
 			osVersion: self.osVersion
 		)
 	}
-	
+
 	private var osVersion: String {
 		#if os(iOS)
 			return UIDevice.current.systemVersion
@@ -108,7 +108,7 @@ extension AppState {
 			return "\(ver.majorVersion).\(ver.minorVersion).\(ver.patchVersion)"
 		#endif
 	}
-	
+
 	private var osName: String {
 		#if os(iOS)
 			return UIDevice.current.systemName
