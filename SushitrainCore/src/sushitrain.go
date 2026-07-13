@@ -110,7 +110,7 @@ const (
 
 func NewClient(configPath string, filesPath string, saveLog bool) *Client {
 	// Set version info
-	build.Version = "v2.1.1"
+	build.Version = "v2.1.2"
 	build.Host = "t-shaped.nl"
 	build.User = "sushitrain"
 
@@ -1112,7 +1112,7 @@ func (clt *Client) UploadProgressForPeerFolderPath(deviceID string, folderID str
 					return nil
 				}
 
-				bytesTotal := info.FileSize()
+				bytesTotal := info.Size
 				if bytesTotal == 0 {
 					return nil
 				}

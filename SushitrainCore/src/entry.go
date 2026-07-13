@@ -88,7 +88,7 @@ func (entry *Entry) SymlinkTargetEntry() (*Entry, error) {
 }
 
 func (entry *Entry) Size() int64 {
-	return entry.info.FileSize()
+	return entry.info.Size
 }
 
 func (entry *Entry) RecursiveSize() (int64, error) {
