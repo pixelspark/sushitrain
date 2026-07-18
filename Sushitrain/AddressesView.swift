@@ -53,7 +53,7 @@ enum AddressType {
 private struct AddressView: View {
 	@State var address: String = ""
 	var addressType: AddressType
-	let onChange: (_ address: String) -> Void
+	let onSave: (_ address: String) -> Void
 
 	// When filled, takes precedence over URL(address).host
 	// When setting address, either this is filled, or when URL(address).host == new host, it can be set to nil
@@ -203,10 +203,11 @@ private struct AddressView: View {
 							},
 							set: { nv in
 								var url =
-									URLComponents(url: URL(string: self.address) ?? URL(string: "tcp://")!, resolvingAgainstBaseURL: false)
+									URLComponents(
+										url: self.url ?? URL(string: "\(self.addressType.defaultScheme)://")!, resolvingAgainstBaseURL: false)
 									?? URLComponents()
 								url.port = Int(nv)
-								self.address = url.string ?? ""
+								self.url = url.url
 							}), prompt: Text("22000")
 					).multilineTextAlignment(.trailing)
 						#if os(iOS)
@@ -300,8 +301,8 @@ private struct AddressView: View {
 				}
 			}
 		}
-		.onChange(of: self.address) { _, nv in
-			self.onChange(nv)
+		.onDisappear {
+			self.onSave(self.address)
 		}
 		.navigationTitle(self.address)
 		#if os(macOS)
@@ -331,8 +332,9 @@ struct AddressesView: View {
 	}
 
 	private func save(_ addresses: [String]) {
-		// Remove duplicates
-		var newAddresses = Array(Set(addresses))
+		// Remove duplicates while preserving the user's current row order.
+		var seenAddresses = Set<String>()
+		var newAddresses = addresses.filter { seenAddresses.insert($0).inserted }
 
 		// Merge default addresses into 'default'
 		if self.addressType == .listening {
@@ -474,7 +476,7 @@ struct AddressesView: View {
 							destination: AddressView(
 								address: addresses[idx.offset],
 								addressType: addressType,
-								onChange: {
+								onSave: {
 									var newAddresses = addresses
 									newAddresses[idx.offset] = $0
 									self.save(newAddresses)
@@ -504,7 +506,6 @@ struct AddressesView: View {
 				Button("Add address") {
 					// Uses self.onChange instead of self.save because .save deduplicates
 					var newAddresses = self.addresses + [self.addressType.templateAddress]
-					newAddresses.sort()
 					self.onChange(newAddresses)
 				}
 				.deleteDisabled(true)

@@ -11,15 +11,19 @@ private struct DeviceAddressesView: View {
 	@Environment(AppState.self) private var appState
 	@State private var addresses: [String] = []
 	@State private var error: String? = nil
+	@State private var loading = false
 
 	var body: some View {
 		AddressesView(
 			addresses: self.addresses,
 			onChange: {
 				self.addresses = $0
-				self.write()
+				if !loading {
+					self.write()
+				}
 			}, addressType: .device
 		)
+		.disabled(loading)
 		#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)
 		#endif
@@ -35,11 +39,13 @@ private struct DeviceAddressesView: View {
 	}
 
 	private func update() async {
+		self.loading = true
 		let device = self.device
 		self.addresses = await Task.detached {
 			return device.addresses()?.asArray() ?? []
 		}.value
 		self.addresses.sort()
+		self.loading = false
 	}
 
 	private func write() {
