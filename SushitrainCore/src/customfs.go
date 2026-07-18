@@ -27,7 +27,8 @@ type customFilesystem struct {
 type customFile struct {
 	info     *customFileWrapper
 	position int64
-	data     []byte
+	data     []byte // preloaded contents for non-streaming entries; nil when streaming
+	stream   bool   // when true, contents are pulled lazily through info.file.ReadAt
 	mut      *sync.Mutex
 }
 
@@ -45,6 +46,18 @@ type CustomFileEntry interface {
 	Data() ([]byte, error)
 	ModifiedTime() int64
 	Bytes() (int, error)
+
+	// Streams reports whether this entry should be read lazily in ranges (through ReadAt)
+	// instead of being fully loaded into memory through Data(). Large media such as videos
+	// return true to avoid loading the entire file into memory (which would get the app
+	// killed on iOS). Small entries (images, static files) return false and keep the
+	// original behavior of being preloaded once on open.
+	Streams() bool
+
+	// ReadAt returns up to length bytes starting at offset. It is only called for entries
+	// that return true from Streams(). Returning fewer bytes than requested is allowed; an
+	// empty result signals end-of-file.
+	ReadAt(offset int64, length int) ([]byte, error)
 }
 
 type CustomFilesystemType interface {
@@ -89,12 +102,18 @@ func (p *customFilesystem) OpenFile(name string, flags int, mode fs.FileMode) (f
 		return nil, err
 	}
 
-	var data []byte
-	if data, err = item.file.Data(); err != nil {
-		return nil, err
+	cf := &customFile{info: item, mut: &sync.Mutex{}, stream: item.file.Streams()}
+
+	// Non-streaming entries (images, small static files) are fully loaded into memory once and
+	// served from that buffer. Streaming entries (e.g. videos) are read lazily in ranges to
+	// avoid loading the whole file into memory.
+	if !cf.stream {
+		if cf.data, err = item.file.Data(); err != nil {
+			return nil, err
+		}
 	}
 
-	return &customFile{info: item, data: data, mut: &sync.Mutex{}}, nil
+	return cf, nil
 }
 
 func (p *customFilesystem) Glob(pattern string) ([]string, error) {
@@ -304,20 +323,47 @@ func (p *customFile) Name() string {
 }
 
 func (cf *customFile) Read(p []byte) (n int, err error) {
-	n, err = cf.ReadAt(p, cf.position)
+	cf.mut.Lock()
+	defer cf.mut.Unlock()
+	n, err = cf.readAtLocked(p, cf.position)
+	cf.position += int64(n)
 	return
 }
 
+// ReadAt is position-independent (io.ReaderAt): it must not affect nor be affected by the seek offset.
 func (cf *customFile) ReadAt(p []byte, offset int64) (n int, err error) {
 	cf.mut.Lock()
 	defer cf.mut.Unlock()
+	return cf.readAtLocked(p, offset)
+}
+
+// readAtLocked performs a read at offset without touching the seek position. The caller must hold mut.
+func (cf *customFile) readAtLocked(p []byte, offset int64) (n int, err error) {
+	if cf.stream {
+		size := cf.info.Size()
+		if size >= 0 && offset >= size {
+			return 0, io.EOF
+		}
+
+		// Fill p by pulling ranges from the Swift side until it is full or we reach EOF.
+		for n < len(p) {
+			chunk, e := cf.info.file.ReadAt(offset+int64(n), len(p)-n)
+			if e != nil {
+				return n, e
+			}
+			if len(chunk) == 0 {
+				break // reached end of file
+			}
+			n += copy(p[n:], chunk)
+		}
+		return n, nil
+	}
 
 	if offset >= int64(len(cf.data)) {
 		return 0, io.EOF
 	}
 
 	n = copy(p, cf.data[int(offset):])
-	cf.position = offset + int64(n)
 	return n, nil
 }
 

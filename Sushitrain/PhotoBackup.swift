@@ -807,7 +807,8 @@ enum PhotoBackupProgress {
 }
 
 extension PHAsset {
-	fileprivate var primaryResource: PHAssetResource? {
+	// Used by both the photo back-up and the photo folder (PhotoFS) to export the original media.
+	var primaryResource: PHAssetResource? {
 		let types: Set<PHAssetResourceType>
 
 		switch mediaType {
@@ -890,17 +891,38 @@ extension PHAsset {
 		return components
 	}
 
+	// Subdirectory components (relative to the asset's base directory) for the paired video of a live
+	// photo: the same components as the still image, plus a "Live" subdirectory for the type-grouped
+	// folder structures. Shared between the photo back-up and photo folders (PhotoFS).
+	func livePhotoSubdirectories(structure: PhotoBackupFolderStructure, timeZone: PhotoBackupTimeZone) -> [String] {
+		var components = self.subdirectoriesInFolder(structure: structure, timeZone: timeZone)
+		switch structure {
+		case .byDateAndType, .byType, .byDateComponentAndType, .byYearAndType, .byYearMonthAndType, .byYearDashMonthAndType:
+			components.append("Live")
+		case .byDate, .singleFolder, .singleFolderDatePrefixed, .byDateComponent, .byYear, .byYearMonth, .byYearDashMonth:
+			break
+		}
+		return components
+	}
+
+	// File name for the paired video of a live photo, either replacing (IMG_1337.MOV) or appending
+	// (IMG_1337.HEIC.MOV) the .MOV extension. Shared between the photo back-up and photo folders.
+	func livePhotoFileName(structure: PhotoBackupFolderStructure, replaceExtension: Bool) -> String {
+		let base = self.fileNameInFolder(structure: structure)
+		if replaceExtension {
+			return (base as NSString).deletingPathExtension + ".MOV"
+		}
+		return base + ".MOV"
+	}
+
 	fileprivate func livePhotoDirectoryPathInFolder(
 		structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath, timeZone: PhotoBackupTimeZone
 	)
 		-> EntryPath
 	{
-		var path = self.directoryPathInFolder(structure: structure, subdirectoryPath: subdirectoryPath, timeZone: timeZone)
-		switch structure {
-		case .byDateAndType, .byType, .byDateComponentAndType, .byYearAndType, .byYearMonthAndType, .byYearDashMonthAndType:
-			path = path.appending("Live", isDirectory: true)
-		case .byDate, .singleFolder, .singleFolderDatePrefixed, .byDateComponent, .byYear, .byYearMonth, .byYearDashMonth:
-			break
+		var path = subdirectoryPath
+		for component in self.livePhotoSubdirectories(structure: structure, timeZone: timeZone) {
+			path = path.appending(component, isDirectory: true)
 		}
 		return path
 	}
@@ -909,20 +931,10 @@ extension PHAsset {
 		structure: PhotoBackupFolderStructure, subdirectoryPath: EntryPath, timeZone: PhotoBackupTimeZone,
 		replaceExtension: Bool
 	) -> EntryPath {
-		var fileName = self.fileNameInFolder(structure: structure)
-		if replaceExtension {
-			// Replace file extension: IMG_1337.MOV
-			fileName = (fileName as NSString).deletingPathExtension + ".MOV"
-		}
-		else {
-			// Append file extension: IMG_1337.HEIC.MOV
-			fileName += ".MOV"
-		}
-
 		return self.livePhotoDirectoryPathInFolder(
 			structure: structure, subdirectoryPath: subdirectoryPath, timeZone: timeZone
 		)
-		.appending(fileName, isDirectory: false)
+		.appending(self.livePhotoFileName(structure: structure, replaceExtension: replaceExtension), isDirectory: false)
 	}
 
 	func fileNameInFolder(structure: PhotoBackupFolderStructure) -> String {
