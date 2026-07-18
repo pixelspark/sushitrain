@@ -315,7 +315,7 @@ func (e *entryReadSeeker) Read(p []byte) (n int, err error) {
 		}
 
 		// Write buffer
-		slog.Info("sending block", "blockIndex", blockIndex, "bufStart", bufStart, "bufEnd", bufEnd, "bufLength", len(buf), "bytes", bufEnd-bufStart)
+		slog.Debug("sending block", "blockIndex", blockIndex, "bufStart", bufStart, "bufEnd", bufEnd, "bufLength", len(buf), "bytes", bufEnd-bufStart)
 		copy(p[bytesRead:], buf[bufStart:bufEnd])
 		bytesRead += (bufEnd - bufStart)
 		if e.callback != nil {

@@ -113,7 +113,7 @@ func (mp *miniPuller) downloadBlock(ctx context.Context, folderID string, blockI
 
 	// Do we have this file in the local cache?
 	if cached, ok := blockCache.Get(blockHashString); ok {
-		slog.Info("cache hit for block", "hash", blockHashString)
+		slog.Debug("cache hit for block", "hash", blockHashString)
 		return cached, nil
 	}
 
@@ -125,7 +125,7 @@ func (mp *miniPuller) downloadBlock(ctx context.Context, folderID string, blockI
 		return nil, errors.New("no peer available")
 	}
 
-	slog.Info("download block", "index", blockIndex, "availablePeers", len(availables))
+	slog.Debug("download block", "index", blockIndex, "availablePeers", len(availables))
 
 	// Sort availables by latency
 	slices.SortFunc(availables, func(a model.Availability, b model.Availability) int {
