@@ -347,7 +347,7 @@ struct AdvancedSettingsView: View {
 							}
 					}
 				}
-				.disabled(!appState.client.isNATEnabled())
+				.disabled(!appState.client.isSTUNEnabled())
 				#if os(macOS)
 					.buttonStyle(.link)
 				#endif
