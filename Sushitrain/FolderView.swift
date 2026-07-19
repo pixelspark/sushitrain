@@ -1493,9 +1493,7 @@ private struct AdvancedFolderSettingsView: View {
 								}
 							}
 					}
-					#if os(macOS)
-						.presentationSizing(.fitted.sticky(horizontal: false, vertical: true))
-					#endif
+
 				}
 				#if os(macOS)
 					.buttonStyle(.link)
@@ -1514,9 +1512,6 @@ private struct AdvancedFolderSettingsView: View {
 								}
 							}
 					}
-					#if os(macOS)
-						.presentationSizing(.fitted.sticky(horizontal: false, vertical: true))
-					#endif
 				}
 				#if os(macOS)
 					.buttonStyle(.link)
@@ -1535,9 +1530,6 @@ private struct AdvancedFolderSettingsView: View {
 								}
 							}
 					}
-					#if os(macOS)
-						.presentationSizing(.fitted.sticky(horizontal: false, vertical: true))
-					#endif
 				}
 				#if os(macOS)
 					.buttonStyle(.link)
