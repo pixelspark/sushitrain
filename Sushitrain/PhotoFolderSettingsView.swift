@@ -74,25 +74,40 @@ struct PhotoFolderConfigurationView: View {
 		Section("Albums") {
 			let folderPairs = Array(config.folders)
 			ForEach(folderPairs, id: \.key) { folderName, albumConfig in
-				Button(folderName, systemImage: "folder.fill") {
-					editingAlbumConfig = albumConfig
-					editingOldDirName = folderName
-					editingDirName = folderName
-					self.showingSheet = .editing
+				HStack {
+					Button(folderName, systemImage: "folder.fill") {
+						editingAlbumConfig = albumConfig
+						editingOldDirName = folderName
+						editingDirName = folderName
+						self.showingSheet = .editing
+					}
+					#if os(macOS)
+						.buttonStyle(.link)
+						.padding(3.0)
+						.multilineTextAlignment(.leading)
+					#endif
+
+					Spacer()
+
+					#if os(macOS)
+						Button("Delete", systemImage: "trash") {
+							self.config.folders.removeValue(forKey: folderName)
+						}
+						.labelStyle(.iconOnly)
+						.buttonStyle(.borderless)
+					#endif
 				}
-				#if os(macOS)
-					.buttonStyle(.link)
-					.padding(3.0)
-				#endif
 			}
-			.onDelete { idxs in
-				Task {
-					for idx in idxs {
-						let albumName = folderPairs[idx].key
-						self.config.folders.removeValue(forKey: albumName)
+			#if os(iOS)
+				.onDelete { idxs in
+					Task {
+						for idx in idxs {
+							let albumName = folderPairs[idx].key
+							self.config.folders.removeValue(forKey: albumName)
+						}
 					}
 				}
-			}
+			#endif
 			Button("Add album...", systemImage: "plus") {
 				editingAlbumConfig = PhotoFSAlbumConfiguration()
 				self.showingSheet = .adding
@@ -117,8 +132,14 @@ struct PhotoFolderConfigurationView: View {
 											if editingAlbumConfig.isValid {
 												self.edit()
 											}
-										}
+										}.disabled(!editingAlbumConfig.isValid)
 									})
+
+								ToolbarItem(placement: .cancellationAction) {
+									Button("Cancel") {
+										self.showingSheet = nil
+									}
+								}
 							}
 
 					case .adding:
@@ -135,6 +156,11 @@ struct PhotoFolderConfigurationView: View {
 											self.add()
 										}.disabled(editingDirName.isEmpty || !editingAlbumConfig.isValid)
 									})
+								ToolbarItem(placement: .cancellationAction) {
+									Button("Cancel") {
+										self.showingSheet = nil
+									}
+								}
 							}
 					}
 				}
@@ -176,17 +202,18 @@ private struct PhotoFolderAlbumSettingsView: View {
 	@Environment(AppState.self) private var appState
 	@State private var authorizationStatus: PHAuthorizationStatus = .notDetermined
 	@State private var albumPickerShown = false
+	@State private var albums: [PHAssetCollection]? = nil
 
 	var body: some View {
-		let albums = self.authorizationStatus == .authorized ? self.loadAlbums() : []
-
 		Form {
 			Section {
 				if authorizationStatus == .authorized {
 					Picker("From album", selection: $config.albumID) {
 						Text("None").tag("")
-						ForEach(albums, id: \.localIdentifier) { album in
-							Text(album.localizedTitle ?? "Unknown album").tag(album.localIdentifier)
+						if let albums = self.albums {
+							ForEach(albums, id: \.localIdentifier) { album in
+								Text(album.localizedTitle ?? "Unknown album").tag(album.localIdentifier)
+							}
 						}
 					}
 					.pickerStyle(.menu)
@@ -194,7 +221,7 @@ private struct PhotoFolderAlbumSettingsView: View {
 						// Set directory name to album name in case no directory name was entered yet
 						if self.dirName.isEmpty {
 							// Find album name
-							if let albumInfo = albums.first(where: { $0.localIdentifier == newValue }) {
+							if let albumInfo = self.albums?.first(where: { $0.localIdentifier == newValue }) {
 								self.dirName = albumInfo.localizedTitle ?? self.dirName
 							}
 						}
@@ -271,6 +298,7 @@ private struct PhotoFolderAlbumSettingsView: View {
 		#endif
 		.task {
 			authorizationStatus = PHPhotoLibrary.authorizationStatus()
+			await self.update()
 		}
 		.navigationTitle(dirName.isEmpty ? "Add album" : "Settings for '\(dirName)'")
 	}
@@ -283,7 +311,14 @@ private struct PhotoFolderAlbumSettingsView: View {
 		}
 	}
 
-	func loadAlbums() -> [PHAssetCollection] {
+	private func update() async {
+		self.albums = await Task.detached {
+			return await self.loadAlbums()
+		}.value
+	}
+
+	@concurrent private func loadAlbums() async -> [PHAssetCollection] {
+		dispatchPrecondition(condition: .notOnQueue(.main))
 		var albums: [PHAssetCollection] = []
 		let options = PHFetchOptions()
 		options.sortDescriptors = [NSSortDescriptor(key: "localizedTitle", ascending: true)]
