@@ -245,6 +245,7 @@ private class PhotoFSAlbumEntry: CustomFSEntry {
 			self.lastChangeCounter = PhotoFSLibraryObserver.shared.changeCounter
 			let fetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [self.config.albumID], options: nil)
 			guard let album = fetchResult.firstObject else {
+				self.children = []
 				throw PhotoFSError.albumNotFound
 			}
 
