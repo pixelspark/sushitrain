@@ -103,6 +103,12 @@ struct PhotoBackupSettingsView: View {
 	@State private var albums: [PHAssetCollection] = []
 	@State private var smartAlbums: [PHAssetCollection] = []
 
+	private var selectedAlbumExists: Bool {
+		let selectedAlbumID = photoBackup.selectedAlbumID
+		return albums.contains { $0.localIdentifier == selectedAlbumID }
+			|| smartAlbums.contains { $0.localIdentifier == selectedAlbumID }
+	}
+
 	var body: some View {
 		Form {
 			Section {
@@ -126,6 +132,12 @@ struct PhotoBackupSettingsView: View {
 						Section("Smart albums") {
 							ForEach(smartAlbums, id: \.localIdentifier) { album in
 								Text(album.localizedTitle ?? "Unknown album").tag(album.localIdentifier)
+							}
+						}
+
+						if !selectedAlbumExists {
+							Section {
+								Text("Unknown album").tag(photoBackup.selectedAlbumID)
 							}
 						}
 					}

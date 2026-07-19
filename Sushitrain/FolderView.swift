@@ -638,104 +638,159 @@ struct FolderView: View {
 	@Environment(AppState.self) private var appState
 	@Environment(\.dismiss) private var dismiss
 
+	private enum FolderViewTab: String, CaseIterable, Identifiable {
+		case general = "general"
+		case sharing = "sharing"
+		case photo = "photo"
+		case advanced = "advanced"
+		var id: Self { self }
+	}
+
 	@State private var advancedExpanded = false
 	@State private var possiblePeers: [SushitrainPeer] = []
 	@State private var unsupportedDataProtection = false
+	@State private var selectedTab: FolderViewTab = .general
+	@State private var isExternal: Bool? = nil
+	@State private var isPhotoFolder = false
 
 	func update() async {
+		self.isExternal = folder.isExternal
+		self.isPhotoFolder = folder.isPhotoFolder
 		self.possiblePeers = await appState.peers().sorted().filter({ d in !d.isSelf() })
 		self.unsupportedDataProtection =
 			self.folder.isRegularFolder && URL(fileURLWithPath: self.folder.path()).hasUnsupportedProtection()
 	}
 
 	var body: some View {
-		let isExternal = folder.isExternal
-		let isPhotoFolder = folder.isPhotoFolder
+		if folder.exists() {
+			VStack {
+				#if os(macOS)
+					self.tabSwitcher()
+				#endif
 
-		Form {
-			if folder.exists() {
-				if isPhotoFolder {
-					PhotoFolderSectionView()
-				}
-				else if isExternal == true {
-					ExternalFolderSectionView(folder: folder)
-				}
-
-				if self.unsupportedDataProtection {
-					Section {
-						Label("Limited access", systemImage: "xmark.circle")
-							.foregroundStyle(.red)
-					} footer: {
-						Text("The selected folder is protected, and therefore cannot be accessed while the device is locked.")
-					}
-				}
-
-				Section {
-					Text("Folder ID").badge(Text(folder.folderID))
-
-					LabeledContent {
-						TextField(
-							"",
-							text: Binding(get: { folder.label() }, set: { lbl in try? folder.setLabel(lbl) }),
-							prompt: Text(folder.folderID)
-						)
-						.multilineTextAlignment(.trailing)
-					} label: {
-						Text("Display name")
-					}
-
-					FolderDirectionPicker(folder: folder).disabled(isPhotoFolder || folder.isReceiveEncryptedFolder).id(
-						appState.eventCounter)
-
-					FolderSyncTypePicker(folder: folder).disabled(isPhotoFolder || folder.isReceiveEncryptedFolder).id(
-						appState.eventCounter)
-				} header: {
-					Text("Folder settings")
-				} footer: {
-					if isPhotoFolder {
-						Text("Photo folders can only be send-only and cannot be selectively synchronized.")
-					}
-				}
-
-				Section {
-					Toggle(
-						"Synchronize",
-						isOn: Binding(
-							get: { !folder.isPaused() },
-							set: { active in try? folder.setPaused(!active) })
-					)
-				}
-
-				if folder.isPhotoFolder {
-					PhotoFolderSettingsView(folder: self.folder)
-				}
-
-				if folder.isRegularFolder || folder.isPhotoFolder || folder.isReceiveEncryptedFolder {
-					NavigationLink(destination: AdvancedFolderSettingsView(folder: self.folder)) {
-						Label("Advanced folder settings", systemImage: "gear")
-					}
-				}
-
-				if !possiblePeers.isEmpty {
-					Section(header: Text("Shared with")) {
-						ForEach(self.possiblePeers, id: \.self.id) { (addr: SushitrainPeer) in
-							ShareWithDeviceToggleView(
-								peer: addr, folder: folder,
-								showFolderName: false)
+				Form {
+					#if os(iOS)
+						Section {
+							self.tabSwitcher()
 						}
+					#endif
+
+					switch selectedTab {
+					case .general:
+						self.generalSection()
+					case .sharing:
+						self.sharingSection()
+					case .photo:
+						PhotoFolderSettingsView(folder: self.folder)
+					case .advanced:
+						AdvancedFolderSettingsView(folder: self.folder)
 					}
+				}
+				#if os(macOS)
+					.formStyle(.grouped)
+				#endif
+			}
+			#if os(iOS)
+				.navigationBarTitleDisplayMode(.inline)
+			#endif
+			.navigationTitle(folder.displayName)
+			.task {
+				await self.update()
+			}
+		}
+	}
+
+	@ViewBuilder private func tabSwitcher() -> some View {
+		Picker("Page", selection: $selectedTab) {
+			Text("General").tag(FolderViewTab.general)
+			Text("Sharing").tag(FolderViewTab.sharing)
+			if isPhotoFolder {
+				Label("Albums", systemImage: "photo.on.rectangle.angled").tag(FolderViewTab.photo)
+			}
+			if folder.isRegularFolder || folder.isPhotoFolder || folder.isReceiveEncryptedFolder {
+				Label("Advanced", systemImage: "gear").tag(FolderViewTab.advanced)
+			}
+		}
+		.pickerStyle(.segmented)
+		.controlSize(.large)
+		.dynamicTypeSize(.large)
+		.listRowBackground(Color.clear)
+		.background(Color.clear)
+		.labelsHidden()
+		.scrollContentBackground(.hidden)
+		.listRowInsets(
+			EdgeInsets(
+				top: 0,
+				leading: 0,
+				bottom: 8,
+				trailing: 0
+			)
+		)
+	}
+
+	@ViewBuilder private func sharingSection() -> some View {
+		if !possiblePeers.isEmpty {
+			Section(header: Text("Shared with")) {
+				ForEach(self.possiblePeers, id: \.self.id) { (addr: SushitrainPeer) in
+					ShareWithDeviceToggleView(
+						peer: addr, folder: folder,
+						showFolderName: false)
 				}
 			}
 		}
-		#if os(macOS)
-			.formStyle(.grouped)
-		#endif
-		#if os(iOS)
-			.navigationBarTitleDisplayMode(.inline)
-		#endif
-		.navigationTitle(folder.displayName)
-		.task {
-			await self.update()
+	}
+
+	@ViewBuilder private func generalSection() -> some View {
+		if self.isPhotoFolder {
+			PhotoFolderSectionView()
+		}
+		else if self.isExternal == true {
+			ExternalFolderSectionView(folder: folder)
+		}
+
+		if self.unsupportedDataProtection {
+			Section {
+				Label("Limited access", systemImage: "xmark.circle")
+					.foregroundStyle(.red)
+			} footer: {
+				Text("The selected folder is protected, and therefore cannot be accessed while the device is locked.")
+			}
+		}
+
+		Section {
+			Text("Folder ID").badge(Text(folder.folderID))
+
+			LabeledContent {
+				TextField(
+					"",
+					text: Binding(get: { folder.label() }, set: { lbl in try? folder.setLabel(lbl) }),
+					prompt: Text(folder.folderID)
+				)
+				.multilineTextAlignment(.trailing)
+			} label: {
+				Text("Display name")
+			}
+
+			FolderDirectionPicker(folder: folder).disabled(isPhotoFolder || folder.isReceiveEncryptedFolder).id(
+				appState.eventCounter)
+
+			FolderSyncTypePicker(folder: folder).disabled(isPhotoFolder || folder.isReceiveEncryptedFolder).id(
+				appState.eventCounter)
+		} header: {
+			Text("Folder settings")
+		} footer: {
+			if isPhotoFolder {
+				Text("Photo folders can only be send-only and cannot be selectively synchronized.")
+			}
+		}
+
+		Section {
+			Toggle(
+				"Synchronize",
+				isOn: Binding(
+					get: { !folder.isPaused() },
+					set: { active in try? folder.setPaused(!active) })
+			)
 		}
 	}
 }
@@ -1382,203 +1437,251 @@ private struct AdvancedFolderSettingsView: View {
 		@State private var showIgnores: Bool = false
 	#endif
 
+	@State private var showThumbnailsSettingsSheet: Bool = false
+	@State private var showVersioningSettingsSheet: Bool = false
+	@State private var showExternalSharingSettingsSheet: Bool = false
+
 	var body: some View {
-		let isExternal = folder.isExternal
+		self.subSettingsSection()
+		self.folderGroupSection()
+		self.systemSettingsSection()
+		self.watchSection()
+		self.conflictsSection()
+		self.blockIndexSection()
+	}
 
-		Form {
-			Section {
-				LabeledContent {
-					TextField(
-						"",
-						text: Binding(get: { folder.group() }, set: { lbl in try? folder.setGroup(lbl) }),
-						prompt: Text("(Default group)")
-					)
-					.multilineTextAlignment(.trailing)
-				} label: {
-					Text("Folder group")
-				}
-			}
-
+	@ViewBuilder private func subSettingsSection() -> some View {
+		// Sub screens for editing advanced settings
+		Section {
 			// Ignore patterns editor (on macOS, this is accessible directly from the folder menu)
 			#if os(iOS)
 				if !folder.isSelective() && !folder.isPhotoFolder && !folder.isReceiveEncryptedFolder {
-					Section {
-						Button("Files to ignore", systemImage: "rectangle.dashed") {
-							showIgnores = true
+					Button("Files to ignore", systemImage: "rectangle.dashed") {
+						showIgnores = true
+					}
+					.sheet(isPresented: $showIgnores) {
+						NavigationStack {
+							IgnoresView(folder: self.folder)
 						}
 					}
 				}
 
 				// Selective folder ignore patterns (accessible both on iOS and macOS from this place)
 				if folder.isSelective() && !folder.isPhotoFolder && !folder.isReceiveEncryptedFolder {
-					Section {
-						Button("Files to ignore", systemImage: "rectangle.dashed") {
-							showSelectiveIgnores = true
+					Button("Files to ignore", systemImage: "rectangle.dashed") {
+						showSelectiveIgnores = true
+					}
+					.sheet(isPresented: $showSelectiveIgnores) {
+						NavigationStack {
+							SelectiveIgnoresView(folder: self.folder)
 						}
 					}
 				}
 			#endif
 
-			// Sub screens for editing advanced settings
-			Section {
-				// Thumbnail settings
-				if !folder.isReceiveEncryptedFolder {
-					NavigationLink(
-						destination:
-							FolderThumbnailSettingsView(folder: folder)
-					) {
-						Label("Thumbnails", systemImage: "photo.stack")
-					}
-
-					NavigationLink(
-						destination: FolderVersioningSettingsView(folder: folder)
-					) {
-						Label("File versioning", systemImage: "clock.arrow.circlepath")
-					}
-
-					NavigationLink(
-						destination: ExternalSharingSettingsView(folder: self.folder)
-					) {
-						Label("External sharing", systemImage: "link.circle.fill")
-					}
-				}
-			}
-
-			// System settings
-			if !folder.isPhotoFolder {
-				Section("System settings") {
-					#if os(iOS)
-						Toggle(
-							"Include in device back-up",
-							isOn: Binding(
-								get: {
-									if let f = folder.isExcludedFromBackup {
-										return !f
-									}
-									return false
-								},
-								set: { nv in
-									folder.isExcludedFromBackup = !nv
-								})
-						).disabled(isExternal != false)
-					#endif
-
-					Toggle(
-						"Hide in Files app",
-						isOn: Binding(
-							get: {
-								if let f = folder.isHidden { return f }
-								return false
-							},
-							set: { nv in
-								folder.isHidden = nv
-							})
-					).disabled(isExternal != false)
-				}
-			}
-
+			// Thumbnail settings button
 			if !folder.isReceiveEncryptedFolder {
-				Section("Change detection") {
+				Button("Thumbnails", systemImage: "photo.stack") {
+					showThumbnailsSettingsSheet = true
+				}
+				.sheet(isPresented: $showThumbnailsSettingsSheet) {
+					NavigationStack {
+						FolderThumbnailSettingsView(folder: folder)
+							.toolbar {
+								SheetButton(role: .done) {
+									showThumbnailsSettingsSheet = false
+								}
+							}
+					}
+					#if os(macOS)
+						.presentationSizing(.fitted.sticky(horizontal: false, vertical: true))
+					#endif
+				}
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
+
+				// File versioning settings button
+				Button("File versioning", systemImage: "clock.arrow.circlepath") {
+					showVersioningSettingsSheet = true
+				}
+				.sheet(isPresented: $showVersioningSettingsSheet) {
+					NavigationStack {
+						FolderVersioningSettingsView(folder: folder)
+							.toolbar {
+								SheetButton(role: .done) {
+									showVersioningSettingsSheet = false
+								}
+							}
+					}
+					#if os(macOS)
+						.presentationSizing(.fitted.sticky(horizontal: false, vertical: true))
+					#endif
+				}
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
+
+				// External sharing settings button
+				Button("External sharing", systemImage: "link.circle.fill") {
+					showExternalSharingSettingsSheet = true
+				}
+				.sheet(isPresented: $showExternalSharingSettingsSheet) {
+					NavigationStack {
+						ExternalSharingSettingsView(folder: self.folder)
+							.toolbar {
+								SheetButton(role: .done) {
+									showExternalSharingSettingsSheet = false
+								}
+							}
+					}
+					#if os(macOS)
+						.presentationSizing(.fitted.sticky(horizontal: false, vertical: true))
+					#endif
+				}
+				#if os(macOS)
+					.buttonStyle(.link)
+				#endif
+			}
+		}
+	}
+
+	@ViewBuilder private func folderGroupSection() -> some View {
+		Section {
+			LabeledContent {
+				TextField(
+					"",
+					text: Binding(get: { folder.group() }, set: { lbl in try? folder.setGroup(lbl) }),
+					prompt: Text("(Default group)")
+				)
+				.multilineTextAlignment(.trailing)
+			} label: {
+				Text("Folder group")
+			}
+		}
+	}
+
+	@ViewBuilder private func blockIndexSection() -> some View {
+		Section {
+			BlockIndexToggle(folder: folder)
+				.errorAlert($showError)
+		} footer: {
+			Text(
+				"When receiving files from other peers, the block index can be used to find pieces of a file that are already on the device, which reduced data transfer. However, the block index takes up space on the disk. It is recommended to only enable the block index when this folder contains files that are present in other folders as well, and/or appear multiple times."
+			)
+		}
+	}
+
+	@ViewBuilder private func conflictsSection() -> some View {
+		if !folder.isReceiveEncryptedFolder && !folder.isPhotoFolder && !folder.isSendOnlyFolder {
+			Section {
+				Toggle(
+					"Keep conflicting versions",
+					isOn: Binding(
+						get: {
+							return folder.maxConflicts() != 0
+						},
+						set: { nv in
+							try? folder.setMaxConflicts(nv ? -1 : 0)
+						}))
+			}
+		}
+	}
+
+	@ViewBuilder private func watchSection() -> some View {
+		if !folder.isReceiveEncryptedFolder {
+			Section("Change detection") {
+				LabeledContent {
+					TextField(
+						"",
+						text: Binding(
+							get: {
+								let interval: Int = folder.rescanIntervalSeconds() / 60
+								return "\(interval)"
+							},
+							set: { (lbl: String) in
+								if !lbl.isEmpty {
+									let interval = Int(lbl) ?? 0
+									try? folder.setRescanInterval(interval * 60)
+								}
+							}), prompt: Text("")
+					)
+					.multilineTextAlignment(.trailing)
+				} label: {
+					Text("Rescan interval (minutes)")
+				}
+			}
+		}
+
+		if !folder.isPhotoFolder && !folder.isReceiveOnlyFolder && !folder.isReceiveEncryptedFolder {
+			Section {
+				Toggle(
+					"Watch for changes",
+					isOn: Binding(get: { folder.isWatcherEnabled() }, set: { try? folder.setWatcherEnabled($0) }))
+
+				if folder.isWatcherEnabled() {
 					LabeledContent {
 						TextField(
 							"",
 							text: Binding(
 								get: {
-									let interval: Int = folder.rescanIntervalSeconds() / 60
+									let interval: Int = folder.watcherDelaySeconds()
 									return "\(interval)"
 								},
 								set: { (lbl: String) in
 									if !lbl.isEmpty {
 										let interval = Int(lbl) ?? 0
-										try? folder.setRescanInterval(interval * 60)
+										try? folder.setWatcherDelaySeconds(interval)
 									}
 								}), prompt: Text("")
 						)
 						.multilineTextAlignment(.trailing)
 					} label: {
-						Text("Rescan interval (minutes)")
+						Text("Delay for processing changes (seconds)")
 					}
 				}
-			}
-
-			if !folder.isPhotoFolder && !folder.isReceiveOnlyFolder && !folder.isReceiveEncryptedFolder {
-				Section {
-					Toggle(
-						"Watch for changes",
-						isOn: Binding(get: { folder.isWatcherEnabled() }, set: { try? folder.setWatcherEnabled($0) }))
-
-					if folder.isWatcherEnabled() {
-						LabeledContent {
-							TextField(
-								"",
-								text: Binding(
-									get: {
-										let interval: Int = folder.watcherDelaySeconds()
-										return "\(interval)"
-									},
-									set: { (lbl: String) in
-										if !lbl.isEmpty {
-											let interval = Int(lbl) ?? 0
-											try? folder.setWatcherDelaySeconds(interval)
-										}
-									}), prompt: Text("")
-							)
-							.multilineTextAlignment(.trailing)
-						} label: {
-							Text("Delay for processing changes (seconds)")
-						}
-					}
-				} footer: {
-					#if os(iOS)
-						Text(
-							"Because of limitations in iOS, watching for changes will only work for about 250 subdirectories in total across all folders. If you are experiencing issues, disable this setting for all folders."
-						)
-					#endif
-				}
-			}
-
-			if !folder.isReceiveEncryptedFolder && !folder.isPhotoFolder && !folder.isSendOnlyFolder {
-				Section {
-					Toggle(
-						"Keep conflicting versions",
-						isOn: Binding(
-							get: {
-								return folder.maxConflicts() != 0
-							},
-							set: { nv in
-								try? folder.setMaxConflicts(nv ? -1 : 0)
-							}))
-				}
-			}
-
-			Section {
-				BlockIndexToggle(folder: folder)
 			} footer: {
-				Text(
-					"When receiving files from other peers, the block index can be used to find pieces of a file that are already on the device, which reduced data transfer. However, the block index takes up space on the disk. It is recommended to only enable the block index when this folder contains files that are present in other folders as well, and/or appear multiple times."
-				)
+				#if os(iOS)
+					Text(
+						"Because of limitations in iOS, watching for changes will only work for about 250 subdirectories in total across all folders. If you are experiencing issues, disable this setting for all folders."
+					)
+				#endif
 			}
 		}
-		#if os(iOS)
-			.sheet(isPresented: $showSelectiveIgnores) {
-				NavigationStack {
-					SelectiveIgnoresView(folder: self.folder)
-				}
+	}
+
+	@ViewBuilder private func systemSettingsSection() -> some View {
+		if !folder.isPhotoFolder {
+			Section("System settings") {
+				#if os(iOS)
+					Toggle(
+						"Include in device back-up",
+						isOn: Binding(
+							get: {
+								if let f = folder.isExcludedFromBackup {
+									return !f
+								}
+								return false
+							},
+							set: { nv in
+								folder.isExcludedFromBackup = !nv
+							})
+					).disabled(folder.isExternal != false)
+				#endif
+
+				Toggle(
+					"Hide in Files app",
+					isOn: Binding(
+						get: {
+							if let f = folder.isHidden { return f }
+							return false
+						},
+						set: { nv in
+							folder.isHidden = nv
+						})
+				).disabled(folder.isExternal != false)
 			}
-			.sheet(isPresented: $showIgnores) {
-				NavigationStack {
-					IgnoresView(folder: self.folder)
-				}
-			}
-		#endif
-		.errorAlert($showError)
-		.navigationTitle(Text("Advanced folder settings"))
-		#if os(iOS)
-			.navigationBarTitleDisplayMode(.inline)
-		#endif
-		#if os(macOS)
-			.formStyle(.grouped)
-		#endif
+		}
 	}
 }
 

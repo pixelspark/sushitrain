@@ -229,6 +229,9 @@ struct BrowserView: View {
 		.sheet(isPresented: $showSettings) {
 			NavigationStack {
 				FolderView(folder: self.folder)
+					#if os(macOS)
+						.presentationSizing(.fitted.sticky(horizontal: false, vertical: true))
+					#endif
 					.toolbar {
 						SheetButton(role: .save) {
 							showSettings = false

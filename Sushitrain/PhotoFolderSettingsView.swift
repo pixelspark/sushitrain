@@ -210,10 +210,19 @@ private struct PhotoFolderAlbumSettingsView: View {
 				if authorizationStatus == .authorized {
 					Picker("From album", selection: $config.albumID) {
 						Text("None").tag("")
+						
 						if let albums = self.albums {
 							ForEach(albums, id: \.localIdentifier) { album in
 								Text(album.localizedTitle ?? "Unknown album").tag(album.localIdentifier)
 							}
+							
+							// Deleted album
+							if !config.albumID.isEmpty && !albums.contains(where: { $0.localIdentifier == config.albumID }) {
+								Text("Unknown album").tag(config.albumID)
+							}
+						}
+						else if !config.albumID.isEmpty {
+							Text("Unknown album").tag(config.albumID)
 						}
 					}
 					.pickerStyle(.menu)
