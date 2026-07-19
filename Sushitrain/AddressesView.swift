@@ -505,7 +505,7 @@ struct AddressesView: View {
 
 				Button("Add address") {
 					// Uses self.onChange instead of self.save because .save deduplicates
-					var newAddresses = self.addresses + [self.addressType.templateAddress]
+					let newAddresses = self.addresses + [self.addressType.templateAddress]
 					self.onChange(newAddresses)
 				}
 				.deleteDisabled(true)
