@@ -352,6 +352,52 @@
         }
       }
     },
+    "(Folder root)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Ordner Stamm)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Carpeta raíz)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Cartella radice)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(フォルダ ルート)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Hoofdmap)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(Тека кореневий)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(文件夹根目录)"
+          }
+        }
+      }
+    },
     "(No folder selected)" : {
       "localizations" : {
         "de" : {
@@ -24626,6 +24672,52 @@
         }
       }
     },
+    "Only one album can be configured to be at the root level." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es kann nur ein Album konfiguriert werden, um auf der obersten Ebene zu sein."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo se puede configurar un álbum para que esté en el nivel raíz."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo un album può essere configurato per essere a livello radice."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ルートレベルに設定できるアルバムは1つだけです。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slechts één album kan worden geconfigureerd om zich op het hoofdniveau te bevinden."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лише один альбом може бути налаштований для розміщення на кореневому рівні."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只能配置一个相册位于根级别。"
+          }
+        }
+      }
+    },
     "Open file browser..." : {
       "localizations" : {
         "de" : {
@@ -36440,6 +36532,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "上述数字是有关存储Synctrain数据库的磁盘的。如果这些值与设置应用中显示的不匹配，重启设备可能会有所帮助。"
+          }
+        }
+      }
+    },
+    "The album configuration is not valid. Select an album to continue." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Albumkonfiguration ist nicht gültig. Wählen Sie ein Album aus, um fortzufahren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La configuración del álbum no es válida. Selecciona un álbum para continuar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La configurazione dell'album non è valida. Seleziona un album per continuare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アルバムの設定が無効です。続行するにはアルバムを選択してください。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De albumconfiguratie is niet geldig. Kies een album om door te gaan."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Конфігурація альбому неправильна. Виберіть альбом, щоб продовжити."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "专辑配置无效。请选择一个专辑继续。"
           }
         }
       }

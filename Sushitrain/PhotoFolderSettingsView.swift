@@ -64,18 +64,31 @@ struct PhotoFolderConfigurationView: View {
 		case adding = "adding"
 	}
 
+	private enum PhotoFolderConfigurationError: LocalizedError {
+		case duplicateEmpty
+		case notValid
+
+		var errorDescription: String? {
+			switch self {
+			case .duplicateEmpty: return String(localized: "Only one album can be configured to be at the root level.")
+			case .notValid: return String(localized: "The album configuration is not valid. Select an album to continue.")
+			}
+		}
+	}
+
 	@State private var showingSheet: ShowingSheet? = nil
 	@State private var editingAlbumConfig = PhotoFSAlbumConfiguration()
 	@State private var editingAlbum = false
 	@State private var editingDirName = ""
 	@State private var editingOldDirName = ""
+	@State private var error: ErrorMessage? = nil
 
 	var body: some View {
 		Section("Albums") {
 			let folderPairs = Array(config.folders)
 			ForEach(folderPairs, id: \.key) { folderName, albumConfig in
 				HStack {
-					Button(folderName, systemImage: "folder.fill") {
+					Button(folderName.isEmpty ? String(localized: "(Folder root)") : folderName, systemImage: "folder.fill") {
 						editingAlbumConfig = albumConfig
 						editingOldDirName = folderName
 						editingDirName = folderName
@@ -132,7 +145,11 @@ struct PhotoFolderConfigurationView: View {
 											if editingAlbumConfig.isValid {
 												self.edit()
 											}
-										}.disabled(!editingAlbumConfig.isValid)
+											else {
+												self.error = ErrorMessage(PhotoFolderConfigurationError.notValid)
+											}
+										}
+										.errorAlert($error)
 									})
 
 								ToolbarItem(placement: .cancellationAction) {
@@ -154,7 +171,9 @@ struct PhotoFolderConfigurationView: View {
 									content: {
 										Button("Add") {
 											self.add()
-										}.disabled(editingDirName.isEmpty || !editingAlbumConfig.isValid)
+										}
+										.disabled(!editingAlbumConfig.isValid)
+										.errorAlert($error)
 									})
 								ToolbarItem(placement: .cancellationAction) {
 									Button("Cancel") {
@@ -174,11 +193,14 @@ struct PhotoFolderConfigurationView: View {
 
 	private func edit() {
 		Task {
-			let newName =
-				editingDirName.isEmpty
-				? (self.editingOldDirName.isEmpty ? self.editingAlbumConfig.albumID : editingOldDirName) : editingDirName
+			// When a folder is configured with an empty path, it must be the only one
+			if editingDirName.isEmpty && self.config.folders.count > 1 {
+				self.error = ErrorMessage(PhotoFolderConfigurationError.duplicateEmpty)
+				return
+			}
+
 			self.config.folders.removeValue(forKey: self.editingOldDirName)
-			self.config.folders[newName] = self.editingAlbumConfig
+			self.config.folders[self.editingDirName] = self.editingAlbumConfig
 			self.showingSheet = nil
 			editingAlbum = false
 			editingOldDirName = ""
@@ -188,6 +210,12 @@ struct PhotoFolderConfigurationView: View {
 
 	private func add() {
 		Task {
+			// When a folder is configured with an empty path, it must be the only one
+			if editingDirName.isEmpty && !self.config.folders.isEmpty {
+				self.error = ErrorMessage(PhotoFolderConfigurationError.duplicateEmpty)
+				return
+			}
+
 			let newName = editingDirName.isEmpty ? self.editingAlbumConfig.albumID : editingDirName
 			self.config.folders[newName] = self.editingAlbumConfig
 			self.showingSheet = nil
@@ -210,12 +238,12 @@ private struct PhotoFolderAlbumSettingsView: View {
 				if authorizationStatus == .authorized {
 					Picker("From album", selection: $config.albumID) {
 						Text("None").tag("")
-						
+
 						if let albums = self.albums {
 							ForEach(albums, id: \.localIdentifier) { album in
 								Text(album.localizedTitle ?? "Unknown album").tag(album.localIdentifier)
 							}
-							
+
 							// Deleted album
 							if !config.albumID.isEmpty && !albums.contains(where: { $0.localIdentifier == config.albumID }) {
 								Text("Unknown album").tag(config.albumID)
@@ -254,7 +282,7 @@ private struct PhotoFolderAlbumSettingsView: View {
 
 			Section {
 				LabeledContent {
-					TextField("", text: $dirName).monospaced().multilineTextAlignment(.trailing)
+					TextField("", text: $dirName, prompt: Text("(Folder root)")).monospaced().multilineTextAlignment(.trailing)
 				} label: {
 					Text("To subdirectory")
 				}

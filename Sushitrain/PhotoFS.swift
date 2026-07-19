@@ -10,7 +10,7 @@ let photoFSType: String = "sushitrain.photos.v1"
 
 private class PhotoFS: NSObject {
 	private let cacheLock = DispatchSemaphore(value: 1)
-	private var cachedRoots: [String: StaticCustomFSDirectory] = [:]
+	private var cachedRoots: [String: CustomFSEntry] = [:]
 }
 
 enum CustomFSError: Error {
@@ -314,6 +314,44 @@ extension PhotoBackupFolderStructure {
 	}
 }
 
+private class CustomFSOVerlay: CustomFSEntry {
+	var upper: CustomFSEntry
+	var lower: CustomFSEntry
+
+	init(upper: CustomFSEntry, lower: CustomFSEntry) {
+		self.upper = upper
+		self.lower = lower
+		super.init("")
+	}
+
+	override func isDir() -> Bool {
+		return true
+	}
+
+	override func child(at index: Int) throws -> any SushitrainCustomFileEntryProtocol {
+		var lowerChildCount = 0
+		try self.lower.childCount(&lowerChildCount)
+		if index < lowerChildCount {
+			return try self.lower.child(at: index)
+		}
+		else {
+			return try self.upper.child(at: index - lowerChildCount)
+		}
+	}
+
+	override func childCount(_ ret: UnsafeMutablePointer<Int>?) throws {
+		var lowerChildCount = 0
+		try self.lower.childCount(&lowerChildCount)
+		var upperChildCound = 0
+		try self.upper.childCount(&upperChildCound)
+		ret?.pointee = lowerChildCount + upperChildCound
+	}
+
+	override func modifiedTime() -> Int64 {
+		return max(self.lower.modifiedTime(), self.upper.modifiedTime())
+	}
+}
+
 extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 	func root(_ uri: String?) throws -> any SushitrainCustomFileEntryProtocol {
 		guard let uri = uri else {
@@ -337,7 +375,7 @@ extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 			config = (try? JSONDecoder().decode(PhotoFSConfiguration.self, from: d)) ?? config
 		}
 
-		let folderRoot = StaticCustomFSDirectory(
+		let folderRootDirectory = StaticCustomFSDirectory(
 			"",
 			children: [
 				// Folder marker (needs to be present for Syncthing to know the folder is healthy
@@ -350,51 +388,58 @@ extension PhotoFS: SushitrainCustomFilesystemTypeProtocol {
 				// Ignore file (empty for now)
 				StaticCustomFSEntry(".stignore", contents: "# EMPTY ON PURPOSE\n".data(using: .ascii)!),
 			])
+		var folderRoot: CustomFSEntry = folderRootDirectory
 
-		// Go over all configured albums and place them at the right locations in the entry tree
-		for (folderPath, albumConfig) in config.folders {
-			let trimmedPath = folderPath.trimmingCharacters(in: .whitespacesAndNewlines)
-			if trimmedPath.isEmpty {
-				// Must have a path (can't place at root)
-				Log.warn("Can't place folder album at root")
-				continue
-			}
-
-			var subdirs = trimmedPath.split(separator: "/")
-			guard let first = subdirs.first else {
-				Log.warn("PhotoFS: skipping invalid subdirectory; folderPath was '\(folderPath)'")
-				continue
-			}
-
-			// Check path components; they cannot be empty or just be "." or ".."
-			var invalid = false
-			for component in subdirs {
-				let trimmedComponent = component.trimmingCharacters(in: .whitespacesAndNewlines.union(CharacterSet(["."])))
-				if trimmedComponent.isEmpty {
-					Log.warn("PhotoFS: invalid path component: '\(component)'")
-					invalid = true
-					break
+		if let albumConfig = config.folders[""], config.folders.count == 1 {
+			let albumDirectory = try PhotoFSAlbumEntry("", config: albumConfig)
+			folderRoot = CustomFSOVerlay(upper: albumDirectory, lower: folderRoot)
+		}
+		else {
+			// Go over all configured albums and place them at the right locations in the entry tree
+			for (folderPath, albumConfig) in config.folders {
+				let trimmedPath = folderPath.trimmingCharacters(in: .whitespacesAndNewlines)
+				if trimmedPath.isEmpty {
+					// Must have a path (can't place at root)
+					Log.warn("Can't place folder album at root")
+					continue
 				}
-			}
 
-			if invalid {
-				continue
-			}
+				var subdirs = trimmedPath.split(separator: "/")
+				guard let first = subdirs.first else {
+					Log.warn("PhotoFS: skipping invalid subdirectory; folderPath was '\(folderPath)'")
+					continue
+				}
 
-			if first.lowercased().starts(with: ".st") {
-				// Can't place anything in .stfolder or over .stignore
-				Log.warn("Can't place folder album over reserved subdirectory name: \(folderPath) \(first)")
-				continue
-			}
+				// Check path components; they cannot be empty or just be "." or ".."
+				var invalid = false
+				for component in subdirs {
+					let trimmedComponent = component.trimmingCharacters(in: .whitespacesAndNewlines.union(CharacterSet(["."])))
+					if trimmedComponent.isEmpty {
+						Log.warn("PhotoFS: invalid path component: '\(component)'")
+						invalid = true
+						break
+					}
+				}
 
-			var dir: CustomFSDirectory = folderRoot
-			let lastDirName = String(subdirs.removeLast())
-			for subdir in subdirs {
-				dir = dir.getOrCreateSubdirectory(String(subdir))
-			}
+				if invalid {
+					continue
+				}
 
-			let albumDirectory = try PhotoFSAlbumEntry(lastDirName, config: albumConfig)
-			dir.place(albumDirectory)
+				if first.lowercased().starts(with: ".st") {
+					// Can't place anything in .stfolder or over .stignore
+					Log.warn("Can't place folder album over reserved subdirectory name: \(folderPath) \(first)")
+					continue
+				}
+
+				var dir: CustomFSDirectory = folderRootDirectory
+				let lastDirName = String(subdirs.removeLast())
+				for subdir in subdirs {
+					dir = dir.getOrCreateSubdirectory(String(subdir))
+				}
+
+				let albumDirectory = try PhotoFSAlbumEntry(lastDirName, config: albumConfig)
+				dir.place(albumDirectory)
+			}
 		}
 
 		// Cache root
