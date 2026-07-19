@@ -711,7 +711,7 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 	cfg, _, err := config.Load(cfgFile, devID, logger)
 	if err != nil {
 		newCfg := config.New(devID)
-		newCfg.GUI.Enabled = false
+		newCfg.GUI.Enabled = false // Don't need the web UI, we have our own :-)
 		cfg = config.Wrap(cfgFile, newCfg, devID, logger)
 	}
 
@@ -719,7 +719,6 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 
 	// Always override the following options in config
 	waiter, err := cfg.Modify(func(conf *config.Configuration) {
-		conf.GUI.Enabled = false                             // Don't need the web UI, we have our own :-)
 		conf.Options.CREnabled = false                       // No crash reporting for now
 		conf.Options.URAccepted = -1                         // No usage reporting for now
 		conf.Options.ProgressUpdateIntervalS = 1             // We want to update the user often, it improves the experience and is worth the compute cost
