@@ -1679,17 +1679,20 @@ func (c *Client) generateSupportBundle(writer io.Writer, appInfo []byte) error {
 		return err
 	}
 
-	// Goroutine profile
-	if p := pprof.Lookup("goroutine"); p != nil {
-		goroutineWriter, err := zipWriter.CreateHeader(&zip.FileHeader{
-			Name:     "goroutines.pprof",
-			Modified: time.Now(),
-			Method:   zip.Deflate,
-		})
-		if err != nil {
-			return err
+	// Go profiles
+	profileNames := []string{"goroutine", "block", "mutex", "heap", "goroutineleak"}
+	for _, profileName := range profileNames {
+		if p := pprof.Lookup(profileName); p != nil {
+			goroutineWriter, err := zipWriter.CreateHeader(&zip.FileHeader{
+				Name:     profileName + ".pprof",
+				Modified: time.Now(),
+				Method:   zip.Deflate,
+			})
+			if err != nil {
+				return err
+			}
+			_ = p.WriteTo(goroutineWriter, 0)
 		}
-		_ = p.WriteTo(goroutineWriter, 0)
 	}
 
 	if err = zipWriter.Close(); err != nil {
