@@ -216,7 +216,8 @@ struct PhotoFolderConfigurationView: View {
 				return
 			}
 
-			let newName = editingDirName.isEmpty ? self.editingAlbumConfig.albumID : editingDirName
+			// An empty key is the on-disk signal for exporting a single album at the folder root.
+			let newName = editingDirName.isEmpty ? "" : editingDirName
 			self.config.folders[newName] = self.editingAlbumConfig
 			self.showingSheet = nil
 		}
