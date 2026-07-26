@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Tommy van der Vorst
+// Copyright (C) 2024-2026 Tommy van der Vorst
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
@@ -80,9 +80,9 @@ struct SushitrainApp: App {
 
 		AppDependencyManager.shared.add(dependency: appState)
 		appState.isLoggingToFile = enableLoggingToFile
-		self.delegate = SushitrainDelegate(appState: appState)
+		let delegate = SushitrainDelegate(appState: appState)
+		self.delegate = delegate
 		client.delegate = self.delegate
-		client.server?.delegate = self.delegate
 
 		// Start Syncthing node in the background
 		#if os(macOS)
@@ -92,6 +92,10 @@ struct SushitrainApp: App {
 		// Check if we need to show onboarding
 		Task {
 			await appState.start()
+
+			// We can only set the streaming server delegate here, because client.server is nil until
+			// afer client.start()
+			client.server?.delegate = delegate
 		}
 
 		#if os(macOS)
@@ -239,7 +243,7 @@ struct SushitrainApp: App {
 			.windowResizability(.contentSize)
 
 			Window("Statistics", id: "stats") {
-				TotalStatisticsView()
+				TotalStatisticsView(appPersistentStatistics: appState.appPersistentStatistics)
 					.environment(appState)
 					.frame(minWidth: 320, maxWidth: 320, minHeight: 320)
 			}

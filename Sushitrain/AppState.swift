@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Tommy van der Vorst
+// Copyright (C) 2024-2026 Tommy van der Vorst
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
@@ -8,13 +8,6 @@ import SwiftUI
 import Combine
 import UserNotifications
 import Network
-
-struct StreamingProgress: Hashable, Equatable {
-	var folder: String
-	var path: String
-	var bytesSent: Int64
-	var bytesTotal: Int64
-}
 
 enum FolderMetric: String {
 	case none = ""
@@ -139,6 +132,17 @@ class SushitrainDelegate: NSObject {
 	@AppStorage("disableDevicesInLowPowerMode") var disableDevicesInLowPowerMode = false
 }
 
+@MainActor class AppPersistentStatistics: ObservableObject {
+	// Total bytes streamed
+	@AppStorage("streamingBytesSentTotal") var streamingBytesSentTotal: Int = 0
+
+	// Total bytes streamed today
+	@AppStorage("streamingBytesSentToday") var streamingBytesSentToday: Int = 0
+
+	// Total bytes streamed today date (YYYY-MM-DD)
+	@AppStorage("streamingBytesSentTodayDay") var streamingBytesSentTodayDay: String = ""
+}
+
 struct SyncState {
 	let isDownloading: Bool
 	let isUploading: Bool
@@ -173,6 +177,7 @@ struct SyncState {
 	var isLoggingToFile: Bool = false
 
 	private(set) var userSettings = AppUserSettings()
+	private(set) var appPersistentStatistics = AppPersistentStatistics()
 	private(set) var localDeviceID: String = ""
 	private(set) var eventCounter: Int = 0
 	private(set) var foldersWithExtraFiles: [String] = []
@@ -184,7 +189,6 @@ struct SyncState {
 
 	fileprivate(set) var discoveredDevices: [String: [String]] = [:]
 	fileprivate(set) var resolvedListenAddresses = Set<String>()
-	fileprivate(set) var streamingProgress: StreamingProgress? = nil
 	fileprivate(set) var lastChanges: [SushitrainChange] = []
 	fileprivate(set) var currentNetworkPath: NWPath? = nil
 
@@ -1156,16 +1160,21 @@ extension SushitrainDelegate: SushitrainClientDelegateProtocol {
 
 extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 	func onStreamChunk(_ folder: String?, path: String?, bytesSent: Int64, bytesTotal: Int64) {
-		if let folder = folder, let path = path {
-			let appState = self.appState
-			DispatchQueue.main.async {
-				appState.streamingProgress = StreamingProgress(
-					folder: folder,
-					path: path,
-					bytesSent: bytesSent,
-					bytesTotal: bytesTotal
-				)
+		let appState = self.appState
+
+		DispatchQueue.main.async {
+			let appPersistentStatistics = appState.appPersistentStatistics
+			appPersistentStatistics.streamingBytesSentTotal += Int(bytesSent)
+
+			// Update daily statistics
+			let today = Date().yyyyMMdd
+
+			// Reset daily statistics
+			if appPersistentStatistics.streamingBytesSentTodayDay != today {
+				appPersistentStatistics.streamingBytesSentTodayDay = today
+				appPersistentStatistics.streamingBytesSentToday = 0
 			}
+			appPersistentStatistics.streamingBytesSentToday += Int(bytesSent)
 		}
 	}
 }

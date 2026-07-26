@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Tommy van der Vorst
+// Copyright (C) 2024-2026 Tommy van der Vorst
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
@@ -1058,7 +1058,7 @@ private struct BandwidthSettingsView: View {
 				}
 
 				Section {
-					NavigationLink(destination: TotalStatisticsView()) {
+					NavigationLink(destination: TotalStatisticsView(appPersistentStatistics: appState.appPersistentStatistics)) {
 						Label("Statistics", systemImage: "chart.pie")
 					}
 				}

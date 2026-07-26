@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Tommy van der Vorst
+// Copyright (C) 2024-2026 Tommy van der Vorst
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
@@ -9,6 +9,8 @@ import SushitrainCore
 
 struct TotalStatisticsView: View {
 	@Environment(AppState.self) private var appState
+
+	let appPersistentStatistics: AppPersistentStatistics
 	@State private var stats: SushitrainFolderStats? = nil
 	@State private var diskSpaceFree: Int64? = nil
 	@State private var diskSpaceFreeOpportunistic: Int64? = nil
@@ -46,6 +48,14 @@ struct TotalStatisticsView: View {
 						Text(
 							"The above numbers concern the disk the Synctrain database is stored on. If these values do not match those shown by the Settings app, restarting the device may help."
 						)
+					}
+				}
+
+				Section("Streaming") {
+					Text("Total").badge(formatter.string(fromByteCount: Int64(appPersistentStatistics.streamingBytesSentTotal)))
+					let today = Date().yyyyMMdd
+					if appPersistentStatistics.streamingBytesSentTodayDay == today {
+						Text("Today").badge(formatter.string(fromByteCount: Int64(appPersistentStatistics.streamingBytesSentToday)))
 					}
 				}
 

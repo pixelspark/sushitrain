@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Tommy van der Vorst
+// Copyright (C) 2024-2026 Tommy van der Vorst
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
@@ -1191,4 +1191,16 @@ func deviceHasCellularCapability() -> Bool {
 	#else
 		return true
 	#endif
+}
+
+extension Date {
+	var yyyyMMdd: String {
+		return self.formatted(
+			.iso8601
+				.year()
+				.month()
+				.day()
+				.dateSeparator(.omitted)
+		)
+	}
 }
