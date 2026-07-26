@@ -32,7 +32,6 @@ struct EntryInfoView: View {
 	@State private var subdirectorySizeBytes: Int64? = nil
 
 	@Environment(AppState.self) private var appState
-	@Environment(\.dismiss) private var dismiss
 
 	#if os(macOS)
 		@Environment(\.openURL) private var openURL
@@ -410,7 +409,6 @@ struct EntryInfoView: View {
 			titleVisibility: .visible
 		) {
 			Button("Remove the file from all devices", role: .destructive) {
-				dismiss()
 				try? entry.remove()
 			}
 		}
