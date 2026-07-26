@@ -517,6 +517,13 @@ struct EntryInfoView: View {
 				}
 			}
 			.buttonStyle(.link).disabled(folder.connectedPeerCount() == 0)
+			.contextMenu {
+				Button("Copy to clipboard", systemImage: "doc.on.doc") {
+					if let u = URL(string: self.entry.onDemandURL()) {
+						writeTextToPasteboard(u.absoluteString)
+					}
+				}
+			}
 		#endif
 
 		if entry.isSelected() {
