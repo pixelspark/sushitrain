@@ -66,6 +66,7 @@ func Filter[T any](input []T, f func(T) bool) []T {
 }
 
 var mimesByExtension = map[string]string{
+	".3mf":    "model/3mf",
 	".aac":    "audio/aac",
 	".abw":    "application/x-abiword",
 	".aif":    "audio/aiff",
