@@ -114,6 +114,10 @@ struct ArchiveView: View {
 						#if os(iOS)
 							.navigationBarTitleDisplayMode(.inline)
 						#endif
+						#if os(macOS)
+							.presentationSizing(.form.sticky())
+							.frame(minWidth: 640, minHeight: 480)
+						#endif
 						.toolbar {
 							SheetButton(role: .cancel) {
 								showDownloaderFor = nil
