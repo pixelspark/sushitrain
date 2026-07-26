@@ -245,7 +245,6 @@ func (e *entryReadSeeker) Seek(offset int64, whence int) (int64, error) {
 
 // Read implements io.Reader.
 func (e *entryReadSeeker) Read(p []byte) (n int, err error) {
-	slog.Info("ERS read", "offset", e.offset, "size", len(p), "available", e.info.Size)
 	if len(p) == 0 {
 		return 0, nil
 	}
