@@ -28,8 +28,8 @@ struct EntryInfoView: View {
 	@State private var conflictingEntries: [SushitrainEntry]? = nil
 	@State private var openWithAppURL: URL? = nil
 	@State private var localPath: String? = nil
-	@State private var showArchive: Bool = false
 	@State private var subdirectorySizeBytes: Int64? = nil
+	@State private var showArchive: SushitrainArchiveProtocol? = nil
 
 	@Environment(AppState.self) private var appState
 
@@ -77,7 +77,7 @@ struct EntryInfoView: View {
 					// Zip
 					if entry.isArchive() {
 						Section {
-							self.zipButton()
+							self.archiveButton()
 						}
 					}
 
@@ -151,8 +151,10 @@ struct EntryInfoView: View {
 				}
 			#endif
 
-			.sheet(isPresented: $showArchive) {
-				self.zipSheet()
+			.sheet(isPresented: Binding.isNotNil($showArchive)) {
+				if let archive = self.showArchive {
+					self.archiveSheet(archive: archive)
+				}
 			}
 
 			.sheet(item: $showDownloader) { action in
@@ -189,7 +191,7 @@ struct EntryInfoView: View {
 								.disabled(!(self.entry.folder?.hasEncryptedPeers ?? false))
 
 							Button("Explore archive contents...", systemImage: "doc.zipper") {
-								showArchive = true
+								showArchive = self.entry.archive()
 							}
 							.disabled(!self.entry.isArchive())
 						} label: {
@@ -221,6 +223,7 @@ struct EntryInfoView: View {
 
 			.onChange(of: entry, initial: true) { _, _ in
 				self.fullyAvailableOnDevices = nil
+				self.showArchive = nil
 				self.update()
 			}
 
@@ -414,9 +417,9 @@ struct EntryInfoView: View {
 		}
 	}
 
-	@ViewBuilder private func zipButton() -> some View {
+	@ViewBuilder private func archiveButton() -> some View {
 		Button("Explore archive contents", systemImage: "doc.zipper") {
-			self.showArchive = true
+			showArchive = self.entry.archive()
 		}
 		#if os(macOS)
 			.buttonStyle(.link)
@@ -456,20 +459,15 @@ struct EntryInfoView: View {
 		}
 	}
 
-	@ViewBuilder private func zipSheet() -> some View {
+	@ViewBuilder private func archiveSheet(archive: SushitrainArchiveProtocol) -> some View {
 		NavigationStack {
-			if let ar = entry.archive() {
-				ZipView(archive: ar, prefix: "")
-					.navigationTitle(entry.fileName())
-					.toolbar {
-						SheetButton(role: .done) {
-							showArchive = false
-						}
+			ArchiveView(archive: archive, prefix: "")
+				.navigationTitle(entry.fileName())
+				.toolbar {
+					SheetButton(role: .done) {
+						showArchive = nil
 					}
-			}
-			else {
-				EmptyView()
-			}
+				}
 		}
 	}
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Tommy van der Vorst
+// Copyright (C) 2025-2026 Tommy van der Vorst
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
@@ -19,58 +19,30 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-type ArchiveFile interface {
-	Downloadable
-	AsDownloadable() Downloadable
-	Size() int64
-}
-
-type archiveFileInternal interface {
-	reader() (io.Reader, error)
-}
-
-type Archive interface {
-	Files(prefix string) (*ListOfStrings, error)
-	IsDirectory(path string) bool
-	Name() string
-	File(path string) (ArchiveFile, error)
-}
-
-type entryArchiveFile struct {
-	archive *entryArchive
+type zipArchiveFile struct {
+	archive *zipArchive
 	file    *zip.File
 }
 
-type archiveDirectoryFile struct {
-	archive *entryArchive
+type zipArchiveDirectory struct {
+	archive *zipArchive
 	path    string
 }
 
-type entryArchive struct {
+type zipArchive struct {
 	entry  *Entry
 	puller *miniPuller
 	mutex  sync.Mutex
 	files  []*zip.File
 }
 
-func (e *Entry) IsArchive() bool {
-	return e.MIMEType() == "application/zip"
-}
+var _ Archive = &zipArchive{}
 
-func (e *Entry) Archive() Archive {
-	return &entryArchive{
-		entry:  e,
-		puller: newMiniPuller(e.Folder.client.Measurements, e.Folder.client.app.Internals),
-		mutex:  sync.Mutex{},
-		files:  nil,
-	}
-}
-
-func (ea *entryArchive) Name() string {
+func (ea *zipArchive) Name() string {
 	return ea.entry.FileName()
 }
 
-func (ea *entryArchive) Files(prefix string) (*ListOfStrings, error) {
+func (ea *zipArchive) Files(prefix string) (*ListOfStrings, error) {
 	if len(prefix) > 0 && prefix[(len(prefix)-1):] != "/" {
 		return nil, errors.New("prefix must end in a slash")
 	}
@@ -110,7 +82,7 @@ func (ea *entryArchive) Files(prefix string) (*ListOfStrings, error) {
 	return List(maps.Keys(matches)), nil
 }
 
-func (ea *entryArchive) File(path string) (ArchiveFile, error) {
+func (ea *zipArchive) File(path string) (ArchiveFile, error) {
 	files, err := ea.allFiles()
 	if err != nil {
 		return nil, err
@@ -118,7 +90,7 @@ func (ea *entryArchive) File(path string) (ArchiveFile, error) {
 
 	for _, fi := range files {
 		if fi.Name == path {
-			return &entryArchiveFile{
+			return &zipArchiveFile{
 				file:    fi,
 				archive: ea,
 			}, nil
@@ -131,7 +103,7 @@ func (ea *entryArchive) File(path string) (ArchiveFile, error) {
 			return nil, err
 		}
 		if len(childPaths.data) > 0 {
-			return &archiveDirectoryFile{
+			return &zipArchiveDirectory{
 				archive: ea,
 				path:    path,
 			}, nil
@@ -140,12 +112,12 @@ func (ea *entryArchive) File(path string) (ArchiveFile, error) {
 	return nil, errors.New("file not found in archive")
 }
 
-func (ea *entryArchive) IsDirectory(path string) bool {
+func (ea *zipArchive) IsDirectory(path string) bool {
 	// Paths that end in a slash are directories
 	return len(path) > 0 && path[len(path)-1:] == "/"
 }
 
-func (ea *entryArchive) allFiles() ([]*zip.File, error) {
+func (ea *zipArchive) allFiles() ([]*zip.File, error) {
 	ea.mutex.Lock()
 	defer ea.mutex.Unlock()
 
@@ -161,7 +133,7 @@ func (ea *entryArchive) allFiles() ([]*zip.File, error) {
 }
 
 // ReadAt implements io.ReaderAt.
-func (ea *entryArchive) ReadAt(p []byte, off int64) (n int, err error) {
+func (ea *zipArchive) ReadAt(p []byte, off int64) (n int, err error) {
 	if buffer, err := ea.entry.FetchLocal(off, int64(len(p))); err == nil {
 		// We have this file completely locally
 		copy(p, buffer)
@@ -172,14 +144,14 @@ func (ea *entryArchive) ReadAt(p []byte, off int64) (n int, err error) {
 	return int(xn), err
 }
 
-func (ea *entryArchiveFile) FileName() string {
+func (ea *zipArchiveFile) FileName() string {
 	// Subdirectory entries have a slash at the end, if we don't trim that the file name will be ""
 	path := strings.TrimSuffix(ea.file.Name, "/")
 	ps := strings.Split(path, "/")
 	return ps[len(ps)-1]
 }
 
-func (ea *entryArchiveFile) Download(toPath string, delegate DownloadDelegate) {
+func (ea *zipArchiveFile) Download(toPath string, delegate DownloadDelegate) {
 	go func() {
 		if ea.file.FileInfo().IsDir() {
 			// Enumerate all files in this directory and run downloadFile on them
@@ -192,17 +164,16 @@ func (ea *entryArchiveFile) Download(toPath string, delegate DownloadDelegate) {
 }
 
 /** Recursively download the directory to the spcified location */
-func (ea *entryArchiveFile) downloadDirectory(toPath string, delegate DownloadDelegate) {
+func (ea *zipArchiveFile) downloadDirectory(toPath string, delegate DownloadDelegate) {
 	ea.archive.downloadDirectoryPath(ea.file.Name, toPath, delegate)
 }
 
-func (ea *entryArchive) downloadDirectoryPath(archivePath string, toPath string, delegate DownloadDelegate) {
+func (ea *zipArchive) downloadDirectoryPath(archivePath string, toPath string, delegate DownloadDelegate) {
 	childPaths, err := ea.Files(archivePath)
 	if err != nil {
 		delegate.OnError(err.Error())
 		return
 	}
-	slog.Info("zip downloadDirectory", "toPath", toPath, "childPaths", childPaths)
 
 	err = os.MkdirAll(toPath, 0o700)
 	if err != nil {
@@ -221,7 +192,6 @@ func (ea *entryArchive) downloadDirectoryPath(archivePath string, toPath string,
 		}
 
 		entryToPath := filepath.Join(toPath, strippedPath)
-		slog.Info("zip entry", "path", path, "strippedPath", strippedPath, "toPath", entryToPath)
 
 		var failed = false
 		subDelegate := &subDownloadDelegate{
@@ -239,7 +209,6 @@ func (ea *entryArchive) downloadDirectoryPath(archivePath string, toPath string,
 		}
 
 		if strings.HasSuffix(path, "/") {
-			slog.Info("zip subdirectory", "path", path, "toPath", entryToPath)
 			ea.downloadDirectoryPath(path, entryToPath, subDelegate)
 		} else {
 			archiveFile, err := ea.File(path)
@@ -247,7 +216,7 @@ func (ea *entryArchive) downloadDirectoryPath(archivePath string, toPath string,
 				delegate.OnError(err.Error())
 				return
 			}
-			archiveEntry := archiveFile.(*entryArchiveFile)
+			archiveEntry := archiveFile.(*zipArchiveFile)
 			archiveEntry.downloadFile(entryToPath, subDelegate)
 		}
 
@@ -261,7 +230,7 @@ func (ea *entryArchive) downloadDirectoryPath(archivePath string, toPath string,
 	delegate.OnFinished(toPath)
 }
 
-func (ea *entryArchiveFile) downloadFile(toPath string, delegate DownloadDelegate) {
+func (ea *zipArchiveFile) downloadFile(toPath string, delegate DownloadDelegate) {
 	// Create file to download to
 	outFile, err := os.Create(toPath)
 	if err != nil {
@@ -297,36 +266,36 @@ func (ea *entryArchiveFile) downloadFile(toPath string, delegate DownloadDelegat
 	delegate.OnFinished(toPath)
 }
 
-func (ea *entryArchiveFile) Size() int64 {
+func (ea *zipArchiveFile) Size() int64 {
 	return ea.file.FileInfo().Size()
 }
 
-func (ea *entryArchiveFile) reader() (io.Reader, error) {
+func (ea *zipArchiveFile) reader() (io.Reader, error) {
 	return ea.file.Open()
 }
 
-func (ea *entryArchiveFile) AsDownloadable() Downloadable {
+func (ea *zipArchiveFile) AsDownloadable() Downloadable {
 	return ea
 }
 
-func (ea *archiveDirectoryFile) FileName() string {
+func (ea *zipArchiveDirectory) FileName() string {
 	path := strings.TrimSuffix(ea.path, "/")
 	ps := strings.Split(path, "/")
 	return ps[len(ps)-1]
 }
 
-func (ea *archiveDirectoryFile) Download(toPath string, delegate DownloadDelegate) {
+func (ea *zipArchiveDirectory) Download(toPath string, delegate DownloadDelegate) {
 	go func() {
 		delegate.OnProgress(0.0)
 		ea.archive.downloadDirectoryPath(ea.path, toPath, delegate)
 	}()
 }
 
-func (ea *archiveDirectoryFile) AsDownloadable() Downloadable {
+func (ea *zipArchiveDirectory) AsDownloadable() Downloadable {
 	return ea
 }
 
-func (ea *archiveDirectoryFile) Size() int64 {
+func (ea *zipArchiveDirectory) Size() int64 {
 	return 0
 }
 

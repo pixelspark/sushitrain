@@ -101,6 +101,7 @@ var mimesByExtension = map[string]string{
 	".html":   "text/html",
 	".ico":    "image/vnd.microsoft.icon",
 	".ics":    "text/calendar",
+	".iso":    "application/x-iso9660-image",
 	".jar":    "application/java-archive",
 	".jpg":    "image/jpeg",
 	".jpeg":   "image/jpeg",

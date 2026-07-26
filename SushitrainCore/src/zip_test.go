@@ -59,7 +59,7 @@ func TestArchiveDirectoryDownloadHandlesImplicitSubdirectories(t *testing.T) {
 		t.Fatalf("NewReader: %v", err)
 	}
 
-	archive := &entryArchive{files: reader.File}
+	archive := &zipArchive{files: reader.File}
 	rootArchiveFile, err := archive.File("foo/")
 	if err != nil {
 		t.Fatalf("Archive.File(foo/): %v", err)
@@ -74,7 +74,7 @@ func TestArchiveDirectoryDownloadHandlesImplicitSubdirectories(t *testing.T) {
 
 	tempDir := t.TempDir()
 	delegate := &testDownloadDelegate{}
-	rootArchiveFile.(*entryArchiveFile).downloadDirectory(filepath.Join(tempDir, "foo"), delegate)
+	rootArchiveFile.(*zipArchiveFile).downloadDirectory(filepath.Join(tempDir, "foo"), delegate)
 
 	if delegate.err != "" {
 		t.Fatalf("downloadDirectory returned error: %s", delegate.err)

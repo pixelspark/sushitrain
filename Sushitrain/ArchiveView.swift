@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Tommy van der Vorst
+// Copyright (C) 2025-2026 Tommy van der Vorst
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
@@ -6,11 +6,11 @@
 import SwiftUI
 @preconcurrency import SushitrainCore
 
-struct ZipView: View {
+struct ArchiveView: View {
 	let archive: SushitrainArchiveProtocol
 	let prefix: String
 
-	struct ZipFileName: Identifiable, Hashable {
+	struct ArchiveFileName: Identifiable, Hashable {
 		typealias ObjectIdentifier = String
 		var name: String
 
@@ -19,20 +19,20 @@ struct ZipView: View {
 		}
 	}
 
-	@State private var loading = false
+	@State private var loading: Bool? = nil
 	@State private var error: String? = nil
-	@State private var files: [ZipFileName] = []
-	@State private var showDownloaderFor: ZipFileName? = nil
+	@State private var files: [ArchiveFileName] = []
+	@State private var showDownloaderFor: ArchiveFileName? = nil
 
 	#if os(macOS)
 		@State private var inspectedFile: String? = nil
-		@State private var selectedFiles = Set<ZipFileName.ID>()
-		@SceneStorage("ZipTableViewConfig") private var columnCustomization: TableColumnCustomization<ZipFileName>
+		@State private var selectedFiles = Set<ArchiveFileName.ID>()
+		@SceneStorage("ZipTableViewConfig") private var columnCustomization: TableColumnCustomization<ArchiveFileName>
 	#endif
 
 	var body: some View {
 		ZStack {
-			if self.loading {
+			if self.loading == nil || self.loading == true {
 				ProgressView()
 			}
 			else if let e = self.error {
@@ -47,15 +47,15 @@ struct ZipView: View {
 			}
 		}
 		.navigationTitle(self.archive.name() + " " + self.prefix.withoutEndingSlash)
+		#if os(macOS)
+			.presentationSizing(.form.sticky())
+			.frame(minWidth: 640, minHeight: 480)
+		#endif
 		#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)
 		#endif
-		#if os(macOS)
-			.frame(minWidth: 600, minHeight: 500)
-			.presentationSizing(.fitted)
-		#endif
 		.task {
-			await Task.detached(priority: .userInitiated) {
+			await Task(priority: .userInitiated) {
 				await self.update()
 			}.value
 		}
@@ -66,21 +66,21 @@ struct ZipView: View {
 			Table(files, selection: $selectedFiles, columnCustomization: $columnCustomization) {
 				TableColumn("File") { file in
 					if archive.isDirectory(file.name) {
-						let fileName = String(file.name.trimmingPrefix(self.prefix))
+						let fileName = String(file.name.trimmingPrefix(self.prefix).trimmingPrefix("/"))
 						Label(fileName.withoutEndingSlash, systemImage: "folder")
 					}
 					else {
-						let fileName = String(file.name.trimmingPrefix(self.prefix))
+						let fileName = String(file.name.trimmingPrefix(self.prefix).trimmingPrefix("/"))
 						Label(fileName, systemImage: "doc.fill")
 					}
 				}
 			}
 			.contextMenu(
-				forSelectionType: ZipFileName.ID.self,
+				forSelectionType: ArchiveFileName.ID.self,
 				menu: { items in
 					if items.count == 1 {
 						Button("Download...", systemImage: "square.and.arrow.down") {
-							showDownloaderFor = ZipFileName(name: items.first!)
+							showDownloaderFor = ArchiveFileName(name: items.first!)
 						}
 					}
 					else {
@@ -90,7 +90,7 @@ struct ZipView: View {
 			)
 			.navigationDestination(item: $inspectedFile) { filePath in
 				if archive.isDirectory(filePath) {
-					ZipView(archive: archive, prefix: filePath)
+					ArchiveView(archive: archive, prefix: filePath)
 				}
 				else {
 					ZipFileView(archive: archive, path: filePath)
@@ -101,13 +101,13 @@ struct ZipView: View {
 			}
 		}
 
-		private func doubleClick(_ items: Set<ZipFileName.ID>) {
+		private func doubleClick(_ items: Set<ArchiveFileName.ID>) {
 			if let fileName = items.first, items.count == 1 {
 				self.inspectedFile = fileName
 			}
 		}
 
-		@ViewBuilder private func downloaderSheet(zipFileName: ZipFileName) -> some View {
+		@ViewBuilder private func downloaderSheet(zipFileName: ArchiveFileName) -> some View {
 			if let downloadable = try? archive.file(zipFileName.name).asDownloadable() {
 				NavigationStack {
 					EntryDownloaderView(file: downloadable, action: .share)
@@ -129,7 +129,7 @@ struct ZipView: View {
 			List(files, id: \.self) { file in
 				let fileName = String(file.name.trimmingPrefix(self.prefix))
 				if archive.isDirectory(file.name) {
-					NavigationLink(destination: ZipView(archive: self.archive, prefix: file.name)) {
+					NavigationLink(destination: ArchiveView(archive: self.archive, prefix: file.name)) {
 						Label(fileName.withoutEndingSlash, systemImage: "folder.fill")
 					}
 				}
@@ -142,7 +142,8 @@ struct ZipView: View {
 		}
 	#endif
 
-	private nonisolated func update() async {
+	@concurrent private func update() async {
+		dispatchPrecondition(condition: .notOnQueue(.main))
 		let ar = await self.archive
 		DispatchQueue.main.async {
 			self.loading = true
@@ -161,7 +162,7 @@ struct ZipView: View {
 					}
 					return a < b
 				}).map {
-					ZipFileName(name: $0)
+					ArchiveFileName(name: $0)
 				}
 			}
 		}
@@ -198,10 +199,6 @@ private struct ZipFileView: View {
 				EmptyView()
 			}
 		}
-		#if os(macOS)
-			.frame(minWidth: 500, minHeight: 400)
-			.presentationSizing(.fitted)
-		#endif
 		.navigationTitle(path)
 		#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)

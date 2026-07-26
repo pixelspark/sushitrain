@@ -8,6 +8,7 @@ require (
 	github.com/gobwas/glob v0.2.3
 	github.com/gofrs/flock v0.13.0
 	github.com/hashicorp/golang-lru/v2 v2.0.7
+	github.com/hooklift/iso9660 v1.0.0
 	github.com/miscreant/miscreant.go v0.0.0-20200214223636-26d376326b75
 	github.com/syncthing/syncthing v1.30.0-rc.1.0.20260626052240-44cbfcad56db
 	golang.org/x/exp v0.0.0-20260611194520-c48552f49976
@@ -17,6 +18,7 @@ require (
 require (
 	github.com/Azure/go-ntlmssp v0.1.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
+	github.com/c4milo/gotoolkit v0.0.0-20190525173301-67483a18c17a // indirect
 	github.com/calmh/incontainer v1.0.0 // indirect
 	github.com/calmh/xdr v1.2.0 // indirect
 	github.com/ccding/go-stun v0.1.5 // indirect
