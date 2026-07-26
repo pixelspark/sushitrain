@@ -1,10 +1,265 @@
-// Copyright (C) 2024 Tommy van der Vorst
+// Copyright (C) 2024-2026 Tommy van der Vorst
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 import SwiftUI
 import SushitrainCore
+
+struct DeviceView: View {
+	var device: SushitrainPeer
+
+	private enum DeviceViewTab: String, CaseIterable, Identifiable {
+		case general = "general"
+		case sharing = "sharing"
+		case connection = "connection"
+		var id: Self { self }
+	}
+
+	@Environment(AppState.self) private var appState
+	@Environment(\.dismiss) private var dismiss
+
+	@State private var selectedTab: DeviceViewTab = .general
+	@State private var changedDeviceName: String? = nil
+	@State private var folders: [SushitrainFolder] = []
+	@State private var lastAddress: String = ""
+	@State private var showAddresses: Bool = false
+
+	var body: some View {
+		VStack {
+			if self.device.exists() {
+				#if os(macOS)
+					self.tabSwitcher()
+				#endif
+
+				Form {
+					#if os(iOS)
+						Section {
+							self.tabSwitcher()
+						}
+					#endif
+
+					switch self.selectedTab {
+					case .general:
+						self.generalTab()
+					case .sharing:
+						self.sharingTab()
+					case .connection:
+						self.connectionTab()
+					}
+				}
+				#if os(macOS)
+					.formStyle(.grouped)
+				#endif
+			}
+			else {
+				ContentUnavailableView("Unknown device", systemImage: "externaldrive.badge.questionmark")
+			}
+		}
+		.navigationTitle(!device.exists() || device.name().isEmpty ? device.deviceID() : device.name())
+		.task {
+			await self.update()
+		}
+	}
+
+	private func update() async {
+		self.folders = await appState.folders().sorted()
+		self.lastAddress = self.appState.client.getLastPeerAddress(self.device.deviceID())
+	}
+
+	@ViewBuilder private func generalTab() -> some View {
+		LabeledContent {
+			TextField(
+				"",
+				text: Binding(
+					get: {
+						if let cn = changedDeviceName {
+							return cn
+						}
+						return device.name()
+					},
+					set: { lbl in
+						self.changedDeviceName = lbl
+						Task {
+							try? device.setName(lbl)
+						}
+					}), prompt: Text(device.displayName)
+			)
+			.multilineTextAlignment(.trailing)
+		} label: {
+			Text("Display name")
+		}
+
+		Section("Device ID") {
+			DeviceIDView(device: device)
+		}
+
+		Section {
+			Toggle(
+				"Enabled",
+				isOn: Binding(
+					get: { !appState.isDevicePausedByUser(device) },
+					set: { active in appState.setDevice(device, pausedByUser: !active) }
+				))
+		} header: {
+			Text("Device settings")
+		} footer: {
+			Text("If a device is not enabled, synchronization with this device is paused.")
+		}
+
+		Section {
+			Toggle(
+				"Trusted",
+				isOn: Binding(
+					get: { !device.isUntrusted() },
+					set: { trusted in try? device.setUntrusted(!trusted) }))
+		} footer: {
+			Text(
+				"If a device is not trusted, an encryption password is required for each folder synchronized with the device."
+			)
+		}
+
+		Section {
+			Toggle(
+				"Introducer",
+				isOn: Binding(
+					get: { device.isIntroducer() },
+					set: { trusted in try? device.setIntroducer(trusted) }))
+
+			if let introducedBy = device.introducedBy() {
+				LabeledContent("Introduced by") {
+					Text(introducedBy.displayName)
+				}
+			}
+		} footer: {
+			Text(
+				"This device will automatically add all devices that an introducer device is connected to."
+			)
+		}
+
+		Section {
+			Button("Unlink device", systemImage: "trash", role: .destructive) {
+				try? device.remove()
+				dismiss()
+			}
+			.foregroundColor(.red)
+			#if os(macOS)
+				.buttonStyle(.link)
+			#endif
+		}
+	}
+
+	@ViewBuilder private func sharingTab() -> some View {
+		Section("Shared folders") {
+			ForEach(folders, id: \.self.folderID) { (folder: SushitrainFolder) in
+				ShareWithDeviceToggleView(peer: self.device, folder: folder, showFolderName: true)
+			}
+		}
+	}
+
+	@ViewBuilder private func connectionTab() -> some View {
+		Section {
+			if device.isConnected() {
+				Label("Connected", systemImage: "checkmark.circle.fill")
+					.foregroundStyle(.green)
+			}
+			else {
+				Label("Not connected", systemImage: "xmark.circle")
+			}
+		}
+
+		// Connection details
+		if device.isConnected() {
+			let latency = appState.client.measurements?.latency(for: device.deviceID())
+			if latency != nil || !lastAddress.isEmpty {
+				Section("Connection details") {
+					if let latency, !latency.isNaN {
+						LabeledContent("Latency") {
+							HStack {
+								Spacer()
+								Text("\(Int(latency * 1000)) ms")
+								LatencyView(latency: latency)
+							}
+						}
+					}
+
+					if !lastAddress.isEmpty {
+						LabeledContent("Last address") {
+							Text(lastAddress).monospaced()
+						}.contextMenu {
+							Button("Copy to clipboard", systemImage: "doc.on.doc") {
+								writeTextToPasteboard(lastAddress)
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// Last seen and watchdog
+		Section {
+			if let lastSeen = device.lastSeen()?.date(), !device.isConnected() {
+				Text("Last seen").badge(Text(lastSeen.formatted()))
+			}
+
+			Toggle(
+				"Warn when device has not connected for a while",
+				isOn: Binding(
+					get: {
+						return !appState.userSettings.ignoreLongTimeNoSeeDevices.contains(self.device.deviceID())
+					},
+					set: { nv in
+						if nv {
+							appState.userSettings.ignoreLongTimeNoSeeDevices.remove(self.device.deviceID())
+						}
+						else {
+							appState.userSettings.ignoreLongTimeNoSeeDevices.insert(self.device.deviceID())
+						}
+					}))
+		}
+
+		// Device addresses configuration
+		Button("Addresses...", systemImage: "envelope.front") {
+			showAddresses = true
+		}
+		.sheet(isPresented: $showAddresses) {
+			NavigationStack {
+				DeviceAddressesView(device: device)
+					.toolbar {
+						SheetButton(role: .done) {
+							showAddresses = false
+						}
+					}
+			}
+		}
+		#if os(macOS)
+			.buttonStyle(.link)
+		#endif
+	}
+
+	@ViewBuilder private func tabSwitcher() -> some View {
+		Picker("Page", selection: $selectedTab) {
+			Text("General").tag(DeviceViewTab.general)
+			Text("Sharing").tag(DeviceViewTab.sharing)
+			Text("Connection").tag(DeviceViewTab.connection)
+		}
+		.pickerStyle(.segmented)
+		.controlSize(.large)
+		.dynamicTypeSize(.large)
+		.listRowBackground(Color.clear)
+		.background(Color.clear)
+		.labelsHidden()
+		.scrollContentBackground(.hidden)
+		.listRowInsets(
+			EdgeInsets(
+				top: 0,
+				leading: 0,
+				bottom: 8,
+				trailing: 0
+			)
+		)
+	}
+}
 
 private struct DeviceAddressesView: View {
 	var device: SushitrainPeer
@@ -55,179 +310,5 @@ private struct DeviceAddressesView: View {
 		Task.detached {
 			try! device.setAddresses(SushitrainListOfStrings.from(addresses))
 		}
-	}
-}
-
-struct DeviceView: View {
-	var device: SushitrainPeer
-	@Environment(AppState.self) private var appState
-	@Environment(\.dismiss) private var dismiss
-	@State var changedDeviceName: String? = nil
-	@State var folders: [SushitrainFolder] = []
-	@State private var lastAddress: String = ""
-
-	var body: some View {
-		Form {
-			if self.device.exists() {
-				Section {
-					if device.isConnected() {
-						Label("Connected", systemImage: "checkmark.circle.fill")
-							.foregroundStyle(.green)
-					}
-					else {
-						Label("Not connected", systemImage: "xmark.circle")
-						if let lastSeen = device.lastSeen()?.date() {
-							Text("Last seen").badge(Text(lastSeen.formatted()))
-						}
-					}
-				}
-
-				LabeledContent {
-					TextField(
-						"",
-						text: Binding(
-							get: {
-								if let cn = changedDeviceName {
-									return cn
-								}
-								return device.name()
-							},
-							set: { lbl in
-								self.changedDeviceName = lbl
-								Task {
-									try? device.setName(lbl)
-								}
-							}), prompt: Text(device.displayName)
-					)
-					.multilineTextAlignment(.trailing)
-				} label: {
-					Text("Display name")
-				}
-
-				Section("Device ID") {
-					DeviceIDView(device: device)
-				}
-
-				Section {
-					Toggle(
-						"Enabled",
-						isOn: Binding(
-							get: { !appState.isDevicePausedByUser(device) },
-							set: { active in appState.setDevice(device, pausedByUser: !active) }
-						))
-				} header: {
-					Text("Device settings")
-				} footer: {
-					Text("If a device is not enabled, synchronization with this device is paused.")
-				}
-
-				Section {
-					Toggle(
-						"Trusted",
-						isOn: Binding(
-							get: { !device.isUntrusted() },
-							set: { trusted in try? device.setUntrusted(!trusted) }))
-				} footer: {
-					Text(
-						"If a device is not trusted, an encryption password is required for each folder synchronized with the device."
-					)
-				}
-
-				Section {
-					Toggle(
-						"Introducer",
-						isOn: Binding(
-							get: { device.isIntroducer() },
-							set: { trusted in try? device.setIntroducer(trusted) }))
-
-					if let introducedBy = device.introducedBy() {
-						LabeledContent("Introduced by") {
-							Text(introducedBy.displayName)
-						}
-					}
-				} footer: {
-					Text(
-						"This device will automatically add all devices that an introducer device is connected to."
-					)
-				}
-
-				NavigationLink(destination: DeviceAddressesView(device: device)) {
-					Label("Addresses", systemImage: "envelope.front")
-				}
-
-				Section("Shared folders") {
-					ForEach(folders, id: \.self.folderID) { (folder: SushitrainFolder) in
-						ShareWithDeviceToggleView(peer: self.device, folder: folder, showFolderName: true)
-					}
-				}
-
-				Section("Other settings") {
-					Toggle(
-						"Warn when device has not connected for a while",
-						isOn: Binding(
-							get: {
-								return !appState.userSettings.ignoreLongTimeNoSeeDevices.contains(self.device.deviceID())
-							},
-							set: { nv in
-								if nv {
-									appState.userSettings.ignoreLongTimeNoSeeDevices.remove(self.device.deviceID())
-								}
-								else {
-									appState.userSettings.ignoreLongTimeNoSeeDevices.insert(self.device.deviceID())
-								}
-							}))
-				}
-
-				if !lastAddress.isEmpty {
-					Section("Current addresses") {
-						Label(lastAddress, systemImage: "network").contextMenu {
-							Button("Copy to clipboard", systemImage: "doc.on.doc") {
-								writeTextToPasteboard(lastAddress)
-							}
-						}
-					}
-				}
-
-				if device.isConnected() {
-					if let latency = appState.client.measurements?.latency(for: device.deviceID()), !latency.isNaN {
-						Section {
-							LabeledContent("Latency") {
-								HStack {
-									Spacer()
-									Text("\(Int(latency * 1000)) ms")
-									LatencyView(latency: latency)
-								}
-							}
-						}
-					}
-				}
-
-				Section {
-					Button("Unlink device", systemImage: "trash", role: .destructive) {
-						try? device.remove()
-						dismiss()
-					}
-					.foregroundColor(.red)
-					#if os(macOS)
-						.buttonStyle(.link)
-					#endif
-				}
-			}
-			else {
-				ContentUnavailableView("Unknown device", systemImage: "externaldrive.badge.questionmark")
-			}
-		}
-		#if os(macOS)
-			.formStyle(.grouped)
-		#endif
-		.navigationTitle(!device.exists() || device.name().isEmpty ? device.deviceID() : device.name())
-		.task {
-			await self.update()
-		}
-	}
-
-	private func update() async {
-		self.folders = await appState.folders().sorted()
-		self.lastAddress = self.appState.client.getLastPeerAddress(self.device.deviceID())
 	}
 }

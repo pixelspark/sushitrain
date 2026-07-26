@@ -636,9 +636,23 @@ struct LatencyView: View {
 			.task {
 				await self.update()
 			}
-			.navigationDestination(isPresented: Binding.isNotNil($openedDevice)) {
-				self.nextView()
-			}
+			#if os(iOS)
+				.navigationDestination(isPresented: Binding.isNotNil($openedDevice)) {
+					self.nextView()
+				}
+			#else
+				.sheet(isPresented: Binding.isNotNil($openedDevice)) {
+					NavigationStack {
+						self.nextView()
+						.presentationSizing(.fitted.sticky(horizontal: false, vertical: true))
+						.toolbar {
+							SheetButton(role: .done) {
+								openedDevice = nil
+							}
+						}
+					}
+				}
+			#endif
 			.toolbar {
 				ToolbarItemGroup(placement: .primaryAction) {
 					Menu {

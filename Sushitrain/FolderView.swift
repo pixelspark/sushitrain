@@ -1481,7 +1481,7 @@ private struct AdvancedFolderSettingsView: View {
 
 			// Thumbnail settings button
 			if !folder.isReceiveEncryptedFolder {
-				Button("Thumbnails", systemImage: "photo.stack") {
+				Button("Thumbnails...", systemImage: "photo.stack") {
 					showThumbnailsSettingsSheet = true
 				}
 				.sheet(isPresented: $showThumbnailsSettingsSheet) {
@@ -1500,7 +1500,7 @@ private struct AdvancedFolderSettingsView: View {
 				#endif
 
 				// File versioning settings button
-				Button("File versioning", systemImage: "clock.arrow.circlepath") {
+				Button("File versioning...", systemImage: "clock.arrow.circlepath") {
 					showVersioningSettingsSheet = true
 				}
 				.sheet(isPresented: $showVersioningSettingsSheet) {
@@ -1518,7 +1518,7 @@ private struct AdvancedFolderSettingsView: View {
 				#endif
 
 				// External sharing settings button
-				Button("External sharing", systemImage: "link.circle.fill") {
+				Button("External sharing...", systemImage: "link.circle.fill") {
 					showExternalSharingSettingsSheet = true
 				}
 				.sheet(isPresented: $showExternalSharingSettingsSheet) {
