@@ -7,6 +7,7 @@ package sushitrain
 
 import (
 	"io"
+	"slices"
 	"sync"
 )
 
@@ -27,24 +28,39 @@ type Archive interface {
 	File(path string) (ArchiveFile, error)
 }
 
+var zipArchiveMIMETypes = []string{
+	"application/zip",
+	"application/java-archive",
+	"application/epub+zip",
+	"model/3mf",
+	"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+	"application/vnd.openxmlformats-officedocument.presentationml.presentation",
+}
+
+var isoArchiveMIMETypes = []string{
+	"application/x-iso9660-image",
+}
+
 func (e *Entry) IsArchive() bool {
-	return e.MIMEType() == "application/zip" || e.MIMEType() == "application/x-iso9660-image"
+	mimeType := e.MIMEType()
+	return slices.Contains(zipArchiveMIMETypes, mimeType) || slices.Contains(isoArchiveMIMETypes, mimeType)
 }
 
 func (e *Entry) Archive() Archive {
 	puller := newMiniPuller(e.Folder.client.Measurements, e.Folder.client.app.Internals)
 
-	switch e.MIMEType() {
-	case "application/zip":
+	mimeType := e.MIMEType()
+	if slices.Contains(zipArchiveMIMETypes, mimeType) {
 		return &zipArchive{
 			entry:  e,
 			puller: puller,
 			mutex:  sync.Mutex{},
 			files:  nil,
 		}
-	case "application/x-iso9660-image":
+	} else if slices.Contains(isoArchiveMIMETypes, mimeType) {
 		return NewISOArchive(e, puller)
-	default:
+	} else {
 		return nil
 	}
 }
