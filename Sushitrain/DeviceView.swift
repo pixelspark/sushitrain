@@ -258,6 +258,9 @@ struct DeviceView: View {
 				trailing: 0
 			)
 		)
+		#if os(macOS)
+			.padding(.top, 24)
+		#endif
 	}
 }
 
