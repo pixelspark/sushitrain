@@ -6,3 +6,4 @@
 *.p12
 /SushitrainCore/gobind
 /SushitrainCore/gomobile
+/.build
