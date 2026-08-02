@@ -718,7 +718,7 @@ func (fld *Folder) loadIgnores() (*ignore.Matcher, error) {
 		}
 	}
 
-	ignores := ignore.New(cfg.Filesystem(), ignore.WithCache(false))
+	ignores := ignore.New(cfg.Filesystem())
 	if err := ignores.Load(ignoreFileName); err != nil && !fs.IsNotExist(err) {
 		return nil, err
 	}
