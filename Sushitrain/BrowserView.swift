@@ -231,6 +231,7 @@ struct BrowserView: View {
 				FolderView(folder: self.folder)
 					#if os(macOS)
 						.presentationSizing(.fitted.sticky(horizontal: false, vertical: true))
+						.frame(minWidth: 700, minHeight: 600)
 					#endif
 					.toolbar {
 						SheetButton(role: .save) {

@@ -647,18 +647,27 @@ struct FolderView: View {
 	}
 
 	@State private var advancedExpanded = false
-	@State private var possiblePeers: [SushitrainPeer] = []
+	@State private var sharedPeers: [SushitrainPeer] = []
+	@State private var otherPeers: [SushitrainPeer] = []
 	@State private var unsupportedDataProtection = false
 	@State private var selectedTab: FolderViewTab = .general
 	@State private var isExternal: Bool? = nil
 	@State private var isPhotoFolder = false
 
-	func update() async {
-		self.isExternal = folder.isExternal
-		self.isPhotoFolder = folder.isPhotoFolder
-		self.possiblePeers = await appState.peers().sorted().filter({ d in !d.isSelf() })
-		self.unsupportedDataProtection =
-			self.folder.isRegularFolder && URL(fileURLWithPath: self.folder.path()).hasUnsupportedProtection()
+	@concurrent func update() async {
+		let possiblePeers = await appState.peers().sorted().filter({ d in !d.isSelf() })
+		let folderID = folder.folderID
+		let sharedPeers = possiblePeers.filter { $0.isFolderShared(folderID) }
+		let otherPeers = possiblePeers.filter { !$0.isFolderShared(folderID) }
+
+		Task { @MainActor in
+			self.isExternal = folder.isExternal
+			self.isPhotoFolder = folder.isPhotoFolder
+			self.sharedPeers = sharedPeers
+			self.otherPeers = otherPeers
+			self.unsupportedDataProtection =
+				self.folder.isRegularFolder && URL(fileURLWithPath: self.folder.path()).hasUnsupportedProtection()
+		}
 	}
 
 	var body: some View {
@@ -732,12 +741,24 @@ struct FolderView: View {
 	}
 
 	@ViewBuilder private func sharingSection() -> some View {
-		if !possiblePeers.isEmpty {
+		if !sharedPeers.isEmpty {
 			Section(header: Text("Shared with")) {
-				ForEach(self.possiblePeers, id: \.self.id) { (addr: SushitrainPeer) in
+				ForEach(self.sharedPeers, id: \.self.id) { (addr: SushitrainPeer) in
 					ShareWithDeviceToggleView(
 						peer: addr, folder: folder,
-						showFolderName: false)
+						showFolderName: false
+					).id(addr.id)
+				}
+			}
+		}
+
+		if !otherPeers.isEmpty {
+			Section {
+				ForEach(self.otherPeers, id: \.self.id) { (addr: SushitrainPeer) in
+					ShareWithDeviceToggleView(
+						peer: addr, folder: folder,
+						showFolderName: false
+					).id(addr.id)
 				}
 			}
 		}
@@ -875,12 +896,7 @@ struct ShareWithDeviceToggleView: View {
 	}
 
 	private func update() {
-		if let swid = folder.sharedWithDeviceIDs() {
-			self.isShared = swid.asArray().contains(peer.deviceID())
-		}
-		else {
-			self.isShared = nil
-		}
+		self.isShared = folder.isShared(withDeviceID: peer.deviceID())
 
 		let sharedEncrypted = folder.sharedEncryptedWithDeviceIDs()?.asArray() ?? []
 		self.isSharedEncrypted = sharedEncrypted.contains(peer.deviceID())

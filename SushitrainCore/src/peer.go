@@ -183,6 +183,14 @@ func (peer *Peer) Remove() error {
 	})
 }
 
+func (peer *Peer) IsFolderShared(folderID string) bool {
+	folder := peer.client.FolderWithID(folderID)
+	if folder == nil {
+		return false
+	}
+	return folder.IsSharedWithDeviceID(peer.DeviceID())
+}
+
 func (peer *Peer) SharedFolderIDs() *ListOfStrings {
 	folders := peer.client.config.Folders()
 	sharedWith := make([]string, 0)

@@ -21,7 +21,8 @@ struct DeviceView: View {
 
 	@State private var selectedTab: DeviceViewTab = .general
 	@State private var changedDeviceName: String? = nil
-	@State private var folders: [SushitrainFolder] = []
+	@State private var sharedFolders: [SushitrainFolder] = []
+	@State private var otherFolders: [SushitrainFolder] = []
 	@State private var lastAddress: String = ""
 	@State private var showAddresses: Bool = false
 
@@ -62,9 +63,26 @@ struct DeviceView: View {
 		}
 	}
 
-	private func update() async {
-		self.folders = await appState.folders().sorted()
-		self.lastAddress = self.appState.client.getLastPeerAddress(self.device.deviceID())
+	@concurrent private func update() async {
+		let client = await self.appState.client
+		let folders = await appState.folders().sorted()
+		let deviceID = self.device.deviceID()
+
+		let sharedFolders = folders.filter { folder in
+			folder.isShared(withDeviceID: deviceID)
+		}
+		let otherFolders = folders.filter { folder in
+			!folder.isShared(withDeviceID: deviceID)
+		}
+		let lastAddress = client.getLastPeerAddress(self.device.deviceID())
+
+		Task { @MainActor in
+			withAnimation {
+				self.sharedFolders = sharedFolders
+				self.otherFolders = otherFolders
+			}
+			self.lastAddress = lastAddress
+		}
 	}
 
 	@ViewBuilder private func generalTab() -> some View {
@@ -151,10 +169,18 @@ struct DeviceView: View {
 
 	@ViewBuilder private func sharingTab() -> some View {
 		Section("Shared folders") {
-			ForEach(folders, id: \.self.folderID) { (folder: SushitrainFolder) in
-				ShareWithDeviceToggleView(peer: self.device, folder: folder, showFolderName: true)
+			ForEach(sharedFolders, id: \.self.folderID) { (folder: SushitrainFolder) in
+				ShareWithDeviceToggleView(peer: self.device, folder: folder, showFolderName: true).id(folder.folderID)
 			}
 		}
+		.animation(.default, value: sharedFolders)
+
+		Section {
+			ForEach(otherFolders, id: \.self.folderID) { (folder: SushitrainFolder) in
+				ShareWithDeviceToggleView(peer: self.device, folder: folder, showFolderName: true).id(folder.folderID)
+			}
+		}
+		.animation(.default, value: otherFolders)
 	}
 
 	@ViewBuilder private func connectionTab() -> some View {

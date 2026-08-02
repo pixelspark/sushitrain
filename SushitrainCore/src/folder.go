@@ -408,6 +408,20 @@ func (fld *Folder) sharedWith() ([]protocol.DeviceID, error) {
 	return fc.DeviceIDs(), nil
 }
 
+func (fld *Folder) IsSharedWithDeviceID(deviceID string) bool {
+	devIDs, err := fld.sharedWith()
+	if err != nil {
+		return false
+	}
+
+	for _, devID := range devIDs {
+		if devID.String() == deviceID {
+			return true
+		}
+	}
+	return false
+}
+
 func (fld *Folder) SharedWithDeviceIDs() *ListOfStrings {
 	devIDs, err := fld.sharedWith()
 	if err != nil {
