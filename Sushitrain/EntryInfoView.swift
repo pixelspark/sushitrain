@@ -463,11 +463,11 @@ struct EntryInfoView: View {
 		NavigationStack {
 			ArchiveView(archive: archive, prefix: "")
 				.navigationTitle(entry.fileName())
-				.toolbar {
-					SheetButton(role: .done) {
-						showArchive = nil
-					}
-				}
+		}
+		.toolbar {
+			SheetButton(role: .done) {
+				showArchive = nil
+			}
 		}
 	}
 
