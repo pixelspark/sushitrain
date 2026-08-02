@@ -8,7 +8,6 @@ package sushitrain
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -32,8 +31,14 @@ type isoArchiveFile struct {
 	fileInfo os.FileInfo
 }
 
+type isoArchiveDirectory struct {
+	archive *isoArchive
+	path    string
+}
+
 var _ Archive = &isoArchive{}
 var _ ArchiveFile = &isoArchiveFile{}
+var _ ArchiveFile = &isoArchiveDirectory{}
 
 func NewISOArchive(entry *Entry, puller *miniPuller) *isoArchive {
 	return &isoArchive{
@@ -44,7 +49,11 @@ func NewISOArchive(entry *Entry, puller *miniPuller) *isoArchive {
 }
 
 func (ef *isoArchiveFile) name() string {
-	return strings.TrimPrefix(ef.fileInfo.Name(), "/")
+	name := strings.TrimPrefix(ef.fileInfo.Name(), "/")
+	if ef.fileInfo.IsDir() && !strings.HasSuffix(name, "/") {
+		return name + "/"
+	}
+	return name
 }
 
 func (ea *isoArchive) reader(ctx context.Context) io.ReadSeeker {
@@ -92,9 +101,6 @@ func (ea *isoArchive) allFiles() ([]*isoArchiveFile, error) {
 
 // File implements [Archive].
 func (ea *isoArchive) File(path string) (ArchiveFile, error) {
-	if strings.HasSuffix(path, "/") {
-		return nil, fmt.Errorf("ISO archive file request path cannot end in slash: %s", path)
-	}
 	files, err := ea.allFiles()
 	if err != nil {
 		return nil, err
@@ -105,6 +111,20 @@ func (ea *isoArchive) File(path string) (ArchiveFile, error) {
 			return fi, nil
 		}
 	}
+
+	if strings.HasSuffix(path, "/") {
+		childPaths, err := ea.Files(path)
+		if err != nil {
+			return nil, err
+		}
+		if len(childPaths.data) > 0 {
+			return &isoArchiveDirectory{
+				archive: ea,
+				path:    path,
+			}, nil
+		}
+	}
+
 	return nil, errors.New("file not found in archive")
 }
 
@@ -136,7 +156,7 @@ func (ea *isoArchive) Files(prefix string) (*ListOfStrings, error) {
 				suffix := fileName[len(prefix):]
 				suffixParts := strings.Split(suffix, "/")
 				if len(suffixParts) > 0 && len(suffixParts[0]) > 0 {
-					var subDirPath = suffixParts[0]
+					var subDirPath = suffixParts[0] + "/"
 					if prefix != "" {
 						// When filled the prefix ends in '/'
 						subDirPath = prefix + subDirPath
@@ -153,6 +173,9 @@ func (ea *isoArchive) Files(prefix string) (*ListOfStrings, error) {
 
 // IsDirectory implements [Archive].
 func (ea *isoArchive) IsDirectory(path string) bool {
+	if strings.HasSuffix(path, "/") {
+		return true
+	}
 	file, err := ea.File(path)
 	if err != nil {
 		return false
@@ -184,6 +207,27 @@ func (ea *isoArchiveFile) Size() int64 {
 // AsDownloadable implements [ArchiveFile].
 func (ea *isoArchiveFile) AsDownloadable() Downloadable {
 	return ea
+}
+
+func (ea *isoArchiveDirectory) FileName() string {
+	path := strings.TrimSuffix(ea.path, "/")
+	ps := strings.Split(path, "/")
+	return ps[len(ps)-1]
+}
+
+func (ea *isoArchiveDirectory) Download(toPath string, delegate DownloadDelegate) {
+	go func() {
+		delegate.OnProgress(0.0)
+		ea.archive.downloadDirectoryPath(ea.path, toPath, delegate)
+	}()
+}
+
+func (ea *isoArchiveDirectory) AsDownloadable() Downloadable {
+	return ea
+}
+
+func (ea *isoArchiveDirectory) Size() int64 {
+	return 0
 }
 
 // Download implements [ArchiveFile].
