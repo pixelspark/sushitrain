@@ -276,7 +276,11 @@ private struct FileMediaPlayer: View {
 	var body: some View {
 		ZStack {
 			if let player = self.player {
-				VideoPlayer(player: player)
+				#if os(macOS)
+					MacMediaPlayerView(player: player, showsFullScreenToggleButton: file.isVideo)
+				#else
+					VideoPlayer(player: player)
+				#endif
 			}
 			else {
 				Rectangle()
@@ -337,3 +341,26 @@ private struct FileMediaPlayer: View {
 		}
 	}
 }
+
+#if os(macOS)
+	private struct MacMediaPlayerView: NSViewRepresentable {
+		let player: AVPlayer
+		let showsFullScreenToggleButton: Bool
+
+		func makeNSView(context: Context) -> AVPlayerView {
+			let view = AVPlayerView()
+			view.player = player
+			view.controlsStyle = .inline
+			view.showsFullScreenToggleButton = showsFullScreenToggleButton
+			view.videoGravity = .resizeAspect
+			view.wantsLayer = true
+			view.layer?.backgroundColor = NSColor.black.cgColor
+			return view
+		}
+
+		func updateNSView(_ nsView: AVPlayerView, context: Context) {
+			nsView.player = player
+			nsView.showsFullScreenToggleButton = showsFullScreenToggleButton
+		}
+	}
+#endif
