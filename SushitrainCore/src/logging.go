@@ -153,7 +153,7 @@ func newLogHandler(out io.Writer, minLevel slog.Level) *logHandler {
 	h := &logHandler{
 		logger:   log.New(out, "", 0),
 		minLevel: minLevel,
-		tail:     newLogTail(1000),
+		tail:     newLogTail(100),
 	}
 
 	return h
