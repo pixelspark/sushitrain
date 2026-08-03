@@ -90,10 +90,7 @@ struct UploadsView: View {
 			}
 		}
 		.navigationTitle("Sending files")
-		.task {
-			self.update()
-		}
-		.onChange(of: appState.eventCounter) {
+		.task(id: appState.eventCounter) {
 			self.update()
 		}
 	}

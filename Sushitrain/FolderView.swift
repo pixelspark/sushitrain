@@ -242,23 +242,22 @@ struct FolderStatusView: View {
 					Text(txt).foregroundStyle(.red)
 				}
 			}
-		}.task {
-			await Task.detached {
-				await self.update()
-			}.value
-		}
-		.onChange(of: appState.eventCounter) { _, _ in
-			Task.detached {
-				await self.update()
-			}
+		}.task(id: appState.eventCounter) {
+			await self.update()
 		}
 	}
 
-	private func update() async {
+	@concurrent private func update() async {
 		var error: NSError? = nil
-		self.status = folder.state(&error)
-		self.statistics = try? folder.statistics()
-		self.folderStatusDescription = FolderStatusDescription(folder)
+		let status = folder.state(&error)
+		let statistics = try? folder.statistics()
+		let folderStatusDescription = FolderStatusDescription(folder)
+
+		Task { @MainActor in
+			self.status = status
+			self.statistics = statistics
+			self.folderStatusDescription = folderStatusDescription
+		}
 	}
 
 	@ViewBuilder private func statusLabel() -> some View {

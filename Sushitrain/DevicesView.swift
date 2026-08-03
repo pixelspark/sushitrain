@@ -360,12 +360,8 @@ struct LatencyView: View {
 			#endif
 			.sheet(isPresented: $showingAddDevicePopup) {
 				AddDeviceView(suggestedDeviceID: $addingDeviceID, shown: $showingAddDevicePopup)
-			}.task {
+			}.task(id: appState.eventCounter) {
 				await self.update()
-			}.onChange(of: appState.eventCounter) {
-				Task {
-					await self.update()
-				}
 			}
 			.onAppear {
 				// Measure latencies
@@ -685,10 +681,8 @@ struct LatencyView: View {
 					await self.update()
 				}
 			}
-			.onChange(of: appState.eventCounter) { _, _ in
-				Task {
-					await self.update()
-				}
+			.task(id: appState.eventCounter) {
+				await self.update()
 			}
 			// Update device list when add device popup is hidden again
 			.onChange(of: showingAddDevicePopup) { _, nv in
@@ -820,7 +814,7 @@ struct LatencyView: View {
 					ShareFolderWithDeviceDetailsView(folder: self.folder, deviceID: .constant(device.deviceID()))
 				}
 			}
-			.onChange(of: appState.eventCounter) {
+			.task(id: appState.eventCounter) {
 				// Update on app events, but only the cheap updates, or while we're not already loading
 				if self.loadingTask == nil || self.viewStyle == .simple || self.viewStyle == .sharing {
 					Task {

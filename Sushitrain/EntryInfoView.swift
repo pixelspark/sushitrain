@@ -217,17 +217,13 @@ struct EntryInfoView: View {
 				selfIndex = self.siblings?.firstIndex(of: entry)
 			}
 
-			.task {
+			.task(id: appState.eventCounter) {
 				await self.update()
 			}
 
 			.onChange(of: entry, initial: true) { _, _ in
 				self.fullyAvailableOnDevices = nil
 				self.showArchive = nil
-				self.update()
-			}
-
-			.onChange(of: appState.eventCounter) { _, _ in
 				self.update()
 			}
 		}
@@ -789,7 +785,9 @@ private struct DownloadProgressView: View {
 			else {
 				Label("Waiting to synchronize...", systemImage: "hourglass")
 			}
-		}.task { self.updateProgress() }.onChange(of: self.appState.eventCounter) { self.updateProgress() }
+		}.task(id: self.appState.eventCounter) {
+			self.updateProgress()
+		}
 	}
 
 	private func updateProgress() {

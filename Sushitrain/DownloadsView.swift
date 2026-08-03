@@ -48,10 +48,7 @@ struct DownloadsView: View {
 			}
 		}
 		.navigationTitle("Receiving files")
-		.task {
-			self.update()
-		}
-		.onChange(of: appState.eventCounter) { _, _ in
+		.task(id: appState.eventCounter) {
 			self.update()
 		}
 	}

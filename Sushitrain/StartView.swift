@@ -128,13 +128,8 @@ private struct OverallDownloadProgressView: View {
 					.frame(maxWidth: .infinity)
 			}
 		}
-		.task {
+		.task(id: self.appState.eventCounter) {
 			await self.updateProgress()
-		}
-		.onChange(of: self.appState.eventCounter) {
-			Task {
-				await self.updateProgress()
-			}
 		}
 	}
 
@@ -263,13 +258,8 @@ struct OverallStatusView: View {
 					.foregroundColor(.gray)
 			}
 		}
-		.task {
+		.task(id: appState.eventCounter) {
 			await self.update()
-		}
-		.onChange(of: appState.eventCounter) { _, _ in
-			Task {
-				await self.update()
-			}
 		}
 	}
 
@@ -499,15 +489,10 @@ struct StartView: View {
 				Text(showError?.localizedDescription ?? "")
 			}
 		)
-		.task {
+		.task(id: appState.eventCounter) {
 			await self.update()
 		}
 		.onChange(of: appState.userSettings.ignoreLongTimeNoSeeDevices.count) { _, _ in
-			Task {
-				await self.update()
-			}
-		}
-		.onChange(of: appState.eventCounter) { _, _ in
 			Task {
 				await self.update()
 			}
