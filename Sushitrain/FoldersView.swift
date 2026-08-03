@@ -179,6 +179,9 @@ struct AddFolderButton: View {
 					folderIDReadOnly: addFolderIDReadOnly
 				)
 			}
+			#if os(macOS)
+				.presentationSizing(.fitted.sticky())
+			#endif
 		}
 	}
 }
