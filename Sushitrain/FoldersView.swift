@@ -161,7 +161,7 @@ struct AddFolderButton: View {
 
 	var body: some View {
 		Button(
-			self.initialFolderID ?? "Add folder...", systemImage: "plus",
+			self.initialFolderID ?? String(localized: "Add folder..."), systemImage: "plus",
 			action: {
 				addFolderID = self.initialFolderID ?? ""
 				addFolderIDReadOnly = self.initialFolderID != nil
