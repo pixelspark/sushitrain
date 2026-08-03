@@ -238,11 +238,21 @@ struct FoldersList: View {
 
 	@ViewBuilder private func pendingFoldersView() -> some View {
 		if !pendingFolderIds.isEmpty {
-			Section("Discovered folders", isExpanded: $discoveredFoldersExpanded) {
-				ForEach(pendingFolderIds, id: \.self) { folderID in
-					AddFolderButton(initialFolderID: folderID)
+			// For some reason, isExpanded is accepted on iOS but doesn't do anything in regular lists, other than
+			// randomly hide contents...
+			#if os(macOS)
+				Section("Discovered folders", isExpanded: $discoveredFoldersExpanded) {
+					ForEach(pendingFolderIds, id: \.self) { folderID in
+						AddFolderButton(initialFolderID: folderID)
+					}
 				}
-			}
+			#else
+				Section("Discovered folders") {
+					ForEach(pendingFolderIds, id: \.self) { folderID in
+						AddFolderButton(initialFolderID: folderID)
+					}
+				}
+			#endif
 		}
 	}
 
