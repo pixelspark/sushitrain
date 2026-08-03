@@ -152,10 +152,12 @@ private struct FoldersSection: View {
 struct AddFolderButton: View {
 	var initialFolderID: String? = nil
 
+	@Environment(AppState.self) private var appState
+
 	@State private var showing = false
 	@State private var addFolderID = ""
 	@State private var addFolderIDReadOnly = false
-	@State private var addFolderShareDefault = false
+	@State private var addFolderShareDefault: [String] = []
 
 	var body: some View {
 		Button(
@@ -163,7 +165,13 @@ struct AddFolderButton: View {
 			action: {
 				addFolderID = self.initialFolderID ?? ""
 				addFolderIDReadOnly = self.initialFolderID != nil
-				addFolderShareDefault = self.initialFolderID != nil
+
+				if let initialFolderID = self.initialFolderID {
+					self.addFolderShareDefault = (try? appState.client.devicesPendingFolder(initialFolderID))?.asArray() ?? []
+				}
+				else {
+					addFolderShareDefault = []
+				}
 				showing = true
 			}
 		)
@@ -175,8 +183,8 @@ struct AddFolderButton: View {
 				AddFolderView(
 					folderID: $addFolderID,
 					shown: $showing,
-					shareWithPendingPeersByDefault: addFolderShareDefault,
-					folderIDReadOnly: addFolderIDReadOnly
+					folderIDReadOnly: addFolderIDReadOnly,
+					sharedWith: self.addFolderShareDefault
 				)
 			}
 			#if os(macOS)

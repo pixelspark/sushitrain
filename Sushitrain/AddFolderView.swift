@@ -24,18 +24,15 @@ struct AddFolderView: View {
 		case sharing = "sharing"
 	}
 
-	@Binding var folderID: String
-	@Binding var shown: Bool
-	var shareWithPendingPeersByDefault: Bool = false
-	var folderIDReadOnly: Bool = false
-
 	@Environment(AppState.self) private var appState
 
+	@Binding var folderID: String
+	@Binding var shown: Bool
+	var folderIDReadOnly: Bool = false
+
+	@State var sharedWith: [String] = []
 	@State private var selectedTab = AddFolderViewTab.general
-	@State private var sharedWith = Set<String>()
 	@State private var folderPath: URL? = nil
-	@State private var possiblePeers: [SushitrainPeer] = []
-	@State private var pendingPeers: [String] = []
 	@State private var showPathSelector: Bool = false
 	@State private var isSelective = true
 	@State private var isPhotoFolder = false
@@ -169,10 +166,7 @@ struct AddFolderView: View {
 	@ViewBuilder private func tabSwitcher() -> some View {
 		Picker("Page", selection: $selectedTab) {
 			Text("Settings").tag(AddFolderViewTab.general)
-
-			if !possiblePeers.isEmpty {
-				Text("Share with").tag(AddFolderViewTab.sharing)
-			}
+			Text("Share with").tag(AddFolderViewTab.sharing)
 		}
 		.pickerStyle(.segmented)
 		.controlSize(.large)
@@ -282,50 +276,12 @@ struct AddFolderView: View {
 	}
 
 	@ViewBuilder private func shareWithSection() -> some View {
-		Section {
-			ForEach(self.possiblePeers, id: \.self.id) { (peer: SushitrainPeer) in
-				let shared = Binding(
-					get: { return sharedWith.contains(peer.deviceID()) },
-					set: { share in
-						if share {
-							sharedWith.insert(peer.deviceID())
-						}
-						else {
-							sharedWith.remove(peer.deviceID())
-						}
-					})
-
-				let isOffered = pendingPeers.contains(peer.deviceID())
-				Toggle(
-					peer.displayName, systemImage: peer.systemImage,
-					isOn: shared
-				)
-				.bold(isOffered)
-				.foregroundStyle(isOffered ? .blue : .primary)
-				.disabled(peer.isUntrusted())
-			}
-
-			Button("Select all devices offering this folder") {
-				sharedWith = Set(pendingPeers)
-			}
-			.disabled(pendingPeers.isEmpty)
-			#if os(macOS)
-				.buttonStyle(.link)
-			#endif
-		}
+		ShareWithDevicesView(folderID: self.folderID, sharedWith: $sharedWith)
 	}
 
 	@concurrent private func update() async {
-		var sharedWith = await self.sharedWith
 		let appState = await self.appState
 		let folderID = await self.folderID
-
-		let possiblePeers = await appState.peers().sorted().filter({ d in !d.isSelf() })
-		let pendingPeers = (try? appState.client.devicesPendingFolder(folderID))?.asArray() ?? []
-
-		if self.shareWithPendingPeersByDefault && sharedWith.isEmpty {
-			sharedWith = Set(pendingPeers.filter { !(appState.client.peer(withID: $0)?.isUntrusted() ?? false) })
-		}
 
 		var isOffered: ObjCBool = false
 		do {
@@ -336,10 +292,7 @@ struct AddFolderView: View {
 		}
 
 		Task { @MainActor in
-			self.possiblePeers = possiblePeers
-			self.pendingPeers = pendingPeers
 			self.isOfferedReceiveEncrypted = isOffered.boolValue
-			self.sharedWith = sharedWith
 		}
 	}
 
@@ -398,6 +351,67 @@ struct AddFolderView: View {
 		}
 		catch let error {
 			self.showAlert = .error(text: error.localizedDescription)
+		}
+	}
+}
+
+private struct ShareWithDevicesView: View {
+	@Environment(AppState.self) private var appState
+	let folderID: String
+	@Binding var sharedWith: [String]
+
+	@State private var possiblePeers: [SushitrainPeer] = []
+	@State private var pendingPeers: [String] = []
+
+	var body: some View {
+		Section {
+			ForEach(self.possiblePeers, id: \.self.id) { (peer: SushitrainPeer) in
+				let shared = Binding<Bool>(
+					get: {
+						return sharedWith.contains(peer.deviceID())
+					},
+					set: { share in
+						if share {
+							sharedWith.append(peer.deviceID())
+						}
+						else {
+							sharedWith = sharedWith.filter { $0 == peer.deviceID() }
+						}
+					})
+
+				let isOffered = pendingPeers.contains(peer.deviceID())
+				Toggle(
+					peer.displayName, systemImage: peer.systemImage,
+					isOn: shared
+				)
+				.bold(isOffered)
+				.foregroundStyle(isOffered ? .blue : .primary)
+				.disabled(peer.isUntrusted())
+			}
+
+			Button("Select all devices offering this folder") {
+				sharedWith = pendingPeers
+			}
+			.disabled(pendingPeers.isEmpty)
+			#if os(macOS)
+				.buttonStyle(.link)
+			#endif
+		}
+		.task {
+			await self.update()
+		}
+	}
+
+	@concurrent private func update() async {
+		let appState = await self.appState
+		let folderID = self.folderID
+
+		let possiblePeers = await appState.peers().sorted().filter({ d in !d.isSelf() })
+		let pendingPeers = (try? appState.client.devicesPendingFolder(folderID))?.asArray() ?? []
+
+		Task { @MainActor in
+			self.possiblePeers = possiblePeers
+			self.pendingPeers = pendingPeers
 		}
 	}
 }
