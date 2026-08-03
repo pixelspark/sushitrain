@@ -30,7 +30,6 @@ struct AddFolderView: View {
 	var folderIDReadOnly: Bool = false
 
 	@Environment(AppState.self) private var appState
-	@FocusState private var idFieldFocus: Bool
 
 	@State private var selectedTab = AddFolderViewTab.general
 	@State private var sharedWith = Set<String>()
@@ -74,9 +73,6 @@ struct AddFolderView: View {
 			#if os(macOS)
 				.formStyle(.grouped)
 			#endif
-			.onAppear {
-				idFieldFocus = true
-			}
 			.task {
 				await self.update()
 			}
@@ -201,7 +197,6 @@ struct AddFolderView: View {
 	@ViewBuilder private func folderIDSection() -> some View {
 		Section {
 			TextField("", text: $folderID, prompt: Text("XXXX-XXXX"))
-				.focused($idFieldFocus)
 				.disabled(self.folderIDReadOnly)
 				#if os(iOS)
 					.textInputAutocapitalization(.never)
