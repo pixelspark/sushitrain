@@ -610,7 +610,7 @@ struct StartView: View {
 			.sheet(
 				isPresented: $showAddFolderSheet,
 				content: {
-					AddFolderView(folderID: $addFolderID)
+					AddFolderView(folderID: $addFolderID, shown: $showAddFolderSheet)
 				})
 		}
 	}

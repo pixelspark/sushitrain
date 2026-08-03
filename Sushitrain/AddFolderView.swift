@@ -20,11 +20,11 @@ struct AddFolderView: View {
 	}
 
 	@Binding var folderID: String
+	@Binding var shown: Bool
 	var shareWithPendingPeersByDefault: Bool = false
 	var folderIDReadOnly: Bool = false
 
 	@Environment(AppState.self) private var appState
-	@Environment(\.dismiss) private var dismiss
 	@FocusState private var idFieldFocus: Bool
 
 	@State var sharedWith = Set<String>()
@@ -228,7 +228,7 @@ struct AddFolderView: View {
 				}
 
 				SheetButton(role: .cancel) {
-					dismiss()
+					self.shown = false
 				}
 			}
 			.navigationTitle("Add folder")
@@ -341,7 +341,7 @@ struct AddFolderView: View {
 				for devID in self.sharedWith {
 					try folder.share(withDevice: devID, toggle: true, encryptionPassword: "")
 				}
-				dismiss()
+				self.shown = false
 			}
 			else {
 				// Something went wrong creating the folder{

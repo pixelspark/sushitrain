@@ -359,7 +359,7 @@ struct LatencyView: View {
 				}
 			#endif
 			.sheet(isPresented: $showingAddDevicePopup) {
-				AddDeviceView(suggestedDeviceID: $addingDeviceID)
+				AddDeviceView(suggestedDeviceID: $addingDeviceID, shown: $showingAddDevicePopup)
 			}.task {
 				await self.update()
 			}.onChange(of: appState.eventCounter) {
@@ -678,7 +678,7 @@ struct LatencyView: View {
 					}
 				}
 			}.sheet(isPresented: $showingAddDevicePopup) {
-				AddDeviceView(suggestedDeviceID: $addingDeviceID)
+				AddDeviceView(suggestedDeviceID: $addingDeviceID, shown: $showingAddDevicePopup)
 			}
 			.onAppear {
 				Task {

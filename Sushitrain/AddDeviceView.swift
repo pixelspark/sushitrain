@@ -9,14 +9,16 @@ import VisionKit
 
 struct AddDeviceView: View {
 	@Environment(AppState.self) private var appState
+
 	@Binding var suggestedDeviceID: String
+	@Binding var shown: Bool
+
 	@State var deviceID = ""
 	@State private var showHelpAfterAdding = false
 	@State private var showError = false
 	@State private var errorText = ""
 	@State private var showQRScanner = false
 	@FocusState private var idFieldFocus: Bool
-	@Environment(\.dismiss) private var dismiss
 
 	var body: some View {
 		NavigationStack {
@@ -84,7 +86,7 @@ struct AddDeviceView: View {
 				}
 
 				SheetButton(role: .cancel) {
-					dismiss()
+					self.shown = false
 				}
 			}
 			.navigationTitle("Add device")
@@ -106,7 +108,7 @@ struct AddDeviceView: View {
 						"The device has been added. To ensure a connection, ensure the other device accepts this device, or add this device there as well."
 					),
 					dismissButton: .default(Text("OK")) {
-						dismiss()
+						self.shown = false
 					})
 			}
 		}
