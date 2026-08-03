@@ -592,11 +592,11 @@ struct StartView: View {
 			.onTapGesture {
 				showAddFolderSheet = true
 			}
-			.sheet(
-				isPresented: $showAddFolderSheet,
-				content: {
+			.sheet(isPresented: $showAddFolderSheet) {
+				NavigationStack {
 					AddFolderView(folderID: $addFolderID, shown: $showAddFolderSheet)
-				})
+				}
+			}
 		}
 	}
 

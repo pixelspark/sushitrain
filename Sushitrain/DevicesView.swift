@@ -313,22 +313,21 @@ struct LatencyView: View {
 						}
 					}
 				}
-
-				// Add peer manually
-				Section {
-					Button("Add device...", systemImage: "plus") {
-						addingDeviceID = ""
-						showingAddDevicePopup = true
-					}
-					#if os(macOS)
-						.buttonStyle(.borderless)
-					#endif
-				}
 			}
 			#if os(iOS)
 				.toolbar {
-					ToolbarItem {
+					ToolbarItem(placement: .topBarLeading) {
 						EditButton().disabled(peers.isEmpty)
+					}
+
+					ToolbarItem {
+						Button("Add device...", systemImage: "plus") {
+							addingDeviceID = ""
+							showingAddDevicePopup = true
+						}
+						#if os(macOS)
+							.buttonStyle(.borderless)
+						#endif
 					}
 
 					ToolbarItem {
@@ -351,7 +350,7 @@ struct LatencyView: View {
 								}.disabled(self.peers.allSatisfy { !self.appState.isDevicePausedByUser($0) })
 							},
 							label: {
-								Image(systemName: "ellipsis.circle")
+								Image(systemName: "ellipsis")
 									.accessibilityLabel(Text("Menu"))
 							}
 						)

@@ -27,8 +27,8 @@ struct AddFolderView: View {
 	@Environment(AppState.self) private var appState
 	@FocusState private var idFieldFocus: Bool
 
-	@State var sharedWith = Set<String>()
-	@State var folderPath: URL? = nil
+	@State private var sharedWith = Set<String>()
+	@State private var folderPath: URL? = nil
 	@State private var possiblePeers: [SushitrainPeer] = []
 	@State private var pendingPeers: [String] = []
 	@State private var showPathSelector: Bool = false
@@ -43,6 +43,105 @@ struct AddFolderView: View {
 
 	var folderExists: Bool {
 		appState.client.folder(withID: self.folderID) != nil
+	}
+
+	var body: some View {
+		Form {
+			self.folderIDSection()
+
+			self.folderTypeSection()
+
+			if !isPhotoFolder && isOfferedReceiveEncrypted {
+				Section {
+					Toggle("Receive encrypted", isOn: $isReceiveEncryptedFolder)
+				} footer: {
+					if isReceiveEncryptedFolder {
+						Text(
+							"This device will receive encrypted files from other devices. The files are stored on this device, but cannot be accessed from this device."
+						)
+					}
+				}
+			}
+
+			if isPhotoFolder {
+				PhotoFolderConfigurationView(config: $photoFolderConfig)
+			}
+
+			if !isPhotoFolder && !isReceiveEncryptedFolder {
+				self.folderSyncTypeSection()
+			}
+
+			if !possiblePeers.isEmpty {
+				self.shareWithSection()
+			}
+		}
+		#if os(macOS)
+			.formStyle(.grouped)
+		#endif
+		.onAppear {
+			idFieldFocus = true
+		}
+		.task {
+			await self.update()
+		}
+		.toolbar {
+			SheetButton(role: .add, isDisabled: folderID.isEmpty || folderExists) {
+				if self.folderPath != nil {
+					self.showAlert = .addingExternalFolderWarning
+				}
+				else {
+					self.add()
+				}
+			}
+
+			SheetButton(role: .cancel) {
+				self.shown = false
+			}
+		}
+		.navigationTitle("Add folder")
+		.alert(item: self.$showAlert) { sa in
+			switch sa {
+			case .error(let errorText):
+				Alert(
+					title: Text("Could not add folder"), message: Text(errorText),
+					dismissButton: .default(Text("OK")))
+
+			case .addingExternalFolderWarning:
+				Alert(
+					title: Text("Adding a folder from another app"),
+					message: Text(
+						"You are adding a folder that may be controlled by another app. This can cause issues, for instance when synchronization changes the app's files structure in an unsupported way. Are you sure you want to continue?"
+					),
+					primaryButton: .destructive(Text("Continue")) {
+						self.add()
+					},
+					secondaryButton: .cancel(Text("Cancel"))
+				)
+			}
+		}
+		.fileImporter(
+			isPresented: $showPathSelector, allowedContentTypes: [.folder],
+			onCompletion: { result in
+				switch result {
+				case .success(let url):
+					if appState.isInsideDocumentsFolder(url) {
+						// Check if the folder path is or is inside our regular folder path - that is not allowed
+						self.showAlert = .error(
+							text: String(
+								localized:
+									"The folder you have selected is inside the app folder. Only folders outside the app folder can be selected."
+							))
+						self.folderPath = nil
+					}
+					else {
+						self.folderPath = url
+						self.isPhotoFolder = false
+					}
+				case .failure(let e):
+					Log.warn("Failed to select folder: \(e.localizedDescription)")
+					self.folderPath = nil
+				}
+			})
 	}
 
 	@ViewBuilder private func folderIDSection() -> some View {
@@ -167,131 +266,31 @@ struct AddFolderView: View {
 		}.id("shareWith")
 	}
 
-	var body: some View {
-		NavigationStack {
-			Form {
-				self.folderIDSection()
+	@concurrent private func update() async {
+		var sharedWith = await self.sharedWith
+		let appState = await self.appState
+		let folderID = await self.folderID
 
-				self.folderTypeSection()
+		let possiblePeers = await appState.peers().sorted().filter({ d in !d.isSelf() })
+		let pendingPeers = (try? appState.client.devicesPendingFolder(folderID))?.asArray() ?? []
 
-				if !isPhotoFolder && isOfferedReceiveEncrypted {
-					Section {
-						Toggle("Receive encrypted", isOn: $isReceiveEncryptedFolder)
-					} footer: {
-						if isReceiveEncryptedFolder {
-							Text(
-								"This device will receive encrypted files from other devices. The files are stored on this device, but cannot be accessed from this device."
-							)
-						}
-					}
-				}
-
-				if isPhotoFolder {
-					PhotoFolderConfigurationView(config: $photoFolderConfig)
-				}
-
-				if !isPhotoFolder && !isReceiveEncryptedFolder {
-					self.folderSyncTypeSection()
-				}
-
-				if !possiblePeers.isEmpty {
-					self.shareWithSection()
-				}
-			}
-			#if os(macOS)
-				.formStyle(.grouped)
-			#endif
-			.onAppear {
-				idFieldFocus = true
-			}
-			.task {
-				await self.update()
-			}
-			.onChange(of: folderID, initial: false) { _, _ in
-				Task {
-					await self.update()
-				}
-			}
-			.onChange(of: shareWithPendingPeersByDefault, initial: false) { _, _ in
-				Task {
-					await self.update()
-				}
-			}
-			.toolbar {
-				SheetButton(role: .add, isDisabled: folderID.isEmpty || folderExists) {
-					if self.folderPath != nil {
-						self.showAlert = .addingExternalFolderWarning
-					}
-					else {
-						self.add()
-					}
-				}
-
-				SheetButton(role: .cancel) {
-					self.shown = false
-				}
-			}
-			.navigationTitle("Add folder")
-			.alert(item: self.$showAlert) { sa in
-				switch sa {
-				case .error(let errorText):
-					Alert(
-						title: Text("Could not add folder"), message: Text(errorText),
-						dismissButton: .default(Text("OK")))
-
-				case .addingExternalFolderWarning:
-					Alert(
-						title: Text("Adding a folder from another app"),
-						message: Text(
-							"You are adding a folder that may be controlled by another app. This can cause issues, for instance when synchronization changes the app's files structure in an unsupported way. Are you sure you want to continue?"
-						),
-						primaryButton: .destructive(Text("Continue")) {
-							self.add()
-						},
-						secondaryButton: .cancel(Text("Cancel"))
-					)
-				}
-			}
-			.fileImporter(
-				isPresented: $showPathSelector, allowedContentTypes: [.folder],
-				onCompletion: { result in
-					switch result {
-					case .success(let url):
-						if appState.isInsideDocumentsFolder(url) {
-							// Check if the folder path is or is inside our regular folder path - that is not allowed
-							self.showAlert = .error(
-								text: String(
-									localized:
-										"The folder you have selected is inside the app folder. Only folders outside the app folder can be selected."
-								))
-							self.folderPath = nil
-						}
-						else {
-							self.folderPath = url
-							self.isPhotoFolder = false
-						}
-					case .failure(let e):
-						Log.warn("Failed to select folder: \(e.localizedDescription)")
-						self.folderPath = nil
-					}
-				})
-		}
-	}
-
-	private func update() async {
-		self.possiblePeers = await appState.peers().sorted().filter({ d in !d.isSelf() })
-		self.pendingPeers = (try? appState.client.devicesPendingFolder(self.folderID))?.asArray() ?? []
 		if self.shareWithPendingPeersByDefault && sharedWith.isEmpty {
 			sharedWith = Set(pendingPeers.filter { !(appState.client.peer(withID: $0)?.isUntrusted() ?? false) })
 		}
 
+		var isOffered: ObjCBool = false
 		do {
-			var isOffered: ObjCBool = false
-			try appState.client.isPendingFolderOfferedReceiveEncrypted(self.folderID, isOffered: &isOffered)
-			self.isOfferedReceiveEncrypted = isOffered.boolValue
+			try appState.client.isPendingFolderOfferedReceiveEncrypted(folderID, isOffered: &isOffered)
 		}
 		catch {
-			self.isOfferedReceiveEncrypted = false
+			isOffered = false
+		}
+
+		Task { @MainActor in
+			self.possiblePeers = possiblePeers
+			self.pendingPeers = pendingPeers
+			self.isOfferedReceiveEncrypted = isOffered.boolValue
+			self.sharedWith = sharedWith
 		}
 	}
 

@@ -75,15 +75,17 @@ private struct ContentView: View {
 			NavigationStack(path: $foldersTabRouteManager.route) {
 				FoldersView()
 					.toolbar {
-						Button(
-							openInFilesAppLabel, systemImage: "arrow.up.forward.app",
-							action: {
-								let documentsUrl = FileManager.default.urls(
-									for: .documentDirectory, in: .userDomainMask
-								).first!
-								openURLInSystemFilesApp(url: documentsUrl)
-							}
-						).labelStyle(.iconOnly)
+						ToolbarItem(placement: .navigation) {
+							Button(
+								openInFilesAppLabel, systemImage: "arrow.up.forward.app",
+								action: {
+									let documentsUrl = FileManager.default.urls(
+										for: .documentDirectory, in: .userDomainMask
+									).first!
+									openURLInSystemFilesApp(url: documentsUrl)
+								}
+							).labelStyle(.iconOnly)
+						}
 					}
 			}
 		}
@@ -168,21 +170,9 @@ private struct ContentView: View {
 		NavigationSplitView(
 			columnVisibility: $columnVisibility,
 			sidebar: {
-				List(selection: $topLevelRoute) {
-					if horizontalSizeClass != .compact {
-						Section {
-							NavigationLink(value: Route.start) {
-								Label("Start", systemImage: self.appState.syncState.systemImage)
-							}
-
-							NavigationLink(value: Route.devices) {
-								Label("Devices", systemImage: "externaldrive.fill")
-							}
-						}
-					}
-
-					FoldersSections(userSettings: appState.userSettings)
-				}
+				FoldersList(
+					selection: $topLevelRoute, showStart: horizontalSizeClass != .compact, userSettings: appState.userSettings
+				)
 				#if os(macOS)
 					.contextMenu {
 						FolderMetricPickerView(userSettings: appState.userSettings)
@@ -190,7 +180,11 @@ private struct ContentView: View {
 				#endif
 				#if os(iOS)
 					.toolbar {
-						ToolbarItem {
+						ToolbarItem(placement: .primaryAction) {
+							AddFolderButton()
+						}
+
+						ToolbarItem(placement: .navigation) {
 							Button(
 								openInFilesAppLabel, systemImage: "arrow.up.forward.app",
 								action: {
@@ -202,12 +196,12 @@ private struct ContentView: View {
 							).labelStyle(.iconOnly)
 						}
 
-						ToolbarItem {
+						ToolbarItem(placement: .primaryAction) {
 							Menu(
 								content: {
 									FolderMetricPickerView(userSettings: appState.userSettings)
 								},
-								label: { Image(systemName: "ellipsis.circle").accessibilityLabel(Text("Menu")) }
+								label: { Image(systemName: "ellipsis").accessibilityLabel(Text("Menu")) }
 							).labelStyle(.iconOnly)
 						}
 					}

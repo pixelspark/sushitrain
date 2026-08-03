@@ -241,7 +241,7 @@ private struct EncryptedSharingSettingsView: View {
 								}
 							}
 						} label: {
-							Label("Use password for device", systemImage: "ellipsis.circle")
+							Label("Use password for device", systemImage: "ellipsis")
 								.labelStyle(.iconOnly)
 						}
 						.frame(maxWidth: 52)

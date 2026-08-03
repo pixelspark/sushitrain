@@ -195,7 +195,7 @@ struct EntryInfoView: View {
 							}
 							.disabled(!self.entry.isArchive())
 						} label: {
-							Label("Advanced", systemImage: "ellipsis.circle")
+							Label("Advanced", systemImage: "ellipsis")
 						}
 
 						// Open in Finder button

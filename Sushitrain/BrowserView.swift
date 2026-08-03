@@ -628,7 +628,7 @@ struct BrowserView: View {
 				.foregroundColor(.red)
 			}
 		} label: {
-			Label("Folder actions", systemImage: "ellipsis.circle")
+			Label("Folder actions", systemImage: "ellipsis")
 		}.labelStyle(.titleAndIcon)
 	}
 
@@ -713,7 +713,7 @@ struct BrowserView: View {
 			#if os(macOS)
 				Label("Folder settings", systemImage: "folder.badge.gearshape")
 			#else
-				Label("Actions", systemImage: "ellipsis.circle")
+				Label("Actions", systemImage: "ellipsis")
 			#endif
 		}.disabled(!folderExists)
 	}
