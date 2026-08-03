@@ -95,6 +95,9 @@ struct AddFolderView: View {
 				}
 			}
 			.navigationTitle("Add folder")
+			#if os(iOS)
+				.navigationBarTitleDisplayMode(.inline)
+			#endif
 			.alert(item: self.$showAlert) { sa in
 				switch sa {
 				case .error(let errorText):
