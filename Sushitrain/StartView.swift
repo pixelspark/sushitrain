@@ -332,14 +332,14 @@ struct StartView: View {
 
 	@State private var qrCodeShown = false
 	@State private var showWaitScreen: Bool = false
-	
+
 	@State private var showAddresses = false
 	@State private var showAddFolderSheet = false
-	
+
 	@State private var addingFolder = AddFolder()
 	@State private var addingDeviceID = ""
 	@State private var addingDevice = false
-	
+
 	@State private var showNoPeersEnabledWarning = false
 	@State private var peers: [SushitrainPeer]? = nil
 	@State private var folders: [SushitrainFolder]? = nil
@@ -602,11 +602,14 @@ struct StartView: View {
 					.buttonStyle(.link)
 				#endif
 			}
-			.sheet(isPresented: $showAddFolderSheet, onDismiss: {
-				Task {
-					await self.update()
+			.sheet(
+				isPresented: $showAddFolderSheet,
+				onDismiss: {
+					Task {
+						await self.update()
+					}
 				}
-			}) {
+			) {
 				NavigationStack {
 					AddFolderView(adding: addingFolder, shown: $showAddFolderSheet)
 				}
@@ -631,11 +634,14 @@ struct StartView: View {
 					.buttonStyle(.link)
 				#endif
 			}
-			.sheet(isPresented: $addingDevice, onDismiss: {
-				Task {
-					await self.update()
+			.sheet(
+				isPresented: $addingDevice,
+				onDismiss: {
+					Task {
+						await self.update()
+					}
 				}
-			}) {
+			) {
 				NavigationStack {
 					AddDeviceView(suggestedDeviceID: $addingDeviceID, shown: $addingDevice)
 				}
