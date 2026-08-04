@@ -332,9 +332,14 @@ struct StartView: View {
 
 	@State private var qrCodeShown = false
 	@State private var showWaitScreen: Bool = false
+	
 	@State private var showAddresses = false
 	@State private var showAddFolderSheet = false
+	
 	@State private var addingFolder = AddFolder()
+	@State private var addingDeviceID = ""
+	@State private var addingDevice = false
+	
 	@State private var showNoPeersEnabledWarning = false
 	@State private var peers: [SushitrainPeer]? = nil
 	@State private var folders: [SushitrainFolder]? = nil
@@ -413,7 +418,7 @@ struct StartView: View {
 			self.deviceIssuesSection()
 
 			// Getting started, folder issues
-			if let f = folders, f.isEmpty || true {
+			if let f = folders, f.isEmpty {
 				self.gettingStartedFolders()
 			}
 			self.folderIssuesSection()
@@ -583,17 +588,25 @@ struct StartView: View {
 
 	@ViewBuilder private func gettingStartedFolders() -> some View {
 		Section("Getting started") {
-			VStack(alignment: .leading, spacing: 5) {
+			VStack(alignment: .leading, spacing: 10) {
 				Label("Add your first folder", systemImage: "folder.badge.plus").bold()
 				Text(
 					"To synchronize files, add a folder. Folders that have the same folder ID on multiple devices will be synchronized with eachother."
 				)
+				Button("Add folder...", systemImage: "plus") {
+					addingFolder = AddFolder()
+					showAddFolderSheet = true
+				}
+				#if os(macOS)
+					.padding([.bottom], 5)
+					.buttonStyle(.link)
+				#endif
 			}
-			.onTapGesture {
-				addingFolder = AddFolder()
-				showAddFolderSheet = true
-			}
-			.sheet(isPresented: $showAddFolderSheet) {
+			.sheet(isPresented: $showAddFolderSheet, onDismiss: {
+				Task {
+					await self.update()
+				}
+			}) {
 				NavigationStack {
 					AddFolderView(adding: addingFolder, shown: $showAddFolderSheet)
 				}
@@ -603,14 +616,29 @@ struct StartView: View {
 
 	@ViewBuilder private func gettingStartedDevices() -> some View {
 		Section("Getting started") {
-			VStack(alignment: .leading, spacing: 5) {
+			VStack(alignment: .leading, spacing: 10) {
 				Label("Add your first device", systemImage: "externaldrive.badge.plus")
 					.bold()
 				Text(
 					"To synchronize files, first add a remote device. Either select a device from the list below, or add manually using the device ID."
 				)
-			}.onTapGesture {
-				topLevelRoute = .devices
+				Button("Add device...", systemImage: "plus") {
+					addingDeviceID = ""
+					addingDevice = true
+				}
+				#if os(macOS)
+					.padding([.bottom], 5)
+					.buttonStyle(.link)
+				#endif
+			}
+			.sheet(isPresented: $addingDevice, onDismiss: {
+				Task {
+					await self.update()
+				}
+			}) {
+				NavigationStack {
+					AddDeviceView(suggestedDeviceID: $addingDeviceID, shown: $addingDevice)
+				}
 			}
 		}
 	}
