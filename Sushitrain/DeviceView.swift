@@ -25,6 +25,7 @@ struct DeviceView: View {
 	@State private var otherFolders: [SushitrainFolder] = []
 	@State private var lastAddress: String = ""
 	@State private var showAddresses: Bool = false
+	@State private var showConfirmUnlink = false
 
 	var body: some View {
 		VStack {
@@ -157,8 +158,17 @@ struct DeviceView: View {
 
 		Section {
 			Button("Unlink device", systemImage: "trash", role: .destructive) {
-				try? device.remove()
-				dismiss()
+				self.showConfirmUnlink = true
+			}
+			.confirmationDialog(
+				"Are you sure you want to unlink this device? Folders will not be synchronized with this device any more. You can re-add the device later if necessary.",
+				isPresented: $showConfirmUnlink,
+				titleVisibility: .visible
+			) {
+				Button("Unlink device", role: .destructive) {
+					try? device.remove()
+					self.dismiss()
+				}
 			}
 			.foregroundColor(.red)
 			#if os(macOS)
