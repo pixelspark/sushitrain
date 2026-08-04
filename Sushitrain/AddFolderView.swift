@@ -52,6 +52,8 @@ struct AddFolderView: View {
 	// Whether any device offers this folder as receive encrypted
 	@State private var isOfferedReceiveEncrypted = false
 
+	@FocusState private var idFieldFocus: Bool
+
 	var folderExists: Bool {
 		appState.client.folder(withID: self.adding.folderID) != nil
 	}
@@ -144,6 +146,9 @@ struct AddFolderView: View {
 					}
 				})
 		}
+		.onAppear {
+			idFieldFocus = true
+		}
 		#if os(macOS)
 			.presentationSizing(.fitted.sticky())
 		#endif
@@ -203,6 +208,7 @@ struct AddFolderView: View {
 	@ViewBuilder private func folderIDSection() -> some View {
 		Section {
 			TextField("", text: $adding.folderID, prompt: Text("XXXX-XXXX"))
+				.focused($idFieldFocus)
 				.disabled(self.folderIDReadOnly)
 				#if os(iOS)
 					.textInputAutocapitalization(.never)
