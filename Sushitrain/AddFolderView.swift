@@ -6,6 +6,16 @@
 import SwiftUI
 import SushitrainCore
 
+@Observable class AddFolder {
+	var folderID: String
+	var sharedWithDevices: [String]
+
+	init(folderID: String = "", sharedWithDevices: [String] = []) {
+		self.folderID = folderID
+		self.sharedWithDevices = sharedWithDevices
+	}
+}
+
 struct AddFolderView: View {
 	enum ShowAlert: Identifiable {
 		var id: String {
@@ -24,13 +34,12 @@ struct AddFolderView: View {
 		case sharing = "sharing"
 	}
 
-	@Environment(AppState.self) private var appState
-
-	@Binding var folderID: String
+	@Bindable var adding: AddFolder
 	@Binding var shown: Bool
 	var folderIDReadOnly: Bool = false
 
-	@State var sharedWith: [String] = []
+	@Environment(AppState.self) var appState
+
 	@State private var selectedTab = AddFolderViewTab.general
 	@State private var folderPath: URL? = nil
 	@State private var showPathSelector: Bool = false
@@ -44,7 +53,7 @@ struct AddFolderView: View {
 	@State private var isOfferedReceiveEncrypted = false
 
 	var folderExists: Bool {
-		appState.client.folder(withID: self.folderID) != nil
+		appState.client.folder(withID: self.adding.folderID) != nil
 	}
 
 	var body: some View {
@@ -74,7 +83,7 @@ struct AddFolderView: View {
 				await self.update()
 			}
 			.toolbar {
-				SheetButton(role: .add, isDisabled: folderID.isEmpty || folderExists) {
+				SheetButton(role: .add, isDisabled: self.adding.folderID.isEmpty || folderExists) {
 					if self.folderPath != nil {
 						self.showAlert = .addingExternalFolderWarning
 					}
@@ -135,6 +144,9 @@ struct AddFolderView: View {
 					}
 				})
 		}
+		#if os(macOS)
+			.presentationSizing(.fitted.sticky())
+		#endif
 	}
 
 	@ViewBuilder private func generalTab() -> some View {
@@ -190,7 +202,7 @@ struct AddFolderView: View {
 
 	@ViewBuilder private func folderIDSection() -> some View {
 		Section {
-			TextField("", text: $folderID, prompt: Text("XXXX-XXXX"))
+			TextField("", text: $adding.folderID, prompt: Text("XXXX-XXXX"))
 				.disabled(self.folderIDReadOnly)
 				#if os(iOS)
 					.textInputAutocapitalization(.never)
@@ -276,12 +288,12 @@ struct AddFolderView: View {
 	}
 
 	@ViewBuilder private func shareWithSection() -> some View {
-		ShareWithDevicesView(folderID: self.folderID, sharedWith: $sharedWith)
+		ShareWithDevicesView(folderID: self.adding.folderID, sharedWith: $adding.sharedWithDevices)
 	}
 
-	@concurrent private func update() async {
-		let appState = await self.appState
-		let folderID = await self.folderID
+	private func update() async {
+		let appState = self.appState
+		let folderID = self.adding.folderID
 
 		var isOffered: ObjCBool = false
 		do {
@@ -301,7 +313,8 @@ struct AddFolderView: View {
 			// Add the folder
 			if self.isPhotoFolder {
 				let path = String(data: try JSONEncoder().encode(self.photoFolderConfig), encoding: .utf8)!
-				try appState.client.addSpecialFolder(self.folderID, fsType: photoFSType, folderPath: path, folderType: "sendonly")
+				try appState.client.addSpecialFolder(
+					self.adding.folderID, fsType: photoFSType, folderPath: path, folderType: "sendonly")
 			}
 			else {
 				if let fp = self.folderPath {
@@ -313,10 +326,10 @@ struct AddFolderView: View {
 						return
 					}
 
-					try BookmarkManager.shared.saveBookmark(folderID: self.folderID, url: fp)
+					try BookmarkManager.shared.saveBookmark(folderID: self.adding.folderID, url: fp)
 
 					try appState.client.addFolder(
-						self.folderID,
+						self.adding.folderID,
 						folderPath: fp.path(percentEncoded: false),
 						createAsOnDemand: self.isSelective && !isReceiveEncryptedFolder,
 						createAsReceiveEncrypted: isReceiveEncryptedFolder
@@ -324,7 +337,7 @@ struct AddFolderView: View {
 				}
 				else {
 					try appState.client.addFolder(
-						self.folderID,
+						self.adding.folderID,
 						folderPath: "",
 						createAsOnDemand: self.isSelective && !isReceiveEncryptedFolder,
 						createAsReceiveEncrypted: isReceiveEncryptedFolder
@@ -332,14 +345,14 @@ struct AddFolderView: View {
 				}
 			}
 
-			if let folder = appState.client.folder(withID: self.folderID) {
+			if let folder = appState.client.folder(withID: self.adding.folderID) {
 				if folder.isRegularFolder {
 					// By default, exclude from backup
 					folder.isExcludedFromBackup = true
 				}
 
 				// Add peers
-				for devID in self.sharedWith {
+				for devID in self.adding.sharedWithDevices {
 					try folder.share(withDevice: devID, toggle: true, encryptionPassword: "")
 				}
 				self.shown = false
@@ -375,7 +388,7 @@ private struct ShareWithDevicesView: View {
 							sharedWith.append(peer.deviceID())
 						}
 						else {
-							sharedWith = sharedWith.filter { $0 == peer.deviceID() }
+							sharedWith = sharedWith.filter { $0 != peer.deviceID() }
 						}
 					})
 

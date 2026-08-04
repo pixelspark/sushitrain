@@ -149,59 +149,15 @@ private struct FoldersSection: View {
 	}
 }
 
-struct AddFolderButton: View {
-	var initialFolderID: String? = nil
-
-	@Environment(AppState.self) private var appState
-
-	@State private var showing = false
-	@State private var addFolderID = ""
-	@State private var addFolderIDReadOnly = false
-	@State private var addFolderShareDefault: [String] = []
-
-	var body: some View {
-		Button(
-			self.initialFolderID ?? String(localized: "Add folder..."), systemImage: "plus",
-			action: {
-				addFolderID = self.initialFolderID ?? ""
-				addFolderIDReadOnly = self.initialFolderID != nil
-
-				if let initialFolderID = self.initialFolderID {
-					self.addFolderShareDefault = (try? appState.client.devicesPendingFolder(initialFolderID))?.asArray() ?? []
-				}
-				else {
-					addFolderShareDefault = []
-				}
-				showing = true
-			}
-		)
-		#if os(macOS)
-			.buttonStyle(.link)
-		#endif
-		.sheet(isPresented: $showing) {
-			NavigationStack {
-				AddFolderView(
-					folderID: $addFolderID,
-					shown: $showing,
-					folderIDReadOnly: addFolderIDReadOnly,
-					sharedWith: self.addFolderShareDefault
-				)
-			}
-			#if os(macOS)
-				.presentationSizing(.fitted.sticky())
-			#endif
-		}
-	}
-}
-
 struct FoldersList: View {
 	var selection: Binding<Route?>? = nil
 	var showStart: Bool = false
+	@ObservedObject var userSettings: AppUserSettings
+	var onAdd: ((AddFolder) -> Void)? = nil
 
 	@Environment(AppState.self) private var appState
-	@ObservedObject var userSettings: AppUserSettings
-	@State private var pendingFolderIds: [String] = []
 
+	@State private var discoveredFolders: [AddFolder] = []
 	@State private var foldersByGroup: [String: [SushitrainFolder]] = [:]
 	@State private var showFolderProperties: SushitrainFolder? = nil
 
@@ -235,8 +191,13 @@ struct FoldersList: View {
 			}
 
 			#if os(macOS)
-				Section {
-					AddFolderButton()
+				if let onAdd = self.onAdd {
+					Section {
+						Button("Add folder...", systemImage: "plus") {
+							onAdd(AddFolder())
+						}
+						.buttonStyle(.link)
+					}
 				}
 			#endif
 
@@ -248,19 +209,24 @@ struct FoldersList: View {
 	}
 
 	@ViewBuilder private func pendingFoldersView() -> some View {
-		if !pendingFolderIds.isEmpty {
+		if let onAdd = self.onAdd, !discoveredFolders.isEmpty {
 			// For some reason, isExpanded is accepted on iOS but doesn't do anything in regular lists, other than
 			// randomly hide contents...
 			#if os(macOS)
 				Section("Discovered folders", isExpanded: $discoveredFoldersExpanded) {
-					ForEach(pendingFolderIds, id: \.self) { folderID in
-						AddFolderButton(initialFolderID: folderID)
+					ForEach(discoveredFolders, id: \.folderID) { addFolder in
+						Button(addFolder.folderID, systemImage: "plus") {
+							onAdd(addFolder)
+						}
+						.buttonStyle(.link)
 					}
 				}
 			#else
 				Section("Discovered folders") {
-					ForEach(pendingFolderIds, id: \.self) { folderID in
-						AddFolderButton(initialFolderID: folderID)
+					ForEach(discoveredFolders, id: \.folderID) { addFolder in
+						Button(addFolder.folderID, systemImage: "plus") {
+							onAdd(addFolder)
+						}
 					}
 				}
 			#endif
@@ -278,37 +244,58 @@ struct FoldersList: View {
 		}
 
 		let addedFolders = Set(folders.map({ f in f.folderID }))
-		self.pendingFolderIds = ((try? self.appState.client.pendingFolderIDs())?.asArray() ?? []).filter({
+		let pendingFolderIds = ((try? self.appState.client.pendingFolderIDs())?.asArray() ?? []).filter({
 			folderID in
 			!addedFolders.contains(folderID)
 		}).sorted()
+
+		self.discoveredFolders = pendingFolderIds.map { folderID in
+			let pendingDevices = try? self.appState.client.devicesPendingFolder(folderID).asArray()
+			return AddFolder(folderID: folderID, sharedWithDevices: pendingDevices ?? [])
+		}
 	}
 }
 
 struct FoldersView: View {
 	@Environment(AppState.self) private var appState
 
-	var body: some View {
-		FoldersList(userSettings: appState.userSettings)
-			.navigationTitle("Folders")
-			.navigationDestination(for: Route.self) { r in
-				RouteView(route: r)
-			}
-			.toolbar {
-				ToolbarItem(placement: .primaryAction) {
-					AddFolderButton()
-						.labelStyle(.iconOnly)
-				}
+	@State private var showAddFolder: Bool = false
+	@State private var addFolder = AddFolder()
 
-				ToolbarItem(placement: .primaryAction) {
-					Menu(
-						content: {
-							FolderMetricPickerView(userSettings: appState.userSettings)
-						},
-						label: { Image(systemName: "ellipsis").accessibilityLabel(Text("Menu")) }
-					)
-				}
+	var body: some View {
+		FoldersList(
+			userSettings: appState.userSettings,
+			onAdd: { addFolder in
+				self.addFolder = addFolder
+				self.showAddFolder = true
 			}
+		)
+		.navigationTitle("Folders")
+		.navigationDestination(for: Route.self) { r in
+			RouteView(route: r)
+		}
+		.sheet(isPresented: $showAddFolder) {
+			NavigationStack {
+				AddFolderView(adding: addFolder, shown: $showAddFolder)
+			}
+		}
+		.toolbar {
+			ToolbarItem(placement: .primaryAction) {
+				Button("Add folder", systemImage: "plus") {
+					showAddFolder = true
+				}
+				.labelStyle(.iconOnly)
+			}
+
+			ToolbarItem(placement: .primaryAction) {
+				Menu(
+					content: {
+						FolderMetricPickerView(userSettings: appState.userSettings)
+					},
+					label: { Image(systemName: "ellipsis").accessibilityLabel(Text("Menu")) }
+				)
+			}
+		}
 	}
 }
 

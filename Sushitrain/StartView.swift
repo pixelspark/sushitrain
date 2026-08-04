@@ -334,7 +334,7 @@ struct StartView: View {
 	@State private var showWaitScreen: Bool = false
 	@State private var showAddresses = false
 	@State private var showAddFolderSheet = false
-	@State private var addFolderID = ""
+	@State private var addingFolder = AddFolder()
 	@State private var showNoPeersEnabledWarning = false
 	@State private var peers: [SushitrainPeer]? = nil
 	@State private var folders: [SushitrainFolder]? = nil
@@ -413,7 +413,7 @@ struct StartView: View {
 			self.deviceIssuesSection()
 
 			// Getting started, folder issues
-			if let f = folders, f.isEmpty {
+			if let f = folders, f.isEmpty || true {
 				self.gettingStartedFolders()
 			}
 			self.folderIssuesSection()
@@ -590,11 +590,12 @@ struct StartView: View {
 				)
 			}
 			.onTapGesture {
+				addingFolder = AddFolder()
 				showAddFolderSheet = true
 			}
 			.sheet(isPresented: $showAddFolderSheet) {
 				NavigationStack {
-					AddFolderView(folderID: $addFolderID, shown: $showAddFolderSheet)
+					AddFolderView(adding: addingFolder, shown: $showAddFolderSheet)
 				}
 			}
 		}
