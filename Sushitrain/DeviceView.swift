@@ -59,7 +59,7 @@ struct DeviceView: View {
 			}
 		}
 		.navigationTitle(!device.exists() || device.name().isEmpty ? device.deviceID() : device.name())
-		.task {
+		.task(id: appState.eventCounter) {
 			await self.update()
 		}
 	}
