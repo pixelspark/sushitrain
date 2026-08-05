@@ -694,9 +694,6 @@ struct FolderView: View {
 					.formStyle(.grouped)
 				#endif
 			}
-			#if os(iOS)
-				.navigationBarTitleDisplayMode(.inline)
-			#endif
 			.navigationTitle(folder.displayName)
 			.task {
 				await self.update()
