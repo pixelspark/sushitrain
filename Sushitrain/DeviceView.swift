@@ -178,12 +178,14 @@ struct DeviceView: View {
 	}
 
 	@ViewBuilder private func sharingTab() -> some View {
-		Section("Shared folders") {
-			ForEach(sharedFolders, id: \.self.folderID) { (folder: SushitrainFolder) in
-				ShareWithDeviceToggleView(peer: self.device, folder: folder, showFolderName: true).id(folder.folderID)
+		if !sharedFolders.isEmpty {
+			Section("Shared folders") {
+				ForEach(sharedFolders, id: \.self.folderID) { (folder: SushitrainFolder) in
+					ShareWithDeviceToggleView(peer: self.device, folder: folder, showFolderName: true).id(folder.folderID)
+				}
 			}
+			.animation(.default, value: sharedFolders)
 		}
-		.animation(.default, value: sharedFolders)
 
 		Section {
 			ForEach(otherFolders, id: \.self.folderID) { (folder: SushitrainFolder) in
