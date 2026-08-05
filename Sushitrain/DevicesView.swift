@@ -255,8 +255,8 @@ struct LatencyView: View {
 
 		var body: some View {
 			List {
-				Section("Associated devices") {
-					if peers.isEmpty {
+				if peers.isEmpty {
+					Section {
 						HStack {
 							Spacer()
 							if loading {
@@ -272,8 +272,10 @@ struct LatencyView: View {
 							Spacer()
 						}
 					}
-					else {
-						ForEach(peers) { peer in
+				}
+				else {
+					Section("Associated devices") {
+						ForEach(peers, id: \.self) { peer in
 							NavigationLink(destination: DeviceView(device: peer)) {
 								HStack {
 									if peer.isPaused() {
@@ -288,10 +290,7 @@ struct LatencyView: View {
 									DeviceMetricView(device: peer, metric: userSettings.devicesViewMetric)
 								}
 							}
-						}.onDelete(perform: { indexSet in
-							let p = peers
-							for idx in indexSet { try? p[idx].remove() }
-						})
+						}
 					}
 				}
 
@@ -316,10 +315,6 @@ struct LatencyView: View {
 			}
 			#if os(iOS)
 				.toolbar {
-					ToolbarItem(placement: .topBarLeading) {
-						EditButton().disabled(peers.isEmpty)
-					}
-
 					ToolbarItem {
 						Button("Add device...", systemImage: "plus") {
 							addingDeviceID = ""
