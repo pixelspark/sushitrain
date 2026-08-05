@@ -65,21 +65,17 @@ struct ShareFolderWithDeviceDetailsView: View {
 				.navigationBarTitleDisplayMode(.inline)
 			#endif
 			.toolbar {
-				ToolbarItem(
-					placement: .confirmationAction,
-					content: {
-						Button("Save") {
-							do {
-								try folder.share(
-									withDevice: self.deviceID, toggle: true,
-									encryptionPassword: newPassword)
-								dismiss()
-							}
-							catch let error {
-								self.error = error.localizedDescription
-							}
-						}
-					})
+				SheetButton(role: .save) {
+					do {
+						try folder.share(
+							withDevice: self.deviceID, toggle: true,
+							encryptionPassword: newPassword)
+						dismiss()
+					}
+					catch let error {
+						self.error = error.localizedDescription
+					}
+				}
 
 				SheetButton(role: .cancel) {
 					dismiss()
