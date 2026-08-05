@@ -105,6 +105,7 @@ private struct FolderMetricView: View {
 private struct FoldersSection: View {
 	let groupName: String
 	let folders: [SushitrainFolder]
+	var editSettings: ((SushitrainFolder) -> Void)? = nil
 	@ObservedObject var userSettings: AppUserSettings
 
 	@State private var isExpanded: Bool = true
@@ -140,6 +141,14 @@ private struct FoldersSection: View {
 									}
 								})
 						}
+
+						#if os(iOS)
+							if let editSettings = editSettings {
+								Button("Folder settings...", systemImage: "folder.badge.gearshape") {
+									editSettings(folder)
+								}
+							}
+						#endif
 					}
 				}
 			}
@@ -159,7 +168,7 @@ struct FoldersList: View {
 
 	@State private var discoveredFolders: [AddFolder] = []
 	@State private var foldersByGroup: [String: [SushitrainFolder]] = [:]
-	@State private var showFolderProperties: SushitrainFolder? = nil
+	@State private var showSettingsFor: SushitrainFolder? = nil
 
 	@SceneStorage("discoveredFoldersExpanded") private var discoveredFoldersExpanded = false
 
@@ -187,7 +196,11 @@ struct FoldersList: View {
 
 			ForEach(self.folderGroups) { folderGroup in
 				FoldersSection(
-					groupName: folderGroup.id, folders: self.foldersByGroup[folderGroup.id]!, userSettings: self.userSettings)
+					groupName: folderGroup.id,
+					folders: self.foldersByGroup[folderGroup.id]!,
+					editSettings: { self.showSettingsFor = $0 },
+					userSettings: self.userSettings
+				)
 			}
 
 			#if os(macOS)
@@ -206,6 +219,18 @@ struct FoldersList: View {
 		.task(id: appState.eventCounter) {
 			await self.update()
 		}
+		#if os(iOS)
+			.sheet(item: $showSettingsFor) { folder in
+				NavigationStack {
+					FolderView(folder: folder)
+					.toolbar {
+						SheetButton(role: .save) {
+							showSettingsFor = nil
+						}
+					}
+				}
+			}
+		#endif
 	}
 
 	@ViewBuilder private func pendingFoldersView() -> some View {
