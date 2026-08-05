@@ -26,6 +26,7 @@ struct DeviceView: View {
 	@State private var lastAddress: String = ""
 	@State private var showAddresses: Bool = false
 	@State private var showConfirmUnlink = false
+	@State private var editSharingWith: SushitrainFolder? = nil
 
 	var body: some View {
 		VStack {
@@ -56,6 +57,14 @@ struct DeviceView: View {
 			}
 			else {
 				ContentUnavailableView("Unknown device", systemImage: "externaldrive.badge.questionmark")
+			}
+		}
+		.sheet(item: $editSharingWith) { withFolder in
+			NavigationStack {
+				ShareFolderWithDeviceDetailsView(
+					folder: withFolder,
+					deviceID: self.device.deviceID()
+				)
 			}
 		}
 		.navigationTitle(!device.exists() || device.name().isEmpty ? device.deviceID() : device.name())
@@ -181,7 +190,12 @@ struct DeviceView: View {
 		if !sharedFolders.isEmpty {
 			Section("Shared folders") {
 				ForEach(sharedFolders, id: \.self.folderID) { (folder: SushitrainFolder) in
-					ShareWithDeviceToggleView(peer: self.device, folder: folder, showFolderName: true).id(folder.folderID)
+					ShareWithDeviceToggleView(
+						peer: self.device,
+						folder: folder,
+						showFolderName: true,
+						details: { editSharingWith = folder }
+					)
 				}
 			}
 			.animation(.default, value: sharedFolders)
@@ -189,7 +203,12 @@ struct DeviceView: View {
 
 		Section {
 			ForEach(otherFolders, id: \.self.folderID) { (folder: SushitrainFolder) in
-				ShareWithDeviceToggleView(peer: self.device, folder: folder, showFolderName: true).id(folder.folderID)
+				ShareWithDeviceToggleView(
+					peer: self.device,
+					folder: folder,
+					showFolderName: true,
+					details: { editSharingWith = folder }
+				)
 			}
 		}
 		.animation(.default, value: otherFolders)

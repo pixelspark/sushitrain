@@ -12,7 +12,7 @@ struct ShareFolderWithDeviceDetailsView: View {
 	@Environment(\.dismiss) private var dismiss
 
 	let folder: SushitrainFolder
-	@Binding var deviceID: String
+	let deviceID: String
 
 	@State private var newPassword: String = ""
 	@FocusState private var passwordFieldFocus: Bool
@@ -648,6 +648,7 @@ struct FolderView: View {
 	@State private var selectedTab: FolderViewTab = .general
 	@State private var isExternal: Bool? = nil
 	@State private var isPhotoFolder = false
+	@State private var editSharingWith: SushitrainPeer? = nil
 
 	@concurrent func update() async {
 		let possiblePeers = await appState.peers().sorted().filter({ d in !d.isSelf() })
@@ -698,6 +699,21 @@ struct FolderView: View {
 			.task {
 				await self.update()
 			}
+			.sheet(
+				item: $editSharingWith,
+				onDismiss: {
+					Task {
+						await self.update()
+					}
+				}
+			) { withDevice in
+				NavigationStack {
+					ShareFolderWithDeviceDetailsView(
+						folder: self.folder,
+						deviceID: withDevice.deviceID()
+					)
+				}
+			}
 		}
 	}
 
@@ -737,8 +753,10 @@ struct FolderView: View {
 			Section(header: Text("Shared with")) {
 				ForEach(self.sharedPeers, id: \.self.id) { (addr: SushitrainPeer) in
 					ShareWithDeviceToggleView(
-						peer: addr, folder: folder,
-						showFolderName: false
+						peer: addr,
+						folder: folder,
+						showFolderName: false,
+						details: { self.editSharingWith = addr }
 					).id(addr.id)
 				}
 			}
@@ -748,8 +766,10 @@ struct FolderView: View {
 			Section {
 				ForEach(self.otherPeers, id: \.self.id) { (addr: SushitrainPeer) in
 					ShareWithDeviceToggleView(
-						peer: addr, folder: folder,
-						showFolderName: false
+						peer: addr,
+						folder: folder,
+						showFolderName: false,
+						details: { self.editSharingWith = addr }
 					).id(addr.id)
 				}
 			}
@@ -816,9 +836,9 @@ struct ShareWithDeviceToggleView: View {
 	let peer: SushitrainPeer
 	let folder: SushitrainFolder
 	let showFolderName: Bool
+	let details: () -> Void
 
 	@State private var editEncryptionPasswordDeviceID = ""
-	@State private var showEditEncryptionPassword = false
 	@State private var isShared: Bool? = nil
 	@State private var isPending: Bool = false
 	@State private var isSharedEncrypted: Bool = false
@@ -826,8 +846,7 @@ struct ShareWithDeviceToggleView: View {
 	private func share(_ shared: Bool) {
 		do {
 			if shared && peer.isUntrusted() {
-				editEncryptionPasswordDeviceID = peer.deviceID()
-				showEditEncryptionPassword = true
+				details()
 			}
 			else {
 				try folder.share(withDevice: peer.deviceID(), toggle: shared, encryptionPassword: "")
@@ -862,25 +881,11 @@ struct ShareWithDeviceToggleView: View {
 					.disabled(self.isShared == nil)
 			}
 
-			Button(
-				"Encryption password", systemImage: isSharedEncrypted ? "lock" : "lock.open",
-				action: {
-					editEncryptionPasswordDeviceID = peer.deviceID()
-					showEditEncryptionPassword = true
-				}
-			).labelStyle(.iconOnly).disabled(self.isShared == nil || self.folder.isReceiveEncryptedFolder)
-		}
-		.sheet(isPresented: $showEditEncryptionPassword) {
-			NavigationStack {
-				ShareFolderWithDeviceDetailsView(
-					folder: self.folder,
-					deviceID: $editEncryptionPasswordDeviceID)
+			Button("Encryption password", systemImage: isSharedEncrypted ? "lock" : "lock.open") {
+				self.details()
 			}
-		}
-		.onChange(of: showEditEncryptionPassword) { _, nv in
-			if !nv {
-				self.update()
-			}
+			.labelStyle(.iconOnly)
+			.disabled(self.isShared == nil || self.folder.isReceiveEncryptedFolder)
 		}
 		.task {
 			self.update()
