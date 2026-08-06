@@ -805,7 +805,10 @@ struct LatencyView: View {
 			}
 			.sheet(isPresented: $showEditEncryptionPassword) {
 				NavigationStack {
-					ShareFolderWithDeviceDetailsView(folder: self.folder, deviceID: .constant(device.deviceID()))
+					ShareFolderWithDeviceDetailsView(
+						folder: self.folder,
+						deviceID: device.deviceID()
+					)
 				}
 			}
 			.task(id: appState.eventCounter) {
