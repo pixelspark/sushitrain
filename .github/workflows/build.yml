@@ -9,7 +9,7 @@ env:
 
 permissions:
   id-token: write
-  contents: read
+  contents: write
   attestations: write
 
 jobs:
@@ -61,6 +61,21 @@ jobs:
         uses: actions/attest@v4
         with:
           subject-path: dist/sushitrain-${{ github.sha }}.zip
+
+      - name: Attach build to draft release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ASSET: dist/sushitrain-${{ github.sha }}.zip
+        run: |
+          if gh release view "${{ github.ref_name }}" > /dev/null 2>&1; then
+            gh release upload "${{ github.ref_name }}" "$RELEASE_ASSET" --clobber
+          else
+            gh release create "${{ github.ref_name }}" "$RELEASE_ASSET" \
+              --draft \
+              --title "${{ github.ref_name }}" \
+              --notes "Automated build for ${{ github.ref_name }}"
+          fi
 
       - name: Upload application
         uses: actions/upload-artifact@v4
