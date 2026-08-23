@@ -50,10 +50,21 @@ jobs:
           make ios mac
           make cleanup
 
+      - name: Package application
+        run: |
+          mkdir -p dist
+          /usr/bin/ditto -c -k --keepParent Build "dist/sushitrain-${{ github.sha }}.zip"
+          shasum -a 256 "dist/sushitrain-${{ github.sha }}.zip"
+
+      - name: Generate artifact attestation
+        if: github.event_name == 'push'
+        uses: actions/attest@v4
+        with:
+          subject-path: dist/sushitrain-${{ github.sha }}.zip
+
       - name: Upload application
         uses: actions/upload-artifact@v4
         with:
           name: app
-          path: ./Build
+          path: dist/sushitrain-${{ github.sha }}.zip
           retention-days: 3
-
