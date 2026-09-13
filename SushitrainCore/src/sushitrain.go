@@ -480,7 +480,6 @@ func (clt *Client) UploadingToPeers() *ListOfStrings {
 		}
 		if peerHasUploads {
 			peers = append(peers, peerID)
-			break
 		}
 	}
 	return List(peers)
