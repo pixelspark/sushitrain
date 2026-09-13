@@ -615,6 +615,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Sushitrain/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Synctrain;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = YES;
+				INFOPLIST_KEY_ITSEncryptionExportComplianceCode = "c725a5cb-2954-4d01-9fe0-cb53e270346e";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Using the camera you can easily add devices by scanning a QR code. It is still possible to add devices manually without the camera.";
@@ -663,6 +665,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Sushitrain/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Synctrain;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = YES;
+				INFOPLIST_KEY_ITSEncryptionExportComplianceCode = "c725a5cb-2954-4d01-9fe0-cb53e270346e";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Using the camera you can easily add devices by scanning a QR code. It is still possible to add devices manually without the camera.";
