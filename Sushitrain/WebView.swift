@@ -422,7 +422,12 @@ struct WebView: UIViewRepresentable {
 		func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
 			if parent.verticallyCenter {
 				Task {
-					try await Self.verticallyCenter(webView)
+					do {
+						try await Self.verticallyCenter(webView)
+					}
+					catch {
+						Log.warn("Failed to vertically center web view: \(error)")
+					}
 					parent.isLoading = false
 				}
 			}

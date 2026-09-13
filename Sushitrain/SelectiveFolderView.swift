@@ -14,8 +14,7 @@ struct SelectiveFolderView: View {
 	var folder: SushitrainFolder
 	let prefix: String
 
-	@State private var showError = false
-	@State private var errorText = ""
+	@State private var error: ErrorMessage? = nil
 	@State private var searchString = ""
 	@State private var isLoading = false
 	@State private var isClearing = false
@@ -62,12 +61,17 @@ struct SelectiveFolderView: View {
 								folder: folder,
 								deselect: {
 									Task {
-										let entry = try folder.getFileInformation(item)
-										if entry.isExplicitlySelected() {
-											await self.deselectItems([item])
+										do {
+											let entry = try folder.getFileInformation(item)
+											if entry.isExplicitlySelected() {
+												await self.deselectItems([item])
+											}
+											else {
+												await self.deselectPrefix(item)
+											}
 										}
-										else {
-											await self.deselectPrefix(item)
+										catch {
+											self.error = ErrorMessage(error)
 										}
 									}
 								}
@@ -101,6 +105,7 @@ struct SelectiveFolderView: View {
 				.formStyle(.grouped)
 			#endif
 		}
+		.errorAlert($error)
 		.toolbar {
 			#if os(iOS)
 				ToolbarItem {
@@ -223,8 +228,7 @@ struct SelectiveFolderView: View {
 				self.isClearing = false
 			}
 			catch {
-				self.showError = true
-				errorText = error.localizedDescription
+				self.error = ErrorMessage(error)
 				self.isClearing = false
 			}
 		}
@@ -248,8 +252,7 @@ struct SelectiveFolderView: View {
 			}
 			catch let error {
 				DispatchQueue.main.async {
-					showError = true
-					errorText = error.localizedDescription
+					self.error = ErrorMessage(error)
 				}
 			}
 			Task { @MainActor in
@@ -272,8 +275,7 @@ struct SelectiveFolderView: View {
 				}
 				catch let error {
 					DispatchQueue.main.async {
-						showError = true
-						errorText = error.localizedDescription
+						self.error = ErrorMessage(error)
 					}
 				}
 				DispatchQueue.main.async {
@@ -289,8 +291,7 @@ struct SelectiveFolderView: View {
 				}
 				catch {
 					DispatchQueue.main.async {
-						errorText = error.localizedDescription
-						showError = true
+						self.error = ErrorMessage(error)
 					}
 				}
 				Task { @MainActor in
@@ -316,8 +317,7 @@ struct SelectiveFolderView: View {
 			}.value
 		}
 		catch {
-			self.errorText = error.localizedDescription
-			self.showError = true
+			self.error = ErrorMessage(error)
 			self.selectedPaths = []
 		}
 

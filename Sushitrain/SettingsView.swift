@@ -1191,26 +1191,30 @@ private struct AsyncAddressesView: View {
 		let addresses = self.addresses
 		let appState = self.appState
 		Task.detached {
-			switch addressType {
-			case .discovery:
-				try appState.client.setDiscoveryAddresses(
-					SushitrainListOfStrings.from(addresses))
-			case .listening:
-				Log.info("Writing listening addresses: \(addresses)")
-				try appState.client.setListenAddresses(SushitrainListOfStrings.from(addresses))
-			case .device:
-				// not supported
-				abort()
-			case .stun:
-				try appState.client.setStunAddresses(
-					SushitrainListOfStrings.from(addresses))
+			do {
+				switch addressType {
+				case .discovery:
+					try appState.client.setDiscoveryAddresses(
+						SushitrainListOfStrings.from(addresses))
+				case .listening:
+					Log.info("Writing listening addresses: \(addresses)")
+					try appState.client.setListenAddresses(SushitrainListOfStrings.from(addresses))
+				case .device:
+					// not supported
+					abort()
+				case .stun:
+					try appState.client.setStunAddresses(
+						SushitrainListOfStrings.from(addresses))
+				}
+			}
+			catch {
+				Log.warn("Failed to write \(self.addressType) addresses: \(error)")
 			}
 		}
 	}
 }
 
 #if os(macOS)
-
 	import ServiceManagement
 
 	struct AutoStartToggleView: View {
