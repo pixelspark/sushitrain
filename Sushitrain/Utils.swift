@@ -469,6 +469,39 @@ extension SushitrainEntry {
 		return true
 	}
 
+	/// Prepare the warning without changing selection. The toggle checks availability again on confirmation.
+	func deselectionConfirmationMessage() throws -> String {
+		guard try self.peersWithFullCopy().count() > 0 else {
+			throw NSError(
+				domain: "Deselection", code: 1,
+				userInfo: [
+					NSLocalizedDescriptionKey: String(
+						localized:
+							"The synchronization setting for this item cannot be changed, as the local copy is the only copy currently available."
+					)
+				])
+		}
+		if self.isDirectory(), let folder = self.folder {
+			let prefix = self.path().withoutEndingSlash + "/"
+			let paths = try folder.list(prefix, directories: false, recurse: true).asArray()
+			var count = 0
+			for path in paths {
+				let entry = try folder.getFileInformation(prefix + path)
+				if !entry.isDirectory() && !entry.isDeleted() {
+					count += 1
+				}
+			}
+			return String(
+				localized:
+					"This will stop synchronizing this subdirectory and remove the local copies of \(count) files. Another device appears to still have a copy of these files."
+			)
+		}
+		return String(
+			localized:
+				"This will stop synchronizing this file and remove its local copy. Another device appears to still have a copy of the file."
+		)
+	}
+
 	// Returns error message on fail
 	func setSelectedFromToggle(s: Bool) async -> String? {
 		do {

@@ -51,7 +51,7 @@ struct SelectiveFolderView: View {
 
 			List(selection: $listSelection) {
 				Section(self.prefix.isEmpty ? "Files kept on device" : "Files in '\(self.prefix)' kept on this device") {
-					PathsOutlineGroup(paths: self.selectedFilteredPaths, disableIntermediateSelection: false) { item, isIntermediate in
+					PathsOutlineGroup(paths: self.selectedFilteredPaths, disableIntermediateSelection: false) { item, _ in
 						if item.isEmpty {
 							EmptyView()
 						}
@@ -59,6 +59,7 @@ struct SelectiveFolderView: View {
 							SelectiveFileView(
 								path: item,
 								folder: folder,
+								onDeselected: { await self.update() },
 								deselect: {
 									Task {
 										do {
@@ -77,18 +78,6 @@ struct SelectiveFolderView: View {
 								}
 							)
 							.tag(item)
-							.swipeActions(allowsFullSwipe: false) {
-								// Unselect button
-								if !isIntermediate {
-									Button(role: .destructive) {
-										Task {
-											await self.deselectItems([item])
-										}
-									} label: {
-										Label("Do not synchronize with this device", systemImage: "pin.slash")
-									}
-								}
-							}
 						}
 					}
 					.disabled(!folder.isIdleOrSyncing && folder.isDiskSpaceSufficient())
@@ -423,6 +412,7 @@ struct SelectiveFolderView: View {
 private struct SelectiveFileView: View {
 	let path: String
 	let folder: SushitrainFolder
+	let onDeselected: () async -> Void
 	let deselect: () -> Void
 
 	@State private var entry: SushitrainEntry? = nil
@@ -437,7 +427,11 @@ private struct SelectiveFileView: View {
 					IntermediateSelectiveFileView(entry: entry, deselect: deselect)
 				}
 				else {
-					SelectedFileView(entry: entry, folder: folder, deselect: deselect)
+					ItemSelectSwipeView(file: entry) {
+						SelectedFileView(entry: entry, folder: folder, deselect: deselect)
+					} onDeselected: {
+						await onDeselected()
+					}
 				}
 			}
 			else {

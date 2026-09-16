@@ -418,10 +418,13 @@ struct EntryShareButton: View {
 	}
 }
 
-private struct ItemSelectSwipeView<Content: View>: View {
+struct ItemSelectSwipeView<Content: View>: View {
 	let file: SushitrainEntry
 	@ViewBuilder var content: Content
+	var onDeselected: (() async -> Void)? = nil
 
+	@State private var confirmationMessage: String? = nil
+	@State private var isPreparingConfirmation = false
 	@State private var errorMessage: String? = nil
 
 	var body: some View {
@@ -432,16 +435,30 @@ private struct ItemSelectSwipeView<Content: View>: View {
 						title: Text("Could not change synchronization setting"), message: Text(errorMessage ?? ""),
 						dismissButton: .default(Text("OK")))
 				}
+				.alert("Remove from this device?", isPresented: Binding.isNotNil($confirmationMessage)) {
+					Button("Remove from this device", role: .destructive) {
+						Task {
+							self.errorMessage = await self.file.setSelectedFromToggle(s: false)
+							if self.errorMessage == nil {
+								await onDeselected?()
+							}
+						}
+					}
+					Button("Cancel", role: .cancel) {}
+				} message: {
+					Text(confirmationMessage ?? "")
+				}
 				.swipeActions(allowsFullSwipe: false) {
 					if file.isExplicitlySelected() || file.isSelected() {
 						// Unselect button
 						Button {
-							Task { self.errorMessage = await self.file.setSelectedFromToggle(s: false) }
+							self.deselectSwipe()
 						} label: {
 							Label(
 								file.folder!.isSendOnlyFolder ? "Synchronize with other devices" : "Do not synchronize with this device",
 								systemImage: "pin.slash")
 						}.tint(.red)
+							.disabled(isPreparingConfirmation)
 					}
 					else {
 						// Select button
@@ -457,6 +474,22 @@ private struct ItemSelectSwipeView<Content: View>: View {
 		}
 		else {
 			self.content
+		}
+	}
+
+	private func deselectSwipe() {
+		let file = self.file
+		Task {
+			isPreparingConfirmation = true
+			defer { isPreparingConfirmation = false }
+			do {
+				confirmationMessage = try await Task.detached {
+					try file.deselectionConfirmationMessage()
+				}.value
+			}
+			catch {
+				errorMessage = error.localizedDescription
+			}
 		}
 	}
 }
