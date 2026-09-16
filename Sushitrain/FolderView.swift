@@ -1607,13 +1607,17 @@ private struct AdvancedFolderSettingsView: View {
 						set: { nv in
 							try? folder.setMaxConflicts(nv ? -1 : 0)
 						}))
+			} footer: {
+				Text(
+					"When two or more devices change a file at the same time, one version will be chosen and kept. When this setting is enabled, the other versions will be stored alongside as conflict files. When disabled, only the chosen version remains on this device. See [the Syncthing documentation](https://docs.syncthing.net/users/config.html#config-option-folder.maxconflicts) for further information."
+				)
 			}
 		}
 	}
 
 	@ViewBuilder private func watchSection() -> some View {
 		if !folder.isReceiveEncryptedFolder {
-			Section("Change detection") {
+			Section {
 				LabeledContent {
 					TextField(
 						"",
@@ -1633,6 +1637,10 @@ private struct AdvancedFolderSettingsView: View {
 				} label: {
 					Text("Rescan interval (minutes)")
 				}
+			} header: {
+				Text("Change detection")
+			} footer: {
+				Text("Determines how often the app will look for changed files in synchronized folders on this device.")
 			}
 		}
 
@@ -1675,7 +1683,7 @@ private struct AdvancedFolderSettingsView: View {
 
 	@ViewBuilder private func systemSettingsSection() -> some View {
 		if !folder.isPhotoFolder {
-			Section("System settings") {
+			Section {
 				#if os(iOS)
 					Toggle(
 						"Include in device back-up",
@@ -1691,9 +1699,13 @@ private struct AdvancedFolderSettingsView: View {
 							})
 					).disabled(folder.isExternal != false)
 				#endif
+			} header: {
+				Text("System settings")
+			}
 
+			Section {
 				Toggle(
-					"Hide in Files app",
+					"Hide folder",
 					isOn: Binding(
 						get: {
 							if let f = folder.isHidden { return f }
@@ -1703,6 +1715,16 @@ private struct AdvancedFolderSettingsView: View {
 							folder.isHidden = nv
 						})
 				).disabled(folder.isExternal != false)
+			} footer: {
+				#if os(iOS)
+					Text(
+						"Hidden folders will not be visible by default in the Files app, and will be hidden by default in the folders list in this app."
+					)
+				#else
+					Text(
+						"Hidden folders will not be visible by default in Finder, and will be hidden by default in the folders list in this app."
+					)
+				#endif
 			}
 		}
 	}

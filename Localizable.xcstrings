@@ -11560,6 +11560,52 @@
         }
       }
     },
+    "Determines how often the app will look for changed files in synchronized folders on this device." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestimmt, wie oft die App nach geänderten Dateien in synchronisierten Ordnern auf diesem Gerät sucht."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Determina con qué frecuencia la app buscará archivos modificados en carpetas sincronizadas en este dispositivo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Determina la frequenza con cui l'app cercherà i file modificati nelle cartelle sincronizzate su questo dispositivo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリがこのデバイス上の同期フォルダ内で変更されたファイルを探す頻度を決定します。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bepaalt hoe vaak de app naar gewijzigde bestanden in gesynchroniseerde mappen op dit apparaat zoekt."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Визначає, як часто додаток буде шукати змінені файли в синхронізованих папках на цьому пристрої."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "确定应用程序在此设备上查找同步文件夹中已更改文件的频率。"
+          }
+        }
+      }
+    },
     "Device" : {
       "localizations" : {
         "de" : {
@@ -18990,6 +19036,52 @@
         }
       }
     },
+    "Hidden folders will not be visible by default in the Files app, and will be hidden by default in the folders list in this app." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versteckte Ordner werden in der Dateien-App standardmäßig nicht sichtbar sein und werden in der Ordnerliste dieser App standardmäßig ausgeblendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las carpetas ocultas no serán visibles por defecto en la aplicación Archivos y estarán ocultas por defecto en la lista de carpetas de esta aplicación."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le cartelle nascoste non saranno visibili per impostazione predefinita nell'app File e saranno nascoste per impostazione predefinita nell'elenco delle cartelle in questa app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイルアプリでは非表示のフォルダはデフォルトで表示されず、このアプリのフォルダリストでもデフォルトで非表示になります。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verborgen mappen worden standaard niet weergegeven in de Bestanden-app en worden standaard verborgen in de mappenlijst van deze app."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приховані папки за замовчуванням не будуть видимі в додатку \"Файли\", і вони будуть приховані за замовчуванням у списку папок цього додатка."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在文件应用中，隐藏的文件夹默认不可见，并且在此应用的文件夹列表中默认会被隐藏。"
+          }
+        }
+      }
+    },
     "Hide" : {
       "localizations" : {
         "de" : {
@@ -19128,6 +19220,52 @@
         }
       }
     },
+    "Hide folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner ausblenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar carpeta"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi cartella"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フォルダを非表示"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map verbergen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приховати папку"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隐藏文件夹"
+          }
+        }
+      }
+    },
     "Hide hidden folders" : {
       "localizations" : {
         "de" : {
@@ -19216,52 +19354,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "隐藏到 Dock"
-          }
-        }
-      }
-    },
-    "Hide in Files app" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In Dateien-App ausblenden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ocultar en la app Archivos"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nascondi nell'app File"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ファイルアプリで非表示にする"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verbergen in Bestanden-app"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Приховати у додатку «Файли»"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在文件应用中隐藏"
           }
         }
       }
@@ -29686,6 +29778,52 @@
         }
       }
     },
+    "Retry" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erneut versuchen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reintentar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riprova"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再試行"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opnieuw proberen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Спробувати ще раз"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重试"
+          }
+        }
+      }
+    },
     "Review permissions in the Settings app" : {
       "localizations" : {
         "de" : {
@@ -31828,6 +31966,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "选择"
+          }
+        }
+      }
+    },
+    "Selection mode unavailable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auswahlmodus nicht verfügbar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modo de selección no disponible"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modalità selezione non disponibile"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選択モードが利用できません"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selectiemodus niet beschikbaar"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Режим вибору недоступний"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择模式不可用"
           }
         }
       }
@@ -45836,6 +46020,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "启用此设置后，应用将在建立一个连接后不会尝试连接更多设备。"
+          }
+        }
+      }
+    },
+    "When two or more devices change a file at the same time, one version will be chosen and kept. When this setting is enabled, the other versions will be stored alongside as conflict files. When disabled, only the chosen version remains on this device. See [the Syncthing documentation](https://docs.syncthing.net/users/config.html#config-option-folder.maxconflicts) for further information." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn zwei oder mehr Geräte eine Datei gleichzeitig ändern, wird eine Version ausgewählt und beibehalten. Wenn diese Einstellung aktiviert ist, werden die anderen Versionen als Konfliktdateien gespeichert. Wenn sie deaktiviert ist, bleibt nur die gewählte Version auf diesem Gerät. Weitere Informationen finden Sie in der [Syncthing-Dokumentation](https://docs.syncthing.net/users/config.html#config-option-folder.maxconflicts)."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando dos o más dispositivos cambian un archivo al mismo tiempo, se elegirá y mantendrá una versión. Cuando esta configuración está habilitada, las otras versiones se almacenarán como archivos de conflicto. Cuando está deshabilitada, solo la versión elegida permanece en este dispositivo. Consulte [la documentación de Syncthing](https://docs.syncthing.net/users/config.html#config-option-folder.maxconflicts) para más información."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando due o più dispositivi modificano un file contemporaneamente, una versione verrà scelta e conservata. Quando questa impostazione è abilitata, le altre versioni verranno archiviate come file di conflitto. Se disabilitata, solo la versione scelta rimarrà su questo dispositivo. Consulta la [documentazione di Syncthing](https://docs.syncthing.net/users/config.html#config-option-folder.maxconflicts) per ulteriori informazioni."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2つ以上のデバイスが同時にファイルを変更した場合、1つのバージョンが選択され保持されます。この設定が有効になっている場合、他のバージョンは競合ファイルとして保存されます。無効にすると、選択されたバージョンのみがこのデバイスに残ります。詳細については、[Syncthing ドキュメント](https://docs.syncthing.net/users/config.html#config-option-folder.maxconflicts)をご覧ください。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer twee of meer apparaten een bestand tegelijkertijd wijzigen, wordt één versie gekozen en bewaard. Wanneer deze instelling is ingeschakeld, worden de andere versies als conflictbewerkingen opgeslagen. Wanneer uitgeschakeld, blijft alleen de gekozen versie op dit apparaat. Zie [de Syncthing-documentatie](https://docs.syncthing.net/users/config.html#config-option-folder.maxconflicts) voor meer informatie."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли два або більше пристроїв змінюють файл одночасно, обирається та зберігається одна версія. Коли ця опція ввімкнена, інші версії зберігаються як файли конфліктів. При вимкненні зберігається лише обрана версія на цьому пристрої. Див. [документацію Syncthing](https://docs.syncthing.net/users/config.html#config-option-folder.maxconflicts) для отримання додаткової інформації."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当两个或多个设备同时更改文件时，系统会选择并保留一个版本。启用此设置后，其他版本将作为冲突文件存储在一起。禁用时，只有选择的版本保留在此设备上。有关更多信息，请参见 [Syncthing 文档](https://docs.syncthing.net/users/config.html#config-option-folder.maxconflicts)。"
           }
         }
       }
