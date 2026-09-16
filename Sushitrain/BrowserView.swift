@@ -1303,8 +1303,14 @@ private struct BrowserItemsView: View {
 				if dotFilesHidden {
 					dirNames = dirNames.filter({ !$0.starts(with: ".") })
 				}
-				return try dirNames.map({ dirName in
-					return try folder.getFileInformation(prefix + dirName)
+				return dirNames.flatMap({ dirName in
+					do {
+						return [try folder.getFileInformation(prefix + dirName)]
+					}
+					catch let error {
+						Log.warn("Error listing: \(error.localizedDescription)")
+					}
+					return []
 				})
 			}
 			catch let error {
