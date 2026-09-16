@@ -147,7 +147,11 @@ func (entry *Entry) MaterializeSubdirectory() error {
 		return errors.New("invalid folder configuration")
 	}
 
-	if !entry.Folder.IsSelective() {
+	selective, err := entry.Folder.IsSelective()
+	if err != nil {
+		return err
+	}
+	if !selective {
 		return errors.New("folder is not selective")
 	}
 
@@ -161,7 +165,7 @@ func (entry *Entry) MaterializeSubdirectory() error {
 	if fc.IgnorePerms || entry.info.NoPermissions {
 		mode = 0o777
 	}
-	err := ffs.MkdirAll(nativeFilename, mode)
+	err = ffs.MkdirAll(nativeFilename, mode)
 	if err != nil {
 		return err
 	}

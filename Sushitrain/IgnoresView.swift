@@ -6,7 +6,7 @@
 import SwiftUI
 @preconcurrency import SushitrainCore
 
-fileprivate struct AboutIgnoresSection: View {
+private struct AboutIgnoresSection: View {
 	var body: some View {
 		Section {
 			Text(
@@ -424,5 +424,43 @@ struct SelectiveIgnoresView: View {
 			self.error = ErrorMessage(error)
 		}
 		self.loading = false
+	}
+}
+
+// Recheck on folder events and retry so restored volume/bookmark access recovers the editor.
+struct FolderIgnoreSettingsView: View {
+	@Environment(AppState.self) private var appState
+	var folder: SushitrainFolder
+	@State private var isSelective: Bool?
+	@State private var loadError: String?
+
+	var body: some View {
+		Group {
+			switch isSelective {
+			case true?:
+				SelectiveIgnoresView(folder: folder)
+			case false?:
+				IgnoresView(folder: folder)
+			case nil:
+				VStack(spacing: 12) {
+					Text("Selection mode unavailable")
+					if let loadError { Text(loadError).foregroundStyle(.secondary) }
+					Button("Retry", action: refresh)
+				}
+				.padding()
+			}
+		}
+		.task(id: appState.eventCounter) { refresh() }
+	}
+
+	private func refresh() {
+		do {
+			isSelective = try folder.checkedIsSelective()
+			loadError = nil
+		}
+		catch {
+			isSelective = nil
+			loadError = error.localizedDescription
+		}
 	}
 }

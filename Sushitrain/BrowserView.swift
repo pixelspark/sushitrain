@@ -405,18 +405,10 @@ struct BrowserView: View {
 
 	#if os(macOS)
 		@ViewBuilder private func ignoreSheetView() -> some View {
-			if folder.isSelective() {
-				SelectiveIgnoresView(folder: self.folder)
-					.navigationTitle("Files to ignore")
-					.presentationSizing(.form)
-					.frame(minWidth: 640, minHeight: 480)
-			}
-			else {
-				IgnoresView(folder: self.folder)
-					.navigationTitle("Files to ignore")
-					.presentationSizing(.form)
-					.frame(minWidth: 640, minHeight: 480)
-			}
+			FolderIgnoreSettingsView(folder: folder)
+				.navigationTitle("Files to ignore")
+				.presentationSizing(.form)
+				.frame(minWidth: 640, minHeight: 480)
 		}
 	#endif
 
@@ -534,7 +526,7 @@ struct BrowserView: View {
 	private func update() {
 		self.folderExists = folder.exists()
 		self.updateLocalURL()
-		self.folderIsSelective = folderExists && folder.isSelective()
+		self.folderIsSelective = folderExists && folder.isSelective() == true
 
 		// Determine whether this view is bookmarked
 		let route = self.route
@@ -593,7 +585,7 @@ struct BrowserView: View {
 
 			Divider()
 
-			if folder.isSelective() {
+			if folder.isSelective() == true {
 				Button(
 					"Remove unsynchronized empty subdirectories",
 					systemImage: "eraser", role: .destructive
@@ -873,7 +865,7 @@ struct BrowserView: View {
 		}
 
 		// If we are in a subdirectory, and the folder is selective, ensure the folder is materialized
-		if !prefix.isEmpty && folder.isSelective() {
+		if !prefix.isEmpty && folder.isSelective() == true {
 			let entry = try folder.getFileInformation(prefix.withoutEndingSlash)
 			if entry.isDirectory() && !entry.isDeleted() {
 				try entry.materializeSubdirectory()
@@ -900,7 +892,7 @@ struct BrowserView: View {
 					numFilesAdded += 1
 
 					// Select the dropped file
-					if folder.isSelective() {
+					if folder.isSelective() == true {
 						let localURL = (prefix.withoutEndingSlash + "/" + url.lastPathComponent).withoutStartingSlash
 						pathsToSelect.append(localURL)
 					}
@@ -911,7 +903,7 @@ struct BrowserView: View {
 				}
 			}
 
-			if folder.isSelective() {
+			if folder.isSelective() == true {
 				try folder.setLocalPathsExplicitlySelected(SushitrainListOfStrings.from(pathsToSelect))
 			}
 

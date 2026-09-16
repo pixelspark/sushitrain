@@ -385,7 +385,7 @@ struct SushitrainApp: App {
 				NSApplication.shared.activate()
 
 			case .finderExceptSelective:
-				if fld.isSelective() {
+				if fld.isSelective() != false {
 					openWindow(
 						id: "folder",
 						value: fld.folderID)

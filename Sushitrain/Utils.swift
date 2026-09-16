@@ -453,7 +453,7 @@ extension SushitrainEntry {
 	// Shared functionality for swipe and toggle selection views
 	var isSelectionToggleAvailable: Bool {
 		if let folder = self.folder {
-			return folder.isSelective()
+			return folder.isSelective() == true
 		}
 		return false
 	}
@@ -464,7 +464,7 @@ extension SushitrainEntry {
 			return true
 		}
 		if let folder = self.folder {
-			return !folder.isSelective() || !folder.isIdleOrSyncing
+			return folder.isSelective() != true || !folder.isIdleOrSyncing
 		}
 		return true
 	}
@@ -536,7 +536,7 @@ extension SushitrainEntry {
 						localized: "The synchronization setting for symlinks cannot be changed."
 					)
 				}
-				else if let f = self.folder, !f.isSelective() {
+				else if let f = self.folder, f.isSelective() == false {
 					return String(
 						localized: "The folder is not configured for selective synchronization."
 					)
@@ -1235,5 +1235,19 @@ extension Date {
 				.day()
 				.dateSeparator(.omitted)
 		)
+	}
+}
+
+extension SushitrainFolder {
+	/// True for selective sync, false for all files, nil when the mode cannot be read.
+	func isSelective() -> Bool? {
+		try? checkedIsSelective()
+	}
+
+	/// Preserve the underlying access error for editors and operations that need to display it.
+	func checkedIsSelective() throws -> Bool {
+		var selective: ObjCBool = false
+		_ = try isSelective(&selective)
+		return selective.boolValue
 	}
 }

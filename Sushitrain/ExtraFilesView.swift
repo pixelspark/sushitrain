@@ -350,7 +350,7 @@ private struct ExtraSubdirectoryView: View {
 				self.onChange(self.path, .deleteAllChildren)
 			}
 
-			if folder.isSelective() {
+			if folder.isSelective() == true {
 				Divider()
 
 				Button("Always keep this subdirectory", systemImage: "pin.fill") {

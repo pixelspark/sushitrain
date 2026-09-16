@@ -190,7 +190,10 @@ struct FolderStatisticsView: View {
 			}
 			else if let stats = self.statistics {
 				if !self.allDevices.isEmpty {
-					FolderProgressChartView(statistics: stats, progressType: folder.isSelective() ? .stores : .needs).frame(height: 48)
+					if let mode = folder.isSelective() {
+						FolderProgressChartView(statistics: stats, progressType: mode == true ? .stores : .needs).frame(
+							height: 48)
+					}
 
 					// Global statistics
 					if let g = stats.global {

@@ -444,7 +444,7 @@ enum PhotoBackupProgress {
 		var assetsSavedSuccessfully: [PHAsset] = []
 		let structure = await self.folderStructure
 		let purgeCutoffDate = await Date.now - Double.maximum(Double(self.purgeAfterDays), 0.0) * 86400.0
-		let isSelective = folder.isSelective()
+		let isSelective = try folder.checkedIsSelective()
 		let myShortDeviceID = appState.client.shortDeviceID()
 		let purgeEnabled = await self.purgeEnabled
 		let maxAgeInterval = TimeInterval(Double(await self.maxAgeDays) * 86400.0)

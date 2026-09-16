@@ -404,7 +404,9 @@ struct EntryShareButton: View {
 					// 'leftover' empty folder). Therefore, check if we are in a selective folder when the entry is a
 					// directory. If we are, the entry must be selected. (Note that while syncing this *still* could be
 					// a half synced folder).
-					if entry.isLocallyPresent() && (!entry.isDirectory() || !folder.isSelective() || entry.isSelected()) {
+					if entry.isLocallyPresent()
+						&& (!entry.isDirectory() || folder.isSelective() == false || entry.isSelected())
+					{
 						FileShareLink(file: entry)
 					}
 					else {

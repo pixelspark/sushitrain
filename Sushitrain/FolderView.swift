@@ -105,7 +105,7 @@ struct FolderStatusDescription {
 			let isAvailable = folder.connectedPeerCount() > 0
 
 			if !folder.isPaused() {
-				let isSelective = folder.isSelective()
+				let selectionMode = folder.isSelective()
 
 				let peerStatusText: String
 				if folder.exists() {
@@ -126,7 +126,7 @@ struct FolderStatusDescription {
 
 					switch status {
 					case "idle", "sync-waiting", "scan-waiting", "clean-waiting":
-						if !isSelective {
+						if selectionMode == false {
 							(self.text, self.systemImage, self.color) = (String(localized: "Synchronized"), "checkmark.circle.fill", .green)
 							self.badge = peerStatusText
 						}
@@ -205,7 +205,7 @@ struct FolderStatusView: View {
 	var body: some View {
 		VStack {
 			if let status = status {
-				if status == "syncing" && !folder.isSelective() {
+				if status == "syncing" && folder.isSelective() == false {
 					if let statistics = self.statistics, statistics.global!.bytes > 0 {
 						let formatter = ByteCountFormatter()
 						if let globalBytes = statistics.global?.bytes, let localBytes = statistics.local?.bytes {
@@ -271,37 +271,38 @@ struct FolderStatusView: View {
 }
 
 struct FolderSyncTypePicker: View {
-	private enum FolderSyncType: String {
-		case allFiles = "allFiles"
-		case selectedFiles = "selectedFiles"
-	}
-
 	@Environment(AppState.self) private var appState
 	@State private var changeProhibited = true
-	@State private var folderSyncType: FolderSyncType? = nil
+	@State private var isSelective: Bool? = nil
 	@State private var error: ErrorMessage? = nil
+	@State private var loadError: String?
+	@State private var refreshID = UUID()
 	var folder: SushitrainFolder
 
 	var body: some View {
-		Picker("Selection", selection: $folderSyncType) {
-			Text("All files").tag(FolderSyncType.allFiles)
+		Picker(
+			"Selection",
+			selection: Binding(
+				get: { isSelective },
+				set: { newValue in
+					guard let newValue, !changeProhibited, newValue != isSelective else { return }
+					do {
+						try folder.setSelective(newValue)
+					}
+					catch {
+						self.error = ErrorMessage(error)
+					}
+					update()
+				})
+		) {
+			Text("All files").tag(false as Bool?)
 
-			Text("Selected files").tag(FolderSyncType.selectedFiles)
+			Text("Selected files").tag(true as Bool?)
 				.disabled(folder.isSendOnlyFolder || folder.isReceiveEncryptedFolder)
 				.selectionDisabled(folder.isSendOnlyFolder || folder.isReceiveEncryptedFolder)
 
-			if folderSyncType == nil {
-				Text("(Unknown)").tag(nil as FolderSyncType?).disabled(true).selectionDisabled()
-			}
-		}
-		.onChange(of: folderSyncType) { ov, nv in
-			if let nv = nv, ov != nv && ov != nil {
-				do {
-					try self.folder.setSelective(nv == .selectedFiles)
-				}
-				catch {
-					self.error = ErrorMessage(error)
-				}
+			if isSelective == nil {
+				Text("(Unknown)").tag(nil as Bool?).disabled(true).selectionDisabled()
 			}
 		}
 		.pickerStyle(.menu)
@@ -310,10 +311,26 @@ struct FolderSyncTypePicker: View {
 			self.update()
 		}
 		.errorAlert($error)
+		if let loadError {
+			Text(loadError).foregroundStyle(.secondary)
+			Button("Retry", action: update)
+		}
 	}
 
 	private func update() {
-		self.folderSyncType = self.folder.isSelective() ? .selectedFiles : .allFiles
+		changeProhibited = true
+		let requestID = UUID()
+		refreshID = requestID
+		do {
+			isSelective = try folder.checkedIsSelective()
+			loadError = nil
+		}
+		catch {
+			isSelective = nil
+			loadError = error.localizedDescription
+			return
+		}
+		guard isSelective != nil else { return }
 
 		// Only allow changes to selection mode when folder is idle
 		if !folder.isIdleOrSyncing || !self.folder.exists() {
@@ -328,6 +345,7 @@ struct FolderSyncTypePicker: View {
 				let _ = try folder.hasExtraneousFiles(&hasExtra)
 				let hasExtraFinal = hasExtra
 				DispatchQueue.main.async {
+					guard refreshID == requestID else { return }
 					changeProhibited = hasExtraFinal.boolValue
 				}
 			}
@@ -336,6 +354,7 @@ struct FolderSyncTypePicker: View {
 					"Error calling hasExtraneousFiles: \(error.localizedDescription)"
 				)
 				DispatchQueue.main.async {
+					guard refreshID == requestID else { return }
 					changeProhibited = true
 				}
 			}
@@ -368,8 +387,8 @@ struct FolderDirectionPicker: View {
 					.help(
 						"Changes made on this device will be sent to other devices. Changes from other devices will not be accepted."
 					)
-					.disabled(folder.isSelective())
-					.selectionDisabled(folder.isSelective())
+					.disabled(folder.isSelective() != false)
+					.selectionDisabled(folder.isSelective() != false)
 
 				if folderType == nil {
 					Text("(Unknown)").tag(nil as String?)
@@ -991,7 +1010,7 @@ private struct FolderThumbnailSettingsView: View {
 						Text("Subdirectory")
 					}
 
-					if let localDirectoryEntry = self.localDirectoryEntry, self.folder.isSelective() {
+					if let localDirectoryEntry = self.localDirectoryEntry, self.folder.isSelective() == true {
 						Toggle(
 							"Synchronize",
 							isOn: Binding(
@@ -1479,25 +1498,13 @@ private struct AdvancedFolderSettingsView: View {
 		Section {
 			// Ignore patterns editor (on macOS, this is accessible directly from the folder menu)
 			#if os(iOS)
-				if !folder.isSelective() && !folder.isPhotoFolder && !folder.isReceiveEncryptedFolder {
-					Button("Files to ignore...", systemImage: "rectangle.dashed") {
+				if !folder.isPhotoFolder && !folder.isReceiveEncryptedFolder {
+					Button("Files to ignore", systemImage: "rectangle.dashed") {
 						showIgnores = true
 					}
 					.sheet(isPresented: $showIgnores) {
 						NavigationStack {
-							IgnoresView(folder: self.folder)
-						}
-					}
-				}
-
-				// Selective folder ignore patterns (accessible both on iOS and macOS from this place)
-				if folder.isSelective() && !folder.isPhotoFolder && !folder.isReceiveEncryptedFolder {
-					Button("Files to ignore...", systemImage: "rectangle.dashed") {
-						showSelectiveIgnores = true
-					}
-					.sheet(isPresented: $showSelectiveIgnores) {
-						NavigationStack {
-							SelectiveIgnoresView(folder: self.folder)
+							FolderIgnoreSettingsView(folder: folder)
 						}
 					}
 				}

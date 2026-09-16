@@ -266,7 +266,7 @@ struct EntryInfoView: View {
 				}
 			}
 
-			if self.folder.isSelective() && !entry.isSymlink() {
+			if self.folder.isSelective() == true && !entry.isSymlink() {
 				let isExplicitlySelected = entry.isExplicitlySelected()
 
 				Toggle(
@@ -423,7 +423,9 @@ struct EntryInfoView: View {
 	}
 
 	@ViewBuilder private func selectiveSyncFooter() -> some View {
-		if !entry.isSymlink() && self.folder.isSelective() && (entry.isSelected() && !entry.isExplicitlySelected()) {
+		if !entry.isSymlink() && self.folder.isSelective() == true
+			&& (entry.isSelected() && !entry.isExplicitlySelected())
+		{
 			Text("This item is synchronized with this device because a parent folder is synchronized with this device.")
 		}
 

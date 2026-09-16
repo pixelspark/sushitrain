@@ -677,29 +677,24 @@ func (fld *Folder) SetFolderType(folderType string) error {
 	})
 }
 
-func (fld *Folder) IsSelective() bool {
-	if fld.client.app == nil || fld.client.app.Internals == nil {
-		return false
+// IsSelective reports whether the folder is selective, or an error if its mode is unknown.
+func (fld *Folder) IsSelective() (bool, error) {
+	if fld.client == nil || fld.client.app == nil || fld.client.app.Internals == nil {
+		return false, errNoClient
 	}
-
 	fc := fld.folderConfiguration()
 	if fc == nil {
-		return false
+		return false, errors.New("folder does not exist")
 	}
-
-	// Send-only and receive-encrypted folders cannot be selective. For receive-encrypted folders, the ignore file is
-	// ignored. Send-only folders can still have the '*' in the ignore file, but we refuse to do our selective magic.
+	// These folder types never apply selective synchronization.
 	if fc.Type == config.FolderTypeSendOnly || fc.Type == config.FolderTypeReceiveEncrypted {
-		return false
+		return false, nil
 	}
-
 	ignores, err := fld.loadIgnores()
 	if err != nil {
-		slog.Warn("error loading ignore file", "error", err.Error())
-		return false
+		return false, err
 	}
-
-	return newSelection(ignores.Lines()).isSelectiveIgnore()
+	return newSelection(ignores.Lines()).isSelectiveIgnore(), nil
 }
 
 func (fld *Folder) LocalNativePath() (string, error) {
@@ -722,25 +717,46 @@ func (fld *Folder) loadIgnores() (*ignore.Matcher, error) {
 		return nil, errors.New("folder does not exist")
 	}
 
-	ffs := cfg.Filesystem()
+	return loadIgnoreMatcher(cfg.Filesystem(), &fld.cachedIgnore)
+}
+
+func loadIgnoreMatcher(ffs fs.Filesystem, cache *CachedIgnore) (*ignore.Matcher, error) {
 	stat, statErr := ffs.Lstat(ignoreFileName)
-
-	// If we have a matcher cached and the 'last modified time' matches, assume it's the same
-	if fld.cachedIgnore.matcher != nil && !fld.cachedIgnore.modTime.IsZero() && statErr == nil {
-		if stat.ModTime().Equal(fld.cachedIgnore.modTime) {
-			return fld.cachedIgnore.matcher, nil
+	if statErr != nil && !fs.IsNotExist(statErr) {
+		return nil, statErr
+	}
+	// Metadata can remain readable after permission to open the file is revoked.
+	if cache.matcher != nil && statErr == nil && !cache.modTime.IsZero() && stat.ModTime().Equal(cache.modTime) {
+		file, err := ffs.OpenFile(ignoreFileName, fs.OptReadOnly|fs.OptFollow, 0o666)
+		if err != nil {
+			return nil, err
 		}
+		if err := file.Close(); err != nil {
+			return nil, err
+		}
+		return cache.matcher, nil
 	}
 
-	ignores := ignore.New(cfg.Filesystem())
-	if err := ignores.Load(ignoreFileName); err != nil && !fs.IsNotExist(err) {
-		return nil, err
+	ignores := ignore.New(ffs)
+	if err := ignores.Load(ignoreFileName); err != nil {
+		if !fs.IsNotExist(err) {
+			return nil, err
+		}
+		// ENOENT can mean the root is missing, not just the ignore file.
+		if _, rootErr := ffs.DirNames("."); rootErr != nil {
+			return nil, fmt.Errorf("cannot read folder root: %w", rootErr)
+		}
+		// Only forgive absence of the top-level ignore file, never a load error
+		// for a file that exists (for example a missing include or dangling link).
+		if _, checkErr := ffs.Lstat(ignoreFileName); !fs.IsNotExist(checkErr) {
+			return nil, err
+		}
+		*cache = CachedIgnore{}
+		return ignores, nil
 	}
-
-	// Save to cache
 	if statErr == nil {
-		fld.cachedIgnore.modTime = stat.ModTime()
-		fld.cachedIgnore.matcher = ignores
+		cache.modTime = stat.ModTime()
+		cache.matcher = ignores
 	}
 	return ignores, nil
 }
@@ -954,7 +970,11 @@ func (fld *Folder) RemoveSuperfluousSelectionEntries() error {
 
 // Remove empty, ignored directories that exist locally in selective folders
 func (fld *Folder) RemoveSuperfluousSubdirectories() error {
-	if !fld.IsSelective() {
+	selective, err := fld.IsSelective()
+	if err != nil {
+		return err
+	}
+	if !selective {
 		return errors.New("Folder is not selective")
 	}
 
@@ -1111,6 +1131,17 @@ func (fld *Folder) IgnoreLines() (*ListOfStrings, error) {
 
 // This overwrites the ignore file with the selected lines. Note that this should not be used on selective folders
 func (fld *Folder) SetIgnoreLines(lines *ListOfStrings) error {
+	selective, modeErr := fld.IsSelective()
+	if modeErr != nil {
+		return modeErr
+	}
+	if selective {
+		return errors.New("use selective ignore settings for a selective folder")
+	}
+	if _, err := fld.loadIgnores(); err != nil {
+		return err
+	}
+
 	slog.Info("set ignore", "lines", len(lines.data))
 	fld.cachedIgnore.matcher = nil // Purge our cache
 
