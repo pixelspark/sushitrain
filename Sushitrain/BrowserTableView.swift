@@ -360,10 +360,11 @@ import QuickLook
 
 			for file in files {
 				if !file.isSelectionToggleAvailable || file.isSelectionToggleShallowDisabled {
-					return false
+					return nil
 				}
 
-				let s = (file.isExplicitlySelected() || file.isSelected())
+				guard let explicitlySelected = file.isExplicitlySelected() else { return nil }
+				let s = explicitlySelected || file.isSelected()
 				anySelected = anySelected || s
 				anyDeselected = anyDeselected || !s
 			}
@@ -381,25 +382,26 @@ import QuickLook
 			// [folderID: [path: selected]]
 			var filesPerFolder: [String: [String: Bool]] = [:]
 
-			// Sort files by folder
-			for file in files {
-				if file.isSelected() && !file.isExplicitlySelected() {
-					continue  // File is implicitly selected
-				}
-
-				if let fid = file.folder?.folderID {
-					if var ff = filesPerFolder[fid] {
-						ff[file.path()] = s
-						filesPerFolder[fid] = ff
-					}
-					else {
-						filesPerFolder[fid] = [file.path(): s]
-					}
-				}
-			}
-
-			// Batch select by folder
 			do {
+				// Sort files by folder
+				for file in files {
+					let explicitlySelected = try file.checkedIsExplicitlySelected()
+					if file.isSelected() && !explicitlySelected {
+						continue  // File is implicitly selected
+					}
+
+					if let fid = file.folder?.folderID {
+						if var ff = filesPerFolder[fid] {
+							ff[file.path()] = s
+							filesPerFolder[fid] = ff
+						}
+						else {
+							filesPerFolder[fid] = [file.path(): s]
+						}
+					}
+				}
+
+				// Batch select by folder
 				for (folderID, selection) in filesPerFolder {
 					if let folder = appState.client.folder(withID: folderID) {
 						let json = try JSONEncoder().encode(selection)

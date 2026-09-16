@@ -430,7 +430,7 @@ struct ItemSelectSwipeView<Content: View>: View {
 	@State private var errorMessage: String? = nil
 
 	var body: some View {
-		if self.file.isSelectionToggleAvailable {
+		if self.file.isSelectionToggleAvailable, let explicitlySelected = file.isExplicitlySelected() {
 			self.content
 				.alert(isPresented: Binding.isNotNil($errorMessage)) {
 					Alert(
@@ -451,7 +451,7 @@ struct ItemSelectSwipeView<Content: View>: View {
 					Text(confirmationMessage ?? "")
 				}
 				.swipeActions(allowsFullSwipe: false) {
-					if file.isExplicitlySelected() || file.isSelected() {
+					if explicitlySelected || file.isSelected() {
 						// Unselect button
 						Button {
 							self.deselectSwipe()

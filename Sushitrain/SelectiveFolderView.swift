@@ -64,7 +64,7 @@ struct SelectiveFolderView: View {
 									Task {
 										do {
 											let entry = try folder.getFileInformation(item)
-											if entry.isExplicitlySelected() {
+											if try entry.checkedIsExplicitlySelected() {
 												await self.deselectItems([item])
 											}
 											else {
@@ -343,7 +343,7 @@ struct SelectiveFolderView: View {
 
 		for path in paths {
 			let entry = try folder.getFileInformation(path)
-			if !entry.isExplicitlySelected() {
+			if try !entry.checkedIsExplicitlySelected() {
 				Log.info("Not deselecting \(path), it is not explicitly selected")
 				paths.remove(path)
 				continue
@@ -423,7 +423,10 @@ private struct SelectiveFileView: View {
 				if entry.isDeleted() {
 					Label(entry.fileName(), systemImage: entry.systemImage).strikethrough()
 				}
-				else if !entry.isExplicitlySelected() {
+				else if entry.isExplicitlySelected() == nil {
+					Label(entry.fileName(), systemImage: "questionmark.circle")
+				}
+				else if entry.isExplicitlySelected() == false {
 					IntermediateSelectiveFileView(entry: entry, deselect: deselect)
 				}
 				else {

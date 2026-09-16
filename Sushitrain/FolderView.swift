@@ -1014,7 +1014,7 @@ private struct FolderThumbnailSettingsView: View {
 						Toggle(
 							"Synchronize",
 							isOn: Binding(
-								get: { localDirectoryEntry.isExplicitlySelected() },
+								get: { localDirectoryEntry.isExplicitlySelected() == true },
 								set: {
 									try? localDirectoryEntry.setExplicitlySelected($0)
 								})

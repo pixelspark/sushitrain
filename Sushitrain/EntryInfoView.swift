@@ -272,16 +272,16 @@ struct EntryInfoView: View {
 				Toggle(
 					"Synchronize with this device", systemImage: "pin",
 					isOn: Binding(
-						get: { entry.isExplicitlySelected() || entry.isSelected() },
+						get: { entry.isExplicitlySelected() == true || entry.isSelected() },
 						set: { s in try? entry.setExplicitlySelected(s) }
 					)
 				).disabled(
 					// We're doing something weird
-					!folder.isIdleOrSyncing
+					!folder.isIdleOrSyncing || isExplicitlySelected == nil
 						// Selected implicitly by parent
-						|| (entry.isSelected() && !isExplicitlySelected)
+						|| (entry.isSelected() && isExplicitlySelected == false)
 						// We have the only copy
-						|| (isExplicitlySelected && localIsOnlyCopy)
+						|| (isExplicitlySelected == true && localIsOnlyCopy)
 						// File is selected but is not local, we are probably still downloading it
 						|| (entry.isSelected() && !entry.isLocallyPresent())
 				)
@@ -424,13 +424,13 @@ struct EntryInfoView: View {
 
 	@ViewBuilder private func selectiveSyncFooter() -> some View {
 		if !entry.isSymlink() && self.folder.isSelective() == true
-			&& (entry.isSelected() && !entry.isExplicitlySelected())
+			&& (entry.isSelected() && entry.isExplicitlySelected() == false)
 		{
 			Text("This item is synchronized with this device because a parent folder is synchronized with this device.")
 		}
 
 		if !entry.isSymlink() {
-			if entry.isExplicitlySelected() {
+			if entry.isExplicitlySelected() == true {
 				if localIsOnlyCopy {
 					if self.folder.connectedPeerCount() > 0 {
 						Text("There are currently no other devices connected that have a full copy of this file.")
@@ -442,7 +442,7 @@ struct EntryInfoView: View {
 					}
 				}
 			}
-			else if !self.entry.isLocallyPresent() {
+			else if entry.isExplicitlySelected() == false && !self.entry.isLocallyPresent() {
 				if self.folder.connectedPeerCount() == 0 {
 					Text(
 						"When you select this file, it will not become immediately available on this device, because there are no other devices connected to download the file from."

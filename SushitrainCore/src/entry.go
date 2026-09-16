@@ -240,14 +240,15 @@ func (entry *Entry) IsSelected() bool {
 	return !res.IsIgnored()
 }
 
-func (entry *Entry) IsExplicitlySelected() bool {
+// IsExplicitlySelected returns an error when the selection cannot be determined.
+func (entry *Entry) IsExplicitlySelected() (bool, error) {
 	lines, _, err := entry.Folder.client.app.Internals.Ignores(entry.Folder.FolderID)
 	if err != nil {
-		return false
+		return false, err
 	}
 
 	selection := newSelection(lines)
-	return selection.isEntryExplicitlySelected(entry)
+	return selection.isEntryExplicitlySelected(entry), nil
 }
 
 func (entry *Entry) SetExplicitlySelected(selected bool) error {

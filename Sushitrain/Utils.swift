@@ -460,7 +460,7 @@ extension SushitrainEntry {
 
 	// First check to see if this action should be disabled
 	var isSelectionToggleShallowDisabled: Bool {
-		if self.isSymlink() {
+		if self.isSymlink() || self.isExplicitlySelected() == nil {
 			return true
 		}
 		if let folder = self.folder {
@@ -505,9 +505,9 @@ extension SushitrainEntry {
 	// Returns error message on fail
 	func setSelectedFromToggle(s: Bool) async -> String? {
 		do {
+			let isExplicitlySelected = try self.checkedIsExplicitlySelected()
 			if !self.isSelectionToggleShallowDisabled {
 				// Check some additional things
-				let isExplicitlySelected = self.isExplicitlySelected()
 				if self.isSelected() && !isExplicitlySelected {
 					// File is implicitly selected, do not allow changes
 					return String(
@@ -1249,5 +1249,19 @@ extension SushitrainFolder {
 		var selective: ObjCBool = false
 		_ = try isSelective(&selective)
 		return selective.boolValue
+	}
+}
+
+extension SushitrainEntry {
+	/// True for explicitly selected, false otherwise, nil when selection cannot be read.
+	func isExplicitlySelected() -> Bool? {
+		try? checkedIsExplicitlySelected()
+	}
+
+	/// Preserve the underlying error for operations that need to report it.
+	func checkedIsExplicitlySelected() throws -> Bool {
+		var selected: ObjCBool = false
+		_ = try isExplicitlySelected(&selected)
+		return selected.boolValue
 	}
 }

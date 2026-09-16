@@ -1440,7 +1440,7 @@ struct ItemSelectToggleView: View {
 				"Synchronize with this device", systemImage: "pin",
 				isOn: Binding(
 					get: {
-						file.isExplicitlySelected() || file.isSelected()
+						file.isExplicitlySelected() == true || file.isSelected()
 					},
 					set: { s in
 						Task {
