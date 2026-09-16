@@ -260,7 +260,7 @@ struct SelectiveFolderView: View {
 		if searchString.isEmpty {
 			Task.detached {
 				do {
-					try folder.clearSelection()
+					try folder.clearSelection(false)
 				}
 				catch let error {
 					DispatchQueue.main.async {

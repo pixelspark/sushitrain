@@ -548,7 +548,7 @@ func (fld *Folder) SetSelective(selective bool) error {
 }
 
 // This deselects all files, but (importantly) keeps global ignore patterns
-func (fld *Folder) ClearSelection() error {
+func (fld *Folder) ClearSelection(keepLastCopy bool) error {
 	_, err := fld.changeSelection(func(selection *selection) error {
 		if !selection.isSelectiveIgnore() {
 			return errors.New("folder is not a selective sync folder")
@@ -565,7 +565,7 @@ func (fld *Folder) ClearSelection() error {
 		return err
 	}
 
-	return fld.CleanSelection()
+	return fld.CleanSelection(keepLastCopy)
 }
 
 func (fld *Folder) SelectedPaths(onlyExisting bool) (*ListOfStrings, error) {
@@ -858,8 +858,9 @@ func (fld *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 	return &list, nil
 }
 
-// Remove ignored files from the local working copy
-func (fld *Folder) CleanSelection() error {
+// Remove ignored files from the local working copy. When keepLastCopy is true,
+// only remove files that a connected peer can supply in full.
+func (fld *Folder) CleanSelection(keepLastCopy bool) error {
 	return fld.whilePaused(func() error {
 		// Make sure the initial scan has finished (ScanFolders is blocking)
 		fld.client.app.Internals.ScanFolderSubdirs(fld.FolderID, []string{""})
@@ -868,33 +869,88 @@ func (fld *Folder) CleanSelection() error {
 		if cfg == nil {
 			return errors.New("folder does not exist")
 		}
-
 		ignores, err := fld.loadIgnores()
 		if err != nil {
 			return err
 		}
-
-		fc := fld.folderConfiguration()
-		if fc == nil {
-			return errors.New("folder does not exist")
-		}
-		ffs := fc.Filesystem()
-		return ffs.Walk("", func(path string, info fs.FileInfo, err error) error {
-			if strings.HasPrefix(path, cfg.MarkerName) {
-				return nil
+		return cleanSelection(cfg.Filesystem(), ignores, cfg.MarkerName, keepLastCopy, func(path string) (bool, error) {
+			entry, err := fld.GetFileInformation(path)
+			if err != nil {
+				return false, err
 			}
-			if fs.IsInternal(path) || path == ignoreFileName {
-				return nil
+			if entry == nil || entry.IsDeleted() {
+				return false, nil
 			}
-
-			// Check ignore status
-			result := ignores.Match(path)
-			if result.IsIgnored() {
-				return ffs.RemoveAll(path)
+			peers, err := entry.PeersWithFullCopy()
+			if err != nil {
+				return false, err
 			}
-			return nil
+			return peers.Count() > 0, nil
 		})
 	})
+}
+
+func cleanSelection(ffs fs.Filesystem, ignores *ignore.Matcher, markerName string, keepLastCopy bool, hasPeerCopy func(string) (bool, error)) error {
+	var files, directories []string
+	err := ffs.Walk("", func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if path == "." || path == "" {
+			return nil
+		}
+		if fs.IsInternal(path) || path == ignoreFileName || (markerName != "" && strings.HasPrefix(path, markerName)) {
+			if info.IsDir() {
+				return fs.SkipDir
+			}
+			return nil
+		}
+		if !ignores.Match(path).IsIgnored() {
+			return nil
+		}
+		// Never remove directories recursively: every child needs its own check,
+		// including local files absent from the global index.
+		if info.IsDir() {
+			directories = append(directories, path)
+			return nil
+		}
+		if keepLastCopy {
+			available, err := hasPeerCopy(path)
+			if err != nil {
+				return err
+			}
+			if !available {
+				return nil
+			}
+		}
+		files = append(files, path)
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	for _, path := range files {
+		if err := ffs.Remove(path); err != nil && !fs.IsNotExist(err) {
+			return err
+		}
+	}
+	sort.Strings(directories)
+	slices.Reverse(directories)
+	for _, path := range directories {
+		children, err := ffs.DirNames(path)
+		if fs.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return err
+		}
+		if len(children) == 0 {
+			if err := ffs.Remove(path); err != nil && !fs.IsNotExist(err) {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func deleteEmptyParentDirectories(ffs fs.Filesystem, path string) {

@@ -173,7 +173,7 @@ struct IgnoresView: View {
 			await Task {
 				do {
 					try await Task.detached(priority: .userInitiated) {
-						try self.folder.cleanSelection()
+						try self.folder.cleanSelection(true)
 					}.value
 				}
 				catch {
@@ -378,7 +378,7 @@ struct SelectiveIgnoresView: View {
 			await Task {
 				do {
 					try await Task.detached(priority: .userInitiated) {
-						try self.folder.cleanSelection()
+						try self.folder.cleanSelection(true)
 					}.value
 				}
 				catch {
