@@ -6,6 +6,18 @@
 import SwiftUI
 @preconcurrency import SushitrainCore
 
+fileprivate struct AboutIgnoresSection: View {
+	var body: some View {
+		Section {
+			Text(
+				"**This is an advanced feature and should only be used if you know what you are doing.** For more information about how ignore patterns work, see [the Syncthing documentation on ignoring files](https://docs.syncthing.net/users/ignoring.html)."
+			)
+		} header: {
+			Label("About ignore patterns", systemImage: "questionmark.circle")
+		}
+	}
+}
+
 /// View for editing the ignore file for non-selective folders (i.e. edits the *whole* ignore file)
 struct IgnoresView: View {
 	var folder: SushitrainFolder
@@ -26,12 +38,7 @@ struct IgnoresView: View {
 
 	var body: some View {
 		List {
-			Section {
-				Text(
-					"This is an advanced feature and should only be used if you know what you are doing."
-				)
-				.bold().foregroundStyle(.red).listRowBackground(Color.clear)
-			}
+			AboutIgnoresSection()
 
 			Section {
 				if ignoreLines.isEmpty {
@@ -236,12 +243,7 @@ struct SelectiveIgnoresView: View {
 
 	var body: some View {
 		List {
-			Section {
-				Text(
-					"This is an advanced feature and should only be used if you know what you are doing."
-				)
-				.bold().foregroundStyle(.red).listRowBackground(Color.clear)
-			}
+			AboutIgnoresSection()
 
 			Section {
 				if ignorePatterns.isEmpty {

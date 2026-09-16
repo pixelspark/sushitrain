@@ -628,6 +628,52 @@
         }
       }
     },
+    "**This is an advanced feature and should only be used if you know what you are doing.** For more information about how ignore patterns work, see [the Syncthing documentation on ignoring files](https://docs.syncthing.net/users/ignoring.html)." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**Dies ist eine fortgeschrittene Funktion und sollte nur verwendet werden, wenn Sie wissen, was Sie tun.** Für weitere Informationen darüber, wie Ignore-Muster funktionieren, siehe [die Syncthing-Dokumentation zum Ignorieren von Dateien](https://docs.syncthing.net/users/ignoring.html)."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**Esta es una función avanzada y solo debe usarse si sabes lo que estás haciendo.** Para obtener más información sobre cómo funcionan los patrones de ignorar, consulta [la documentación de Syncthing sobre ignorar archivos](https://docs.syncthing.net/users/ignoring.html)."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**Questa è una funzione avanzata e dovrebbe essere usata solo se sai cosa stai facendo.** Per ulteriori informazioni su come funzionano i modelli di ignoranza, consulta [la documentazione di Syncthing sull'ignorare i file](https://docs.syncthing.net/users/ignoring.html)."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**これは高度な機能であり、使用する際は自身のスキルに自信がある場合に限ります。** 無視パターンの作業方法について詳しくは、[ファイルを無視する際のSyncthingのドキュメント](https://docs.syncthing.net/users/ignoring.html)を参照してください。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**Dit is een geavanceerde functie en moet alleen gebruikt worden als u weet wat u doet.** Voor meer informatie over hoe negeerpatronen werken, zie [de Syncthing-documentatie over het negeren van bestanden](https://docs.syncthing.net/users/ignoring.html)."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**Це розширена функція, і її слід використовувати лише якщо ви знаєте, що робите.** Для отримання додаткової інформації про те, як працюють шаблони ігнорування, дивіться [документацію Syncthing про ігнорування файлів](https://docs.syncthing.net/users/ignoring.html)."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**这是一个高级功能，只有在您知道自己在做什么时才应使用。** 有关忽略模式如何工作的更多信息，请参阅[Syncthing 关于忽略文件的文档](https://docs.syncthing.net/users/ignoring.html)。"
+          }
+        }
+      }
+    },
     "%@" : {
       "localizations" : {
         "de" : {
@@ -2748,6 +2794,52 @@
         }
       }
     },
+    "About ignore patterns" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Über Ignoriermuster"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acerca de los patrones de ignorar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informazioni sui modelli di ignoranza"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無視パターンについて"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Over negeerpatronen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Про шаблони ігнорування"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关于忽略模式"
+          }
+        }
+      }
+    },
     "About Synctrain" : {
       "localizations" : {
         "de" : {
@@ -2882,6 +2974,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "即将开始..."
+          }
+        }
+      }
+    },
+    "About versioning" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Über die Versionsverwaltung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acerca del versionado"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informazioni sul versionamento"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バージョニングについて"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Over versiebeheer"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Про управління версіями"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关于版本管理"
           }
         }
       }
@@ -40504,52 +40642,6 @@
         }
       }
     },
-    "This is an advanced feature and should only be used if you know what you are doing." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dies ist eine erweiterte Funktion und sollte nur verwendet werden, wenn Sie wissen, was Sie tun."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esta es una función avanzada y solo debe usarse si sabes lo que estás haciendo."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Questa è una funzione avanzata e dovrebbe essere utilizzata solo se sai cosa stai facendo."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "これは高度な機能であり、自分が何をしているのか分かっている場合にのみ使用すべきである。"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dit is een geavanceerde functie en moet alleen worden gebruikt als je weet wat je doet."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Це розширена функція і її слід використовувати лише якщо ви знаєте, що робите."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "这是一个高级功能，仅在您知道自己在做什么的情况下使用。"
-          }
-        }
-      }
-    },
     "This item is synchronized with this device because a parent folder is synchronized with this device." : {
       "localizations" : {
         "de" : {
@@ -43812,6 +43904,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "版本控制"
+          }
+        }
+      }
+    },
+    "Versioning applies to changes *received from other devices*. When versioning is enabled, older versions of files that are changed by other devices are saved locally for a while. Versioning does **not** keep older versions of files that are modified locally on this device. See [the Syncthing documentation on versioning](https://docs.syncthing.net/users/versioning.html) for further information." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versionsverwaltung gilt für Änderungen, die *von anderen Geräten empfangen* werden. Wenn die Versionsverwaltung aktiviert ist, werden ältere Versionen von Dateien, die von anderen Geräten geändert wurden, für eine Weile lokal gespeichert. Die Versionsverwaltung speichert **nicht** ältere Versionen von Dateien, die lokal auf diesem Gerät geändert werden. Weitere Informationen finden Sie in der [Syncthing-Dokumentation zur Versionsverwaltung](https://docs.syncthing.net/users/versioning.html)."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La versionado se aplica a los cambios *recibidos de otros dispositivos*. Cuando el versionado está habilitado, las versiones anteriores de los archivos modificados por otros dispositivos se guardan localmente por un tiempo. El versionado **no** mantiene versiones anteriores de archivos que se modifican localmente en este dispositivo. Consulte [la documentación de versionado de Syncthing](https://docs.syncthing.net/users/versioning.html) para más información."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La versione si applica alle modifiche *ricevute da altri dispositivi*. Quando la versione è abilitata, le versioni precedenti dei file modificati da altri dispositivi vengono salvate localmente per un certo periodo di tempo. La versione **non** conserva le versioni precedenti dei file modificati localmente su questo dispositivo. Consulta la [documentazione di Syncthing sulla versione](https://docs.syncthing.net/users/versioning.html) per ulteriori informazioni."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バージョニングは、*他のデバイスから受信した変更*に適用されます。バージョニングが有効な場合、他のデバイスによって変更されたファイルの古いバージョンはしばらくの間ローカルに保存されます。バージョニングは、このデバイス上でローカルに変更されたファイルの古いバージョンを**保持しません**。詳細については、[Syncthingのバージョニングに関するドキュメント](https://docs.syncthing.net/users/versioning.html)をご覧ください。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versiebeheer is van toepassing op veranderingen *ontvangen van andere apparaten*. Wanneer versiebeheer is ingeschakeld, worden oudere versies van bestanden die door andere apparaten zijn gewijzigd, voor een tijdje lokaal opgeslagen. Versiebeheer houdt **niet** oudere versies van bestanden bij die lokaal op dit apparaat zijn gewijzigd. Zie [de Syncthing documentatie over versiebeheer](https://docs.syncthing.net/users/versioning.html) voor meer informatie."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Версіювання застосовується до змін, *отриманих з інших пристроїв*. Коли увімкнено версіювання, старі версії файлів, які змінюються іншими пристроями, зберігаються локально на деякий час. Версіювання **не** зберігає старі версії файлів, які змінюються локально на цьому пристрої. Дивіться [документацію Syncthing щодо версіювання](https://docs.syncthing.net/users/versioning.html) для детальнішої інформації."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版本控制适用于*从其他设备收到的更改*。启用版本控制时，其他设备更改的文件的旧版本会在本地保存一段时间。版本控制**不**会保留本地在此设备上修改的文件的旧版本。有关详细信息，请参阅[Syncthing 的版本控制文档](https://docs.syncthing.net/users/versioning.html)。"
           }
         }
       }

@@ -1331,6 +1331,14 @@ private struct FolderVersioningSettingsView: View {
 	var body: some View {
 		Form {
 			Section {
+				Text(
+					"Versioning applies to changes *received from other devices*. When versioning is enabled, older versions of files that are changed by other devices are saved locally for a while. Versioning does **not** keep older versions of files that are modified locally on this device. See [the Syncthing documentation on versioning](https://docs.syncthing.net/users/versioning.html) for further information."
+				)
+			} header: {
+				Label("About versioning", systemImage: "questionmark.circle")
+			}
+
+			Section {
 				Picker("Versioning", selection: $versioningType) {
 					Text("Disabled").tag(VersioningType.disabled)
 					Text("Simple").tag(VersioningType.simple)
@@ -1472,7 +1480,7 @@ private struct AdvancedFolderSettingsView: View {
 			// Ignore patterns editor (on macOS, this is accessible directly from the folder menu)
 			#if os(iOS)
 				if !folder.isSelective() && !folder.isPhotoFolder && !folder.isReceiveEncryptedFolder {
-					Button("Files to ignore", systemImage: "rectangle.dashed") {
+					Button("Files to ignore...", systemImage: "rectangle.dashed") {
 						showIgnores = true
 					}
 					.sheet(isPresented: $showIgnores) {
@@ -1484,7 +1492,7 @@ private struct AdvancedFolderSettingsView: View {
 
 				// Selective folder ignore patterns (accessible both on iOS and macOS from this place)
 				if folder.isSelective() && !folder.isPhotoFolder && !folder.isReceiveEncryptedFolder {
-					Button("Files to ignore", systemImage: "rectangle.dashed") {
+					Button("Files to ignore...", systemImage: "rectangle.dashed") {
 						showSelectiveIgnores = true
 					}
 					.sheet(isPresented: $showSelectiveIgnores) {
