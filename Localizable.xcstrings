@@ -19036,6 +19036,52 @@
         }
       }
     },
+    "Hidden folders will not be visible by default in Finder, and will be hidden by default in the folders list in this app." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgeblendete Ordner sind standardmäßig im Finder nicht sichtbar und werden auch in der Ordnerliste dieser App standardmäßig ausgeblendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las carpetas ocultas no serán visibles por defecto en Finder y estarán ocultas por defecto en la lista de carpetas de esta app."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le cartelle nascoste non saranno visibili di default nel Finder e saranno nascoste di default nell'elenco delle cartelle in questa app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隠しフォルダはデフォルトでFinderに表示されず、このアプリのフォルダリストでもデフォルトで隠されます。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verborgen mappen worden standaard niet weergegeven in Finder en zijn standaard verborgen in de mappenlijst in deze app."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приховані папки за замовчуванням не відображатимуться у Finder і будуть приховані у списку папок у цьому додатку."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 Finder 中，默认情况下隐藏的文件夹将不可见，并且在此应用程序的文件夹列表中默认也是隐藏的。"
+          }
+        }
+      }
+    },
     "Hidden folders will not be visible by default in the Files app, and will be hidden by default in the folders list in this app." : {
       "localizations" : {
         "de" : {
