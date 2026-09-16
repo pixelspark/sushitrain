@@ -867,7 +867,7 @@ func (fld *Folder) CleanSelection() error {
 			if strings.HasPrefix(path, cfg.MarkerName) {
 				return nil
 			}
-			if path == ignoreFileName {
+			if fs.IsInternal(path) || path == ignoreFileName {
 				return nil
 			}
 
