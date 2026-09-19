@@ -23476,6 +23476,52 @@
         }
       }
     },
+    "Move deleted files to system trash can" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verschiebe gelöschte Dateien in den Papierkorb"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mover archivos eliminados a la papelera del sistema"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sposta i file eliminati nel cestino di sistema"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "削除したファイルをシステムのごみ箱に移動"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verplaats verwijderde bestanden naar de prullenbak"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перемістити видалені файли до системного кошика"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将已删除文件移动到系统垃圾桶"
+          }
+        }
+      }
+    },
     "Name" : {
       "localizations" : {
         "de" : {
@@ -37778,6 +37824,52 @@
         }
       }
     },
+    "The file could not be moved to the system trash folder: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Datei konnte nicht in den Papierkorb verschoben werden: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo mover el archivo a la papelera del sistema: %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile spostare il file nel cestino di sistema: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイルをシステムのゴミ箱に移動できませんでした: %@"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het bestand kon niet naar de systeemprullenbak worden verplaatst: %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося перенести файл до системної кошика: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件无法移动到系统垃圾桶：%@"
+          }
+        }
+      }
+    },
     "The file is currently not available for preview." : {
       "localizations" : {
         "de" : {
@@ -37820,6 +37912,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "该文件当前无法预览。"
+          }
+        }
+      }
+    },
+    "The file that needed to be trashed could not be found" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Datei, die gelöscht werden sollte, konnte nicht gefunden werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo que debía eliminarse no se pudo encontrar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il file da eliminare non è stato trovato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "削除する必要があるファイルが見つかりませんでした"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het bestand dat verwijderd moest worden kon niet worden gevonden"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файл, який потрібно було видалити, не знайдено"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法找到需要删除的文件"
           }
         }
       }
@@ -45882,6 +46020,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "当文件夹结构更改时，已保存的照片将重新保存在新位置。"
+          }
+        }
+      }
+    },
+    "When this is enabled, files synchronized on this device that are removed by remote peers, or are unpinned, will be moved to the system trash can instead of being deleted." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn dies aktiviert ist, werden auf diesem Gerät synchronisierte Dateien, die von entfernten Peers entfernt oder nicht mehr fixiert wurden, in den Papierkorb des Systems verschoben, anstatt gelöscht zu werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando esta opción está habilitada, los archivos sincronizados en este dispositivo que son eliminados por pares remotos o desanclados, serán movidos a la papelera del sistema en lugar de ser eliminados."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando questa opzione è abilitata, i file sincronizzati su questo dispositivo che vengono rimossi dai peer remoti o che sono stati sganciati verranno spostati nel cestino di sistema invece di essere eliminati."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これを有効にすると、このデバイスで同期され、リモートのピアによって削除されたり、ピンが解除されたファイルは、削除されるのではなく、システムのゴミ箱に移動されます。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer dit is ingeschakeld, worden bestanden die op dit apparaat gesynchroniseerd zijn en die door externe peers verwijderd zijn of niet meer vastgezet zijn, verplaatst naar de prullenbak van het systeem in plaats van verwijderd."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коли це ввімкнуто, файли, що синхронізовані на цьому пристрої, які видаляються віддаленими вузлами або перестають бути закріпленими, будуть переміщені до кошика системи замість видалення."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "启用此功能时，在此设备上同步且被远程对等方移除或取消固定的文件将被移至系统垃圾桶，而不是直接删除。"
           }
         }
       }

@@ -189,8 +189,7 @@ extension SushitrainFolder {
 			return false
 		}
 
-		let fsType = self.filesystemType()
-		return fsType == "basic" || fsType == ""
+		return self.isNativeFilesystem()
 	}
 
 	var isPhotoFolder: Bool {

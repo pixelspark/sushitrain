@@ -734,7 +734,7 @@ func loadOrDefaultConfig(devID protocol.DeviceID, ctx context.Context, logger ev
 		// run. Therefore we re-set the absolute folder path here to [app documents directory]/[folder ID] if we don't have
 		// a folder marker in the old location but do have one in the new.
 		for _, folderConfig := range conf.Folders {
-			if folderConfig.FilesystemType == config.FilesystemTypeBasic {
+			if isNativeFilesystem(folderConfig.FilesystemType) {
 				standardPath := path.Join(filesPath, folderConfig.ID)
 				if folderConfig.Path != standardPath {
 					slog.Warn("configured folder path differs from expected path", "configured", folderConfig.Path, "expected", standardPath)

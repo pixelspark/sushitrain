@@ -48,6 +48,7 @@ struct SushitrainApp: App {
 		let configPath = configDirectory.path(percentEncoded: false)
 		let enableLoggingToFile = UserDefaults.standard.bool(forKey: "loggingEnabled")
 		registerPhotoFilesystem()
+		SushitrainRegisterTrashHandler(SystemTrash())
 		let client = SushitrainNewClient(configPath, documentsPath, enableLoggingToFile)!
 
 		// Optionally clear v1 and/or v2 index

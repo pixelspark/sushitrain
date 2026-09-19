@@ -934,6 +934,7 @@ private struct FolderThumbnailSettingsView: View {
 	@State private var deletingFromSharedCache = false
 	@State private var deletedFromSharedCache = false
 	@State private var settings = ThumbnailGeneration.disabled
+	@State private var selectionError: ErrorMessage? = nil
 
 	private var insidePathBinding: Binding<String> {
 		return Binding(
@@ -1015,8 +1016,13 @@ private struct FolderThumbnailSettingsView: View {
 							"Synchronize",
 							isOn: Binding(
 								get: { localDirectoryEntry.isExplicitlySelected() == true },
-								set: {
-									try? localDirectoryEntry.setExplicitlySelected($0)
+								set: { selected in
+									do {
+										try localDirectoryEntry.setExplicitlySelected(selected)
+									}
+									catch {
+										selectionError = ErrorMessage(error)
+									}
 								})
 						)
 						.disabled(localDirectoryEntry.isSelected() != localDirectoryEntry.isExplicitlySelected())
@@ -1130,6 +1136,7 @@ private struct FolderThumbnailSettingsView: View {
 			.formStyle(.grouped)
 		#endif
 		.navigationTitle("Thumbnails")
+		.errorAlert($selectionError)
 		#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)
 		#endif
@@ -1488,6 +1495,7 @@ private struct AdvancedFolderSettingsView: View {
 		self.subSettingsSection()
 		self.folderGroupSection()
 		self.systemSettingsSection()
+		self.trashSection()
 		self.watchSection()
 		self.conflictsSection()
 		self.blockIndexSection()
@@ -1565,6 +1573,31 @@ private struct AdvancedFolderSettingsView: View {
 				#if os(macOS)
 					.buttonStyle(.link)
 				#endif
+			}
+		}
+	}
+
+	@ViewBuilder private func trashSection() -> some View {
+		if folder.isNativeFilesystem() {
+			Section {
+				Toggle(
+					"Move deleted files to system trash can",
+					isOn: Binding(
+						get: { folder.isTrashEnabled() },
+						set: { enabled in
+							do {
+								try folder.setTrashEnabled(enabled)
+							}
+							catch {
+								showError = ErrorMessage(error)
+							}
+						})
+				)
+				.errorAlert($showError)
+			} footer: {
+				Text(
+					"When this is enabled, files synchronized on this device that are removed by remote peers, or are unpinned, will be moved to the system trash can instead of being deleted."
+				)
 			}
 		}
 	}

@@ -15,6 +15,7 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/syncthing/syncthing/lib/config"
@@ -139,6 +140,18 @@ func (fld *Folder) Remove() error {
 	ffs, err := fld.filesystem()
 	if err != nil {
 		return err
+	}
+
+	if fld.IsTrashEnabled() {
+		// Stop the folder before moving its root. Keep its configuration until
+		// trashing succeeds, so failures remain visible and the user can retry.
+		if err := fld.SetPaused(true); err != nil {
+			return err
+		}
+		if err := ffs.RemoveAll(""); err != nil {
+			return fmt.Errorf("folder remains paused; could not move it to Trash: %w", err)
+		}
+		return fld.Unlink()
 	}
 
 	err = fld.Unlink()
@@ -1112,15 +1125,22 @@ func (fld *Folder) removeRedundantChildren(ffs fs.Filesystem, path string, direc
 
 	slog.Info("delete", "toDeleteLen", len(toDelete))
 
+	var deletionErrors []error
 	for _, delPath := range toDelete {
-		// Swallow delete errors. Parent directories may have been removed before we get to them
 		err = ffs.Remove(delPath)
-		if err != nil {
-			slog.Warn("could not delete", "path", delPath, "error", err)
+		if err != nil && !fs.IsNotExist(err) {
+			// Nonempty directories contain children deliberately retained above.
+			// Do not suppress the same error from trashing a file (e.g. a collision).
+			if errors.Is(err, syscall.ENOTEMPTY) || errors.Is(err, syscall.EEXIST) {
+				if info, statErr := ffs.Lstat(delPath); statErr == nil && info.IsDir() {
+					continue
+				}
+			}
+			deletionErrors = append(deletionErrors, fmt.Errorf("remove %q: %w", delPath, err))
 		}
 		deleteEmptyParentDirectories(ffs, delPath)
 	}
-	return nil
+	return errors.Join(deletionErrors...)
 }
 
 // If `path` points to a file, remove it. If `path` points to a subdirectory, delete children that we are reasonably sure
@@ -1333,20 +1353,23 @@ func (fld *Folder) setExplicitlySelected(paths map[string]bool) error {
 	}
 
 	// Delete local files that are not selected anymore
+	var deletionErrors []error
 	for path, selected := range paths {
 		if !selected {
 			// Check if not still implicitly selected
 			res := ignores.Match(path)
 			if res == ignoreresult.Ignored || res == ignoreresult.IgnoreAndSkip {
 				slog.Info("deleting local deselected", "path", path)
-				fld.deleteLocalFileAndRedundantChildren(path)
+				if err := fld.deleteLocalFileAndRedundantChildren(path); err != nil && !fs.IsNotExist(err) {
+					deletionErrors = append(deletionErrors, fmt.Errorf("deselected %q but could not remove its local copy: %w", path, err))
+				}
 			} else {
 				slog.Info("not deleting local deselected file, it apparently was reselected", "path", path, "ignoreResult", res)
 			}
 		}
 	}
 
-	return nil
+	return errors.Join(deletionErrors...)
 }
 
 func (fld *Folder) SetLocalPathsExplicitlySelected(paths *ListOfStrings) error {

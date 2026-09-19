@@ -39,6 +39,7 @@
 		6596E2422E04ABD70069B31C /* DownloadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6596E2412E04ABD50069B31C /* DownloadsView.swift */; };
 		659C0C0D2DD87791006E8CC0 /* PhotoFS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659C0C0C2DD8778F006E8CC0 /* PhotoFS.swift */; };
 		659C0C0F2DD8AC63006E8CC0 /* PhotoFolderSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659C0C0E2DD8AC5F006E8CC0 /* PhotoFolderSettingsView.swift */; };
+		65A019012F5D000000000001 /* SystemTrash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A019012F5D000000000002 /* SystemTrash.swift */; };
 		65A3D2222CCEEEA600117501 /* ThumbnailImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A3D2212CCEEEA200117501 /* ThumbnailImage.swift */; };
 		65AE11FD2C39EE0E00E721D4 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE11FC2C39EE0E00E721D4 /* App.swift */; };
 		65AE11FF2C39EE0E00E721D4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AE11FE2C39EE0E00E721D4 /* ContentView.swift */; };
@@ -132,6 +133,7 @@
 		6596E2412E04ABD50069B31C /* DownloadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadsView.swift; sourceTree = "<group>"; };
 		659C0C0C2DD8778F006E8CC0 /* PhotoFS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoFS.swift; sourceTree = "<group>"; };
 		659C0C0E2DD8AC5F006E8CC0 /* PhotoFolderSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoFolderSettingsView.swift; sourceTree = "<group>"; };
+		65A019012F5D000000000002 /* SystemTrash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemTrash.swift; sourceTree = "<group>"; };
 		65A3D2212CCEEEA200117501 /* ThumbnailImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailImage.swift; sourceTree = "<group>"; };
 		65AE11F92C39EE0E00E721D4 /* Synctrain.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Synctrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		65AE11FC2C39EE0E00E721D4 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
@@ -267,6 +269,7 @@
 				6582C5402E893450006F92F1 /* StatisticsView.swift */,
 				65F7EFF62E5F58B5008A64E0 /* SupportView.swift */,
 				65C9E1462C3DB67C00EDCE6C /* Sushitrain.entitlements */,
+				65A019012F5D000000000002 /* SystemTrash.swift */,
 				65A3D2212CCEEEA200117501 /* ThumbnailImage.swift */,
 				6505643E2CA98D1F009FFFB9 /* ThumbnailView.swift */,
 				656802652F13A58E00C9FA5D /* ToastView.swift */,
@@ -450,6 +453,7 @@
 				6539EB6B2DD132EF00C35617 /* FolderStatisticsView.swift in Sources */,
 				65C8BFD82C87977E00DF5EB0 /* PhotoBackup.swift in Sources */,
 				659C0C0D2DD87791006E8CC0 /* PhotoFS.swift in Sources */,
+				65A019012F5D000000000001 /* SystemTrash.swift in Sources */,
 				65D304BE2FD8A2CD00B6677E /* WebView.swift in Sources */,
 				65AE12732C3B163000E721D4 /* AppState.swift in Sources */,
 				65A3D2222CCEEEA600117501 /* ThumbnailImage.swift in Sources */,

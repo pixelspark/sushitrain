@@ -15,7 +15,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/syncthing/syncthing/lib/config"
 	"github.com/syncthing/syncthing/lib/fs"
 	"github.com/syncthing/syncthing/lib/model"
 	"github.com/syncthing/syncthing/lib/osutil"
@@ -217,8 +216,8 @@ func (entry *Entry) IsLocallyPresent() bool {
 		return false
 	}
 
-	// For custom filesystem types, files are never 'locally present' (their paths will not work on the actual system FS)
-	if fc.FilesystemType != config.FilesystemTypeBasic && fc.FilesystemType.String() != "" {
+	// Virtual filesystem paths do not correspond to native files.
+	if !isNativeFilesystem(fc.FilesystemType) {
 		return false
 	}
 

@@ -24,6 +24,7 @@ struct EntryInfoView: View {
 	@State private var selfIndex: Int? = nil
 	@State private var fullyAvailableOnDevices: [SushitrainPeer]? = nil
 	@State private var availabilityError: Error? = nil
+	@State private var selectionError: ErrorMessage? = nil
 	@State private var showEncryptionSheet: Bool = false
 	@State private var conflictingEntries: [SushitrainEntry]? = nil
 	@State private var openWithAppURL: URL? = nil
@@ -112,6 +113,7 @@ struct EntryInfoView: View {
 				.formStyle(.grouped)
 			#endif
 			.navigationTitle(entry.fileName())
+			.errorAlert($selectionError)
 			.quickLookPreview(self.$localItemURL)
 
 			.userActivity(SushitrainApp.viewRouteActivityID) { ua in
@@ -273,7 +275,14 @@ struct EntryInfoView: View {
 					"Synchronize with this device", systemImage: "pin",
 					isOn: Binding(
 						get: { entry.isExplicitlySelected() == true || entry.isSelected() },
-						set: { s in try? entry.setExplicitlySelected(s) }
+						set: { selected in
+							do {
+								try entry.setExplicitlySelected(selected)
+							}
+							catch {
+								selectionError = ErrorMessage(error)
+							}
+						}
 					)
 				).disabled(
 					// We're doing something weird
