@@ -1,5 +1,9 @@
 {
   "color-space-for-untagged-svg-colors" : "display-p3",
+  "features" : [
+    "refractivity",
+    "specular-location"
+  ],
   "fill-specializations" : [
     {
       "value" : {
@@ -33,6 +37,7 @@
       ],
       "layers" : [
         {
+          "blend-mode" : "normal",
           "fill-specializations" : [
             {
               "value" : {
@@ -50,6 +55,19 @@
               "value" : {
                 "solid" : "gray:0.36110,1.00000"
               }
+            }
+          ],
+          "glass-specializations" : [
+            {
+              "value" : false
+            },
+            {
+              "appearance" : "dark",
+              "value" : false
+            },
+            {
+              "appearance" : "tinted",
+              "value" : true
             }
           ],
           "image-name" : "Cart emblems chrome.png",
@@ -107,11 +125,40 @@
           50
         ]
       },
-      "shadow" : {
-        "kind" : "none",
-        "opacity" : 0.29
-      },
-      "specular" : true,
+      "refractivity-specializations" : [
+        {
+          "appearance" : "dark",
+          "value" : {
+            "depth" : 0.004140625,
+            "enabled" : false,
+            "strength" : -0.9205859375
+          }
+        }
+      ],
+      "shadow-specializations" : [
+        {
+          "value" : {
+            "kind" : "neutral",
+            "opacity" : 0.29
+          }
+        },
+        {
+          "appearance" : "dark",
+          "value" : {
+            "kind" : "none",
+            "opacity" : 0.52
+          }
+        }
+      ],
+      "specular-specializations" : [
+        {
+          "value" : "inside"
+        },
+        {
+          "appearance" : "dark",
+          "value" : "inside"
+        }
+      ],
       "translucency-specializations" : [
         {
           "value" : {
@@ -130,7 +177,15 @@
     },
     {
       "blend-mode" : "normal",
-      "blur-material" : 0.37,
+      "blur-material-specializations" : [
+        {
+          "value" : 1
+        },
+        {
+          "appearance" : "tinted",
+          "value" : 0.47
+        }
+      ],
       "hidden" : false,
       "layers" : [
         {
@@ -244,11 +299,28 @@
           50
         ]
       },
+      "refractivity-specializations" : [
+        {
+          "value" : {
+            "depth" : 0.7508984375,
+            "enabled" : true,
+            "strength" : -0.6234375
+          }
+        },
+        {
+          "appearance" : "tinted",
+          "value" : {
+            "depth" : 0.9525,
+            "enabled" : true,
+            "strength" : -0.62515625
+          }
+        }
+      ],
       "shadow-specializations" : [
         {
           "value" : {
-            "kind" : "layer-color",
-            "opacity" : 0.16
+            "kind" : "neutral",
+            "opacity" : 0
           }
         },
         {
@@ -257,25 +329,43 @@
             "kind" : "layer-color",
             "opacity" : 0.72
           }
+        },
+        {
+          "appearance" : "tinted",
+          "value" : {
+            "kind" : "layer-color",
+            "opacity" : 1.46
+          }
         }
       ],
       "specular-specializations" : [
         {
-          "value" : false
+          "value" : "inside"
         },
         {
           "appearance" : "dark",
-          "value" : false
+          "value" : "inside"
         },
         {
           "appearance" : "tinted",
-          "value" : false
+          "value" : "inside"
         }
       ],
-      "translucency" : {
-        "enabled" : true,
-        "value" : 0.19
-      }
+      "translucency-specializations" : [
+        {
+          "value" : {
+            "enabled" : true,
+            "value" : 0.74
+          }
+        },
+        {
+          "appearance" : "tinted",
+          "value" : {
+            "enabled" : true,
+            "value" : 0.19
+          }
+        }
+      ]
     },
     {
       "blur-material-specializations" : [
@@ -365,6 +455,7 @@
           "opacity" : 1
         }
       ],
+      "name" : "Rails",
       "opacity" : 0.57,
       "position" : {
         "scale" : 1.3,
@@ -373,13 +464,30 @@
           50
         ]
       },
+      "refractivity-specializations" : [
+        {
+          "value" : {
+            "depth" : 0.1345703125,
+            "enabled" : true,
+            "strength" : -0.7175
+          }
+        },
+        {
+          "appearance" : "dark",
+          "value" : {
+            "depth" : 0.1445703125,
+            "enabled" : true,
+            "strength" : -0.7109375
+          }
+        }
+      ],
       "shadow" : {
         "kind" : "neutral",
         "opacity" : 0.46
       },
       "specular-specializations" : [
         {
-          "value" : true
+          "value" : "inside"
         },
         {
           "appearance" : "dark",
