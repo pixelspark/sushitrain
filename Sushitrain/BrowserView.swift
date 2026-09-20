@@ -8,6 +8,24 @@ import QuickLook
 import UniformTypeIdentifiers
 @preconcurrency import SushitrainCore
 
+#if os(macOS)
+	struct BrowserRefreshActions {
+		let refresh: @MainActor () async -> Void
+		let rescan: @MainActor () async -> Void
+	}
+
+	private struct BrowserRefreshActionsKey: FocusedValueKey {
+		typealias Value = BrowserRefreshActions
+	}
+
+	extension FocusedValues {
+		var browserRefreshActions: BrowserRefreshActions? {
+			get { self[BrowserRefreshActionsKey.self] }
+			set { self[BrowserRefreshActionsKey.self] = newValue }
+		}
+	}
+#endif
+
 enum BrowserViewStyle: String {
 	case grid = "grid"
 	case list = "list"
@@ -1020,6 +1038,15 @@ private struct BrowserItemsView: View {
 		.refreshable {
 			await self.rescan()
 		}
+		#if os(macOS)
+			.focusedSceneValue(
+				\.browserRefreshActions,
+				folderExists && !isLoading
+					? BrowserRefreshActions(
+						refresh: { await self.reload() },
+						rescan: { await self.rescan() })
+					: nil)
+		#endif
 		.contextMenu {
 			Button("Refresh") {
 				Task {

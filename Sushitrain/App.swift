@@ -269,6 +269,8 @@ struct SushitrainApp: App {
 		}
 
 		#if os(macOS)
+			BrowserRefreshCommands()
+
 			CommandGroup(replacing: CommandGroupPlacement.help) {
 				Button("Questions, support & feedback...") {
 					openWindow(id: "support")
@@ -294,6 +296,28 @@ struct SushitrainApp: App {
 }
 
 #if os(macOS)
+	private struct BrowserRefreshCommands: Commands {
+		@FocusedValue(\.browserRefreshActions) private var actions
+
+		var body: some Commands {
+			CommandGroup(after: .toolbar) {
+				Button("Refresh") {
+					guard let actions else { return }
+					Task { await actions.refresh() }
+				}
+				.keyboardShortcut("r", modifiers: .command)
+				.disabled(actions == nil)
+
+				Button("Rescan subdirectory") {
+					guard let actions else { return }
+					Task { await actions.rescan() }
+				}
+				.keyboardShortcut("r", modifiers: [.command, .shift])
+				.disabled(actions == nil)
+			}
+		}
+	}
+
 	struct MenuBarExtraView: Scene {
 		let appState: AppState
 		@Binding var hideInDock: Bool
