@@ -14,12 +14,14 @@ permissions:
 
 jobs:
   build:
-    runs-on: macos-26
+    # See https://github.com/actions/runner-images/blob/main/images/macos/xcode-27-arm64-Readme.md
+    # and https://github.com/actions/runner-images#available-images
+    runs-on: xcode-27
     steps:
       - name: Check Xcode version
         run: |
           /usr/bin/xcodebuild -version
-          sudo /usr/bin/xcode-select -switch /Applications/Xcode_26.0.1.app/Contents/Developer
+          sudo /usr/bin/xcode-select -switch /Applications/Xcode_27.0.app
           xcrun simctl list > /dev/null
           /usr/bin/xcodebuild -version
 
