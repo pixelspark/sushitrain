@@ -139,7 +139,9 @@ private struct FoldersSection: View {
 									if let url = folder.localNativeURL {
 										openURLInSystemFilesApp(url: url)
 									}
-								})
+								}
+							)
+							.labelStyle(.titleAndIcon)
 						}
 
 						#if os(iOS)

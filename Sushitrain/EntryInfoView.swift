@@ -820,7 +820,9 @@ struct FileSharingLinksView: View {
 	private func update() async {
 		self.sharingLink = nil
 		let entry = self.entry
-		self.sharingLink = await Task.detached { return await entry.externalSharingURLExpensive() }.value
+		self.sharingLink = await Task.detached {
+			return await entry.externalSharingURLExpensive()
+		}.value
 	}
 
 	private var linkToUse: URL? {

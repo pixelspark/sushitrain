@@ -330,13 +330,15 @@ struct EntryContextMenuWrapper<Content: View>: View {
 				if entry.canShowInFinder {
 					Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
 						try? entry.showInFinder()
-					}
+					}.labelStyle(.titleAndIcon)
 				}
 
 				#if os(macOS)
 					Button("Copy", systemImage: "document.on.document") {
 						self.copy()
-					}.disabled(!entry.isLocallyPresent())
+					}
+					.disabled(!entry.isLocallyPresent())
+					.labelStyle(.titleAndIcon)
 				#endif
 
 				// Regular sharing
@@ -355,7 +357,7 @@ struct EntryContextMenuWrapper<Content: View>: View {
 							else {
 								Label("Go to directory '\(parentFolderName)'", systemImage: "document.circle")
 							}
-						}
+						}.labelStyle(.titleAndIcon)
 					}
 				}
 

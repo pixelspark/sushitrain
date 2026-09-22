@@ -289,17 +289,17 @@ private struct ExtraFileView: View {
 				if let ge = globalEntry, !ge.isDeleted() {
 					Button("Replace existing file", systemImage: "rectangle.2.swap") {
 						verdict = true
-					}
+					}.labelStyle(.titleAndIcon)
 				}
 				else {
 					Button("Keep files", systemImage: "plus.square.fill") {
 						verdict = true
-					}
+					}.labelStyle(.titleAndIcon)
 				}
 
 				Button("Delete file", systemImage: "trash", role: .destructive) {
 					verdict = false
-				}
+				}.labelStyle(.titleAndIcon)
 
 				Divider()
 
@@ -313,7 +313,7 @@ private struct ExtraFileView: View {
 					if let localItemURL = localItemURL {
 						openURLInSystemFilesApp(url: localItemURL)
 					}
-				}
+				}.labelStyle(.titleAndIcon)
 			}
 	}
 }

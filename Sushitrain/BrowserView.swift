@@ -686,7 +686,7 @@ struct BrowserView: View {
 				if !isReceiveEncrypted {
 					Toggle(isOn: Binding(get: { self.isBookmarked }, set: { self.setBookmarked($0) })) {
 						Label("Bookmark", systemImage: self.isBookmarked ? "bookmark.fill" : "bookmark")
-					}
+					}.labelStyle(.titleAndIcon)
 				}
 
 				Divider()
@@ -1488,6 +1488,7 @@ struct ItemSelectToggleView: View {
 					})
 			)
 			.disabled(self.file.isSelectionToggleShallowDisabled)
+			.labelStyle(.titleAndIcon)
 		}
 	}
 }

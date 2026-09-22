@@ -141,81 +141,7 @@ import QuickLook
 			}
 			.contextMenu(
 				forSelectionType: SushitrainEntry.ID.self,
-				menu: { items in
-					if items.isEmpty {
-
-					}
-					else if let item = items.first, items.count == 1 {
-						// Single item selected
-						if let oe = self.entryById(item) {
-							if oe.isDirectory() {
-								Button("Subdirectory properties", systemImage: "folder.badge.gearshape") {
-									self.openedEntry = (oe, false)
-								}
-							}
-							else {
-								Button("Show info", systemImage: "info.circle") {
-									self.openedEntry = (oe, false)
-								}
-							}
-
-							// Preview and copy (only for files, not folders)
-							if !oe.isDirectory() && !oe.isSymlink() {
-								#if os(macOS)
-									Button("Show preview", systemImage: "doc.text.magnifyingglass") {
-										openWindow(
-											id: "preview",
-											value: Preview(folderID: self.folder.folderID, path: oe.path())
-										)
-									}.disabled(!oe.canPreview)
-
-									// Copy
-									Button("Copy", systemImage: "document.on.document") {
-										self.copy(oe)
-									}.disabled(!oe.isLocallyPresent())
-								#endif
-							}
-
-							// Regular sharing
-							EntryShareButton(
-								entry: oe,
-								showDownloader: Binding(
-									get: {
-										self.showDownloaderFor != nil
-									},
-									set: { nv in
-										if nv {
-											self.showDownloaderFor = oe
-										}
-										else {
-											self.showDownloaderFor = nil
-										}
-									}))
-
-							// Show item in Finder
-							if oe.canShowInFinder {
-								Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
-									try? oe.showInFinder()
-								}
-							}
-
-							// External sharing
-							if oe.hasExternalSharingURL {
-								Divider()
-								FileSharingLinksView(entry: oe, sync: true)
-							}
-
-							Divider()
-							ItemSelectToggleView(file: oe)
-						}
-					}
-					else {
-						// Multiple items selected
-						Text("\(items.count) items selected")
-
-						MultiItemSelectToggleView(files: self.entriesForIds(items))
-					}
-				},
+				menu: self.itemsMenu,
 				primaryAction: self.doubleClick
 			)
 			.navigationDestination(isPresented: Binding.isNotNil($openedEntry)) {
@@ -223,6 +149,87 @@ import QuickLook
 			}
 			.sheet(item: $showDownloaderFor) { downloadEntry in
 				self.downloaderSheet(entry: downloadEntry)
+			}
+		}
+
+		@ViewBuilder private func itemsMenu(items: Set<SushitrainEntry.ID>) -> some View {
+			if items.isEmpty {
+				EmptyView()
+			}
+			else if let item = items.first, items.count == 1 {
+				// Single item selected
+				if let oe = self.entryById(item) {
+					if oe.isDirectory() {
+						Button("Subdirectory properties", systemImage: "folder.badge.gearshape") {
+							self.openedEntry = (oe, false)
+						}.labelStyle(.titleAndIcon)
+					}
+					else {
+						Button("Show info", systemImage: "info.circle") {
+							self.openedEntry = (oe, false)
+						}.labelStyle(.titleAndIcon)
+					}
+
+					// Preview and copy (only for files, not folders)
+					if !oe.isDirectory() && !oe.isSymlink() {
+						#if os(macOS)
+							Button("Show preview", systemImage: "doc.text.magnifyingglass") {
+								openWindow(
+									id: "preview",
+									value: Preview(folderID: self.folder.folderID, path: oe.path())
+								)
+							}.disabled(!oe.canPreview)
+
+							// Copy
+							Button("Copy", systemImage: "document.on.document") {
+								self.copy(oe)
+							}
+							.disabled(!oe.isLocallyPresent())
+							.labelStyle(.titleAndIcon)
+						#endif
+					}
+
+					// Regular sharing
+					EntryShareButton(
+						entry: oe,
+						showDownloader: Binding(
+							get: {
+								self.showDownloaderFor != nil
+							},
+							set: { nv in
+								if nv {
+									self.showDownloaderFor = oe
+								}
+								else {
+									self.showDownloaderFor = nil
+								}
+							})
+					).labelStyle(.titleAndIcon)
+
+					// Show item in Finder
+					if oe.canShowInFinder {
+						Button(openInFilesAppLabel, systemImage: "arrow.up.forward.app") {
+							try? oe.showInFinder()
+						}
+						.labelStyle(.titleAndIcon)
+					}
+
+					// External sharing
+					if oe.hasExternalSharingURL {
+						Divider()
+						FileSharingLinksView(entry: oe, sync: true)
+							.labelStyle(.titleAndIcon)
+					}
+
+					Divider()
+					ItemSelectToggleView(file: oe)
+				}
+			}
+			else {
+				// Multiple items selected
+				Text("\(items.count) items selected")
+
+				MultiItemSelectToggleView(files: self.entriesForIds(items))
 			}
 		}
 
