@@ -224,6 +224,7 @@ struct EntryInfoView: View {
 			}
 
 			.onChange(of: entry, initial: true) { _, _ in
+				self.subdirectorySizeBytes = nil
 				self.fullyAvailableOnDevices = nil
 				self.showArchive = nil
 				self.update()
@@ -385,7 +386,6 @@ struct EntryInfoView: View {
 	}
 
 	private func update() async {
-		self.subdirectorySizeBytes = nil
 		let file = self.entry
 		self.subdirectorySizeBytes = await Task.detached {
 			if file.isDirectory() {
