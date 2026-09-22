@@ -166,6 +166,9 @@ struct BrowserView: View {
 	}
 
 	private var currentFilterAvailability: BrowserViewFilterAvailability {
+		if !self.folderIsSelective {
+			return .localOnly
+		}
 		return self.filterAvailability ?? appState.userSettings.defaultBrowserViewFilterAvailability
 	}
 
@@ -432,18 +435,20 @@ struct BrowserView: View {
 
 	@ViewBuilder private func filterMenu() -> some View {
 		Menu {
-			Picker(
-				"Show",
-				selection: Binding(
-					get: { self.currentFilterAvailability },
-					set: {
-						self.filterAvailability = $0
-						userSettings.defaultBrowserViewFilterAvailability = $0
-					})
-			) {
-				Label("All files and folders", systemImage: "folder").tag(BrowserViewFilterAvailability.all)
-				Label("Only files on this device", systemImage: "folder.fill").tag(BrowserViewFilterAvailability.localOnly)
-			}.pickerStyle(.inline)
+			if self.folderIsSelective {
+				Picker(
+					"Show",
+					selection: Binding(
+						get: { self.currentFilterAvailability },
+						set: {
+							self.filterAvailability = $0
+							userSettings.defaultBrowserViewFilterAvailability = $0
+						})
+				) {
+					Label("All files and folders", systemImage: "folder").tag(BrowserViewFilterAvailability.all)
+					Label("Only files on this device", systemImage: "folder.fill").tag(BrowserViewFilterAvailability.localOnly)
+				}.pickerStyle(.inline)
+			}
 
 			Divider()
 
