@@ -166,6 +166,10 @@ struct BrowserView: View {
 	}
 
 	private var currentFilterAvailability: BrowserViewFilterAvailability {
+		// Virtual filesystem entries cannot be checked for local presence.
+		if !self.folder.isNativeFilesystem() {
+			return .all
+		}
 		if !self.folderIsSelective {
 			return .localOnly
 		}
