@@ -622,7 +622,9 @@ func (clt *Client) Load(resetDeltaIdxs bool) error {
 	}
 
 	// Default retention interval taken from Syncthing's CLI default
-	dbDeleteRetentionInterval := time.Duration(4320) * time.Hour
+	// See here: https://github.com/syncthing/syncthing/blob/94c3c1cdef718d568686620cbff268eeaaf2c87d/cmd/syncthing/main.go#L158
+	// and here: https://github.com/syncthing/syncthing/commit/7a76685d7ef277d2a4aaccf9685d55323ad1d6de
+	dbDeleteRetentionInterval := time.Duration(10920) * time.Hour
 	// It really wants to set up a temporary API while migrating...
 	if err := syncthing.TryMigrateDatabase(clt.ctx, dbDeleteRetentionInterval); err != nil {
 		slog.Warn("failed to migrate legacy database", "cause", err)
