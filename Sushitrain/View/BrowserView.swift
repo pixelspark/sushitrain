@@ -879,71 +879,8 @@ struct BrowserView: View {
 		let folder = self.folder
 		let prefix = self.prefix
 		return try await Task.detached(priority: .utility) {
-			return try await Self.dropFiles(urls, folder: folder, prefix: prefix)
+			return try FileImport.copy(urls, folder: folder, prefix: prefix)
 		}.value
-	}
-
-	private static func dropFiles(_ urls: [URL], folder: SushitrainFolder, prefix: String) throws -> Int {
-		// Find out the native location of our folder
-		var error: NSError? = nil
-		let localNativePath = folder.localNativePath(&error)
-		if let error = error {
-			throw error
-		}
-
-		// If we are in a subdirectory, and the folder is selective, ensure the folder is materialized
-		if !prefix.isEmpty && folder.isSelective() == true {
-			let entry = try folder.getFileInformation(prefix.withoutEndingSlash)
-			if entry.isDirectory() && !entry.isDeleted() {
-				try entry.materializeSubdirectory()
-			}
-			else {
-				// Somehow not a directory...
-				return 0
-			}
-		}
-
-		let localNativeURL = URL(fileURLWithPath: localNativePath).appendingPathComponent(
-			prefix)
-		var pathsToSelect: [String] = []
-
-		if FileManager.default.fileExists(atPath: localNativeURL.path) {
-			var retainedError: Error? = nil
-			var numFilesAdded = 0
-			for url in urls {
-				do {
-					// Copy source to folder
-					let targetURL = localNativeURL.appendingPathComponent(
-						url.lastPathComponent, isDirectory: false)
-					try FileManager.default.copyItem(at: url, to: targetURL)
-					numFilesAdded += 1
-
-					// Select the dropped file
-					if folder.isSelective() == true {
-						let localURL = (prefix.withoutEndingSlash + "/" + url.lastPathComponent).withoutStartingSlash
-						pathsToSelect.append(localURL)
-					}
-				}
-				catch {
-					Log.warn("failed to copy a dropped file: \(error)")
-					retainedError = error
-				}
-			}
-
-			if folder.isSelective() == true {
-				try folder.setLocalPathsExplicitlySelected(SushitrainListOfStrings.from(pathsToSelect))
-			}
-
-			try folder.rescanSubdirectory(prefix)
-
-			if let re = retainedError {
-				throw re
-			}
-
-			return numFilesAdded
-		}
-
-		return 0
 	}
 
 	private func updateLocalURL() {

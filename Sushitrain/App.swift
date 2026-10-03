@@ -188,6 +188,7 @@ struct SushitrainApp: App {
 
 		WindowGroup(id: "main") { [appState] in
 			MainView()
+				.modifier(IncomingFilesModifier())
 				.environment(appState)
 				#if os(iOS)
 					.onReceive(memoryWarningPublisher) { _ in
@@ -196,6 +197,7 @@ struct SushitrainApp: App {
 				#endif
 
 				#if os(macOS)
+					.handlesExternalEvents(preferring: ["*"], allowing: ["*"])
 					.onContinueUserActivity(SushitrainApp.viewRouteActivityID) { ua in
 						Log.info("Receive view-route handoff at app level: \(String(describing: ua.userInfo))")
 					}
