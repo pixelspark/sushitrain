@@ -10,6 +10,7 @@ import UniformTypeIdentifiers
 struct MainView: View {
 	@Environment(AppState.self) private var appState
 	@State var topLevelRoute: Route? = .start
+	var initialColumnVisibility: NavigationSplitViewVisibility = .doubleColumn
 	@Environment(\.openURL) private var openURL
 
 	var body: some View {
@@ -30,7 +31,7 @@ struct MainView: View {
 				}
 			}
 		case .started:
-			ContentView(topLevelRoute: topLevelRoute)
+			ContentView(topLevelRoute: topLevelRoute, initialColumnVisibility: initialColumnVisibility)
 				.showsToast()  // Back-up
 				#if os(iOS)
 					.handleOpenURLInApp()
@@ -72,6 +73,11 @@ private struct ContentView: View {
 		var route: [Route] = []
 	}
 	@State private var foldersTabRouteManager = FoldersRouteManager()
+
+	init(topLevelRoute: Route?, initialColumnVisibility: NavigationSplitViewVisibility) {
+		self._topLevelRoute = State(initialValue: topLevelRoute)
+		self._columnVisibility = State(initialValue: initialColumnVisibility)
+	}
 
 	#if os(iOS)
 		@ViewBuilder private func foldersTab() -> some View {

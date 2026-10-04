@@ -172,13 +172,16 @@ struct SushitrainApp: App {
 		#if os(macOS)
 			WindowGroup(id: "folder", for: String.self) { [appState] folderID in
 				MainView(
-					topLevelRoute: folderID.wrappedValue == nil ? .start : .folder(folderID: folderID.wrappedValue!, prefix: nil)
+					topLevelRoute: folderID.wrappedValue == nil ? .start : .folder(folderID: folderID.wrappedValue!, prefix: nil),
+					initialColumnVisibility: folderID.wrappedValue == nil ? .doubleColumn : .detailOnly
 				).environment(appState)
 			}
 
 			WindowGroup(id: "bookmark", for: URL.self) { [appState] bookmarkURL in
-				MainView(topLevelRoute: bookmarkURL.wrappedValue.flatMap { Route(url: $0) } ?? .start)
-					.environment(appState)
+				MainView(
+					topLevelRoute: bookmarkURL.wrappedValue.flatMap { Route(url: $0) } ?? .start,
+					initialColumnVisibility: .detailOnly
+				).environment(appState)
 			}
 			.defaultLaunchBehavior(.suppressed)
 
