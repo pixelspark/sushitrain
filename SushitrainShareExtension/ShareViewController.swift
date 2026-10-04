@@ -79,7 +79,14 @@ final class ShareViewController: NSViewController {
 	}
 
 	nonisolated private static func copyToTemporaryDirectory(_ source: URL) throws -> URL {
-		let directory = FileManager.default.temporaryDirectory.appendingPathComponent("SynctrainShare-" + UUID().uuidString)
+		guard
+			let sharedCacheDirectory = FileManager.default.containerURL(
+				forSecurityApplicationGroupIdentifier: "group.nl.t-shaped.Sushitrain")?
+				.appendingPathComponent("Library/Caches", isDirectory: true)
+		else {
+			throw CocoaError(.fileNoSuchFile)
+		}
+		let directory = sharedCacheDirectory.appendingPathComponent("SynctrainShare-" + UUID().uuidString)
 		try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
 		let destination = directory.appendingPathComponent(source.lastPathComponent)
 		try FileImportCopy.copy(source, to: destination)

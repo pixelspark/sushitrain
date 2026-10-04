@@ -7,11 +7,11 @@ then lets the user choose a synchronized folder and an existing subdirectory.
 Cancel releases access without copying anything to that destination.
 
 On macOS, `SynctrainShare` provides the Share-menu entry. It copies each item
-provider representation to temporary storage before its callback returns, then
-opens those URLs with the containing app. The main app performs destination
-selection and importing. The extension is built and embedded only on macOS.
-Temporary representations are retained for the main app to read and are subject
-to the operating system's temporary-storage cleanup.
+provider representation to the shared App Group cache before its callback
+returns, then opens those URLs with the containing app. The main app performs
+destination selection and importing. The extension is built and embedded only
+on macOS. Temporary representations are retained for the main app to read and
+are subject to the operating system's cache cleanup.
 
 On iOS, this uses file-based Open In sharing, not a Share extension. Source apps
 must offer a file handoff; sharing arbitrary Photos selections, text, or web links

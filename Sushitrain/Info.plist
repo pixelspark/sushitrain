@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>nl.t-shaped.Sushitrain.continued-background-sync</string>
+		<string>nl.t-shaped.Sushitrain.background-sync</string>
+		<string>nl.t-shaped.Sushitrain.short-background-sync</string>
+	</array>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -17,12 +23,6 @@
 				<string>public.directory</string>
 			</array>
 		</dict>
-	</array>
-	<key>BGTaskSchedulerPermittedIdentifiers</key>
-	<array>
-		<string>nl.t-shaped.Sushitrain.continued-background-sync</string>
-		<string>nl.t-shaped.Sushitrain.background-sync</string>
-		<string>nl.t-shaped.Sushitrain.short-background-sync</string>
 	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
