@@ -5,10 +5,12 @@
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 import AppKit
 import UniformTypeIdentifiers
+import OSLog
 
 /// macOS sharing hands files to the main app, which owns the destination picker and sync engine.
 final class ShareViewController: NSViewController {
 	private var started = false
+	private static let logger = Logger(subsystem: "nl.t-shaped.Sushitrain.Share", category: "Share")
 
 	override func loadView() {
 		let label = NSTextField(labelWithString: String(localized: "Opening Synctrain…"))
@@ -23,10 +25,13 @@ final class ShareViewController: NSViewController {
 		guard !started else { return }
 		started = true
 		Task {
+			var phase = "Reading shared files"
 			do {
 				let items = extensionContext?.inputItems as? [NSExtensionItem] ?? []
 				let providers = items.flatMap { $0.attachments ?? [] }
 				var urls: [URL] = []
+				Self.logger.notice("Share request received with \(providers.count) attachments")
+				phase = "Preparing shared files"
 				for provider in providers {
 					urls.append(try await Self.stage(provider))
 				}
@@ -36,10 +41,18 @@ final class ShareViewController: NSViewController {
 					.deletingLastPathComponent().deletingLastPathComponent()
 				let configuration = NSWorkspace.OpenConfiguration()
 				configuration.activates = true
+				phase = "Opening Synctrain"
+				Self.logger.notice("Opening app with \(urls.count) staged files")
 				_ = try await NSWorkspace.shared.open(urls, withApplicationAt: appURL, configuration: configuration)
 				extensionContext?.completeRequest(returningItems: nil)
 			}
 			catch {
+				let detail = "\(phase): \(error.localizedDescription) (\((error as NSError).domain), \((error as NSError).code))"
+				Self.logger.error("Share failed: \(detail, privacy: .public)")
+				let alert = NSAlert()
+				alert.messageText = String(localized: "Cannot import files")
+				alert.informativeText = detail
+				alert.runModal()
 				extensionContext?.cancelRequest(withError: error)
 			}
 		}
@@ -80,8 +93,9 @@ final class ShareViewController: NSViewController {
 
 	nonisolated private static func copyToTemporaryDirectory(_ source: URL) throws -> URL {
 		guard
+			let appGroup = Bundle.main.object(forInfoDictionaryKey: "SynctrainAppGroup") as? String,
 			let sharedCacheDirectory = FileManager.default.containerURL(
-				forSecurityApplicationGroupIdentifier: "group.nl.t-shaped.Sushitrain")?
+				forSecurityApplicationGroupIdentifier: appGroup)?
 				.appendingPathComponent("Library/Caches", isDirectory: true)
 		else {
 			throw CocoaError(.fileNoSuchFile)

@@ -44,7 +44,22 @@ class QuickActionService: ObservableObject {
 	@MainActor
 	class AppDelegate: NSObject, NSApplicationDelegate {
 		weak var appState: AppState?
-		var openWindow: OpenWindowAction?
+		let incomingFiles = IncomingFiles()
+		var openWindow: OpenWindowAction? {
+			didSet { presentIncomingFiles() }
+		}
+
+		func application(_ application: NSApplication, open urls: [URL]) {
+			Log.info("Received \(urls.count) URLs for import")
+			for url in urls { incomingFiles.receive(url) }
+			presentIncomingFiles()
+		}
+
+		private func presentIncomingFiles() {
+			guard !incomingFiles.urls.isEmpty, let openWindow else { return }
+			openWindow(id: "import")
+			NSApplication.shared.activate()
+		}
 
 		func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
 			guard let routes = appState?.bookmarkedRoutesAsRoute, !routes.isEmpty else { return nil }

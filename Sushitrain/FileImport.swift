@@ -133,6 +133,39 @@ struct IncomingFilesModifier: ViewModifier {
 	}
 }
 
+#if os(macOS)
+	/// One import window receives all files, even with no browser window open.
+	struct IncomingFilesWindow: View {
+		@Environment(AppState.self) private var appState
+		@Environment(\.dismissWindow) private var dismissWindow
+		let incoming: IncomingFiles
+
+		var body: some View {
+			Group {
+				if appState.startupState == .started {
+					IncomingFilesView(incoming: incoming)
+				}
+				else {
+					ProgressView().frame(width: 440, height: 400)
+				}
+			}
+			.windowDismissBehavior(incoming.isSaving ? .disabled : .enabled)
+			.onChange(of: incoming.urls.isEmpty) { _, empty in
+				if empty && incoming.error == nil { dismissWindow(id: "import") }
+			}
+			.onChange(of: incoming.error) { _, error in
+				if error == nil && incoming.urls.isEmpty { dismissWindow(id: "import") }
+			}
+			.onDisappear {
+				if !incoming.isSaving {
+					incoming.remove(incoming.urls)
+					incoming.error = nil
+				}
+			}
+		}
+	}
+#endif
+
 private struct IncomingFilesView: View {
 	@Environment(AppState.self) private var appState
 	let incoming: IncomingFiles

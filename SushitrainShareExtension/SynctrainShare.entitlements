@@ -4,7 +4,7 @@
 <dict>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.nl.t-shaped.sushitrain.sync</string>
+		<string>$(SYNCTRAIN_APP_GROUP)</string>
 	</array>
 </dict>
 </plist>

@@ -690,6 +690,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = Sushitrain/Sushitrain.entitlements;
+				SYNCTRAIN_APP_GROUP = group.nl.t-shaped.sushitrain.sync;
+				"SYNCTRAIN_APP_GROUP[sdk=macosx*]" = "$(DEVELOPMENT_TEAM).nl.t-shaped.sushitrain.sync";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 85;
@@ -753,6 +755,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = Sushitrain/Sushitrain.entitlements;
+				SYNCTRAIN_APP_GROUP = group.nl.t-shaped.sushitrain.sync;
+				"SYNCTRAIN_APP_GROUP[sdk=macosx*]" = "$(DEVELOPMENT_TEAM).nl.t-shaped.sushitrain.sync";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 85;
@@ -844,6 +848,8 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = SushitrainShareExtension/SynctrainShare.entitlements;
+				SYNCTRAIN_APP_GROUP = group.nl.t-shaped.sushitrain.sync;
+				"SYNCTRAIN_APP_GROUP[sdk=macosx*]" = "$(DEVELOPMENT_TEAM).nl.t-shaped.sushitrain.sync";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 85;
 				DEAD_CODE_STRIPPING = YES;
@@ -882,6 +888,8 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = SushitrainShareExtension/SynctrainShare.entitlements;
+				SYNCTRAIN_APP_GROUP = group.nl.t-shaped.sushitrain.sync;
+				"SYNCTRAIN_APP_GROUP[sdk=macosx*]" = "$(DEVELOPMENT_TEAM).nl.t-shaped.sushitrain.sync";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 85;
 				DEAD_CODE_STRIPPING = YES;

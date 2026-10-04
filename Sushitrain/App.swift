@@ -202,7 +202,9 @@ struct SushitrainApp: App {
 
 		WindowGroup(id: "main") { [appState] in
 			MainView()
-				.modifier(IncomingFilesModifier())
+				#if os(iOS)
+					.modifier(IncomingFilesModifier())
+				#endif
 				.environment(appState)
 				#if os(iOS)
 					.onReceive(memoryWarningPublisher) { _ in
@@ -241,6 +243,14 @@ struct SushitrainApp: App {
 		#endif
 
 		#if os(macOS)
+			Window("Import files", id: "import") {
+				IncomingFilesWindow(incoming: appDelegate.incomingFiles)
+					.environment(appState)
+			}
+			.defaultLaunchBehavior(.suppressed)
+			.restorationBehavior(.disabled)
+			.windowResizability(.contentSize)
+
 			// About window
 			Window("About Synctrain", id: "about") {
 				AboutView().environment(appState)
