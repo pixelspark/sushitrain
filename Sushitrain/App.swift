@@ -28,6 +28,7 @@ struct SushitrainApp: App {
 	#endif
 
 	#if os(macOS)
+		@NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 		@Environment(\.openWindow) private var openWindow
 		@AppStorage("hideInDock") var hideInDock: Bool = false
 	#endif
@@ -78,6 +79,9 @@ struct SushitrainApp: App {
 		let appState = AppState(client: client, documentsDirectory: documentsDirectory, configDirectory: configDirectory)
 		self.appState = appState
 		self.userSettings = appState.userSettings
+		#if os(macOS)
+			self.appDelegate.appState = appState
+		#endif
 
 		AppDependencyManager.shared.add(dependency: appState)
 		appState.isLoggingToFile = enableLoggingToFile
@@ -171,6 +175,12 @@ struct SushitrainApp: App {
 				).environment(appState)
 			}
 
+			WindowGroup(id: "bookmark", for: URL.self) { [appState] bookmarkURL in
+				MainView(topLevelRoute: bookmarkURL.wrappedValue.flatMap { Route(url: $0) } ?? .start)
+					.environment(appState)
+			}
+			.defaultLaunchBehavior(.suppressed)
+
 			WindowGroup(id: "preview", for: Preview.self) { [appState] preview in
 				if appState.startupState == .started {
 					if let p = preview.wrappedValue {
@@ -208,6 +218,12 @@ struct SushitrainApp: App {
 		}
 		#if os(macOS)
 			.handlesExternalEvents(matching: ["*"])
+			.onChange(of: appDelegate.selectedBookmark) { _, url in
+				guard let url else { return }
+				appDelegate.selectedBookmark = nil
+				openWindow(id: "bookmark", value: url)
+				NSApplication.shared.activate()
+			}
 
 			.onChange(of: hideInDock, initial: true) { _ov, nv in
 				NSApp.setActivationPolicy(nv ? .accessory : .regular)

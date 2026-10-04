@@ -5,6 +5,8 @@
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 #if os(iOS)
 	import UIKit
+#elseif os(macOS)
+	import AppKit
 #endif
 
 import SwiftUI
@@ -38,7 +40,31 @@ class QuickActionService: ObservableObject {
 	#endif
 }
 
-#if os(iOS)
+#if os(macOS)
+	@MainActor
+	class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
+		weak var appState: AppState?
+		@Published var selectedBookmark: URL?
+
+		func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
+			guard let routes = appState?.bookmarkedRoutesAsRoute, !routes.isEmpty else { return nil }
+			let menu = NSMenu()
+			for route in routes {
+				let item = NSMenuItem(title: route.localizedTitle, action: #selector(selectBookmark(_:)), keyEquivalent: "")
+				item.target = self
+				item.representedObject = route.url
+				item.toolTip = route.localizedSubtitle
+				item.image = NSImage(systemSymbolName: "bookmark", accessibilityDescription: nil)
+				menu.addItem(item)
+			}
+			return menu
+		}
+
+		@objc private func selectBookmark(_ sender: NSMenuItem) {
+			selectedBookmark = sender.representedObject as? URL
+		}
+	}
+#elseif os(iOS)
 	// Glue code for quick actions
 	class AppDelegate: NSObject, UIApplicationDelegate {
 		private let qaService = QuickActionService.shared
