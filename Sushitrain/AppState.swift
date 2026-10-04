@@ -782,7 +782,6 @@ struct SyncState {
 			if NSApplication.shared.dockTile.badgeLabel != newBadge {
 				Log.info("Set dock tile badgeLabel \(numTotal)")
 			}
-			NSApplication.shared.dockTile.showsApplicationBadge = numTotal > 0
 			NSApplication.shared.dockTile.badgeLabel = newBadge
 			NSApplication.shared.dockTile.display()
 		#endif
