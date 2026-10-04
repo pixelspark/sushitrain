@@ -29,6 +29,7 @@ struct SushitrainApp: App {
 
 	#if os(macOS)
 		@NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+		@Environment(\.scenePhase) private var scenePhase
 		@Environment(\.openWindow) private var openWindow
 		@AppStorage("hideInDock") var hideInDock: Bool = false
 	#endif
@@ -218,11 +219,12 @@ struct SushitrainApp: App {
 		}
 		#if os(macOS)
 			.handlesExternalEvents(matching: ["*"])
-			.onChange(of: appDelegate.selectedBookmark) { _, url in
-				guard let url else { return }
-				appDelegate.selectedBookmark = nil
-				openWindow(id: "bookmark", value: url)
-				NSApplication.shared.activate()
+
+			.onChange(of: scenePhase, initial: true) { _, _ in
+				// Retain the scene's action once, so Dock clicks also work after all windows close.
+				if appDelegate.openWindow == nil {
+					appDelegate.openWindow = openWindow
+				}
 			}
 
 			.onChange(of: hideInDock, initial: true) { _ov, nv in

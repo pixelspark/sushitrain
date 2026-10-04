@@ -42,9 +42,9 @@ class QuickActionService: ObservableObject {
 
 #if os(macOS)
 	@MainActor
-	class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
+	class AppDelegate: NSObject, NSApplicationDelegate {
 		weak var appState: AppState?
-		@Published var selectedBookmark: URL?
+		var openWindow: OpenWindowAction?
 
 		func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
 			guard let routes = appState?.bookmarkedRoutesAsRoute, !routes.isEmpty else { return nil }
@@ -61,7 +61,9 @@ class QuickActionService: ObservableObject {
 		}
 
 		@objc private func selectBookmark(_ sender: NSMenuItem) {
-			selectedBookmark = sender.representedObject as? URL
+			guard let url = sender.representedObject as? URL else { return }
+			openWindow?(id: "bookmark", value: url)
+			NSApplication.shared.activate()
 		}
 	}
 #elseif os(iOS)
