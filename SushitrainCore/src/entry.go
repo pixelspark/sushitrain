@@ -223,7 +223,8 @@ func (entry *Entry) IsLocallyPresent() bool {
 
 	ffs := fc.Filesystem()
 	nativeFilename := osutil.NativeFilename(entry.info.FileName())
-	_, err := ffs.Stat(nativeFilename)
+	// Check the entry itself: a symlink is present even when its target is unavailable.
+	_, err := ffs.Lstat(nativeFilename)
 	return err == nil
 }
 
