@@ -44,7 +44,7 @@ enum BrowserViewSortAttribute: String, Codable {
 	case dateModified = "dateModified"
 }
 
-struct BrowserViewSort: Codable, Equatable {
+struct BrowserViewSort: Codable, Hashable {
 	var attribute: BrowserViewSortAttribute = .name
 	var ascending: Bool = true
 
@@ -130,7 +130,7 @@ struct BrowserView: View {
 	@State private var canShowInFinder = false
 	@State private var localNativeURL: URL? = nil
 	@State private var folderExists = false
-	@State private var folderIsSelective = false
+	private var folderIsSelective: Bool? { folder.isSelective() }
 	@State private var showSearch = false
 	@State private var showAddFilePicker = false
 	@State private var webViewAvailable = false
@@ -170,7 +170,7 @@ struct BrowserView: View {
 		if !self.folder.isNativeFilesystem() {
 			return .all
 		}
-		if !self.folderIsSelective {
+		if self.folderIsSelective == false {
 			return .localOnly
 		}
 		return self.filterAvailability ?? appState.userSettings.defaultBrowserViewFilterAvailability
@@ -439,7 +439,7 @@ struct BrowserView: View {
 
 	@ViewBuilder private func filterMenu() -> some View {
 		Menu {
-			if self.folderIsSelective {
+			if self.folderIsSelective == true {
 				Picker(
 					"Show",
 					selection: Binding(
@@ -553,7 +553,6 @@ struct BrowserView: View {
 	private func update() {
 		self.folderExists = folder.exists()
 		self.updateLocalURL()
-		self.folderIsSelective = folderExists && folder.isSelective() == true
 
 		// Determine whether this view is bookmarked
 		let route = self.route
@@ -700,7 +699,7 @@ struct BrowserView: View {
 
 				Divider()
 
-				if folderIsSelective && folder.isRegularFolder {
+				if folderIsSelective == true && folder.isRegularFolder {
 					NavigationLink(destination: SelectiveFolderView(folder: folder, prefix: "")) {
 						Label("Files kept on this device...", systemImage: "pin")
 					}
@@ -915,6 +914,26 @@ struct BrowserView: View {
 }
 
 private struct BrowserItemsView: View {
+	private struct ReloadIdentity: Hashable {
+		let folderID: String
+		let prefix: String
+		let state: Int
+		let filter: BrowserViewFilterAvailability
+		let sort: BrowserViewSort
+		let recursive: Bool
+		let hideDotFiles: Bool
+	}
+
+	private var reloadIdentity: ReloadIdentity {
+		ReloadIdentity(
+			folderID: folder.folderID, prefix: prefix, state: folder.folderStateForUpdating,
+			filter: filterAvailability, sort: sortOrder, recursive: recursive,
+			hideDotFiles: appState.userSettings.dotFilesHidden)
+	}
+
+	@State private var reloadGeneration = UUID()
+	@State private var loadError: String?
+
 	@Environment(AppState.self) private var appState
 	let folder: SushitrainFolder
 	let prefix: String
@@ -1006,32 +1025,12 @@ private struct BrowserItemsView: View {
 				}
 			}.disabled(!folderExists)
 		}
-		.task(id: self.folder.folderStateForUpdating) {
+		.task(id: reloadIdentity) {
 			await self.reload()
-		}
-		.onChange(of: appState.userSettings.dotFilesHidden) {
-			Task {
-				await self.reload()
-			}
-		}
-		.onChange(of: self.filterAvailability) {
-			Task {
-				await self.reload()
-			}
-		}
-		.onChange(of: self.sortOrder) {
-			Task {
-				await self.reload()
-			}
 		}
 		.onChange(of: appState.eventCounter) {
 			Task {
 				await self.updateExtraneousFiles()
-			}
-		}
-		.onChange(of: recursive) {
-			Task {
-				await self.reload()
 			}
 		}
 	}
@@ -1167,6 +1166,17 @@ private struct BrowserItemsView: View {
 			}
 			// Load the rest while already showing a part of the results
 		}
+		else if let loadError {
+			ContentUnavailableView {
+				Label("Unable to load files", systemImage: "exclamationmark.triangle")
+			} description: {
+				Text(loadError)
+			} actions: {
+				Button("Retry") {
+					Task { await self.reload() }
+				}
+			}
+		}
 		else if !folderExists {
 			ContentUnavailableView(
 				"Folder removed", systemImage: "trash",
@@ -1240,108 +1250,79 @@ private struct BrowserItemsView: View {
 		await self.reload()
 	}
 
-	private func reload() async {
-		Log.info("Reload \(self.prefix)")
+	@MainActor private func reload() async {
+		guard !Task.isCancelled else { return }
+		let generation = UUID()
+		self.reloadGeneration = generation
+		let request = self.reloadIdentity
+		let folder = self.folder
 		self.isLoading = true
 		self.showSpinner = false
+		self.loadError = nil
 		let loadingSpinnerTask = Task {
 			try await Task.sleep(nanoseconds: 300_000_000)
-			if !Task.isCancelled && self.isLoading {
+			if !Task.isCancelled && self.reloadGeneration == generation && self.isLoading {
 				self.showSpinner = true
 			}
 		}
+		defer { loadingSpinnerTask.cancel() }
 
-		let folder = self.folder
-		let prefix = self.prefix
-		let dotFilesHidden = self.appState.userSettings.dotFilesHidden
-
-		let folderExists = folder.exists()
-
-		var newSubdirectories: [SushitrainEntry] = await Task.detached {
-			dispatchPrecondition(condition: .notOnQueue(.main))
-			if !folder.exists() {
-				return []
-			}
-			do {
-				var dirNames = try folder.list(prefix, directories: true, recurse: false).asArray()
-					.sorted(by: { $0.compare($1, options: .numeric) == .orderedAscending })
-				if dotFilesHidden {
-					dirNames = dirNames.filter({ !$0.starts(with: ".") })
+		do {
+			let (exists, paused, newSubdirectories, newFiles) = try await Task.detached {
+				dispatchPrecondition(condition: .notOnQueue(.main))
+				guard folder.exists() else {
+					return (false, false, [SushitrainEntry](), [SushitrainEntry]())
 				}
-				return dirNames.flatMap({ dirName in
-					do {
-						return [try folder.getFileInformation(prefix + dirName)]
-					}
-					catch let error {
-						Log.warn("Error listing: \(error.localizedDescription)")
-					}
-					return []
-				})
-			}
-			catch let error {
-				Log.warn("Error listing: \(error.localizedDescription)")
-			}
-			return []
-		}.value
+				var dirNames = try folder.list(request.prefix, directories: true, recurse: false).asArray()
+					.sorted(by: { $0.compare($1, options: .numeric) == .orderedAscending })
+				if request.hideDotFiles {
+					dirNames = dirNames.filter { !$0.starts(with: ".") }
+				}
+				// Individual entries can disappear while the directory is being listed.
+				var directories = dirNames.compactMap { try? folder.getFileInformation(request.prefix + $0) }
+				var files = try folder.listEntries(
+					prefix: request.prefix, directories: false, hideDotFiles: request.hideDotFiles,
+					recursive: request.recursive)
+				files.sort(by: request.sort.isOrderedBefore)
+				if request.filter == .localOnly {
+					files = files.filter { $0.isLocallyPresent() }
+					directories = directories.filter { $0.isLocallyPresent() }
+				}
+				return (true, folder.isPaused(), directories, files)
+			}.value
 
-		let sortSpec = self.sortOrder
-
-		var newFiles: [SushitrainEntry] = await Task.detached {
-			dispatchPrecondition(condition: .notOnQueue(.main))
-			if !folder.exists() {
-				return []
-			}
-			do {
-				var entries = try folder.listEntries(
-					prefix: self.prefix, directories: false, hideDotFiles: dotFilesHidden, recursive: self.recursive)
-				entries.sort(by: sortSpec.isOrderedBefore)
-				return entries
-			}
-			catch let error {
-				Log.warn("Error listing: \(error.localizedDescription)")
-			}
-			return []
-		}.value
-
-		// Apply filters
-		switch self.filterAvailability {
-		case .all:
-			break
-		case .localOnly:
-			newFiles = newFiles.filter { $0.isLocallyPresent() }
-			newSubdirectories = newSubdirectories.filter { $0.isLocallyPresent() }
-		}
-
-		self.isLoading = false
-		loadingSpinnerTask.cancel()
-		let folderIsPaused = folder.isPaused()
-
-		// Just update without animation when we are empty or not a grid
-		if (self.files.isEmpty && self.subdirectories.isEmpty) || self.viewStyle != .grid {
-			self.folderExists = folderExists
-			self.files = newFiles
-			self.subdirectories = newSubdirectories
-			self.folderIsPaused = folderIsPaused
-			self.autoSelectViewStyle()
-		}
-		else {
-			withAnimation {
-				self.folderExists = folderExists
+			// Detached work can finish after cancellation or after a newer refresh.
+			guard !Task.isCancelled, self.reloadGeneration == generation else { return }
+			self.isLoading = false
+			self.folderExists = exists
+			self.folderIsPaused = paused
+			if self.isEmpty || self.viewStyle != .grid {
 				self.files = newFiles
 				self.subdirectories = newSubdirectories
-				self.folderIsPaused = folderIsPaused
 				self.autoSelectViewStyle()
 			}
+			else {
+				withAnimation {
+					self.files = newFiles
+					self.subdirectories = newSubdirectories
+					self.autoSelectViewStyle()
+				}
+			}
+			await self.updateExtraneousFiles()
 		}
-
-		await self.updateExtraneousFiles()
+		catch {
+			guard !Task.isCancelled, self.reloadGeneration == generation else { return }
+			Log.warn("Error listing: \(error.localizedDescription)")
+			self.isLoading = false
+			self.loadError = error.localizedDescription
+		}
 	}
 
 	private func autoSelectViewStyle() {
 		// These files are ignored when deciding whether to switch to a grid view or not
 		let extensionsIgnored = Set([".aae", ".ds_store", ".db", ".gitignore", ".stignore", ".ini"])
 
-		if self.viewStyle == nil {
+		if self.viewStyle == nil && !self.files.isEmpty {
 			// Do we have an index.html? If so switch to web view
 			if appState.userSettings.automaticallyShowWebpages && !recursive
 				&& self.files.contains(where: { $0.fileName() == "index.html" })
