@@ -6,6 +6,7 @@
 import SwiftUI
 import QuickLook
 import UniformTypeIdentifiers
+import PhotosUI
 @preconcurrency import SushitrainCore
 
 #if os(macOS)
@@ -133,6 +134,9 @@ struct BrowserView: View {
 	private var folderIsSelective: Bool? { folder.isSelective() }
 	@State private var showSearch = false
 	@State private var showAddFilePicker = false
+	@State private var showPhotoPicker = false
+	@State private var selectedMedia: [PhotosPickerItem] = []
+	@State private var isImportingMedia = false
 	@State private var webViewAvailable = false
 	@State private var viewStyle: BrowserViewStyle? = nil
 	@State private var filterAvailability: BrowserViewFilterAvailability? = nil
@@ -308,6 +312,22 @@ struct BrowserView: View {
 			allowsMultipleSelection: true,
 			onCompletion: self.addFilesFromImporter
 		)
+		.photosPicker(
+			isPresented: $showPhotoPicker, selection: $selectedMedia,
+			matching: .any(of: [.images, .videos]), preferredItemEncoding: .current
+		)
+		.onChange(of: selectedMedia) { _, items in
+			guard !items.isEmpty else { return }
+			selectedMedia = []
+			importMedia(items)
+		}
+		.overlay {
+			if isImportingMedia {
+				ProgressView("Importing media…")
+					.padding()
+					.background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+			}
+		}
 
 		#if os(macOS)
 			.contextMenu {
@@ -550,6 +570,37 @@ struct BrowserView: View {
 		}
 	}
 
+	private func importMedia(_ items: [PhotosPickerItem]) {
+		let folder = self.folder
+		let prefix = self.prefix
+		isImportingMedia = true
+		Task {
+			defer { isImportingMedia = false }
+			var count = 0
+			var errors: [String] = []
+			for item in items {
+				do {
+					guard let media = try await item.loadTransferable(type: ImportedMedia.self) else {
+						throw CocoaError(.fileReadCorruptFile)
+					}
+					defer { try? FileManager.default.removeItem(at: media.directory) }
+					count += try await Task.detached(priority: .utility) {
+						try FileImport.copy([media.url], folder: folder, prefix: prefix)
+					}.value
+				}
+				catch let failure as FileImport.Failure {
+					count += failure.copiedURLs.count
+					errors.append(failure.localizedDescription)
+				}
+				catch { errors.append(error.localizedDescription) }
+			}
+			if count > 0 {
+				showToast(Toast(title: "\(count) files added", image: "document.badge.plus.fill"))
+			}
+			if !errors.isEmpty { showAlert = .error(errors.joined(separator: "\n")) }
+		}
+	}
+
 	private func update() {
 		self.folderExists = folder.exists()
 		self.updateLocalURL()
@@ -581,6 +632,11 @@ struct BrowserView: View {
 	}
 
 	@ViewBuilder private func addMenuContents() -> some View {
+		Button("Add from photo library...", systemImage: "photo.on.rectangle") {
+			showPhotoPicker = true
+		}.disabled(
+			isImportingMedia || !folderExists || !self.folder.isRegularFolder || self.folder.isReceiveOnlyFolder)
+
 		Button("Add files...", systemImage: "plus") {
 			showAddFilePicker = true
 		}.disabled(
@@ -908,6 +964,28 @@ struct BrowserView: View {
 		if let entry = try? self.folder.getFileInformation(self.prefix.withoutEndingSlash) {
 			if entry.isDirectory() && !entry.isLocallyPresent() && entry.canShowInFinder {
 				self.canShowInFinder = true
+			}
+		}
+	}
+}
+
+/// Stage the picker-owned file before its transfer callback returns, without loading videos into memory.
+private struct ImportedMedia: Transferable {
+	let url: URL
+	var directory: URL { url.deletingLastPathComponent() }
+
+	static var transferRepresentation: some TransferRepresentation {
+		FileRepresentation(importedContentType: .data) { received in
+			let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+			try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+			do {
+				let url = directory.appendingPathComponent(received.file.lastPathComponent)
+				try FileManager.default.copyItem(at: received.file, to: url)
+				return ImportedMedia(url: url)
+			}
+			catch {
+				try? FileManager.default.removeItem(at: directory)
+				throw error
 			}
 		}
 	}
