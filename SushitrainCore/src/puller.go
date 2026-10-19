@@ -34,6 +34,9 @@ func ClearBlockCache() {
 
 // Download a range. Will retry until cancelled, and fail if there is no way a peer will come online to provide us the range
 func (mp *miniPuller) downloadRange(ctx context.Context, m *syncthing.Internals, folderID string, file protocol.FileInfo, dest []byte, offset int64) (n int64, e error) {
+	if len(dest) == 0 {
+		return 0, nil
+	}
 	blockSize := int64(file.BlockSize())
 	startBlock := offset / int64(blockSize)
 	blockCount := min(ceilDiv(int64(len(dest)), blockSize), int64(len(file.Blocks)))
@@ -81,7 +84,7 @@ func (mp *miniPuller) downloadRange(ctx context.Context, m *syncthing.Internals,
 	return written, nil
 }
 
-const minBytesPerSecond int = 1000 * 500 // Expect at least 62,5 KiB/s, or 500 kbit/s
+const minBytesPerSecond int = 500 * 1000 / 8 // Expect at least 62.5 kB/s, or 500 kbit/s
 
 func (mp *miniPuller) timeoutFor(block *protocol.BlockInfo) time.Duration {
 	// At least one second, but otherwise at most the duration at the minimum expected rate
@@ -165,9 +168,9 @@ func (mp *miniPuller) downloadBlock(ctx context.Context, folderID string, blockI
 				}
 
 				downloadBlockCtx, cancelDownloadBlock := context.WithTimeout(ctx, mp.timeoutFor(&block))
-				defer cancelDownloadBlock()
 				slog.Debug("downloadBlock fetch good", "blockIndex", blockIndex, "from", available.ID)
 				buf, err := mp.internals.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
+				cancelDownloadBlock()
 				// Remember our experience with this peer for next time (if the whole operation wasn't cancelled, which
 				// would cause this call to be cancelled as well and fail with err == context.Canceled)
 				if ctx.Err() == nil {
@@ -197,9 +200,9 @@ func (mp *miniPuller) downloadBlock(ctx context.Context, folderID string, blockI
 				}
 
 				downloadBlockCtx, cancelDownloadBlock := context.WithTimeout(ctx, mp.timeoutFor(&block))
-				defer cancelDownloadBlock()
 				slog.Debug("downloadBlock fetch new", "blockIndex", blockIndex, "from", available.ID)
 				buf, err := mp.internals.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
+				cancelDownloadBlock()
 
 				// Remember our experience with this peer for next time (if the whole operation wasn't cancelled, which
 				// would cause this call to be cancelled as well and fail with err == context.Canceled)
@@ -230,9 +233,9 @@ func (mp *miniPuller) downloadBlock(ctx context.Context, folderID string, blockI
 				}
 
 				downloadBlockCtx, cancelDownloadBlock := context.WithTimeout(ctx, mp.timeoutFor(&block))
-				defer cancelDownloadBlock()
 				slog.Debug("downloadBlock fetch bad", "blockIndex", blockIndex, "from", available.ID)
 				buf, err := mp.internals.DownloadBlock(downloadBlockCtx, available.ID, folderID, file.Name, int(blockIndex), block, available.FromTemporary)
+				cancelDownloadBlock()
 
 				// Remember our experience with this peer for next time (if the whole operation wasn't cancelled, which
 				// would cause this call to be cancelled as well and fail with err == context.Canceled)
@@ -251,7 +254,11 @@ func (mp *miniPuller) downloadBlock(ctx context.Context, folderID string, blockI
 
 		retryTime := time.Duration(700) * time.Millisecond
 		slog.Debug("waiting for retry", "retryTime", retryTime)
-		time.Sleep(retryTime)
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-time.After(retryTime):
+		}
 	}
 }
 
