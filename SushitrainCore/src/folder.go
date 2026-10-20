@@ -799,6 +799,10 @@ func (fld *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 		return nil, err
 	}
 
+	return fld.client.extraneousFiles(cfg.Filesystem(), ignores, cfg.MarkerName, stopAtOne)
+}
+
+func (clt *Client) extraneousFiles(ffs fs.Filesystem, ignores *ignore.Matcher, markerName string, stopAtOne bool) (*ListOfStrings, error) {
 	selection := newSelection(ignores.Lines())
 
 	// Can't have extraneous files when you are not a selective ignore folder
@@ -814,11 +818,19 @@ func (fld *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 	}
 
 	extraFiles := make([]string, 0)
-	ffs := fld.folderConfiguration().Filesystem()
 	foundOneError := errors.New("found one")
 	err = ffs.Walk("", func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			slog.Error("walking", "path", path, "error", err)
+			return nil
+		}
+
+		// Never report Syncthing's private files, or descend into private directories.
+		isMarker := markerName != "" && (path == markerName || strings.HasPrefix(path, markerName+string(filepath.Separator)))
+		if fs.IsInternal(path) || fs.IsTemporary(path) || isMarker {
+			if info.IsDir() {
+				return fs.SkipDir
+			}
 			return nil
 		}
 
@@ -827,21 +839,8 @@ func (fld *Folder) extraneousFiles(stopAtOne bool) (*ListOfStrings, error) {
 			return nil
 		}
 
-		// Ignore Syncthing internal and temporary files at all times
-		if strings.HasPrefix(filepath.Base(path), fs.UnixTempPrefix) {
-			return nil
-		}
-
-		// Ignore the folder marker
-		if strings.HasPrefix(path, cfg.MarkerName) {
-			return nil
-		}
-		if path == ignoreFileName {
-			return nil
-		}
-
 		// Ignore whatever is on the 'extraneous ignore' list (used to ignore .DS_Store and similar)
-		if fld.client.isExtraneousIgnored(filepath.Base(path)) {
+		if clt.isExtraneousIgnored(filepath.Base(path)) {
 			return nil
 		}
 
