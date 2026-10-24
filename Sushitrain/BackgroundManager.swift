@@ -6,6 +6,7 @@
 import SwiftUI
 @preconcurrency import SushitrainCore
 import BackgroundTasks
+import Combine
 
 struct BackgroundSyncRun: Codable, Equatable {
 	var started: Date
@@ -50,8 +51,19 @@ enum ContinuedTaskType {
 
 #if os(iOS)
 	@MainActor class BackgroundManager: ObservableObject {
-		enum Errors: Error {
+		enum Errors: LocalizedError {
 			case alreadyRunning
+			case backgroundUnavailable
+
+			var errorDescription: String? {
+				switch self {
+				case .alreadyRunning: String(localized: "Background synchronization is already running.")
+				case .backgroundUnavailable:
+					String(
+						localized: "Background processing is unavailable. Check Background App Refresh for Synctrain in the Settings app."
+					)
+				}
+			}
 		}
 
 		private static let watchdogNotificationID = "nl.t-shaped.sushitrain.watchdog-notification"
@@ -66,6 +78,38 @@ enum ContinuedTaskType {
 		fileprivate unowned var appState: AppState
 		@Published private(set) var runningContinuedTask: ContinuedTaskType? = nil
 		@Published private(set) var stopRunningContinuedTask = false
+		@Published private(set) var backgroundRefreshStatus = UIApplication.shared.backgroundRefreshStatus
+		private var availabilityObservers = Set<AnyCancellable>()
+
+		var canScheduleBackgroundTasks: Bool { backgroundRefreshStatus == .available }
+
+		var backgroundUnavailableMessage: String {
+			if backgroundRefreshStatus == .restricted {
+				return String(
+					localized:
+						"Background processing is restricted by the system. Check device restrictions in Settings; you may need help from your device administrator."
+				)
+			}
+			if ProcessInfo.processInfo.isLowPowerModeEnabled {
+				return String(
+					localized:
+						"Background processing is unavailable while Low Power Mode is enabled. Turn it off in Settings > Battery, then check Background App Refresh for Synctrain."
+				)
+			}
+			return String(
+				localized:
+					"Enable Background App Refresh for Synctrain in the Settings app first. If it is disabled globally, enable it under Settings > General > Background App Refresh."
+			)
+		}
+
+		private func refreshBackgroundAvailability() {
+			let wasAvailable = canScheduleBackgroundTasks
+			backgroundRefreshStatus = UIApplication.shared.backgroundRefreshStatus
+			if wasAvailable != canScheduleBackgroundTasks {
+				_ = scheduleBackgroundSync()
+				Task { await rescheduleWatchdogNotification() }
+			}
+		}
 
 		// Using this to store background information instead of AppStorage because it comes with observers that seem to
 		// trigger SwiftUI hangs when the app comes back to the foreground.
@@ -99,6 +143,16 @@ enum ContinuedTaskType {
 
 		required init(appState: AppState) {
 			self.appState = appState
+			for name in [
+				UIApplication.backgroundRefreshStatusDidChangeNotification,
+				UIApplication.didBecomeActiveNotification, Notification.Name.NSProcessInfoPowerStateDidChange,
+			] {
+				NotificationCenter.default.publisher(for: name)
+					.sink { [weak self] _ in
+						Task { @MainActor [weak self] in self?.refreshBackgroundAvailability() }
+					}
+					.store(in: &availabilityObservers)
+			}
 
 			// Schedule background synchronization task
 			// Must start on a specified queue (here we simply use main) to prevent a crash in dispatch_assert_queue
@@ -125,6 +179,8 @@ enum ContinuedTaskType {
 		}
 
 		@available(iOS 26, *) func startContinuedSync(_ type: ContinuedTaskType) throws {
+			refreshBackgroundAvailability()
+			guard canScheduleBackgroundTasks else { throw Errors.backgroundUnavailable }
 			if self.runningContinuedTask != nil || self.currentBackgroundTask != nil {
 				Log.warn("We're already running a continued task")
 				throw Errors.alreadyRunning
@@ -509,6 +565,12 @@ enum ContinuedTaskType {
 		}
 
 		func scheduleBackgroundSync() -> Bool {
+			backgroundRefreshStatus = UIApplication.shared.backgroundRefreshStatus
+			guard canScheduleBackgroundTasks else {
+				BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: BackgroundTaskType.long.identifier)
+				BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: BackgroundTaskType.short.identifier)
+				return false
+			}
 			var success = true
 
 			if appState.userSettings.longBackgroundSyncEnabled {
@@ -564,7 +626,7 @@ enum ContinuedTaskType {
 				interval = 60.0 * 60.0  // one hour minimum
 			}
 
-			if appState.userSettings.watchdogNotificationEnabled {
+			if appState.userSettings.watchdogNotificationEnabled && canScheduleBackgroundTasks {
 				let settings = await notificationCenter.notificationSettings()
 
 				let status = settings.authorizationStatus

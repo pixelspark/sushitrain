@@ -524,21 +524,26 @@ struct StartView: View {
 	#if os(iOS)
 		@ViewBuilder @available(iOS 26, *) private func continueInBackgroundMenu(untilFinished: Bool) -> some View {
 			Section(untilFinished ? "Wait for completion" : "Synchronize in the background") {
+				if !backgroundManager.canScheduleBackgroundTasks,
+					let url = URL(string: UIApplication.openSettingsURLString)
+				{
+					Link("Enable background processing in Settings", destination: url)
+				}
 				Button("For 10 seconds", systemImage: "play.circle") {
 					self.startBackgroundSyncFor(untilFinished ? .timeOrFinished(seconds: 10) : .time(seconds: 10))
-				}.disabled(backgroundManager.runningContinuedTask != nil)
+				}.disabled(backgroundManager.runningContinuedTask != nil || !backgroundManager.canScheduleBackgroundTasks)
 
 				Button("For 1 minute", systemImage: "play.circle") {
 					self.startBackgroundSyncFor(untilFinished ? .timeOrFinished(seconds: 60) : .time(seconds: 60))
-				}.disabled(backgroundManager.runningContinuedTask != nil)
+				}.disabled(backgroundManager.runningContinuedTask != nil || !backgroundManager.canScheduleBackgroundTasks)
 
 				Button("For 10 minutes", systemImage: "play.circle") {
 					self.startBackgroundSyncFor(untilFinished ? .timeOrFinished(seconds: 10 * 60) : .time(seconds: 10 * 60))
-				}.disabled(backgroundManager.runningContinuedTask != nil)
+				}.disabled(backgroundManager.runningContinuedTask != nil || !backgroundManager.canScheduleBackgroundTasks)
 
 				Button("For 1 hour", systemImage: "play.circle") {
 					self.startBackgroundSyncFor(untilFinished ? .timeOrFinished(seconds: 3600) : .time(seconds: 3600))
-				}.disabled(backgroundManager.runningContinuedTask != nil)
+				}.disabled(backgroundManager.runningContinuedTask != nil || !backgroundManager.canScheduleBackgroundTasks)
 
 				if untilFinished {
 					Divider()

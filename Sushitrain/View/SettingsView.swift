@@ -514,6 +514,22 @@ struct AdvancedSettingsView: View {
 }
 
 #if os(iOS)
+	struct BackgroundSchedulingControls<Content: View>: View {
+		@ObservedObject var backgroundManager: BackgroundManager
+		@Environment(\.openURL) private var openURL
+		@ViewBuilder var content: () -> Content
+
+		var body: some View {
+			content().disabled(!backgroundManager.canScheduleBackgroundTasks)
+			if !backgroundManager.canScheduleBackgroundTasks {
+				Text(backgroundManager.backgroundUnavailableMessage).font(.footnote).foregroundStyle(.secondary)
+				Button("Open Settings", systemImage: "gear") {
+					if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
+				}
+			}
+		}
+	}
+
 	struct BackgroundSettingsView: View {
 		@Environment(AppState.self) private var appState
 		@ObservedObject var backgroundManager: BackgroundManager
@@ -535,8 +551,10 @@ struct AdvancedSettingsView: View {
 		var body: some View {
 			Form {
 				Section {
-					Toggle("While charging (long)", isOn: userSettings.$longBackgroundSyncEnabled)
-					Toggle("While on battery (short)", isOn: userSettings.$shortBackgroundSyncEnabled)
+					BackgroundSchedulingControls(backgroundManager: backgroundManager) {
+						Toggle("While charging (long)", isOn: userSettings.$longBackgroundSyncEnabled)
+						Toggle("While on battery (short)", isOn: userSettings.$shortBackgroundSyncEnabled)
+					}
 					Toggle("Briefly after leaving app", isOn: userSettings.$lingeringEnabled)
 				} header: {
 					Text("Background synchronization")
@@ -573,7 +591,7 @@ struct AdvancedSettingsView: View {
 								Button("For 1 hour", systemImage: "play.circle") {
 									self.startBackgroundSyncFor(.time(seconds: 60 * 60))
 								}.disabled(backgroundManager.runningContinuedTask != nil)
-							}
+							}.disabled(!backgroundManager.canScheduleBackgroundTasks)
 						}
 					} footer: {
 						Text(
@@ -605,8 +623,9 @@ struct AdvancedSettingsView: View {
 							isOn: userSettings.$notifyWhenBackgroundSyncCompletes
 						)
 						.disabled(
-							(!userSettings.longBackgroundSyncEnabled
-								&& !userSettings.shortBackgroundSyncEnabled)
+							!backgroundManager.canScheduleBackgroundTasks
+								|| (!userSettings.longBackgroundSyncEnabled
+									&& !userSettings.shortBackgroundSyncEnabled)
 								|| (authorizationStatus != .authorized
 									&& authorizationStatus != .provisional)
 						)
@@ -622,8 +641,8 @@ struct AdvancedSettingsView: View {
 							isOn: userSettings.$watchdogNotificationEnabled
 						)
 						.disabled(
-							authorizationStatus != .authorized
-								&& authorizationStatus != .provisional
+							!backgroundManager.canScheduleBackgroundTasks
+								|| (authorizationStatus != .authorized && authorizationStatus != .provisional)
 						)
 						.onChange(of: userSettings.watchdogNotificationEnabled) {
 							self.updateNotificationStatus()
@@ -633,7 +652,7 @@ struct AdvancedSettingsView: View {
 							Stepper(
 								"After \(userSettings.watchdogIntervalHours) hours",
 								value: userSettings.$watchdogIntervalHours, in: 1...(24 * 7)
-							)
+							).disabled(!backgroundManager.canScheduleBackgroundTasks)
 						}
 					}
 				} footer: {

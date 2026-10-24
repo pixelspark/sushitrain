@@ -6670,6 +6670,144 @@
         }
       }
     },
+    "Background processing is restricted by the system. Check device restrictions in Settings; you may need help from your device administrator." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hintergrundverarbeitung ist vom System eingeschränkt. Überprüfen Sie die Gerätebeschränkungen in den Einstellungen; möglicherweise benötigen Sie Hilfe von Ihrem Geräteadministrator."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El procesamiento en segundo plano está restringido por el sistema. Comprueba las restricciones del dispositivo en Configuración; puede que necesites ayuda de tu administrador de dispositivos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'elaborazione in background è limitata dal sistema. Controlla le restrizioni del dispositivo in Impostazioni; potresti avere bisogno dell'aiuto dell'amministratore del tuo dispositivo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックグラウンド処理はシステムによって制限されています。設定でデバイスの制限を確認してください。必要であれば、デバイス管理者に連絡してください。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Achtergrondverwerking is beperkt door het systeem. Controleer apparaatbeperkingen in Instellingen; mogelijk heeft u hulp nodig van uw apparaatbeheerder."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обробка у фоновому режимі обмежена системою. Перевірте обмеження пристрою в Налаштуваннях; можливо, вам знадобиться допомога адміністратора вашого пристрою."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "系统限制了后台处理。在“设置”中检查设备限制；你可能需要设备管理员的帮助。"
+          }
+        }
+      }
+    },
+    "Background processing is unavailable while Low Power Mode is enabled. Turn it off in Settings > Battery, then check Background App Refresh for Synctrain." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Hintergrundverarbeitung ist nicht verfügbar, während der Energiesparmodus aktiviert ist. Deaktivieren Sie ihn unter Einstellungen > Batterie und überprüfen Sie dann das Aktualisieren im Hintergrund für Synctrain."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El procesamiento en segundo plano no está disponible mientras el Modo de Ahorro de Energía está activado. Desactívalo en Configuración > Batería y luego verifica la Actualización en Segundo Plano para Synctrain."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'elaborazione in background non è disponibile quando la Modalità Risparmio Energetico è attiva. Disattivala in Impostazioni > Batteria, quindi controlla Aggiornamento app in background per Synctrain."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低電力モードが有効な状態ではバックグラウンド処理を利用できません。「設定 > バッテリー」でオフにしてから、「Synctrain のバックグラウンド App の更新」を確認してください。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Achtergrondverwerking is niet beschikbaar wanneer de energiebesparingsmodus is ingeschakeld. Schakel het uit in Instellingen > Batterij en controleer vervolgens Achtergrond App Ververs voor Synctrain."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Фонову обробку недоступно, коли увімкнено режим низького енергоспоживання. Вимкніть його в Налаштуваннях > Акумулятор, а потім перевірте Оновлення фонових програм для Synctrain."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在启用低电量模式时无法进行后台处理。在“设置”>“电池”中将其关闭，然后检查 Synctrain 的后台应用刷新。"
+          }
+        }
+      }
+    },
+    "Background processing is unavailable. Check Background App Refresh for Synctrain in the Settings app." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hintergrundverarbeitung ist nicht verfügbar. Überprüfen Sie den Hintergrundaktualisierung für Synctrain in der App \"Einstellungen\"."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El procesamiento en segundo plano no está disponible. Verifica la Actualización en Segundo Plano para Synctrain en la app de Configuración."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'elaborazione in background non è disponibile. Controlla l'Aggiornamento App in Background per Synctrain nell'app Impostazioni."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックグラウンド処理が利用できません。設定アプリで「Synctrain」のバックグラウンド更新を確認してください。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Achtergrondverwerking is niet beschikbaar. Controleer Achtergrond App Refresh voor Synctrain in de app Instellingen."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Фонова обробка недоступна. Перевірте актуалізацію програм у фоновому режимі для Synctrain в програмі Налаштування."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "后台处理不可用。请在设置应用中检查 Synctrain 的后台应用刷新设置。"
+          }
+        }
+      }
+    },
     "Background synchronization" : {
       "localizations" : {
         "de" : {
@@ -6758,6 +6896,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "后台同步完成"
+          }
+        }
+      }
+    },
+    "Background synchronization is already running." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Hintergrundsynchronisierung läuft bereits."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronización en segundo plano ya se está ejecutando."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronizzazione in background è già in esecuzione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックグラウンド同期は既に実行中です。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Achtergrond synchronisatie is al actief."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Фонова синхронізація вже запущена."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "后台同步已在运行。"
           }
         }
       }
@@ -13540,6 +13724,98 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "启用所有设备"
+          }
+        }
+      }
+    },
+    "Enable Background App Refresh for Synctrain in the Settings app first. If it is disabled globally, enable it under Settings > General > Background App Refresh." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktivieren Sie zuerst im Einstellungsmenü die Hintergrundaktualisierung für Synctrain. Wenn es global deaktiviert ist, aktivieren Sie es unter Einstellungen > Allgemein > Hintergrundaktualisierung."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Primero, activa la Actualización en Segundo Plano para Synctrain en la aplicación de Configuración. Si está desactivada globalmente, actívala en Configuración > General > Actualización en Segundo Plano."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abilita prima l'Aggiornamento App in Background per Synctrain nell'app Impostazioni. Se è disabilitato a livello globale, abilitalo in Impostazioni > Generali > Aggiornamento App in Background."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "まず、「設定」アプリでSynctrainのバックグラウンド更新を有効にしてください。全体で無効になっている場合は、「設定」>「一般」>「バックグラウンド更新」で有効にしてください。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schakel eerst 'Ververs op Achtergrond' in voor Synctrain in de Instellingen-app. Als het wereldwijd is uitgeschakeld, schakel het dan in via Instellingen > Algemeen > Ververs op Achtergrond."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Спочатку увімкніть Оновлення додатків у фоновому режимі для Synctrain у додатку Налаштування. Якщо ця функція глобально відключена, увімкніть її в Налаштуваннях > Загальні > Оновлення додатків у фоновому режимі."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请先在“设置”应用中为Synctrain启用后台应用刷新。如果它在全局范围内被禁用，请在设置>通用>后台应用刷新中启用它。"
+          }
+        }
+      }
+    },
+    "Enable background processing in Settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hintergrundverarbeitung in den Einstellungen aktivieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habilitar procesamiento en segundo plano en Configuración"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abilita l'elaborazione in background in Impostazioni"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定でバックグラウンド処理を有効にする"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schakel achtergrondverwerking in via Instellingen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Увімкніть фонову обробку в Налаштуваннях"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在“设置”中启用后台处理"
           }
         }
       }
@@ -25956,6 +26232,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在应用中打开"
+          }
+        }
+      }
+    },
+    "Open Settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen öffnen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir configuración"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri Impostazioni"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定を開く"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instellingen openen"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відкрити налаштування"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开设置"
           }
         }
       }

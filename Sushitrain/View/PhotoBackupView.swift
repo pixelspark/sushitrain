@@ -185,10 +185,12 @@ struct PhotoBackupSettingsView: View {
 
 			#if os(iOS)
 				Section {
-					Toggle(
-						"Copy photos periodically in the background",
-						isOn: photoBackup.$enableBackgroundCopy
-					).disabled(photoBackup.isBackingUp || photoBackup.selectedAlbumID.isEmpty)
+					BackgroundSchedulingControls(backgroundManager: appState.backgroundManager) {
+						Toggle(
+							"Copy photos periodically in the background",
+							isOn: photoBackup.$enableBackgroundCopy
+						).disabled(photoBackup.isBackingUp || photoBackup.selectedAlbumID.isEmpty)
+					}
 				}
 			#endif
 
