@@ -143,7 +143,7 @@ class SushitrainDelegate: NSObject {
 	@AppStorage("streamingBytesSentTodayDay") var streamingBytesSentTodayDay: String = ""
 }
 
-struct SyncState {
+struct SyncState: Equatable {
 	let isDownloading: Bool
 	let isUploading: Bool
 	let connectedPeerCount: Int
@@ -643,11 +643,14 @@ struct SyncState {
 
 	func update() {
 		self.localDeviceID = self.client.deviceID()
-		self.syncState = SyncState(
+		let nextState = SyncState(
 			isDownloading: self.client.isDownloading(),
 			isUploading: self.client.isUploading(),
 			connectedPeerCount: self.client.connectedPeerCount()
 		)
+		if self.syncState != nextState {
+			self.syncState = nextState
+		}
 
 		Task {
 			await self.updateBadge()
