@@ -191,6 +191,7 @@ struct SyncState: Equatable {
 	fileprivate(set) var resolvedListenAddresses = Set<String>()
 	fileprivate(set) var lastChanges: [SushitrainChange] = []
 	fileprivate(set) var currentNetworkPath: NWPath? = nil
+	private(set) var isLowPowerModeEnabled = ProcessInfo.processInfo.isLowPowerModeEnabled
 
 	private let documentsDirectory: URL
 	private let configDirectory: URL
@@ -249,6 +250,9 @@ struct SyncState: Equatable {
 	@objc nonisolated public func powerStateChanged(_ notification: Notification) {
 		Task {
 			Log.info("Power state change detected: isLowPowerModeEnabled=\(ProcessInfo.processInfo.isLowPowerModeEnabled)")
+			await MainActor.run {
+				self.isLowPowerModeEnabled = ProcessInfo.processInfo.isLowPowerModeEnabled
+			}
 			// Update device suspension, it may change device state if userSettings.disableDevicesInLowPowerMode is enabled
 			await self.updateDeviceSuspension()
 
@@ -809,7 +813,7 @@ struct SyncState: Equatable {
 	// Whether the app should disable connectivity because of the network connection type in use and/or low power mode
 	var shouldDisableConnectivity: Bool {
 		// Disable because we are on low power mode
-		if userSettings.disableDevicesInLowPowerMode && ProcessInfo.processInfo.isLowPowerModeEnabled {
+		if userSettings.disableDevicesInLowPowerMode && self.isLowPowerModeEnabled {
 			return true
 		}
 

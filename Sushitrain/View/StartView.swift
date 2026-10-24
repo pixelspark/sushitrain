@@ -173,7 +173,26 @@ private struct OverallDownloadProgressView: View {
 
 private struct NetworkStatusView: View {
 	@Environment(AppState.self) private var appState
+	// shouldDisableConnectivity reads this ObservableObject through AppState.
+	// Observe it directly so settings changes also refresh this view.
+	@ObservedObject var userSettings: AppUserSettings
 	@State private var showInfo: Bool = false
+
+	private var isSlowConnection: Bool {
+		if #available(iOS 26, macOS 26, *) {
+			return appState.currentNetworkPath?.linkQuality == .minimal
+		}
+		return false
+	}
+
+	private var isLimitedConnection: Bool {
+		guard let path = appState.currentNetworkPath else { return false }
+		if path.isConstrained || path.isExpensive { return true }
+		if #available(iOS 26, macOS 26, *) {
+			return path.isUltraConstrained
+		}
+		return false
+	}
 
 	var body: some View {
 		Group {
@@ -183,18 +202,11 @@ private struct NetworkStatusView: View {
 			}
 			else if let path = appState.currentNetworkPath {
 				if path.status == .satisfied {
-					if #available(iOS 26, macOS 26, *) {
-						if path.linkQuality == .minimal {
-							Label("Slow internet connection", systemImage: "antenna.radiowaves.left.and.right").foregroundStyle(.orange)
-						}
+					if isSlowConnection {
+						Label("Slow internet connection", systemImage: "antenna.radiowaves.left.and.right").foregroundStyle(.orange)
 					}
-					else if path.isConstrained || path.isExpensive {
+					else if isLimitedConnection {
 						Label("Limited internet connection", systemImage: "antenna.radiowaves.left.and.right").foregroundStyle(.orange)
-					}
-					else if #available(iOS 26, macOS 26, *) {
-						if path.isUltraConstrained {
-							Label("Limited internet connection", systemImage: "antenna.radiowaves.left.and.right").foregroundStyle(.orange)
-						}
 					}
 				}
 				else if path.status == .unsatisfied {
@@ -397,7 +409,7 @@ struct StartView: View {
 					}
 				#endif
 
-				NetworkStatusView()
+				NetworkStatusView(userSettings: userSettings)
 			}
 
 			Section(header: Text("This device's identifier")) {
