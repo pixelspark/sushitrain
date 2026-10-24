@@ -996,6 +996,7 @@ private struct BrowserItemsView: View {
 		let folderID: String
 		let prefix: String
 		let state: Int
+		let scanRevision: Int
 		let filter: BrowserViewFilterAvailability
 		let sort: BrowserViewSort
 		let recursive: Bool
@@ -1005,6 +1006,7 @@ private struct BrowserItemsView: View {
 	private var reloadIdentity: ReloadIdentity {
 		ReloadIdentity(
 			folderID: folder.folderID, prefix: prefix, state: folder.folderStateForUpdating,
+			scanRevision: appState.folderScanRevisions[folder.folderID, default: 0],
 			filter: filterAvailability, sort: sortOrder, recursive: recursive,
 			hideDotFiles: appState.userSettings.dotFilesHidden)
 	}

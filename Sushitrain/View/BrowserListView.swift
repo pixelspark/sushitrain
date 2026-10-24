@@ -45,7 +45,7 @@ struct BrowserListView: View {
 
 			// List subdirectories
 			Section {
-				ForEach(subdirectories, id: \.self) { (subDirEntry: SushitrainEntry) in
+				ForEach(subdirectories, id: \.id) { (subDirEntry: SushitrainEntry) in
 					let fileName = subDirEntry.fileName()
 					NavigationLink(
 						destination: BrowserView(folder: folder, prefix: "\(prefix)\(fileName)/", userSettings: appState.userSettings)
@@ -69,7 +69,7 @@ struct BrowserListView: View {
 
 			// List files
 			Section {
-				ForEach(files, id: \.self) { file in
+				ForEach(files, id: \.id) { file in
 					EntryView(
 						entry: file,
 						folder: folder,

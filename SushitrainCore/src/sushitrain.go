@@ -91,6 +91,7 @@ type Measurements struct {
 
 type ClientDelegate interface {
 	OnEvent(event string)
+	OnFolderScanFinished(folderID string)
 	OnDeviceDiscovered(deviceID string, addresses *ListOfStrings)
 	OnListenAddressesChanged(addresses *ListOfStrings)
 	OnChange(change *Change)
@@ -295,13 +296,20 @@ func (clt *Client) handleEvent(evt events.Event) {
 		data := evt.Data.(map[string]interface{})
 		folder := data["folder"].(string)
 		state := data["to"].(string)
+		previousState, _ := data["from"].(string)
 		folderTransferring := (state == model.FolderSyncing.String() || state == model.FolderSyncWaiting.String() || state == model.FolderSyncPreparing.String())
 
 		clt.mutex.Lock()
 		clt.foldersDownloading[folder] = folderTransferring
 		if !clt.IgnoreEvents && clt.Delegate != nil {
+			delegate := clt.Delegate
 			clt.mutex.Unlock()
-			clt.Delegate.OnEvent(evt.Type.String())
+			// Forward completion before general UI events can be throttled. A short
+			// scan may start and finish between two UI updates.
+			if previousState == model.FolderScanning.String() && state != previousState {
+				delegate.OnFolderScanFinished(folder)
+			}
+			delegate.OnEvent(evt.Type.String())
 		} else {
 			clt.mutex.Unlock()
 		}

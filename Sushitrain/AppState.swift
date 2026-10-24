@@ -180,6 +180,7 @@ struct SyncState: Equatable {
 	private(set) var appPersistentStatistics = AppPersistentStatistics()
 	private(set) var localDeviceID: String = ""
 	private(set) var eventCounter: Int = 0
+	fileprivate(set) var folderScanRevisions: [String: Int] = [:]
 	private(set) var foldersWithExtraFiles: [String] = []
 	private(set) var startupState: AppStartupState = .notStarted
 	private(set) var isMigratedToNewDatabase: Bool = false
@@ -1114,6 +1115,14 @@ struct SyncState: Equatable {
 #endif
 
 extension SushitrainDelegate: SushitrainClientDelegateProtocol {
+	func onFolderScanFinished(_ folderID: String?) {
+		guard let folderID else { return }
+		let appState = self.appState
+		DispatchQueue.main.async {
+			appState.folderScanRevisions[folderID, default: 0] += 1
+		}
+	}
+
 	func onChange(_ change: SushitrainChange?) {
 		if let change = change {
 			let appState = self.appState
