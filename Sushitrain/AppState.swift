@@ -183,6 +183,9 @@ struct SyncState: Equatable {
 	fileprivate(set) var folderScanRevisions: [String: Int] = [:]
 	private(set) var foldersWithExtraFiles: [String] = []
 	private(set) var startupState: AppStartupState = .notStarted
+	// Client.Load holds the core mutex until database loading/migration finishes.
+	// Keep startup callbacks from querying the partially initialized core.
+	@ObservationIgnored private var hasLoadedClient = false
 	private(set) var isMigratedToNewDatabase: Bool = false
 	private(set) var syncState: SyncState = SyncState(isDownloading: false, isUploading: false, connectedPeerCount: 0)
 	private(set) var launchedAt = Date.now
@@ -349,6 +352,7 @@ struct SyncState: Equatable {
 					}
 					Log.info("Client loaded")
 				}.value
+				self.hasLoadedClient = true
 
 				// Resolve bookmarks
 				self.resolveBookmarks()
@@ -602,6 +606,7 @@ struct SyncState: Equatable {
 	}
 
 	var isFinished: Bool {
+		guard self.hasLoadedClient else { return false }
 		return !self.client.isDownloading() && !self.client.isUploading() && !self.photoBackup.isBackingUp
 	}
 
@@ -647,6 +652,7 @@ struct SyncState: Equatable {
 	}
 
 	func update() {
+		guard self.hasLoadedClient else { return }
 		self.localDeviceID = self.client.deviceID()
 		let nextState = SyncState(
 			isDownloading: self.client.isDownloading(),
@@ -776,6 +782,7 @@ struct SyncState: Equatable {
 	}
 
 	func updateBadge() async {
+		guard self.hasLoadedClient else { return }
 		await self.updateExtraneousFiles()
 		let numExtra = self.foldersWithExtraFiles.count
 		let numLongTimeNoSee = (await getPeersNotSeenForALongTime()).count
@@ -832,6 +839,7 @@ struct SyncState: Equatable {
 	}
 
 	nonisolated func updateDeviceSuspension() async {
+		guard await self.hasLoadedClient else { return }
 		do {
 			let client = self.client
 			// All devices are paused when the app is suspended (and unpaused when we get back to the foreground)
