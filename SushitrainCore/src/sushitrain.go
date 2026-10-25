@@ -1317,6 +1317,9 @@ func (clt *Client) Search(text string, delegate SearchResultDelegate, maxResults
 	resultCount := 0
 
 	for _, folder := range clt.config.FolderList() {
+		if delegate.IsCancelled() {
+			return nil
+		}
 		if folderID != "" && folder.ID != folderID {
 			continue
 		}
@@ -1332,11 +1335,8 @@ func (clt *Client) Search(text string, delegate SearchResultDelegate, maxResults
 			}
 
 			if delegate.IsCancelled() {
-				// This shouild cancel the scan
-				break
+				return nil
 			}
-
-			gimmeMore := maxResults <= 0 || resultCount < maxResults
 
 			// Check prefix
 			if !strings.HasPrefix(f.Name, prefix) {
@@ -1346,11 +1346,14 @@ func (clt *Client) Search(text string, delegate SearchResultDelegate, maxResults
 			pathParts := strings.Split(f.Name, "/")
 			lowerFileName := strings.ToLower(pathParts[len(pathParts)-1])
 
-			if gimmeMore && !f.Deleted && strings.Contains(lowerFileName, text) {
+			if !f.Deleted && strings.Contains(lowerFileName, text) {
 				entry, err := folderObject.GetFileInformation(f.Name)
 				if err == nil {
 					resultCount += 1
 					delegate.Result(entry)
+					if maxResults > 0 && resultCount >= maxResults {
+						return nil
+					}
 				}
 			}
 		}
