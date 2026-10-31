@@ -9,6 +9,9 @@ import QuickLook
 
 struct BrowserListView: View {
 	@Environment(AppState.self) private var appState
+	#if os(iOS)
+		@Environment(\.horizontalSizeClass) private var horizontalSizeClass
+	#endif
 	let folder: SushitrainFolder
 	let prefix: String
 	let hasExtraneousFiles: Bool
@@ -19,6 +22,20 @@ struct BrowserListView: View {
 	@State private var showStatistics = false
 
 	var body: some View {
+		#if os(iOS)
+			if UIDevice.current.userInterfaceIdiom == .phone && horizontalSizeClass == .regular {
+				// Add to the split-view safe area instead of replacing its content margins.
+				fileList.safeAreaPadding(.horizontal)
+			}
+			else {
+				fileList
+			}
+		#else
+			fileList
+		#endif
+	}
+
+	private var fileList: some View {
 		List {
 			Section {
 				Button(action: {
