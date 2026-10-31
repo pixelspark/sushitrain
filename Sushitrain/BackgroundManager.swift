@@ -66,7 +66,7 @@ enum ContinuedTaskType {
 			}
 		}
 
-		private static let watchdogNotificationID = "nl.t-shaped.sushitrain.watchdog-notification"
+		nonisolated private static let watchdogNotificationID = "nl.t-shaped.sushitrain.watchdog-notification"
 
 		// Time before the end of allotted background time to start ending the task to prevent forceful expiration by the OS
 		private static let backgroundTimeReserve: TimeInterval = 5.6
@@ -614,19 +614,28 @@ enum ContinuedTaskType {
 
 		@MainActor
 		func rescheduleWatchdogNotification() async {
+			// Capture settings on the main actor, but keep notification-service IPC off it.
+			// Even removing pending requests can block synchronously during simulator startup.
+			let enabled = appState.userSettings.watchdogNotificationEnabled && canScheduleBackgroundTasks
+			let intervalHours = appState.userSettings.watchdogIntervalHours
+			await Task.detached(priority: .utility) {
+				await Self.updateWatchdogNotification(enabled: enabled, intervalHours: intervalHours)
+			}.value
+		}
+
+		nonisolated private static func updateWatchdogNotification(enabled: Bool, intervalHours: Int) async {
 			Log.info("Re-schedule watchdog notification")
 			let notificationCenter = UNUserNotificationCenter.current()
 			UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [
 				Self.watchdogNotificationID
 			])
 
-			let appState = self.appState
-			var interval: TimeInterval = TimeInterval(appState.userSettings.watchdogIntervalHours * 60 * 60)  // seconds
+			var interval: TimeInterval = TimeInterval(intervalHours * 60 * 60)  // seconds
 			if interval < 60.0 {
 				interval = 60.0 * 60.0  // one hour minimum
 			}
 
-			if appState.userSettings.watchdogNotificationEnabled && canScheduleBackgroundTasks {
+			if enabled {
 				let settings = await notificationCenter.notificationSettings()
 
 				let status = settings.authorizationStatus

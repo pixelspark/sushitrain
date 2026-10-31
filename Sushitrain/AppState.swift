@@ -220,6 +220,7 @@ struct SyncState: Equatable {
 		self.client = client
 		self.documentsDirectory = documentsDirectory
 		self.configDirectory = configDirectory
+		self.isMigratedToNewDatabase = !client.hasLegacyDatabase()
 
 		#if os(iOS)
 			self.backgroundManager = BackgroundManager(appState: self)
