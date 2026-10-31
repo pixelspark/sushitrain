@@ -690,11 +690,9 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = Sushitrain/Sushitrain.entitlements;
-				SYNCTRAIN_APP_GROUP = group.nl.t-shaped.sushitrain.sync;
-				"SYNCTRAIN_APP_GROUP[sdk=macosx*]" = "$(DEVELOPMENT_TEAM).nl.t-shaped.sushitrain.sync";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 85;
+				CURRENT_PROJECT_VERSION = 86;
 				DEVELOPMENT_TEAM = 2N89DJPQ2P;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -744,6 +742,8 @@
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
+				SYNCTRAIN_APP_GROUP = "group.nl.t-shaped.sushitrain.sync";
+				"SYNCTRAIN_APP_GROUP[sdk=macosx*]" = "$(DEVELOPMENT_TEAM).nl.t-shaped.sushitrain.sync";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -755,11 +755,9 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = Sushitrain/Sushitrain.entitlements;
-				SYNCTRAIN_APP_GROUP = group.nl.t-shaped.sushitrain.sync;
-				"SYNCTRAIN_APP_GROUP[sdk=macosx*]" = "$(DEVELOPMENT_TEAM).nl.t-shaped.sushitrain.sync";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 85;
+				CURRENT_PROJECT_VERSION = 86;
 				DEVELOPMENT_TEAM = 2N89DJPQ2P;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -809,6 +807,8 @@
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
+				SYNCTRAIN_APP_GROUP = "group.nl.t-shaped.sushitrain.sync";
+				"SYNCTRAIN_APP_GROUP[sdk=macosx*]" = "$(DEVELOPMENT_TEAM).nl.t-shaped.sushitrain.sync";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -848,8 +848,6 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = SushitrainShareExtension/SynctrainShare.entitlements;
-				SYNCTRAIN_APP_GROUP = group.nl.t-shaped.sushitrain.sync;
-				"SYNCTRAIN_APP_GROUP[sdk=macosx*]" = "$(DEVELOPMENT_TEAM).nl.t-shaped.sushitrain.sync";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 85;
 				DEAD_CODE_STRIPPING = YES;
@@ -879,6 +877,8 @@
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_VERSION = 6.0;
+				SYNCTRAIN_APP_GROUP = "group.nl.t-shaped.sushitrain.sync";
+				"SYNCTRAIN_APP_GROUP[sdk=macosx*]" = "$(DEVELOPMENT_TEAM).nl.t-shaped.sushitrain.sync";
 			};
 			name = Debug;
 		};
@@ -888,8 +888,6 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = SushitrainShareExtension/SynctrainShare.entitlements;
-				SYNCTRAIN_APP_GROUP = group.nl.t-shaped.sushitrain.sync;
-				"SYNCTRAIN_APP_GROUP[sdk=macosx*]" = "$(DEVELOPMENT_TEAM).nl.t-shaped.sushitrain.sync";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 85;
 				DEAD_CODE_STRIPPING = YES;
@@ -919,6 +917,8 @@
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_VERSION = 6.0;
+				SYNCTRAIN_APP_GROUP = "group.nl.t-shaped.sushitrain.sync";
+				"SYNCTRAIN_APP_GROUP[sdk=macosx*]" = "$(DEVELOPMENT_TEAM).nl.t-shaped.sushitrain.sync";
 			};
 			name = Release;
 		};
