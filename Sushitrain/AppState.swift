@@ -203,6 +203,8 @@ struct SyncState: Equatable {
 	private var settingsCancellable: AnyCancellable? = nil
 
 	#if os(iOS)
+		// Notification-service IPC can block even for APIs with completion handlers.
+		nonisolated private static let badgeUpdateQueue = DispatchQueue(label: "nl.t-shaped.sushitrain.badge", qos: .utility)
 		@ObservationIgnored var backgroundManager: BackgroundManager!
 		@ObservationIgnored private var lingerManager: LingerManager!
 	#endif
@@ -790,8 +792,12 @@ struct SyncState: Equatable {
 		let numTotal = numExtra + numLongTimeNoSee
 
 		#if os(iOS)
-			DispatchQueue.main.async {
-				UNUserNotificationCenter.current().setBadgeCount(numTotal)
+			Self.badgeUpdateQueue.async {
+				UNUserNotificationCenter.current().setBadgeCount(numTotal) { error in
+					if let error {
+						Log.warn("Could not update app badge: \(error.localizedDescription)")
+					}
+				}
 			}
 		#elseif os(macOS)
 			let newBadge = numTotal > 0 ? String(numTotal) : ""
