@@ -143,7 +143,6 @@ struct EntryInfoView: View {
 					isPresented: $showFullScreenViewer,
 					content: {
 						FileViewerView(file: entry, siblings: siblings, inSheet: true, isShown: $showFullScreenViewer)
-							.ignoresSafeArea()
 					})
 			#elseif os(macOS)
 				.sheet(isPresented: $showFullScreenViewer) {

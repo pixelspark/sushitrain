@@ -38,36 +38,40 @@ struct FileViewerView: View {
 
 		// iOS version has infinite scrolling
 		var body: some View {
-			GeometryReader { reader in
-				ScrollView(.horizontal, showsIndicators: false) {
-					LazyHStack(spacing: 1.0) {
-						ForEach(self.scrollableFiles) { sibling in
-							NavigationStack {
+			NavigationStack {
+				GeometryReader { reader in
+					ScrollView(.horizontal, showsIndicators: false) {
+						LazyHStack(spacing: 1.0) {
+							ForEach(self.scrollableFiles) { sibling in
 								FileViewerContentView(file: sibling, isShown: $isShown, playFile: .constant(sibling == self.file))
-									.toolbar {
-										self.toolbarContent(file: sibling)
-									}
-									.navigationTitle(sibling.fileName())
-									// Allow toolbar to be hidden on iOS
-									.navigationBarTitleDisplayMode(.inline)
-									.navigationBarHidden(barHidden)
+									.frame(width: reader.size.width, height: reader.size.height)
+									.tag(sibling)
+									.id(sibling)
 							}
-							.frame(width: reader.size.width)
-							.tag(sibling)
-							.id(sibling)
 						}
+						.scrollTargetLayout()
 					}
-					.scrollTargetLayout()
+					.simultaneousGesture(
+						TapGesture().onEnded {
+							withAnimation {
+								barHidden = !barHidden
+							}
+						}
+					)
+					.scrollTargetBehavior(.viewAligned)
+					.scrollPosition(id: $file, anchor: .center)
 				}
-				.simultaneousGesture(
-					TapGesture().onEnded {
-						withAnimation {
-							barHidden = !barHidden
-						}
+				// Extend the preview behind the bars, while the enclosing navigation stack
+				// keeps its toolbar inside the device's safe area (also in landscape).
+				.ignoresSafeArea(.container)
+				.toolbar {
+					if let file = self.file {
+						self.toolbarContent(file: file)
 					}
-				)
-				.scrollTargetBehavior(.viewAligned)
-				.scrollPosition(id: $file, anchor: .center)
+				}
+				.navigationTitle(file?.fileName() ?? "")
+				.navigationBarTitleDisplayMode(.inline)
+				.navigationBarHidden(barHidden)
 			}
 			.onAppear {
 				barHidden = false
