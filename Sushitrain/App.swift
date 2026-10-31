@@ -114,7 +114,19 @@ struct SushitrainApp: App {
 	static func configDirectoryURL() -> URL {
 		// Determine the config directory (on macOS the user can choose a directory)
 		var isCustom = false
+
 		#if os(macOS)
+			// Choose on startup
+			if ProcessInfo.processInfo.environment["SUSHITRAIN_CHOOSE_CONFIG"] != nil {
+				let no = NSOpenPanel()
+				no.canChooseDirectories = true
+				no.allowsMultipleSelection = false
+				let resp = no.runModal()
+				if let u = no.url {
+					return u
+				}
+			}
+
 			var configDirectory: URL
 			var isStale = false
 			if let configDirectoryBookmark = UserDefaults.standard.data(forKey: "configDirectoryBookmark"),
