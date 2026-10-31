@@ -356,6 +356,18 @@ struct PhotoBackupSettingsView: View {
 				)
 			}
 
+			Section {
+				Toggle("Save photo adjustment data (AAE files)", isOn: photoBackup.$includeAAESidecars)
+					.disabled(photoBackup.isBackingUp || photoBackup.selectedAlbumID.isEmpty)
+					.onChange(of: photoBackup.includeAAESidecars) { _, _ in
+						photoBackup.resetLastSuccessfulChangeToken()
+					}
+			} footer: {
+				Text(
+					"If you adjust photos in the Photos app, the adjustments can be saved to an AAE file. Enabling this also saves missing AAE files for previously backed-up items. The exported photos and videos are unchanged."
+				)
+			}
+
 			// Live photo extension selector
 			Section {
 				Picker("Live photo file extension", selection: $photoBackup.livePhotoReplaceExtension) {

@@ -182,6 +182,8 @@ enum PhotoBackupProgress {
 	@AppStorage("photoSyncPurgeEnabled") var purgeEnabled = false
 	@AppStorage("photoSyncPurgeAfterDays") var purgeAfterDays = 7
 	@AppStorage("photoBackupIncludeAllBurstAssets") var includeAllBurstAssets = false
+	@AppStorage("photoBackupIncludeAAESidecars") var includeAAESidecars = false
+	@AppStorage("photoBackupAAESidecarExportVersion") private var aaeSidecarExportVersion = 0
 	@AppStorage("PhotoBackupFolderStructure") var folderStructure = PhotoBackupFolderStructure.byDateAndType
 	@AppStorage("photoSyncSubdirectoryPath") var subDirectoryPath = ""
 	@AppStorage("photoSyncMaxAgeDays") var maxAgeDays = 6 * 30  // The maximum age for assets to be considered for export
@@ -218,6 +220,12 @@ enum PhotoBackupProgress {
 		if !self.isReady { return nil }
 		if self.selectedAlbumID.isEmpty { return nil }
 		if self.photoBackupTask != nil { return nil }
+		// Earlier exports incorrectly required adjustment resources to have an AAE filename.
+		// Revisit the album once so the incremental change token cannot hide missing sidecars.
+		if self.includeAAESidecars && self.aaeSidecarExportVersion < 1 {
+			self.resetLastSuccessfulChangeToken()
+			self.aaeSidecarExportVersion = 1
+		}
 		self.isBackingUp = true
 
 		let selectedAlbumID = self.selectedAlbumID
@@ -437,6 +445,7 @@ enum PhotoBackupProgress {
 		DispatchQueue.main.async { self.progress = .exportingPhotos(index: 0, total: count, current: nil) }
 
 		// Bookkeeping
+		var sidecarsToExport: [(PHAssetResource, URL, EntryPath)] = []
 		var videosToExport: [(PHAsset, URL, EntryPath)] = []
 		var livePhotosToExport: [(PHAsset, URL, EntryPath)] = []
 		var selectPaths: [EntryPath] = []
@@ -450,6 +459,7 @@ enum PhotoBackupProgress {
 		let maxAgeInterval = TimeInterval(Double(await self.maxAgeDays) * 86400.0)
 		let timeZone = await self.timeZone
 		let livePhotoReplaceExtension = await self.livePhotoReplaceExtension
+		let includeAAESidecars = await self.includeAAESidecars
 
 		// Enumerate assets in this album and export them (or queue them for export)
 		assets.enumerateObjects { asset, index, stop in
@@ -476,6 +486,29 @@ enum PhotoBackupProgress {
 				let dirInFolder = folderURL.appending(path: assetDirectoryPath.pathInFolder, directoryHint: .isDirectory)
 				let inFolderPath = asset.pathInFolder(structure: structure, subdirectoryPath: subDirectoryPath, timeZone: timeZone)
 				Log.info("- \(inFolderPath) \(dirInFolder) \(subDirectoryPath)")
+
+				// Sidecars are considered independently so enabling this option also covers existing backups.
+				let includesAsset =
+					(asset.mediaType == .image && categories.contains(.photo))
+					|| (asset.mediaType == .video && categories.contains(.video))
+				if includeAAESidecars && includesAsset {
+					let mediaEntry = try? folder.getFileInformation(inFolderPath.pathInFolder)
+					if fullExport || mediaEntry?.isDeleted() != true {
+						if let resource = PHAssetResource.assetResources(for: asset).first(where: {
+							// Photos may name this resource Adjustments.plist; its type identifies the edit data.
+							$0.type == .adjustmentData
+						}) {
+							let sidecarPath = EntryPath(
+								(inFolderPath.pathInFolder as NSString).deletingPathExtension + ".AAE", isDirectory: false)
+							let sidecarURL = folderURL.appending(path: sidecarPath.pathInFolder, directoryHint: .notDirectory)
+							let sidecarEntry = try? folder.getFileInformation(sidecarPath.pathInFolder)
+							if fullExport || (sidecarEntry == nil && !FileManager.default.fileExists(atPath: sidecarURL.path)) {
+								Log.info("Queueing adjustment resource \(resource.originalFilename) as \(sidecarPath.pathInFolder)")
+								sidecarsToExport.append((resource, sidecarURL, sidecarPath))
+							}
+						}
+					}
+				}
 
 				// Check if this photo was saved or deleted before
 				if purgeEnabled || !fullExport {
@@ -735,6 +768,40 @@ enum PhotoBackupProgress {
 				}
 
 				DispatchQueue.main.async { self.progress = .exportingLivePhotos(index: idx, total: liveCount, current: nil) }
+			}
+		}
+
+		// Finish sidecars before tagging or purging originals. A failed export must remain retryable.
+		for (resource, destination, path) in sidecarsToExport {
+			do {
+				try Task.checkCancellation()
+				try FileManager.default.createDirectory(
+					at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
+				let temporaryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+				defer { try? FileManager.default.removeItem(at: temporaryURL) }
+				let options = PHAssetResourceRequestOptions()
+				options.isNetworkAccessAllowed = false
+				try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+					PHAssetResourceManager.default().writeData(for: resource, toFile: temporaryURL, options: options) { error in
+						if let error {
+							continuation.resume(throwing: error)
+						}
+						else {
+							continuation.resume()
+						}
+					}
+				}
+				try Data(contentsOf: temporaryURL).write(to: destination, options: .atomic)
+				if isSelective {
+					let paths = SushitrainNewListOfStrings()!
+					paths.append(path.pathInFolder)
+					try folder.setLocalPathsExplicitlySelected(paths)
+				}
+				selectPaths.append(path)
+			}
+			catch {
+				DispatchQueue.main.async { self.progress = .error(error.localizedDescription) }
+				throw error
 			}
 		}
 

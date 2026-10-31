@@ -20416,6 +20416,52 @@
         }
       }
     },
+    "If you adjust photos in the Photos app, the adjustments can be saved to an AAE file. Enabling this also saves missing AAE files for previously backed-up items. The exported photos and videos are unchanged." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn Sie Fotos in der Fotos-App bearbeiten, können die Anpassungen in einer AAE-Datei gespeichert werden. Wenn Sie diese Option aktivieren, werden fehlende AAE-Dateien für zuvor gesicherte Elemente ebenfalls gespeichert. Die exportierten Fotos und Videos bleiben unverändert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si ajustas fotos en la aplicación Fotos, los ajustes se pueden guardar en un archivo AAE. Al habilitar esto, también se guardan los archivos AAE que faltan para los elementos respaldados previamente. Las fotos y videos exportados no se modifican."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se modifichi foto nell'app Foto, le modifiche possono essere salvate in un file AAE. Abilitando questa opzione vengono salvati anche i file AAE mancanti per gli elementi precedentemente sottoposti a backup. Le foto e i video esportati rimangono invariati."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真アプリで写真を調整すると、その調整はAAEファイルに保存できます。これを有効にすると、以前にバックアップしたアイテムの不足しているAAEファイルも保存されます。エクスポートされた写真とビデオは変更されません。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als je foto's aanpast in de Foto's-app, kunnen de aanpassingen worden opgeslagen in een AAE-bestand. Door dit in te schakelen, worden ook ontbrekende AAE-bestanden voor eerder geback-upte items opgeslagen. De geëxporteerde foto's en video's blijven ongewijzigd."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Якщо ви змінюєте фото в застосунку Фотографії, зміни можуть бути збережені в файлі AAE. Увімкнення цього також зберігає відсутні файли AAE для попередньо збережених елементів. Експортовані фото та відео залишаються незмінними."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如果您在照片应用中调整照片，调整可以保存到AAE文件。启用此选项也会为以前备份的项目保存缺失的AAE文件。导出的照片和视频不会改变。"
+          }
+        }
+      }
+    },
     "If you delete photos from the folder, this will be remembered for six months, so they will not be saved to the folder again during this time. Enable this setting to prevent these photos from being exported again after six months." : {
       "localizations" : {
         "de" : {
@@ -30878,6 +30924,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "保存连拍中的所有照片"
+          }
+        }
+      }
+    },
+    "Save photo adjustment data (AAE files)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotoanpassungsdaten speichern (AAE-Dateien)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar datos de ajuste de fotos (archivos AAE)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salva i dati di regolazione foto (file AAE)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真調整データを保存（AAEファイル）"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sla foto-aanpassingsgegevens op (AAE-bestanden)"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зберегти дані про коригування фото (AAE-файли)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存照片调整数据 (AAE 文件)"
           }
         }
       }
