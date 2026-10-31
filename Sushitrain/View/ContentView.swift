@@ -65,8 +65,7 @@ private struct ContentView: View {
 	@State private var searchSheetSearchTerm: String = ""
 	@State private var error: String? = nil
 
-	@State private var addingFolder = AddFolder()
-	@State private var showAddingFolder = false
+	@State private var addingFolder: AddFolder? = nil
 
 	// Tracks the route within the folder tab; used to force navigating back
 	@Observable class FoldersRouteManager {
@@ -185,7 +184,6 @@ private struct ContentView: View {
 					userSettings: appState.userSettings,
 					onAdd: { addFolder in
 						self.addingFolder = addFolder
-						showAddingFolder = true
 					}
 				)
 				#if os(macOS)
@@ -198,7 +196,6 @@ private struct ContentView: View {
 						ToolbarItem(placement: .primaryAction) {
 							Button("Add folder...", systemImage: "plus") {
 								addingFolder = AddFolder()
-								showAddingFolder = true
 							}.labelStyle(.iconOnly)
 						}
 
@@ -315,9 +312,14 @@ private struct ContentView: View {
 				})
 		}
 
-		.sheet(isPresented: $showAddingFolder) {
+		.sheet(item: $addingFolder) { addingFolder in
 			NavigationStack {
-				AddFolderView(adding: addingFolder, shown: $showAddingFolder)
+				AddFolderView(
+					adding: addingFolder,
+					shown: Binding(
+						get: { self.addingFolder != nil },
+						set: { if !$0 { self.addingFolder = nil } }
+					))
 			}
 		}
 

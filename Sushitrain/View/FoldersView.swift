@@ -286,30 +286,33 @@ struct FoldersList: View {
 struct FoldersView: View {
 	@Environment(AppState.self) private var appState
 
-	@State private var showAddFolder: Bool = false
-	@State private var addFolder = AddFolder()
+	@State private var addFolder: AddFolder? = nil
 
 	var body: some View {
 		FoldersList(
 			userSettings: appState.userSettings,
 			onAdd: { addFolder in
 				self.addFolder = addFolder
-				self.showAddFolder = true
 			}
 		)
 		.navigationTitle("Folders")
 		.navigationDestination(for: Route.self) { r in
 			RouteView(route: r)
 		}
-		.sheet(isPresented: $showAddFolder) {
+		.sheet(item: $addFolder) { addFolder in
 			NavigationStack {
-				AddFolderView(adding: addFolder, shown: $showAddFolder)
+				AddFolderView(
+					adding: addFolder,
+					shown: Binding(
+						get: { self.addFolder != nil },
+						set: { if !$0 { self.addFolder = nil } }
+					))
 			}
 		}
 		.toolbar {
 			ToolbarItem(placement: .primaryAction) {
 				Button("Add folder", systemImage: "plus") {
-					showAddFolder = true
+					addFolder = AddFolder()
 				}
 				.labelStyle(.iconOnly)
 			}

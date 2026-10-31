@@ -6,7 +6,7 @@
 import SwiftUI
 import SushitrainCore
 
-@Observable class AddFolder {
+@Observable class AddFolder: Identifiable {
 	var folderID: String
 	var sharedWithDevices: [String]
 
