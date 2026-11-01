@@ -18432,6 +18432,99 @@
         }
       }
     },
+    "For edited photos, save the unmodified original, edited image, and AAE adjustment file together. Existing backups are skipped unless you perform a full export." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bei bearbeiteten Fotos speichern Sie das unmodifizierte Original, das bearbeitete Bild und die AAE-Anpassungsdatei zusammen. Vorhandene Backups werden übersprungen, es sei denn, Sie führen einen vollständigen Export durch."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para fotos editadas, guarda el original sin modificar, la imagen editada y el archivo de ajuste AAE juntos. Las copias de seguridad existentes se omiten a menos que realices una exportación completa."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per le foto modificate, salva l'originale non modificato, l'immagine modificata e il file di regolazione AAE insieme. I backup esistenti vengono ignorati a meno che tu non esegua un'esportazione completa."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編集済みの写真については、未編集のオリジナル、編集済みの画像、およびAAE調整ファイルを一緒に保存します。既存のバックアップはスキップされますが、完全なエクスポートを実行する場合は別です。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voor bewerkte foto's sla je het onbewerkte origineel, de bewerkte afbeelding en het AAE-aanpassingsbestand samen op. Bestaande back-ups worden overgeslagen, tenzij je een volledige export uitvoert."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для редагованих фото збережіть немодифікований оригінал, відредаговане зображення та файл коригувань AAE разом. Існуючі резервні копії пропускаються, якщо ви не виконуєте повний експорт."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "对于编辑过的照片，请将未修改的原件、编辑后的图像和AAE调整文件一起保存。除非您执行完整导出，否则现有备份将被跳过。"
+          }
+        }
+      }
+    },
+    "For edited photos, the unmodified original, edited image, and AAE adjustment file are saved together. This will not be done for photos that have already been saved unless a full back-up is performed." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bei bearbeiteten Fotos werden das unmodifizierte Original, das bearbeitete Bild und die AAE-Anpassungsdatei zusammen gespeichert. Dies wird nicht für Fotos durchgeführt, die bereits gespeichert wurden, es sei denn, es wird eine vollständige Sicherung durchgeführt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para fotos editadas, el original sin modificar, la imagen editada y el archivo de ajuste AAE se guardan juntos. Esto no se hará para las fotos que ya han sido guardadas a menos que se realice una copia de seguridad completa."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per le foto modificate, l'originale non modificato, l'immagine modificata e il file di regolazione AAE vengono salvati insieme. Questo non avverrà per le foto già salvate a meno che non venga eseguito un backup completo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編集された写真については、未修正のオリジナル、編集済み画像、およびAAE調整ファイルが一緒に保存されます。すでに保存されている写真に対しては、完全なバックアップを行わない限り、これを行いません。"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voor bewerkte foto's worden het onbewerkte origineel, de bewerkte afbeelding en het AAE-aanpassingsbestand samen opgeslagen. Dit gebeurt niet voor foto's die al zijn opgeslagen, tenzij er een volledige back-up wordt uitgevoerd."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для відредагованих фото незмінений оригінал, відредаговане зображення та файл налаштувань AAE зберігаються разом. Це не робитиметься для фото, які вже були збережені, якщо не виконується повне резервне копіювання."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "对于编辑过的照片，未修改的原件、编辑后的图像和AAE调整文件将一起保存。除非进行完整的备份，否则不会对已保存的照片执行此操作。"
+          }
+        }
+      }
+    },
     "Free up space" : {
       "localizations" : {
         "de" : {
@@ -20417,6 +20510,7 @@
       }
     },
     "If you adjust photos in the Photos app, the adjustments can be saved to an AAE file. Enabling this also saves missing AAE files for previously backed-up items. The exported photos and videos are unchanged." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

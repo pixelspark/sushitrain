@@ -183,7 +183,6 @@ enum PhotoBackupProgress {
 	@AppStorage("photoSyncPurgeAfterDays") var purgeAfterDays = 7
 	@AppStorage("photoBackupIncludeAllBurstAssets") var includeAllBurstAssets = false
 	@AppStorage("photoBackupIncludeAAESidecars") var includeAAESidecars = false
-	@AppStorage("photoBackupAAESidecarExportVersion") private var aaeSidecarExportVersion = 0
 	@AppStorage("PhotoBackupFolderStructure") var folderStructure = PhotoBackupFolderStructure.byDateAndType
 	@AppStorage("photoSyncSubdirectoryPath") var subDirectoryPath = ""
 	@AppStorage("photoSyncMaxAgeDays") var maxAgeDays = 6 * 30  // The maximum age for assets to be considered for export
@@ -220,12 +219,6 @@ enum PhotoBackupProgress {
 		if !self.isReady { return nil }
 		if self.selectedAlbumID.isEmpty { return nil }
 		if self.photoBackupTask != nil { return nil }
-		// Earlier exports incorrectly required adjustment resources to have an AAE filename.
-		// Revisit the album once so the incremental change token cannot hide missing sidecars.
-		if self.includeAAESidecars && self.aaeSidecarExportVersion < 1 {
-			self.resetLastSuccessfulChangeToken()
-			self.aaeSidecarExportVersion = 1
-		}
 		self.isBackingUp = true
 
 		let selectedAlbumID = self.selectedAlbumID
@@ -445,7 +438,7 @@ enum PhotoBackupProgress {
 		DispatchQueue.main.async { self.progress = .exportingPhotos(index: 0, total: count, current: nil) }
 
 		// Bookkeeping
-		var sidecarsToExport: [(PHAssetResource, URL, EntryPath)] = []
+		var resourceGroupsToExport: [(PHAsset, [(PHAssetResource, EntryPath)])] = []
 		var videosToExport: [(PHAsset, URL, EntryPath)] = []
 		var livePhotosToExport: [(PHAsset, URL, EntryPath)] = []
 		var selectPaths: [EntryPath] = []
@@ -487,29 +480,6 @@ enum PhotoBackupProgress {
 				let inFolderPath = asset.pathInFolder(structure: structure, subdirectoryPath: subDirectoryPath, timeZone: timeZone)
 				Log.info("- \(inFolderPath) \(dirInFolder) \(subDirectoryPath)")
 
-				// Sidecars are considered independently so enabling this option also covers existing backups.
-				let includesAsset =
-					(asset.mediaType == .image && categories.contains(.photo))
-					|| (asset.mediaType == .video && categories.contains(.video))
-				if includeAAESidecars && includesAsset {
-					let mediaEntry = try? folder.getFileInformation(inFolderPath.pathInFolder)
-					if fullExport || mediaEntry?.isDeleted() != true {
-						if let resource = PHAssetResource.assetResources(for: asset).first(where: {
-							// Photos may name this resource Adjustments.plist; its type identifies the edit data.
-							$0.type == .adjustmentData
-						}) {
-							let sidecarPath = EntryPath(
-								(inFolderPath.pathInFolder as NSString).deletingPathExtension + ".AAE", isDirectory: false)
-							let sidecarURL = folderURL.appending(path: sidecarPath.pathInFolder, directoryHint: .notDirectory)
-							let sidecarEntry = try? folder.getFileInformation(sidecarPath.pathInFolder)
-							if fullExport || (sidecarEntry == nil && !FileManager.default.fileExists(atPath: sidecarURL.path)) {
-								Log.info("Queueing adjustment resource \(resource.originalFilename) as \(sidecarPath.pathInFolder)")
-								sidecarsToExport.append((resource, sidecarURL, sidecarPath))
-							}
-						}
-					}
-				}
-
 				// Check if this photo was saved or deleted before
 				if purgeEnabled || !fullExport {
 					if let entry = try? folder.getFileInformation(inFolderPath.pathInFolder) {
@@ -550,6 +520,35 @@ enum PhotoBackupProgress {
 				// Save asset if it doesn't exist already locally
 				let fileURL = folderURL.appending(path: inFolderPath.pathInFolder, directoryHint: .notDirectory)
 				if !FileManager.default.fileExists(atPath: fileURL.path) || fullExport {
+					let resources = PHAssetResource.assetResources(for: asset)
+					let adjustment = resources.first { $0.type == .adjustmentData }
+					var exportsPhotoResources = false
+					if includeAAESidecars, let adjustment {
+						let sidecarPath = EntryPath(
+							(inFolderPath.pathInFolder as NSString).deletingPathExtension + ".AAE", isDirectory: false)
+						if asset.mediaType == .image && categories.contains(.photo) {
+							guard let original = resources.first(where: { $0.type == .photo }),
+								let edited = resources.first(where: { $0.type == .fullSizePhoto })
+							else {
+								throw CocoaError(.fileReadUnknown)
+							}
+							// Preserve the edited resource's format, but associate its name with the original.
+							let stem = (asset.originalFilename as NSString).deletingPathExtension
+							let editedStem = stem.hasPrefix("IMG_") ? "IMG_E" + String(stem.dropFirst(4)) : stem + "_edited"
+							let editedExtension = (edited.originalFilename as NSString).pathExtension
+							let originalName = asset.fileNameInFolder(structure: structure)
+							let prefix = String(originalName.dropLast(asset.originalFilename.count))
+							let editedPath = assetDirectoryPath.appending(
+								prefix + editedStem + "." + editedExtension, isDirectory: false)
+							// Publish the original last: its presence is the incremental export completion marker.
+							resourceGroupsToExport.append(
+								(asset, [(adjustment, sidecarPath), (edited, editedPath), (original, inFolderPath)]))
+							exportsPhotoResources = true
+						}
+						else if asset.mediaType == .video && categories.contains(.video) {
+							resourceGroupsToExport.append((asset, [(adjustment, sidecarPath)]))
+						}
+					}
 					// If a video: queue video export session
 					if asset.mediaType == .video {
 						if categories.contains(.video) {
@@ -558,7 +557,7 @@ enum PhotoBackupProgress {
 						}
 					}
 					else {
-						if categories.contains(.photo) {
+						if categories.contains(.photo) && !exportsPhotoResources {
 							// Save image
 							let options = PHImageRequestOptions()
 							options.isSynchronous = true
@@ -652,7 +651,7 @@ enum PhotoBackupProgress {
 		// Report error
 		if let ce = cancellingError {
 			DispatchQueue.main.async { self.progress = .error(ce.localizedDescription) }
-			return
+			throw ce
 		}
 
 		// Export videos
@@ -771,38 +770,46 @@ enum PhotoBackupProgress {
 			}
 		}
 
-		// Finish sidecars before tagging or purging originals. A failed export must remain retryable.
-		for (resource, destination, path) in sidecarsToExport {
-			do {
-				try Task.checkCancellation()
-				try FileManager.default.createDirectory(
-					at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
-				let temporaryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-				defer { try? FileManager.default.removeItem(at: temporaryURL) }
-				let options = PHAssetResourceRequestOptions()
-				options.isNetworkAccessAllowed = false
-				try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-					PHAssetResourceManager.default().writeData(for: resource, toFile: temporaryURL, options: options) { error in
-						if let error {
-							continuation.resume(throwing: error)
-						}
-						else {
-							continuation.resume()
+		// Finish resource groups before tagging or purging originals.
+		for (asset, resources) in resourceGroupsToExport {
+			for (resource, path) in resources {
+				let destination = folderURL.appending(path: path.pathInFolder, directoryHint: .notDirectory)
+				do {
+					try Task.checkCancellation()
+					try FileManager.default.createDirectory(
+						at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
+					let temporaryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+					defer { try? FileManager.default.removeItem(at: temporaryURL) }
+					let options = PHAssetResourceRequestOptions()
+					options.isNetworkAccessAllowed = false
+					try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+						PHAssetResourceManager.default().writeData(for: resource, toFile: temporaryURL, options: options) { error in
+							if let error {
+								continuation.resume(throwing: error)
+							}
+							else {
+								continuation.resume()
+							}
 						}
 					}
+					try Data(contentsOf: temporaryURL).write(to: destination, options: .atomic)
+					if let cd = asset.creationDate {
+						try FileManager.default.setAttributes(
+							[.creationDate: cd, .modificationDate: cd], ofItemAtPath: destination.path)
+					}
+					if isSelective {
+						let paths = SushitrainNewListOfStrings()!
+						paths.append(path.pathInFolder)
+						try folder.setLocalPathsExplicitlySelected(paths)
+					}
+					selectPaths.append(path)
 				}
-				try Data(contentsOf: temporaryURL).write(to: destination, options: .atomic)
-				if isSelective {
-					let paths = SushitrainNewListOfStrings()!
-					paths.append(path.pathInFolder)
-					try folder.setLocalPathsExplicitlySelected(paths)
+				catch {
+					DispatchQueue.main.async { self.progress = .error(error.localizedDescription) }
+					throw error
 				}
-				selectPaths.append(path)
 			}
-			catch {
-				DispatchQueue.main.async { self.progress = .error(error.localizedDescription) }
-				throw error
-			}
+			if asset.mediaType == .image { assetsSavedSuccessfully.append(asset) }
 		}
 
 		// Select paths

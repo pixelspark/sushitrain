@@ -364,7 +364,7 @@ struct PhotoBackupSettingsView: View {
 					}
 			} footer: {
 				Text(
-					"If you adjust photos in the Photos app, the adjustments can be saved to an AAE file. Enabling this also saves missing AAE files for previously backed-up items. The exported photos and videos are unchanged."
+					"For edited photos, the unmodified original, edited image, and AAE adjustment file are saved together. This will not be done for photos that have already been saved unless a full back-up is performed."
 				)
 			}
 
