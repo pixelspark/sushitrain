@@ -121,7 +121,7 @@ struct SushitrainApp: App {
 				let no = NSOpenPanel()
 				no.canChooseDirectories = true
 				no.allowsMultipleSelection = false
-				let resp = no.runModal()
+				no.runModal()
 				if let u = no.url {
 					return u
 				}
