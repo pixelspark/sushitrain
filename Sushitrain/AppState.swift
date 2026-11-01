@@ -54,9 +54,25 @@ enum AppStartupState: Equatable {
 
 class SushitrainDelegate: NSObject {
 	fileprivate var appState: AppState
+	private let streamingBytes = PassthroughSubject<Int64, Never>()
+	private var streamingStatisticsSubscription: AnyCancellable?
 
 	required init(appState: AppState) {
 		self.appState = appState
+
+		// Batch before updating the main-actor statistics so each chunk does not
+		// trigger AppStorage/CFPreferences work. Timed collection keeps every byte
+		// and also flushes the final batch when a stream stops.
+		streamingStatisticsSubscription =
+			streamingBytes
+			.collect(.byTime(DispatchQueue.main, .seconds(1)))
+			.filter { !$0.isEmpty }
+			.map { $0.reduce(Int64(0), +) }
+			.sink { [weak appState] bytes in
+				DispatchQueue.main.async {
+					appState?.appPersistentStatistics.recordStreamedBytes(bytes)
+				}
+			}
 	}
 }
 
@@ -141,6 +157,17 @@ class SushitrainDelegate: NSObject {
 
 	// Total bytes streamed today date (YYYY-MM-DD)
 	@AppStorage("streamingBytesSentTodayDay") var streamingBytesSentTodayDay: String = ""
+
+	func recordStreamedBytes(_ bytes: Int64) {
+		streamingBytesSentTotal += Int(bytes)
+
+		let today = Date().yyyyMMdd
+		if streamingBytesSentTodayDay != today {
+			streamingBytesSentTodayDay = today
+			streamingBytesSentToday = 0
+		}
+		streamingBytesSentToday += Int(bytes)
+	}
 }
 
 struct SyncState: Equatable {
@@ -1190,21 +1217,8 @@ extension SushitrainDelegate: SushitrainClientDelegateProtocol {
 
 extension SushitrainDelegate: SushitrainStreamingServerDelegateProtocol {
 	func onStreamChunk(_ folder: String?, path: String?, bytesSent: Int64, bytesTotal: Int64) {
-		let appState = self.appState
+		guard bytesSent > 0 else { return }
 
-		DispatchQueue.main.async {
-			let appPersistentStatistics = appState.appPersistentStatistics
-			appPersistentStatistics.streamingBytesSentTotal += Int(bytesSent)
-
-			// Update daily statistics
-			let today = Date().yyyyMMdd
-
-			// Reset daily statistics
-			if appPersistentStatistics.streamingBytesSentTodayDay != today {
-				appPersistentStatistics.streamingBytesSentTodayDay = today
-				appPersistentStatistics.streamingBytesSentToday = 0
-			}
-			appPersistentStatistics.streamingBytesSentToday += Int(bytesSent)
-		}
+		streamingBytes.send(bytesSent)
 	}
 }
