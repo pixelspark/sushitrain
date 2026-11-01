@@ -283,7 +283,7 @@ private struct FileMediaPlayer: View {
 				#if os(macOS)
 					MacMediaPlayerView(player: player, showsFullScreenToggleButton: file.isVideo)
 				#else
-					VideoPlayer(player: player)
+					IOSMediaPlayerView(player: player)
 				#endif
 			}
 			else {
@@ -345,6 +345,27 @@ private struct FileMediaPlayer: View {
 		}
 	}
 }
+
+#if os(iOS)
+	private struct IOSMediaPlayerView: UIViewControllerRepresentable {
+		let player: AVPlayer
+
+		func makeUIViewController(context: Context) -> AVPlayerViewController {
+			let controller = AVPlayerViewController()
+			controller.player = player
+			controller.videoGravity = .resizeAspect
+			// Inset the controls while keeping the video at the full view size.
+			controller.additionalSafeAreaInsets.bottom = 16
+			return controller
+		}
+
+		func updateUIViewController(_ controller: AVPlayerViewController, context: Context) {
+			if controller.player !== player {
+				controller.player = player
+			}
+		}
+	}
+#endif
 
 #if os(macOS)
 	private struct MacMediaPlayerView: NSViewRepresentable {
